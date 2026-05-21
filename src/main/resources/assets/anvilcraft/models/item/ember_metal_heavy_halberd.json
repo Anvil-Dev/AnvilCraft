@@ -291,9 +291,6 @@
 		}
 	],
 	"gui_light": "front",
-	"overrides": [
-		{"predicate": {"throwing": 1}, "model": "anvilcraft:item/ember_metal_heavy_halberd_throwing"}
-	],
 	"display": {
 		"thirdperson_righthand": {
 			"rotation": [0, -90, 45],

@@ -1,27 +1,33 @@
 package dev.dubhe.anvilcraft.init.item;
 
-import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.component.CanTakeOutAmmo;
+import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
+import dev.dubhe.anvilcraft.item.property.component.FlightTime;
 import dev.dubhe.anvilcraft.item.property.component.HeliostatsData;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
-import dev.dubhe.anvilcraft.item.property.component.PillBocContents;
-import dev.dubhe.anvilcraft.item.property.component.Providence;
+import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
+import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
+import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
+import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -60,17 +66,17 @@ public class ModComponents {
 
     public static final DataComponentType<SignedPlayers> SIGNED_PLAYERS = register(
         "signed_player",
-        b -> b.persistent(SignedPlayers.CODEC).networkSynchronized(SignedPlayers.STREAM_CODEC)
+        b -> b.persistent(SignedPlayers.CODEC.codec()).networkSynchronized(SignedPlayers.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Integer> FLIGHT_TIME = register(
+    public static final DataComponentType<FlightTime> FLIGHT_TIME = register(
         "flight_time",
-        it -> it.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+        it -> it.persistent(FlightTime.CODEC.codec()).networkSynchronized(FlightTime.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Integer> STORED_ENERGY = register(
+    public static final DataComponentType<StoredEnergy> STORED_ENERGY = register(
         "stored_energy",
-        (builder) -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+        builder -> builder.persistent(StoredEnergy.CODEC.codec()).networkSynchronized(StoredEnergy.STREAM_CODEC)
     );
 
     public static final DataComponentType<Unit> FIRE_REFORGING = registerEmpty("reforging");
@@ -90,9 +96,9 @@ public class ModComponents {
         b -> b.persistent(Ferocious.CODEC.codec()).networkSynchronized(Ferocious.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Integer> DEVOUR_RANGE = register(
+    public static final DataComponentType<DevourRange> DEVOUR_RANGE = register(
         "devour_range",
-        b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+        b -> b.persistent(DevourRange.CODEC).networkSynchronized(DevourRange.STREAM_CODEC)
     );
 
     public static final DataComponentType<BoxContents> BOX_CONTENTS = register(
@@ -102,13 +108,10 @@ public class ModComponents {
 
     public static final DataComponentType<Eternal> ETERNAL = register(
         "eternal",
-        b -> b.persistent(Eternal.CODEC).networkSynchronized(Eternal.STREAM_CODEC)
+        b -> b.persistent(Eternal.CODEC.codec()).networkSynchronized(Eternal.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Providence> PROVIDENCE = register(
-        "providence",
-        b -> b.persistent(Providence.CODEC).networkSynchronized(Providence.STREAM_CODEC)
-    );
+    public static final DataComponentType<Unit> PROVIDENCE = registerEmpty("providence");
 
     public static final DataComponentType<FilterContent> FILTER_CONTENT = register(
         "filter_contents",
@@ -125,9 +128,9 @@ public class ModComponents {
         b -> b.persistent(ItemEnchantments.CODEC).networkSynchronized(ItemEnchantments.STREAM_CODEC)
     );
 
-    public static final DataComponentType<Boolean> CAN_TAKE_OUT_AMMO = register(
+    public static final DataComponentType<CanTakeOutAmmo> CAN_TAKE_OUT_AMMO = register(
         "can_take_out_ammo",
-        it -> it.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+        it -> it.persistent(CanTakeOutAmmo.CODEC).networkSynchronized(CanTakeOutAmmo.STREAM_CODEC)
     );
 
     public static final DataComponentType<Boolean> WEAKENING = register(
@@ -135,14 +138,24 @@ public class ModComponents {
         b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
-    public static final DataComponentType<PillBocContents> PILL_BOC_CONTENTS = register(
+    public static final DataComponentType<PillBoxContents> PILL_BOX_CONTENTS = register(
         "pill_box_contents",
-        (builder) -> builder.persistent(PillBocContents.CODEC).networkSynchronized(PillBocContents.STREAM_CODEC)
+        builder -> builder.persistent(PillBoxContents.CODEC).networkSynchronized(PillBoxContents.STREAM_CODEC)
     );
 
     public static final DataComponentType<OverLimitItemContainerContents> OVER_LIMIT_CONTAINER = register(
         "over_limit_item_container_contents",
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<ResonateMode> RESONATE_MODE = register(
+        "resonate_mode",
+        b -> b.persistent(ResonateMode.CODEC).networkSynchronized(ResonateMode.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<MultitoolMode> MULTITOOL_MODE = register(
+        "multitool_mode",
+        b -> b.persistent(MultitoolMode.CODEC).networkSynchronized(MultitoolMode.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {
@@ -161,7 +174,7 @@ public class ModComponents {
     private static DataComponentType<Unit> registerEmpty(String name) {
         return register(
             name,
-            b -> b.persistent(Codec.EMPTY.codec()).networkSynchronized(StreamCodec.unit(Unit.INSTANCE))
+            b -> b.persistent(MapCodec.unit(Unit.INSTANCE).codec()).networkSynchronized(StreamCodec.unit(Unit.INSTANCE))
         );
     }
 }

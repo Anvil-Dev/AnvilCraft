@@ -4,13 +4,17 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
+import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
 
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +23,7 @@ import java.util.Optional;
  * 方块转换类，用于定义方块的输入、输出和转换规则
  * 该类表示一个方块从一种状态转换为另一种状态的规则，包括概率和最大数量限制
  */
+@Slf4j
 public record BlockTransform(
     BlockStatePredicate inputBlock, // 输入方块
     ChanceBlockState outputBlock, // 输出方块
@@ -77,12 +82,17 @@ public record BlockTransform(
         if (!(level instanceof ServerLevel serverLevel)) return false;
         Map.Entry<BlockState, CompoundTag> output;
         if (
-            inputBlock.test(level, level.getBlockState(pos), level.getBlockEntity(pos))
-            && (output = outputBlock.getResult(serverLevel)) != null
+            this.inputBlock.test(level, level.getBlockState(pos), level.getBlockEntity(pos))
+            && (output = this.outputBlock.getResult(serverLevel)) != null
         ) {
             level.setBlockAndUpdate(pos, output.getKey());
+            ValueInput input = TagValueInput.create(
+                new ProblemReporter.ScopedCollector(log),
+                level.registryAccess(),
+                output.getValue()
+            );
             Optional.ofNullable(level.getBlockEntity(pos))
-                .ifPresent(be -> be.loadCustomOnly(output.getValue(), level.registryAccess()));
+                .ifPresent(be -> be.loadCustomOnly(input));
             return true;
         }
         return false;

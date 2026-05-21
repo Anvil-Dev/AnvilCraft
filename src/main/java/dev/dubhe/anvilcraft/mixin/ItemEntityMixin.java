@@ -5,18 +5,21 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
-import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
-import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
+import dev.dubhe.anvilcraft.block.storage.MagnetBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -36,6 +39,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.EventHooks;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -48,11 +52,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import javax.annotation.Nullable;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
+    public ItemEntityMixin(EntityType<?> type, Level level) {
+        super(type, level);
+    }
+
     @Shadow
     public abstract ItemStack getItem();
 
@@ -74,15 +80,17 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Shadow
     public int lifespan;
 
+    @Shadow
+    protected abstract void setUnderwaterMovement();
+
+    @Shadow
+    protected abstract void setUnderLavaMovement();
+
     @Unique
     public int anvilcraft$mergeCooldown = 0;
 
     @Unique
     public boolean anvilcraft$isAdsorbable = true;
-
-    public ItemEntityMixin(EntityType<?> entityType, Level level) {
-        super(entityType, level);
-    }
 
     @Unique
     private BlockPos anvilcraft$blockPos;
@@ -105,8 +113,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Inject(method = "tick", at = @At(value = "HEAD"))
     private void voidResistant(CallbackInfo ci) {
         if (!this.getItem().is(ModItemTags.VOID_RESISTANT) && !this.getItem().has(ModComponents.ETERNAL)) return;
-        if (this.getY() < this.level().getMinBuildHeight() + 5) {
-            double dy = (this.level().getMinBuildHeight() + 4 - this.getY()) * 0.01;
+        if (this.getY() < this.level().getMinY() + 5) {
+            double dy = (this.level().getMinY() + 4 - this.getY()) * 0.01;
             dy += this.getDeltaMovement().y * -0.1;
             this.addDeltaMovement(new Vec3(0, 0.04 + dy, 0));
         }
@@ -137,8 +145,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         }
     }
 
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void explosionProof(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    private void explosionProof(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         if (!this.getItem().isEmpty()
             && this.getItem().is(ModItemTags.EXPLOSION_PROOF)
             && source.is(DamageTypeTags.IS_EXPLOSION)) {
@@ -146,8 +154,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         }
     }
 
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void eternalProof(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    private void eternalProof(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         if (this.getItem().has(ModComponents.ETERNAL)
             && (
                 source.is(DamageTypeTags.IS_EXPLOSION)
@@ -161,9 +169,9 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Inject(method = "getBlockPosBelowThatAffectsMyMovement", at = @At("HEAD"), cancellable = true)
     private void slidingRailProgress(CallbackInfoReturnable<BlockPos> cir) {
-        BlockState blockState = this.level().getBlockState(this.getOnPos(0.1f));
+        BlockState blockState = this.level().getBlockState(this.getOnPos(0.1F));
         if (blockState.is(ModBlockTags.SLIDING_RAILS)) {
-            cir.setReturnValue(this.getOnPos(0.1f));
+            cir.setReturnValue(this.getOnPos(0.1F));
         }
     }
 
@@ -177,74 +185,79 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             ci.cancel();
             return;
         }
-
-        this.level().getProfiler().push("entityBaseTick");
-
-        this.inBlockState = null;
-        if (this.isPassenger() && Objects.requireNonNull(this.getVehicle()).isRemoved()) {
-            this.stopRiding();
+        if (this.getItem().isEmpty()) {
+            this.discard();
+            return;
         }
-        if (this.boardingCooldown > 0) {
-            this.boardingCooldown--;
-        }
-        this.walkDistO = this.walkDist;
-        this.xRotO = this.getXRot();
-        this.yRotO = this.getYRot();
-        this.handlePortal();
-        this.wasInPowderSnow = this.isInPowderSnow;
-        this.isInPowderSnow = false;
-        this.checkBelowWorld();
-
-        this.level().getProfiler().pop();
-
+        super.tick();
         if (this.pickupDelay > 0 && this.pickupDelay != 32767) {
-            --this.pickupDelay;
+            this.pickupDelay--;
         }
 
         this.xo = this.getX();
         this.yo = this.getY();
         this.zo = this.getZ();
-        final Vec3 vec3 = this.getDeltaMovement();
-        this.applyGravity();
-        this.noPhysics = false;
-        if (
-            !this.onGround()
-            || this.getDeltaMovement().horizontalDistanceSqr() > (double) 1.0E-5F
-            || (this.tickCount + this.getId()) % 4 == 0
-        ) {
-            this.anvilcraft$neutroniumMove(MoverType.SELF, this.getDeltaMovement());
-            float f = 0.98F;
-            if (this.onGround()) {
-                BlockPos groundPos = this.getBlockPosBelowThatAffectsMyMovement();
-                f = this.level().getBlockState(groundPos).getFriction(this.level(), groundPos, this) * 0.98F;
-            }
-            this.setDeltaMovement(this.getDeltaMovement().multiply(f, 0.98, f));
-            if (this.onGround()) {
-                Vec3 vec31 = this.getDeltaMovement();
-                if (vec31.y < (double) 0.0F) {
-                    this.setDeltaMovement(vec31.multiply(1.0, -0.5, 1.0));
-                }
+        final Vec3 oldMovement = this.getDeltaMovement();
+        if (this.isInWater() && this.getFluidHeight(FluidTags.WATER) > 0.1F) {
+            this.setUnderwaterMovement();
+        } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > 0.1F) {
+            this.setUnderLavaMovement();
+        } else {
+            this.applyGravity();
+        }
+
+        if (this.level().isClientSide()) {
+            this.noPhysics = false;
+        } else {
+            this.noPhysics = !this.level().noCollision(this, this.getBoundingBox().deflate(1.0E-7));
+            if (this.noPhysics) {
+                this.moveTowardsClosestSpace(this.getX(), (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0, this.getZ());
             }
         }
-        boolean flag = Mth.floor(this.xo) != Mth.floor(this.getX())
-                       || Mth.floor(this.yo) != Mth.floor(this.getY())
-                       || Mth.floor(this.zo) != Mth.floor(this.getZ());
-        int i = flag ? 2 : 40;
-        if (this.tickCount % i == 0 && !this.level().isClientSide && this.isMergable()) {
+
+        if (this.onGround() && !(this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-5F) && (this.tickCount + this.getId()) % 4 != 0) {
+            this.applyEffectsFromBlocksForLastMovements();
+        } else {
+            this.anvilcraft$neutroniumMove(MoverType.SELF, this.getDeltaMovement());
+            this.applyEffectsFromBlocks();
+            float friction = 0.98F;
+            if (this.onGround()) {
+                BlockPos groundPos = getBlockPosBelowThatAffectsMyMovement();
+                friction = this.level().getBlockState(groundPos).getFriction(level(), groundPos, this) * 0.98F;
+            }
+
+            this.setDeltaMovement(this.getDeltaMovement().multiply(friction, 0.98, friction));
+            // if (this.onGround()) {
+            //     Vec3 movement = this.getDeltaMovement();
+            //     if (movement.y < 0.0) {
+            //         this.setDeltaMovement(movement.multiply(1.0, -0.5, 1.0));
+            //     }
+            // }
+        }
+
+        boolean moved = Mth.floor(this.xo) != Mth.floor(this.getX())
+            || Mth.floor(this.yo) != Mth.floor(this.getY())
+            || Mth.floor(this.zo) != Mth.floor(this.getZ());
+        int rate = moved ? 2 : 40;
+        if (this.tickCount % rate == 0 && !this.level().isClientSide() && this.isMergable()) {
             this.mergeWithNeighbours();
         }
+
         if (this.age != -32768) {
-            ++this.age;
+            this.age++;
         }
-        if (!this.level().isClientSide) {
-            double d0 = this.getDeltaMovement().subtract(vec3).lengthSqr();
-            if (d0 > 0.01) {
-                this.hasImpulse = true;
+
+        this.needsSync = this.needsSync | this.updateFluidInteraction();
+        if (!this.level().isClientSide()) {
+            double value = this.getDeltaMovement().subtract(oldMovement).lengthSqr();
+            if (value > 0.01) {
+                this.needsSync = true;
             }
         }
-        item = this.getItem();
-        if (!this.level().isClientSide && this.age >= this.lifespan) {
-            this.lifespan = Mth.clamp(this.lifespan + EventHooks.onItemExpire(thiz), 0, 32766);
+
+        if (!this.level().isClientSide() && this.age >= this.lifespan) {
+            // Clamping to MAX_VALUE -1 as age is a Short and going above that would produce an infinite lifespan implicitly (accidentally)
+            this.lifespan = Mth.clamp(this.lifespan + EventHooks.onItemExpire((ItemEntity) (Object) this), 0, Short.MAX_VALUE - 1);
             if (this.age >= this.lifespan) {
                 this.discard();
             }
@@ -264,13 +277,11 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @SuppressWarnings({
         "unused",
         "SameParameterValue",
-        "SuspiciousNameCombination",
         "deprecation"
     })
     @Unique
     private void anvilcraft$neutroniumMove(MoverType moverType, Vec3 motion) {
 
-        this.level().getProfiler().push("move");
         // 代替原版move方法中的collide调用
         AABB box = this.getBoundingBox().expandTowards(motion);
         int x1 = Mth.floor(box.minX - 1.0E-7) - 1;
@@ -298,11 +309,11 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             this.setPos(this.getX() + motion2.x, this.getY() + motion2.y, this.getZ() + motion2.z);
         }
 
-        this.level().getProfiler().popPush("rest");
         // 处理一些原版move方法中，对ItemEntity有必要的后续操作
         boolean collisionX = !Mth.equal(motion2.x, motion.x);
         boolean collisionZ = !Mth.equal(motion2.z, motion.z);
         this.horizontalCollision = collisionX || collisionZ;
+
         this.verticalCollision = motion2.y != motion.y;
         this.verticalCollisionBelow = this.verticalCollision && motion.y < (double) 0.0F;
         this.minorHorizontalCollision = false;
@@ -315,27 +326,26 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         }
         Block block = blockState.getBlock();
         if (motion2.y != motion.y) {
-            block.updateEntityAfterFallOn(this.level(), this);
+            block.updateEntityMovementAfterFallOn(this.level(), this);
         }
         if (this.onGround()) {
             block.stepOn(this.level(), blockpos, blockState, this);
         }
-        this.tryCheckInsideBlocks();
+        this.applyEffectsFromBlocks();
 
-        this.level().getProfiler().pop();
     }
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;isMergable()Z"))
     public boolean preventMerge(ItemEntity instance, Operation<Boolean> original) {
         if (!original.call(instance)) return false;
-        if (anvilcraft$mergeCooldown <= 0) return true;
-        anvilcraft$mergeCooldown--;
+        if (this.anvilcraft$mergeCooldown <= 0) return true;
+        this.anvilcraft$mergeCooldown--;
         return false;
     }
 
     @Override
     public void anvilcraft$setMergeCooldown(int cooldown) {
-        anvilcraft$mergeCooldown = cooldown;
+        this.anvilcraft$mergeCooldown = cooldown;
     }
 
     @Unique
@@ -346,9 +356,9 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Unique
     public void anvilcraft$poach() {
-        if (!anvilcraft$shouldPoach) return;
+        if (!this.anvilcraft$shouldPoach) return;
         Level level = this.level();
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         Map<ChunkPos, List<ItemCollectorBlockEntity>> map = ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level);
         if (map == null) return;
         ChunkPos chunkPos = this.chunkPosition();
@@ -363,7 +373,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 && !collector.isRemoved()) {
                 int slotIndex = 0;
                 while (!itemStack.isEmpty() && slotIndex < 9) {
-                    itemStack = collector.getItemHandler().insertItem(slotIndex++, itemStack, false);
+                    itemStack = ItemResourceHelper.insertInto(collector.getItemHandler(), slotIndex++, itemStack);
                 }
                 flag = true;
                 if (itemStack.isEmpty()) break;
@@ -374,7 +384,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         } else if (flag) {
             this.remove(Entity.RemovalReason.DISCARDED);
             this.discard();
-            anvilcraft$discarded = true;
+            this.anvilcraft$discarded = true;
         }
     }
 
@@ -445,7 +455,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         AABB box = this.getBoundingBox().inflate(0.01);
         return BlockPos.betweenClosedStream(box).anyMatch(p -> {
             BlockState s = this.level().getBlockState(p);
-            return anvilcraft$isMagnetBlock(s)
+            return this.anvilcraft$isMagnetBlock(s)
                    && !s.getValue(MagnetBlock.LIT)
                    && !s.getCollisionShape(this.level(), p).isEmpty()
                    && s.getCollisionShape(this.level(), p).toAabbs().stream().anyMatch(b -> b.move(p).intersects(box));
@@ -459,7 +469,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         Object[] result = {null, Double.MAX_VALUE};
         BlockPos.betweenClosedStream(area).forEach(pos -> {
             BlockState state = this.level().getBlockState(pos);
-            if (!anvilcraft$isMagnetBlock(state)) return;
+            if (!this.anvilcraft$isMagnetBlock(state)) return;
             for (AABB box : state.getCollisionShape(this.level(), pos).toAabbs()) {
                 AABB wb = box.move(pos);
                 Vec3 p = new Vec3(
@@ -485,13 +495,13 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         BlockPos pos = this.blockPosition();
         BlockState state = this.level().getBlockState(pos);
         ItemStack stack = this.getItem();
-        String matKey = anvilcraft$getMaterialKey(stack);
+        String matKey = this.anvilcraft$getMaterialKey(stack);
         // 不是金属直接跳过
         if (matKey == null) return;
         // 1. 空芯磁铁块转化
         if ("iron".equals(matKey) || "magnet".equals(matKey)) {
-            if (!this.level().isClientSide && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())
-                && stack.getDescriptionId().contains("ingot")
+            if (!this.level().isClientSide() && state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get())
+                && stack.getItem().getDescriptionId().contains("ingot")
                 && !state.getValue(MagnetBlock.LIT)) {
 
                 Block targetBlock;
@@ -504,14 +514,14 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 return;
             }
             // 2. 吸铁石就要吸铁
-            if (anvilcraft$isTouchingMagnet()) {
+            if (this.anvilcraft$isTouchingMagnet()) {
                 this.setDeltaMovement(Vec3.ZERO);
                 this.setNoGravity(true);
                 this.setOnGround(true);
                 return;
             } else {
                 if (this.isNoGravity() && !stack.has(ModComponents.ETERNAL)) this.setNoGravity(false);
-                if (anvilcraft$magnetAttraction().lengthSqr() > 0) this.addDeltaMovement(anvilcraft$magnetAttraction());
+                if (this.anvilcraft$magnetAttraction().lengthSqr() > 0) this.addDeltaMovement(this.anvilcraft$magnetAttraction());
             }
         }
         // 3. 涡流减速
@@ -523,7 +533,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     @Override
     public boolean anvilcraft$getDiscarded() {
-        return anvilcraft$discarded;
+        return this.anvilcraft$discarded;
     }
 
     @Override

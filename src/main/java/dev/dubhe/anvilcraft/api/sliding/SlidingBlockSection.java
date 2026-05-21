@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AabbUtil;
+import dev.dubhe.anvilcraft.util.PacketDistributingHelper;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.core.BlockPos;
@@ -19,7 +20,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.DirectionalPlaceContext;
@@ -28,6 +29,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Triple;
@@ -124,7 +127,7 @@ public final class SlidingBlockSection {
     }
 
     public void setBlock(Level level, BlockPos center, Entity entity) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         for (SlidingBlockInfo info : this.blocks) {
             BlockPos pos = info.getPos(center);
             BlockState state = info.state();
@@ -154,14 +157,13 @@ public final class SlidingBlockSection {
 
             state = Block.updateFromNeighbourShapes(state, level, pos);
             if (!level.setBlock(pos, state, Block.UPDATE_ALL)) continue;
-            Optional.ofNullable(level.getBlockEntity(pos))
-                .ifPresent(entity1 -> entity1.loadCustomOnly(info.entityData(), level.registryAccess()));
-            level.neighborChanged(pos, state.getBlock(), pos);
+            Optional.ofNullable(level.getBlockEntity(pos)).ifPresent(entity1 -> entity1.loadCustomOnly(
+                TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), info.entityData())
+            ));
+            level.neighborChanged(pos, state.getBlock(), Orientation.random(level.getRandom()));
 
-            ((ServerLevel) level)
-                .getChunkSource()
-                .chunkMap
-                .broadcast(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
+
+            PacketDistributingHelper.sendToPlayersTrackingEntity(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
         }
         entity.discard();
     }
@@ -172,7 +174,7 @@ public final class SlidingBlockSection {
     }
 
     public List<SlidingBlockInfo> blocks() {
-        return blocks;
+        return this.blocks;
     }
 
     @Override
@@ -184,6 +186,6 @@ public final class SlidingBlockSection {
 
     @Override
     public int hashCode() {
-        return Objects.hash(blocks);
+        return Objects.hash(this.blocks);
     }
 }

@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:bulging",
-  "consume": 333,
+  "consume": 250,
   "fluid": "minecraft:powder_snow",
   "ingredients": [
     {

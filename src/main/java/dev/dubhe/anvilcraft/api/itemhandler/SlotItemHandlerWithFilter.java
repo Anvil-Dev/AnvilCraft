@@ -1,12 +1,20 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
-public class SlotItemHandlerWithFilter extends SlotItemHandler {
-    public SlotItemHandlerWithFilter(IItemHandler itemHandler, int index, int posX, int posY) {
-        super(itemHandler, index, posX, posY);
+public class SlotItemHandlerWithFilter extends ResourceHandlerSlot {
+    public SlotItemHandlerWithFilter(
+        ResourceHandler<ItemResource> handler,
+        IndexModifier<ItemResource> modifier,
+        int index,
+        int posX,
+        int posY
+    ) {
+        super(handler, modifier, index, posX, posY);
     }
 
     /**
@@ -15,7 +23,7 @@ public class SlotItemHandlerWithFilter extends SlotItemHandler {
      * @return 是否支持过滤
      */
     public boolean isFilter() {
-        return this.getItemHandler() instanceof FilteredItemStackHandler;
+        return this.getResourceHandler() instanceof FilteredItemStackHandler;
     }
 
     public boolean mayPlace(ItemStack stack) {
@@ -29,7 +37,7 @@ public class SlotItemHandlerWithFilter extends SlotItemHandler {
      * @return 如果指定槽位是过滤器，返回过滤器要过滤的物品，否则返回空物品
      */
     public ItemStack getFilterItem(int slotIndex) {
-        if (this.getItemHandler() instanceof FilteredItemStackHandler filtered) {
+        if (this.getResourceHandler() instanceof FilteredItemStackHandler filtered) {
             return filtered.getFilter(slotIndex);
         }
         return ItemStack.EMPTY;
@@ -42,7 +50,7 @@ public class SlotItemHandlerWithFilter extends SlotItemHandler {
      * @return 指定槽位是否被禁用
      */
     public boolean isSlotDisabled(int slot) {
-        if (this.getItemHandler() instanceof FilteredItemStackHandler filtered) {
+        if (this.getResourceHandler() instanceof FilteredItemStackHandler filtered) {
             return filtered.isSlotDisabled(slot);
         }
         return false;

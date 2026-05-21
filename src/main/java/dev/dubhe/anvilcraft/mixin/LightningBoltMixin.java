@@ -16,7 +16,6 @@ abstract class LightningBoltMixin {
     @Shadow
     protected abstract BlockPos getStrikePosition();
 
-    @SuppressWarnings("UnreachableCode")
     @Inject(method = "powerLightningRod", at = @At("HEAD"))
     private void powerLightningRod(CallbackInfo ci) {
         LightningBolt bolt = Util.cast(this);

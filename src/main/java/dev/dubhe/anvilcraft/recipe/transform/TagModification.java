@@ -57,9 +57,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static TagModification create(String path, ModifyOperation op, Optional<Integer> index, String tag) {
         try {
-            StringReader reader = new StringReader(tag);
-            TagParser parser = new TagParser(reader);
-            Tag parseTag = parser.readValue();
+            Tag parseTag = TagParser.parseCompoundFully(tag);
             return new TagModification(path, op, index.orElse(0), parseTag);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -78,14 +76,14 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
 
     @Override
     public void accept(Tag input) {
-        if (op == ModifyOperation.SET || op == ModifyOperation.ROOT_SET) {
+        if (this.op == ModifyOperation.SET || this.op == ModifyOperation.ROOT_SET) {
             int index = this.path.lastIndexOf('.');
             String path = this.path.substring(0, index == -1 ? this.path.length() : index);
             String key = this.path.substring(index + 1);
             this.readAndAcceptTag(path, 0, key);
             return;
         }
-        this.readAndAcceptTag(this.path, this.index, path);
+        this.readAndAcceptTag(this.path, this.index, this.path);
     }
 
     public void readAndAcceptTag(String path, int index, String key) {
@@ -112,7 +110,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
                 if (inputSrc instanceof CompoundTag compoundTag) {
                     compoundTag.put(key, tag);
                 } else {
-                    throw new RuntimeException("Expected CompoundTag, got " + inputSrc.getAsString());
+                    throw new RuntimeException("Expected CompoundTag, got " + inputSrc);
                 }
             }
         },
@@ -122,7 +120,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
                 if (inputSrc instanceof ListTag listTag) {
                     listTag.add(tag);
                 } else {
-                    throw new RuntimeException("Expected list, got " + inputSrc.getAsString());
+                    throw new RuntimeException("Expected list, got " + inputSrc);
                 }
             }
         },
@@ -132,7 +130,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
                 if (inputSrc instanceof ListTag listTag) {
                     listTag.add(index, tag);
                 } else {
-                    throw new RuntimeException("Expected list, got " + inputSrc.getAsString());
+                    throw new RuntimeException("Expected list, got " + inputSrc);
                 }
             }
         },
@@ -143,7 +141,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
                     listTag.addAll(tag2);
                 } else {
                     throw new RuntimeException(
-                        "Expected list, got " + inputSrc.getAsString() + ", " + tag.getAsString());
+                        "Expected list, got " + inputSrc + ", " + tag);
                 }
             }
         },
@@ -153,7 +151,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
                 if (inputSrc instanceof ListTag listTag) {
                     listTag.add(0, tag);
                 } else {
-                    throw new RuntimeException("Expected list, got " + inputSrc.getAsString());
+                    throw new RuntimeException("Expected list, got " + inputSrc);
                 }
             }
         },
@@ -163,7 +161,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
                 if (inputSrc instanceof CompoundTag src && tag instanceof CompoundTag target) {
                     src.merge(target);
                 } else {
-                    throw new RuntimeException("Expected Compound Tag, got " + inputSrc.getAsString() + " and " + tag.getAsString()
+                    throw new RuntimeException("Expected Compound Tag, got " + inputSrc + " and " + tag
                     );
                 }
             }
@@ -212,7 +210,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
         }
 
         public TagModification build() {
-            return new TagModification(path, op, index, tag);
+            return new TagModification(this.path, this.op, this.index, this.tag);
         }
     }
 }

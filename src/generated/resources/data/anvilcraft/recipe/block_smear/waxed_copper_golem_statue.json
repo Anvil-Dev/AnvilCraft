@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": "minecraft:honeycomb_block"
+    },
+    {
+      "blocks": "minecraft:copper_golem_statue"
+    }
+  ],
+  "result": {
+    "block": "minecraft:waxed_copper_golem_statue"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:directory",
+      "prefix": "laser/",
+      "source": "laser"
+    }
+  ]
+}

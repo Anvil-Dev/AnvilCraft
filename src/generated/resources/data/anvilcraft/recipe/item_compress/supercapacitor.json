@@ -5,19 +5,23 @@
     {
       "type": "anvillib_recipe:has_item_ingredient",
       "item": {
-        "items": "anvilcraft:resin_block",
-        "predicates": {
-          "anvilcraft:saved_entity": {
-            "entitys": "minecraft:creeper",
-            "predicates": [
-              {
-                "expected": 1,
-                "requirement": "GREATER_OR_EQUAL",
-                "tagKeyPath": "powered"
-              }
-            ]
+        "components": {
+          "predicates": {
+            "anvilcraft:saved_entity": {
+              "entities": [
+                "minecraft:creeper"
+              ],
+              "predicates": [
+                {
+                  "expected": 1,
+                  "requirement": "GREATER_OR_EQUAL",
+                  "tagKeyPath": "powered"
+                }
+              ]
+            }
           }
-        }
+        },
+        "items": "anvilcraft:resin_block"
       },
       "offset": [
         0.0,
@@ -49,7 +53,6 @@
     }
   ],
   "icon": {
-    "count": 1,
     "id": "anvilcraft:supercapacitor"
   },
   "non_conflicting": [

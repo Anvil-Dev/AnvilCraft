@@ -3,27 +3,32 @@ package dev.dubhe.anvilcraft.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.util.RandomSource;
+import org.jspecify.annotations.Nullable;
 
-public class PlasmaJetsParticle extends TextureSheetParticle {
+public class PlasmaJetsParticle extends SingleQuadParticle {
     private final SpriteSet sprites;
 
     protected PlasmaJetsParticle(
-        ClientLevel level, double x, double y, double z, double speedX, double speedY, double speedZ,
+        ClientLevel level,
+        double x,
+        double y,
+        double z,
+        double auxX,
+        double auxY,
+        double auxZ,
         SpriteSet sprites
     ) {
-        super(level, x, y, z);
+        super(level, x, y, z, sprites.first());
         this.gravity = 0.2F;
         this.friction = 0.9F;
         this.sprites = sprites;
-        this.xd = speedX + (Math.random() * 2.0 - 1.0) * 0.05F;
-        this.yd = speedY + (Math.random() * 2.0 - 1.0) * 0.05F;
-        this.zd = speedZ + (Math.random() * 2.0 - 1.0) * 0.05F;
+        this.xd = auxX + (Math.random() * 2.0 - 1.0) * 0.05F;
+        this.yd = auxY + (Math.random() * 2.0 - 1.0) * 0.05F;
+        this.zd = auxZ + (Math.random() * 2.0 - 1.0) * 0.05F;
         this.rCol = 1;
         this.gCol = 1;
         this.bCol = 1;
@@ -33,8 +38,8 @@ public class PlasmaJetsParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    protected Layer getLayer() {
+        return Layer.TRANSLUCENT;
     }
 
     @Override
@@ -46,7 +51,7 @@ public class PlasmaJetsParticle extends TextureSheetParticle {
     }
 
     protected void setColorFromAge(int age, int maxAge) {
-        float oneThird = maxAge / 3.0f;
+        float oneThird = maxAge / 3.0F;
         float r = 1;
         float g = 1;
         float b = 1;
@@ -63,7 +68,7 @@ public class PlasmaJetsParticle extends TextureSheetParticle {
         this.setColor(r, g, b);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet sprites;
 
@@ -71,17 +76,19 @@ public class PlasmaJetsParticle extends TextureSheetParticle {
             this.sprites = sprites;
         }
 
-        public Particle createParticle(
-            SimpleParticleType type,
+        @Override
+        public @Nullable Particle createParticle(
+            SimpleParticleType options,
             ClientLevel level,
             double x,
             double y,
             double z,
-            double speedX,
-            double speedY,
-            double speedZ
+            double auxX,
+            double auxY,
+            double auxZ,
+            RandomSource random
         ) {
-            return new PlasmaJetsParticle(level, x, y, z, speedX, speedY, speedZ, this.sprites);
+            return new PlasmaJetsParticle(level, x, y, z, auxX, auxY, auxZ, this.sprites);
         }
     }
 }

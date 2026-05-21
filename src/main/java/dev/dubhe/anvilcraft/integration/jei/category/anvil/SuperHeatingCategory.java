@@ -1,7 +1,8 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.TooltipUtil;
+import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -17,18 +18,17 @@ import dev.dubhe.anvilcraft.util.CauldronUtil;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Matrix3x2fStack;
 
 public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingRecipe> {
     public SuperHeatingCategory(IGuiHelper helper) {
@@ -43,60 +43,44 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
     }
 
     @Override
-    public RecipeType<RecipeHolder<SuperHeatingRecipe>> getRecipeType() {
+    public IRecipeHolderType<SuperHeatingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.SUPER_HEATING;
     }
 
     @Override
     public void draw(
         RecipeHolder<SuperHeatingRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
         final SuperHeatingRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK
-        );
-        RenderSupport.renderBlock(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false),
-            81,
-            40,
-            0,
-            12,
-            RenderSupport.SINGLE_BLOCK
-        );
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 20);
+        RenderSupport.renderBlock(graphics, ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false), 81, 40, 20);
 
-        arrowIn.draw(guiGraphics, 54, 20);
-        arrowOut.draw(guiGraphics, 92, 19);
+        arrowIn.draw(graphics, 54, 20);
+        arrowOut.draw(graphics, 92, 19);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawInputSlots(graphics, slotDefault, recipe.getInputItems().size());
         if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawOutputSlots(graphics, slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawOutputSlots(graphics, slotDefault, recipe.getResultItems().size());
         }
 
         HasCauldronSimple hasCauldron = recipe.getHasCauldron();
         if (!HasCauldron.isNotEmpty(hasCauldron.transform())) return;
         BlockState cauldron = CauldronUtil.fullState(hasCauldron.getTransformCauldron());
-        RenderSupport.renderBlock(guiGraphics, cauldron, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(graphics, cauldron, 133, 30, 20);
 
         if (recipe.isConsumeFluid()) {
-            PoseStack pose = guiGraphics.pose();
-            pose.pushPose();
-            pose.scale(0.8f, 0.8f, 1.0f);
-            guiGraphics.drawString(
+            Matrix3x2fStack pose = graphics.pose();
+            pose.pushMatrix();
+            pose.scale(0.8f, 0.8f);
+            graphics.text(
                 Minecraft.getInstance().font,
                 Component.translatable(
                     "gui.anvilcraft.category.super_heating.consume_fluid",
@@ -108,12 +92,12 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
                 0xFF000000,
                 false
             );
-            pose.popPose();
+            pose.popMatrix();
         } else if (recipe.isProduceFluid()) {
-            PoseStack pose = guiGraphics.pose();
-            pose.pushPose();
-            pose.scale(0.8f, 0.8f, 1.0f);
-            guiGraphics.drawString(
+            Matrix3x2fStack pose = graphics.pose();
+            pose.pushMatrix();
+            pose.scale(0.8f, 0.8f);
+            graphics.text(
                 Minecraft.getInstance().font,
                 Component.translatable(
                     "gui.anvilcraft.category.super_heating.produce_fluid",
@@ -125,7 +109,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
                 0xFF000000,
                 false
             );
-            pose.popPose();
+            pose.popMatrix();
         }
     }
 
@@ -133,47 +117,40 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
     public void getTooltip(
         ITooltipBuilder tooltip,
         RecipeHolder<SuperHeatingRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
+        IRecipeSlotsView view,
         double mouseX,
         double mouseY
     ) {
         SuperHeatingRecipe recipe = recipeHolder.value();
-        if (mouseX >= 72 && mouseX <= 90) {
-            if (mouseY >= 24 && mouseY <= 43) {
-                Component text;
+        if (MathUtil.isInRange(mouseX, 72, 90)) {
+            if (MathUtil.isInRange(mouseY, 24, 43)) {
                 if (recipe.isProduceFluid()) {
-                    text = Blocks.CAULDRON.getName();
+                    tooltip.addAll(TooltipUtil.tooltip(Blocks.CAULDRON));
                 } else {
-                    text = recipe.getHasCauldron().getFluidCauldron().getName();
+                    tooltip.addAll(TooltipUtil.tooltip(recipe.getHasCauldron().getFluidCauldron()));
                 }
-                tooltip.add(text);
             }
-            if (mouseY >= 34 && mouseY <= 53) {
+            if (MathUtil.isInRange(mouseY, 43, 53)) {
                 tooltip.add(ModBlocks.HEATER.get().getName());
-                tooltip.add(Component.translatable("gui.anvilcraft.category.super_heating.need_activated")
-                                .withStyle(ChatFormatting.RED));
+                tooltip.add(Component.translatable("gui.anvilcraft.category.super_heating.need_activated").withStyle(ChatFormatting.RED));
             }
         }
-        if (mouseX >= 124 && mouseX <= 140) {
-            if (mouseY >= 24 && mouseY <= 42) {
-                if (recipe.getResultItems().isEmpty()) {
-                    Component text = recipe.getHasCauldron().getTransformCauldron().getName();
-                    tooltip.add(text);
-                }
-            }
+        if (MathUtil.isInRange(mouseX, mouseY, 124, 24, 140, 42)) {
+            if (!recipe.getResultItems().isEmpty()) return;
+            tooltip.addAll(TooltipUtil.tooltip(recipe.getHasCauldron().getTransformCauldron()));
         }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.SUPER_HEATING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SUPER_HEATING_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SUPER_HEATING.get())
         );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.SUPER_HEATING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SUPER_HEATING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.HEATER), AnvilCraftJeiPlugin.SUPER_HEATING);
+        AnvilCraftJeiPlugin.addCauldronCatalysts(registration, AnvilCraftJeiPlugin.SUPER_HEATING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.SUPER_HEATING, ModBlocks.HEATER);
     }
 }

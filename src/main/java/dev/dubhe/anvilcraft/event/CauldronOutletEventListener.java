@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -17,9 +17,9 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class CauldronOutletEventListener {
@@ -60,7 +60,7 @@ public class CauldronOutletEventListener {
         CauldronOutletEntity existingMouth = findExistingCauldronMouthAtPosition(level, blockPos, newPosition);
 
         if (existingMouth != null) {
-            existingMouth.kill();
+            existingMouth.discard();
             level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
             return;
         }
@@ -107,7 +107,7 @@ public class CauldronOutletEventListener {
     private static void removeExistingCauldronMouth(Level level, BlockPos cauldronPos) {
         List<CauldronOutletEntity> existingMouths = getCauldronMouths(level, cauldronPos);
         for (CauldronOutletEntity mouth : existingMouths) {
-            mouth.kill();
+            mouth.discard();
         }
     }
 

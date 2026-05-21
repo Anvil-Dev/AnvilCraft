@@ -1,17 +1,20 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -20,7 +23,7 @@ import java.util.regex.Pattern;
 
 public class TeslaTowerButton extends Button {
 
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
     @Getter
     private final int index;
@@ -47,7 +50,7 @@ public class TeslaTowerButton extends Button {
             10,
             Component.literal(""),
             onPress,
-            (var) -> parent.getFilterTitle(index, variant).copy()
+            var -> parent.getFilterTitle(index, variant).copy()
         );
         this.height = 15;
         this.width = 112;
@@ -58,33 +61,35 @@ public class TeslaTowerButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        String searchText = parent.getFilterText();
-        String id = parent.getFilterToolTipAt(index, variant);
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        String searchText = this.parent.getFilterText();
+        String id = this.parent.getFilterToolTipAt(this.index, this.variant);
         if (id == null) return;
-        this.renderTexture(guiGraphics, texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
+        this.renderTexture(graphics, this.texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
         Component message;
         if (searchText.startsWith("#") || searchText.startsWith("~")) {
-            message = parent.getFilterTitle(index, variant);
+            message = this.parent.getFilterTitle(this.index, this.variant);
         } else {
             message = highlighted(
-                parent.getFilterTitle(index, variant).getString(),
+                this.parent.getFilterTitle(this.index, this.variant).getString(),
                 searchText,
                 ChatFormatting.WHITE
             );
         }
         this.setMessage(message);
-        this.renderString(guiGraphics, Minecraft.getInstance().font, 16777215 | Mth.ceil(this.alpha * 255.0F) << 24);
+        int color = 16777215 | Mth.ceil(this.alpha * 255.0F) << 24;
+        Font font = Minecraft.getInstance().font;
+        graphics.text(font, message, this.getX() + 2, this.getY() + 3, color);
         if (this.isHovered()) {
             Component filterText = highlighted(
                 id, searchText.replaceFirst("#", ""), ChatFormatting.GRAY);
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font,
-                filterText.getString().isEmpty()
-                ? List.of(message.getVisualOrderText())
-                : List.of(message.getVisualOrderText(), filterText.getVisualOrderText()),
-                mouseX,
-                mouseY);
+            List<ClientTooltipComponent> tooltipComponents = filterText.getString().isEmpty()
+                ? List.of(ClientTooltipComponent.create(message.getVisualOrderText()))
+                : List.of(
+                    ClientTooltipComponent.create(message.getVisualOrderText()),
+                    ClientTooltipComponent.create(filterText.getVisualOrderText())
+                );
+            graphics.tooltip(font, tooltipComponents, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
         }
     }
 
@@ -107,8 +112,8 @@ public class TeslaTowerButton extends Button {
     }
 
     public void renderTexture(
-        GuiGraphics guiGraphics,
-        ResourceLocation texture,
+        GuiGraphicsExtractor graphics,
+        Identifier texture,
         int x,
         int y,
         int puOffset,
@@ -122,7 +127,6 @@ public class TeslaTowerButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        RenderSystem.enableDepthTest();
-        guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 }

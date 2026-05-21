@@ -37,7 +37,7 @@ public class PlayerInventoryPressurePlateBlock extends PowerLevelPressurePlateBl
             Inventory inventory = player.getInventory();
 
             int occupiedSlots = 0;
-            for (ItemStack stack : inventory.items) {
+            for (ItemStack stack : inventory.getNonEquipmentItems()) {
                 if (!stack.isEmpty()) {
                     occupiedSlots++;
                 }

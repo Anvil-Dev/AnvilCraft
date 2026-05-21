@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:multiphase_matter_block"
-    }
+    "anvilcraft:multiphase_matter_block"
   ],
   "result": {
     "count": 9,

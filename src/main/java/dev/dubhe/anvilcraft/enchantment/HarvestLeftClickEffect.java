@@ -20,8 +20,7 @@ import net.minecraft.world.level.block.SugarCaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record HarvestLeftClickEffect(int range) implements EnchantmentEntityEffect {
     public static final MapCodec<HarvestLeftClickEffect> CODEC = RecordCodecBuilder.mapCodec(it ->
@@ -43,26 +42,26 @@ public record HarvestLeftClickEffect(int range) implements EnchantmentEntityEffe
         if (!itemStack.is(ItemTags.HOES)) {
             return;
         }
-        if (isGrass(state)) {
+        if (this.isGrass(state)) {
             r = Math.min(enchantmentLevel, 7);
             for (BlockPos blockPos : BlockPos.betweenClosed(pos.offset(r, 0, r), pos.offset(-r, 0, -r))) {
                 if (blockPos.equals(pos)) {
                     continue;
                 }
                 BlockState blockState = level.getBlockState(blockPos);
-                if (isGrass(blockState)) {
+                if (this.isGrass(blockState)) {
                     level.destroyBlock(blockPos, true);
                 }
             }
             return;
         }
-        if (harvestable(state) == null) {
+        if (this.harvestable(state) == null) {
             return;
         }
         Iterable<BlockPos> posIterable = BlockPos.betweenClosed(pos.offset(r, r, r), pos.offset(-r, -r, -r));
         for (BlockPos blockPos : posIterable) {
             BlockState blockState = level.getBlockState(blockPos);
-            Block harvestableBlock = harvestable(blockState);
+            Block harvestableBlock = this.harvestable(blockState);
             if (harvestableBlock == null) {
                 continue;
             }

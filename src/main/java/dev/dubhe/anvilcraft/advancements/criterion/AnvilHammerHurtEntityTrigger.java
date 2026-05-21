@@ -4,9 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.criterion.ContextAwarePredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
@@ -18,11 +18,11 @@ public class AnvilHammerHurtEntityTrigger extends SimpleCriterionTrigger<AnvilHa
     }
 
     public void trigger(ServerPlayer player, Float damage) {
-        this.trigger(player, (instance) -> instance.matches(damage));
+        this.trigger(player, instance -> instance.matches(damage));
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<Float> damage) implements SimpleInstance {
-        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
             Codec.FLOAT.optionalFieldOf("damage").forGetter(TriggerInstance::damage)
         ).apply(instance, TriggerInstance::new));

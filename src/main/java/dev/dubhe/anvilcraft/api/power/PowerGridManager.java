@@ -25,7 +25,7 @@ public class PowerGridManager {
     public synchronized void addComponent(IPowerComponent component) {
         try {
             if (component.getCurrentLevel() == null) return;
-            addQueue.offer(Map.entry(component.getCurrentLevel(), component), 500, TimeUnit.MICROSECONDS);
+            this.addQueue.offer(Map.entry(component.getCurrentLevel(), component), 500, TimeUnit.MICROSECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -41,20 +41,20 @@ public class PowerGridManager {
     }
 
     public void clear() {
-        gridMap.clear();
+        this.gridMap.clear();
     }
 
     public synchronized void tick() {
-        while (!addQueue.isEmpty()) {
-            Map.Entry<Level, IPowerComponent> entry = addQueue.poll();
+        while (!this.addQueue.isEmpty()) {
+            Map.Entry<Level, IPowerComponent> entry = this.addQueue.poll();
             if (entry == null) continue;
             IPowerComponent component = entry.getValue();
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
             AtomicReference<PowerGrid> grid = new AtomicReference<>(null);
-            Set<PowerGrid> grids = getGridSet(entry.getKey());
+            Set<PowerGrid> grids = this.getGridSet(entry.getKey());
             Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
             grids.forEach(powerGrid -> {
-                if (powerGrid.isMarkedRemoval() || !powerGrid.isInRange(component)) return;
+                if (powerGrid.markedRemoval || !powerGrid.isInRange(component)) return;
                 if (grid.get() == null) {
                     grid.set(powerGrid);
                 } else {
@@ -70,10 +70,10 @@ public class PowerGridManager {
             grid.get().add(component);
             grids.add(grid.get());
         }
-        for (Set<PowerGrid> grids : gridMap.values()) {
+        for (Set<PowerGrid> grids : this.gridMap.values()) {
             Set<PowerGrid> remove = Collections.synchronizedSet(new HashSet<>());
             grids.forEach(powerGrid -> {
-                if (powerGrid.isEmpty() || powerGrid.isMarkedRemoval()) {
+                if (powerGrid.isEmpty() || powerGrid.markedRemoval) {
                     remove.add(powerGrid);
                 }
                 powerGrid.tick();
@@ -83,11 +83,11 @@ public class PowerGridManager {
     }
 
     public Set<PowerGrid> getGridSet(Level level) {
-        if (gridMap.containsKey(level)) {
-            return gridMap.get(level);
+        if (this.gridMap.containsKey(level)) {
+            return this.gridMap.get(level);
         } else {
             Set<PowerGrid> grids = Collections.synchronizedSet(new HashSet<>());
-            gridMap.put(level, grids);
+            this.gridMap.put(level, grids);
             return grids;
         }
     }

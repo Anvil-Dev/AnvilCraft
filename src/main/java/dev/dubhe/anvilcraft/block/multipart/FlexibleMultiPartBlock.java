@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.multipart;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.block.state.IFlexibleMultiPartBlockState;
 import net.minecraft.core.BlockPos;
@@ -8,7 +7,6 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -19,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -33,7 +31,7 @@ public abstract class FlexibleMultiPartBlock<
 
     public FlexibleMultiPartBlock(Properties properties) {
         super(properties);
-        this.mainPart = Arrays.stream(getParts()).filter(IFlexibleMultiPartBlockState::isMain).findFirst().orElse(null);
+        this.mainPart = Arrays.stream(this.getParts()).filter(IFlexibleMultiPartBlockState::isMain).findFirst().orElse(null);
     }
 
     public abstract Property<P> getPart();
@@ -45,7 +43,7 @@ public abstract class FlexibleMultiPartBlock<
     public void forEachPart(Level level, BlockPos pos, Consumer<BlockPos> function) {
         BlockState state = level.getBlockState(pos);
         if (!state.is(this)) return;
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             BlockPos partPos = pos.offset(this.offsetFrom(state, part));
             if (level.getBlockState(partPos).is(this)) {
                 function.accept(partPos);
@@ -57,15 +55,15 @@ public abstract class FlexibleMultiPartBlock<
         BlockState state = level.getBlockState(pos);
         if (!state.is(this)) return;
         state = state.setValue(property, value);
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             BlockPos partPos = pos.offset(this.offsetFrom(state, part));
-            if (level.getBlockState(partPos).is(this)) level.setBlock(partPos, state.setValue(getPart(), part), flag);
+            if (level.getBlockState(partPos).is(this)) level.setBlock(partPos, state.setValue(this.getPart(), part), flag);
         }
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(getPart(), getAdditionalProperty());
+        builder.add(this.getPart(), this.getAdditionalProperty());
     }
 
     @Override
@@ -120,7 +118,7 @@ public abstract class FlexibleMultiPartBlock<
      * 是否有足够的空间放下方块
      */
     public boolean hasEnoughSpace(BlockState originState, BlockPos pos, LevelReader level) {
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             BlockPos pos1 = pos.offset(this.offsetFrom(originState, part));
             if (level.isOutsideBuildHeight(pos1)) return false;
             BlockState state = level.getBlockState(pos1);
@@ -132,7 +130,7 @@ public abstract class FlexibleMultiPartBlock<
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
             ItemStack stack,
             BlockState state,
             Level level,
@@ -141,7 +139,7 @@ public abstract class FlexibleMultiPartBlock<
             InteractionHand hand,
             BlockHitResult hitResult
     ) {
-        return Util.interactionResultConverter().apply(this.use(state, level, pos, player, hand, hitResult));
+        return this.use(state, level, pos, player, hand, hitResult);
     }
 
     @Override

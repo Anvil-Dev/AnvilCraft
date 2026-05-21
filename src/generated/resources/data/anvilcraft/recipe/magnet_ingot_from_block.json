@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:magnet_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:magnet_block"
-    }
+    "anvilcraft:magnet_block"
   ],
   "result": {
     "count": 9,

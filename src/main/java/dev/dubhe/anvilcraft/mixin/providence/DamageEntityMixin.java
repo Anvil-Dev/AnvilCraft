@@ -27,19 +27,19 @@ public class DamageEntityMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;randomBetween(Lnet/minecraft/util/RandomSource;FF)F")
     )
     private float randomMultipleForProvidence(
-        RandomSource random1,
-        float minInclusive,
+        RandomSource random,
+        float min,
         float maxExclusive,
         Operation<Float> original,
-        @Local(argsOnly = true) int level
+        @Local(argsOnly = true, name = "enchantmentLevel") int enchantmentLevel
     ) {
-        float result = original.call(random1, minInclusive, maxExclusive);
+        float result = original.call(random, min, maxExclusive);
         if (!ProvidenceRef.shouldItTrigger()) return result;
-        float random = random1.nextFloat();
-        if (random >= 0.25f) return result;
-        result += original.call(random1, this.minDamage.calculate(level), this.maxDamage.calculate(level));
-        if (random >= 0.05f) return result;
-        result += original.call(random1, this.minDamage.calculate(level), this.maxDamage.calculate(level));
+        float randomValue = random.nextFloat();
+        if (randomValue >= 0.25F) return result;
+        result += original.call(random, this.minDamage.calculate(enchantmentLevel), this.maxDamage.calculate(enchantmentLevel));
+        if (randomValue >= 0.05F) return result;
+        result += original.call(random, this.minDamage.calculate(enchantmentLevel), this.maxDamage.calculate(enchantmentLevel));
         return result;
     }
 }

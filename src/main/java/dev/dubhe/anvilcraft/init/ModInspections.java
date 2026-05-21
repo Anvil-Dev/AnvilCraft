@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.network.InspectionStateChangedPacket;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -14,12 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+// CHECKSTYLE.SUPPRESS: AvoidStaticImport for +1 lines
 import static net.minecraft.commands.Commands.literal;
 
 @Slf4j
 public class ModInspections {
     public static final ModInspections INSTANCE = new ModInspections();
-    private final List<ResourceLocation> inspectionOptions = new ArrayList<>();
+    private final List<Identifier> inspectionOptions = new ArrayList<>();
 
     public static void initialize() {
         INSTANCE.registerActionServer(AnvilCraft.of("silencer"));
@@ -34,29 +35,29 @@ public class ModInspections {
      *
      * @see InspectionSupport
      */
-    public void registerActionServer(ResourceLocation id) {
+    public void registerActionServer(Identifier id) {
         INSTANCE.inspectionOptions.add(id);
     }
 
-    private int changeStateServer(ServerPlayer player, ResourceLocation id, boolean state) {
+    private int changeStateServer(ServerPlayer player, Identifier id, boolean state) {
         PacketDistributor.sendToPlayer(player, new InspectionStateChangedPacket(id, state));
         return 0;
     }
 
     public void registerCommand(LiteralArgumentBuilder<CommandSourceStack> parent) {
         LiteralArgumentBuilder<CommandSourceStack> commandRoot = literal("inspection");
-        for (ResourceLocation option : inspectionOptions) {
+        for (Identifier option : this.inspectionOptions) {
             commandRoot.then(
                 literal(option.toString())
                     .then(literal("enable")
                         .executes(ctx -> ctx.getSource().isPlayer()
-                            ? changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, true)
+                            ? this.changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, true)
                             : 0
                         )
                     )
                     .then(literal("disable")
                         .executes(ctx -> ctx.getSource().isPlayer()
-                            ? changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, false)
+                            ? this.changeStateServer(Objects.requireNonNull(ctx.getSource().getPlayer()), option, false)
                             : 0
                         )
                     )

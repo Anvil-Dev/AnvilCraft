@@ -1,13 +1,14 @@
 package dev.dubhe.anvilcraft.util.dummy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.feline.Cat;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class DummyCat extends Cat {
     public DummyCat(Level level) {
@@ -22,7 +23,7 @@ public class DummyCat extends Cat {
     }
 
     @Override
-    protected AABB getAttackBoundingBox() {
+    protected AABB getAttackBoundingBox(double horizontalExpansion) {
         return new AABB(Vec3.ZERO, Vec3.ZERO);
     }
 
@@ -47,7 +48,7 @@ public class DummyCat extends Cat {
     }
 
     @Override
-    public boolean mayInteract(Level level, BlockPos pos) {
+    public boolean mayInteract(ServerLevel level, BlockPos pos) {
         return false;
     }
 }

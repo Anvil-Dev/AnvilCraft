@@ -1,18 +1,16 @@
 package dev.dubhe.anvilcraft.client.event;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.client.gui.screen.AnvilHammerScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.StateUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
@@ -21,11 +19,8 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.List;
-
-@EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientBlockEventListener {
     /**
      * 侦听右键方块事件
@@ -57,33 +52,16 @@ public class ClientBlockEventListener {
         InteractionHand hand,
         BlockHitResult hitVec
     ) {
+        Level level = event.getLevel();
         Property<?> property = AnvilHammerItem.findModifyableProperty(targetBlockState);
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) return false;
-        if (property != null) {
-            if (event.getEntity().isShiftKeyDown()) {
-                PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
-                return false;
-            }
-            if (!event.getEntity().getAbilities().mayBuild) return false;
-            if (!AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) return false;
-            List<BlockState> possibleStates = StateUtil.findPossibleStatesForProperty(targetBlockState, property);
-            if (!possibleStates.isEmpty()) {
-                Minecraft.getInstance().setScreen(
-                    new AnvilHammerScreen(
-                        event.getPos(),
-                        targetBlockState,
-                        property,
-                        possibleStates,
-                        hand,
-                        hitVec
-                    )
-                );
-            }
-            return true;
-        } else {
-            PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
-        }
-        return false;
+        return WheelLifecycleEventListener.openHammerWheel(
+            level.getGameTime(),
+            level,
+            event.getPos(),
+            hand,
+            property,
+            () -> StateUtil.findPossibleStatesForProperty(targetBlockState, property),
+            hitVec
+        );
     }
 }

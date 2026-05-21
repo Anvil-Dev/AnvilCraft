@@ -1,11 +1,8 @@
 {
   "type": "anvilcraft:charger_charging",
-  "ingredient": {
-    "item": "anvilcraft:capacitor_empty"
-  },
+  "ingredient": "anvilcraft:capacitor_empty",
   "power": -70,
   "result": {
-    "count": 1,
     "id": "anvilcraft:capacitor"
   },
   "time": 1200

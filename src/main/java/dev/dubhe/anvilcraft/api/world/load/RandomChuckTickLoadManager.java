@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +30,10 @@ public class RandomChuckTickLoadManager {
             for (ChunkPos chunkPos : loadChuckData.getChunkPosList()) {
                 ServerLevel serverLevel = loadChuckData.getServerLevel();
                 ChunkMap chunkMap = serverLevel.getChunkSource().chunkMap;
-                if (chunkMap.updatingChunkMap.containsKey(chunkPos.toLong())) {
+                if (chunkMap.updatingChunkMap.containsKey(chunkPos.pack())) {
                     serverLevel.tickChunk(
-                        serverLevel.getChunk(chunkPos.x, chunkPos.z),
-                        serverLevel.getServer().getGameRules().getInt(GameRules.RULE_RANDOMTICKING)
+                        serverLevel.getChunk(chunkPos.x(), chunkPos.z()),
+                        serverLevel.getServer().getGameRules().get(GameRules.RANDOM_TICK_SPEED)
                     );
                 }
             }

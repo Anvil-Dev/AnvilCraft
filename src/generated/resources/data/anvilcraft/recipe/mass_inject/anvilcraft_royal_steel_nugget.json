@@ -1,7 +1,5 @@
 {
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "item": "anvilcraft:royal_steel_nugget"
-  },
+  "ingredient": "anvilcraft:royal_steel_nugget",
   "mass": 40
 }

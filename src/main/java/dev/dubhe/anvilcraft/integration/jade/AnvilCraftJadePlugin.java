@@ -7,6 +7,12 @@ import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.CrabTrapStorageClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.HeatableBlockClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.ItemDetectorClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.PowerBlockClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.RubyPrismClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.SpaceOvercompressorClientProvider;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import snownee.jade.api.IWailaClientRegistration;
@@ -29,11 +35,11 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        registration.registerBlockComponent(PowerBlockProvider.INSTANCE, Block.class);
-        registration.registerBlockComponent(RubyPrismProvider.INSTANCE, Block.class);
-        registration.registerBlockComponent(ItemDetectorProvider.INSTANCE, Block.class);
-        registration.registerBlockComponent(SpaceOvercompressorProvider.INSTANCE, Block.class);
-        registration.registerItemStorageClient(CrabTrapStorageProvider.INSTANCE);
-        registration.registerBlockComponent(HeatableBlockProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(PowerBlockClientProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(RubyPrismClientProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(ItemDetectorClientProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(SpaceOvercompressorClientProvider.INSTANCE, Block.class);
+        registration.registerItemStorageClient(CrabTrapStorageClientProvider.INSTANCE);
+        registration.registerBlockComponent(HeatableBlockClientProvider.INSTANCE, Block.class);
     }
 }

@@ -4,11 +4,8 @@
   "cookingtime": 100,
   "experience": 1.0,
   "group": "anvilcraft:titanium_ingot",
-  "ingredient": {
-    "item": "anvilcraft:raw_titanium"
-  },
+  "ingredient": "anvilcraft:raw_titanium",
   "result": {
-    "count": 1,
     "id": "anvilcraft:titanium_ingot"
   }
 }

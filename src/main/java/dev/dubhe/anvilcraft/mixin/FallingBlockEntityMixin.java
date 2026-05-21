@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -19,12 +20,12 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -44,7 +45,7 @@ import java.util.function.Predicate;
 @Mixin(FallingBlockEntity.class)
 abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEntityExtension {
     @Unique
-    private static final float DAMAGE_FACTOR = 40 / 1.7444f;
+    private static final float DAMAGE_FACTOR = 40 / 1.7444F;
 
     @Shadow
     public BlockState blockState;
@@ -58,7 +59,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     @Shadow
     private int fallDamageMax;
     @Unique
-    private float anvilcraft$fallDistance;
+    private double anvilcraft$fallDistance;
 
     public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -79,7 +80,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             return instance;
         }
         // 总重力向量的方向是下落方块的下方
-        return instance.relative(Direction.getNearest(netGravityVector.x, netGravityVector.y, netGravityVector.z));
+        return instance.relative(Direction.getApproximateNearest(netGravityVector.x, netGravityVector.y, netGravityVector.z));
     }
 
     /**
@@ -98,7 +99,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             return original.call(instance);
         }
 
-        Direction gravityDir = Direction.getNearest(gravityVec.x, gravityVec.y, gravityVec.z);
+        Direction gravityDir = Direction.getApproximateNearest(gravityVec.x, gravityVec.y, gravityVec.z);
         Level level = instance.level();
         BlockPos pos = BlockPos.containing(instance.position());
         BlockPos supportPos = pos.relative(gravityDir);
@@ -111,17 +112,26 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         // 1. 碰撞检测
         if (!this.anvilcraft$checkCollision(instance, gravityDir, original)) return false;
         // 没撞到就用很短的AABB扫描硬实体
-        AABB checkArea = instance.getBoundingBox().expandTowards(Vec3.atLowerCornerOf(gravityDir.getNormal()).scale(0.025)).inflate(1.0E-7);
-        if (!level.getEntities(instance, checkArea, e -> e.canBeCollidedWith() && !e.isSpectator()).isEmpty()) {
+        AABB checkArea = instance.getBoundingBox().expandTowards(
+            Vec3.atLowerCornerOf(gravityDir.getUnitVec3i()).scale(0.025)
+        ).inflate(1.0E-7);
+        if (!level.getEntities(instance, checkArea, e -> e.canBeCollidedWith(null) && !e.isSpectator()).isEmpty()) {
             // 如果有实体就判断离地距离
             if (!FallingBlock.isFree(level.getBlockState(gravityDir != Direction.DOWN ? supportPos.relative(gravityDir) : supportPos))) {
-                // 重力朝下如果1格内就是地面就着陆否则碎裂，重力不朝下延伸一格
-                if (gravityDir == Direction.DOWN) return true;
-                else {
+                // 重力朝下如果1格内就是地面就着陆，否则碎裂，重力不朝下延伸一格
+                if (gravityDir == Direction.DOWN) {
+                    return true;
+                } else {
                     instance.dropItem = false;
                     level.setBlockAndUpdate(supportPos, instance.getBlockState());
-                    AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), supportPos, instance, this.anvilcraft$fallDistance);
-                    NeoForge.EVENT_BUS.post(event);
+                    if (this.level() instanceof ServerLevel serverLevel) {
+                        NeoForge.EVENT_BUS.post(new AnvilEvent.OnLand(
+                            serverLevel,
+                            supportPos,
+                            instance,
+                            (float) this.anvilcraft$fallDistance
+                        ));
+                    }
                     instance.discard();
                 }
             } else this.anvilcraft$breakEntity(instance);
@@ -220,7 +230,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         // 如果方块位置无重力，认为是稳定的
         if (blockGravity.lengthSqr() <= 1.0E-5) return true;
 
-        Direction dir = Direction.getNearest(blockGravity.x, blockGravity.y, blockGravity.z);
+        Direction dir = Direction.getApproximateNearest(blockGravity.x, blockGravity.y, blockGravity.z);
         BlockPos targetPos = pos.relative(dir);
         BlockState targetState = instance.level().getBlockState(targetPos);
 
@@ -240,8 +250,8 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
      */
     @Unique
     private void anvilcraft$breakEntity(FallingBlockEntity instance) {
-        if (this.dropItem && instance.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-            instance.spawnAtLocation(instance.getBlockState().getBlock());
+        if (this.level() instanceof ServerLevel serverLevel && this.dropItem && serverLevel.getGameRules().get(GameRules.ENTITY_DROPS)) {
+            instance.spawnAtLocation(serverLevel, instance.getBlockState().getBlock());
         }
         instance.discard();
     }
@@ -260,11 +270,10 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     }
 
     @Override
-    public float anvilcraft$getFallDistance() {
+    public double anvilcraft$getFallDistance() {
         return this.anvilcraft$fallDistance;
     }
 
-    @SuppressWarnings("UnreachableCode")
     @Inject(
         method = "tick", at = @At(
         value = "INVOKE",
@@ -278,25 +287,24 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
                  + ")V"
     )
     )
-    private void anvilFallOnGround(CallbackInfo ci, @Local BlockPos blockPos) {
-        if (this.level().isClientSide()) return;
+    private void anvilFallOnGround(CallbackInfo ci, @Local(name = "pos") BlockPos pos) {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (!this.blockState.is(BlockTags.ANVIL)) return;
         FallingBlockEntity entity = Util.cast(this);
-        AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, entity, this.anvilcraft$fallDistance);
+        AnvilEvent.OnLand event = new AnvilEvent.OnLand(serverLevel, pos, entity, (float) this.anvilcraft$fallDistance);
         NeoForge.EVENT_BUS.post(event);
         if (event.isAnvilDamage()) {
             BlockState state = this.blockState.is(ModBlocks.ROYAL_ANVIL.get()) ? this.blockState : AnvilBlock.damage(this.blockState);
             if (state != null) {
-                this.level().setBlockAndUpdate(blockPos, state);
+                this.level().setBlockAndUpdate(pos, state);
             } else {
-                this.level().setBlockAndUpdate(blockPos, Blocks.AIR.defaultBlockState());
+                this.level().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                 if (!this.isSilent()) this.level().levelEvent(1029, this.getOnPos(), 0);
                 this.cancelDrop = true;
             }
         }
     }
 
-    @SuppressWarnings("UnreachableCode")
     @Inject(
         method = "causeFallDamage", at = @At(
         value = "INVOKE",
@@ -308,16 +316,21 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
                  + ")Ljava/util/List;"
     )
     )
-    private void anvilHurtEntity(float fallDistance, float multiplier, DamageSource source, CallbackInfoReturnable<Boolean> cir) {
-        Level level = this.level();
+    private void anvilHurtEntity(
+        double fallDistance,
+        float damageModifier,
+        DamageSource damageSource,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
         FallingBlockEntity fallingBlockEntity = Util.cast(this);
         Predicate<Entity> predicate = EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(EntitySelector.LIVING_ENTITY_STILL_ALIVE);
         int i = Mth.ceil(this.fallDistance - 1.0F);
         float f = (float) Math.min(Mth.floor((float) i * this.fallDamagePerDistance), this.fallDamageMax);
         if (fallingBlockEntity.getBlockState().is(BlockTags.ANVIL)) {
-            List<Entity> entities = level.getEntities(this, this.getBoundingBox(), predicate);
+            List<Entity> entities = this.level().getEntities(this, this.getBoundingBox(), predicate);
             for (Entity entity : entities) {
-                NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(fallingBlockEntity, this.getOnPos(), level, entity, f));
+                NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(fallingBlockEntity, this.getOnPos(), serverLevel, entity, f));
             }
         }
     }
@@ -344,12 +357,14 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
             this.getBoundingBox().expandTowards((
                 this.anvilcraft$isDeflected() ? this.anvilcraft$getFixedDeltaMovement() : this.getDeltaMovement()
             ).multiply(-1, -1, -1)).inflate(1.0),
-            Entity::isAttackable
+            Entity::isAttackable,
+            ProjectileUtil.computeMargin(this)
         );
         if (hitResult == null) return;
         if (hitResult.getType() != EntityHitResult.Type.ENTITY) return;
         float hurtAmount = (float) (this.getDeltaMovement().length() * DAMAGE_FACTOR);
-        hitResult.getEntity().hurt(damageSources().anvil(this), hurtAmount);
+        // noinspection deprecation
+        hitResult.getEntity().hurtOrSimulate(damageSources().anvil(this), hurtAmount);
     }
 
     @Inject(

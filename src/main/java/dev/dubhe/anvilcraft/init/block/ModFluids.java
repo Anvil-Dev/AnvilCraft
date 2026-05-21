@@ -1,23 +1,30 @@
 package dev.dubhe.anvilcraft.init.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.MeltGemFluid;
+import dev.dubhe.anvilcraft.block.fluid.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathType;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.event.EventHooks;
@@ -28,7 +35,9 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ModFluids {
     public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(
         NeoForgeRegistries.FLUID_TYPES, AnvilCraft.MOD_ID
@@ -94,6 +103,7 @@ public class ModFluids {
             "flowing_oil",
             () -> new BaseFlowingFluid.Flowing(ModFluids.OIL_PROPERTIES)
         );
+
     public static final BaseFlowingFluid.Properties OIL_PROPERTIES = new BaseFlowingFluid.Properties(OIL_TYPE, OIL, FLOWING_OIL)
         .bucket(ModItems.OIL_BUCKET)
         .block(ModBlocks.OIL)
@@ -207,6 +217,14 @@ public class ModFluids {
         .bucket(ModItems.MELT_GEM_BUCKET)
         .tickRate(20)
         .explosionResistance(100);
+    public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(
+        NeoForgeRegistries.FLUID_TYPES.key(),
+        Identifier.withDefaultNamespace("powder_snow")
+    );
+    public static final DeferredHolder<Fluid, PowderSnowFluid> POWDER_SNOW = DeferredHolder.create(
+        Registries.FLUID,
+        Identifier.withDefaultNamespace("powder_snow")
+    );
 
     public static void register(IEventBus eventBus) {
         FLUID_TYPES.register(eventBus);
@@ -223,9 +241,9 @@ public class ModFluids {
         FluidInteractionRegistry.addInteraction(
             MELT_GEM.get().getFluidType(),
             new InteractionInformation(
-                (level, currentPos, relativePos, currentState) ->
+                (level, _, relativePos, _) ->
                     level.getFluidState(relativePos).getFluidType() == Fluids.WATER.getFluidType(),
-                (level, currentPos, relativePos, currentState) -> {
+                (level, currentPos, _, _) -> {
                     Block block;
                     if (level.getFluidState(currentPos).isSource()) {
                         block = ModBlocks.CHROMATIC_STONE.get();
@@ -242,41 +260,69 @@ public class ModFluids {
         );
     }
 
+    @SuppressWarnings("CodeBlock2Expr")
+    public static void registerVanilla(RegisterEvent event) {
+        event.register(NeoForgeRegistries.FLUID_TYPES.key(), helper -> {
+            helper.register(ModFluids.POWDER_SNOW_TYPE.getId(), new FluidType(
+                FluidType.Properties.create()
+                    .descriptionId(Blocks.POWDER_SNOW.getDescriptionId())
+                    .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL_POWDER_SNOW)
+                    .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY_POWDER_SNOW)
+            ));
+        });
+        event.register(Registries.FLUID, helper -> {
+            helper.register(ModFluids.POWDER_SNOW.getId(), new PowderSnowFluid());
+        });
+    }
+
     public static void onRegisterFluidType(RegisterClientExtensionsEvent e) {
-        e.registerFluidType(
-            new ModClientFluidTypeExtensionImpl(
-                AnvilCraft.of("block/exp_fluid"),
-                AnvilCraft.of("block/exp_fluid_flow"),
-                0xC1E8A9,
-                1.0f
-            ), EXP_FLUID_TYPE
-        );
-        e.registerFluidType(
-            new ModClientFluidTypeExtensionImpl(
-                AnvilCraft.of("block/oil"),
-                AnvilCraft.of("block/oil_flow"),
-                0x1B061F,
-                1.0f
-            ), OIL_TYPE
-        );
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xC1E8A9, 1.0F), EXP_FLUID_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0x1B061F, 1.0F), OIL_TYPE);
         for (Color color : Color.values()) {
             e.registerFluidType(
                 new ModClientFluidTypeExtensionImpl(
-                    AnvilCraft.of("block/%s_cement".formatted(color)),
-                    AnvilCraft.of("block/%s_cement".formatted(color)),
-                    ColorUtil.mulValue(((DyeItem) color.dyeItem()).getDyeColor().getTextColor(), 0.6f),
-                    1.0f
+                    ColorUtil.mulValue(color.color().getTextColor(), 0.6F),
+                    1.0F
                 ), CEMENT_TYPES.get(color)
             );
         }
-        e.registerFluidType(
-            new ModClientFluidTypeExtensionImpl(
-                AnvilCraft.of("block/melt_gem"),
-                AnvilCraft.of("block/melt_gem_flow"),
-                0xB7EEDE,
-                2.0f
-            ), MELT_GEM_TYPE
-        );
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xB7EEDE, 2.0F), MELT_GEM_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(), POWDER_SNOW_TYPE);
     }
 
+    @SubscribeEvent
+    public static void registerFluidModel(RegisterFluidModelsEvent event) {
+        event.register(new FluidModel.Unbaked(
+            new Material(AnvilCraft.of("block/exp_fluid")),
+            new Material(AnvilCraft.of("block/exp_fluid_flow")),
+            null,
+            null
+        ), ModFluids.EXP_FLUID, ModFluids.FLOWING_EXP_FLUID);
+        event.register(new FluidModel.Unbaked(
+            new Material(AnvilCraft.of("block/oil")),
+            new Material(AnvilCraft.of("block/oil_flow")),
+            null,
+            null
+        ), ModFluids.OIL, ModFluids.FLOWING_OIL);
+        for (Color color : Color.values()) {
+            event.register(new FluidModel.Unbaked(
+                new Material(AnvilCraft.of("block/%s_cement".formatted(color))),
+                new Material(AnvilCraft.of("block/%s_cement".formatted(color))),
+                null,
+                null
+            ), ModFluids.SOURCE_CEMENTS.get(color), ModFluids.FLOWING_CEMENTS.get(color));
+        }
+        event.register(new FluidModel.Unbaked(
+            new Material(AnvilCraft.of("block/melt_gem")),
+            new Material(AnvilCraft.of("block/melt_gem_flow")),
+            null,
+            null
+        ), ModFluids.MELT_GEM, ModFluids.FLOWING_MELT_GEM);
+        event.register(new FluidModel.Unbaked(
+            new Material(Identifier.withDefaultNamespace("block/powder_snow")),
+            new Material(Identifier.withDefaultNamespace("block/powder_snow")),
+            null,
+            null
+        ), ModFluids.POWDER_SNOW);
+    }
 }

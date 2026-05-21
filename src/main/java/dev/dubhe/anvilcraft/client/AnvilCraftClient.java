@@ -1,35 +1,40 @@
 package dev.dubhe.anvilcraft.client;
 
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
+import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderDispatcher;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
-import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
-import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
-import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonoCraftBackpackDecoration;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
+import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
+import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import org.jspecify.annotations.Nullable;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class AnvilCraftClient {
     public static IEventBus modEventBus = null;
     public static ModContainer modContainer = null;
@@ -39,51 +44,68 @@ public class AnvilCraftClient {
     public AnvilCraftClient(IEventBus modBus, ModContainer container) {
         modEventBus = modBus;
         modContainer = container;
-        modBus.addListener(GuiLayerRegistrationEventListener::onRegister);
-        modBus.addListener(ModKeyMappings::register);
-        modBus.addListener(AnvilCraftClient::registerClientExtensions);
-        modBus.addListener(AnvilCraftClient::registerCustomItemDecorations);
-        modBus.addListener(AnvilCraftClient::registerParticleProviders);
-        modBus.addListener(ModShaders::register);
-        modBus.addListener(ModModelLayers::register);
-        modBus.addListener(ModModelLayers::createModel);
-        modBus.addListener(ModTooltipComponents::register);
-        modBus.addListener(AnvilCraftClient::clientSetup);
         InspectionSupport.initializeClient();
     }
 
+    @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
         IntegrationHook.setModEventBus(modEventBus);
         IntegrationHook.setModContainer(modContainer);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
+        event.enqueueWork(() -> {
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.RUBY_LASER.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.RUBY_PRISM.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
+        });
     }
 
+    @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
     }
 
+    @SubscribeEvent
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
-        e.register(ModItems.IONOCRAFT_BACKPACK, new IonoCraftBackpackDecoration());
+        e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
     }
 
+    @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {
         e.registerSpriteSet(ModParticles.PLASMA_JETS.get(), PlasmaJetsParticle.Provider::new);
     }
 
     public static class ItemExtensionImpl implements IClientItemExtensions {
         @Override
-        public HumanoidModel<?> getHumanoidArmorModel(
-            LivingEntity livingEntity,
-            ItemStack itemStack,
-            EquipmentSlot equipmentSlot,
-            HumanoidModel<?> original
+        public Model<?> getHumanoidArmorModel(
+            ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original
         ) {
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
                 return ModModelLayers.getIonocraftBackpackModel();
             }
-            return IClientItemExtensions.super.getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
+            return IClientItemExtensions.super.getHumanoidArmorModel(itemStack, layerType, original);
+        }
+
+        @Override
+        public @Nullable Identifier getArmorTexture(
+            ItemStack itemStack,
+            EquipmentClientInfo.LayerType type,
+            EquipmentClientInfo.Layer layer,
+            Identifier defaultId
+        ) {
+            if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
+                if (IonoCraftBackpackItem.getFlightTime(itemStack) > 0) {
+                    return IonoCraftBackpackItem.TEXTURE;
+                }
+                return IonoCraftBackpackItem.TEXTURE_OFF;
+            }
+            return IClientItemExtensions.super.getArmorTexture(itemStack, type, layer, defaultId);
         }
     }
 }

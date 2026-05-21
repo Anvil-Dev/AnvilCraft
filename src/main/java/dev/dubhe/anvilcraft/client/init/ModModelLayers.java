@@ -2,14 +2,18 @@ package dev.dubhe.anvilcraft.client.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.CauldronOutletModel;
-import dev.dubhe.anvilcraft.entity.model.IonocraftBackpackModel;
-import dev.dubhe.anvilcraft.entity.model.IonocraftModel;
-import dev.dubhe.anvilcraft.entity.model.MagnetizedNodeModel;
-import dev.dubhe.anvilcraft.entity.model.ThrownHeavyHalberdModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftBackpackModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.MagnetizedNodeModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.ThrownHeavyHalberdModel;
 import lombok.Getter;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ModModelLayers {
     public static final ModelLayerLocation IONOCRAFT = new ModelLayerLocation(AnvilCraft.of("ionocraft"), "main");
     public static final ModelLayerLocation IONOCRAFT_BACKPACK = new ModelLayerLocation(AnvilCraft.of("ionocraft_backpack"), "main");
@@ -20,6 +24,7 @@ public class ModModelLayers {
     @Getter
     private static IonocraftBackpackModel ionocraftBackpackModel;
 
+    @SubscribeEvent
     public static void register(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(
             IONOCRAFT,
@@ -43,6 +48,7 @@ public class ModModelLayers {
         );
     }
 
+    @SubscribeEvent
     public static void createModel(EntityRenderersEvent.AddLayers event) {
         ionocraftBackpackModel = new IonocraftBackpackModel(event.getContext().bakeLayer(IONOCRAFT_BACKPACK));
     }

@@ -1,30 +1,27 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
-import com.google.gson.JsonElement;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.RecipeMap;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Map;
+import java.util.List;
 
 @Mixin(RecipeManager.class)
 abstract class RecipeManagerMixin {
@@ -33,47 +30,35 @@ abstract class RecipeManagerMixin {
     private HolderLookup.Provider registries;
 
     @Shadow
-    private Map<ResourceLocation, RecipeHolder<?>> byName;
-
-    @Shadow
-    private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
+    public RecipeMap recipes;
 
     @Inject(
-        method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;"
-                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
-        at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;")
+        method = "prepare("
+                 + "Lnet/minecraft/server/packs/resources/ResourceManager;"
+                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)"
+                 + "Lnet/minecraft/world/item/crafting/RecipeMap;",
+        at = @At(value = "INVOKE", target = "Ljava/util/SortedMap;forEach(Ljava/util/function/BiConsumer;)V")
     )
     private void beforeBuildRecipe(
-        Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
-        @Share("jewelsCache") LocalRef<JewelCraftingRecipeGeneratingCache> jewelsCache
+        ResourceManager manager,
+        ProfilerFiller profiler,
+        CallbackInfoReturnable<RecipeMap> cir,
+        @Local(name = "recipeHolders") List<RecipeHolder<?>> recipeHolders
     ) {
-        JewelCraftingRecipeGeneratingCache jewelsCache1 = new JewelCraftingRecipeGeneratingCache(this.registries);
-        jewelsCache.set(jewelsCache1);
+        new JewelCraftingRecipeGeneratingCache(this.registries)
+            .buildRecipes()
+            .ifPresent(recipeHolders::addAll);
     }
 
-    @Inject(
-        method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;"
-                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
-        at = @At(
-            value = "INVOKE_ASSIGN",
-            target = "Lcom/google/common/collect/ImmutableMap$Builder;build()"
-                     + "Lcom/google/common/collect/ImmutableMap;"
-        )
-    )
-    private void afterBuildRecipe(
-        Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci,
-        @Local ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byTypeBuilder,
-        @Local ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> byNameBuilder,
-        @Share("jewelsCache") LocalRef<JewelCraftingRecipeGeneratingCache> jewelsCache
-    ) {
-        jewelsCache.get().buildRecipes()
-            .ifPresent(recipeHolders -> {
-                byTypeBuilder.putAll(ModRecipeTypes.JEWEL_CRAFTING_TYPE.get(), recipeHolders);
-                for (RecipeHolder<JewelCraftingRecipe> holder : recipeHolders) {
-                    byNameBuilder.put(holder.id(), holder);
-                }
-            });
-        this.byType = byTypeBuilder.build();
-        this.byName = byNameBuilder.build();
+    @Inject(method = "finalizeRecipeLoading", at = @At("RETURN"))
+    private void sendRecipes2C(FeatureFlagSet enabledFlags, CallbackInfo ci) {
+        RecipesRecord.RECIPES.syncFrom(this.recipes);
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return;
+        RecipesRecord.sync2C(
+            PacketDistributor::sendToAllPlayers,
+            this.recipes.values(),
+            server.registryAccess()
+        );
     }
 }

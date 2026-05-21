@@ -9,23 +9,30 @@ import dev.dubhe.anvilcraft.api.uuid.CreateOnFirstUuidProvider;
 import dev.dubhe.anvilcraft.api.uuid.DirectUuidProvider;
 import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
 import dev.dubhe.anvilcraft.api.uuid.NoUuidProvider;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import dev.dubhe.anvilcraft.saved.multiphase.Multiphases;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-public record MultiphaseRef(IUuidProvider id) {
+public record MultiphaseRef(IUuidProvider id) implements TooltipProvider {
     // TODO: 兼容性支持结束后将此常量重命名为 CODEC
     public static final MapCodec<MultiphaseRef> TRUE_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         IUuidProvider.CODEC
@@ -95,8 +102,22 @@ public record MultiphaseRef(IUuidProvider id) {
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             var stack = inventory.getItem(i);
             if (stack.has(ModComponents.MULTIPHASE) && stack.get(ModComponents.MULTIPHASE).isEmpty()) {
-                PacketDistributor.sendToServer(new MultiphasePackets.RefSync(i));
+                ClientPacketDistributor.sendToServer(new MultiphasePackets.RefSync(i));
             }
         }
+    }
+
+    @Override
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
+        if (AnvilCraftClient.CONFIG.showMultiphaseStoredId) {
+            consumer.accept(Component.translatable(
+                "tooltip.anvilcraft.property.multiphase.id",
+                components.get(ModComponents.MULTIPHASE).id().toString()
+            ).withColor(0xDD91FA));
+        }
+        consumer.accept(Component.translatable(
+            "tooltip.anvilcraft.property.multiphase",
+            ModKeyMappings.SWITCH_PHASE.get().getKey().getDisplayName()
+        ).withColor(0xDD91FA));
     }
 }

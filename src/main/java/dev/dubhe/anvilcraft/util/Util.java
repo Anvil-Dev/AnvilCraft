@@ -2,6 +2,10 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
 import java.util.Random;
@@ -40,7 +44,15 @@ public class Util {
         return STACK_WALKER.walk(it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
     }
 
+    public static InteractionResult sidedSuccess(Level level) {
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+    }
+
     public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {
         return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
+    }
+
+    public static float getSunAngle(Level level, Vec3 pos) {
+        return level.environmentAttributes().getValue(EnvironmentAttributes.SUN_ANGLE, pos);
     }
 }

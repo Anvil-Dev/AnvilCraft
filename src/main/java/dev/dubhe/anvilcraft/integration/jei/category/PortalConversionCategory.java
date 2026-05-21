@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.predicate.WeightedChanceBlockStates;
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
@@ -17,21 +16,20 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -50,13 +48,13 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     }
 
     @Override
-    public RecipeType<RecipeHolder<PortalConversionRecipe>> getRecipeType() {
+    public IRecipeHolderType<PortalConversionRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.PORTAL_CONVERSION;
     }
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -79,19 +77,19 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         PortalConversionRecipe recipe = holder.value();
         IIngredientAcceptor<?> acceptor = builder.addInvisibleIngredients(RecipeIngredientRole.INPUT);
         for (Holder<Block> block : recipe.getInput().getBlocks()) {
-            acceptor.addItemLike(block.value());
+            acceptor.add(block.value());
         }
         acceptor = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
         for (WeightedChanceBlockStates.Entry state : recipe.getResults().states()) {
-            acceptor.addItemLike(state.state().state().getBlock());
+            acceptor.add(state.state().state().getBlock());
         }
     }
 
     @Override
     public void draw(
         RecipeHolder<PortalConversionRecipe> holder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
@@ -102,29 +100,25 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) break RENDER_INPUT;
             JeiRenderHelper.renderBlockWithSlot(
-                guiGraphics,
+                graphics,
                 this.slotDefault,
                 renderedState,
                 4,
-                4,
-                20,
-                RenderSupport.SINGLE_BLOCK
+                4
             );
         }
 
-        guiGraphics.drawCenteredString(Minecraft.getInstance().font, "WIP", 81, 32, 0xFFFFFF);
+        graphics.centeredText(Minecraft.getInstance().font, "WIP", 81, 32, 0xFFFFFF);
 
         List<WeightedChanceBlockStates.Entry> results = recipe.getResults().states();
         if (results.size() == 1) {
             WeightedChanceBlockStates.Entry result = results.getFirst();
             JeiRenderHelper.renderBlockWithSlot(
-                guiGraphics,
+                graphics,
                 result.state().chance() instanceof ConstantValue(float value) && value == 1.0F ? this.slotDefault : this.slotProbability,
                 result.state().state(),
                 142,
-                4,
-                20,
-                RenderSupport.SINGLE_BLOCK
+                4
             );
         }
     }
@@ -156,7 +150,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         if (results.size() == 1) {
             if (!MathUtil.isInRange(mouseX, mouseY, 142, 4, 159, 21)) return;
             WeightedChanceBlockStates.Entry result = results.getFirst();
-            List<Component> tooltips = TooltipUtil.recipeIDTooltip(result.state().state().getBlock(), recipe.id());
+            List<Component> tooltips = TooltipUtil.recipeIDTooltip(result.state().state().getBlock(), recipe.id().identifier());
             tooltips.addAll(tooltips.size() - 1, JeiRecipeUtil.getTooltips(result.state().chance()));
             tooltip.addAll(tooltips);
         }
@@ -165,12 +159,12 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.PORTAL_CONVERSION,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.PORTAL_CONVERSION_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.PORTAL_CONVERSION.get())
         );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(Blocks.END_PORTAL_FRAME), AnvilCraftJeiPlugin.PORTAL_CONVERSION);
-        registration.addRecipeCatalyst(new ItemStack(Blocks.OBSIDIAN), AnvilCraftJeiPlugin.PORTAL_CONVERSION);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.PORTAL_CONVERSION, Blocks.END_PORTAL_FRAME);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.PORTAL_CONVERSION, Blocks.OBSIDIAN);
     }
 }

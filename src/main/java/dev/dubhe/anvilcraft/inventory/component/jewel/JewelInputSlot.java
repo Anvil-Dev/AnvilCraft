@@ -1,59 +1,67 @@
 package dev.dubhe.anvilcraft.inventory.component.jewel;
 
-import dev.dubhe.anvilcraft.inventory.container.JewelSourceContainer;
+import dev.anvilcraft.lib.v2.util.Util;
+import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
+import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class JewelInputSlot extends Slot {
-    private final JewelSourceContainer sourceContainer;
+    private final ResultContainer resultContainer;
     @Getter
     @Nullable
-    private Ingredient ingredient;
+    private ItemIngredientPredicate ingredient;
     @Getter
-    private ItemStack @Nullable [] ingredientItems;
+    @Nullable
+    private List<ItemStack> ingredientItems;
     @Getter
     private int hintCount;
 
-    public JewelInputSlot(JewelSourceContainer sourceContainer, Container container, int slot, int x, int y) {
+    public JewelInputSlot(ResultContainer resultContainer, Container container, int slot, int x, int y) {
         super(container, slot, x, y);
-        this.sourceContainer = sourceContainer;
+        this.resultContainer = resultContainer;
 
-        updateIngredient();
+        this.updateIngredient();
     }
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        if (ingredient == null) {
+        if (this.ingredient == null) {
             return false;
         }
-        if (!ingredient.test(stack)) {
+        if (!this.ingredient.test(stack)) {
             return false;
         }
         return super.mayPlace(stack);
     }
 
     public void updateIngredient() {
-        RecipeHolder<JewelCraftingRecipe> recipe = sourceContainer.getRecipe();
+        RecipeHolder<JewelCraftingRecipe> recipe = this.resultContainer.getRecipeUsed() == null
+                                                   ? null
+                                                   : Util.cast(this.resultContainer.getRecipeUsed());
         if (recipe != null) {
-            var mergedIngredients = sourceContainer.getRecipe().value().mergedIngredients;
-            if (getSlotIndex() > mergedIngredients.size() - 1) {
-                ingredient = null;
-                ingredientItems = null;
+            var ingredients = recipe.value().ingredients();
+            if (this.getSlotIndex() > ingredients.size() - 1) {
+                this.ingredient = null;
+                this.ingredientItems = null;
             } else {
-                var entry = mergedIngredients.get(getSlotIndex());
-                ingredient = entry.getKey();
-                ingredientItems = ingredient.getItems();
-                hintCount = entry.getIntValue();
+                var entry = ingredients.get(this.getSlotIndex());
+                this.ingredient = entry;
+                this.ingredientItems = RecipeUtil.getItems(entry, BuiltInRegistries.ITEM);
+                this.hintCount = entry.count();
             }
         } else {
-            ingredient = null;
-            ingredientItems = null;
+            this.ingredient = null;
+            this.ingredientItems = null;
         }
     }
 }

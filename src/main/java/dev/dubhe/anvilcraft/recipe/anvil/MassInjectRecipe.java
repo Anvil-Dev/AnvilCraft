@@ -1,26 +1,28 @@
 package dev.dubhe.anvilcraft.recipe.anvil;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleItemRecipe;
@@ -29,8 +31,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.conditions.NotCondition;
 import net.neoforged.neoforge.common.conditions.TagEmptyCondition;
-import org.jetbrains.annotations.Contract;
-
 
 /**
  * 质量注入配方类，用于定义向物品注入质量的配方
@@ -38,6 +38,24 @@ import org.jetbrains.annotations.Contract;
  */
 @Getter
 public class MassInjectRecipe extends SingleItemRecipe {
+    public static final RecipeSerializer<MassInjectRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(inst -> inst.group(
+            Ingredient.CODEC
+                .fieldOf("ingredient")
+                .forGetter(MassInjectRecipe::getIngredient),
+            Codec.INT
+                .fieldOf("mass")
+                .forGetter(MassInjectRecipe::getMass)
+        ).apply(inst, MassInjectRecipe::new)),
+        StreamCodec.composite(
+            Ingredient.CONTENTS_STREAM_CODEC,
+            MassInjectRecipe::getIngredient,
+            ByteBufCodecs.VAR_INT,
+            MassInjectRecipe::getMass,
+            MassInjectRecipe::new
+        )
+    );
+
     /**
      * 质量值
      */
@@ -50,11 +68,11 @@ public class MassInjectRecipe extends SingleItemRecipe {
      * @param mass       质量值
      */
     public MassInjectRecipe(Ingredient ingredient, int mass) {
-        super(ModRecipeTypes.MASS_INJECT_TYPE.get(),
-            ModRecipeTypes.MASS_INJECT_SERIALIZER.get(),
-            "mass_inject",
+        super(
+            new CommonInfo(false),
             ingredient,
-            ItemStack.EMPTY);
+            new ItemStackTemplate(ModItems.NEUTRONIUM_INGOT)
+        );
         this.mass = mass;
     }
 
@@ -63,9 +81,8 @@ public class MassInjectRecipe extends SingleItemRecipe {
      *
      * @return 配方构建器实例
      */
-    @Contract(" -> new")
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(HolderGetter<Item> items) {
+        return new Builder(items);
     }
 
     /**
@@ -81,6 +98,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
      * 显示指定质量值的组件
      *
      * @param mass 质量值
+     *
      * @return 显示质量值的组件
      */
     public static Component displayMassValue(long mass) {
@@ -97,7 +115,17 @@ public class MassInjectRecipe extends SingleItemRecipe {
      * @return 配方原料
      */
     public Ingredient getIngredient() {
-        return this.ingredient;
+        return this.input();
+    }
+
+    @Override
+    public String group() {
+        return "mass_inject";
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     /**
@@ -106,8 +134,8 @@ public class MassInjectRecipe extends SingleItemRecipe {
      * @return 配方类型
      */
     @Override
-    public RecipeType<?> getType() {
-        return ModRecipeTypes.MASS_INJECT_TYPE.get();
+    public RecipeType<MassInjectRecipe> getType() {
+        return ModRecipeTypes.MASS_INJECT.get();
     }
 
     /**
@@ -116,8 +144,8 @@ public class MassInjectRecipe extends SingleItemRecipe {
      * @return 配方序列化器
      */
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.MASS_INJECT_SERIALIZER.get();
+    public RecipeSerializer<MassInjectRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     /**
@@ -125,33 +153,23 @@ public class MassInjectRecipe extends SingleItemRecipe {
      *
      * @param input 配方输入
      * @param level 世界
+     *
      * @return 是否匹配
      */
     @Override
     public boolean matches(SingleRecipeInput input, Level level) {
-        return this.ingredient.test(input.item());
-    }
-
-    /**
-     * 获取配方结果物品堆
-     *
-     * @param registries 注册表提供器
-     * @return 配方结果物品堆
-     */
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return ItemStack.EMPTY;
+        return this.input().test(input.item());
     }
 
     /**
      * 组装配方结果
      *
      * @param input      配方输入
-     * @param registries 注册表提供器
+     *
      * @return 配方结果物品堆
      */
     @Override
-    public ItemStack assemble(SingleRecipeInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(SingleRecipeInput input) {
         return ItemStack.EMPTY;
     }
 
@@ -166,84 +184,34 @@ public class MassInjectRecipe extends SingleItemRecipe {
     }
 
     /**
-     * 质量注入配方序列化器类
-     */
-    public static class Serializer implements RecipeSerializer<MassInjectRecipe> {
-        /**
-         * Map编解码器
-         */
-        public static final MapCodec<MassInjectRecipe> CODEC =
-            RecordCodecBuilder.mapCodec(
-                inst -> inst.group(
-                        Ingredient.CODEC_NONEMPTY.fieldOf("ingredient")
-                            .forGetter(m -> m.ingredient),
-                        Codec.INT.fieldOf("mass").forGetter(MassInjectRecipe::getMass)
-                    )
-                    .apply(inst, MassInjectRecipe::new)
-            );
-
-        /**
-         * 流编解码器
-         */
-        public static final StreamCodec<RegistryFriendlyByteBuf, MassInjectRecipe> STREAM_CODEC =
-            StreamCodec.composite(
-                Ingredient.CONTENTS_STREAM_CODEC,
-                m -> m.ingredient,
-                ByteBufCodecs.VAR_INT,
-                MassInjectRecipe::getMass,
-                MassInjectRecipe::new
-            );
-
-        /**
-         * 获取Map编解码器
-         *
-         * @return Map编解码器
-         */
-        @Override
-        public MapCodec<MassInjectRecipe> codec() {
-            return CODEC;
-        }
-
-        /**
-         * 获取流编解码器
-         *
-         * @return 流编解码器
-         */
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MassInjectRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
-    }
-
-    /**
      * 质量注入配方构建器类
      */
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<MassInjectRecipe> {
-        /**
-         * 配方原料
-         */
+        /// 物品持有者获取器
+        private final HolderGetter<Item> items;
+
+        /// 配方原料
         private Ingredient ingredient = null;
 
-        /**
-         * 质量值
-         */
+        /// 质量值
         private int mass = 1;
 
-        /**
-         * 默认ID
-         */
+        /// 默认ID
         private String defaultId = null;
 
-        /**
-         * 标签条件
-         */
+        /// 标签条件
         private TagKey<Item> tagCondition = null;
+
+        public Builder(HolderGetter<Item> items) {
+            this.items = items;
+        }
 
         /**
          * 设置配方原料
          *
          * @param ingredient 配方原料
+         *
          * @return 构建器实例
          */
         public Builder requires(Ingredient ingredient) {
@@ -255,29 +223,32 @@ public class MassInjectRecipe extends SingleItemRecipe {
          * 设置配方原料
          *
          * @param item 物品
+         *
          * @return 构建器实例
          */
         public Builder requires(ItemLike item) {
             this.defaultId = BuiltInRegistries.ITEM.getKey(item.asItem()).toString().replace(':', '_');
-            return requires(Ingredient.of(item));
+            return this.requires(Ingredient.of(item));
         }
 
         /**
          * 设置配方原料标签
          *
          * @param tag 物品标签
+         *
          * @return 构建器实例
          */
         public Builder requires(TagKey<Item> tag) {
             this.defaultId = tag.location().toString().replace(':', '_');
             this.tagCondition = tag;
-            return requires(Ingredient.of(tag));
+            return this.requires(Ingredient.of(this.items.getOrThrow(tag)));
         }
 
         /**
          * 设置质量值
          *
          * @param mass 质量值
+         *
          * @return 构建器实例
          */
         public Builder mass(int mass) {
@@ -301,7 +272,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
          * @param id 配方ID
          */
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.ingredient == null) {
                 throw new IllegalArgumentException("Recipe ingredient must not be null, RecipeId: " + id);
             }
@@ -327,8 +298,8 @@ public class MassInjectRecipe extends SingleItemRecipe {
          * @return 配方结果物品
          */
         @Override
-        public Item getResult() {
-            return Items.AIR;
+        public ItemStackTemplate getResult() {
+            return new ItemStackTemplate(Items.AIR);
         }
 
         /**
@@ -346,12 +317,12 @@ public class MassInjectRecipe extends SingleItemRecipe {
          * 保存配方到指定位置
          *
          * @param output 配方输出
-         * @param id           配方ID
+         * @param id     配方ID
          */
         @Override
-        public void save(RecipeOutput output, ResourceLocation id) {
+        public void save(RecipeOutput output, Identifier id) {
             if (this.tagCondition != null) {
-                output = output.withConditions(new NotCondition(new TagEmptyCondition(this.tagCondition)));
+                output = output.withConditions(new NotCondition(new TagEmptyCondition<>(this.tagCondition)));
             }
             super.save(output, id);
         }

@@ -4,19 +4,19 @@ import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.HeatCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.HeatCollectorBlock;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
     public static final int MAX_OUTPUT_POWER = 4096;
@@ -48,27 +48,27 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("tickCache", this.time);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("tickCache", this.time);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.time = tag.getInt("tickCache");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.time = input.getIntOr("tickCache", 0);
     }
 
     @Override
     public void gridTick() {
-        if (!this.isWorking() || level == null || level.isClientSide()) return;
+        if (!this.isWorking() || this.level == null || this.level.isClientSide()) return;
         int oldPower = this.outputPower;
         this.outputPower = this.inputtingPower;
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof HeatCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
             TriggerUtil.heatCollectorOutput(this.level, this.getBlockPos(), this.outputPower);
         }
-        if (this.outputPower != oldPower && grid != null) grid.markChanged();
+        if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
         this.inputtingPower = 0;
         this.time++;
     }
@@ -96,7 +96,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
 
     public void clientTick() {
         if (!this.isWorking()) return;
-        rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
+        this.rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
     }
 
     public boolean isWorking() {

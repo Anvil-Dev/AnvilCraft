@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
-import dev.dubhe.anvilcraft.block.OverseerBlock;
+import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -47,21 +47,21 @@ public class OverseerBlockEntity extends BlockEntity {
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (level instanceof ServerLevel serverLevel) {
             // 如果底座上方不是监督者，直接破坏底座，结束方法
-            if (!isBaseValid()) {
+            if (!this.isBaseValid()) {
                 if (LevelLoadManager.checkRegistered(pos)) {
                     LevelLoadManager.unregister(pos, level);
                 }
                 return;
             }
-            int newlevel = checkBaseSupportsLevel(level, pos);
+            int newlevel = this.checkBaseSupportsLevel(level, pos);
             boolean newRandomTick = this.waterLoggedBlockCount >= 4;
-            if (newlevel == oldlevel && newRandomTick == oldRandomTick) {
+            if (newlevel == this.oldlevel && newRandomTick == this.oldRandomTick) {
                 return;
             }
-            if (oldlevel > -1 || LevelLoadManager.checkRegistered(pos)) {
+            if (this.oldlevel > -1 || LevelLoadManager.checkRegistered(pos)) {
                 LevelLoadManager.unregister(pos, level);
-                oldlevel = -1;
-                oldRandomTick = false;
+                this.oldlevel = -1;
+                this.oldRandomTick = false;
             }
             if (newlevel >= 0) {
                 LevelLoadManager.register(
@@ -73,8 +73,8 @@ public class OverseerBlockEntity extends BlockEntity {
                         serverLevel),
                     serverLevel);
             }
-            oldlevel = newlevel;
-            oldRandomTick = newRandomTick;
+            this.oldlevel = newlevel;
+            this.oldRandomTick = newRandomTick;
         }
     }
 
@@ -101,7 +101,7 @@ public class OverseerBlockEntity extends BlockEntity {
         int waterLoggedBlockCount = 0;
         BlockPos.MutableBlockPos pos = selfPos.mutable().move(Direction.DOWN);
         for (int i = 0; i < 3; i++) {
-            int baseT = checkBaseAt(level, pos);
+            int baseT = this.checkBaseAt(level, pos);
             if (baseT == -1) break;
             waterLoggedBlockCount += baseT;
             supportLevel++;
@@ -113,8 +113,8 @@ public class OverseerBlockEntity extends BlockEntity {
 
     private boolean isBaseValid() {
         BlockPos thizPos = getBlockPos();
-        if (!checkBlocks()) return false;
-        int supportsLevel = checkBaseSupportsLevel(this.level, thizPos);
+        if (!this.checkBlocks()) return false;
+        int supportsLevel = this.checkBaseSupportsLevel(this.level, thizPos);
         for (int i = 0; i < 3; i++) {
             BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
             BlockState state = level.getBlockState(pos);

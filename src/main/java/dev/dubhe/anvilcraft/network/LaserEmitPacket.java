@@ -10,9 +10,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public record LaserEmitPacket(int level, BlockPos laserPos, @Nullable BlockPos irradiatePos) implements IClientboundPacket {
     public static final Type<LaserEmitPacket> TYPE = IPacket.type(AnvilCraft.of("laser_emit"));

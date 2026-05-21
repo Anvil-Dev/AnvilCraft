@@ -5,19 +5,18 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Contract;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
-import javax.annotation.Nullable;
 
 public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
     @Setter
@@ -58,13 +57,12 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
-        this.directionButton = directionButtonSupplier.apply(this.leftPos, this.topPos);
-        this.addRenderableWidget(directionButton);
+        this.directionButton = this.directionButtonSupplier.apply(this.leftPos, this.topPos);
+        this.addRenderableWidget(this.directionButton);
     }
 
-    @Contract(pure = true)
     protected static BiFunction<Integer, Integer, OutputDirectionButton> getDirectionButtonSupplier(
         int x, int y, Direction... skip) {
         return (i, j) -> new OutputDirectionButton(
@@ -74,24 +72,23 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
                 if (button instanceof OutputDirectionButton button1) {
                     Arrays.stream(skip).forEach(button1::skip);
                     MachineOutputDirectionPacket packet = new MachineOutputDirectionPacket(button1.next());
-                    PacketDistributor.sendToServer(packet);
+                    ClientPacketDistributor.sendToServer(packet);
                 }
             },
             Direction.DOWN);
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderBeforeTooltip(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractBeforeTooltip(graphics, mouseX, mouseY, a);
     }
 
-    protected void renderBeforeTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractBeforeTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 }

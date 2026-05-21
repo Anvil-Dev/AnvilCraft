@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": {
-      "item": "anvilcraft:earth_core_shard"
-    }
+    "A": "anvilcraft:earth_core_shard"
   },
   "pattern": [
     "AAA",
@@ -12,7 +10,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:earth_core_shard_block"
   }
 }

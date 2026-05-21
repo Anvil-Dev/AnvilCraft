@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.api.amulet;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
@@ -13,9 +15,12 @@ import java.util.function.Function;
  */
 public record AmuletRaffleProbability(Object2IntOpenHashMap<AmuletType> map) {
     public static final AmuletRaffleProbability EMPTY = new AmuletRaffleProbability(new Object2IntOpenHashMap<>());
-    public static final Codec<AmuletRaffleProbability> CODEC = Codec.unboundedMap(AmuletType.CODEC, Codec.INT)
-        .xmap(Object2IntOpenHashMap::new, Function.identity())
-        .xmap(AmuletRaffleProbability::new, AmuletRaffleProbability::map);
+    public static final MapCodec<AmuletRaffleProbability> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+        Codec.unboundedMap(AmuletType.CODEC, Codec.INT)
+            .fieldOf("probabilities")
+            .xmap(Object2IntOpenHashMap::new, Function.identity())
+            .forGetter(AmuletRaffleProbability::map)
+    ).apply(inst, AmuletRaffleProbability::new));
 
     /**
      * 获取该类型在此处存储的概率。

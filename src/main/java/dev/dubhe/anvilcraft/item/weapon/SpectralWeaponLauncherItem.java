@@ -1,50 +1,34 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
-import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
+import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import dev.dubhe.anvilcraft.item.tool.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.util.ColorUtil;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 
 public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     public static final int SHOOT_CONSUME = 800;
-    public static final int EXHAUSTED_MODEL = 1;
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
-    public static final int MAX_ENERGY = 320000;
+    public static final int MAX_ENERGY = 320000; // 320MJ
 
     public SpectralWeaponLauncherItem(Properties properties) {
         super(
             properties
-                .component(ModComponents.STORED_ENERGY, SpectralWeaponLauncherItem.MAX_ENERGY)
-                .component(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT)
+                .component(ModComponents.STORED_ENERGY, new StoredEnergy(SpectralWeaponLauncherItem.MAX_ENERGY))
         );
-    }
-
-    // 第一人称的手持动画、装填弹药的额外渲染等特殊代码在SpectralWeaponLauncherRenderer等类中
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(SpectralWeaponLauncherRenderer.SpectralWeaponLauncherExtensions.of(SpectralWeaponLauncherRenderer.getInstance()));
     }
 
     @Override
     public boolean unableToUse(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.STORED_ENERGY, 0) < SpectralWeaponLauncherItem.SHOOT_CONSUME;
+        return stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value() < SpectralWeaponLauncherItem.SHOOT_CONSUME;
     }
 
     @Override
@@ -59,13 +43,9 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     ) {
         super.performShooting(level, shooter, hand, weapon, velocity, inaccuracy, target);
         if (shooter.hasInfiniteMaterials()) return;
-        int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) - SpectralWeaponLauncherItem.SHOOT_CONSUME;
-        weapon.set(ModComponents.STORED_ENERGY, newEnergy);
-        if (newEnergy < SpectralWeaponLauncherItem.SHOOT_CONSUME) {
-            weapon.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(SpectralWeaponLauncherItem.EXHAUSTED_MODEL));
-        } else {
-            weapon.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
-        }
+        int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY)
+                            .value() - SpectralWeaponLauncherItem.SHOOT_CONSUME;
+        weapon.set(ModComponents.STORED_ENERGY, new StoredEnergy(newEnergy));
     }
 
     public static void playerTick(ServerPlayer player) {
@@ -73,7 +53,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
         if (launcher.isEmpty() || !launcher.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) launcher = player.getOffhandItem();
         if (launcher.isEmpty() || !launcher.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) return;
 
-        int energy = launcher.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        int energy = launcher.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         while (energy <= 240000) { // 240MJ
             Inventory inventory = player.getInventory();
             int slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
@@ -85,9 +65,8 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
             }
             energy += 80000; // 80MJ
         }
-        if (energy == launcher.getOrDefault(ModComponents.STORED_ENERGY, 0)) return;
-        launcher.set(ModComponents.STORED_ENERGY, energy);
-        launcher.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
+        if (energy == launcher.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value()) return;
+        launcher.set(ModComponents.STORED_ENERGY, new StoredEnergy(energy));
     }
 
     @Override
@@ -102,13 +81,13 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         return Math.clamp(energy / SpectralWeaponLauncherItem.MAX_ENERGY, 0, 1) * 13;
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        float energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        float energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         return ColorUtil.lerpColor(energy / SpectralWeaponLauncherItem.MAX_ENERGY, BAR_COLOR, FULL_BAR_COLOR);
     }
 }

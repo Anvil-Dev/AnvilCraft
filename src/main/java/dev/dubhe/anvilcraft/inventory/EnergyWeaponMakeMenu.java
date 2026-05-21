@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.component.FilteredSlot;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.level.ServerPlayer;
@@ -61,7 +62,7 @@ public class EnergyWeaponMakeMenu extends AbstractContainerMenu {
         super(type, containerId);
         this.level = playerInventory.player.level();
         this.inventory = playerInventory;
-        this.recipes = this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.ENERGY_WEAPON_MAKE_TYPE.get());
+        this.recipes = List.copyOf(RecipesRecord.RECIPES.byType(ModRecipeTypes.ENERGY_WEAPON_MAKE.get()));
 
         if (playerInventory.player.getMainHandItem().is(ModItems.ENERGY_WEAPON_PLATFORM)) this.usedHand[0] = true;
         if (playerInventory.player.getOffhandItem().is(ModItems.ENERGY_WEAPON_PLATFORM)) this.usedHand[1] = true;
@@ -120,7 +121,7 @@ public class EnergyWeaponMakeMenu extends AbstractContainerMenu {
             return;
         }
         EnergyWeaponMakeRecipe recipe = recipeOp.get().value();
-        ItemStack result = recipe.assemble(input, this.level.registryAccess());
+        ItemStack result = recipe.assemble(input);
 
         if (this.usedHand[0] && player.getMainHandItem().is(ModItems.ENERGY_WEAPON_PLATFORM)) {
             player.setItemSlot(EquipmentSlot.MAINHAND, result);

@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:royal_steel_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:royal_steel_block"
-    }
+    "anvilcraft:royal_steel_block"
   ],
   "result": {
     "count": 9,

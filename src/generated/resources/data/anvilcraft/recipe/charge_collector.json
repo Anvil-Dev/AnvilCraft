@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "anvilcraft:magnetoelectric_core"
-    },
-    "B": {
-      "item": "minecraft:copper_ingot"
-    },
-    "C": {
-      "item": "minecraft:iron_ingot"
-    }
+    "A": "anvilcraft:magnetoelectric_core",
+    "B": "minecraft:copper_ingot",
+    "C": "minecraft:iron_ingot"
   },
   "pattern": [
     " A ",
@@ -18,7 +12,6 @@
     "CCC"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:charge_collector"
   }
 }

@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:brass_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:brass_block"
-    }
+    "anvilcraft:brass_block"
   ],
   "result": {
     "count": 9,

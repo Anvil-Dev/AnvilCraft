@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:uranium_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:uranium_block"
-    }
+    "anvilcraft:uranium_block"
   ],
   "result": {
     "count": 9,

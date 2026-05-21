@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.advancement;
 
+import com.google.common.collect.Lists;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerClickBlockTrigger;
@@ -27,35 +28,40 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.DisplayInfo;
-import net.minecraft.advancements.critereon.DamagePredicate;
-import net.minecraft.advancements.critereon.DamageSourcePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
-import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.advancements.critereon.PlayerHurtEntityTrigger;
-import net.minecraft.advancements.critereon.PlayerTrigger;
-import net.minecraft.advancements.critereon.RecipeCraftedTrigger;
-import net.minecraft.advancements.critereon.SlotsPredicate;
+import net.minecraft.advancements.criterion.DamagePredicate;
+import net.minecraft.advancements.criterion.DamageSourcePredicate;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.ItemUsedOnLocationTrigger;
+import net.minecraft.advancements.criterion.MinMaxBounds;
+import net.minecraft.advancements.criterion.PlayerHurtEntityTrigger;
+import net.minecraft.advancements.criterion.PlayerTrigger;
+import net.minecraft.advancements.criterion.RecipeCraftedTrigger;
+import net.minecraft.advancements.criterion.SlotsPredicate;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.SlotRanges;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class AdvancementLineHelper {
@@ -82,10 +88,10 @@ public class AdvancementLineHelper {
         }
 
         public AdvancementHelper display(
-            ItemStack icon,
+            ItemStackTemplate icon,
             Component title,
             Component description,
-            @Nullable ResourceLocation background,
+            @Nullable Identifier background,
             AdvancementType type,
             boolean showToast,
             boolean announceChat,
@@ -99,7 +105,7 @@ public class AdvancementLineHelper {
             ItemLike icon,
             Component title,
             Component description,
-            @Nullable ResourceLocation background,
+            @Nullable Identifier background,
             AdvancementType type,
             boolean showToast,
             boolean announceChat,
@@ -164,8 +170,8 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, PlayerTrigger.TriggerInstance.tick());
         }
 
-        public AdvancementHelper hasItems(String key, TagKey<Item> tag) {
-            return this.addCriterion(key, InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(tag)));
+        public AdvancementHelper hasItems(String key, HolderGetter<Item> items, TagKey<Item> tag) {
+            return this.addCriterion(key, InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items, tag)));
         }
 
         public AdvancementHelper hasItems(String key, ItemLike... items) {
@@ -182,35 +188,35 @@ public class AdvancementLineHelper {
             return this;
         }
 
-        public AdvancementHelper useItem(String key, ItemLike item) {
-            return this.addCriterion(key, UseItemTrigger.TriggerInstance.useItem(item.asItem()));
+        public AdvancementHelper useItem(String key, HolderGetter<Item> items, ItemLike item) {
+            return this.addCriterion(key, UseItemTrigger.TriggerInstance.useItem(items, item.asItem()));
         }
 
-        public AdvancementHelper recipe(String key, ResourceLocation recipeId) {
-            return this.addCriterion(key, RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeId));
-        }
-
-        public AdvancementHelper recipeMod(String key, String namespace, String recipeId) {
+        public AdvancementHelper recipe(String key, Identifier recipeId) {
             return this.addCriterion(key, RecipeCraftedTrigger.TriggerInstance.craftedItem(
-                ResourceLocation.fromNamespaceAndPath(namespace, recipeId)
+                ResourceKey.create(Registries.RECIPE, recipeId)
             ));
         }
 
+        public AdvancementHelper recipeMod(String key, String namespace, String recipeId) {
+            return this.recipe(key, Identifier.fromNamespaceAndPath(namespace, recipeId));
+        }
+
         public AdvancementHelper recipeAnc(String key, String recipeId) {
-            return this.addCriterion(key, RecipeCraftedTrigger.TriggerInstance.craftedItem(AnvilCraft.of(recipeId)));
+            return this.recipe(key, AnvilCraft.of(recipeId));
         }
 
         public AdvancementHelper inWorldRecipe(String key) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipe());
         }
 
-        public AdvancementHelper inWorldRecipe(String key, ResourceLocation recipeId) {
+        public AdvancementHelper inWorldRecipe(String key, Identifier recipeId) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipe(recipeId));
         }
 
         public AdvancementHelper inWorldRecipeMod(String key, String namespace, String recipeId) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipe(
-                ResourceLocation.fromNamespaceAndPath(namespace, recipeId)
+                Identifier.fromNamespaceAndPath(namespace, recipeId)
             ));
         }
 
@@ -218,13 +224,13 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipe(AnvilCraft.of(recipeId)));
         }
 
-        public AdvancementHelper inWorldRecipeType(String key, ResourceLocation typeId) {
+        public AdvancementHelper inWorldRecipeType(String key, Identifier typeId) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipeType(typeId));
         }
 
         public AdvancementHelper inWorldRecipeTypeMod(String key, String namespace, String typeId) {
             return this.addCriterion(key, InWorldRecipeTrigger.TriggerInstance.inWorldRecipeType(
-                ResourceLocation.fromNamespaceAndPath(namespace, typeId)
+                Identifier.fromNamespaceAndPath(namespace, typeId)
             ));
         }
 
@@ -240,8 +246,8 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, AnvilLootingTrigger.TriggerInstance.looting());
         }
 
-        public AdvancementHelper anvilLooting(String key, EntityType<?> type) {
-            return this.addCriterion(key, AnvilLootingTrigger.TriggerInstance.looting(type));
+        public AdvancementHelper anvilLooting(String key, HolderGetter<EntityType<?>> lookup, EntityType<?> type) {
+            return this.addCriterion(key, AnvilLootingTrigger.TriggerInstance.looting(lookup, type));
         }
 
         public AdvancementHelper repairIronGolem(String key) {
@@ -300,8 +306,8 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, AnvilHammerHurtEntityTrigger.TriggerInstance.hurtEntity(damage));
         }
 
-        public AdvancementHelper hammerKill(String key, EntityType<?> type) {
-            return this.addCriterion(key, PlayerKilledEntityByAnvilHammerTrigger.TriggerInstance.killedEntity(type));
+        public AdvancementHelper hammerKill(String key, HolderGetter<EntityType<?>> lookup, EntityType<?> type) {
+            return this.addCriterion(key, PlayerKilledEntityByAnvilHammerTrigger.TriggerInstance.killedEntity(lookup, type));
         }
 
         public AdvancementHelper wearHammer(String key) {
@@ -327,6 +333,7 @@ public class AdvancementLineHelper {
             ));
         }
 
+        @SuppressWarnings("deprecation")
         public AdvancementHelper hurt(String key, float damage, ItemLike... items) {
             return this.addCriterion(key, PlayerHurtEntityTrigger.TriggerInstance.playerHurtEntityWithDamage(
                 DamagePredicate.Builder.damageInstance()
@@ -336,7 +343,14 @@ public class AdvancementLineHelper {
                                 EntityPredicate.Builder.entity()
                                     .slots(new SlotsPredicate(Map.of(
                                         Objects.requireNonNull(SlotRanges.nameToIds("weapon")),
-                                        ItemPredicate.Builder.item().of(items).build()
+                                        new ItemPredicate(
+                                            Optional.of(HolderSet.direct(Lists.transform(
+                                                List.of(items),
+                                                item -> item.asItem().builtInRegistryHolder()
+                                            ))),
+                                            MinMaxBounds.Ints.ANY,
+                                            DataComponentMatchers.ANY
+                                        )
                                     )))
                             )
                     )
@@ -361,9 +375,15 @@ public class AdvancementLineHelper {
         }
 
         public AdvancementHolder build(String id) {
-            AdvancementHolder holder = this.current.build(AnvilCraft.advancementOf(id));
+            AdvancementHolder holder = this.current.build(AnvilCraft.advancement(id));
             this.lineHelper.parent = holder;
             return holder;
+        }
+
+        public AdvancementHolder save(Consumer<AdvancementHolder> output, String id) {
+            AdvancementHolder advancement = this.build(id);
+            output.accept(advancement);
+            return advancement;
         }
     }
 }

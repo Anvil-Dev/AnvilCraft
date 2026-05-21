@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
-import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -22,13 +22,13 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -62,30 +62,23 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag compoundTag = new CompoundTag();
-        this.saveAdditional(compoundTag, registries);
-        return compoundTag;
-    }
-
-    @Override
-    public void saveToItem(ItemStack stack, HolderLookup.Provider registries) {
-        CompoundTag data = this.constructDataNbt();
-        BlockItem.setBlockEntityData(stack, this.getType(), data);
-        stack.applyComponents(this.collectComponents());
-    }
-
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
         CompoundTag data = this.constructDataNbt();
         data.putInt("InputSignal", this.inputtingSignal);
-        tag.put("ExtraData", data);
+        return data;
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        CompoundTag data = tag.getCompound("ExtraData");
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        CompoundTag data = this.constructDataNbt();
+        data.putInt("InputSignal", this.inputtingSignal);
+        output.store("ExtraData", CompoundTag.CODEC, data);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag data = input.read("ExtraData", CompoundTag.CODEC).orElse(new CompoundTag());
         this.readDataNbt(data);
         if ((this.compareMode == Mode.HYSTERESIS && this.inputtingSignal >= this.highLimit)
             || (this.compareMode == Mode.WINDOW && this.inputtingSignal <= this.highLimit)) {
@@ -107,23 +100,23 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     }
 
     public AdvancedComparatorBlockEntity readDataNbt(CompoundTag data) {
-        this.compareMode = Mode.fromIndex(data.getByte("CompareMode"));
-        this.outputInvert = data.getBoolean("OutputMode");
-        this.redstoneControl = data.getBoolean("RedstoneControl");
-        this.highLimit = data.getInt("HighLimit");
-        this.lowLimit = data.getInt("LowLimit");
-        this.inputtingSignal = data.getInt("InputSignal");
+        this.compareMode = Mode.fromIndex(data.getByteOr("CompareMode", (byte) 0));
+        this.outputInvert = data.getBooleanOr("OutputMode", false);
+        this.redstoneControl = data.getBooleanOr("RedstoneControl", false);
+        this.highLimit = data.getIntOr("HighLimit", 0);
+        this.lowLimit = data.getIntOr("LowLimit", 0);
+        this.inputtingSignal = data.getIntOr("InputSignal", 0);
         return this;
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
-        tag.put("Data", this.constructDataNbt());
+    public void storeDiskData(ValueOutput output) {
+        output.store("Data", CompoundTag.CODEC, this.constructDataNbt());
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
-        this.readDataNbt(data.getCompound("Data"));
+    public void applyDiskData(ValueInput input) {
+        this.readDataNbt(input.read("Data", CompoundTag.CODEC).orElse(new CompoundTag()));
         if (this.getLevel() == null) return;
         Util.castSafely(this.getBlockState().getBlock(), AdvancedComparatorBlock.class)
             .ifPresent(block -> block.update(this.getLevel(), this.getBlockPos(), this.getBlockState()));
@@ -146,7 +139,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     public void onLoad() {
         super.onLoad();
         if (this.level == null) return;
-        updateInputtingSignal(this.level, this.getBlockPos(), this.getBlockState());
+        this.updateInputtingSignal(this.level, this.getBlockPos(), this.getBlockState());
     }
 
     @Override
@@ -157,20 +150,20 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
-        if (player.level().getBlockEntity(getBlockPos()) instanceof AdvancedComparatorBlockEntity blockEntity) {
+        if (player.level().getBlockEntity(this.getBlockPos()) instanceof AdvancedComparatorBlockEntity blockEntity) {
             return new AdvancedComparatorMenu(ModMenuTypes.ADVANCED_COMPARATOR.get(), containerId, inventory, blockEntity);
         }
         return null;
     }
 
     public CompoundTag exportMoveData() {
-        return constructDataNbt();
+        return this.constructDataNbt();
     }
 
     public void applyMoveData(Level level, BlockPos pos, BlockState state, CompoundTag nbt) {
-        readDataNbt(nbt);
+        this.readDataNbt(nbt);
         ((AdvancedComparatorBlock) state.getBlock()).update(level, pos, state);
-        setChanged();
+        this.setChanged();
     }
 
     public enum State {

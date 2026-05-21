@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:raw_tin_block"
-    }
+    "anvilcraft:raw_tin_block"
   ],
   "result": {
     "count": 9,

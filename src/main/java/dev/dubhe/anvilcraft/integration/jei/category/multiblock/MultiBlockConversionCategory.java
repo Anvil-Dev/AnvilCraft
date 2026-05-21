@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.integration.jei.category.multiblock;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.client.support.LevelLikeDisplaySupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -11,10 +11,9 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.JeiButton;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiTextures;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
-import dev.dubhe.anvilcraft.util.RecipeUtil;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -25,17 +24,18 @@ import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
-import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> cacheOutput = new HashMap<>();
 
     private static final Comparator<ItemStack> BY_COUNT_DECREASING =
-        Comparator.comparing(ItemStack::getCount).thenComparing(ItemStack::getDescriptionId).reversed();
+        Comparator.comparing(ItemStack::getCount).thenComparing(stack -> stack.getItem().getDescriptionId()).reversed();
 
     private final IDrawable icon;
     private final IDrawable slot;
@@ -77,47 +77,47 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     private DisplayMode displayMode = DisplayMode.OVERVIEW;
 
     public MultiBlockConversionCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.GIANT_ANVIL));
-        arrowOut = JeiRenderHelper.getArrowDefault(helper);
-        slot = JeiRenderHelper.getSlotDefault(helper);
-        timer = helper.createTickTimer(30, 60, true);
-        conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_CONVERSION, 0, 0, 594, 418)
+        this.icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.GIANT_ANVIL));
+        this.arrowOut = JeiRenderHelper.getArrowDefault(helper);
+        this.slot = JeiRenderHelper.getSlotDefault(helper);
+        this.timer = helper.createTickTimer(30, 60, true);
+        this.conversion = helper.drawableBuilder(JeiTextures.BLOCK_CONVERSION, 0, 0, 594, 418)
             .setTextureSize(594, 418)
             .build();
-        layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
+        this.layerUp = helper.drawableBuilder(JeiTextures.LAYER_UP, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerUpHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 10, 10, 10)
+        this.layerUpHovered = helper.drawableBuilder(JeiTextures.LAYER_UP, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerDown = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 0, 10, 10)
+        this.layerDown = helper.drawableBuilder(JeiTextures.LAYER_DOWN, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        layerDownHovered = helper.drawableBuilder(JeiTextureConstants.LAYER_DOWN, 0, 10, 10, 10)
+        this.layerDownHovered = helper.drawableBuilder(JeiTextures.LAYER_DOWN, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        modeOverview = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 0, 0, 10, 10)
+        this.modeOverview = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 0, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeOverviewHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 0, 10, 10, 10)
+        this.modeOverviewHovered = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 0, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeInput = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 10, 0, 10, 10)
+        this.modeInput = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 10, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeInputHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 10, 10, 10, 10)
+        this.modeInputHovered = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 10, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeOutput = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 20, 0, 10, 10)
+        this.modeOutput = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 20, 0, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        modeOutputHovered = helper.drawableBuilder(JeiTextureConstants.DISPLAY_MODES, 20, 10, 10, 10)
+        this.modeOutputHovered = helper.drawableBuilder(JeiTextures.DISPLAY_MODES, 20, 10, 10, 10)
             .setTextureSize(30, 20)
             .build();
-        renderSwitchOff = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 0, 10, 10)
+        this.renderSwitchOff = helper.drawableBuilder(JeiTextures.LAYER_SWITCH, 0, 0, 10, 10)
             .setTextureSize(10, 20)
             .build();
-        renderSwitchOn = helper.drawableBuilder(JeiTextureConstants.LAYER_SWITCH, 0, 10, 10, 10)
+        this.renderSwitchOn = helper.drawableBuilder(JeiTextures.LAYER_SWITCH, 0, 10, 10, 10)
             .setTextureSize(10, 20)
             .build();
     }
@@ -125,18 +125,18 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIBLOCK_CONVERSION_TYPE.get())
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIBLOCK_CONVERSION.get())
         );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION);
-        registration.addRecipeCatalyst(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION);
-        registration.addRecipeCatalyst(new ItemStack(Blocks.CRAFTING_TABLE), AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION, ModBlocks.GIANT_ANVIL.asStack());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION, ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack());
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION, new ItemStack(Blocks.CRAFTING_TABLE));
     }
 
     @Override
-    public RecipeType<RecipeHolder<MultiblockConversionRecipe>> getRecipeType() {
+    public IRecipeHolderType<MultiblockConversionRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.MULTIBLOCK_CONVERSION;
     }
 
@@ -157,7 +157,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -166,13 +166,13 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         RecipeHolder<MultiblockConversionRecipe> recipe,
         IFocusGroup focuses
     ) {
-        cacheInput.computeIfAbsent(
+        this.cacheInput.computeIfAbsent(
             recipe,
-            it -> RecipeUtil.asLevelLike(it.value().getInputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getInputPattern())
         );
-        cacheOutput.computeIfAbsent(
+        this.cacheOutput.computeIfAbsent(
             recipe,
-            it -> RecipeUtil.asLevelLike(it.value().getOutputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
         );
 
         List<ItemStack> inputItems = recipe.value().getInputPattern().toIngredientList();
@@ -180,8 +180,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
 
         for (int i = 0; i < inputItems.size(); i++) {
             ItemStack stack = inputItems.get(i);
-            builder.addSlot(RecipeIngredientRole.INPUT, this.inputSlotPosX(i) + 1, this.slotPosY(i) + 1)
-                .addItemStack(stack);
+            builder.addSlot(RecipeIngredientRole.INPUT, this.inputSlotPosX(i) + 1, this.slotPosY(i) + 1).add(stack);
         }
 
         List<ItemStack> outputItems = recipe.value().getOutputPattern().toIngredientList();
@@ -189,8 +188,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
 
         for (int i = 0; i < outputItems.size(); i++) {
             ItemStack stack = outputItems.get(i);
-            builder.addSlot(RecipeIngredientRole.OUTPUT, this.outputSlotPosX(i) + 1, this.slotPosY(i) + 1)
-                .addItemStack(stack);
+            builder.addSlot(RecipeIngredientRole.OUTPUT, this.outputSlotPosX(i) + 1, this.slotPosY(i) + 1).add(stack);
         }
     }
 
@@ -198,31 +196,31 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     public void draw(
         RecipeHolder<MultiblockConversionRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
         Minecraft minecraft = Minecraft.getInstance();
-        PoseStack pose = guiGraphics.pose();
+        Matrix3x2fStack pose = graphics.pose();
         Component currentModeTooltip =
             Component.translatable(
                 "gui.anvilcraft.category.multiblock_conversion.current_mode",
                 this.displayMode.getDiscription()
             );
-        pose.pushPose();
-        pose.scale(0.8f, 0.8f, 0.8f);
-        int textX = Math.round(WIDTH / 0.8f - minecraft.font.width(currentModeTooltip) - 5);
-        guiGraphics.drawString(minecraft.font, currentModeTooltip, textX, 0, 0xFF000000, false);
-        pose.popPose();
-        this.displayModeButton(mouseX, mouseY).draw(guiGraphics, 149, 10);
+        pose.pushMatrix();
+        pose.scale(0.8F, 0.8F);
+        int textX = Math.round(WIDTH / 0.8F - minecraft.font.width(currentModeTooltip) - 5);
+        graphics.text(minecraft.font, currentModeTooltip, textX, 0, 0xFF000000, false);
+        pose.popMatrix();
+        this.displayModeButton(mouseX, mouseY).draw(graphics, 149, 10);
 
-        LevelLike input = cacheInput.computeIfAbsent(
+        LevelLike input = this.cacheInput.computeIfAbsent(
             recipe,
-            it -> RecipeUtil.asLevelLike(it.value().getInputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getInputPattern())
         );
-        LevelLike output = cacheOutput.computeIfAbsent(
+        LevelLike output = this.cacheOutput.computeIfAbsent(
             recipe,
-            it -> RecipeUtil.asLevelLike(it.value().getOutputPattern())
+            it -> LevelLikeDisplaySupport.asLevelLike(it.value().getOutputPattern())
         );
         LevelLike rendered = input;
         switch (this.displayMode) {
@@ -243,8 +241,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 final boolean modifiedOutput = !output.isAllLayersVisible();
                 input.setAllLayersVisible(true);
                 output.setAllLayersVisible(true);
-                RenderSupport.renderLevelLike(input, guiGraphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0f);
-                RenderSupport.renderLevelLike(output, guiGraphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0f);
+                RenderSupport.renderLevelLike(input, graphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0F);
+                RenderSupport.renderLevelLike(output, graphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0F);
                 if (modifiedInput) {
                     input.setAllLayersVisible(false);
                 }
@@ -252,35 +250,36 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     output.setAllLayersVisible(false);
                 }
                 for (int i = 0; i < 12; i++) {
-                    slot.draw(guiGraphics, this.inputSlotPosX(i), this.slotPosY(i));
-                    slot.draw(guiGraphics, this.outputSlotPosX(i), this.slotPosY(i));
+                    this.slot.draw(graphics, this.inputSlotPosX(i), this.slotPosY(i));
+                    this.slot.draw(graphics, this.outputSlotPosX(i), this.slotPosY(i));
                 }
-                arrowOut.draw(guiGraphics, 73, 40);
-                pose.pushPose();
-                pose.scale(0.03f, 0.03f, 1.0f);
-                conversion.draw(guiGraphics, 2375, 875);
-                pose.popPose();
-                float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
+                this.arrowOut.draw(graphics, 73, 40);
+                pose.pushMatrix();
+                pose.scale(0.03F, 0.03F);
+                this.conversion.draw(graphics, 2375, 875);
+                pose.popMatrix();
+                int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
                 RenderSupport.renderBlock(
-                    guiGraphics,
+                    graphics,
                     ModBlocks.GIANT_ANVIL.getDefaultState()
                         .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                         .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
                     80,
-                    19.8f + anvilYOffset,
-                    20,
-                    5,
-                    RenderSupport.SINGLE_BLOCK
+                    19 + anvilYOffset,
+                    5
                 );
-                pose.pushPose();
-                pose.scale(0.8f, 0.8f, 1.0f);
+                pose.pushMatrix();
+                pose.scale(0.8F, 0.8F);
                 int size = recipe.value().getSize();
-                guiGraphics.drawString(
+                graphics.text(
                     minecraft.font,
                     Component.translatable("gui.anvilcraft.category.multiblock.size", size, size),
-                    85, 92, 0xFF000000, false
+                    85,
+                    92,
+                    0xFF000000,
+                    false
                 );
-                pose.popPose();
+                pose.popMatrix();
                 break;
             case INPUT:
                 break;
@@ -296,38 +295,38 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 drawable.setPosition(-1000, -1000);
             }
         }
-        RenderSupport.renderLevelLike(rendered, guiGraphics, 80, 86, SCALE_FAC_LARGE, 2.0f);
+        RenderSupport.renderLevelLike(rendered, graphics, 80, 86, SCALE_FAC_LARGE, 2.0F);
         Component component = this.layerTooltip(rendered);
-        pose.pushPose();
-        pose.scale(0.8f, 0.8f, 0.8f);
-        textX = Math.round(WIDTH / 0.8f - minecraft.font.width(component) - 5);
-        guiGraphics.drawString(minecraft.font, component, textX, 25, 0xFF000000, false);
-        pose.popPose();
-        this.renderSwitchButton(rendered).draw(guiGraphics, 125, 30);
+        pose.pushMatrix();
+        pose.scale(0.8F, 0.8F);
+        textX = Math.round(WIDTH / 0.8F - minecraft.font.width(component) - 5);
+        graphics.text(minecraft.font, component, textX, 25, 0xFF000000, false);
+        pose.popMatrix();
+        this.renderSwitchButton(rendered).draw(graphics, 125, 30);
         if (!rendered.isAllLayersVisible()) {
-            this.layerUpButton(mouseX, mouseY).draw(guiGraphics, 137, 30);
-            this.layerDownButton(mouseX, mouseY).draw(guiGraphics, 149, 30);
+            this.layerUpButton(mouseX, mouseY).draw(graphics, 137, 30);
+            this.layerDownButton(mouseX, mouseY).draw(graphics, 149, 30);
         }
     }
 
     private IDrawable renderSwitchButton(LevelLike level) {
-        return level.isAllLayersVisible() ? renderSwitchOff : renderSwitchOn;
+        return level.isAllLayersVisible() ? this.renderSwitchOff : this.renderSwitchOn;
     }
 
     private IDrawable layerUpButton(double mouseX, double mouseY) {
-        return (mouseX >= 137 && mouseX < 147 && mouseY >= 30 && mouseY < 40) ? layerUpHovered : layerUp;
+        return (mouseX >= 137 && mouseX < 147 && mouseY >= 30 && mouseY < 40) ? this.layerUpHovered : this.layerUp;
     }
 
     private IDrawable layerDownButton(double mouseX, double mouseY) {
-        return (mouseX >= 149 && mouseX < 159 && mouseY >= 30 && mouseY < 40) ? layerDownHovered : layerDown;
+        return (mouseX >= 149 && mouseX < 159 && mouseY >= 30 && mouseY < 40) ? this.layerDownHovered : this.layerDown;
     }
 
     private IDrawable displayModeButton(double mouseX, double mouseY) {
         boolean hovered = (mouseX >= 149 && mouseX < 159 && mouseY >= 10 && mouseY < 20);
         return switch (this.displayMode) {
-            case OVERVIEW -> hovered ? modeOverviewHovered : modeOverview;
-            case INPUT -> hovered ? modeInputHovered : modeInput;
-            case OUTPUT -> hovered ? modeOutputHovered : modeOutput;
+            case OVERVIEW -> hovered ? this.modeOverviewHovered : this.modeOverview;
+            case INPUT -> hovered ? this.modeInputHovered : this.modeInput;
+            case OUTPUT -> hovered ? this.modeOutputHovered : this.modeOutput;
         };
     }
 
@@ -364,14 +363,14 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
                         );
                         inputLevel.setAllLayersVisible(!inputLevel.isAllLayersVisible());
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
                         );
                         outputLevel.setAllLayersVisible(!outputLevel.isAllLayersVisible());
                         break;
@@ -390,14 +389,14 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
                         );
                         if (!inputLevel.isAllLayersVisible()) inputLevel.nextLayer();
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
                         );
                         if (!outputLevel.isAllLayersVisible()) outputLevel.nextLayer();
                         break;
@@ -416,14 +415,14 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     case INPUT:
                         LevelLike inputLevel = this.cacheInput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getInputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getInputPattern())
                         );
                         if (!inputLevel.isAllLayersVisible()) inputLevel.previousLayer();
                         break;
                     case OUTPUT:
                         LevelLike outputLevel = this.cacheOutput.computeIfAbsent(
                             it,
-                            a -> RecipeUtil.asLevelLike(a.value().getOutputPattern())
+                            a -> LevelLikeDisplaySupport.asLevelLike(a.value().getOutputPattern())
                         );
                         if (!outputLevel.isAllLayersVisible()) outputLevel.previousLayer();
                         break;

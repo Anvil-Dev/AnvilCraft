@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.util.PacketDistributingHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -13,13 +14,13 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.DirectionalPlaceContext;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 
@@ -70,11 +71,11 @@ public class FloatingBlockEntity extends FallingBlockEntity {
             ++this.time;
             BlockPos blockPos = this.blockPosition();
 
-            if (this.level().getFluidState(blockPos.above()).is(FluidTags.WATER) && !underCeiling) {
+            if (this.level().getFluidState(blockPos.above()).is(FluidTags.WATER) && !this.underCeiling) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.04, 0.0));
             } else {
-                if (!this.level().isClientSide) {
-                    if (underCeiling) blockPos = blockPos.above();
+                if (!this.level().isClientSide()) {
+                    if (this.underCeiling) blockPos = blockPos.above();
                     BlockState blockState = this.level().getBlockState(blockPos);
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
                     if (!blockState.is(Blocks.MOVING_PISTON)) {
@@ -91,7 +92,7 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 }
 
                                 if (this.level().setBlock(blockPos, this.blockState, 3)) {
-                                    ((ServerLevel) this.level()).getChunkSource().chunkMap.broadcast(
+                                    PacketDistributingHelper.sendToPlayersTrackingEntity(
                                         this,
                                         new ClientboundBlockUpdatePacket(
                                             blockPos,
@@ -105,17 +106,17 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 } else if (
                                     !(this.level().getBlockState(blockPos).getBlock() instanceof Fallable)
                                         && this.position().y - Math.floor(this.position().y) < 0.5
-                                        && this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)
+                                        && this.dropItem && this.level().getServer().getGameRules().get(GameRules.ENTITY_DROPS)
                                 ) {
                                     this.discard();
                                     this.callOnBrokenAfterFall(block, blockPos);
-                                    this.spawnAtLocation(block);
+                                    this.spawnAtLocation((ServerLevel) level(), block);
                                 }
                             } else {
                                 this.discard();
-                                if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                                if (this.dropItem && this.level().getServer().getGameRules().get(GameRules.ENTITY_DROPS)) {
                                     this.callOnBrokenAfterFall(block, blockPos);
-                                    this.spawnAtLocation(block);
+                                    this.spawnAtLocation((ServerLevel) level(), block);
                                 }
                             }
                         } else {
@@ -132,7 +133,7 @@ public class FloatingBlockEntity extends FallingBlockEntity {
 
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        return EntityDimensions.scalable(0.98f, 0.98f);
+        return EntityDimensions.scalable(0.98F, 0.98F);
     }
 
     @Override

@@ -3,11 +3,11 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +21,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     private int tickCounter = 0;
     private int recipeIndex = 0;
 
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "royal_grindstone");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "royal_grindstone");
 
     public RoyalGrindstoneScreen(
         RoyalGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
@@ -29,45 +29,45 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
         if (this.menu.getSlot(2).hasItem()) {
             Component removedText = Component.translatable("screen.anvilcraft.royal_grindstone.will_remove");
-            drawLabel(
+            this.drawLabel(
                 63,
                 11,
                 removedText,
-                guiGraphics
+                graphics
             );
             Component removedRepairCostText = Component.translatable(
                 "screen.anvilcraft.royal_grindstone.repair_cost",
                 this.menu.removedRepairCost, this.menu.totalRepairCost
             );
-            drawLabel(
+            this.drawLabel(
                 63,
                 22,
                 removedRepairCostText,
-                guiGraphics
+                graphics
             );
             Component removedCurseCountText = Component.translatable(
                 "screen.anvilcraft.royal_grindstone.curse_count",
                 this.menu.removedCurseCount, this.menu.totalCurseCount
             );
-            drawLabel(
+            this.drawLabel(
                 63,
                 33,
                 removedCurseCountText,
-                guiGraphics
+                graphics
             );
             Component usedGoldText = Component.translatable(
                 "screen.anvilcraft.royal_grindstone.gold_cost",
                 this.menu.usedGold
             );
-            drawLabel(
+            this.drawLabel(
                 63,
                 44,
                 usedGoldText,
-                guiGraphics
+                graphics
             );
         }
     }
@@ -75,21 +75,25 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
-    }
-
-    protected void renderBg(GuiGraphics g, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        g.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        g.setColor(1f, 1f, 1f, 1);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
         ItemStack repairToolItem = this.menu.getSlot(0).getItem();
         ItemStack repairItem = this.menu.getSlot(1).getItem();
         ItemStack resultItem = this.menu.getSlot(3).getItem();
@@ -105,11 +109,11 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
                     .get(RoyalGrindstoneMenu.DEFAULT_REPAIR_MATERIAL)
                     .item().getDefaultInstance();
             } else if (repairToolItem.isEmpty()) {
-                var entry = recipes.get(recipeIndex);
+                var entry = recipes.get(this.recipeIndex);
                 displayRepair = entry.getKey().getDefaultInstance();
                 displayResult = entry.getValue().item().getDefaultInstance();
             } else {
-                var entry = getCurrentRecipe(recipes, this.menu.totalRepairCost);
+                var entry = this.getCurrentRecipe(recipes, this.menu.totalRepairCost);
                 displayRepair = entry.getKey().getDefaultInstance();
                 displayResult = entry.getValue().item().getDefaultInstance();
             }
@@ -124,14 +128,14 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
             displayRepair = repair.getDefaultInstance();
         }
 
-        if (!displayRepair.isEmpty()) renderMaskedItem(g, displayRepair, i + 35, j + 21);
-        if (!displayResult.isEmpty()) renderMaskedItem(g, displayResult, i + 35, j + 45);
+        if (!displayRepair.isEmpty()) this.extractMaskedItem(graphics, displayRepair, this.leftPos + 35, this.topPos + 21);
+        if (!displayResult.isEmpty()) this.extractMaskedItem(graphics, displayResult, this.leftPos + 35, this.topPos + 45);
     }
 
-    private void renderMaskedItem(GuiGraphics g, ItemStack stack, int x, int y) {
+    private void extractMaskedItem(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y) {
         final int maskColor = 0x55777777;
-        g.renderItem(stack, x, y, 0);
-        g.fill(RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
+        graphics.item(stack, x, y, 0);
+        graphics.fill(x, y, x + 16, y + 16, maskColor);
     }
 
     private Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry> getCurrentRecipe(
@@ -139,13 +143,13 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         int repairCost
     ) {
         recipes.sort(Comparator.comparingInt(entry -> entry.getValue().count()));
-        recipeIndex = recipeIndex % recipes.size();
+        this.recipeIndex = this.recipeIndex % recipes.size();
         int checked = 0;
         while (checked < recipes.size()) {
-            Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry> candidate = recipes.get(recipeIndex);
+            Map.Entry<Item, RoyalGrindstoneMenu.RepairCostRecipeEntry> candidate = recipes.get(this.recipeIndex);
             int requiredCost = candidate.getValue().count();
             if (requiredCost <= repairCost) return candidate;
-            recipeIndex = (recipeIndex + 1) % recipes.size();
+            this.recipeIndex = (this.recipeIndex + 1) % recipes.size();
             checked++;
         }
         return Map.entry(
@@ -154,8 +158,9 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         );
     }
 
-    private void drawLabel(int x, int y, Component component, GuiGraphics guiGraphics) {
-        guiGraphics.drawString(
+    @SuppressWarnings("SameParameterValue")
+    private void drawLabel(int x, int y, Component component, GuiGraphicsExtractor graphics) {
+        graphics.text(
             this.font,
             component,
             x + 2,
@@ -167,7 +172,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
     @Override
     protected void containerTick() {
         super.containerTick();
-        tickCounter++;
-        if (tickCounter % (20 * 3) == 0) recipeIndex = (recipeIndex + 1) % RoyalGrindstoneMenu.REPAIR_COST_RECIPES.size();
+        this.tickCounter++;
+        if (this.tickCounter % (20 * 3) == 0) this.recipeIndex = (this.recipeIndex + 1) % RoyalGrindstoneMenu.REPAIR_COST_RECIPES.size();
     }
 }

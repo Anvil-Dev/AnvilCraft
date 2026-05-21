@@ -4,8 +4,6 @@ import dev.dubhe.anvilcraft.api.injection.tooltip.ITooltipProviderExtension;
 import dev.dubhe.anvilcraft.network.ComparatorSyncPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.ComparatorBlock;
@@ -13,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ComparatorBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -52,15 +51,15 @@ public abstract class ComparatorBlockEntityMixin extends BlockEntity implements 
     }
 
     @Inject(method = "loadAdditional", at = @At("TAIL"))
-    private void sendOutputToClient(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+    private void sendOutputToClient(ValueInput input, CallbackInfo ci) {
         if (!(this.level instanceof ServerLevel)) return;
         PacketDistributor.sendToAllPlayers(new ComparatorSyncPacket(this.worldPosition, this.output));
     }
 
     @Inject(method = "setOutputSignal", at = @At("HEAD"))
-    private void sendChangesWhenChanged(int output, CallbackInfo ci) {
-        if (this.output == output) return;
+    private void sendChangesWhenChanged(int value, CallbackInfo ci) {
+        if (this.output == value) return;
         if (!(this.level instanceof ServerLevel level1)) return;
-        PacketDistributor.sendToPlayersInDimension(level1, new ComparatorSyncPacket(this.worldPosition, output));
+        PacketDistributor.sendToPlayersInDimension(level1, new ComparatorSyncPacket(this.worldPosition, value));
     }
 }

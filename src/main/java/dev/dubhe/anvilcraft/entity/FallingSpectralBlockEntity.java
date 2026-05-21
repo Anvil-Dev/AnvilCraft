@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.entity;
 
 import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
+import dev.dubhe.anvilcraft.block.workstation.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.floats.FloatArrays;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -22,7 +22,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.BlockCollisions;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
@@ -32,13 +31,16 @@ import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.NeoForge;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -77,7 +79,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     @Override
-    public float anvilcraft$getFallDistance() {
+    public double anvilcraft$getFallDistance() {
         return 1.0F;
     }
 
@@ -95,28 +97,37 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                 BlockPos blockPos = this.blockPosition();
                 if (this.onGround()) {
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
-                    AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), blockPos, this, this.anvilcraft$getFallDistance());
-                    NeoForge.EVENT_BUS.post(event);
+                    if (this.level() instanceof ServerLevel serverLevel) {
+                        NeoForge.EVENT_BUS.post(new AnvilEvent.OnLand(serverLevel, blockPos, this, this.anvilcraft$getFallDistance()));
+                    }
                     this.level().playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
                     this.discard();
                     this.callOnBrokenAfterFall(block, blockPos);
-                    if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                        this.spawnAtLocation(block);
+                    if (
+                        this.level() instanceof ServerLevel serverLevel
+                        && this.dropItem
+                        && serverLevel.getGameRules().get(GameRules.ENTITY_DROPS)
+                    ) {
+                        this.spawnAtLocation(serverLevel, block);
                     }
                 } else if (
                     !this.level().isClientSide()
                     && (
                         this.time > 100
                         && (
-                            blockPos.getY() <= this.level().getMinBuildHeight()
-                            || blockPos.getY() > this.level().getMaxBuildHeight()
+                            blockPos.getY() <= this.level().getMinY()
+                            || blockPos.getY() > this.level().getMaxY()
                         )
                         || this.time > 600
                     )
                 ) {
                     this.discard();
-                    if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                        this.spawnAtLocation(block);
+                    if (
+                        this.level() instanceof ServerLevel serverLevel
+                        && this.dropItem
+                        && serverLevel.getGameRules().get(GameRules.ENTITY_DROPS)
+                    ) {
+                        this.spawnAtLocation(serverLevel, block);
                     }
                 }
             }
@@ -225,23 +236,19 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
+    protected void addAdditionalSaveData(ValueOutput compound) {
         super.addAdditionalSaveData(compound);
         compound.putBoolean("Ghost", this.isGhostEntity);
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
+    protected void readAdditionalSaveData(ValueInput compound) {
         super.readAdditionalSaveData(compound);
-        if (compound.contains("Ghost")) {
-            this.isGhostEntity = compound.getBoolean("Ghost");
-        } else {
-            this.isGhostEntity = true;
-        }
+        this.isGhostEntity = compound.getBooleanOr("Ghost", true);
     }
 
     @Override
-    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
+    public boolean causeFallDamage(double fallDistance, float damageModifier, DamageSource source) {
         int dist = Mth.ceil(fallDistance - 1.0F);
         if (dist < 0) {
             return false;
@@ -252,11 +259,14 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                                     ? fallable.getFallDamageSource(this)
                                     : this.damageSources().fallingBlock(this);
         this.level().getEntities(this, this.getBoundingBox(), predicate).forEach(entity -> {
-            entity.hurt(damageSource, f);
-            NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(this, this.getOnPos(), this.level(), entity, f));
+            // noinspection deprecation
+            entity.hurtOrSimulate(damageSource, f);
+            if (this.level() instanceof ServerLevel serverLevel) {
+                NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(this, this.getOnPos(), serverLevel, entity, f));
+            }
         });
         boolean isAnvil = this.blockState.is(BlockTags.ANVIL);
-        if (isAnvil && f > 0.0F && this.random.nextFloat() < 0.05F + (float) dist * 0.05F) {
+        if (isAnvil && f > 0.0F && this.getRandom().nextFloat() < 0.05F + (float) dist * 0.05F) {
             BlockState blockState = AnvilBlock.damage(this.blockState);
             if (blockState == null) {
                 this.cancelDrop = true;

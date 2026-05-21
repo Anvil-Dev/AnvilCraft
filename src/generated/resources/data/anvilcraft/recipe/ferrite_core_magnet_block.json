@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "item": "anvilcraft:magnet_ingot"
-    },
-    "B": {
-      "tag": "c:ingots/iron"
-    }
+    "A": "anvilcraft:magnet_ingot",
+    "B": "#c:ingots/iron"
   },
   "pattern": [
     "AAA",
@@ -15,7 +11,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:ferrite_core_magnet_block"
   }
 }

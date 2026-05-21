@@ -6,8 +6,7 @@ import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 public class ItemTooltipLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
-        ItemTooltipManager.NEED_TOOLTIP_ITEMS.forEach(
-            (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
+        ItemTooltipManager.NEED_TOOLTIP_ITEMS.forEach((item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
 
@@ -38,16 +37,6 @@ public class ItemTooltipLang {
 
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %ds");
 
-        provider.add(
-            "tooltip.anvilcraft.item.amulet_box.line_1",
-            "Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;"
-        );
-        provider.add(
-            "tooltip.anvilcraft.item.amulet_box.line_2",
-            "When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift."
-        );
-        provider.add("tooltip.anvilcraft.item.amulet_box.fullness", "Fullness: %1$d / %2$d");
-
         provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for information");
 
         provider.add(
@@ -61,6 +50,5 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.resonator.mining_desc", "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click");
 
         provider.add("tooltip.anvilcraft.thought", "Press [%s] for more info");
-        provider.add("tooltip.anvilcraft.item.amulet_box.desc", "Stores multiple active amulets or totems");
     }
 }

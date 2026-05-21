@@ -1,13 +1,13 @@
-artifacts {
-    archives tasks.jar
-    archives tasks.sourcesJar
+tasks.named("assemble") {
+    dependsOn tasks.jar
+    dependsOn tasks.sourcesJar
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = project.group
-            artifactId = project.archivesBaseName
+            artifactId = project.base.archivesName.get()
             version = project.version
 
             from components.java

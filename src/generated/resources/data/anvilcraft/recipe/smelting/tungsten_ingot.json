@@ -4,11 +4,8 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:tungsten_ingot",
-  "ingredient": {
-    "item": "anvilcraft:raw_tungsten"
-  },
+  "ingredient": "anvilcraft:raw_tungsten",
   "result": {
-    "count": 1,
     "id": "anvilcraft:tungsten_ingot"
   }
 }

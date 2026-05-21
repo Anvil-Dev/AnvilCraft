@@ -14,7 +14,7 @@ public record EnchantmentData(
     int level
 ) implements Comparable<EnchantmentData> {
     public EnchantmentData(DataComponentType<ItemEnchantments> type, EnchantmentInstance inst) {
-        this(type, inst.enchantment, inst.level);
+        this(type, inst.enchantment(), inst.level());
     }
 
     public EnchantmentInstance toEnchantmentInst() {

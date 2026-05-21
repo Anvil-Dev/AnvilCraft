@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.MagnetBlock;
+import dev.dubhe.anvilcraft.block.storage.MagnetBlock;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -15,13 +15,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
 @Mixin(AnvilBlock.class)
 abstract class AnvilBlockMixin extends FallingBlock {
@@ -31,28 +31,28 @@ abstract class AnvilBlockMixin extends FallingBlock {
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (anvilcraft$isAttracts(level.getBlockState(pos.above()))) {
+        if (this.anvilcraft$isAttracts(level.getBlockState(pos.above()))) {
             return;
         }
         super.tick(state, level, pos, random);
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
-        Block neighborBlock,
-        BlockPos neighborPos,
+        Block block,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
         this.anvilcraft$wasAttracted(state, level, pos);
     }
 
     @Unique
     private boolean anvilcraft$isAttracts(BlockState state) {
-        return state.is(ModBlockTags.MAGNET) && !state.getValue(LIT);
+        return state.is(ModBlockTags.MAGNET) && !state.getValue(MagnetBlock.LIT);
     }
 
     @Override
@@ -77,7 +77,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
         for (int i = 0; i < distance; i++) {
             magnet = magnet.above();
             BlockState state1 = level.getBlockState(magnet);
-            if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(LIT)) {
+            if (!(state1.getBlock() instanceof MagnetBlock) || state1.getValue(MagnetBlock.LIT)) {
                 if (level.isEmptyBlock(magnet) || state1.getBlock() instanceof LiquidBlock) {
                     continue;
                 } else {
@@ -94,7 +94,7 @@ abstract class AnvilBlockMixin extends FallingBlock {
     }
 
     @Inject(method = "damage", at = @At("RETURN"), cancellable = true)
-    private static void damage(BlockState state, CallbackInfoReturnable<BlockState> cir) {
-        if (state.is(ModBlockTags.CANT_BROKEN_ANVIL)) cir.setReturnValue(state);
+    private static void damage(BlockState blockState, CallbackInfoReturnable<BlockState> cir) {
+        if (blockState.is(ModBlockTags.CANT_BROKEN_ANVIL)) cir.setReturnValue(blockState);
     }
 }

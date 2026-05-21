@@ -1,12 +1,14 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.block.PropelPiston;
+import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.network.UpdatePropelPistonStoredEnergyPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -18,8 +20,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.piston.PistonStructureResolver;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +44,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public Direction getFacing() {
-        return getBlockState().getValue(PropelPiston.FACING);
+        return getBlockState().getValue(PropelPistonBlock.FACING);
     }
 
     public void updateStoredEnergy(Integer energy) {
@@ -50,13 +54,13 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         }
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
-            new ChunkPos(getBlockPos()),
-            new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), storedEnergy)
+            ChunkPos.containing(getBlockPos()),
+            new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), this.storedEnergy)
         );
     }
 
     public void addEnergy(int energy) {
-        updateStoredEnergy(getStoredEnergy() + energy);
+        this.updateStoredEnergy(getStoredEnergy() + energy);
     }
 
     @Override
@@ -67,25 +71,25 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     public void tick(Level level, BlockPos pos, BlockState state) {
         updateLaserLevel(calculateLaserLevel());
         if (changed) {
-            delay = 0;
-            power = laserLevel * 15;
+            this.delay = 0;
+            this.power = laserLevel * 15;
         }
         if (!changed) {
-            if (storedEnergy < 80000) {
-                delay++;
-                if (delay >= 20) {
-                    delay = 0;
-                    addEnergy(power);
+            if (this.storedEnergy < 80000) {
+                this.delay++;
+                if (this.delay >= 20) {
+                    this.delay = 0;
+                    this.addEnergy(this.power);
                 }
             }
         }
         if (getStoredEnergy() > 0) {
-            level.setBlockAndUpdate(pos, state.setValue(PropelPiston.EXHAUSTED, false));
+            level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, false));
             if (!level.getBlockTicks().hasScheduledTick(pos, state.getBlock())) {
-                checkCanMove(level, pos, state);
+                this.checkCanMove(level, pos, state);
             }
         } else {
-            level.setBlockAndUpdate(pos, state.setValue(PropelPiston.EXHAUSTED, true).setValue(PropelPiston.MOVING, false));
+            level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, true).setValue(PropelPistonBlock.MOVING, false));
         }
         super.tick(level);
         resetState();
@@ -94,31 +98,31 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     @Override
     public Set<Direction> getIgnoreFace() {
         Set<Direction> directions = new HashSet<>(List.of(Direction.values()));
-        directions.remove(getBlockState().getValue(PropelPiston.FACING).getOpposite());
+        directions.remove(getBlockState().getValue(PropelPistonBlock.FACING).getOpposite());
         return directions;
     }
 
     private void checkCanMove(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(PropelPiston.FACING);
-        if (state.getValue(PropelPiston.MOVING)) {
+        Direction direction = state.getValue(PropelPistonBlock.FACING);
+        if (state.getValue(PropelPistonBlock.MOVING)) {
             if (new PistonStructureResolver(level, pos, direction, true).resolve()) {
-                level.blockEvent(pos, state.getBlock(), 0, state.getValue(PropelPiston.FACING).get3DDataValue());
+                level.blockEvent(pos, state.getBlock(), 0, state.getValue(PropelPistonBlock.FACING).get3DDataValue());
             } else {
-                level.setBlockAndUpdate(pos, state.setValue(PropelPiston.MOVING, false));
+                level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.MOVING, false));
             }
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.storedEnergy = tag.getInt("storedEnergy");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.storedEnergy = input.getIntOr("storedEnergy", 0);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("storedEnergy", Math.min(this.storedEnergy, 80000));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("storedEnergy", Math.min(this.storedEnergy, 80000));
     }
 
     @Override
@@ -134,13 +138,13 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput componentInput) {
-        Integer energy = componentInput.getOrDefault(ModComponents.STORED_ENERGY, 0);
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        Integer energy = components.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         this.updateStoredEnergy(energy);
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
-        components.set(ModComponents.STORED_ENERGY, this.storedEnergy);
+        components.set(ModComponents.STORED_ENERGY, new StoredEnergy(this.storedEnergy));
     }
 }

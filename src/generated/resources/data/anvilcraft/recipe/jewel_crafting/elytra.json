@@ -2,110 +2,23 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "item": "minecraft:phantom_membrane"
+      "count": 8,
+      "items": "minecraft:phantom_membrane"
     },
     {
-      "item": "minecraft:phantom_membrane"
+      "count": 8,
+      "items": "#c:feathers"
     },
     {
-      "item": "minecraft:phantom_membrane"
+      "count": 2,
+      "items": "#c:leathers"
     },
     {
-      "item": "minecraft:phantom_membrane"
-    },
-    {
-      "item": "minecraft:phantom_membrane"
-    },
-    {
-      "item": "minecraft:phantom_membrane"
-    },
-    {
-      "item": "minecraft:phantom_membrane"
-    },
-    {
-      "item": "minecraft:phantom_membrane"
-    },
-    {
-      "tag": "c:feathers"
-    },
-    {
-      "tag": "c:feathers"
-    },
-    {
-      "tag": "c:feathers"
-    },
-    {
-      "tag": "c:feathers"
-    },
-    {
-      "tag": "c:feathers"
-    },
-    {
-      "tag": "c:feathers"
-    },
-    {
-      "tag": "c:feathers"
-    },
-    {
-      "tag": "c:feathers"
-    },
-    {
-      "tag": "c:leathers"
-    },
-    {
-      "tag": "c:leathers"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
-    },
-    {
-      "item": "minecraft:bamboo"
+      "count": 16,
+      "items": "minecraft:bamboo"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "minecraft:elytra"
+  "source": {
+    "items": "minecraft:elytra"
   }
 }

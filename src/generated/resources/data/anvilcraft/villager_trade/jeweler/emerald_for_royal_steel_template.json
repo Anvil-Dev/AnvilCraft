@@ -1,0 +1,16 @@
+{
+  "additional_wants": {
+    "count": 4.0,
+    "id": "anvilcraft:royal_steel_ingot"
+  },
+  "gives": {
+    "id": "anvilcraft:royal_steel_upgrade_smithing_template"
+  },
+  "max_uses": 2.0,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 40.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 10.0
+}

@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -90,17 +90,17 @@ public enum DirectionCube3x3PartHalf
 
     @Override
     public int getOffsetX(Direction value) {
-        return offsetX;
+        return this.offsetX;
     }
 
     @Override
     public int getOffsetY(Direction value) {
-        return offsetY;
+        return this.offsetY;
     }
 
     @Override
     public int getOffsetZ(Direction value) {
-        return offsetZ;
+        return this.offsetZ;
     }
 
     @Override

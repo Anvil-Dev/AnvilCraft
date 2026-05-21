@@ -12,4 +12,18 @@ public interface IPowerConsumer extends IPowerComponent {
     default PowerComponentType getComponentType() {
         return PowerComponentType.CONSUMER;
     }
+
+    @Override
+    default PowerComponentInfo toPowerComponentInfo() {
+        return new PowerComponentInfo(
+            getPos(),
+            this.getInputPower(),
+            0,
+            0,
+            0,
+            getRange(),
+            getShape(),
+            PowerComponentType.CONSUMER
+        );
+    }
 }

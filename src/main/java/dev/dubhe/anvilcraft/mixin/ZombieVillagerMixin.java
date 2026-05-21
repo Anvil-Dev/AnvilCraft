@@ -6,9 +6,9 @@ import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.village.ReputationEventType;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.monster.ZombieVillager;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.monster.zombie.ZombieVillager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,20 +27,20 @@ public abstract class ZombieVillagerMixin extends Zombie {
     }
 
     @WrapOperation(
-        method = "finishConversion",
+        method = "lambda$finishConversion$0",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/npc/Villager;refreshBrain(Lnet/minecraft/server/level/ServerLevel;)V"
+            target = "Lnet/minecraft/world/entity/npc/villager/Villager;refreshBrain(Lnet/minecraft/server/level/ServerLevel;)V"
         )
     )
-    private void discountForAllPlayers(Villager villager, ServerLevel serverLevel, Operation<Void> original) {
+    private void discountForAllPlayers(Villager villager, ServerLevel level, Operation<Void> original) {
         if (ModDispenserBehavior.ANVILCRAFT_DISPENSER.equals(this.conversionStarter)) {
-            serverLevel.getServer()
+            level.getServer()
                 .getPlayerList()
                 .getPlayers()
-                .forEach(p -> serverLevel.onReputationEvent(ReputationEventType.ZOMBIE_VILLAGER_CURED, p, villager));
+                .forEach(p -> level.onReputationEvent(ReputationEventType.ZOMBIE_VILLAGER_CURED, p, villager));
             this.conversionStarter = null;
         }
-        original.call(villager, serverLevel);
+        original.call(villager, level);
     }
 }

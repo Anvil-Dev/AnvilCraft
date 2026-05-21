@@ -1,0 +1,41 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/frost_metal_resonance_axe"
+        },
+        "when": "axe"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/frost_metal_resonance_hoe"
+        },
+        "when": "hoe"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/frost_metal_resonance_pickaxe"
+        },
+        "when": "pickaxe"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/frost_metal_resonance_shovel"
+        },
+        "when": "shovel"
+      }
+    ],
+    "component": "anvilcraft:resonate_mode",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/frost_metal_resonator"
+    },
+    "property": "minecraft:component"
+  }
+}

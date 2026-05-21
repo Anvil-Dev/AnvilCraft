@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:negative_matter"
-    }
+    "anvilcraft:negative_matter"
   ],
   "result": {
     "count": 9,

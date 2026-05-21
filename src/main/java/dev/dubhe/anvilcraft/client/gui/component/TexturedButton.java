@@ -1,22 +1,23 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class TexturedButton extends Button {
     private final int texYDiff;
     private final int textureWidth;
     private final int textureHeight;
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
     public TexturedButton(
         int x,
         int y,
         int width,
         int height,
-        ResourceLocation texture,
+        Identifier texture,
         int texYDiff,
         int textureWidth,
         int textureHeight,
@@ -35,7 +36,7 @@ public class TexturedButton extends Button {
         int y,
         int width,
         int height,
-        ResourceLocation texture,
+        Identifier texture,
         int texYDiff,
         int textureWidth,
         int textureHeight,
@@ -51,13 +52,28 @@ public class TexturedButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (!this.visible) return;
         this.isHovered = this.isMouseOver(mouseX, mouseY);
         int offsetV = 0;
         if (this.isHovered) {
-            offsetV = texYDiff;
+            offsetV = this.texYDiff;
         }
-        graphics.blit(texture, this.getX(), this.getY(), 0, offsetV, width, height, textureWidth, textureHeight);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            this.texture,
+            this.getX(),
+            this.getY(),
+            0,
+            offsetV,
+            this.width,
+            this.height,
+            this.textureWidth,
+            this.textureHeight
+        );
+    }
+
+    public void renderContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.extractContents(graphics, mouseX, mouseY, a);
     }
 }

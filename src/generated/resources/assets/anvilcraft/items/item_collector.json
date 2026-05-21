@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "anvilcraft:block/item_collector"
+  }
+}

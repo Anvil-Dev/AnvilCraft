@@ -15,8 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.ItemStackMap;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,17 +50,16 @@ public class BlockPattern {
     }
 
     private BlockPattern() {
-        layers = new ArrayList<>();
-        symbols = new HashMap<>();
+        this.layers = new ArrayList<>();
+        this.symbols = new HashMap<>();
     }
 
-    @Contract(" -> new")
     public static BlockPattern create() {
         return new BlockPattern();
     }
 
     public BlockPattern layer(String... lines) {
-        return layer(Arrays.asList(lines));
+        return this.layer(Arrays.asList(lines));
     }
 
     public BlockPattern layer(List<String> layer) {
@@ -74,19 +72,19 @@ public class BlockPattern {
                     "The number of squares in each row must be equal to the number of rows.");
             }
         }
-        layers.add(layer);
+        this.layers.add(layer);
         return this;
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public BlockPattern symbol(char symbol, BlockPredicateWithState predicate) {
-        symbols.put(symbol, predicate);
+        this.symbols.put(symbol, predicate);
         return this;
     }
 
     public boolean checkSymbols() {
         Set<Character> characterSet = new HashSet<>();
-        for (List<String> layer : layers) {
+        for (List<String> layer : this.layers) {
             for (String line : layer) {
                 for (char c : line.toCharArray()) {
                     if (c == ' ') {
@@ -96,24 +94,24 @@ public class BlockPattern {
                 }
             }
         }
-        return symbols.keySet().containsAll(characterSet);
+        return this.symbols.keySet().containsAll(characterSet);
     }
 
     public BlockPredicateWithState getPredicate(int x, int y, int z) {
-        char c = layers.get(y).get(z).charAt(x);
+        char c = this.layers.get(y).get(z).charAt(x);
         if (c == ' ') {
             return BlockPredicateWithState.of(Blocks.AIR);
         }
-        return symbols.get(c);
+        return this.symbols.get(c);
     }
 
     @Nullable
     public BlockPredicateWithState getBySymbol(char symbol) {
-        return symbols.get(symbol);
+        return this.symbols.get(symbol);
     }
 
     public int getSize() {
-        return layers.size();
+        return this.layers.size();
     }
 
     public List<ItemStack> toIngredientList() {

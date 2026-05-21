@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.recipe.data.ItemEnchantmentsData;
 import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 
@@ -41,7 +41,7 @@ public class PermutationRecipeLoader {
             provider,
             PermutationRecipeLoader.WEAPONS_AND_TOOLS,
             ModItems.ROYAL_STEEL_INGOT,
-            ResourceLocation.withDefaultNamespace("diamond"),
+            Identifier.withDefaultNamespace("diamond"),
             AnvilCraft.of("royal_steel")
         );
 
@@ -49,7 +49,7 @@ public class PermutationRecipeLoader {
             provider,
             PermutationRecipeLoader.WEAPONS_AND_TOOLS,
             ModItems.EMBER_METAL_INGOT,
-            ResourceLocation.withDefaultNamespace("netherite"),
+            Identifier.withDefaultNamespace("netherite"),
             AnvilCraft.of("ember_metal"),
             (netherite, ember) -> PermutationRecipe.builder().input(
                 RecipeResult.builder()
@@ -119,12 +119,12 @@ public class PermutationRecipeLoader {
         RegistrumRecipeProvider provider,
         List<String> bases,
         ItemLike material,
-        ResourceLocation idA,
-        ResourceLocation idB
+        Identifier idA,
+        Identifier idB
     ) {
         for (String base : bases) {
-            Item inputA = BuiltInRegistries.ITEM.get(idA.withSuffix("_" + base));
-            Item inputB = BuiltInRegistries.ITEM.get(idB.withSuffix("_" + base));
+            Item inputA = BuiltInRegistries.ITEM.getValue(idA.withSuffix("_" + base));
+            Item inputB = BuiltInRegistries.ITEM.getValue(idB.withSuffix("_" + base));
             PermutationRecipe.builder()
                 .material(material)
                 .input(inputA)
@@ -137,13 +137,13 @@ public class PermutationRecipeLoader {
         RegistrumRecipeProvider provider,
         List<String> bases,
         ItemLike material,
-        ResourceLocation idA,
-        ResourceLocation idB,
+        Identifier idA,
+        Identifier idB,
         BiFunction<Item, Item, PermutationRecipe.Builder> builderFactory
     ) {
         for (String base : bases) {
-            Item inputA = BuiltInRegistries.ITEM.get(idA.withSuffix("_" + base));
-            Item inputB = BuiltInRegistries.ITEM.get(idB.withSuffix("_" + base));
+            Item inputA = BuiltInRegistries.ITEM.getValue(idA.withSuffix("_" + base));
+            Item inputB = BuiltInRegistries.ITEM.getValue(idB.withSuffix("_" + base));
             builderFactory.apply(inputA, inputB)
                 .material(material)
                 .save(provider, PermutationRecipeLoader.defaultId(inputA, inputB));
@@ -151,7 +151,7 @@ public class PermutationRecipeLoader {
     }
 
     private static String defaultId(Item inputA, Item inputB) {
-        ResourceLocation inputAId = BuiltInRegistries.ITEM.getKey(inputA);
+        Identifier inputAId = BuiltInRegistries.ITEM.getKey(inputA);
         String inputBPath = BuiltInRegistries.ITEM.getKey(inputB).getPath();
         return inputAId.withSuffix("_and_" + inputBPath).getPath();
     }

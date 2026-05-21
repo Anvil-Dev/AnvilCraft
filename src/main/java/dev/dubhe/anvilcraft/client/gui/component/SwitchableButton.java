@@ -1,19 +1,19 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.google.common.collect.Collections2;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -21,64 +21,70 @@ public class SwitchableButton extends Button {
     public static final Button.OnPress DO_NOTHING = btn -> {
     };
 
-    private final List<Button> switchables = new ArrayList<>();
+    private final List<Identifier> textures = new ArrayList<>();
     private final List<Component> message;
+    private final int texYDiff;
+    private final int textureWidth;
+    private final int textureHeight;
     @Getter
     @Setter
     private int current = 0;
 
     public SwitchableButton(
         int x, int y, int width, int height,
-        List<ResourceLocation> textures, int texYDiff, int textureWidth, int textureHeight,
+        List<Identifier> textures, int texYDiff, int textureWidth, int textureHeight,
         OnPress onPress
     ) {
-        this(
-            x, y, width, height,
-            Collections2.transform(
-                textures,
-                texture -> new TexturedButton(
-                    x, y, width, height, texture, texYDiff, textureWidth, textureHeight, DO_NOTHING
-                )
-            ),
-            onPress,
-            List.of()
-        );
+        this(x, y, width, height, textures, texYDiff, textureWidth, textureHeight, onPress, List.of());
     }
 
     public SwitchableButton(
         int x, int y, int width, int height,
-        List<ResourceLocation> textures, int texYDiff, int textureWidth, int textureHeight,
+        List<Identifier> textures, int texYDiff, int textureWidth, int textureHeight,
         OnPress onPress, List<Component> message
     ) {
-        this(
-            x, y, width, height,
-            Collections2.transform(
-                textures,
-                texture -> new TexturedButton(
-                    x, y, width, height, texture, texYDiff, textureWidth, textureHeight, DO_NOTHING
-                )
-            ),
-            onPress, message
-        );
-    }
-
-    public SwitchableButton(
-        int x, int y, int width, int height, Collection<Button> buttons, OnPress onPress, List<Component> message
-    ) {
         super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
+        this.textures.addAll(textures);
         this.message = message;
-        this.switchables.addAll(buttons);
+        this.texYDiff = texYDiff;
+        this.textureWidth = textureWidth;
+        this.textureHeight = textureHeight;
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.switchables.get(this.current).render(guiGraphics, mouseX, mouseY, partialTick);
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        if (!this.visible) return;
+        this.isHovered = this.isMouseOver(mouseX, mouseY);
+        int offsetV = 0;
+        if (this.isHovered) {
+            offsetV = this.texYDiff;
+        }
+        if (this.current < this.textures.size()) {
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                this.textures.get(this.current),
+                this.getX(),
+                this.getY(),
+                0,
+                offsetV,
+                this.width,
+                this.height,
+                this.textureWidth,
+                this.textureHeight
+            );
+        }
         if (MathUtil.isInRange(mouseX, this.getX(), this.getX() + this.width)
             && MathUtil.isInRange(mouseY, this.getY(), this.getY() + this.height)
             && !this.message.isEmpty()
-            && this.switchables.size() == this.message.size()) {
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
+            && this.textures.size() == this.message.size()) {
+            graphics.tooltip(
+                Minecraft.getInstance().font,
+                List.of(ClientTooltipComponent.create(this.getMessage().getVisualOrderText())),
+                mouseX,
+                mouseY,
+                DefaultTooltipPositioner.INSTANCE,
+                null
+            );
         }
     }
 
@@ -90,40 +96,20 @@ public class SwitchableButton extends Button {
         return this.message.get(this.getCurrent());
     }
 
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-        this.onPress(0);
-    }
-
-    @Override
-    public void onClick(double mouseX, double mouseY, int button) {
-        this.onPress(button);
-    }
-
-    protected void onPress(int button) {
-        if (button == 0) {
-            this.current += 1;
-        } else if (button == 1) {
-            this.current -= 1;
-        }
-
-        if (this.current < 0) {
-            this.current = this.switchables.size() - 1;
-        } else if (this.current >= this.switchables.size()) {
+    public void switchToNext() {
+        this.current += 1;
+        if (this.current >= this.textures.size()) {
             this.current = 0;
         }
-
         ((OnPress) this.onPress).onPress(this, this.current);
     }
 
-    @Override
-    public void onPress() {
-        this.onPress(0);
-    }
-
-    @Override
-    protected boolean isValidClickButton(int button) {
-        return button == 0 || button == 1;
+    public void switchToPrev() {
+        this.current -= 1;
+        if (this.current < 0) {
+            this.current = this.textures.size() - 1;
+        }
+        ((OnPress) this.onPress).onPress(this, this.current);
     }
 
     public interface OnPress extends Button.OnPress, Consumer<Button>, BiConsumer<Button, Integer> {

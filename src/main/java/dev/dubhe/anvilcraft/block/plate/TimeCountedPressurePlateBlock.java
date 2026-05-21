@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements EntityBlock {
     public final int needTick;
@@ -50,7 +50,7 @@ public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TimeCountedPressurePlateBlockEntity(pos, state, needTick);
+        return new TimeCountedPressurePlateBlockEntity(pos, state, this.needTick);
     }
 
     @Override

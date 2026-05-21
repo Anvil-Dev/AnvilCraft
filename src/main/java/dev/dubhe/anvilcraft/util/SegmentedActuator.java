@@ -57,7 +57,7 @@ public class SegmentedActuator {
             this.finallyRunnable.run();
             return;
         }
-        Task task = tasks.get(this.index);
+        Task task = this.tasks.get(this.index);
         Task.Result execute = task.execute();
         if (execute == Task.Result.NEXT) {
             this.index++;
@@ -66,7 +66,7 @@ public class SegmentedActuator {
 
     public void reset() {
         this.index = 0;
-        for (Task task : tasks) {
+        for (Task task : this.tasks) {
             task.reset();
         }
     }

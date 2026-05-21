@@ -1,23 +1,34 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.BaseShowItemRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
-
-public class ConfinementChamberRenderer extends BaseShowItemRenderer<ConfinementChamberBlockEntity> {
+public class ConfinementChamberRenderer extends BaseShowItemRenderer<ConfinementChamberBlockEntity, BaseShowItemRenderState> {
     public ConfinementChamberRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    protected @Nullable ItemStack getDisplayItemStack(ConfinementChamberBlockEntity blockEntity) {
-        return blockEntity.getItemHandler().getStackInSlot(0);
+    public BaseShowItemRenderState createRenderState() {
+        return new BaseShowItemRenderState();
     }
 
     @Override
-    protected int getSeed(ConfinementChamberBlockEntity blockEntity) {
-        return blockEntity.getId();
+    protected @Nullable ItemStack getDisplayItemStack(ConfinementChamberBlockEntity blockEntity) {
+        return blockEntity.getItemHandler().copyToList().getFirst();
+    }
+
+    @Override
+    public void submit(BaseShowItemRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        pose.pushPose();
+        pose.translate(0.5, 0.4, 0.5);
+        super.submit(state, pose, collector, camera);
+        pose.popPose();
     }
 }

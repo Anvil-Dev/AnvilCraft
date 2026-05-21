@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/ionocraft_backpack"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/ionocraft_backpack_exhausted"
+    },
+    "predicate": "anvilcraft:integer_component",
+    "property": "minecraft:component",
+    "value": {
+      "type": "anvilcraft:flight_time",
+      "value": 0
+    }
+  }
+}

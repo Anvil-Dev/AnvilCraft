@@ -6,13 +6,13 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Comparator;
 
 @NoArgsConstructor(access = AccessLevel.NONE)
 public class DataFixers {
-    private static final Multimap<ResourceLocation, DataFixer> FIXERS = MultimapBuilder
+    private static final Multimap<Identifier, DataFixer> FIXERS = MultimapBuilder
         .hashKeys()
         .treeSetValues(Comparator.comparing(DataFixer::version))
         .build();
@@ -23,7 +23,7 @@ public class DataFixers {
      * @param id 一系列数据修复器的共同ID
      * @param fixers 一系列数据修复器。顺序不敏感
      */
-    public static void registerFixer(ResourceLocation id, DataFixer... fixers) {
+    public static void registerFixer(Identifier id, DataFixer... fixers) {
         for (DataFixer fixer : fixers) {
             DataFixers.FIXERS.put(id, fixer);
         }
@@ -38,7 +38,7 @@ public class DataFixers {
      * @param registries 注册表提供器
      * @return 修复的数据
      */
-    public static CompoundTag fixData(ResourceLocation id, double currentVer, CompoundTag nbt, HolderLookup.Provider registries) {
+    public static CompoundTag fixData(Identifier id, double currentVer, CompoundTag nbt, HolderLookup.Provider registries) {
         for (DataFixer fixer : DataFixers.FIXERS.get(id)) {
             if (fixer.version() > currentVer) return nbt;
             nbt = fixer.fixData(nbt, registries);

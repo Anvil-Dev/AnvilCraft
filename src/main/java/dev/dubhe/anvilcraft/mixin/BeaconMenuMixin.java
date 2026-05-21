@@ -11,8 +11,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.inventory.BeaconMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,7 +44,7 @@ public abstract class BeaconMenuMixin {
         )
     )
     private void updateEffects(
-        Optional<MobEffect> primaryEffect, Optional<MobEffect> secondaryEffect, CallbackInfo ci) {
+        Optional<MobEffect> primary, Optional<MobEffect> secondary, CallbackInfo ci) {
         ItemStack item = this.paymentSlot.getItem();
         if (!item.is(ModItems.CURSED_GOLD_INGOT.get())) return;
         this.access.execute((level, pos) -> {
@@ -53,10 +53,14 @@ public abstract class BeaconMenuMixin {
                 TriggerUtil.convertBeacon(level, pos);
                 serverLevel.setBlockAndUpdate(pos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
                 MinecraftServer server = serverLevel.getServer();
-                GameRules.BooleanValue rule = server.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE);
-                if (!rule.get()) return;
-                serverLevel.setWeatherParameters(
-                    0, ServerLevel.THUNDER_DURATION.sample(serverLevel.getRandom()), true, true);
+                boolean rule = server.getGameRules().get(GameRules.ADVANCE_WEATHER);
+                if (!rule) return;
+                serverLevel.getServer().setWeatherParameters(
+                    0,
+                    ServerLevel.THUNDER_DURATION.sample(serverLevel.getRandom()),
+                    true,
+                    true
+                );
             }
         });
     }
@@ -80,7 +84,7 @@ public abstract class BeaconMenuMixin {
         int k;
         int i = 0;
         int j = 1;
-        while (j <= 4 && (k = y - j) >= level.getMinBuildHeight()) {
+        while (j <= 4 && (k = y - j) >= level.getMinY()) {
             boolean bl = true;
             block1:
             for (int l = x - j; l <= x + j && bl; ++l) {

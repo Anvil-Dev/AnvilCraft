@@ -8,9 +8,9 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -35,18 +35,22 @@ abstract class ItemInHandRendererMixin {
         LivingEntity entity,
         ItemStack itemStack,
         ItemDisplayContext displayContext,
-        boolean leftHand,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int seed
+        SubmitNodeCollector collector,
+        int lightCoords
     );
 
     @Unique
     private ItemInHandRendererManager anvilcraft$manager = null;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(Minecraft minecraft, EntityRenderDispatcher entityRenderDispatcher, ItemRenderer itemRenderer, CallbackInfo ci) {
-        anvilcraft$manager = new ItemInHandRendererManager(itemRenderer, this::renderItem);
+    private void init(
+        Minecraft minecraft,
+        EntityRenderDispatcher entityRenderDispatcher,
+        ItemModelResolver itemModelResolver,
+        CallbackInfo ci
+    ) {
+        this.anvilcraft$manager = new ItemInHandRendererManager(itemModelResolver, this::renderItem);
     }
 
     @WrapOperation(
@@ -58,7 +62,9 @@ abstract class ItemInHandRendererMixin {
         )
     )
     private boolean isEmpty(ItemStack instance, Operation<Boolean> original) {
-        if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) return false;
+        if (this.offHandItem.is(ModItems.CRAB_CLAW.get())) {
+            return false;
+        }
         return original.call(instance);
     }
 
@@ -69,41 +75,46 @@ abstract class ItemInHandRendererMixin {
             value = "INVOKE",
             ordinal = 1,
             target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;"
-                     + "renderItem(Lnet/minecraft/world/entity/LivingEntity;"
-                     + "Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;"
-                     + "ZLcom/mojang/blaze3d/vertex/PoseStack;"
-                     + "Lnet/minecraft/client/renderer/MultiBufferSource;I)V"
+                + "renderItem("
+                + "Lnet/minecraft/world/entity/LivingEntity;"
+                + "Lnet/minecraft/world/item/ItemStack;"
+                + "Lnet/minecraft/world/item/ItemDisplayContext;"
+                + "Lcom/mojang/blaze3d/vertex/PoseStack;"
+                + "Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V"
         ),
         cancellable = true
     )
+    @SuppressWarnings("NameDoesntMatchTargetClass")
     private void renderArmWithItem(
         AbstractClientPlayer player,
-        float partialTicks,
+        float frameInterp,
         float pitch,
         InteractionHand hand,
-        float swingProgress,
-        ItemStack stack,
-        float equippedProgress,
+        float attack,
+        ItemStack itemStack,
+        float inverseArmHeight,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int combinedLight,
+        SubmitNodeCollector submitNodeCollector,
+        int lightCoords,
         CallbackInfo ci
     ) {
         if (this.anvilcraft$manager == null) return;
         this.anvilcraft$manager.setMainHandItem(this.mainHandItem);
         this.anvilcraft$manager.setOffHandItem(this.offHandItem);
-        this.anvilcraft$manager.render(
+        boolean rendered = this.anvilcraft$manager.render(
             player,
-            partialTicks,
+            frameInterp,
             pitch,
             hand,
-            swingProgress,
-            stack,
-            equippedProgress,
+            attack,
+            itemStack,
+            inverseArmHeight,
             poseStack,
-            buffer,
-            combinedLight,
-            ci
+            submitNodeCollector,
+            lightCoords
         );
+        if (rendered) {
+            ci.cancel();
+        }
     }
 }

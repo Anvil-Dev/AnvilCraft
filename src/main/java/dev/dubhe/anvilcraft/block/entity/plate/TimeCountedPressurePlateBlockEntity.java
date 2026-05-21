@@ -3,14 +3,14 @@ package dev.dubhe.anvilcraft.block.entity.plate;
 import dev.dubhe.anvilcraft.block.plate.TimeCountedPressurePlateBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -33,21 +33,21 @@ public class TimeCountedPressurePlateBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("tick", this.tick);
-        tag.putInt("NeedTick", this.needTick);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("tick", this.tick);
+        output.putInt("NeedTick", this.needTick);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.tick = tag.getInt("tick");
-        this.needTick = tag.getInt("NeedTick");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.tick = input.getIntOr("tick", 0);
+        this.needTick = input.getIntOr("NeedTick", 0);
     }
 
     public int getSignalStrength() {
-        return Math.clamp(tick / (needTick == 0 ? 1 : needTick), 0, 15);
+        return Math.clamp(this.tick / (this.needTick == 0 ? 1 : this.needTick), 0, 15);
     }
 
     public void tick(Level level, BlockPos pos) {
@@ -55,11 +55,11 @@ public class TimeCountedPressurePlateBlockEntity extends BlockEntity {
         if (state.getBlock() instanceof TimeCountedPressurePlateBlock plate) {
             List<LivingEntity> entities = level.getEntities(EntityTypeTest.forClass(LivingEntity.class), new AABB(pos), entity -> true);
             if (!entities.isEmpty()) {
-                if (tick < plate.needTick * 15) {
-                    tick++;
+                if (this.tick < plate.needTick * 15) {
+                    this.tick++;
                 }
-            } else if (tick > 0) {
-                tick--;
+            } else if (this.tick > 0) {
+                this.tick--;
             }
         }
     }

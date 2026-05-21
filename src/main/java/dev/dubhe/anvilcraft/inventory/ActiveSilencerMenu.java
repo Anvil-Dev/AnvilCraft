@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -13,12 +13,11 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 public class ActiveSilencerMenu extends AbstractContainerMenu {
-
     @Getter
     private final ActiveSilencerBlockEntity blockEntity;
 
@@ -30,7 +29,7 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
     public ActiveSilencerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
-        blockEntity = (ActiveSilencerBlockEntity) machine;
+        this.blockEntity = (ActiveSilencerBlockEntity) machine;
         this.level = inventory.player.level();
     }
 
@@ -47,21 +46,21 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.ACTIVE_SILENCER.get()
         );
     }
 
-    public void addSound(ResourceLocation soundId) {
-        blockEntity.addSound(soundId);
+    public void addSound(Identifier soundId) {
+        this.blockEntity.addSound(soundId);
     }
 
-    public void removeSound(ResourceLocation soundId) {
-        blockEntity.removeSound(soundId);
+    public void removeSound(Identifier soundId) {
+        this.blockEntity.removeSound(soundId);
     }
 
-    public void handleSync(List<ResourceLocation> sounds) {
-        blockEntity.sync(sounds);
+    public void handleSync(List<Identifier> sounds) {
+        this.blockEntity.sync(sounds);
     }
 }

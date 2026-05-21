@@ -1,23 +1,24 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConfinementChamberBlockEntity extends BlockEntity implements IItemHandlerHolder, IHasDisplayItem {
+public class ConfinementChamberBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IHasDisplayItem {
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
     @Getter
     private final int id;
@@ -37,29 +38,32 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemH
     }
 
     @Getter
-    private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+    private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(1) {
         @Override
-        protected void onContentsChanged(int slot) {
-            super.onContentsChanged(slot);
-            if (level == null || level.isClientSide) return;
-            PacketDistributor.sendToAllPlayers((new UpdateDisplayItemPacket(getStackInSlot(slot), getBlockPos())));
+        protected void onContentsChanged(int index, ItemStack previousContents) {
+            super.onContentsChanged(index, previousContents);
+            if (ConfinementChamberBlockEntity.this.level == null || ConfinementChamberBlockEntity.this.level.isClientSide()) return;
+            PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
+                this.getStackFrom(this.getResource(index), this.getAmountAsInt(index)),
+                ConfinementChamberBlockEntity.this.getBlockPos()
+            ));
         }
     };
 
     @Override
     public void updateDisplayItem(ItemStack stack) {
-        itemHandler.setStackInSlot(0, stack);
+        this.itemHandler.set(0, ItemResource.of(stack), stack.getCount());
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.put("Inventory", itemHandler.serializeNBT(provider));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        this.itemHandler.serialize(output.child("Inventory"));
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        input.child("Inventory").ifPresent(this.itemHandler::deserialize);
     }
 }

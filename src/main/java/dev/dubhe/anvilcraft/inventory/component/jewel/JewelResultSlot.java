@@ -1,18 +1,21 @@
 package dev.dubhe.anvilcraft.inventory.component.jewel;
 
-import dev.dubhe.anvilcraft.inventory.container.JewelSourceContainer;
+import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class JewelResultSlot extends Slot {
-    private final JewelSourceContainer sourceContainer;
+    private final ResultContainer resultContainer;
     private final CraftingContainer craftSlots;
 
     public JewelResultSlot(
-        JewelSourceContainer sourceContainer,
+        ResultContainer resultContainer,
         CraftingContainer craftSlots,
         Container container,
         int slot,
@@ -20,7 +23,7 @@ public class JewelResultSlot extends Slot {
         int y
     ) {
         super(container, slot, x, y);
-        this.sourceContainer = sourceContainer;
+        this.resultContainer = resultContainer;
         this.craftSlots = craftSlots;
     }
 
@@ -31,10 +34,13 @@ public class JewelResultSlot extends Slot {
 
     @Override
     public void onTake(Player player, ItemStack stack) {
-        if (sourceContainer.getRecipe() != null) {
-            for (int i = 0; i < sourceContainer.getRecipe().value().mergedIngredients.size(); i++) {
-                var entry = sourceContainer.getRecipe().value().mergedIngredients.get(i);
-                craftSlots.removeItem(i, entry.getIntValue());
+        RecipeHolder<JewelCraftingRecipe> recipe = this.resultContainer.getRecipeUsed() == null
+                                                   ? null
+                                                   : Util.cast(this.resultContainer.getRecipeUsed());
+        if (recipe != null) {
+            for (int i = 0; i < recipe.value().ingredients().size(); i++) {
+                var entry = recipe.value().ingredients().get(i);
+                this.craftSlots.removeItem(i, entry.count());
             }
         }
     }

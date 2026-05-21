@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
-import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -15,10 +14,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -33,6 +31,28 @@ import java.util.List;
  */
 @Getter
 public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe> {
+    public static final RecipeSerializer<SuperHeatingRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemIngredientPredicate.CODEC.listOf()
+                .optionalFieldOf("ingredients", List.of())
+                .forGetter(SuperHeatingRecipe::getInputItems),
+            ChanceItemStack.CODEC.listOf()
+                .optionalFieldOf("results", List.of())
+                .forGetter(SuperHeatingRecipe::getResultItems),
+            HasCauldronSimple.CODEC
+                .forGetter(SuperHeatingRecipe::getHasCauldron)
+        ).apply(instance, SuperHeatingRecipe::new)),
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            SuperHeatingRecipe::getInputItems,
+            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            SuperHeatingRecipe::getResultItems,
+            HasCauldronSimple.STREAM_CODEC,
+            SuperHeatingRecipe::getHasCauldron,
+            SuperHeatingRecipe::new
+        )
+    );
+
     /**
      * 构造一个超级加热配方
      *
@@ -78,13 +98,13 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
     }
 
     @Override
-    public RecipeSerializer<SuperHeatingRecipe> getSerializer() {
-        return ModRecipeTypes.SUPER_HEATING_SERIALIZER.get();
+    public RecipeType<SuperHeatingRecipe> getType() {
+        return ModRecipeTypes.SUPER_HEATING.get();
     }
 
     @Override
-    public RecipeType<SuperHeatingRecipe> getType() {
-        return ModRecipeTypes.SUPER_HEATING_TYPE.get();
+    public RecipeSerializer<SuperHeatingRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     /**
@@ -113,49 +133,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
      */
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().consume() < 0;
-    }
-
-    /**
-     * 超级加热配方序列化器
-     */
-    public static class Serializer implements RecipeSerializer<SuperHeatingRecipe> {
-        /**
-         * 编解码器
-         */
-        private static final MapCodec<SuperHeatingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ItemIngredientPredicate.CODEC.listOf()
-                .optionalFieldOf("ingredients", List.of())
-                .forGetter(SuperHeatingRecipe::getInputItems),
-            ChanceItemStack.CODEC.listOf()
-                .optionalFieldOf("results", List.of())
-                .forGetter(SuperHeatingRecipe::getResultItems),
-            HasCauldronSimple.CODEC
-                .forGetter(SuperHeatingRecipe::getHasCauldron)
-        ).apply(instance, SuperHeatingRecipe::new));
-
-        /**
-         * 流编解码器
-         */
-        private static final StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> STREAM_CODEC = StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            SuperHeatingRecipe::getInputItems,
-            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            SuperHeatingRecipe::getResultItems,
-            HasCauldronSimple.STREAM_CODEC,
-            SuperHeatingRecipe::getHasCauldron,
-            SuperHeatingRecipe::new
-        );
-
-        @Override
-        public MapCodec<SuperHeatingRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, SuperHeatingRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
-        }
+        return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
     }
 
     /**
@@ -171,9 +149,10 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          * 设置流体
          *
          * @param fluid 流体ID
+         *
          * @return 构建器实例
          */
-        public Builder fluid(ResourceLocation fluid) {
+        public Builder fluid(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
@@ -182,6 +161,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          * 设置炼药锅方块
          *
          * @param cauldron 炼药锅方块
+         *
          * @return 构建器实例
          */
         public Builder fluid(Block cauldron) {
@@ -193,9 +173,10 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          * 设置转换后的流体
          *
          * @param transform 转换后的流体ID
+         *
          * @return 构建器实例
          */
-        public Builder transform(ResourceLocation transform) {
+        public Builder transform(Identifier transform) {
             this.hasCauldron.transform(transform);
             return this;
         }
@@ -204,6 +185,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          * 设置转换后的炼药锅方块
          *
          * @param cauldron 转换后的炼药锅方块
+         *
          * @return 构建器实例
          */
         public Builder transform(Block cauldron) {
@@ -215,6 +197,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          * 设置消耗量
          *
          * @param consume 消耗量
+         *
          * @return 构建器实例
          */
         public Builder consume(int consume) {
@@ -226,10 +209,11 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
          * 设置产生量
          *
          * @param produce 产量
+         *
          * @return 构建器实例
          */
         public Builder produce(int produce) {
-            this.consume(-produce);
+            this.hasCauldron.produce(produce);
             return this;
         }
 
@@ -239,7 +223,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (itemIngredients.isEmpty()) {
                 throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }

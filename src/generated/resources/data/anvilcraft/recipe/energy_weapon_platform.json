@@ -3,21 +3,11 @@
   "category": "misc",
   "group": "anvilcraft:energy_weapon_platform",
   "key": {
-    "A": {
-      "item": "minecraft:anvil"
-    },
-    "C": {
-      "item": "anvilcraft:space_overcompressor"
-    },
-    "F": {
-      "item": "minecraft:smithing_table"
-    },
-    "P": {
-      "item": "anvilcraft:processor"
-    },
-    "S": {
-      "item": "anvilcraft:supercapacitor"
-    }
+    "A": "minecraft:anvil",
+    "C": "anvilcraft:space_overcompressor",
+    "F": "minecraft:smithing_table",
+    "P": "anvilcraft:processor",
+    "S": "anvilcraft:supercapacitor"
   },
   "pattern": [
     "ASS",
@@ -25,7 +15,6 @@
     "FPC"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:energy_weapon_platform"
   }
 }

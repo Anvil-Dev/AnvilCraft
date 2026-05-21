@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "anvilcraft:royal_steel_ingot"
-    },
-    "B": {
-      "item": "anvilcraft:induction_light"
-    },
-    "C": {
-      "tag": "c:plates/silver"
-    },
-    "D": {
-      "item": "anvilcraft:ruby_block"
-    },
-    "E": {
-      "item": "minecraft:tinted_glass"
-    }
+    "A": "anvilcraft:royal_steel_ingot",
+    "B": "anvilcraft:induction_light",
+    "C": "#c:plates/silver",
+    "D": "anvilcraft:ruby_block",
+    "E": "minecraft:tinted_glass"
   },
   "pattern": [
     "AEA",

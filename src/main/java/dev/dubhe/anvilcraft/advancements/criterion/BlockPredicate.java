@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public record BlockPredicate(Optional<HolderSet<Block>> block) implements Predicate<Block> {
-    public static final Codec<BlockPredicate> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+    public static final Codec<BlockPredicate> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         RegistryCodecs.homogeneousList(Registries.BLOCK).optionalFieldOf("block").forGetter(BlockPredicate::block)
     ).apply(instance, BlockPredicate::new));
 
@@ -32,13 +32,14 @@ public record BlockPredicate(Optional<HolderSet<Block>> block) implements Predic
             return new Builder();
         }
 
+        @SuppressWarnings("deprecation")
         public Builder of(Block block) {
-            this.blocks = HolderSet.direct((b) -> b.defaultBlockState().getBlockHolder(), block);
+            this.blocks = HolderSet.direct(b -> b.defaultBlockState().getBlock().builtInRegistryHolder(), block);
             return this;
         }
 
         public Builder of(TagKey<Block> tag) {
-            this.blocks = BuiltInRegistries.BLOCK.getOrCreateTag(tag);
+            this.blocks = BuiltInRegistries.BLOCK.getOrThrow(tag);
             return this;
         }
 

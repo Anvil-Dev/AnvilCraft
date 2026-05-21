@@ -1,11 +1,6 @@
 neoForge {
     version = libs.versions.neoForge.get()
 
-    parchment {
-        minecraftVersion = "1.21.1"
-        mappingsVersion = libs.versions.parchment.get()
-    }
-
     // This line is optional. Access Transformers are automatically detected
     accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -31,6 +26,8 @@ neoForge {
                 jvmArgument "-XX:+AllowEnhancedClassRedefinition"
             }
 
+            jvmArgument "-XX:+IgnoreUnrecognizedVMOptions"
+
             // Recommended logging level for the console
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
@@ -41,6 +38,34 @@ neoForge {
             client()
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        clientMSA {
+            client()
+            devLogin = true
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        clientRenderDoc {
+            client()
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'anvillib.rendering.debugMode', 'true'
+            systemProperty('neoforge.rendernurse.renderdoc.library', file("libs/renderdoc.dll").absolutePath)
+            programArgument("--renderDebugLabels")
+            jvmArgument("-javaagent:" + file("libs/renderdoc-loader.jar").absolutePath)
+        }
+
+        clientRenderDocMSA {
+            client()
+            devLogin = true
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'anvillib.rendering.debugMode', 'true'
+            systemProperty('neoforge.rendernurse.renderdoc.library', file("libs/renderdoc.dll").absolutePath)
+            programArgument("--renderDebugLabels")
+            jvmArgument("-javaagent:" + file("libs/renderdoc-loader.jar").absolutePath)
         }
 
         server {
@@ -58,7 +83,7 @@ neoForge {
         }
 
         data {
-            data()
+            clientData()
 
             // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
             // gameDirectory = project.file('run-data')

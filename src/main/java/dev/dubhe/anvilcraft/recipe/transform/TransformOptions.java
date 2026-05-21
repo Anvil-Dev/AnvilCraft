@@ -30,7 +30,7 @@ public enum TransformOptions implements StringRepresentable {
             }
             if (newEntity instanceof Mob nm && oldEntity instanceof Mob om) {
                 for (EquipmentSlot value : EquipmentSlot.values()) {
-                    nm.setDropChance(value, om.getEquipmentDropChance(value));
+                    nm.setDropChance(value, om.getDropChances().byEquipment(value));
                 }
             }
 
@@ -52,12 +52,12 @@ public enum TransformOptions implements StringRepresentable {
                         if (n instanceof Mob mob) {
                             mob.setDropChance(
                                 value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
-                                1.0f);
+                                1.0F);
                         }
                         if (o instanceof Mob mob) {
                             mob.setDropChance(
                                 value == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND,
-                                1.0f);
+                                1.0F);
                         }
                     }
                 }
@@ -81,7 +81,7 @@ public enum TransformOptions implements StringRepresentable {
 
     @Override
     public String getSerializedName() {
-        return name;
+        return this.name;
     }
 
     public abstract void accept(Entity oldEntity, Entity newEntity);

@@ -1,19 +1,18 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -27,6 +26,25 @@ import java.util.List;
  * <p>该配方用于在铁砧下落时将多个方块涂抹成一个方块</p>
  */
 public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
+    public static final RecipeSerializer<BlockSmearRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BlockStatePredicate.CODEC
+                .listOf()
+                .fieldOf("inputs")
+                .forGetter(BlockSmearRecipe::getInputBlocks),
+            ChanceBlockState.CODEC.codec()
+                .fieldOf("result")
+                .forGetter(BlockSmearRecipe::getFirstResultBlock)
+        ).apply(instance, BlockSmearRecipe::new)),
+        StreamCodec.composite(
+            BlockStatePredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            BlockSmearRecipe::getInputBlocks,
+            ChanceBlockState.STREAM_CODEC,
+            BlockSmearRecipe::getFirstResultBlock,
+            BlockSmearRecipe::new
+        )
+    );
+
     /**
      * 构造一个方块涂抹配方
      *
@@ -48,12 +66,12 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
 
     @Override
     public RecipeSerializer<BlockSmearRecipe> getSerializer() {
-        return ModRecipeTypes.BLOCK_SMEAR_SERIALIZER.get();
+        return SERIALIZER;
     }
 
     @Override
     public RecipeType<BlockSmearRecipe> getType() {
-        return ModRecipeTypes.BLOCK_SMEAR_TYPE.get();
+        return ModRecipeTypes.BLOCK_SMEAR.get();
     }
 
     /**
@@ -63,45 +81,6 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 方块涂抹配方序列化器
-     */
-    public static class Serializer implements RecipeSerializer<BlockSmearRecipe> {
-        /**
-         * 编解码器
-         */
-        private static final MapCodec<BlockSmearRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            BlockStatePredicate.CODEC
-                .listOf()
-                .fieldOf("inputs")
-                .forGetter(BlockSmearRecipe::getInputBlocks),
-            ChanceBlockState.CODEC.codec()
-                .fieldOf("result")
-                .forGetter(BlockSmearRecipe::getFirstResultBlock)
-        ).apply(instance, BlockSmearRecipe::new));
-
-        /**
-         * 流编解码器
-         */
-        private static final StreamCodec<RegistryFriendlyByteBuf, BlockSmearRecipe> STREAM_CODEC = StreamCodec.composite(
-            BlockStatePredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            BlockSmearRecipe::getInputBlocks,
-            ChanceBlockState.STREAM_CODEC,
-            BlockSmearRecipe::getFirstResultBlock,
-            BlockSmearRecipe::new
-        );
-
-        @Override
-        public MapCodec<BlockSmearRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, BlockSmearRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
-        }
     }
 
     /**
@@ -122,6 +101,7 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
          * 添加输入方块
          *
          * @param input 输入方块谓词
+         *
          * @return 构建器实例
          */
         public Builder input(BlockStatePredicate input) {
@@ -133,10 +113,11 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
          * 添加输入方块（标签形式）
          *
          * @param input 输入方块标签
+         *
          * @return 构建器实例
          */
-        public Builder input(TagKey<Block> input) {
-            this.inputs.add(BlockStatePredicate.builder().of(input).build());
+        public Builder input(HolderGetter<Block> blocks, TagKey<Block> input) {
+            this.inputs.add(BlockStatePredicate.builder().of(blocks, input).build());
             return this;
         }
 
@@ -144,6 +125,7 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
          * 添加输入方块
          *
          * @param input 输入方块
+         *
          * @return 构建器实例
          */
         public Builder input(Block input) {
@@ -155,6 +137,7 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
          * 设置结果方块
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder result(ChanceBlockState result) {
@@ -163,13 +146,14 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
         }
 
         /**
-         * 设置结果方块（默认概率为1.0f）
+         * 设置结果方块（默认概率为1.0F）
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder result(Block result) {
-            this.result = new ChanceBlockState(result.defaultBlockState(), 1.0f);
+            this.result = new ChanceBlockState(result.defaultBlockState(), 1.0F);
             return this;
         }
 
@@ -179,11 +163,11 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
-            if (inputs.isEmpty()) {
+        public void validate(Identifier id) {
+            if (this.inputs.isEmpty()) {
                 throw new IllegalArgumentException("Recipe inputs must not be empty, RecipeId: " + id);
             }
-            if (result == null) {
+            if (this.result == null) {
                 throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + id);
             }
         }
@@ -194,8 +178,8 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
         }
 
         @Override
-        public Item getResult() {
-            return WrapUtils.getItem(result);
+        public ItemStackTemplate getResult() {
+            return WrapUtils.getItem(this.result);
         }
     }
 }

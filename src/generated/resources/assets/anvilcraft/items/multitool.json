@@ -1,0 +1,77 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/multitool_brush"
+        },
+        "when": "brush"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/multitool_carrot_on_a_stick"
+        },
+        "when": "carrot_on_a_stick"
+      },
+      {
+        "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "anvilcraft:item/multitool_fishing_rod"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "anvilcraft:item/multitool_fishing_rod_cast"
+          },
+          "property": "minecraft:fishing_rod/cast"
+        },
+        "when": "fishing_rod"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/multitool_flint_and_steel"
+        },
+        "when": "flint_and_steel"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/multitool_magnet"
+        },
+        "when": "magnet"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/multitool_shears"
+        },
+        "when": "shears"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/multitool_spyglass"
+        },
+        "when": "spyglass"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/multitool_warped_fungus_on_a_stick"
+        },
+        "when": "warped_fungus_on_a_stick"
+      }
+    ],
+    "component": "anvilcraft:multitool_mode",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/multitool"
+    },
+    "property": "minecraft:component"
+  }
+}

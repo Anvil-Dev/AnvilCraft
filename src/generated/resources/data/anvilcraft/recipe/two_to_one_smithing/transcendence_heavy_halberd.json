@@ -22,7 +22,9 @@
       ]
     }
   ],
-  "result": "anvilcraft:transcendence_heavy_halberd",
+  "result": {
+    "id": "anvilcraft:transcendence_heavy_halberd"
+  },
   "template": {
     "items": "anvilcraft:two_to_one_smithing_template"
   }

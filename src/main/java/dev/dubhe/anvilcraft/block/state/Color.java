@@ -4,39 +4,44 @@ import com.mojang.serialization.Codec;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Accessors(fluent = true)
 public enum Color implements StringRepresentable {
-    WHITE("white", Items.WHITE_DYE),
-    LIGHT_GRAY("light_gray", Items.LIGHT_GRAY_DYE),
-    GRAY("gray", Items.GRAY_DYE),
-    BLACK("black", Items.BLACK_DYE),
-    BROWN("brown", Items.BROWN_DYE),
-    RED("red", Items.RED_DYE),
-    ORANGE("orange", Items.ORANGE_DYE),
-    YELLOW("yellow", Items.YELLOW_DYE),
-    LIME("lime", Items.LIME_DYE),
-    GREEN("green", Items.GREEN_DYE),
-    CYAN("cyan", Items.CYAN_DYE),
-    LIGHT_BLUE("light_blue", Items.LIGHT_BLUE_DYE),
-    BLUE("blue", Items.BLUE_DYE),
-    PURPLE("purple", Items.PURPLE_DYE),
-    MAGENTA("magenta", Items.MAGENTA_DYE),
-    PINK("pink", Items.PINK_DYE);
+    WHITE("white", Items.WHITE_DYE, DyeColor.WHITE),
+    LIGHT_GRAY("light_gray", Items.LIGHT_GRAY_DYE, DyeColor.LIGHT_GRAY),
+    GRAY("gray", Items.GRAY_DYE, DyeColor.GRAY),
+    BLACK("black", Items.BLACK_DYE, DyeColor.BLACK),
+    BROWN("brown", Items.BROWN_DYE, DyeColor.BROWN),
+    RED("red", Items.RED_DYE, DyeColor.RED),
+    ORANGE("orange", Items.ORANGE_DYE, DyeColor.ORANGE),
+    YELLOW("yellow", Items.YELLOW_DYE, DyeColor.YELLOW),
+    LIME("lime", Items.LIME_DYE, DyeColor.LIME),
+    GREEN("green", Items.GREEN_DYE, DyeColor.GREEN),
+    CYAN("cyan", Items.CYAN_DYE, DyeColor.CYAN),
+    LIGHT_BLUE("light_blue", Items.LIGHT_BLUE_DYE, DyeColor.LIGHT_BLUE),
+    BLUE("blue", Items.BLUE_DYE, DyeColor.BLUE),
+    PURPLE("purple", Items.PURPLE_DYE, DyeColor.PURPLE),
+    MAGENTA("magenta", Items.MAGENTA_DYE, DyeColor.MAGENTA),
+    PINK("pink", Items.PINK_DYE, DyeColor.PINK);
 
     private final String name;
 
     @Getter
     private final Item dyeItem;
 
+    @Getter
+    private final DyeColor color;
+
     public static final Codec<Color> CODEC = StringRepresentable.fromValues(Color::values);
 
-    Color(String name, Item dyeItem) {
+    Color(String name, Item dyeItem, DyeColor color) {
         this.name = name;
         this.dyeItem = dyeItem;
+        this.color = color;
     }
 
     public String toString() {

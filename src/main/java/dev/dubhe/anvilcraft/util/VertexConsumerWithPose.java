@@ -17,40 +17,50 @@ public class VertexConsumerWithPose implements VertexConsumer {
 
     @Override
     public VertexConsumer addVertex(float x, float y, float z) {
-        float dx = originPos.getX() & 15;
-        float dy = originPos.getY() & 15;
-        float dz = originPos.getZ() & 15;
-        return parent.addVertex(pose, x - dx, y - dy, z - dz);
+        float dx = this.originPos.getX() & 15;
+        float dy = this.originPos.getY() & 15;
+        float dz = this.originPos.getZ() & 15;
+        return this.parent.addVertex(this.pose, x - dx, y - dy, z - dz);
     }
 
     @Override
     public VertexConsumer setColor(int r, int g, int b, int a) {
-        return parent.setColor(r, g, b, a);
+        return this.parent.setColor(r, g, b, a);
+    }
+
+    @Override
+    public VertexConsumer setColor(int i) {
+        return this.parent.setColor(i);
     }
 
     @Override
     public VertexConsumer setUv(float u, float v) {
-        return parent.setUv(u, v);
+        return this.parent.setUv(u, v);
     }
 
     @Override
     public VertexConsumer setUv1(int u, int v) {
-        return parent.setUv1(u, v);
+        return this.parent.setUv1(u, v);
     }
 
     @Override
     public VertexConsumer setOverlay(int uv) {
-        return parent.setUv1(uv & 65535, uv >> 16 & 65535);
+        return this.parent.setUv1(uv & 65535, uv >> 16 & 65535);
     }
 
     @Override
     public VertexConsumer setUv2(int u, int v) {
-        return parent.setUv2(u, v);
+        return this.parent.setUv2(u, v);
     }
 
     @Override
     public VertexConsumer setNormal(float x, float y, float z) {
-        return parent.setNormal(pose, x, y, z);
+        return this.parent.setNormal(this.pose, x, y, z);
+    }
+
+    @Override
+    public VertexConsumer setLineWidth(float v) {
+        return this.parent.setLineWidth(v);
     }
 
 }

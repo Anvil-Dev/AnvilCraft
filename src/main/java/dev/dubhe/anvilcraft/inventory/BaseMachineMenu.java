@@ -6,7 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 public abstract class BaseMachineMenu extends AbstractContainerMenu {

@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "anvilcraft:royal_steel_ingot"
-  },
-  "base": {
-    "tag": "anvilcraft:royal_steel_shovel_base"
-  },
+  "addition": "anvilcraft:royal_steel_ingot",
+  "base": "#anvilcraft:royal_steel_shovel_base",
   "result": {
-    "count": 1,
     "id": "anvilcraft:royal_steel_shovel"
   },
-  "template": {
-    "item": "anvilcraft:royal_steel_upgrade_smithing_template"
-  }
+  "template": "anvilcraft:royal_steel_upgrade_smithing_template"
 }

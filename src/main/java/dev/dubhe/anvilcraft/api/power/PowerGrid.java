@@ -67,9 +67,9 @@ public class PowerGrid {
     }
 
     public void update(boolean forced) {
-        if (forced || changed) {
+        if (forced || this.changed) {
             PacketDistributor.sendToPlayersTrackingChunk(
-                (ServerLevel) level,
+                (ServerLevel) this.level,
                 this.level.getChunkAt(this.getPos()).getPos(),
                 new PowerGridSyncPacket(this)
             );
@@ -109,12 +109,12 @@ public class PowerGrid {
      */
     protected void tick() {
         if (this.level.getGameTime() % GRID_TICK != 0) return;
-        if (this.isMarkedRemoval()) return;
+        if (this.markedRemoval) return;
         if (this.flush()) return;
         if (this.isWorking()) {
             int remainder = this.generate - this.consume;
-            for (IPowerStorage storage : storages) {
-                if (checkRemove(storage)) return;
+            for (IPowerStorage storage : this.storages) {
+                if (this.checkRemove(storage)) return;
                 remainder = storage.insert(remainder);
                 if (remainder <= 0) break;
             }
@@ -134,12 +134,12 @@ public class PowerGrid {
         }
         this.gridTick();
         this.update(false);
-        changed = false;
+        this.changed = false;
     }
 
     private void gridTick() {
-        components.forEach(IPowerComponent::gridTick);
-        dynamicComponents.forEach(DynamicPowerComponent::gridTick);
+        this.components.forEach(IPowerComponent::gridTick);
+        this.dynamicComponents.forEach(DynamicPowerComponent::gridTick);
     }
 
     private boolean checkRemove(IPowerComponent component) {
@@ -155,28 +155,22 @@ public class PowerGrid {
         final int oldConsume = this.consume;
         this.generate = 0;
         this.consume = 0;
-        for (IPowerTransmitter transmitter : transmitters) {
-            if (checkRemove(transmitter)) {
-                return true;
-            }
+        for (IPowerTransmitter transmitter : this.transmitters) {
+            if (this.checkRemove(transmitter)) return true;
         }
         for (IPowerProducer producer : this.producers) {
-            if (checkRemove(producer)) {
-                return true;
-            }
+            if (this.checkRemove(producer)) return true;
             this.generate += producer.getOutputPower();
         }
         for (IPowerConsumer consumer : this.consumers) {
-            if (checkRemove(consumer)) {
-                return true;
-            }
+            if (this.checkRemove(consumer)) return true;
             this.consume += consumer.getInputPower();
         }
 
         for (DynamicPowerComponent dynamicComponent : new ArrayList<>(this.dynamicComponents)) {
             Entity owner = dynamicComponent.getOwner();
             if (owner.level() != this.level || !this.collideFast(dynamicComponent.boundingBox())) {
-                notifyLeaving(dynamicComponent);
+                this.notifyLeaving(dynamicComponent);
                 continue;
             }
             int power = dynamicComponent.getPowerConsumption();
@@ -194,11 +188,11 @@ public class PowerGrid {
     }
 
     public boolean inRangeFast(Vec3 pos) {
-        return shape.inRange(pos);
+        return this.shape.inRange(pos);
     }
 
     public boolean collideFast(AABB box) {
-        return shape.intersects(box);
+        return this.shape.intersects(box);
     }
 
     /**
@@ -310,7 +304,7 @@ public class PowerGrid {
         grid.consumers.forEach(this::add);
         grid.storages.forEach(this::add);
         grid.transmitters.forEach(this::add);
-        changed = true;
+        this.changed = true;
     }
 
     /**

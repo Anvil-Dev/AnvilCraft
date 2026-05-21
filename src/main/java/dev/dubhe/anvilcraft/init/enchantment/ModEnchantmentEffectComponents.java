@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.init.enchantment;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.loot.ModLootContextParamSets;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
@@ -19,20 +18,18 @@ public class ModEnchantmentEffectComponents {
 
     public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> USE_ON_BLOCK = register(
         "use_on_block",
-        (it) -> it.persistent(
+        it -> it.persistent(
             ConditionalEffect.codec(
-                EnchantmentEntityEffect.CODEC,
-                ModLootContextParamSets.USE_ON_ITEM
+                EnchantmentEntityEffect.CODEC
             ).listOf()
         )
     );
 
     public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> POST_BREAK_BLOCK = register(
         "post_break_block",
-        (it) -> it.persistent(
+        it -> it.persistent(
             ConditionalEffect.codec(
-                EnchantmentEntityEffect.CODEC,
-                ModLootContextParamSets.POST_BREAK_BLOCK
+                EnchantmentEntityEffect.CODEC
             ).listOf()
         )
     );

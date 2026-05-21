@@ -4,7 +4,7 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.PropelPiston;
+import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
@@ -12,7 +12,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -31,7 +31,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class CelestialForgingAnvilBlock
     extends SimpleMultiPartBlock<Cube323PartHalf>
@@ -158,11 +158,11 @@ public class CelestialForgingAnvilBlock
 
     @Override
     protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
-        return 1.0f;
+        return 1.0F;
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 
@@ -174,10 +174,10 @@ public class CelestialForgingAnvilBlock
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) {
-            return PropelPiston.createTickerHelper(
+            return PropelPistonBlock.createTickerHelper(
                 type,
                 ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
+                (_, _, _, be) -> be.tick()
             );
         }
         return null;
@@ -199,8 +199,8 @@ public class CelestialForgingAnvilBlock
     }
 
     @Override
-    public ResourceLocation getDefinitionId() {
-        return ModMultiblockDefinitions.CELESTIAL_FORGING_ANVIL.location();
+    public Identifier getDefinitionId() {
+        return ModMultiblockDefinitions.CELESTIAL_FORGING_ANVIL.identifier();
     }
 
     @Override

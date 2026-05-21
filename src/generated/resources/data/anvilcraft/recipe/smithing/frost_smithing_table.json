@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "anvilcraft:frost_metal_block"
-  },
-  "base": {
-    "item": "anvilcraft:royal_smithing_table"
-  },
+  "addition": "anvilcraft:frost_metal_block",
+  "base": "anvilcraft:royal_smithing_table",
   "result": {
-    "count": 1,
     "id": "anvilcraft:frost_smithing_table"
   },
-  "template": {
-    "item": "anvilcraft:frost_metal_upgrade_smithing_template"
-  }
+  "template": "anvilcraft:frost_metal_upgrade_smithing_template"
 }

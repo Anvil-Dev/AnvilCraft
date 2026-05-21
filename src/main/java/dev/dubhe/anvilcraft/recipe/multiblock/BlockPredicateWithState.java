@@ -12,13 +12,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -73,7 +72,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     }
 
     public <T extends Comparable<T>> BlockPredicateWithState hasState(Property<T> property, T value) {
-        properties.put(property, value);
+        this.properties.put(property, value);
         return this;
     }
 
@@ -90,34 +89,32 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     }
 
     public <T extends Comparable<T>> boolean hasProperty(Property<T> property) {
-        return properties.containsKey(property);
+        return this.properties.containsKey(property);
     }
 
     @SuppressWarnings("unchecked")
     @Nullable
     public <T extends Comparable<T>> T getPropertyValue(Property<T> property) {
-        return (T) properties.getOrDefault(property, null);
+        return (T) this.properties.getOrDefault(property, null);
     }
 
-    @Contract("_ -> new")
     public static BlockPredicateWithState of(Block block) {
         return new BlockPredicateWithState(block);
     }
 
-    @Contract("_ -> new")
     public static BlockPredicateWithState of(Holder<Block> block) {
         return of(block.value());
     }
 
     public static BlockPredicateWithState of(String blockName) {
-        return of(BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockName)));
+        return of(BuiltInRegistries.BLOCK.getValue(Identifier.parse(blockName)));
     }
 
     @Override
     public boolean test(@Nullable BlockState state) {
         if (state == null) return false;
         if (!state.is(this.block)) return false;
-        return properties.entrySet().stream()
+        return this.properties.entrySet().stream()
             .allMatch(entry -> state.hasProperty(entry.getKey())
                 && state.getValue(entry.getKey()).equals(entry.getValue()));
     }
@@ -126,7 +123,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj instanceof BlockPredicateWithState predicate) {
-            return block == predicate.block && properties.equals(predicate.properties);
+            return this.block == predicate.block && this.properties.equals(predicate.properties);
         }
         return false;
     }

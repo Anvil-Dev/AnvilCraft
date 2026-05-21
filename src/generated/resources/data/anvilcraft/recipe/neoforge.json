@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "anvilcraft:cake_block"
-    },
-    "B": {
-      "item": "anvilcraft:creamy_bread_roll"
-    }
+    "A": "anvilcraft:cake_block",
+    "B": "anvilcraft:creamy_bread_roll"
   },
   "pattern": [
     "AAA",
@@ -15,7 +11,6 @@
     "BBB"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:neoforge"
   }
 }

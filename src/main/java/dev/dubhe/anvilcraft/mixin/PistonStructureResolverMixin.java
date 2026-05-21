@@ -38,12 +38,12 @@ abstract class PistonStructureResolverMixin {
 
     @Inject(method = "resolve", at = @At("RETURN"))
     private void onPistonResolve(CallbackInfoReturnable<Boolean> cir) {
-        if (level.isClientSide()) {
+        if (this.level.isClientSide()) {
             return;
         }
         if (!cir.getReturnValue()) return;
-        List<BlockPos> toPushBlocks = new ArrayList<>(toPush);
-        PistonMoveBlockListener.onPistonMoveBlocks(level, toPushBlocks);
+        List<BlockPos> toPushBlocks = new ArrayList<>(this.toPush);
+        PistonMoveBlockListener.onPistonMoveBlocks(this.level, toPushBlocks);
     }
 
     @ModifyConstant(method = "addBlockLine", constant = @Constant(intValue = 12, ordinal = 0))
@@ -64,10 +64,10 @@ abstract class PistonStructureResolverMixin {
         BlockState instance,
         BlockState state,
         Operation<Boolean> original,
-        @Local(ordinal = 1) BlockPos otherPos
+        @Local(name = "pos") BlockPos pos
     ) {
-        BlockPos pos = otherPos.relative(this.pushDirection);
-        return instance.anvilcraft$canStickTo(pos, otherPos, state);
+        BlockPos relativePos = pos.relative(this.pushDirection);
+        return instance.anvilcraft$canStickTo(pos, relativePos, state);
     }
 
     @WrapOperation(
@@ -79,7 +79,7 @@ abstract class PistonStructureResolverMixin {
         )
     )
     private boolean useEnhancedCheck01(
-        BlockState instance, BlockState state, Operation<Boolean> original, @Local(ordinal = 1) BlockPos pos
+        BlockState instance, BlockState state, Operation<Boolean> original, @Local(name = "pos") BlockPos pos
     ) {
         BlockPos otherPos = pos.relative(this.pushDirection);
         return instance.anvilcraft$canStickTo(pos, otherPos, state);
@@ -97,10 +97,10 @@ abstract class PistonStructureResolverMixin {
         BlockState instance,
         BlockState state,
         Operation<Boolean> original,
-        @Local(ordinal = 0, argsOnly = true) BlockPos otherPos,
-        @Local(ordinal = 1) BlockPos pos
+        @Local(argsOnly = true, name = "fromPos") BlockPos fromPos,
+        @Local(name = "neighbourPos") BlockPos neighbourPos
     ) {
-        return instance.anvilcraft$canStickTo(pos, otherPos, state);
+        return instance.anvilcraft$canStickTo(neighbourPos, fromPos, state);
     }
 
     @WrapOperation(
@@ -115,9 +115,9 @@ abstract class PistonStructureResolverMixin {
         BlockState instance,
         BlockState state,
         Operation<Boolean> original,
-        @Local(ordinal = 0, argsOnly = true) BlockPos pos,
-        @Local(ordinal = 1) BlockPos otherPos
+        @Local(argsOnly = true, name = "fromPos") BlockPos fromPos,
+        @Local(name = "neighbourPos") BlockPos neighbourPos
     ) {
-        return instance.anvilcraft$canStickTo(pos, otherPos, state);
+        return instance.anvilcraft$canStickTo(fromPos, neighbourPos, state);
     }
 }

@@ -4,17 +4,16 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import dev.dubhe.anvilcraft.command.MultiBlockCommand;
 import dev.dubhe.anvilcraft.command.MultiphaseCommand;
-import dev.dubhe.anvilcraft.command.PowergridCommand;
+import dev.dubhe.anvilcraft.command.PowerGridCommand;
 import dev.dubhe.anvilcraft.init.ModInspections;
 import net.minecraft.commands.CommandSourceStack;
-
-import static net.minecraft.commands.Commands.literal;
+import net.minecraft.commands.Commands;
 
 public class ModCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        LiteralArgumentBuilder<CommandSourceStack> root = literal("anvilcraft");
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("anvilcraft");
         ModInspections.INSTANCE.registerCommand(root);
-        PowergridCommand.registerCommand(root);
+        PowerGridCommand.registerCommand(root);
         MultiphaseCommand.registerCommand(root);
         MultiBlockCommand.registerCommand(root);
         dispatcher.register(root);

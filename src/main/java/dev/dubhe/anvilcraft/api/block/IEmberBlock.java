@@ -32,8 +32,8 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
      */
     default void tryAbsorbWater(Level level, BlockPos pos) {
         if (this.removeFluidBreadthFirstSearch(level, pos)) {
-            level.levelEvent(2001, pos, Block.getId(getCheckBlockState()));
-            level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1f, 1f);
+            level.levelEvent(2001, pos, Block.getId(this.getCheckBlockState()));
+            level.playSound(null, pos, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 1F, 1F);
         }
     }
 
@@ -49,20 +49,20 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
             },
             (checkedPos) -> {
                 if (checkedPos.equals(pos)) {
-                    return true;
+                    return BlockPos.TraversalNodeStatus.ACCEPT;
                 } else {
                     BlockState blockState = level.getBlockState(checkedPos);
                     FluidState fluidState = level.getFluidState(checkedPos);
                     if (!fluidState.is(Fluids.WATER)) {
-                        return false;
+                        return BlockPos.TraversalNodeStatus.SKIP;
                     } else {
                         Block block = blockState.getBlock();
                         if (block instanceof BucketPickup bucketPickup) {
                             if (!bucketPickup
                                 .pickupBlock(null, level, checkedPos, blockState)
                                 .isEmpty()) {
-                                setCheckBlockState(blockState);
-                                return true;
+                                this.setCheckBlockState(blockState);
+                                return BlockPos.TraversalNodeStatus.ACCEPT;
                             }
                         }
 
@@ -73,7 +73,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
                                 && !blockState.is(Blocks.KELP_PLANT)
                                 && !blockState.is(Blocks.SEAGRASS)
                                 && !blockState.is(Blocks.TALL_SEAGRASS)) {
-                                return false;
+                                return BlockPos.TraversalNodeStatus.SKIP;
                             }
 
                             BlockEntity blockEntity =
@@ -81,8 +81,8 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
                             Block.dropResources(blockState, level, checkedPos, blockEntity);
                             level.setBlock(checkedPos, Blocks.AIR.defaultBlockState(), 3);
                         }
-                        setCheckBlockState(blockState);
-                        return true;
+                        this.setCheckBlockState(blockState);
+                        return BlockPos.TraversalNodeStatus.ACCEPT;
                     }
                 }
             }

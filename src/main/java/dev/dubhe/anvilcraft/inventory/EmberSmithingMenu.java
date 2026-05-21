@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.MultipleToOneSmithingRecipeInput;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -19,12 +20,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class EmberSmithingMenu extends ItemCombinerMenu {
@@ -34,10 +34,6 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
     private RecipeHolder<BaseMultipleToOneSmithingRecipe> selectedRecipe;
 
     private final List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> recipes;
-
-    public EmberSmithingMenu(int containerId, Inventory playerInventory) {
-        this(containerId, playerInventory, ContainerLevelAccess.NULL);
-    }
 
     public EmberSmithingMenu(MenuType<EmberSmithingMenu> type, int containerId, Inventory playerInventory) {
         this(type, containerId, playerInventory, ContainerLevelAccess.NULL);
@@ -55,54 +51,74 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
      * @param playerInventory 背包
      * @param access          检查
      */
-    public EmberSmithingMenu(
-        MenuType<EmberSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
-        super(type, containerId, playerInventory, access);
+    public EmberSmithingMenu(MenuType<EmberSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+        super(
+            type,
+            containerId,
+            playerInventory,
+            access,
+            EmberSmithingMenu.createInputSlotDefinitions(List.copyOf(
+                RecipesRecord.RECIPES.byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get())
+            ))
+        );
         this.level = playerInventory.player.level();
-        this.recipes = this.level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get());
+        this.recipes = List.copyOf(RecipesRecord.RECIPES.byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()));
     }
 
-    @Override
-    protected ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
-        return ItemCombinerMenuSlotDefinition.create()
-            .withSlot(0, 8, 48, itemStack -> this.recipes.stream()
-                .anyMatch(recipe -> recipe.value().isTemplateIngredient(itemStack)))
-            .withSlot(1, 80, 36, itemStack ->
-                !this.inputSlots.getItem(0).isEmpty() && this.recipes.stream()
-                    .anyMatch(recipe -> recipe.value().isTemplateIngredient(this.inputSlots.getItem(0))
-                                        && recipe.value().isMaterialIngredient(itemStack)))
-            .withSlot(2, 80, 18, itemStack ->
-                !this.inputSlots.getItem(0).isEmpty() && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(0, itemStack)))
-            .withSlot(3, 80, 54, itemStack ->
-                !this.inputSlots.getItem(0).isEmpty() && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(1, itemStack)))
-            .withSlot(4, 62, 36, itemStack ->
-                !this.inputSlots.getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(2, itemStack)))
-            .withSlot(5, 98, 36, itemStack ->
-                !this.inputSlots.getItem(0).is(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(3, itemStack)))
-            .withSlot(6, 62, 18, itemStack ->
-                this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(4, itemStack)))
-            .withSlot(7, 98, 18, itemStack ->
-                this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(5, itemStack)))
-            .withSlot(8, 62, 54, itemStack ->
-                this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(6, itemStack)))
-            .withSlot(9, 98, 54, itemStack ->
-                this.inputSlots.getItem(0).is(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
-                    && !this.inputSlots.getItem(1).isEmpty() && this.recipes.stream()
-                    .anyMatch(smithingRecipe -> smithingRecipe.value().isInputIngredient(7, itemStack)))
-            .withResultSlot(10, 151, 48)
-            .build();
+    protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions(
+        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> recipes
+    ) {
+        return ItemCombinerMenuSlotDefinition.create().withSlot(
+            0,
+            8,
+            48,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack))
+        ).withSlot(
+            1,
+            80,
+            36,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isMaterialIngredient(stack))
+        ).withSlot(
+            2,
+            80,
+            18,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(0, stack))
+        ).withSlot(
+            3,
+            80,
+            54,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(1, stack))
+        ).withSlot(
+            4,
+            62,
+            36,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(2, stack))
+        ).withSlot(
+            5,
+            98,
+            36,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(3, stack))
+        ).withSlot(
+            6,
+            62,
+            18,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(4, stack))
+        ).withSlot(
+            7,
+            98,
+            18,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(5, stack))
+        ).withSlot(
+            8,
+            62,
+            54,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(6, stack))
+        ).withSlot(
+            9,
+            98,
+            54,
+            stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(7, stack))
+        ).withResultSlot(10, 151, 48).build();
     }
 
     @Override
@@ -111,8 +127,38 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
     }
 
     @Override
-    protected boolean mayPickup(Player player, boolean hasStack) {
-        return this.selectedRecipe != null && this.selectedRecipe.value().matches(this.createRecipeInput(), this.level);
+    protected void onTake(Player player, ItemStack stack) {
+        stack.onCraftedBy(player, stack.getCount());
+        this.resultSlots.awardUsedRecipes(player, this.getRelevantItems());
+        for (int i = 2; i < 10; i++) {
+            this.shrinkStackInSlot(i);
+        }
+        this.shrinkStackInSlot(1);
+        this.access.execute((level, blockPos) -> level.levelEvent(1044, blockPos, 0));
+    }
+
+    private @Unmodifiable List<ItemStack> getRelevantItems() {
+        return ListUtil.createWithValues(10, this.inputSlots::getItem);
+    }
+
+    private MultipleToOneSmithingRecipeInput createRecipeInput() {
+        ItemStack[] inputs = new ItemStack[this.getInputSize()];
+        for (int i = 0; i < this.getInputSize(); i++) {
+            inputs[i] = this.inputSlots.getItem(Math.min(i + 2, 9));
+        }
+        return new MultipleToOneSmithingRecipeInput(
+            this.inputSlots.getItem(0),
+            this.inputSlots.getItem(1),
+            inputs
+        );
+    }
+
+    private void shrinkStackInSlot(int index) {
+        ItemStack stack = this.inputSlots.getItem(index);
+        if (!stack.isEmpty()) {
+            stack.shrink(1);
+            this.inputSlots.setItem(index, stack);
+        }
     }
 
     @Override
@@ -140,49 +186,41 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
     }
 
     @Override
-    protected void onTake(Player player, ItemStack stack) {
-        stack.onCraftedBy(player.level(), player, stack.getCount());
-        this.resultSlots.awardUsedRecipes(player, this.getRelevantItems());
-        for (int i = 2; i < 10; i++) {
-            this.shrinkStackInSlot(i);
+    public void createResult() {
+        if (!this.canCreateResult()) {
+            this.resultSlots.setItem(0, ItemStack.EMPTY);
+            return;
         }
-        this.shrinkStackInSlot(1);
-        this.access.execute((level, blockPos) -> level.levelEvent(1044, blockPos, 0));
-    }
-
-    private @Unmodifiable List<ItemStack> getRelevantItems() {
-        return List.of(
-            this.inputSlots.getItem(0),
-            this.inputSlots.getItem(1),
-            this.inputSlots.getItem(2),
-            this.inputSlots.getItem(3),
-            this.inputSlots.getItem(4),
-            this.inputSlots.getItem(5),
-            this.inputSlots.getItem(6),
-            this.inputSlots.getItem(7),
-            this.inputSlots.getItem(8),
-            this.inputSlots.getItem(9)
-        );
-    }
-
-    private void shrinkStackInSlot(int index) {
-        ItemStack itemStack = this.inputSlots.getItem(index);
-        if (!itemStack.isEmpty()) {
-            itemStack.shrink(1);
-            this.inputSlots.setItem(index, itemStack);
+        MultipleToOneSmithingRecipeInput input = this.createRecipeInput();
+        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> list =
+            RecipesRecord.RECIPES.getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get(), input, this.level).toList();
+        if (list.isEmpty()) {
+            this.resultSlots.setItem(0, ItemStack.EMPTY);
+        } else {
+            RecipeHolder<BaseMultipleToOneSmithingRecipe> recipe = list.getFirst();
+            ItemStack stack = recipe.value().assemble(input, this.level);
+            if (stack.isItemEnabled(this.level.enabledFeatures())) {
+                this.selectedRecipe = recipe;
+                this.resultSlots.setRecipeUsed(recipe);
+                this.resultSlots.setItem(0, stack);
+            }
         }
     }
 
-    private MultipleToOneSmithingRecipeInput createRecipeInput() {
-        ItemStack[] inputs = new ItemStack[this.getInputSize()];
-        for (int i = 0; i < this.getInputSize(); i++) {
-            inputs[i] = this.inputSlots.getItem(Math.min(i + 2, 9));
-        }
-        return new MultipleToOneSmithingRecipeInput(
-            this.inputSlots.getItem(0),
-            this.inputSlots.getItem(1),
-            inputs
-        );
+    @Override
+    public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
+        return slot.container != this.resultSlots && super.canTakeItemForPickAll(stack, slot);
+    }
+
+    @Override
+    public boolean canMoveIntoInputSlots(ItemStack stack) {
+        return this.recipes.stream()
+            .anyMatch(recipe -> this.isMatchingRecipe(recipe.value(), stack));
+    }
+
+    @Override
+    protected boolean mayPickup(Player player, boolean hasStack) {
+        return this.selectedRecipe != null && this.selectedRecipe.value().matches(this.createRecipeInput(), this.level);
     }
 
     public int getInputSize() {
@@ -202,57 +240,19 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         return stacks;
     }
 
-    @Override
-    public void createResult() {
-        if (!this.canCreateResult()) {
-            this.resultSlots.setItem(0, ItemStack.EMPTY);
-            return;
+    private boolean isMatchingRecipe(
+        BaseMultipleToOneSmithingRecipe recipe,
+        ItemStack stack
+    ) {
+        if (recipe.isTemplateIngredient(stack)) return this.getSlot(0).hasItem();
+        if (recipe.isMaterialIngredient(stack)) return recipe.isTemplateIngredient(this.getSlot(0).getItem());
+        if (!recipe.isTemplateIngredient(this.getSlot(0).getItem()) || !recipe.isMaterialIngredient(this.getSlot(1).getItem())) {
+            return false;
         }
-        MultipleToOneSmithingRecipeInput input = this.createRecipeInput();
-        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> list =
-            this.level.getRecipeManager().getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get(), input, this.level);
-        if (list.isEmpty()) {
-            this.resultSlots.setItem(0, ItemStack.EMPTY);
-        } else {
-            RecipeHolder<BaseMultipleToOneSmithingRecipe> recipeholder = list.getFirst();
-            ItemStack stack = recipeholder.value().assemble(input, this.level);
-            if (stack.isItemEnabled(this.level.enabledFeatures())) {
-                this.selectedRecipe = recipeholder;
-                this.resultSlots.setRecipeUsed(recipeholder);
-                this.resultSlots.setItem(0, stack);
-            }
-        }
-    }
-
-    @Override
-    public int getSlotToQuickMoveTo(ItemStack stack) {
-        return this.recipes.stream()
-            .map(smithingRecipe -> EmberSmithingMenu.findSlotMatchingIngredient(smithingRecipe.value(), stack))
-            .findFirst()
-            .filter(Optional::isPresent)
-            .orElse(Optional.of(0))
-            .get();
-    }
-
-    private static Optional<Integer> findSlotMatchingIngredient(BaseMultipleToOneSmithingRecipe recipe, ItemStack stack) {
-        if (recipe.isTemplateIngredient(stack)) return Optional.of(0);
-        if (recipe.isMaterialIngredient(stack)) return Optional.of(1);
         for (int i = 0; i < 8; i++) {
-            if (recipe.isInputIngredient(i, stack)) return Optional.of(i + 2);
+            if (recipe.isInputIngredient(i, stack)) return true;
         }
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
-        return slot.container != this.resultSlots && super.canTakeItemForPickAll(stack, slot);
-    }
-
-    @Override
-    public boolean canMoveIntoInputSlots(ItemStack stack) {
-        return this.recipes.stream()
-            .map(smithingRecipe -> EmberSmithingMenu.findSlotMatchingIngredient(smithingRecipe.value(), stack))
-            .anyMatch(Optional::isPresent);
+        return false;
     }
 
     public boolean canCreateResult() {
@@ -260,7 +260,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         ItemStack template = this.getSlot(0).getItem();
         if (template.getItem() instanceof BaseMultipleToOneTemplateItem templateItem) {
             for (int i = 2; i < 2 + templateItem.getSize(); i++) {
-                if (this.getSlot(i).getItem().isEmpty()) return false;
+                if (!this.getSlot(i).hasItem()) return false;
             }
         }
         return true;

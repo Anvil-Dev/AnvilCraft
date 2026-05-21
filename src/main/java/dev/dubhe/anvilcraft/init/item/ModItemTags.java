@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.block.state.Color;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
@@ -129,6 +129,12 @@ public class ModItemTags {
     public static final TagKey<Item> OIL_BUCKETS = bindC("buckets/oil");
     public static final TagKey<Item> CEMENT_BUCKETS = bindC("buckets/cement");
 
+    public static final TagKey<Item> AMETHYST_TOOL_MATERIALS = bindC("amethyst_tool_materials");
+    public static final TagKey<Item> ROYAL_STEEL_TOOL_MATERIALS = bindC("royal_steel_tool_materials");
+    public static final TagKey<Item> FROST_METAL_TOOL_MATERIALS = bindC("frost_metal_tool_materials");
+    public static final TagKey<Item> EMBER_METAL_TOOL_MATERIALS = bindC("ember_metal_tool_materials");
+    public static final TagKey<Item> TRANSCENDIUM_TOOL_MATERIALS = bindC("transcendium_tool_materials");
+
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> ROYAL_STEEL_AXE_BASE = bind("royal_steel_axe_base");
     public static final TagKey<Item> ROYAL_STEEL_HOE_BASE = bind("royal_steel_hoe_base");
@@ -167,6 +173,7 @@ public class ModItemTags {
     public static final TagKey<Item> HEATABLE_BLOCKS = bind("heatable_blocks");
     public static final TagKey<Item> LEVITATIONALS = bind("levitationals");
     public static final TagKey<Item> RADIATIONS = bind("radiations");
+    public static final TagKey<Item> DISALLOW_HAND_INSERT_INTO_TANK = bind("disallow_hand_insert_into_tank");
 
     public static final TagKey<Item> COMPRESS_ITEM = bind("compress_item");
     public static final TagKey<Item> SUPER_HEATING_BOOST_PRODUCTION = bind("super_heating_boost_production");
@@ -180,11 +187,11 @@ public class ModItemTags {
     public static final Object2ObjectMap<Color, TagKey<Item>> DYED_COLORS = initDyedTags();
 
     public static TagKey<Item> bindC(String id) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", id));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", id));
     }
 
     public static TagKey<Item> bindCurios(String id) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("curios", id));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("curios", id));
     }
 
     public static TagKey<Item> bind(String id) {

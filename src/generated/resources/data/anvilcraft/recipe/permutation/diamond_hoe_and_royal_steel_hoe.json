@@ -1,10 +1,17 @@
 {
   "type": "anvilcraft:permutation",
   "inputs": [
-    "minecraft:diamond_hoe",
-    "anvilcraft:royal_steel_hoe"
+    {
+      "id": "minecraft:diamond_hoe"
+    },
+    {
+      "id": "anvilcraft:royal_steel_hoe"
+    }
   ],
   "material": {
     "items": "anvilcraft:royal_steel_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

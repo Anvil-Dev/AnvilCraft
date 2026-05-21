@@ -1,18 +1,17 @@
 package dev.dubhe.anvilcraft.recipe;
 
-import dev.dubhe.anvilcraft.init.item.ModComponents;
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -23,9 +22,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class PillRecipe extends CustomRecipe {
-    public PillRecipe(CraftingBookCategory category) {
-        super(category);
-    }
+    private static final PillRecipe INSTANCE = new PillRecipe();
+    public static final MapCodec<PillRecipe> CODEC = MapCodec.unit(INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, PillRecipe> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    public static final RecipeSerializer<PillRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
     private boolean validatePill(ItemStack item) {
         PotionContents potionContents = item.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
@@ -63,9 +63,9 @@ public class PillRecipe extends CustomRecipe {
         int pillCount = 0;
         int potionCount = 0;
         for (ItemStack item : items) {
-            if (validatePill(item)) {
+            if (this.validatePill(item)) {
                 pillCount++;
-            } else if (validatePotion(item)) {
+            } else if (this.validatePotion(item)) {
                 potionCount++;
             }
         }
@@ -73,16 +73,14 @@ public class PillRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingInput input) {
         for (ItemStack item : input.items()) {
             if (item.is(Items.POTION)
                 || item.is(Items.SPLASH_POTION)
                 || item.is(Items.LINGERING_POTION)) {
                 ItemStack stack = ModFoodItems.PILL.asStack();
                 stack.set(DataComponents.POTION_CONTENTS, item.get(DataComponents.POTION_CONTENTS));
-                if (item.is(Items.LINGERING_POTION)) {
-                    stack.set(ModComponents.WEAKENING, true);
-                }
+                if (item.is(Items.LINGERING_POTION)) stack.set(DataComponents.POTION_DURATION_SCALE, 0.25F);
                 return stack;
             }
         }
@@ -108,12 +106,7 @@ public class PillRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.PILL_RECIPE_SERIALIZER.get();
+    public RecipeSerializer<PillRecipe> getSerializer() {
+        return SERIALIZER;
     }
 }

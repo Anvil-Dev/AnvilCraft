@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.init.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 
@@ -17,7 +17,7 @@ public class ModEntityTypeTags {
 
     @SuppressWarnings("unused")
     private static TagKey<EntityType<?>> bindC(String id) {
-        return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("c", id));
+        return TagKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath("c", id));
     }
 
     private static TagKey<EntityType<?>> bind(String id) {

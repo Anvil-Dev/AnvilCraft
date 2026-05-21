@@ -17,7 +17,6 @@
       "translate": "advancements.anvilcraft.heat_utilizing.description"
     },
     "icon": {
-      "count": 1,
       "id": "anvilcraft:heat_collector"
     },
     "title": {

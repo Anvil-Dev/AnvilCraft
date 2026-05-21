@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.item.template.mto;
 
 import lombok.Getter;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
 import java.util.List;
@@ -18,5 +18,5 @@ public abstract class BaseMultipleToOneTemplateItem extends Item {
 
     public abstract Component getMaterialTooltip();
 
-    public abstract List<ResourceLocation> getEmptySlotTextures();
+    public abstract List<Identifier> getEmptySlotTextures();
 }

@@ -32,7 +32,7 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
         boolean overloaded = false;
         BlockPos pos = charger.getBlockPos();
         if (charger.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
-            overloaded = charger.getBlockState().getValues().getOrDefault(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
+            overloaded = charger.getBlockState().getValueOrElse(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
         }
         Optional<SimplePowerGrid> powerGrids = SimplePowerGrid.findPowerGrid(pos);
         if (powerGrids.isEmpty()) return List.of();

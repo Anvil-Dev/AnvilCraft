@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.item.DragonRodItem;
+import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,7 +35,7 @@ public record DragonRodDevourPacket(InteractionHand hand, BlockPos pos, Directio
     @Override
     public void handleOnServer(Player player) {
         ServerPlayer serverside = Util.cast(player);
-        ServerLevel level = serverside.serverLevel();
+        ServerLevel level = serverside.level();
         DragonRodItem.devourBlock(
             level,
             player,

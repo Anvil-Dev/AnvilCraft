@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.TooltipUtil;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -16,20 +18,15 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -43,28 +40,29 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
     private final ITickTimer timer;
 
     private final IDrawable arrowIn;
-    private final IDrawable arrowOut;
+    private final IDrawable arrowOutFromBelow;
 
     public ConcreteCategory(IGuiHelper helper) {
-        icon = new DrawableBlockStateIcon(
+        this.icon = new DrawableBlockStateIcon(
             Blocks.ANVIL.defaultBlockState(),
-            ModBlocks.CEMENT_CAULDRONS.get(Color.PINK).getDefaultState());
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        title = Component.translatable("gui.anvilcraft.category.concrete");
-        timer = helper.createTickTimer(30, 60, true);
+            ModBlocks.CEMENT_CAULDRONS.get(Color.PINK).getDefaultState()
+        );
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.concrete");
+        this.timer = helper.createTickTimer(30, 60, true);
 
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOut = JeiRenderHelper.getArrowOutput(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOutFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
     }
 
     @Override
-    public RecipeType<ColoredConcreteRecipe> getRecipeType() {
+    public IRecipeType<ColoredConcreteRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.COLORED_CONCRETE;
     }
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -79,7 +77,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -87,59 +85,39 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
         JeiSlotUtil.addInputSlots(builder, recipe.ingredients());
         JeiSlotUtil.addOutputSlots(builder, List.of(recipe.result()));
 
-        // 将水泥锅里面的流体加入输入输出(在别处写CauldronFluidContent不保证能正常运行
-        // TODO: 等流体系统出来后可能要重写
-        BlockState blockState = ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState();
-        Block cauldrons = blockState.getBlock();
-        CauldronFluidContent cauldronFluidContent = CauldronFluidContent.getForBlock(cauldrons);
-        if (cauldronFluidContent == null) return;
-        Fluid fluid = cauldronFluidContent.fluid;
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addFluidStack(fluid);
+        CauldronFluidContent input = CauldronFluidContent.getForBlock(ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).get());
+        if (input != null) builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(input.fluid);
     }
 
     @Override
     public void draw(
         ColoredConcreteRecipe recipe,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState(),
-            81,
-            40,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+        double mouseY
+    ) {
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState(), 81, 40, 20);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(graphics, 54, 30);
+        this.arrowOutFromBelow.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.ingredients().size());
-        JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, 1);
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.ingredients().size());
+        JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, 1);
     }
 
     @Override
     public void getTooltip(
         ITooltipBuilder tooltip,
         ColoredConcreteRecipe recipe,
-        IRecipeSlotsView recipeSlotsView,
+        IRecipeSlotsView view,
         double mouseX,
-        double mouseY) {
-        if (mouseX >= 72 && mouseX <= 90) {
-            if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.add(ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).get().getName());
-            }
+        double mouseY
+    ) {
+        if (MathUtil.isInRange(mouseX, mouseY, 72, 34, 90, 53)) {
+            tooltip.addAll(TooltipUtil.tooltip(ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).get()));
         }
     }
 
@@ -149,6 +127,6 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.COLORED_CONCRETE);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.COLORED_CONCRETE);
+        AnvilCraftJeiPlugin.addCauldronCatalysts(registration, AnvilCraftJeiPlugin.COLORED_CONCRETE);
     }
 }

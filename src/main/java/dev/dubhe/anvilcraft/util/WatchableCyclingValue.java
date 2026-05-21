@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.network.CyclingValueSyncPacket;
 import lombok.Getter;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.function.Consumer;
 
@@ -25,11 +25,11 @@ public class WatchableCyclingValue<T> {
     }
 
     void onChanged() {
-        onChangedCallback.accept(this);
+        this.onChangedCallback.accept(this);
     }
 
     public int count() {
-        return values.length;
+        return this.values.length;
     }
 
     /**
@@ -38,47 +38,47 @@ public class WatchableCyclingValue<T> {
      * @return this
      */
     public WatchableCyclingValue<T> fromIndex(int index) {
-        if (index >= values.length) {
+        if (index >= this.values.length) {
             throw new IndexOutOfBoundsException(index);
         }
         this.index = index;
-        onChanged();
+        this.onChanged();
         return this;
     }
 
     public int index() {
-        return index;
+        return this.index;
     }
 
     public T get() {
-        return values[index];
+        return this.values[this.index];
     }
 
     /**
      * 下一个
      */
     public T next() {
-        if (index + 1 >= values.length) {
-            index = 0;
-            return values[index];
+        if (this.index + 1 >= this.values.length) {
+            this.index = 0;
+            return this.values[this.index];
         }
-        onChanged();
-        return values[index++];
+        this.onChanged();
+        return this.values[this.index++];
     }
 
     /**
      * 上一个
      */
     public T previous() {
-        if (index - 1 < 0) {
-            index = values.length - 1;
-            return values[index];
+        if (this.index - 1 < 0) {
+            this.index = this.values.length - 1;
+            return this.values[this.index];
         }
-        onChanged();
-        return values[index--];
+        this.onChanged();
+        return this.values[this.index--];
     }
 
     public void notifyServer() {
-        PacketDistributor.sendToServer(new CyclingValueSyncPacket(index, name));
+        ClientPacketDistributor.sendToServer(new CyclingValueSyncPacket(this.index, this.name));
     }
 }

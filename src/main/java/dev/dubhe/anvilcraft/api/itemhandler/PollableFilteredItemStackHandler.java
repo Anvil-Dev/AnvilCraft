@@ -1,8 +1,13 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
+import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.TransferPreconditions;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
     public PollableFilteredItemStackHandler(int size) {
@@ -10,49 +15,37 @@ public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
     }
 
     @Override
-    public boolean isItemValid(int slot, ItemStack stack) {
-        return getEmptyOrSmallerSlot(stack) == slot && super.isItemValid(slot, stack);
+    public boolean isValid(int index, ItemResource resource) {
+        return this.getEmptyOrSmallerSlot(resource) == index && super.isValid(index, resource);
     }
 
-    @Override
-    public boolean isFiltered(int slot, ItemStack stack) {
-        ItemStack filter = this.getFilteredItems().get(slot);
-        return filter.isEmpty() || ItemStack.isSameItem(filter, stack);
-    }
-
-    private int getEmptyOrSmallerSlot(ItemStack stack) {
-        int slotCount = this.getSlots();
-        int slot = -1;
+    private int getEmptyOrSmallerSlot(ItemResource resource) {
+        int size = this.size();
+        int valid = -1;
         int countInSlot = Integer.MAX_VALUE;
-        for (int index = slotCount - 1; index >= 0; index--) {
-            if (this.isSlotDisabled(index)) continue;
-            ItemStack stackInSlot = this.getStackInSlot(index);
-            if (this.isSlotDisabled(index)) continue;
-            if (!this.isFiltered(index, stack)) continue;
-            if (stackInSlot.isEmpty()) {
-                slot = index;
-                countInSlot = 0;
-                continue;
-            } else if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) {
-                continue;
-            }
-            int stackInSlotCount = stackInSlot.getCount();
-            if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(index)) {
-                slot = index;
+        for (int slot = size - 1; slot >= 0; slot--) {
+            if (this.isSlotDisabled(slot)) continue;
+            ItemResource resourceIn = this.getResource(slot);
+            if (!this.isFiltered(slot, resourceIn.toStack())) continue;
+            if (resourceIn.isEmpty()) return slot;
+            if (!resourceIn.equals(resource)) continue;
+            int stackInSlotCount = this.getAmountAsInt(slot);
+            if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(slot)) {
+                valid = slot;
                 countInSlot = stackInSlotCount;
             }
         }
-        return slot;
+        return valid;
     }
 
     public boolean canCompletelyInsert(List<ItemStack> items) {
         List<ItemStack> copyItems = items.stream().map(ItemStack::copy).toList();
-        for (int slot = 0; slot < this.getSlots(); slot++) {
+        for (int slot = 0; slot < this.size(); slot++) {
             for (ItemStack stack : copyItems) {
                 if (stack.isEmpty()) continue;
                 ItemStack existing = this.stacks.get(slot);
                 if (!ItemStack.isSameItemSameComponents(stack, existing) && !existing.isEmpty()) continue;
-                int limit = this.getStackLimit(slot, stack);
+                int limit = this.getCapacity(slot, ItemResource.of(stack));
                 int shrink = Math.min(stack.getCount(), limit - existing.getCount());
                 stack.shrink(shrink);
                 if (!stack.isEmpty() || limit == shrink) break;
@@ -61,39 +54,35 @@ public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
         return copyItems.stream().allMatch(ItemStack::isEmpty);
     }
 
-    public ItemStack insertItemNoPolling(int slot, ItemStack stack, boolean simulate) {
-        if (stack.isEmpty()) {
-            return ItemStack.EMPTY;
-        } else if (!super.isItemValid(slot, stack)) {
-            return stack;
-        } else {
-            this.validateSlotIndex(slot);
-            ItemStack existing = this.stacks.get(slot);
-            int limit = this.getStackLimit(slot, stack);
-            if (!existing.isEmpty()) {
-                if (!ItemStack.isSameItemSameComponents(stack, existing)) {
-                    return stack;
-                }
+    public int insertNoPolling(ItemResource resource, int amount, TransactionContext transaction) {
+        TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
 
-                limit -= existing.getCount();
-            }
+        int inserted = 0;
+        int size = this.size();
+        for (int index = 0; index < size; index++) {
+            inserted += this.insertNoPolling(index, resource, amount - inserted, transaction);
+            if (inserted == amount) break;
+        }
+        return inserted;
+    }
 
-            if (limit <= 0) {
-                return stack;
-            } else {
-                boolean reachedLimit = stack.getCount() > limit;
-                if (!simulate) {
-                    if (existing.isEmpty()) {
-                        this.stacks.set(slot, reachedLimit ? stack.copyWithCount(limit) : stack);
-                    } else {
-                        existing.grow(reachedLimit ? limit : stack.getCount());
-                    }
+    public int insertNoPolling(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        Objects.checkIndex(index, this.size());
+        TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
 
-                    this.onContentsChanged(slot);
-                }
+        ItemStack currentStack = this.stacks.get(index);
+        int currentAmount = this.getAmountFrom(currentStack);
 
-                return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;
+        if ((currentAmount == 0 || this.matches(currentStack, resource)) && super.isValid(index, resource)) {
+            int inserted = Math.min(amount, this.getCapacity(index, resource) - currentAmount);
+
+            if (inserted > 0) {
+                ((StacksResourceHandlerAccessor) this).getSnapshotJournals().get(index).updateSnapshots(transaction);
+                this.stacks.set(index, this.getStackFrom(resource, currentAmount + inserted));
+                return inserted;
             }
         }
+
+        return 0;
     }
 }

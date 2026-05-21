@@ -9,8 +9,6 @@
     }
   ],
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "tag": "c:ingots/tungsten"
-  },
+  "ingredient": "#c:ingots/tungsten",
   "mass": 190
 }

@@ -2,8 +2,9 @@ package dev.dubhe.anvilcraft.integration.jei.drawable;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import mezz.jei.api.gui.drawable.IDrawable;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Matrix3x2fStack;
 
 public class DrawableBlockStateIcon implements IDrawable {
     private final BlockState upState;
@@ -25,8 +26,12 @@ public class DrawableBlockStateIcon implements IDrawable {
     }
 
     @Override
-    public void draw(GuiGraphics guiGraphics, int offsetX, int offsetY) {
-        RenderSupport.renderBlock(guiGraphics, upState, offsetX + 8, offsetY + 3, 10, 7, RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(guiGraphics, downState, offsetX + 8, offsetY + 9, 0, 7, RenderSupport.SINGLE_BLOCK);
+    public void draw(GuiGraphicsExtractor graphics, int offsetX, int offsetY) {
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(0F, -0.5F);
+        RenderSupport.renderBlock(graphics, this.downState, offsetX + 2, offsetY + 6, 12);
+        RenderSupport.renderBlock(graphics, this.upState, offsetX + 2, offsetY, 12);
+        pose.popMatrix();
     }
 }

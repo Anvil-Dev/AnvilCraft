@@ -25,17 +25,19 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class FallingBlockCollisionEventListener {
@@ -47,8 +49,10 @@ public class FallingBlockCollisionEventListener {
         BlockPos pos = event.getPos();
         if (AnvilCraft.CONFIG.anvilCollisionCraftSpeed > event.getSpeed()) return;
         RecipeHolder<AnvilCollisionCraftRecipe> resultRecipe = null;
-        List<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getRecipeManager()
-            .getAllRecipesFor(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
+        Collection<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getServer()
+            .getRecipeManager()
+            .recipeMap()
+            .byType(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
         BlockState state = level.getBlockState(pos);
         BlockEntity entity = level.getBlockEntity(pos);
         for (RecipeHolder<AnvilCollisionCraftRecipe> recipe : recipes) {
@@ -91,7 +95,7 @@ public class FallingBlockCollisionEventListener {
         removeBlock(level, pos);
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
         if (recipe.consume()) {
-            event.getEntity().kill();
+            event.getEntity().discard();
         }
 
         DamageSource damageSource = Explosion.getDefaultDamageSource(level, null);
@@ -99,48 +103,41 @@ public class FallingBlockCollisionEventListener {
         double x = pos.getCenter().x;
         double y = pos.getCenter().y;
         double z = pos.getCenter().z;
-        float radius = 4f;
+        float radius = 4F;
         boolean fire = true;
         boolean spawnParticles = true;
         ParticleOptions smallExplosionParticles = ParticleTypes.EXPLOSION;
         ParticleOptions largeExplosionParticles = ParticleTypes.EXPLOSION_EMITTER;
         Holder<SoundEvent> explosionSound = SoundEvents.GENERIC_EXPLODE;
         Explosion.BlockInteraction blockInteraction =
-            level.getGameRules().getBoolean(GameRules.RULE_TNT_EXPLOSION_DROP_DECAY)
-            ? Explosion.BlockInteraction.DESTROY_WITH_DECAY
-            : Explosion.BlockInteraction.DESTROY;
-        Explosion explosion = new Explosion(
-            level,
+            level.getServer().getGameRules().get(GameRules.TNT_EXPLOSION_DROP_DECAY)
+                ? Explosion.BlockInteraction.DESTROY_WITH_DECAY
+                : Explosion.BlockInteraction.DESTROY;
+        ServerExplosion explosion = new ServerExplosion(
+            serverLevel,
             null,
             damageSource,
             damageCalculator,
-            x,
-            y,
-            z,
+            pos.getCenter(),
             radius,
             fire,
-            blockInteraction,
-            smallExplosionParticles,
-            largeExplosionParticles,
-            explosionSound
+            blockInteraction
         );
         explosion.anvilcraft$setBlockTransformExplosion(recipe.transformBlocks());
-        explosion.explode();
-        explosion.finalizeExplosion(spawnParticles);
+        int blockCount = explosion.explode();
+        ParticleOptions explosionParticle = explosion.isSmall() ? smallExplosionParticles : largeExplosionParticles;
         for (ServerPlayer serverplayer : serverLevel.players()) {
             if (serverplayer.distanceToSqr(x, y, z) < 4096.0) {
+                Optional<Vec3> playerKnockback = Optional.ofNullable(explosion.getHitPlayers().get(serverplayer));
                 serverplayer.connection.send(
                     new ClientboundExplodePacket(
-                        x,
-                        y,
-                        z,
+                        pos.getCenter(),
                         radius,
-                        explosion.getToBlow(),
-                        explosion.getHitPlayers().get(serverplayer),
-                        explosion.getBlockInteraction(),
-                        explosion.getSmallExplosionParticles(),
-                        explosion.getLargeExplosionParticles(),
-                        explosion.getExplosionSound()
+                        blockCount,
+                        playerKnockback,
+                        explosionParticle,
+                        explosionSound,
+                        Level.DEFAULT_EXPLOSION_BLOCK_PARTICLES
                     )
                 );
             }
@@ -148,8 +145,8 @@ public class FallingBlockCollisionEventListener {
 
         ArrayList<ItemStack> itemEntities = new ArrayList<>();
         for (ChanceItemStack outputItem : recipe.outputItems()) {
-            ItemStack itemStack;
-            if ((itemStack = outputItem.getResult(serverLevel)).isEmpty()) continue;
+            ItemStack itemStack = outputItem.getResult(serverLevel).create();
+            if (itemStack.isEmpty()) continue;
             itemEntities.add(itemStack);
         }
         for (ItemStack itemStack : itemEntities) {
@@ -158,7 +155,7 @@ public class FallingBlockCollisionEventListener {
             Vec3 normal = pos.getCenter().subtract(entityPos).scale(0.6).multiply(1, 0, 1);
             final float dRoute;
             if (number == 2) {
-                dRoute = 0f;
+                dRoute = 0F;
             } else {
                 dRoute = (float) (2 * Math.PI / (number - 2));
             }
@@ -185,7 +182,7 @@ public class FallingBlockCollisionEventListener {
                 remainder--;
             }
         }
-        TriggerUtil.recipe(level, pos, recipeHolder.id(), itemEntities);
+        TriggerUtil.recipe(level, pos, recipeHolder.id().identifier(), itemEntities);
     }
 
     public static class ItemImmuneExplosionDamage extends ExplosionDamageCalculator {

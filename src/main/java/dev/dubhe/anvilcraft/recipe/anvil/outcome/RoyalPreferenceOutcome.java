@@ -19,13 +19,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeOutcome<RoyalPreferenceOutcome> {
 
@@ -48,8 +48,8 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
             }
         }
         if (found) {
-            int count = context.getInt(result.count());
-            ItemStack stackToDrop = result.stack().copyWithCount(count);
+            int count = context.getInt(this.result.count());
+            ItemStack stackToDrop = this.result.stack().create().copyWithCount(count);
             AnvilUtil.dropItems(List.of(stackToDrop), level, pos);
         }
     }
@@ -65,8 +65,8 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
             return stack.is(RoyalPreference.preferredGem.orElseThrow()) || stack.is(RoyalPreference.preferredGemBlock.orElseThrow());
         }
 
-        public static void initRoyalPreference(ServerLevel level) {
-            Supplier<Random> randomFactory = () -> new Random(level.getSeed());
+        public static void initRoyalPreference(long seed) {
+            Supplier<Random> randomFactory = () -> new Random(seed);
             RoyalPreference.initRoyalPreferredGem(randomFactory);
             RoyalPreference.initRoyalPreferredGemBlock(randomFactory);
         }

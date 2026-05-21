@@ -85,9 +85,9 @@ public class BreakBlockUtil {
         return drops.stream()
             .map(it -> {
                 SingleRecipeInput cont = new SingleRecipeInput(it);
-                return level.getRecipeManager()
+                return level.recipeAccess()
                     .getRecipeFor(RecipeType.SMELTING, cont, level)
-                    .map(smeltingRecipe -> smeltingRecipe.value().assemble(cont, level.registryAccess()))
+                    .map(smeltingRecipe -> smeltingRecipe.value().assemble(cont))
                     .orElse(it);
             })
             .collect(Collectors.toList());

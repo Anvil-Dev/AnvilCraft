@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 @Getter
 public abstract class BaseMachineBlockEntity
     extends BlockEntity
-    implements MenuProvider, IItemHandlerHolder {
+    implements MenuProvider, IItemResourceHandlerHolder {
 
     protected BaseMachineBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);

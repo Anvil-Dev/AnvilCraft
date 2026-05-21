@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:titanium_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:titanium_block"
-    }
+    "anvilcraft:titanium_block"
   ],
   "result": {
     "count": 9,

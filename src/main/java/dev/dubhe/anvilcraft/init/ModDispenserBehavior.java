@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
-import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
-import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.block.storage.MagnetBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
+import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
 import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
@@ -18,9 +19,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.animal.MushroomCow;
-import net.minecraft.world.entity.monster.ZombieVillager;
+import net.minecraft.world.entity.animal.cow.MushroomCow;
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.monster.zombie.ZombieVillager;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.DispensibleContainerItem;
 import net.minecraft.world.item.ItemStack;
@@ -36,8 +37,6 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 import java.util.UUID;
-
-import static dev.dubhe.anvilcraft.block.MagnetBlock.LIT;
 
 public class ModDispenserBehavior {
     /*
@@ -90,8 +89,8 @@ public class ModDispenserBehavior {
         ServerLevel level = source.level();
         if (level.getBlockState(blockPos).is(ModBlocks.HOLLOW_MAGNET_BLOCK)) {
             BlockState blockState = ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get().defaultBlockState();
-            if (blockState.hasProperty(LIT)) {
-                blockState = blockState.setValue(LIT, level.hasNeighborSignal(blockPos));
+            if (blockState.hasProperty(MagnetBlock.LIT)) {
+                blockState = blockState.setValue(MagnetBlock.LIT, level.hasNeighborSignal(blockPos));
             }
             level.setBlockAndUpdate(blockPos, blockState);
             ItemStack stack1 = stack.copy();
@@ -105,10 +104,10 @@ public class ModDispenserBehavior {
                 .filter(e -> e.getHealth() < e.getMaxHealth())
                 .toList();
         if (entities.isEmpty()) return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
-        IronGolem ironGolem = entities.get(level.random.nextInt(0, entities.size()));
-        ironGolem.heal(25.0f);
-        float g = 1.0f + (level.random.nextFloat() - level.random.nextFloat()) * 0.2f;
-        ironGolem.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0f, g);
+        IronGolem ironGolem = entities.get(level.getRandom().nextInt(0, entities.size()));
+        ironGolem.heal(25.0F);
+        float g = 1.0F + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.2F;
+        ironGolem.playSound(SoundEvents.IRON_GOLEM_REPAIR, 1.0F, g);
         ItemStack stack1 = stack.copy();
         stack1.shrink(1);
         for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, blockPos, 5)) {

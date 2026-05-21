@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "anvilcraft:frost_metal_ingot"
-  },
-  "base": {
-    "tag": "anvilcraft:frost_metal_sword_base"
-  },
+  "addition": "anvilcraft:frost_metal_ingot",
+  "base": "#anvilcraft:frost_metal_sword_base",
   "result": {
-    "count": 1,
     "id": "anvilcraft:frost_metal_sword"
   },
-  "template": {
-    "item": "anvilcraft:frost_metal_upgrade_smithing_template"
-  }
+  "template": "anvilcraft:frost_metal_upgrade_smithing_template"
 }

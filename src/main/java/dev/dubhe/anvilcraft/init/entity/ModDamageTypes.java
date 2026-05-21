@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.core.Registry;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
@@ -24,8 +24,8 @@ public class ModDamageTypes {
 
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
-        ctx.register(LASER, new DamageType("anvilcraft.laser", 0.1f, DamageEffects.BURNING));
-        ctx.register(LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1f));
+        ctx.register(LASER, new DamageType("anvilcraft.laser", 0.1F, DamageEffects.BURNING));
+        ctx.register(LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1F));
     }
 
     public static DamageSource laser(Level level) {
@@ -37,7 +37,7 @@ public class ModDamageTypes {
     }
 
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {
-        Registry<DamageType> registry = level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE);
-        return new DamageSource(registry.getHolderOrThrow(key));
+        Holder.Reference<DamageType> holder = level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(key);
+        return new DamageSource(holder);
     }
 }

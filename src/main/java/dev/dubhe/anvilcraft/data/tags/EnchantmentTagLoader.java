@@ -14,18 +14,18 @@ public class EnchantmentTagLoader {
      * @param provider 提供器
      */
     public static void init(RegistrumTagsProvider<Enchantment> provider) {
-        provider.addTag(Tags.Enchantments.INCREASE_BLOCK_DROPS)
-            .addOptional(ModEnchantments.HARVEST_KEY.location());
+        provider.rawBuilder(Tags.Enchantments.INCREASE_BLOCK_DROPS)
+            .addOptionalElement(ModEnchantments.HARVEST_KEY.identifier());
 
-        provider.addTag(ModEnchantmentTags.DISABLED_PASSED)
-            .add(Enchantments.MENDING);
+        provider.rawBuilder(ModEnchantmentTags.DISABLED_PASSED)
+            .addElement(Enchantments.MENDING.identifier());
 
-        provider.addTag(ModEnchantmentTags.PROVIDENCE_BONUS)
-            .add(Enchantments.FORTUNE)
-            .add(Enchantments.LOOTING)
-            .addOptional(ModEnchantments.BEHEADING_KEY.location())
-            .add(Enchantments.THORNS)
-            .add(Enchantments.LUCK_OF_THE_SEA)
-            .addOptional(ModEnchantments.DISINTEGRATION_KEY.location());
+        provider.rawBuilder(ModEnchantmentTags.PROVIDENCE_BONUS)
+            .addElement(Enchantments.FORTUNE.identifier())
+            .addElement(Enchantments.LOOTING.identifier())
+            .addOptionalElement(ModEnchantments.BEHEADING_KEY.identifier())
+            .addElement(Enchantments.THORNS.identifier())
+            .addElement(Enchantments.LUCK_OF_THE_SEA.identifier())
+            .addOptionalElement(ModEnchantments.DISINTEGRATION_KEY.identifier());
     }
 }

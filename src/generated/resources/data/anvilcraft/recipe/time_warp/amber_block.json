@@ -2,12 +2,14 @@
   "type": "anvilcraft:time_warp",
   "ingredients": [
     {
-      "items": "anvilcraft:resin_block",
-      "predicates": {
-        "anvillib:not": {
-          "anvilcraft:saved_entity": {}
+      "components": {
+        "predicates": {
+          "anvillib:not": {
+            "anvilcraft:saved_entity": {}
+          }
         }
-      }
+      },
+      "items": "anvilcraft:resin_block"
     }
   ],
   "results": [

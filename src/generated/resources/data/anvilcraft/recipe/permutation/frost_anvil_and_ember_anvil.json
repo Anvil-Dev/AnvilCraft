@@ -1,10 +1,17 @@
 {
   "type": "anvilcraft:permutation",
   "inputs": [
-    "anvilcraft:frost_anvil",
-    "anvilcraft:ember_anvil"
+    {
+      "id": "anvilcraft:frost_anvil"
+    },
+    {
+      "id": "anvilcraft:ember_anvil"
+    }
   ],
   "material": {
     "items": "anvilcraft:multiphase_matter_block"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

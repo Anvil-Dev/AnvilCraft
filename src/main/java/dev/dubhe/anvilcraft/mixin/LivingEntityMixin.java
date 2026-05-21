@@ -1,23 +1,19 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
-import dev.dubhe.anvilcraft.api.totem.TotemManager;
-import dev.dubhe.anvilcraft.api.totem.handler.TotemHandler;
-import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
-import dev.dubhe.anvilcraft.block.FrostAnvilBlock;
-import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.api.injection.entity.ILivingEntityExtension;
+import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
+import dev.dubhe.anvilcraft.block.workstation.frost.FrostAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
-import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.consume.PreventShrinkingConsumeEffect;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -30,15 +26,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.neoforge.common.CommonHooks;
-import net.neoforged.neoforge.common.EffectCure;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -48,12 +40,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity {
+public abstract class LivingEntityMixin extends Entity implements ILivingEntityExtension {
     @Unique
     private boolean anvilcraft$raged = false;
 
@@ -67,118 +59,94 @@ public abstract class LivingEntityMixin extends Entity {
     public abstract ItemStack getItemInHand(InteractionHand hand);
 
     @Shadow
-    public abstract void kill();
-
-    @Shadow
-    @Nullable
-    protected Player lastHurtByPlayer;
-
-    @Shadow
-    protected int lastHurtByPlayerTime;
+    public abstract void setLastHurtByPlayer(UUID player, int timeToRemember);
 
     private LivingEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
 
-    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
-    private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
-        switch (value.getEntity()) {
-            case FallingBlockEntity falling when !this.level().isClientSide -> {
+    @Override
+    public void anvilcraft$setRaged() {
+        this.anvilcraft$raged = true;
+    }
+
+    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true, name = "source")
+    private DamageSource modifySource(DamageSource source, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+        switch (source.getEntity()) {
+            case FallingBlockEntity falling when !this.level().isClientSide() -> {
                 Block anvil = falling.getBlockState().getBlock();
-                if (!Util.instanceOfAny(anvil, FrostAnvilBlock.class, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) return value;
+                if (!Util.instanceOfAny(anvil, FrostAnvilBlock.class, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) return source;
                 ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
-                this.lastHurtByPlayer = killer;
-                this.lastHurtByPlayerTime = 1;
+                this.setLastHurtByPlayer(killer.getGameProfile().id(), 1);
                 killerRef.set(killer);
-                DamageSource source = new DamageSource(
+                DamageSource damageSource = new DamageSource(
                     this.level().damageSources().playerAttack(killer).typeHolder(),
                     falling,
                     killer,
-                    value.getSourcePosition()
+                    source.getSourcePosition()
                 );
                 if (anvil instanceof TranscendenceAnvilBlock) {
                     AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
                 } else if (anvil instanceof FrostAnvilBlock) {
                     AnvilCraftFakePlayers.anvilcraftKiller.enableDisintegration((ServerLevel) this.level(), killer);
                 }
-                return source;
+                return damageSource;
             }
             case null, default -> {
-                return value;
+                return source;
             }
         }
     }
 
     @Inject(method = "die", at = @At("RETURN"))
-    private void disableKiller(DamageSource cause, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
         AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
     }
 
     @Inject(
-        method = "dropFromLootTable",
+        method = "dropFromLootTable("
+                 + "Lnet/minecraft/server/level/ServerLevel;"
+                 + "Lnet/minecraft/resources/ResourceKey;"
+                 + "Ljava/util/function/Function;"
+                 + "Ljava/util/function/BiConsumer;)Z",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/storage/loot/LootTable;"
-                     + "getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"
+            target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems("
+                     + "Lnet/minecraft/world/level/storage/loot/LootParams;)"
+                     + "Lit/unimi/dsi/fastutil/objects/ObjectArrayList;"
         )
     )
     private void dropBeheadingLoot(
-        DamageSource damageSource,
-        boolean hitByPlayer,
-        CallbackInfo ci,
-        @Local LootParams lootParams
+        ServerLevel level,
+        ResourceKey<LootTable> key,
+        Function<LootParams.Builder, LootParams> paramsBuilder,
+        BiConsumer<ServerLevel, ItemStack> consumer,
+        CallbackInfoReturnable<Boolean> cir,
+        @Local(name = "params") LootParams params
     ) {
         LivingEntity thiz = Util.cast(this);
         LootTable beheadingLoot = ModLootTables.getBeheadingLoot(thiz);
         if (beheadingLoot == LootTable.EMPTY) return;
-        beheadingLoot.getRandomItems(lootParams, thiz.getLootTableSeed(), thiz::spawnAtLocation);
+        beheadingLoot.getRandomItems(
+            params,
+            thiz.getLootTableSeed(),
+            stack -> thiz.spawnAtLocation(level, stack)
+        );
     }
 
-    @Inject(
-        method = "checkTotemDeathProtection",
-        at = @At(
-            value = "HEAD"
-        ),
-        cancellable = true
-    )
-    private void checkTotemDeathProtection(DamageSource damageSource, CallbackInfoReturnable<Boolean> cir) {
-        LivingEntity self = (LivingEntity) (Object) this;
-        Map<Item, TotemHandler> totemMap = TotemManager.INSTANCE.getTotemMap();
-        ItemStack totemItem = null;
-        TotemHandler handler = null;
-        handLoop:
-        for (InteractionHand hand : InteractionHand.values()) {
-            ItemStack stack = this.getItemInHand(hand);
-            for (Item item : totemMap.keySet()) {
-                if (!stack.is(item)) continue;
-                TotemHandler handler1 = totemMap.get(item);
-                if (!handler1.canExecute(damageSource, self, stack)) continue;
-                if (!CommonHooks.onLivingUseTotem(self, damageSource, stack, hand)) continue;
-                totemItem = stack;
-                handler = handler1;
-                break handLoop;
-            }
-        }
+    @Inject(method = "checkTotemDeathProtection", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shrink(I)V"))
+    private void recordUsedHand(
+        DamageSource killingDamage,
+        CallbackInfoReturnable<Boolean> cir,
+        @Local(name = "hand") InteractionHand hand
+    ) {
+        PreventShrinkingConsumeEffect.USED_HAND.set(hand);
+    }
 
-        if (totemItem != null) {
-            ItemStack itemStack = totemItem.copy();
-            boolean result = handler.execute(damageSource, self, totemItem);
-            handler.shrink(totemItem);
-            if (result && itemStack.is(ModItems.TOTEM_OF_RAGE)) {
-                this.anvilcraft$raged = true;
-            } else if (result && itemStack.is(ModItems.AMULET_BOX)) {
-                List<ItemStack> totems = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems();
-                if (!totems.isEmpty()) {
-                    if (totems.getFirst().is(ModItems.TOTEM_OF_RAGE)) {
-                        this.anvilcraft$raged = true;
-                    }
-                }
-            }
-            cir.setReturnValue(result);
-        }
-
-        cir.setReturnValue(totemItem != null);
+    @Inject(method = "checkTotemDeathProtection", at = @At("RETURN"))
+    private void recordUsedHand(CallbackInfoReturnable<Boolean> cir) {
+        PreventShrinkingConsumeEffect.USED_HAND.remove();
     }
 
     @Inject(
@@ -188,14 +156,15 @@ public abstract class LivingEntityMixin extends Entity {
         )
     )
     private void dieOfRage(CallbackInfo ci) {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (this.anvilcraft$raged) {
             if (this.anvilcraft$rageTick >= 1200) {
                 if ((LivingEntity) (Object) this instanceof Player player) {
                     if (!player.isCreative() || !player.isSpectator()) {
-                        player.kill();
+                        player.kill(serverLevel);
                     }
                 } else {
-                    this.kill();
+                    this.kill(serverLevel);
                 }
                 this.anvilcraft$raged = false;
                 this.anvilcraft$rageTick = 0;
@@ -213,34 +182,34 @@ public abstract class LivingEntityMixin extends Entity {
         ),
         cancellable = true
     )
-    private void preventAddEffect(MobEffectInstance effectInstance, Entity entity, CallbackInfoReturnable<Boolean> cir) {
+    private void preventAddEffect(MobEffectInstance newEffect, Entity source, CallbackInfoReturnable<Boolean> cir) {
         if (this.hasEffect(ModMobEffects.RAGE)) {
             cir.setReturnValue(false);
         }
     }
 
-    @WrapOperation(
-        method = "removeEffectsCuredBy",
-        at = @At(
-            value = "INVOKE",
-            target = "Ljava/util/Set;contains(Ljava/lang/Object;)Z"
-        )
-    )
-    private boolean preventRemovalRageEffect(
-        Set<EffectCure> instance,
-        Object o,
-        Operation<Boolean> original,
-        @Local MobEffectInstance effect
-    ) {
-        return original.call(instance, o) && !effect.is(ModMobEffects.RAGE);
-    }
+    // @WrapOperation(
+    //     method = "removeAllEffects",
+    //     at = @At(
+    //         value = "INVOKE",
+    //         target = "Ljava/util/Set;contains(Ljava/lang/Object;)Z"
+    //     )
+    // )
+    // private boolean preventRemovalRageEffect(
+    //     Set<EffectCure> instance,
+    //     Object o,
+    //     Operation<Boolean> original,
+    //     @Local MobEffectInstance effect
+    // ) {
+    //     return original.call(instance, o) && !effect.is(ModMobEffects.RAGE);
+    // }
 
     @Inject(
-        method = "hurt",
+        method = "hurtServer",
         at = @At(value = "HEAD"),
         cancellable = true
     )
-    private void invulnerableEffect(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void invulnerableEffect(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
         if (this.hasEffect(ModMobEffects.INVULNERABLE)) {
             if (!source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
                 cir.setReturnValue(false);

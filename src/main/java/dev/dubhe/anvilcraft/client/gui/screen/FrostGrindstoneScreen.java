@@ -8,18 +8,19 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.FrostGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.FrostGrindstoneSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindstoneMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "frost_grindstone");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "frost_grindstone");
 
     private final FrostGrindstoneMenu menu;
     private final Scrollable scrollable = new Scrollable() {
@@ -59,37 +60,48 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderEnchantmentSelectingArea(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractEnchantmentSelectingArea(graphics, mouseX, mouseY, a);
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack stack = this.hoveredSlot.getItem();
-            guiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack, x, y);
+            graphics.setTooltipForNextFrame(
+                this.font,
+                this.getTooltipFromContainerItem(stack),
+                stack.getTooltipImage(),
+                stack,
+                x,
+                y
+            );
         } else if (this.renderingTooltipEnchantedBook != null) {
-            guiGraphics.renderTooltip(
-                this.font, this.getTooltipFromContainerItem(this.renderingTooltipEnchantedBook),
-                this.renderingTooltipEnchantedBook.getTooltipImage(), this.renderingTooltipEnchantedBook, x, y);
+            graphics.setTooltipForNextFrame(
+                this.font,
+                this.getTooltipFromContainerItem(this.renderingTooltipEnchantedBook),
+                this.renderingTooltipEnchantedBook.getTooltipImage(),
+                this.renderingTooltipEnchantedBook,
+                x,
+                y
+            );
         }
     }
 
-    protected void renderEnchantmentSelectingArea(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractEnchantmentSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
         if (this.menu.getEnchantments().isEmpty()) return;
         for (int i = this.head; i < this.head + Math.min(this.menu.getEnchantments().size() - this.head, 6); i++) {
@@ -99,7 +111,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
             EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), i).orElse(null);
             if (data == null) continue;
 
-            ItemStack willRender = EnchantedBookItem.createForEnchantment(data.toEnchantmentInst());
+            ItemStack willRender = EnchantmentHelper.createBook(data.toEnchantmentInst());
 
             int offsetV = 0;
             if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
@@ -113,19 +125,31 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
                 selected = true;
             }
 
-            guiGraphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
-            guiGraphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
+            graphics.item(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
         }
     }
 
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+    @Override
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
 
         if (this.scrollable.canScroll()) {
             int left = this.leftPos + 122;
             int top = this.topPos + 23;
             int down = top + 36;
-            guiGraphics.blit(
+            graphics.blit(
                 SharedTextures.SWITCH_TABLE_SLIDER,
                 left,
                 top + (int) ((down - top - 12) * this.scrollable.getScrollOffs()),
@@ -140,16 +164,15 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
+    public void resize(int width, int height) {
         this.scrollable.calculateScroll(this.head / 3);
-
-        this.init(minecraft, width, height);
+        this.init(width, height);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            if (this.insideScrollbar(mouseX, mouseY)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
+        if (event.button() == 0) {
+            if (this.insideScrollbar(event.x(), event.y())) {
                 this.scrollable.scrolling();
                 return true;
             }
@@ -157,39 +180,39 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
                 int x = this.leftPos + 65 + 18 * (i % 3);
                 int y = this.topPos + 23 + 18 * ((i - this.head) / 3);
 
-                if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) continue;
+                if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
                 if (this.menu.getSelectedIndexes().contains(i)) {
                     this.menu.unselect(i);
-                    PacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, false));
+                    ClientPacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, false));
                 } else {
                     this.menu.select(i);
-                    PacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, true));
+                    ClientPacketDistributor.sendToServer(new FrostGrindstoneSyncPacket(i, true));
                 }
                 return true;
             }
         }
 
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, handled);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0 && this.scrollable.isScrolling()) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.scrollable.isScrolling()) {
             this.scrollable.notScrolling();
             return true;
         }
 
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.scrollable.isScrolling()) {
             int top = this.topPos + 23;
-            this.scrollable.scrollOnDrag(12, mouseY, top, top + 36);
+            this.scrollable.scrollOnDrag(12, event.y(), top, top + 36);
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override

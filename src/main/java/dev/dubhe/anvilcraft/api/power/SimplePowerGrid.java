@@ -16,7 +16,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -75,20 +75,20 @@ public class SimplePowerGrid {
         this.pos = pos;
         this.level = level;
         this.id = id;
-        random.setSeed(id);
-        int[] colors = ColorUtil.hsvToRgb(random.nextInt(360), 80, 80);
-        this.color = FastColor.ARGB32.color((int) (0.4 * 255), colors[0], colors[1], colors[2]);
+        this.random.setSeed(id);
+        int[] colors = ColorUtil.hsvToRgb(this.random.nextInt(360), 80, 80);
+        this.color = ARGB.color((int) (0.4 * 255), colors[0], colors[1], colors[2]);
         this.generate = generate;
         this.consume = consume;
-        blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
+        this.blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
-        createMergedOutlineShape();
-        createTransmitterVisualLines();
+        this.createMergedOutlineShape();
+        this.createTransmitterVisualLines();
     }
 
     public SimplePowerGrid(PowerGrid grid) {
         this.id = grid.hashCode();
-        this.level = grid.getLevel().dimension().location().toString();
+        this.level = grid.getLevel().dimension().identifier().toString();
         this.pos = grid.getPos();
         Set<IPowerComponent> powerComponents = new HashSet<>();
         powerComponents.addAll(grid.storages);
@@ -97,67 +97,7 @@ public class SimplePowerGrid {
         powerComponents.addAll(grid.transmitters);
         this.color = 0;
         for (IPowerComponent component : powerComponents) {
-            switch (component.getComponentType()) {
-                case STORAGE -> {
-                    IPowerStorage it = (IPowerStorage) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        0,
-                        it.getPowerAmount(),
-                        it.getCapacity(),
-                        it.getRange(),
-                        PowerComponentType.STORAGE
-                    ));
-                }
-                case CONSUMER -> {
-                    IPowerConsumer it = (IPowerConsumer) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
-                        it.getPos(),
-                        it.getInputPower(),
-                        0,
-                        0,
-                        0,
-                        it.getRange(),
-                        PowerComponentType.CONSUMER
-                    ));
-                }
-                case PRODUCER -> {
-                    IPowerProducer it = (IPowerProducer) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        it.getOutputPower(),
-                        0,
-                        0,
-                        it.getRange(),
-                        PowerComponentType.PRODUCER
-                    ));
-                }
-
-                case TRANSMITTER -> {
-                    IPowerTransmitter it = (IPowerTransmitter) component;
-                    powerComponentInfoList.add(new PowerComponentInfo(
-                        it.getPos(),
-                        0,
-                        0,
-                        0,
-                        0,
-                        it.getRange(),
-                        PowerComponentType.TRANSMITTER
-                    ));
-                }
-
-                default -> powerComponentInfoList.add(new PowerComponentInfo(
-                    component.getPos(),
-                    0,
-                    0,
-                    0,
-                    0,
-                    component.getRange(),
-                    PowerComponentType.INVALID
-                ));
-            }
+            this.powerComponentInfoList.add(component.toPowerComponentInfo());
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
@@ -206,31 +146,23 @@ public class SimplePowerGrid {
      * 获得指定坐标的电网元件信息
      */
     public Optional<PowerComponentInfo> getInfoForPos(BlockPos pos) {
-        return powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
+        return this.powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
     }
 
     public boolean isOverloaded() {
         return this.getConsume() > this.getGenerate();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean shouldRender(Vec3 cameraPos) {
         int renderDistance = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
-        return powerComponentInfoList.stream().anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
+        return this.powerComponentInfoList.stream().anyMatch(it -> it.pos().getCenter().distanceTo(cameraPos) < renderDistance);
     }
 
     private void createTransmitterVisualLines() {
         List<Map.Entry<BlockPos, AABB>> shapes = this.powerComponentInfoList.stream()
             .filter(it -> it.type() == PowerComponentType.TRANSMITTER)
-            .map(it -> Map.entry(
-                it.pos(), new AABB(
-                    -it.range() + it.pos().getX(),
-                    -it.range() + it.pos().getY(),
-                    -it.range() + it.pos().getZ(),
-                    it.range() + 1 + it.pos().getX(),
-                    it.range() + 1 + it.pos().getY(),
-                    it.range() + 1 + it.pos().getZ()
-                )
-            ))
+            .map(it -> Map.entry(it.pos(), it.boundingBox()))
             .toList();
 
         for (int i = 0; i < shapes.size(); i++) {
@@ -242,7 +174,7 @@ public class SimplePowerGrid {
                 if (a.intersects(b)) {
                     Vec3 start = e1.getKey().getCenter();
                     Vec3 end = e2.getKey().getCenter();
-                    powerTransmitterLines.add(new Line(start, end));
+                    this.powerTransmitterLines.add(new Line(start, end));
                 }
             }
         }
@@ -252,7 +184,7 @@ public class SimplePowerGrid {
         if (SimplePowerGrid.EXECUTOR.isShutdown()) SimplePowerGrid.recreateExecutor();
         this.shapeFuture = SimplePowerGrid.EXECUTOR.submit(() -> {
             List<VoxelShape> input = new ArrayList<>();
-            for (PowerComponentInfo it : powerComponentInfoList) {
+            for (PowerComponentInfo it : this.powerComponentInfoList) {
                 Vec3 center = it.pos().getCenter();
                 float size = it.range() * 2 + 1;
                 input.add(Shapes.create(AABB.ofSize(center, size, size, size)));
@@ -281,8 +213,8 @@ public class SimplePowerGrid {
     }
 
     public void destroy() {
-        if (!shapeFuture.isDone()) {
-            shapeFuture.cancel(true);
+        if (!this.shapeFuture.isDone()) {
+            this.shapeFuture.cancel(true);
         }
     }
 }

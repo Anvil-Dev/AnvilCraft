@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
-import dev.dubhe.anvilcraft.block.MagnetBlock;
+import dev.dubhe.anvilcraft.block.storage.MagnetBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;

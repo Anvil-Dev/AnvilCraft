@@ -16,11 +16,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.function.LongPredicate;
 import java.util.function.ToIntFunction;
 
 public class AnvilMenuResult {
@@ -63,8 +61,7 @@ public class AnvilMenuResult {
         Player player,
         ItemStack inputLeft,
         ItemStack inputRight,
-        @Nullable String itemName,
-        LongPredicate onAnvilChangeEventSender
+        @Nullable String itemName
     ) {
         this.shouldCancel = false;
         this.onlyRenaming = false;
@@ -82,13 +79,7 @@ public class AnvilMenuResult {
                    + (long) inputRight.getOrDefault(DataComponents.REPAIR_COST, 0);
         ItemStack result = inputLeft.copy();
         final ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(EnchantmentHelper.getEnchantmentsForCrafting(result));
-        boolean usingBook = false;
-
-        // 发送事件，若事件取消，则返回
-        if (!onAnvilChangeEventSender.test(tax)) {
-            this.result = ItemStack.EMPTY;
-            return;
-        }
+        boolean usingBook;
 
         // 若右侧为命名牌，则尝试获取特殊格式，否则进入魔咒逻辑
         ChatFormatting extraFormat = null;
@@ -106,7 +97,7 @@ public class AnvilMenuResult {
             if (
                 result.isDamageableItem()
                 && (
-                    result.getItem().isValidRepairItem(inputLeft, inputRight)
+                    inputLeft.isValidRepairItem(inputRight)
                     || (
                         this.allowUsingFrostMetalToRepair
                         && (
@@ -119,9 +110,9 @@ public class AnvilMenuResult {
                 ToIntFunction<ItemStack> nextComputer;
                 if (this.allowUsingFrostMetalToRepair) {
                     if (inputRight.is(ModItems.FROST_METAL_INGOT)) {
-                        nextComputer = result1 -> 1080;
+                        nextComputer = _ -> 1080;
                     } else if (inputRight.is(ModItems.FROST_METAL_NUGGET)) {
-                        nextComputer = result1 -> 120;
+                        nextComputer = _ -> 120;
                     } else {
                         nextComputer = result1 -> result1.getMaxDamage() / 4;
                     }
@@ -156,12 +147,6 @@ public class AnvilMenuResult {
             price,
             result
         );
-
-        // 若左侧不可使用附魔书附魔且右侧为附魔书，则返回
-        if (usingBook && !result.isBookEnchantable(inputRight)) {
-            this.result = ItemStack.EMPTY;
-            return;
-        }
 
         // 计算最终经验消耗
         price = Math.clamp(tax + (long) renamingResult.price(), 0, Integer.MAX_VALUE);
@@ -317,11 +302,11 @@ public class AnvilMenuResult {
         return price;
     }
 
-    private @NotNull AnvilMenuResult.RenamingResult renaming(
+    private AnvilMenuResult.RenamingResult renaming(
         ItemStack inputLeft,
         ItemStack inputRight,
         @Nullable String itemName,
-        ChatFormatting extraFormat,
+        @Nullable ChatFormatting extraFormat,
         int price,
         ItemStack result
     ) {

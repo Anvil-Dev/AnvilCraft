@@ -12,16 +12,19 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -31,10 +34,10 @@ import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 @Getter
 public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Input> {
@@ -56,6 +59,10 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
         WeightedChanceBlockStates.STREAM_CODEC,
         PortalConversionRecipe::getResults,
         PortalConversionRecipe::new
+    );
+    public static final RecipeSerializer<PortalConversionRecipe> SERIALIZER = new RecipeSerializer<>(
+        PortalConversionRecipe.CODEC,
+        PortalConversionRecipe.STREAM_CODEC
     );
     private final PortalType type;
     private final BlockStatePredicate input;
@@ -79,35 +86,43 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
 
     @Deprecated
     @Override
-    public ItemStack assemble(Input input, HolderLookup.Provider registries) {
+    public ItemStack assemble(Input input) {
         return ItemStack.EMPTY;
     }
 
-    @Deprecated
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return false;
-    }
-
-    @Deprecated
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return new ItemStack(this.results.states().getFirst().state().state().getBlock());
+    public RecipeType<PortalConversionRecipe> getType() {
+        return ModRecipeTypes.PORTAL_CONVERSION.get();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.PORTAL_CONVERSION_SERIALIZER.get();
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return ModRecipeTypes.PORTAL_CONVERSION_TYPE.get();
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @Override
+    public RecipeSerializer<PortalConversionRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     @Override
     public boolean isSpecial() {
         return true;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "portal_conversion";
     }
 
     public PortalType getPortalType() {
@@ -126,29 +141,17 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
         }
     }
 
-    public static class Serializer implements RecipeSerializer<PortalConversionRecipe> {
-        @Override
-        public MapCodec<PortalConversionRecipe> codec() {
-            return PortalConversionRecipe.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, PortalConversionRecipe> streamCodec() {
-            return PortalConversionRecipe.STREAM_CODEC;
-        }
-    }
-
     @Setter
     @Accessors(fluent = true)
     public static class Builder extends AbstractRecipeBuilder<PortalConversionRecipe> {
         @Setter(AccessLevel.NONE)
-        private ResourceLocation typeId;
+        private Identifier typeId;
         private final BlockStatePredicate.Builder input = BlockStatePredicate.builder();
         private final WeightedChanceBlockStates.Builder results = WeightedChanceBlockStates.builder();
 
         @SuppressWarnings("deprecation")
         public <T extends Block & Portal> Builder type(T portal) {
-            this.typeId = portal.builtInRegistryHolder().key().location();
+            this.typeId = portal.builtInRegistryHolder().key().identifier();
             return this;
         }
 
@@ -168,13 +171,8 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
             return this;
         }
 
-        public Builder input(TagKey<Block> tag) {
-            this.input.of(tag);
-            return this;
-        }
-
-        public Builder inputWith(BlockState state) {
-            this.input.with(state);
+        public Builder input(HolderGetter<Block> blocks, TagKey<Block> tag) {
+            this.input.of(blocks, tag);
             return this;
         }
 
@@ -419,7 +417,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.typeId == null) {
                 throw new IllegalArgumentException("The portal type of portal conversion recipe cannot be null. Recipe id: " + id);
             }
@@ -439,8 +437,8 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
         }
 
         @Override
-        public Item getResult() {
-            return this.results.build().states().getFirst().state().state().getBlock().asItem();
+        public ItemStackTemplate getResult() {
+            return new ItemStackTemplate(this.results.build().states().getFirst().state().state().getBlock().asItem());
         }
     }
 }

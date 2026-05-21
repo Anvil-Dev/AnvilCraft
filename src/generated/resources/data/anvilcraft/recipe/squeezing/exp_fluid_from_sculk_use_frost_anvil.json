@@ -6,10 +6,11 @@
     }
   },
   "chance": 0.4,
-  "consume": -250,
+  "fluid": "minecraft:null",
   "ingredient": {
     "blocks": "minecraft:sculk"
   },
+  "produce": 250,
   "result": {
     "block": "minecraft:air"
   },

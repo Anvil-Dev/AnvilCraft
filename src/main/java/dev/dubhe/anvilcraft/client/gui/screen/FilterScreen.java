@@ -8,12 +8,13 @@ import dev.dubhe.anvilcraft.inventory.FilterMenu;
 import dev.dubhe.anvilcraft.inventory.component.FilterSlot;
 import dev.dubhe.anvilcraft.inventory.container.FilterContainer;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -22,14 +23,14 @@ import java.util.List;
 import java.util.Objects;
 
 public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements IGhostIngredientScreen {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "filter");
-    private static final ResourceLocation INCLUDE_COMPONENTS_ENABLE =
+    private static final Identifier BACKGROUND = SharedTextures.bg("misc", "filter");
+    private static final Identifier INCLUDE_COMPONENTS_ENABLE =
         SharedTextures.textureGui("misc/filter/include_components_enable");
-    private static final ResourceLocation INCLUDE_COMPONENTS_DISABLE =
+    private static final Identifier INCLUDE_COMPONENTS_DISABLE =
         SharedTextures.textureGui("misc/filter/include_components_disable");
-    private static final ResourceLocation BLACK_LIST_ENABLE =
+    private static final Identifier BLACK_LIST_ENABLE =
         SharedTextures.textureGui("misc/filter/black_list_enable");
-    private static final ResourceLocation BLACK_LIST_DISABLE =
+    private static final Identifier BLACK_LIST_DISABLE =
         SharedTextures.textureGui("misc/filter/black_list_disable");
 
     public FilterScreen(FilterMenu menu, Inventory playerInventory, Component title) {
@@ -37,8 +38,8 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             16,
             16,
             32,
-            (button, index) -> {
+            (_, index) -> {
                 container.setIncludeComponents(index == 0);
                 this.sync();
             },
@@ -74,7 +75,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             16,
             16,
             32,
-            (button, index) -> {
+            (_, index) -> {
                 container.setBlackList(index == 0);
                 this.sync();
             },
@@ -86,14 +87,23 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
     }
 
     @Override
-    protected void slotClicked(Slot slot, int slotId, int button, ClickType type) {
+    protected void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput) {
         if (slot instanceof FilterSlot filterSlot) {
             ItemStack filterStack = this.menu.getCarried();
             if (!filterStack.isEmpty()) {
@@ -107,7 +117,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             this.getMenu().sync();
             return;
         }
-        super.slotClicked(slot, slotId, button, type);
+        super.slotClicked(slot, slotId, buttonNum, containerInput);
     }
 
     private void sync() {

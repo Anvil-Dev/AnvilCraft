@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:cursed_gold_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:cursed_gold_block"
-    }
+    "anvilcraft:cursed_gold_block"
   ],
   "result": {
     "count": 9,

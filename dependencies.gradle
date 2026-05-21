@@ -4,16 +4,15 @@ dependencies {
     compileOnly(libs.bundles.anvillib)
     interfaceInjectionData(libs.anvillib.recipe)
     interfaceInjectionData(libs.anvillib.moveableEntityBlock)
-    jarJar(libs.anvillib)
+//    jarJar(libs.anvillib)
 
     // JEI
     compileOnlyApi(libs.jei.common.api) { transitive = false }
     compileOnlyApi(libs.jei.forge.api) { transitive = false }
     implementation(libs.jei.forge) { transitive = false }
 
-    // Sodium, Iris, Embeddium
+    // Sodium, Iris
     compileOnly(libs.sodium)
-    compileOnly(libs.embeddium)
     compileOnly(libs.iris)
 
     // Jade

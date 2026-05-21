@@ -2,11 +2,16 @@ package dev.dubhe.anvilcraft.integration.jei.util;
 
 import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.v2.util.NumberProviderUtil;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeInput;
@@ -25,24 +30,39 @@ public class JeiRecipeUtil {
     private static final DecimalFormat FORMATTER = new DecimalFormat();
 
     public static <I extends RecipeInput, T extends Recipe<I>> List<T> getRecipesFromType(RecipeType<T> recipeType) {
-        return Minecraft.getInstance()
-            .getConnection()
-            .getRecipeManager()
-            .getAllRecipesFor(recipeType)
+        return RecipesRecord.RECIPES
+            .byType(recipeType)
             .stream()
             .map(RecipeHolder::value)
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipeHoldersFromType(
-        RecipeType<T> recipeType
-    ) {
-        return new ArrayList<>(
-            Minecraft.getInstance()
-                .getConnection()
-                .getRecipeManager()
-                .getAllRecipesFor(recipeType)
+    public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipeHoldersFromType(RecipeType<T> recipeType) {
+        return new ArrayList<>(RecipesRecord.RECIPES.byType(recipeType));
+    }
+
+    public static void addInvisibleInput(IRecipeLayoutBuilder builder, BlockStatePredicate predicate) {
+        JeiRecipeUtil.addInvisibleIngredients(builder, RecipeIngredientRole.INPUT, predicate);
+    }
+
+    public static void addInvisibleInputs(IRecipeLayoutBuilder builder, Iterable<BlockStatePredicate> predicates) {
+        for (BlockStatePredicate predicate : predicates) {
+            JeiRecipeUtil.addInvisibleIngredients(builder, RecipeIngredientRole.INPUT, predicate);
+        }
+    }
+
+    public static void addInvisibleOutput(IRecipeLayoutBuilder builder, ChanceBlockState state) {
+        JeiRecipeUtil.addInvisibleIngredients(builder, RecipeIngredientRole.OUTPUT, state);
+    }
+
+    public static void addInvisibleIngredients(IRecipeLayoutBuilder builder, RecipeIngredientRole role, BlockStatePredicate predicate) {
+        builder.addInvisibleIngredients(role).addItemStacks(
+            predicate.getBlocks().stream().map(holder -> new ItemStack(holder.value())).toList()
         );
+    }
+
+    public static void addInvisibleIngredients(IRecipeLayoutBuilder builder, RecipeIngredientRole role, ChanceBlockState state) {
+        builder.addInvisibleIngredients(role).add(state.state().getBlock());
     }
 
     public static List<Component> getTooltips(NumberProvider provider) {

@@ -15,11 +15,11 @@ public class WatchablePropertyDelegate<T> {
     }
 
     public T get() {
-        return value;
+        return this.value;
     }
 
     public void set(T newValue) {
-        if (value != newValue) onChanged(value, newValue);
+        if (this.value != newValue) this.onChanged(this.value, newValue);
         this.value = newValue;
     }
 

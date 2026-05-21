@@ -1,8 +1,8 @@
 {
   "values": [
-    "anvilcraft:reinforced_concrete_white",
-    "anvilcraft:reinforced_concrete_white_slab",
-    "anvilcraft:reinforced_concrete_white_stair",
-    "anvilcraft:reinforced_concrete_white_wall"
+    "anvilcraft:white_reinforced_concrete",
+    "anvilcraft:white_reinforced_concrete_slab",
+    "anvilcraft:white_reinforced_concrete_stair",
+    "anvilcraft:white_reinforced_concrete_wall"
   ]
 }

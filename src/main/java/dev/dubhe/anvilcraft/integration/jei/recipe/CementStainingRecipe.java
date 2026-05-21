@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.recipe;
 
 import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
-import dev.dubhe.anvilcraft.block.CementCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 

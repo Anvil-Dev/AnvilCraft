@@ -1,0 +1,67 @@
+package dev.dubhe.anvilcraft.item.utility;
+
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
+
+public class GeodeItem extends Item {
+    public GeodeItem(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    public InteractionResult use(
+        Level level, Player player, InteractionHand usedHand) {
+        super.use(level, player, usedHand);
+        ItemStack itemStack = player.getItemInHand(usedHand);
+        BlockPos pos = player.getOnPos().below();
+        player.getCooldowns().addCooldown(itemStack, AnvilCraft.CONFIG.geodeCooldown * 20);
+        if (!level.isClientSide()) return InteractionResult.SUCCESS;
+        int interval = AnvilCraft.CONFIG.geodeInterval;
+        int radius = AnvilCraft.CONFIG.geodeRadius;
+        block:
+        for (int x = -radius; x <= radius; x += interval) {
+            for (int z = -radius; z <= radius; z += interval) {
+                int height = level.getHeight(Heightmap.Types.WORLD_SURFACE, pos.getX() + x, pos.getZ() + z);
+                for (int y = level.getMinY(); y <= height; y += interval) {
+                    BlockPos offsetPos = new BlockPos(pos.getX(), 0, pos.getZ()).offset(x, y, z);
+                    BlockState state = level.getBlockState(offsetPos);
+                    if (!state.is(BlockTags.CRYSTAL_SOUND_BLOCKS)) continue;
+                    MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable(
+                            "chat.coordinates", offsetPos.getX(), offsetPos.getY(), offsetPos.getZ()))
+                        .withStyle(text -> text.withColor(ChatFormatting.GREEN)
+                            .withClickEvent(new ClickEvent.SuggestCommand(
+                                "/tp @s "
+                                    + offsetPos.getX()
+                                    + " "
+                                    + offsetPos.getY()
+                                    + " "
+                                    + offsetPos.getZ()))
+                            .withHoverEvent(new HoverEvent.ShowText(
+                                Component.translatable("chat.coordinates.tooltip"))));
+                    player.sendSystemMessage(Component.translatable("item.anvilcraft.geode.find", component));
+                    BlockHighlightUtil.highlightBlock(level, offsetPos);
+                    break block;
+                }
+            }
+        }
+        player.playSound(SoundEvents.AMETHYST_BLOCK_RESONATE);
+        return InteractionResult.SUCCESS;
+    }
+}

@@ -2,36 +2,17 @@
   "type": "minecraft:crafting_shapeless",
   "category": "building",
   "ingredients": [
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    }
+    "minecraft:gunpowder",
+    "minecraft:gunpowder",
+    "minecraft:gunpowder",
+    "minecraft:gunpowder",
+    "minecraft:gunpowder",
+    "minecraft:gunpowder",
+    "minecraft:gunpowder",
+    "minecraft:gunpowder",
+    "minecraft:gunpowder"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:gunpowder_block"
   }
 }

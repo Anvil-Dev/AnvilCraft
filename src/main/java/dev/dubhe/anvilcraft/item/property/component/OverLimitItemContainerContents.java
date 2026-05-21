@@ -5,19 +5,28 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.OverLimitItemHandler;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import lombok.Getter;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Getter
-public class OverLimitItemContainerContents {
+public class OverLimitItemContainerContents implements TooltipProvider {
     private static final int NO_SLOT = -1;
     private static final int MAX_SIZE = 256;
     public static final OverLimitItemContainerContents EMPTY = new OverLimitItemContainerContents(NonNullList.create());
@@ -80,7 +89,7 @@ public class OverLimitItemContainerContents {
         OverLimitItemContainerContents contents = new OverLimitItemContainerContents(i + 1);
 
         for (int j = 0; j <= i; j++) {
-            contents.items.set(j, items.getUnlimitedStackInSlot(j).copy());
+            contents.items.set(j, items.peek(j).copy());
         }
 
         return contents;
@@ -95,8 +104,8 @@ public class OverLimitItemContainerContents {
     }
 
     private static int findLastNonEmptySlot(OverLimitItemHandler items) {
-        for (int i = items.getSlots() - 1; i >= 0; i--) {
-            if (!items.getStackInSlot(i).isEmpty()) return i;
+        for (int i = items.size() - 1; i >= 0; i--) {
+            if (!items.peek(i).isEmpty()) return i;
         }
 
         return NO_SLOT;
@@ -122,9 +131,9 @@ public class OverLimitItemContainerContents {
     }
 
     public void copyInto(OverLimitItemHandler handler) {
-        for (int i = 0; i < handler.getSlots(); i++) {
+        for (int i = 0; i < handler.size(); i++) {
             UnlimitedItemStack stack = i < this.items.size() ? this.items.get(i) : UnlimitedItemStack.EMPTY;
-            handler.setUnlimitedStackInSlot(i, stack.copy());
+            handler.set(i, ItemResource.of(stack.getStack()), stack.getCount());
         }
     }
 
@@ -177,7 +186,7 @@ public class OverLimitItemContainerContents {
      * @throws UnsupportedOperationException if the provided slot index is out-of-bounds.
      */
     public UnlimitedItemStack getStackInSlot(int slot) {
-        validateSlotIndex(slot);
+        this.validateSlotIndex(slot);
         return this.items.get(slot).copy();
     }
 
@@ -185,8 +194,28 @@ public class OverLimitItemContainerContents {
      * Neo: Throws {@link UnsupportedOperationException} if the provided slot index is invalid.
      */
     private void validateSlotIndex(int slot) {
-        if (slot >= 0 && slot < getSlots()) return;
-        throw new UnsupportedOperationException("Slot " + slot + " not in valid range - [0," + getSlots() + ")");
+        if (slot >= 0 && slot < this.getSlots()) return;
+        throw new UnsupportedOperationException("Slot " + slot + " not in valid range - [0," + this.getSlots() + ")");
+    }
+
+    @Override
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter getter) {
+        int validLine = 0;
+        int nonEmpty = 0;
+
+        for (var stack1 : getter.getOrDefault(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY).nonEmptyItems()) {
+            nonEmpty++;
+            if (validLine > 4) continue;
+            validLine++;
+            consumer.accept(Component.translatable(
+                "item.container.item_count",
+                stack1.getStack().getHoverName(),
+                stack1.getCount()
+            ));
+        }
+
+        if (nonEmpty - validLine <= 0) return;
+        consumer.accept(Component.translatable("item.container.more_items", nonEmpty - validLine).withStyle(ChatFormatting.ITALIC));
     }
 
     record Slot(int index, UnlimitedItemStack stack) {

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": {
-      "item": "minecraft:ender_pearl"
-    },
-    "B": {
-      "item": "anvilcraft:magnet_ingot"
-    },
-    "C": {
-      "item": "minecraft:redstone"
-    }
+    "A": "minecraft:ender_pearl",
+    "B": "anvilcraft:magnet_ingot",
+    "C": "minecraft:redstone"
   },
   "pattern": [
     " A ",
@@ -18,7 +12,6 @@
     " A "
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:magnet"
   }
 }

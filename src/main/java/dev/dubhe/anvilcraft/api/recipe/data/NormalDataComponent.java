@@ -1,35 +1,39 @@
 package dev.dubhe.anvilcraft.api.recipe.data;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
+import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-
-import java.util.List;
 
 @Getter
 @EqualsAndHashCode
 public class NormalDataComponent<T> implements ICustomDataComponent<T> {
-    private final List<RequiredEntry> required;
-    private final int input;
-    private final DataComponentType<T> dataComponentType;
+    private final RecipeInputSlot input;
+    private final DataComponentType<T> type;
 
-    private NormalDataComponent(int input, DataComponentType<T> type) {
+    private NormalDataComponent(RecipeInputSlot input, DataComponentType<T> type) {
         this.input = input;
-        this.dataComponentType = type;
-        this.required = List.of(new RequiredEntry(input, type, true));
+        this.type = type;
+    }
+
+    public static <T> NormalDataComponent<T> of(RecipeInputSlot input, DataComponentType<T> type) {
+        return new NormalDataComponent<>(input, type);
     }
 
     public static <T> NormalDataComponent<T> of(int input, DataComponentType<T> type) {
-        return new NormalDataComponent<>(input, type);
+        return new NormalDataComponent<>(RecipeInputSlot.input(input), type);
+    }
+
+    @Override
+    public DataComponentType<T> getDataComponentType() {
+        return this.type;
     }
 
     @Override
@@ -38,8 +42,8 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
     }
 
     @Override
-    public T make(List<Object> data) {
-        return Util.cast(data.getFirst());
+    public T make(ResultContext ctx) {
+        return ctx.getInput(this.input).get(this.type);
     }
 
     @Override
@@ -49,15 +53,14 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
 
     public static class Type implements ICustomDataComponent.Type<NormalDataComponent<?>> {
         public static final MapCodec<NormalDataComponent<?>> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.INT
-                .fieldOf("input")
+            RecipeInputSlot.CODEC
                 .forGetter(NormalDataComponent::getInput),
             DataComponentType.CODEC
                 .fieldOf("component")
                 .forGetter(NormalDataComponent::getDataComponentType)
         ).apply(instance, NormalDataComponent::new));
         public static final StreamCodec<RegistryFriendlyByteBuf, NormalDataComponent<?>> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
+            RecipeInputSlot.STREAM_CODEC,
             NormalDataComponent::getInput,
             DataComponentType.STREAM_CODEC,
             NormalDataComponent::getDataComponentType,

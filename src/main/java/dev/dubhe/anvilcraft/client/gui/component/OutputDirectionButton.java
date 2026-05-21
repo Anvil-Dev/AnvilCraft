@@ -1,18 +1,19 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class OutputDirectionButton extends Button {
     private Direction direction;
@@ -21,7 +22,7 @@ public class OutputDirectionButton extends Button {
         "screen.anvilcraft.button.direction", Component.translatable("screen.anvilcraft.button.direction.up"));
 
     public OutputDirectionButton(int x, int y, OnPress onPress, Direction direction) {
-        super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, (var) -> DEFAULT_MESSAGE);
+        super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, var -> DEFAULT_MESSAGE);
         this.direction = direction;
     }
 
@@ -38,16 +39,24 @@ public class OutputDirectionButton extends Button {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (this.isHovered()) {
-            List<Component> components = new ArrayList<>() {
+            List<ClientTooltipComponent> components = new ArrayList<>() {
                 {
-                    this.add(getMessage());
+                    this.add(ClientTooltipComponent.create(getMessage().getVisualOrderText()));
                 }
             };
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, components, Optional.empty(), mouseX, mouseY);
+            graphics.tooltip(Minecraft.getInstance().font, components, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
         }
+        Identifier location = switch (this.direction) {
+            case UP -> SharedTextures.BUTTON_U;
+            case EAST -> SharedTextures.BUTTON_E;
+            case WEST -> SharedTextures.BUTTON_W;
+            case SOUTH -> SharedTextures.BUTTON_S;
+            case NORTH -> SharedTextures.BUTTON_N;
+            default -> SharedTextures.BUTTON_D;
+        };
+        this.renderTexture(graphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
     /**
@@ -62,22 +71,9 @@ public class OutputDirectionButton extends Button {
             Component.translatable("screen.anvilcraft.button.direction." + this.direction.getName())));
     }
 
-    @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        ResourceLocation location = switch (direction) {
-            case UP -> SharedTextures.BUTTON_U;
-            case EAST -> SharedTextures.BUTTON_E;
-            case WEST -> SharedTextures.BUTTON_W;
-            case SOUTH -> SharedTextures.BUTTON_S;
-            case NORTH -> SharedTextures.BUTTON_N;
-            default -> SharedTextures.BUTTON_D;
-        };
-        this.renderTexture(guiGraphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
-    }
-
     public void renderTexture(
-        GuiGraphics guiGraphics,
-        ResourceLocation texture,
+        GuiGraphicsExtractor graphics,
+        Identifier texture,
         int x,
         int y,
         int puOffset,
@@ -92,8 +88,7 @@ public class OutputDirectionButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        RenderSystem.enableDepthTest();
-        guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 
     public Direction next() {
@@ -115,6 +110,6 @@ public class OutputDirectionButton extends Button {
             case NORTH -> Direction.UP;
             default -> Direction.EAST;
         };
-        return this.skip.contains(direction1) ? next(direction1) : direction1;
+        return this.skip.contains(direction1) ? this.next(direction1) : direction1;
     }
 }

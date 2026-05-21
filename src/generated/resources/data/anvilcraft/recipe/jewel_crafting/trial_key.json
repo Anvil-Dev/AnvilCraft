@@ -2,14 +2,13 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "item": "minecraft:polished_tuff"
+      "items": "minecraft:polished_tuff"
     },
     {
-      "item": "minecraft:copper_ingot"
+      "items": "minecraft:copper_ingot"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "minecraft:trial_key"
+  "source": {
+    "items": "minecraft:trial_key"
   }
 }

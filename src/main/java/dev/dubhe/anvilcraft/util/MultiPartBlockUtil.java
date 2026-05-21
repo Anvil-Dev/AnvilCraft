@@ -11,9 +11,6 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING;
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
-
 public class MultiPartBlockUtil {
     public static BlockPos getMainPartPos(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
@@ -28,10 +25,10 @@ public class MultiPartBlockUtil {
             if (level.getBlockState(mainPartPos).is(block)) pos = mainPartPos;
         } else if (state.hasProperty(BlockStateProperties.BED_PART)
             && state.getValue(BlockStateProperties.BED_PART) == BedPart.FOOT) {
-            BlockPos mainPartPos = pos.relative(state.getValue(HORIZONTAL_FACING));
+            BlockPos mainPartPos = pos.relative(state.getValue(BlockStateProperties.HORIZONTAL_FACING));
             if (level.getBlockState(mainPartPos).is(block)) pos = mainPartPos;
         } else if (state.is(Blocks.PISTON_HEAD)) {
-            BlockPos mainPartPos = pos.relative(state.getValue(FACING).getOpposite());
+            BlockPos mainPartPos = pos.relative(state.getValue(BlockStateProperties.FACING).getOpposite());
             BlockState mainPartState = level.getBlockState(mainPartPos);
             if (mainPartState.is(Blocks.PISTON)) pos = mainPartPos;
             if (mainPartState.is(Blocks.STICKY_PISTON)) pos = mainPartPos;

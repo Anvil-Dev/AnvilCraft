@@ -10,7 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 距离定义类
@@ -74,26 +74,31 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
         final BlockPos center = BlockPos.containing(centerPos.x, centerPos.y, centerPos.z);
         return switch (this.type) {
             case EUCLIDEAN -> () -> new AbstractIterator<>() {
-                private final int radiusSq = distance * distance;
+                private final int radiusSq = Distance.this.distance * Distance.this.distance;
 
-                private int offsetX = -distance;
-                private int offsetY = -distance;
-                private int offsetZ = -distance - 1;
+                private int offsetX = -Distance.this.distance;
+                private int offsetY = -Distance.this.distance;
+                private int offsetZ = -Distance.this.distance - 1;
 
                 @Override
                 protected @Nullable BlockPos computeNext() {
-                    while (offsetX <= distance) {
-                        while (offsetY <= distance) {
-                            while (++offsetZ <= distance) {
-                                if (offsetX * offsetX + offsetY * offsetY + offsetZ * offsetZ <= radiusSq) {
-                                    return center.offset(offsetX, offsetY, offsetZ);
+                    while (this.offsetX <= Distance.this.distance) {
+                        while (this.offsetY <= Distance.this.distance) {
+                            while (++this.offsetZ <= Distance.this.distance) {
+                                if (
+                                    this.offsetX * this.offsetX
+                                    + this.offsetY * this.offsetY
+                                    + this.offsetZ * this.offsetZ
+                                    <= this.radiusSq
+                                ) {
+                                    return center.offset(this.offsetX, this.offsetY, this.offsetZ);
                                 }
                             }
-                            offsetZ = -distance - 1;
-                            offsetY++;
+                            this.offsetZ = -Distance.this.distance - 1;
+                            this.offsetY++;
                         }
-                        offsetY = -distance;
-                        offsetX++;
+                        this.offsetY = -Distance.this.distance;
+                        this.offsetX++;
                     }
                     return endOfData();
                 }

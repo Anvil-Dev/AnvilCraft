@@ -3,39 +3,37 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Setter;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Setter
 public abstract class AbstractItemInHandRenderer {
     protected ItemStack offHandItem;
     protected ItemStack mainHandItem;
-    protected final ItemRenderer itemRenderer;
     private final IItemRenderer renderer;
+    protected final ItemModelResolver itemModelResolver;
 
-    protected AbstractItemInHandRenderer(ItemRenderer itemRenderer, IItemRenderer renderer) {
-        this.itemRenderer = itemRenderer;
+    protected AbstractItemInHandRenderer(ItemModelResolver itemModelResolver, IItemRenderer renderer) {
         this.renderer = renderer;
+        this.itemModelResolver = itemModelResolver;
     }
 
     public void renderItem(
         LivingEntity entity,
         ItemStack itemStack,
         ItemDisplayContext displayContext,
-        boolean leftHand,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int seed
+        SubmitNodeCollector collector,
+        int lightCoords
     ) {
-        this.renderer.renderItem(entity, itemStack, displayContext, leftHand, poseStack, buffer, seed);
+        this.renderer.renderItem(entity, itemStack, displayContext, poseStack, collector, lightCoords);
     }
 
-    public abstract void render(
+    public abstract boolean render(
         AbstractClientPlayer player,
         float partialTicks,
         float pitch,
@@ -44,8 +42,7 @@ public abstract class AbstractItemInHandRenderer {
         ItemStack stack,
         float equippedProgress,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int combinedLight,
-        CallbackInfo ci
+        SubmitNodeCollector collector,
+        int lightCoords
     );
 }

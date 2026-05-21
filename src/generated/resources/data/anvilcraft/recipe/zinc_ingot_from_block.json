@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:zinc_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:zinc_block"
-    }
+    "anvilcraft:zinc_block"
   ],
   "result": {
     "count": 9,

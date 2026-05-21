@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": {
-      "item": "anvilcraft:polished_flint_block"
-    }
+    "A": "anvilcraft:polished_flint_block"
   },
   "pattern": [
     "AA",

@@ -9,7 +9,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 import java.util.List;
@@ -19,15 +19,15 @@ import java.util.List;
  *
  * @param attrs 包含指定的输入物品和将要删除的数据组件类型。
  */
-public record RemoveAttribute(List<ResourceLocation> attrs) implements IResultModifier {
+public record RemoveAttribute(List<Identifier> attrs) implements IResultModifier {
     public static final MapCodec<RemoveAttribute> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        ResourceLocation.CODEC
+        Identifier.CODEC
             .listOf()
             .fieldOf("attrs")
             .forGetter(RemoveAttribute::attrs)
     ).apply(ins, RemoveAttribute::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, RemoveAttribute> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()),
         RemoveAttribute::attrs,
         RemoveAttribute::new
     );
@@ -36,7 +36,7 @@ public record RemoveAttribute(List<ResourceLocation> attrs) implements IResultMo
         return new Builder();
     }
 
-    public static Builder removeAttr(ResourceLocation... attrs) {
+    public static Builder removeAttr(Identifier... attrs) {
         return new Builder().withAttrs(attrs);
     }
 
@@ -67,21 +67,21 @@ public record RemoveAttribute(List<ResourceLocation> attrs) implements IResultMo
     }
 
     public static class Builder {
-        private final ImmutableList.Builder<ResourceLocation> attrs = ImmutableList.builder();
+        private final ImmutableList.Builder<Identifier> attrs = ImmutableList.builder();
 
-        public Builder withAttr(ResourceLocation attr) {
+        public Builder withAttr(Identifier attr) {
             this.attrs.add(attr);
             return this;
         }
 
-        public Builder withAttrs(ResourceLocation... attrs) {
-            for (ResourceLocation attr : attrs) {
+        public Builder withAttrs(Identifier... attrs) {
+            for (Identifier attr : attrs) {
                 this.withAttr(attr);
             }
             return this;
         }
 
-        public Builder withAttrs(List<ResourceLocation> attrs) {
+        public Builder withAttrs(List<Identifier> attrs) {
             this.attrs.addAll(attrs);
             return this;
         }

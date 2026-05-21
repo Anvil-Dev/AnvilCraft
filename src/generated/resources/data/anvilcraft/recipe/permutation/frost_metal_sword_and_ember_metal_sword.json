@@ -10,7 +10,9 @@
           ]
         }
       ],
-      "result": "anvilcraft:frost_metal_sword"
+      "result": {
+        "id": "anvilcraft:frost_metal_sword"
+      }
     },
     {
       "modifiers": [
@@ -25,7 +27,7 @@
           "dest": {
             "type": "anvilcraft:item_enchantments",
             "component": "minecraft:enchantments",
-            "input": 0
+            "input": "input.0"
           },
           "input": "input.0",
           "orig": "anvilcraft:merciless_enchantments"
@@ -37,10 +39,15 @@
           ]
         }
       ],
-      "result": "anvilcraft:ember_metal_sword"
+      "result": {
+        "id": "anvilcraft:ember_metal_sword"
+      }
     }
   ],
   "material": {
     "items": "anvilcraft:multiphase_matter"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

@@ -6,24 +6,25 @@
       "items": "#c:plates/iron"
     },
     {
-      "items": "anvilcraft:resin_block",
-      "predicates": {
-        "anvilcraft:saved_entity": {
-          "entitys": "minecraft:creeper"
-        },
-        "anvillib:not": {
-          "anvilcraft:saved_entity": {
-            "entitys": "minecraft:creeper",
-            "predicates": [
-              {
-                "expected": 1,
-                "requirement": "GREATER_OR_EQUAL",
-                "tagKeyPath": "powered"
-              }
-            ]
+      "components": {
+        "predicates": {
+          "anvillib:not": {
+            "anvilcraft:saved_entity": {
+              "entities": [
+                "minecraft:creeper"
+              ],
+              "predicates": [
+                {
+                  "expected": 1,
+                  "requirement": "GREATER_OR_EQUAL",
+                  "tagKeyPath": "powered"
+                }
+              ]
+            }
           }
         }
-      }
+      },
+      "items": "anvilcraft:resin_block"
     }
   ],
   "results": [

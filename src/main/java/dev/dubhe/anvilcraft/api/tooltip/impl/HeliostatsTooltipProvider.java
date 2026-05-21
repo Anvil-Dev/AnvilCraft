@@ -20,7 +20,7 @@ public class HeliostatsTooltipProvider extends ITooltipProvider.BlockEntityToolt
 
     @Override
     public List<Component> tooltip(BlockEntity e) {
-        if (!(e instanceof HeliostatsBlockEntity heliostatsBlockEntity)) return null;
+        if (!(e instanceof HeliostatsBlockEntity heliostatsBlockEntity)) return List.of();
         final List<Component> lines = new ArrayList<>();
         lines.add(Component.translatable("tooltip.anvilcraft.heliostats.not_work"));
         lines.add(Component.translatable(heliostatsBlockEntity.getWorkResult().getTranslateKey()));

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -7,10 +8,11 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.network.BatchCutterSelectPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,7 +29,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -52,7 +56,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
     protected PollableFilteredItemStackHandler constructHandler() {
         return new PollableFilteredItemStackHandler(1) {
             @Override
-            public void onContentsChanged(int slot) {
+            protected void onContentsChanged(int index, ItemStack previousContents) {
                 BatchCutterBlockEntity.this.onContentsChanged();
             }
         };
@@ -65,80 +69,79 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
 
     private void onContentsChanged() {
         if (this.level == null) {
-            this.setChanged();
             return;
         }
-        
-        RecipeManager manager = this.level.getRecipeManager();
-        List<RecipeHolder<StonecutterRecipe>> recipes = manager.getRecipesFor(RecipeType.STONECUTTING, this.createDummyInput(), this.level);
+
+        SingleRecipeInput input = this.createDummyInput();
+        List<RecipeHolder<StonecutterRecipe>> recipes = new ArrayList<>();
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.RECIPES.byType(RecipeType.STONECUTTING)) {
+            if (holder.value().matches(input, level)) {
+                recipes.add(holder);
+            }
+        }
         if (recipes.isEmpty()) {
             this.updateDisplayItem(ItemStack.EMPTY);
         } else if (this.selecting >= recipes.size()) {
             this.selecting = 0;
-            if (!this.level.isClientSide) {
-                PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
-                    this.selecting,
-                    this.getPos()
-                ));
-            }
-            this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));
-        } else {
-            this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));
-        }
-
-        if (!this.level.isClientSide) {
-            PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
-                this.getDisplayingStack(),
+            PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
+                this.selecting,
                 this.getPos()
             ));
+            this.updateDisplayItem(recipes.get(this.selecting).value().assemble(input));
+        } else {
+            this.updateDisplayItem(recipes.get(this.selecting).value().assemble(input));
         }
+
+        PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
+            this.getDisplayingStack(),
+            this.getPos()
+        ));
         this.setChanged();
     }
 
     @Override
-    public boolean craft(Level level) {
+    public boolean craft(ServerLevel level) {
         if (this.handler.isEmpty()) return false;
-        if (!this.canCraft()) return false;
-        
-        BatchCutterCache cache = this.findCache();
+        if (this.cantCraft()) return false;
+
+        BatchCutterCache cache = this.findCache(level);
         List<RecipeHolder<StonecutterRecipe>> recipes = cache.getRecipes();
         if (recipes.isEmpty()) return false;
 
         if (this.selecting >= recipes.size()) {
             this.selecting = 0;
-            if (!level.isClientSide) {
-                PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
-                    this.selecting,
-                    this.getPos()
-                ));
-            }
+            PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
+                this.selecting,
+                this.getPos()
+            ));
         }
-        ItemStack result = recipes.get(this.selecting).value().assemble(this.createInput(), level.registryAccess());
+        ItemStack result = recipes.get(this.selecting).value().assemble(this.createInput());
         this.displayingStack = result.copy();
-        if (!level.isClientSide) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
+        if (!level.isClientSide()) {
+            PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
+        }
         if (!result.isItemEnabled(level.enabledFeatures())) return false;
 
-        int times = IntStream.range(0, this.handler.getSlots())
-            .mapToObj(this.handler::getStackInSlot)
+        int times = IntStream.range(0, this.handler.size())
+            .mapToObj(i -> ItemUtil.getStack(this.handler, i))
             .filter((s -> !s.isEmpty()))
             .mapToInt(ItemStack::getCount)
             .min()
             .orElse(0);
         if (times < 1) return false;
         result.setCount(result.getCount() * times);
-        List<ItemStack> craftRemaining = new ArrayList<>(cache.getRemaining().size());
-        for (ItemStack stack : cache.getRemaining()) {
-            craftRemaining.add(stack.copyWithCount(stack.getCount() * times));
-        }
-        if (this.ejectItems(result, craftRemaining, this.getDirection())) return false;
-        for (int i = 0; i < this.handler.getSlots(); i++) {
-            this.handler.extractItem(i, times, false);
+        if (this.ejectItems(result, List.of(), this.getDirection())) return false;
+        for (int i = 0; i < this.handler.size(); i++) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                this.handler.extract(i, this.handler.getResource(i), times, transaction);
+                transaction.commit();
+            }
         }
         level.updateNeighborsAt(this.getBlockPos(), ModBlocks.BATCH_CUTTER.get());
         return true;
     }
 
-    private BatchCutterCache findCache() {
+    private BatchCutterCache findCache(Level level) {
         Optional<BatchCutterCache> cacheOp = this.cache.stream()
             .filter(recipe -> recipe.test(this.handler))
             .findFirst();
@@ -146,11 +149,11 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             return cacheOp.get();
         } else {
             SingleRecipeInput input = this.createInput();
-            List<RecipeHolder<StonecutterRecipe>> recipes = this.level.getRecipeManager()
-                .getRecipesFor(RecipeType.STONECUTTING, input, this.level);
-            NonNullList<ItemStack> remainingItems = this.level.getRecipeManager()
-                .getRemainingItemsFor(RecipeType.STONECUTTING, input, this.level);
-            BatchCutterCache cache = new BatchCutterCache(this.handler, recipes, remainingItems);
+            List<RecipeHolder<StonecutterRecipe>> recipes = RecipesRecord.RECIPES.byType(RecipeType.STONECUTTING)
+                .stream()
+                .filter(holder -> holder.value().matches(input, level))
+                .toList();
+            BatchCutterCache cache = new BatchCutterCache(this.handler, recipes);
             this.cache.push(cache);
             while (this.cache.size() >= 10) {
                 this.cache.pop();
@@ -158,13 +161,13 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             return cache;
         }
     }
-    
+
     public SingleRecipeInput createInput() {
-        return new SingleRecipeInput(this.handler.getStackInSlot(0));
+        return new SingleRecipeInput(ItemUtil.getStack(this.handler, 0));
     }
 
     public SingleRecipeInput createDummyInput() {
-        ItemStack stack = this.handler.getStackInSlot(0);
+        ItemStack stack = ItemUtil.getStack(this.handler, 0);
         if (stack.isEmpty()) stack = this.handler.getFilter(0);
         return new SingleRecipeInput(stack);
     }
@@ -178,27 +181,25 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
 
     public void setSelecting(int selecting) {
         this.selecting = selecting;
-
-        List<RecipeHolder<StonecutterRecipe>> recipes = this.findCache().getRecipes();
+        if (this.level == null) return;
+        List<RecipeHolder<StonecutterRecipe>> recipes = this.findCache(this.level).getRecipes();
         if (recipes.isEmpty()) {
             this.updateDisplayItem(ItemStack.EMPTY);
         } else if (this.selecting >= recipes.size()) {
             this.selecting = 0;
-            if (!this.level.isClientSide) {
+            if (!this.level.isClientSide()) {
                 PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(
                     this.selecting,
                     this.getPos()
                 ));
             }
-            this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));
+            this.updateDisplayItem(recipes.get(this.selecting).value().assemble(this.createDummyInput()));
             return;
         } else {
-            this.updateDisplayItem(recipes.get(this.selecting).value().getResultItem(this.level.registryAccess()));
+            this.updateDisplayItem(recipes.get(this.selecting).value().assemble(this.createDummyInput()));
         }
 
-        if (!this.level.isClientSide) {
-            PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(this.selecting, this.getPos()));
-        }
+        PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(this.selecting, this.getPos()));
     }
 
     @Getter
@@ -206,35 +207,33 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         @Getter(AccessLevel.NONE)
         private final Container container;
         private final List<RecipeHolder<StonecutterRecipe>> recipes;
-        private final NonNullList<ItemStack> remaining;
 
         /**
          * 合成器缓存
          *
          * @param container 容器
-         * @param recipes    配方
-         * @param remaining 返还物品
+         * @param recipes   配方
          */
         public BatchCutterCache(
             PollableFilteredItemStackHandler container,
-            List<RecipeHolder<StonecutterRecipe>> recipes,
-            NonNullList<ItemStack> remaining
+            List<RecipeHolder<StonecutterRecipe>> recipes
         ) {
-            this.container = new SimpleContainer(container.getSlots());
-            for (int i = 0; i < container.getSlots(); i++) {
-                ItemStack item = container.getStackInSlot(i).copy();
+            this.container = new SimpleContainer(container.size());
+            for (int i = 0; i < container.size(); i++) {
+                ItemStack item = ItemUtil.getStack(container, i).copy();
                 item.setCount(1);
                 this.container.setItem(i, item);
             }
             this.recipes = recipes;
-            this.remaining = remaining;
         }
 
         @Override
         public boolean test(PollableFilteredItemStackHandler container) {
-            if (container.getSlots() != this.container.getContainerSize()) return false;
+            if (container.size() != this.container.getContainerSize()) return false;
             for (int i = 0; i < this.container.getContainerSize(); i++) {
-                if (!ItemStack.isSameItemSameComponents(container.getStackInSlot(i), this.container.getItem(i))) return false;
+                if (!ItemStack.isSameItemSameComponents(ItemUtil.getStack(container, i), this.container.getItem(i))) {
+                    return false;
+                }
             }
             return true;
         }

@@ -6,11 +6,12 @@ import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
 import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -19,16 +20,16 @@ import java.util.List;
 import java.util.Optional;
 
 public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "ember_smithing_table");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "ember_smithing_table");
 
     // 空槽位纹理 - 模板
-    private static final ResourceLocation EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
+    private static final Identifier EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
         "item/empty_slot_two_to_one_smithing_template"
     );
-    private static final ResourceLocation EMPTY_SLOT_FOUR_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
+    private static final Identifier EMPTY_SLOT_FOUR_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
         "item/empty_slot_four_to_one_smithing_template"
     );
-    private static final ResourceLocation EMPTY_SLOT_EIGHT_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
+    private static final Identifier EMPTY_SLOT_EIGHT_TO_ONE_SMITHING_TEMPLATE = AnvilCraft.of(
         "item/empty_slot_eight_to_one_smithing_template"
     );
 
@@ -38,7 +39,7 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     );
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
 
-    public static final List<ResourceLocation> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
+    public static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
         EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE,
         EMPTY_SLOT_FOUR_TO_ONE_SMITHING_TEMPLATE,
         EMPTY_SLOT_EIGHT_TO_ONE_SMITHING_TEMPLATE
@@ -69,14 +70,14 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
     }
 
@@ -118,22 +119,33 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderOnboardingTooltips(guiGraphics, mouseX, mouseY);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractOnboardingTooltips(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
-        this.templateIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
-        this.materialIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
-        this.inputIcons.forEach(icon -> icon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos));
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        this.templateIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+        this.materialIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+        this.inputIcons.forEach(icon -> icon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos));
 
         for (int i = 2; i < 10; i++) {
             if (this.isSlotEnabled(i)) continue;
             Slot slot = this.menu.getSlot(i);
-            guiGraphics.blit(SharedTextures.DISABLED_SLOT, this.leftPos + slot.x, this.topPos + slot.y, 0, 0, 16, 16, 16, 16);
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                SharedTextures.DISABLED_SLOT,
+                this.leftPos + slot.x,
+                this.topPos + slot.y,
+                0,
+                0,
+                16,
+                16,
+                16,
+                16
+            );
         }
     }
 
@@ -142,13 +154,12 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
-        if (!this.menu.canCreateResult()) {
-            guiGraphics.blit(SharedTextures.ERROR_SPRITE, x + 123, y + 48, 0, 0, 16, 16, 16, 16);
-        }
+    protected void extractErrorIcon(GuiGraphicsExtractor graphics, int xo, int yo) {
+        if (this.menu.canCreateResult()) return;
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.ERROR_SPRITE, xo + 123, yo + 48, 0, 0, 16, 16, 16, 16);
     }
 
-    private void renderOnboardingTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    private void extractOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
         if (!this.menu.canCreateResult() && this.isHovering(123, 48, 16, 16, mouseX, mouseY)) {
             optional = Optional.of(ERROR_TOOLTIP);
@@ -176,7 +187,6 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
                 }
             }
         }
-        optional.ifPresent(
-            component -> guiGraphics.renderTooltip(this.font, this.font.split(component, 115), mouseX, mouseY));
+        optional.ifPresent(component -> graphics.setTooltipForNextFrame(this.font, this.font.split(component, 115), mouseX, mouseY));
     }
 }

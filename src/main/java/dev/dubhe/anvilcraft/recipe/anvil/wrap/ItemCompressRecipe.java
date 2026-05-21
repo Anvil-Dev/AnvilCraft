@@ -19,6 +19,7 @@ import java.util.List;
  */
 @Getter
 public class ItemCompressRecipe extends AbstractProcessRecipe<ItemCompressRecipe> {
+    public static final RecipeSerializer<ItemCompressRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(ItemCompressRecipe::new);
 
     /**
      * 构造一个物品压缩配方
@@ -43,13 +44,13 @@ public class ItemCompressRecipe extends AbstractProcessRecipe<ItemCompressRecipe
     }
 
     @Override
-    public RecipeSerializer<ItemCompressRecipe> getSerializer() {
-        return ModRecipeTypes.ITEM_COMPRESS_SERIALIZER.get();
+    public RecipeType<ItemCompressRecipe> getType() {
+        return ModRecipeTypes.ITEM_COMPRESS.get();
     }
 
     @Override
-    public RecipeType<ItemCompressRecipe> getType() {
-        return ModRecipeTypes.ITEM_COMPRESS_TYPE.get();
+    public RecipeSerializer<ItemCompressRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     /**
@@ -59,16 +60,6 @@ public class ItemCompressRecipe extends AbstractProcessRecipe<ItemCompressRecipe
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 物品压缩配方序列化器
-     */
-    public static class Serializer extends AbstractSerializer<ItemCompressRecipe> {
-        @Override
-        protected ItemCompressRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new ItemCompressRecipe(itemIngredients, results);
-        }
     }
 
     /**

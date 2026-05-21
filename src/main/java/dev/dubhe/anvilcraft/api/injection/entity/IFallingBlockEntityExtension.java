@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.injection.entity;
 
 public interface IFallingBlockEntityExtension {
-    default float anvilcraft$getFallDistance() {
+    default double anvilcraft$getFallDistance() {
         throw new AssertionError();
     }
 

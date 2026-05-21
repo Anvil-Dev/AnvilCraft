@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
@@ -11,10 +10,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -24,6 +22,27 @@ import java.util.List;
 
 @Getter
 public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrradiationRecipe> {
+    public static final RecipeSerializer<NeutronIrradiationRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemIngredientPredicate.CODEC.listOf()
+                .optionalFieldOf("ingredients", List.of())
+                .forGetter(NeutronIrradiationRecipe::getInputItems),
+            ChanceItemStack.CODEC.listOf()
+                .optionalFieldOf("results", List.of())
+                .forGetter(NeutronIrradiationRecipe::getResultItems),
+            HasCauldronSimple.CODEC
+                .forGetter(NeutronIrradiationRecipe::getHasCauldron)
+        ).apply(instance, NeutronIrradiationRecipe::new)),
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            NeutronIrradiationRecipe::getInputItems,
+            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            NeutronIrradiationRecipe::getResultItems,
+            HasCauldronSimple.STREAM_CODEC,
+            NeutronIrradiationRecipe::getHasCauldron,
+            NeutronIrradiationRecipe::new
+        )
+    );
 
     public NeutronIrradiationRecipe(
         List<ItemIngredientPredicate> itemIngredients,
@@ -49,59 +68,23 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
     }
 
     @Override
-    public RecipeSerializer<NeutronIrradiationRecipe> getSerializer() {
-        return ModRecipeTypes.NEUTRON_IRRADIATION_SERIALIZER.get();
+    public RecipeType<NeutronIrradiationRecipe> getType() {
+        return ModRecipeTypes.NEUTRON_IRRADIATION.get();
     }
 
     @Override
-    public RecipeType<NeutronIrradiationRecipe> getType() {
-        return ModRecipeTypes.NEUTRON_IRRADIATION.get();
+    public RecipeSerializer<NeutronIrradiationRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Serializer implements RecipeSerializer<NeutronIrradiationRecipe> {
-
-        private static final MapCodec<NeutronIrradiationRecipe> CODEC =
-            RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ItemIngredientPredicate.CODEC.listOf()
-                    .optionalFieldOf("ingredients", List.of())
-                    .forGetter(NeutronIrradiationRecipe::getInputItems),
-                ChanceItemStack.CODEC.listOf()
-                    .optionalFieldOf("results", List.of())
-                    .forGetter(NeutronIrradiationRecipe::getResultItems),
-                HasCauldronSimple.CODEC
-                    .forGetter(NeutronIrradiationRecipe::getHasCauldron)
-            ).apply(instance, NeutronIrradiationRecipe::new));
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, NeutronIrradiationRecipe> STREAM_CODEC =
-            StreamCodec.composite(
-                ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-                NeutronIrradiationRecipe::getInputItems,
-                ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
-                NeutronIrradiationRecipe::getResultItems,
-                HasCauldronSimple.STREAM_CODEC,
-                NeutronIrradiationRecipe::getHasCauldron,
-                NeutronIrradiationRecipe::new
-            );
-
-        @Override
-        public MapCodec<NeutronIrradiationRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, NeutronIrradiationRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
-        }
-    }
-
     public static class Builder extends SimpleAbstractBuilder<NeutronIrradiationRecipe, Builder> {
         HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
-        public Builder fluid(ResourceLocation fluid) {
+        public Builder fluid(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
@@ -111,7 +94,7 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
             return this;
         }
 
-        public Builder transform(ResourceLocation transform) {
+        public Builder transform(Identifier transform) {
             this.hasCauldron.transform(transform);
             return this;
         }
@@ -127,7 +110,7 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
         }
 
         public Builder produce(int produce) {
-            this.consume(-produce);
+            this.hasCauldron.produce(produce);
             return this;
         }
 
@@ -137,7 +120,7 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
         }
 
         @Override

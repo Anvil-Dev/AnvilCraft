@@ -1,13 +1,7 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:stonecutting/power_converter_small_from_middle"
-      },
-      "trigger": "minecraft:recipe_unlocked"
-    },
-    "hasitem": {
+    "has_power_converter_big": {
       "conditions": {
         "items": [
           {
@@ -16,12 +10,18 @@
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:stonecutting/power_converter_small_from_middle"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "hasitem"
+      "has_power_converter_big"
     ]
   ],
   "rewards": {

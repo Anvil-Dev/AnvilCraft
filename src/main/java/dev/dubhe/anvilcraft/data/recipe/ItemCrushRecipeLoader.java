@@ -1,31 +1,33 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.data.recipe.util.RecipeLoaderUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.neoforge.common.Tags;
 
-import static dev.dubhe.anvilcraft.data.recipe.util.RecipeLoaderUtil.getName;
-
 public class ItemCrushRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
         ItemCrushRecipe.builder()
-            .requires(Tags.Items.CROPS_WHEAT)
-            .result(ModFoodItems.FLOUR)
-            .result(ModFoodItems.FLOUR, 0.5f)
+            .requires(items, Tags.Items.CROPS_WHEAT)
+            .result(ModItems.FLOUR)
+            .result(ModItems.FLOUR, 0.5F)
             .save(provider);
         ItemCrushRecipe.builder()
-            .requires(ItemTags.LOGS)
+            .requires(items, ItemTags.LOGS)
             .result(ModItems.WOOD_FIBER)
             .result(ModItems.RESIN)
             .save(provider);
@@ -35,7 +37,7 @@ public class ItemCrushRecipeLoader {
             .result(Items.SUGAR)
             .save(provider, AnvilCraft.of("item_crush/red_dye_from_beetroot"));
         ItemCrushRecipe.builder()
-            .requires(ItemTags.WOOL)
+            .requires(items, ItemTags.WOOL)
             .result(Items.STRING, 4)
             .save(provider);
         ItemCrushRecipe.builder()
@@ -57,45 +59,45 @@ public class ItemCrushRecipeLoader {
         ItemCrushRecipe.builder()
             .requires(ModItems.GEODE)
             .result(Items.AMETHYST_SHARD, 4)
-            .result(ModItems.TOPAZ.get(), 0.25f)
-            .result(ModItems.SAPPHIRE.get(), 0.25f)
-            .result(ModItems.RUBY.get(), 0.25f)
+            .result(ModItems.TOPAZ.get(), 0.25F)
+            .result(ModItems.SAPPHIRE.get(), 0.25F)
+            .result(ModItems.RUBY.get(), 0.25F)
             .save(provider, AnvilCraft.of("item_crush/geode_gems"));
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .group("item_crush")
-            .icon(ModBlocks.CRUSHING_TABLE.asStack())
+            .icon(new ItemStackTemplate(ModBlocks.CRUSHING_TABLE.asItem()))
             .hasBlock(0, -1, 0, ModBlocks.CRUSHING_TABLE.getDefaultState())
-            .hasItemIngredient((builder) -> builder
+            .hasItemIngredient(builder -> builder
                 .offset(0, -.125, 0)
                 .range(.75, .75, .75)
                 .of(ModBlocks.CHROMATIC_STONE)
             )
-            .chooseOne((builder) -> builder
+            .chooseOne(builder -> builder
                 .choice(
                     SpawnItem.builder()
                         .offset(0, -.6875, 0)
                         .item(ModItems.RUBY)
                         .build(),
-                    .25f
+                    .25F
                 ).choice(
                     SpawnItem.builder()
                         .offset(0, -.6875, 0)
                         .item(ModItems.TOPAZ)
                         .build(),
-                    .25f
+                    .25F
                 ).choice(
                     SpawnItem.builder()
                         .offset(0, -.6875, 0)
                         .item(ModItems.SAPPHIRE)
                         .build(),
-                    .25f
+                    .25F
                 ).choice(
                     SpawnItem.builder()
                         .offset(0, -.6875, 0)
                         .item(Items.EMERALD)
                         .build(),
-                    .25f
+                    .25F
                 )
             )
             .save(provider, AnvilCraft.of("item_crush/gem_from_chromatic_stone"));
@@ -110,10 +112,10 @@ public class ItemCrushRecipeLoader {
             .result(Items.BONE_MEAL, 64)
             .save(provider, AnvilCraft.of("item_crush/bone_meal_from_skeleton_skull"));
 
-        armor(provider, Items.CHAINMAIL_HELMET, Items.CHAIN);
-        armor(provider, Items.CHAINMAIL_CHESTPLATE, Items.CHAIN);
-        armor(provider, Items.CHAINMAIL_LEGGINGS, Items.CHAIN);
-        armor(provider, Items.CHAINMAIL_BOOTS, Items.CHAIN);
+        armor(provider, Items.CHAINMAIL_HELMET, Items.IRON_CHAIN);
+        armor(provider, Items.CHAINMAIL_CHESTPLATE, Items.IRON_CHAIN);
+        armor(provider, Items.CHAINMAIL_LEGGINGS, Items.IRON_CHAIN);
+        armor(provider, Items.CHAINMAIL_BOOTS, Items.IRON_CHAIN);
 
         armor(provider, Items.LEATHER_HELMET, Items.LEATHER);
         armor(provider, Items.LEATHER_CHESTPLATE, Items.LEATHER);
@@ -197,36 +199,54 @@ public class ItemCrushRecipeLoader {
     private static void tool(RegistrumRecipeProvider provider, ItemLike tool, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(tool)
-            .result(result, 0.5f)
-            .save(provider, AnvilCraft.of("item_crush/tool/%s_2_%s".formatted(getName(tool), getName(result))));
+            .result(result, 0.5F)
+            .save(
+                provider,
+                AnvilCraft.of("item_crush/tool/%s_2_%s".formatted(RecipeLoaderUtil.getName(tool), RecipeLoaderUtil.getName(result)))
+            );
     }
 
     private static void blockCrush(RegistrumRecipeProvider provider, ItemLike input, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(input)
-            .result(result, 0.8f)
-            .save(provider, AnvilCraft.of("item_crush/block_crush/%s_from_%s".formatted(getName(result), getName(input))));
+            .result(result, 0.8F)
+            .save(
+                provider,
+                AnvilCraft.of("item_crush/block_crush/%s_from_%s".formatted(
+                    RecipeLoaderUtil.getName(result),
+                    RecipeLoaderUtil.getName(input)
+                ))
+            );
     }
 
     private static void armor(RegistrumRecipeProvider provider, ItemLike armor, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(armor)
-            .result(result, UniformGenerator.between(0.0f, 2.0f))
-            .save(provider, AnvilCraft.of("item_crush/armor/%s_2_%s".formatted(getName(armor), getName(result))));
+            .result(result, UniformGenerator.between(0.0F, 2.0F))
+            .save(
+                provider,
+                AnvilCraft.of("item_crush/armor/%s_2_%s".formatted(RecipeLoaderUtil.getName(armor), RecipeLoaderUtil.getName(result)))
+            );
     }
 
     public static void flower(RegistrumRecipeProvider provider, ItemLike flower, ItemLike result) {
         ItemCrushRecipe.builder()
             .requires(flower)
             .result(result, 2)
-            .save(provider, AnvilCraft.of("item_crush/flower/%s_from_%s".formatted(getName(result), getName(flower))));
+            .save(
+                provider,
+                AnvilCraft.of("item_crush/flower/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(flower)))
+            );
     }
 
     public static void flower(RegistrumRecipeProvider provider, ItemLike flower, ItemLike result, int resultNum) {
         ItemCrushRecipe.builder()
             .requires(flower)
             .result(result, resultNum)
-            .save(provider, AnvilCraft.of("item_crush/flower/%s_from_%s".formatted(getName(result), getName(flower))));
+            .save(
+                provider,
+                AnvilCraft.of("item_crush/flower/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(flower)))
+            );
     }
 
 }

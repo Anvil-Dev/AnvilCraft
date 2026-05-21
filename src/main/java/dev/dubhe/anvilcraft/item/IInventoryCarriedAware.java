@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.item;
 
+import net.minecraft.network.HashedStack;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 public interface IInventoryCarriedAware {
-    void onCarriedUpdate(ItemStack itemStack, ServerPlayer serverPlayer);
+    void onCarriedUpdate(HashedStack stack, ServerPlayer serverPlayer);
 }

@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.block.multipart;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.state.ISimpleMultiPartBlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -15,7 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartBlockState<P>>
     extends AbstractMultiPartBlock<P> {
@@ -68,7 +66,7 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
     @Nullable
     @Override
     public final BlockState getStateForPlacement(BlockPlaceContext context) {
-        if (!hasEnoughSpace(context.getClickedPos(), context.getLevel())) return null; // 判断是否有足够空间放置方块
+        if (!this.hasEnoughSpace(context.getClickedPos(), context.getLevel())) return null; // 判断是否有足够空间放置方块
         return this.getPlacementState(context);
     }
 
@@ -93,7 +91,7 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
+    protected InteractionResult useItemOn(
         ItemStack stack,
         BlockState state,
         Level level,
@@ -102,7 +100,7 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        return Util.interactionResultConverter().apply(this.use(state, level, pos, player, hand, hitResult));
+        return this.use(state, level, pos, player, hand, hitResult);
     }
 
     @Override

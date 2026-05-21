@@ -1,26 +1,29 @@
 package dev.dubhe.anvilcraft.block.entity.nesting;
 
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.OverLimitItemHandler;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 
-public abstract class BaseNestingShulkerBoxBlockEntity extends BlockEntity implements IItemHandlerHolder, Nameable {
+public abstract class BaseNestingShulkerBoxBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, Nameable {
     @Getter
     private final OverLimitItemHandler items;
     @Nullable
@@ -32,25 +35,29 @@ public abstract class BaseNestingShulkerBoxBlockEntity extends BlockEntity imple
     }
 
     @Override
-    public IItemHandler getItemHandler() {
+    public ResourceHandler<ItemResource> getItemHandler() {
         return this.items;
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.items.deserializeNBT(registries, tag);
-        if (tag.contains("CustomName", Tag.OBJECT_HEADER)) {
-            this.name = parseCustomNameSafe(tag.getString("CustomName"), registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.items.deserialize(input);
+        Optional<ValueInput> customName = input.child("custom_name");
+
+        if (customName.isPresent()) {
+            this.name = parseCustomNameSafe(input, "custom_name");
         }
+        super.loadAdditional(input);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.merge(this.items.serializeNBT(registries));
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        this.items.serialize(output);
+        super.saveAdditional(output);
         if (this.name != null) {
-            tag.putString("CustomName", Component.Serializer.toJson(this.name, registries));
+            output.storeNullable("custom_name", ComponentSerialization.CODEC, this.name);
         }
     }
 
@@ -73,10 +80,10 @@ public abstract class BaseNestingShulkerBoxBlockEntity extends BlockEntity imple
     protected abstract Component getDefaultName();
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput componentInput) {
-        super.applyImplicitComponents(componentInput);
-        this.name = componentInput.get(DataComponents.CUSTOM_NAME);
-        componentInput.getOrDefault(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
+        this.name = components.get(DataComponents.CUSTOM_NAME);
+        components.getOrDefault(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
             .copyInto(this.items);
     }
 

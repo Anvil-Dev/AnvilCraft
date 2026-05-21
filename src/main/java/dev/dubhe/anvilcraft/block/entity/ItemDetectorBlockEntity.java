@@ -3,13 +3,14 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.ItemDetectorBlock;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.ItemDetectorMenu;
 import dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer;
+import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
@@ -35,15 +36,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
-
-import static dev.dubhe.anvilcraft.block.ItemDetectorBlock.POWERED;
 
 public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider, IFilterBlockEntity, IHasAffectRange,
     IDiskCloneable {
@@ -118,22 +120,27 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.setRange(tag.getInt("Range"));
-        if (tag.contains("FilterMode")) this.filterMode = Mode.valueOf(tag.getString("FilterMode"));
-        if (tag.contains("Filter")) filter.deserializeNBT(registries, tag.getCompound("Filter"));
-        if (tag.contains("OutputSignal")) this.outputSignal = tag.getInt("OutputSignal");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.setRange(input.getIntOr("Range", 0));
+        if (input.getInt("FilterMode").isPresent()) {
+            this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
+        }
+        input.child("Filter").ifPresent(this.filter::deserialize);
+        if (input.getInt("OutputSignal").isPresent()) {
+            this.outputSignal = input.getIntOr("OutputSignal", 0);
+        }
         this.recalcDetectionRange();
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("Range", this.range);
-        tag.putString("FilterMode", this.filterMode.toString());
-        tag.put("Filter", this.filter.serializeNBT(registries));
-        tag.putInt("OutputSignal", this.outputSignal);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Range", this.range);
+        output.putString("FilterMode", this.filterMode.toString());
+        ValueOutput child = output.child("Filter");
+        this.filter.serialize(child);
+        output.putInt("OutputSignal", this.outputSignal);
     }
 
     @Override
@@ -147,7 +154,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
 
     public void tick() {
         Level level = this.level;
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide()) return;
         if (this.detectionRange == null) {
             this.recalcDetectionRange();
             if (this.detectionRange == null) return;
@@ -160,11 +167,11 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             this.detectionRange,
             entity -> !entity.getItem().isEmpty()
         );
-        int output = getOutput(itemEntities, level, this.detectionRange);
+        int output = this.getOutput(itemEntities, level, this.detectionRange);
         if (output == this.outputSignal) return;
         this.outputSignal = output;
-        if (blockState.getValue(POWERED) != (this.outputSignal > 0)) {
-            blockState = blockState.setValue(POWERED, this.outputSignal > 0);
+        if (blockState.getValue(ItemDetectorBlock.POWERED) != (this.outputSignal > 0)) {
+            blockState = blockState.setValue(ItemDetectorBlock.POWERED, this.outputSignal > 0);
             level.setBlock(pos, blockState, 2);
         }
         ModBlocks.ITEM_DETECTOR.get().updateNeighborsInFront(level, pos, blockState);
@@ -189,7 +196,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                     matchCount += itemEntity.getItem().getCount();
                 }
             }
-            for (BlockPos p : blocksInRange) matchCount += scanContainer(level, p, filterItem);
+            for (BlockPos p : blocksInRange) matchCount += this.scanContainer(level, p, filterItem);
             int lerpedOutput = lerpOutput(matchCount, targetCount);
             if (lerpedOutput > 0) {
                 minNonZeroOutput = Math.min(minNonZeroOutput, lerpedOutput);
@@ -202,18 +209,18 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (!hasFilter) {
             int totalCount = 0;
             for (ItemEntity itemEntity : itemEntities) totalCount += itemEntity.getItem().getCount();
-            for (BlockPos p : blocksInRange) totalCount += scanContainer(level, p, null);
+            for (BlockPos p : blocksInRange) totalCount += this.scanContainer(level, p, null);
             output = lerpOutput(totalCount, 1);
         }
         return output;
     }
 
     private int scanContainer(Level level, BlockPos pos, @Nullable Item targetItem) {
-        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+        ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, null);
         if (handler == null) return 0;
         int count = 0;
-        for (int i = 0; i < handler.getSlots(); i++) {
-            ItemStack stack = handler.getStackInSlot(i);
+        for (int i = 0; i < handler.size(); i++) {
+            ItemStack stack = ItemResourceHelper.getStackInSlot(handler, i);
             if (stack.isEmpty()) continue;
             if (targetItem == null || stack.is(targetItem)) count += stack.getCount();
         }
@@ -227,11 +234,11 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     public void increaseRange() {
-        this.range = Mth.clamp(range + 1, MIN_RANGE, MAX_RANGE);
+        this.range = Mth.clamp(this.range + 1, MIN_RANGE, MAX_RANGE);
     }
 
     public void decreaseRange() {
-        this.range = Mth.clamp(range - 1, MIN_RANGE, MAX_RANGE);
+        this.range = Mth.clamp(this.range - 1, MIN_RANGE, MAX_RANGE);
     }
 
     public void setRange(int range) {
@@ -334,19 +341,21 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     @Override
-    public void storeDiskData(CompoundTag data) {
+    public void storeDiskData(ValueOutput output) {
         if (this.level == null) return;
-        data.putInt("Range", this.range);
-        data.putString("FilterMode", this.filterMode.toString());
-        data.put("Filter", this.filter.serializeNBT(this.level.registryAccess()));
+        output.putInt("Range", this.range);
+        output.putString("FilterMode", this.filterMode.toString());
+        ValueOutput child = output.child("Filter");
+        this.filter.serialize(child);
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
+    public void applyDiskData(ValueInput input) {
         if (this.level == null) return;
-        this.setRange(data.getInt("Range"));
-        this.filterMode = Mode.valueOf(data.getString("FilterMode"));
-        filter.deserializeNBT(this.level.registryAccess(), data.getCompound("Filter"));
+        this.setRange(input.getIntOr("Range", 0));
+        this.filterMode = Mode.valueOf(input.getStringOr("FilterMode", ""));
+        ValueInput filter1 = input.childOrEmpty("Filter");
+        this.filter.deserialize(filter1);
         this.recalcDetectionRange();
     }
 
@@ -354,9 +363,9 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         ANY(SharedTextures.BUTTON_ANY),
         ALL(SharedTextures.BUTTON_ALL);
 
-        public final ResourceLocation buttonTexture;
+        public final Identifier buttonTexture;
 
-        Mode(ResourceLocation buttonTexture) {
+        Mode(Identifier buttonTexture) {
             this.buttonTexture = buttonTexture;
         }
 

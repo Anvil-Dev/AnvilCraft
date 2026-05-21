@@ -2,22 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:amethyst_block"
-    },
-    "B": {
-      "item": "minecraft:note_block"
-    },
-    "C": {
-      "item": "minecraft:sculk_sensor"
-    }
+    "A": "minecraft:amethyst_block",
+    "B": "minecraft:note_block",
+    "C": "minecraft:sculk_sensor"
   },
   "pattern": [
     "ABA",
     "ACA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:active_silencer"
   }
 }

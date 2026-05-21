@@ -17,7 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.Objects;
@@ -91,7 +91,7 @@ public record Multiphase(LinkedList<Phase> phases) {
     private static Multiphase make(Component name, int phaseCount) {
         LinkedList<Phase> phases = new LinkedList<>();
         for (int i = 0; i < phaseCount; i++) {
-            phases.add(Phase.create(i).withName(makeName(i)).withItemName(name.copy().append(makeSuffix(i))));
+            phases.add(Phase.create(i).withItemName(name.copy().append(makeSuffix(i))));
         }
         return new Multiphase(phases);
     }
@@ -118,7 +118,7 @@ public record Multiphase(LinkedList<Phase> phases) {
     private static Multiphase make(Component name, @Nullable ItemEnchantments enchantments, int phaseCount) {
         LinkedList<Phase> phases = new LinkedList<>();
         for (int i = 0; i < phaseCount; i++) {
-            Phase phase = Phase.create(i).withName(makeName(i)).withItemName(name.copy().append(makeSuffix(i)));
+            Phase phase = Phase.create(i).withItemName(name.copy().append(makeSuffix(i)));
             if (i == 0) {
                 phase = phase.withEnchantments(enchantments == null ? ItemEnchantments.EMPTY : enchantments);
             }
@@ -142,10 +142,9 @@ public record Multiphase(LinkedList<Phase> phases) {
             PhaseData data = dataS[i];
             Phase phase;
             if (data == null) {
-                phase = Phase.create(i).withName(makeName(i)).withItemName(original.getDescription().copy().append(makeSuffix(i)));
+                phase = Phase.create(i).withItemName(original.getName(original.getDefaultInstance()).copy().append(makeSuffix(i)));
             } else {
                 phase = Phase.create(i)
-                    .withName(makeName(i))
                     .withRepairCost(data.repairCost())
                     .withEnchantments(data.enchantments());
                 if (data.customName() != null && !data.customName().equals(Component.empty())) {
@@ -154,7 +153,7 @@ public record Multiphase(LinkedList<Phase> phases) {
                 if (data.itemName() != null && !data.itemName().equals(Component.empty())) {
                     phase = phase.withItemName(data.itemName().copy());
                 } else {
-                    phase = phase.withItemName(original.getDescription().copy().append(makeSuffix(i)));
+                    phase = phase.withItemName(original.getName(original.getDefaultInstance()).copy().append(makeSuffix(i)));
                 }
             }
             phases.add(phase);
@@ -240,13 +239,13 @@ public record Multiphase(LinkedList<Phase> phases) {
             Codec.INT
                 .fieldOf("index")
                 .forGetter(Phase::index),
-            ComponentSerialization.FLAT_CODEC
+            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
                 .fieldOf("phaseName")
                 .forGetter(Phase::phaseName),
-            ComponentSerialization.FLAT_CODEC
+            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
                 .optionalFieldOf("customName")
                 .forGetter(Phase::customName),
-            ComponentSerialization.FLAT_CODEC
+            ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
                 .optionalFieldOf("itemName")
                 .forGetter(Phase::itemName),
             Codec.INT
@@ -325,7 +324,7 @@ public record Multiphase(LinkedList<Phase> phases) {
         public static Phase create(int index) {
             return new Phase(
                 index,
-                Component.literal("Empty"),
+                Multiphase.makeName(index),
                 Optional.empty(),
                 Optional.empty(),
                 0,

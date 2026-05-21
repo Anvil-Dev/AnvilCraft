@@ -18,6 +18,6 @@ public interface ISuperHeavy extends IAbnormal {
         } else if (count > 4) {
             amplifier = 1;
         }
-        player.addEffect(IAbnormal.makeEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, amplifier));
+        player.addEffect(IAbnormal.makeEffectInstance(MobEffects.SLOWNESS, amplifier));
     }
 }

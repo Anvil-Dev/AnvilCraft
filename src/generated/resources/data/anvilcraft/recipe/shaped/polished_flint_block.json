@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": {
-      "item": "anvilcraft:flint_block"
-    }
+    "A": "anvilcraft:flint_block"
   },
   "pattern": [
     "AA",

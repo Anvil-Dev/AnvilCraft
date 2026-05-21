@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": {
-      "item": "minecraft:ender_pearl"
-    },
-    "B": {
-      "item": "minecraft:echo_shard"
-    }
+    "A": "minecraft:ender_pearl",
+    "B": "minecraft:echo_shard"
   },
   "pattern": [
     " B ",
@@ -15,7 +11,6 @@
     " B "
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:recovery_pearl"
   }
 }

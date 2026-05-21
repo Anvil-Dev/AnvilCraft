@@ -2,71 +2,18 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "item": "anvilcraft:silver_ingot"
+      "items": "anvilcraft:silver_ingot"
     },
     {
-      "item": "minecraft:feather"
+      "count": 16,
+      "items": "minecraft:feather"
     },
     {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:feather"
-    },
-    {
-      "item": "minecraft:phantom_membrane"
-    },
-    {
-      "item": "minecraft:phantom_membrane"
-    },
-    {
-      "item": "minecraft:phantom_membrane"
-    },
-    {
-      "item": "minecraft:phantom_membrane"
+      "count": 4,
+      "items": "minecraft:phantom_membrane"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "anvilcraft:feather_amulet"
+  "source": {
+    "items": "anvilcraft:feather_amulet"
   }
 }

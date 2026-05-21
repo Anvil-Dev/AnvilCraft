@@ -1,18 +1,17 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.mixin.accessor.TargetingConditionsAccessor;
-import dev.dubhe.anvilcraft.util.function.SafePredicate;
+import dev.dubhe.anvilcraft.util.mixin.ModifiedSelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.neoforged.neoforge.attachment.AttachmentType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,7 +33,8 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
         method = "findTarget",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;getNearestPlayer("
+            target = "Lnet/minecraft/server/level/ServerLevel;"
+                     + "getNearestPlayer("
                      + "Lnet/minecraft/world/entity/ai/targeting/TargetingConditions;"
                      + "Lnet/minecraft/world/entity/LivingEntity;DDD)"
                      + "Lnet/minecraft/world/entity/player/Player;"
@@ -52,10 +52,8 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
         }
         return conditions.selector(
             Optional.ofNullable(((TargetingConditionsAccessor) conditions).getSelector())
-                .flatMap(p -> Util.castSafely(p, SafePredicate.class))
-                .map(Util::<SafePredicate<LivingEntity>>cast)
-                .map(predicate -> predicate.and(entity -> !entity.getData(type)))
-                .orElse(entity -> !entity.getData(type))
+                .map(p -> ModifiedSelector.toModified(p, () -> ((entity, _) -> !entity.getData(type))))
+                .orElse((entity, _) -> !entity.getData(type))
         );
     }
 }

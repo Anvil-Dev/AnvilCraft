@@ -5,14 +5,14 @@ import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.api.taslatower.HasCustomNameFilter;
-import dev.dubhe.anvilcraft.api.taslatower.IsEntityIdFilter;
-import dev.dubhe.anvilcraft.api.taslatower.IsFriendlyFilter;
-import dev.dubhe.anvilcraft.api.taslatower.IsOnVehicleFilter;
-import dev.dubhe.anvilcraft.api.taslatower.IsPetFilter;
-import dev.dubhe.anvilcraft.api.taslatower.IsPlayerIdFilter;
-import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
-import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
+import dev.dubhe.anvilcraft.api.teslatower.HasCustomNameFilter;
+import dev.dubhe.anvilcraft.api.teslatower.IsEntityIdFilter;
+import dev.dubhe.anvilcraft.api.teslatower.IsFriendlyFilter;
+import dev.dubhe.anvilcraft.api.teslatower.IsOnVehicleFilter;
+import dev.dubhe.anvilcraft.api.teslatower.IsPetFilter;
+import dev.dubhe.anvilcraft.api.teslatower.IsPlayerIdFilter;
+import dev.dubhe.anvilcraft.api.teslatower.TeslaFilter;
+import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -25,9 +25,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -43,14 +42,16 @@ import net.minecraft.world.level.block.LightningRodBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.NeoForge;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 @Slf4j
 public class TeslaTowerBlockEntity extends BlockEntity
@@ -103,13 +104,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        if (this.targetEntityUUID != null) {
-            tag.putUUID("TargetEntityUUID", this.targetEntityUUID);
-        }
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        if (this.targetEntityUUID != null) output.store("TargetEntityUUID", UUIDUtil.CODEC, this.targetEntityUUID);
         if (this.targetLightningRod != null) {
-            tag.putIntArray(
+            output.putIntArray(
                 "TargetLightningRod",
                 new int[]{
                     this.targetLightningRod.getX(),
@@ -118,32 +117,30 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 }
             );
         }
-        int index = 0;
-        for (Pair<TeslaFilter, String> entry : this.whiteList) {
-            tag.putString(entry.first().getId() + "_-_" + index, entry.second());
-            index++;
+        output.putInt("WhiteListSize", this.whiteList.size());
+        for (int i = 0; i < this.whiteList.size(); i++) {
+            Pair<TeslaFilter, String> entry = this.whiteList.get(i);
+            output.putString("WhiteListId" + i, entry.first().getId());
+            output.putString("WhiteListArg" + i, entry.second());
         }
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains("TargetEntityUUID")) {
-            this.targetEntityUUID = tag.getUUID("TargetEntityUUID");
-        } else {
-            this.targetEntityUUID = null;
-        }
-        if (tag.contains("TargetLightningRod")) {
-            int[] arr = tag.getIntArray("TargetLightningRod");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.targetEntityUUID = input.read("TargetEntityUUID", UUIDUtil.CODEC).orElse(null);
+        if (input.getIntArray("TargetLightningRod").isPresent()) {
+            int[] arr = input.getIntArray("TargetLightningRod").orElse(new int[0]);
             this.targetLightningRod = new BlockPos(arr[0], arr[1], arr[2]);
         } else {
             this.targetLightningRod = null;
         }
         this.whiteList.clear();
-        for (String key : tag.getAllKeys()) {
-            if (key.split("_-_").length != 2) continue;
-            String id = key.split("_-_")[0];
-            this.whiteList.add(Pair.of(TeslaFilter.getFilter(id), tag.getString(key)));
+        int size = input.getIntOr("WhiteListSize", 0);
+        for (int i = 0; i < size; i++) {
+            String id = input.getStringOr("WhiteListId" + i, "");
+            String arg = input.getStringOr("WhiteListArg" + i, "");
+            this.whiteList.add(Pair.of(TeslaFilter.getFilter(id), arg));
         }
     }
 
@@ -196,7 +193,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         this.tickCount--;
         AABB aabb = new AABB(this.getBlockPos().above(3)).expandTowards(8, 8, 8).expandTowards(-8, -8, -8);
         if (this.targetEntity != null) {
-            if (!targetEntity.isAlive()) {
+            if (!this.targetEntity.isAlive()) {
                 this.clearTargetEntity(state);
             } else {
                 AABB boundingBox = this.targetEntity.getBoundingBox();
@@ -218,7 +215,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
             this.targetEntity = targetEntity;
             this.targetEntityUUID = targetEntity.getUUID();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
-            this.targetEntity.hurt(this.level.damageSources().lightningBolt(), 5.0F);
+            // noinspection deprecation
+            this.targetEntity.hurtOrSimulate(this.level.damageSources().lightningBolt(), 5.0F);
         } else {
             ArrayList<BlockPos> lightningRods = new ArrayList<>();
             BlockPos.betweenClosedStream(aabb)
@@ -315,24 +313,25 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
-        ListTag filters = new ListTag();
+    public void storeDiskData(ValueOutput output) {
+        ValueOutput.ValueOutputList filters = output.childrenList("filters");
         for (var entry : this.whiteList) {
-            CompoundTag entryTag = new CompoundTag();
+            ValueOutput entryTag = filters.addChild();
             entryTag.putString("id", entry.first().getId());
             entryTag.putString("arg", entry.right());
-            filters.add(entryTag);
         }
-        tag.put("Filters", filters);
     }
 
     @Override
-    public void applyDiskData(CompoundTag data) {
+    public void applyDiskData(ValueInput input) {
+        ValueInput.ValueInputList valueInputs = input.childrenListOrEmpty("filters");
         ArrayList<Pair<TeslaFilter, String>> filters = new ArrayList<>();
-        for (Tag tag : data.getList("Filters", Tag.TAG_COMPOUND)) {
-            if (!(tag instanceof CompoundTag filter)) continue;
-            filters.add(Pair.of(TeslaFilter.getFilter(filter.getString("id")), filter.getString("arg")));
-        }
+        valueInputs.forEach(it -> {
+            Optional<String> id = it.getString("id");
+            Optional<String> arg = it.getString("arg");
+            if (id.isEmpty() || arg.isEmpty()) return;
+            filters.add(Pair.of(TeslaFilter.getFilter(id.get()), arg.get()));
+        });
         this.handleSync(filters);
     }
 }

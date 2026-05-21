@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:cursed_gold_ingot"
-    }
+    "anvilcraft:cursed_gold_ingot"
   ],
   "result": {
     "count": 9,

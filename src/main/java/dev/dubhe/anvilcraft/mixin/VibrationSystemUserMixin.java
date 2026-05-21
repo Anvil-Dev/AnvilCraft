@@ -19,7 +19,7 @@ interface VibrationSystemUserMixin {
         cancellable = true
     )
     private void addPlayerHasSilenceAmulet(
-        Holder<GameEvent> gameEvent,
+        Holder<GameEvent> event,
         GameEvent.Context context,
         CallbackInfoReturnable<Boolean> cir
     ) {

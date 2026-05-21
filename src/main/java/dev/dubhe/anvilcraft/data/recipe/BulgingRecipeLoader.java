@@ -1,15 +1,15 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import dev.dubhe.anvilcraft.util.VanillaConstants;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -28,10 +28,11 @@ public class BulgingRecipeLoader {
         BulgingRecipeLoader.bulging(provider, Items.FIRE_CORAL, Items.FIRE_CORAL_BLOCK);
         BulgingRecipeLoader.bulging(provider, Items.HORN_CORAL, Items.HORN_CORAL_BLOCK);
         BulgingRecipeLoader.bulging(provider, Items.TUBE_CORAL, Items.TUBE_CORAL_BLOCK);
-        BulgingRecipeLoader.bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 333);
-        BulgingRecipeLoader.bulging(provider, ModItemTags.FLOUR, ModFoodItems.DOUGH);
+        BulgingRecipeLoader.bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 250);
+        BulgingRecipeLoader.bulging(provider, ModItemTags.FLOUR, ModItems.DOUGH);
         BulgingRecipeLoader.bulging(provider, Items.DRIED_KELP, Items.KELP);
-        BulgingRecipeLoader.crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, 333);
+        BulgingRecipeLoader.bulging(provider, ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE, Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
+        BulgingRecipeLoader.crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, 250);
 
         VanillaConstants.CONCRETE_POWDERS.forEach(block -> bulging(provider, block, block.concrete));
 
@@ -44,7 +45,9 @@ public class BulgingRecipeLoader {
 
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
+            .consume(1000)
             .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())
+            .produce(1000)
             .requires(ModItems.LIME_POWDER, 4)
             .requires(ModBlocks.CINERITE)
             .save(provider, AnvilCraft.of("bulging/cement_cauldron"));
@@ -53,13 +56,13 @@ public class BulgingRecipeLoader {
             .cauldron(Blocks.WATER_CAULDRON)
             .requires(Items.RED_MUSHROOM)
             .result(Blocks.RED_MUSHROOM_BLOCK)
-            .result(Blocks.MUSHROOM_STEM, 0.1f)
+            .result(Blocks.MUSHROOM_STEM, 0.1F)
             .save(provider);
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .requires(Items.BROWN_MUSHROOM)
             .result(Blocks.BROWN_MUSHROOM_BLOCK)
-            .result(Blocks.MUSHROOM_STEM, 0.1f)
+            .result(Blocks.MUSHROOM_STEM, 0.1F)
             .save(provider);
 
         BulgingRecipe.builder()
@@ -89,9 +92,10 @@ public class BulgingRecipeLoader {
 
     @SuppressWarnings("SameParameterValue")
     private static void bulging(RegistrumRecipeProvider provider, TagKey<Item> input, ItemLike result, int consume) {
+        HolderGetter<Item> items = provider.getItems();
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
-            .requires(input)
+            .requires(items, input)
             .result(result)
             .consume(consume)
             .save(provider);

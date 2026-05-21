@@ -1,13 +1,13 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -15,6 +15,7 @@ import net.minecraft.world.level.ItemLike;
 
 public class StampingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        final HolderGetter<Item> items = provider.getItems();
         stamping(provider, Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
         stamping(provider, Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
         stamping(provider, Items.COPPER_INGOT, ModBlocks.COPPER_PRESSURE_PLATE);
@@ -37,7 +38,7 @@ public class StampingRecipeLoader {
 
         StampingRecipe.builder()
             .requires(Items.MILK_BUCKET)
-            .result(ModFoodItems.CREAM, 4)
+            .result(ModItems.CREAM, 4)
             .result(Items.BUCKET)
             .save(provider, AnvilCraft.of("stamping/cream"));
         StampingRecipe.builder()
@@ -48,8 +49,8 @@ public class StampingRecipeLoader {
         StampingRecipe.builder()
             .requires(Items.HEART_OF_THE_SEA)
             .result(ModItems.SEA_HEART_SHELL_SHARD, 3)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5f)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5f)
+            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5F)
+            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5F)
             .result(ModItems.SAPPHIRE)
             .save(provider);
         StampingRecipe.builder()
@@ -58,7 +59,7 @@ public class StampingRecipeLoader {
             .result(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE)
             .save(provider);
         StampingRecipe.builder()
-            .requires(ModItemTags.TIN_PLATES)
+            .requires(items, ModItemTags.TIN_PLATES)
             .requires(ModItems.ROYAL_STEEL_INGOT)
             .result(ModItems.TIN_CAN)
             .result(ModItems.ROYAL_STEEL_INGOT)
@@ -66,21 +67,21 @@ public class StampingRecipeLoader {
         StampingRecipe.builder()
             .requires(ModItems.GEODE)
             .result(Items.AMETHYST_SHARD, 4)
-            .result(ModItems.TOPAZ.get(), 0.25f)
-            .result(ModItems.SAPPHIRE.get(), 0.25f)
-            .result(ModItems.RUBY.get(), 0.25f)
+            .result(ModItems.TOPAZ.get(), 0.25F)
+            .result(ModItems.SAPPHIRE.get(), 0.25F)
+            .result(ModItems.RUBY.get(), 0.25F)
             .save(provider, AnvilCraft.of("stamping/geode_gems"));
         StampingRecipe.builder()
             .requires(Items.COCOA_BEANS)
-            .result(ModFoodItems.COCOA_BUTTER)
-            .result(ModFoodItems.COCOA_POWDER)
+            .result(ModItems.COCOA_BUTTER)
+            .result(ModItems.COCOA_POWDER)
             .save(provider);
         StampingRecipe.builder()
             .requires(ModItems.PRISMARINE_CLUSTER)
             .result(Items.PRISMARINE_CRYSTALS, 2)
             .result(Items.PRISMARINE_SHARD)
-            .result(Items.PRISMARINE_CRYSTALS, 0.5f)
-            .result(ModItems.PRISMARINE_BLADE, 0.15f)
+            .result(Items.PRISMARINE_CRYSTALS, 0.5F)
+            .result(ModItems.PRISMARINE_BLADE, 0.15F)
             .save(provider);
 
         StampingRecipe.builder()
@@ -102,16 +103,16 @@ public class StampingRecipeLoader {
             .result(Items.SHULKER_BOX)
             .save(provider, AnvilCraft.of("stamping/shulker_box_from_supercritical_nesting_shulker_box"));
 
-        StampingUniqueItemsRecipe.builderUnique()
-            .requires(ModItemTags.TEMPLATES, 2)
+        StampingDiffRecipe.builder()
+            .requires(items, ModItemTags.TEMPLATES, 2)
             .result(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);
-        StampingUniqueItemsRecipe.builderUnique()
-            .requires(ModItemTags.TEMPLATES, 4)
+        StampingDiffRecipe.builder()
+            .requires(items, ModItemTags.TEMPLATES, 4)
             .result(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);
-        StampingUniqueItemsRecipe.builderUnique()
-            .requires(ModItemTags.TEMPLATES, 8)
+        StampingDiffRecipe.builder()
+            .requires(items, ModItemTags.TEMPLATES, 8)
             .result(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE)
             .save(provider);
     }
@@ -129,8 +130,9 @@ public class StampingRecipeLoader {
     }
 
     private static void stamping(RegistrumRecipeProvider provider, TagKey<Item> input, ItemLike result) {
+        HolderGetter<Item> items = provider.getItems();
         StampingRecipe.builder()
-            .requires(input)
+            .requires(items, input)
             .result(result, 1)
             .save(provider);
     }

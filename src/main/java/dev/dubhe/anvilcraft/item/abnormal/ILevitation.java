@@ -13,10 +13,10 @@ public interface ILevitation extends IAbnormal {
         if (count < 64) return;
         if (count < 128) {
             player.addEffect(IAbnormal.makeEffectInstance(MobEffects.SLOW_FALLING, 0));
-            player.addEffect(IAbnormal.makeEffectInstance(MobEffects.JUMP, 0));
+            player.addEffect(IAbnormal.makeEffectInstance(MobEffects.JUMP_BOOST, 0));
         } else if (count < 192) {
             player.addEffect(IAbnormal.makeEffectInstance(MobEffects.SLOW_FALLING, 1));
-            player.addEffect(IAbnormal.makeEffectInstance(MobEffects.JUMP, 1));
+            player.addEffect(IAbnormal.makeEffectInstance(MobEffects.JUMP_BOOST, 1));
         } else if (count < 256) {
             player.addEffect(IAbnormal.makeEffectInstance(MobEffects.LEVITATION, 0));
         } else {

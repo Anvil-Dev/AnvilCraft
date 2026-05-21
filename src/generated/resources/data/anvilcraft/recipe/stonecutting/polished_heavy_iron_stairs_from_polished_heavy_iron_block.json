@@ -1,10 +1,7 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "anvilcraft:polished_heavy_iron_block"
-  },
+  "ingredient": "anvilcraft:polished_heavy_iron_block",
   "result": {
-    "count": 1,
     "id": "anvilcraft:polished_heavy_iron_stairs"
   }
 }

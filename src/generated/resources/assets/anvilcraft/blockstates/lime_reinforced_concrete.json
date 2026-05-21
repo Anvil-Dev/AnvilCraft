@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "half=bottom": {
+      "model": "anvilcraft:block/lime_reinforced_concrete_bottom"
+    },
+    "half=single": {
+      "model": "anvilcraft:block/lime_reinforced_concrete"
+    },
+    "half=top": {
+      "model": "anvilcraft:block/lime_reinforced_concrete_top"
+    }
+  }
+}

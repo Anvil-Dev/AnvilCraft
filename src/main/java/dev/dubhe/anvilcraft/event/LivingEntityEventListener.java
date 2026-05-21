@@ -4,13 +4,13 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.entity.ai.goal.GenericZombieAttackGoal;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -19,15 +19,15 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.IronGolem;
-import net.minecraft.world.entity.animal.Turtle;
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.animal.turtle.Turtle;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.entity.monster.Phantom;
-import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.monster.warden.Warden;
-import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,10 +39,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
@@ -53,8 +54,7 @@ public class LivingEntityEventListener {
         Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
         if (entity == null) return;
         if (!(event.getNewAboutToBeSetTarget() instanceof Player player)) return;
-        EntityType<?> type = entity.getType();
-        if ((type.is(EntityTypeTags.SKELETONS) && player.getData(ModDataAttachments.SCARE_SKELETONS))
+        if ((entity.is(EntityTypeTags.SKELETONS) && player.getData(ModDataAttachments.SCARE_SKELETONS))
             || (entity instanceof Creeper && player.getData(ModDataAttachments.SCARE_CREEPERS))
             || (entity instanceof Phantom && player.getData(ModDataAttachments.SCARE_PHANTOMS))
         ) {
@@ -67,8 +67,7 @@ public class LivingEntityEventListener {
         Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
         if (entity == null) return;
         if (!(entity.getTarget() instanceof Player player)) return;
-        EntityType<?> type = entity.getType();
-        if ((type.is(EntityTypeTags.SKELETONS) && player.getData(ModDataAttachments.SCARE_SKELETONS))
+        if ((entity.is(EntityTypeTags.SKELETONS) && player.getData(ModDataAttachments.SCARE_SKELETONS))
             || (entity instanceof Creeper && player.getData(ModDataAttachments.SCARE_CREEPERS))
             || (entity instanceof Phantom && player.getData(ModDataAttachments.SCARE_PHANTOMS))
         ) {
@@ -109,14 +108,14 @@ public class LivingEntityEventListener {
         Entity entity = event.getTarget();
         Level level = event.getLevel();
         ItemStack heldItem = event.getItemStack();
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (entity instanceof LivingEntity livingEntity) {
             ItemStack item1 = livingEntity.getMainHandItem();
             if (!item1.isEmpty() && !item1.is(Items.AIR) && item1.getItem() != heldItem.getItem()) return;
             RecipeManager manager = Objects.requireNonNull(level.getServer()).getRecipeManager();
             // 注意：matches并不能匹配到生物符合而物品不符合达的目标生物
-            List<RecipeHolder<MobTransformWithItemRecipe>> listRecipeHolder =
-                manager.getAllRecipesFor(ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM_TYPE.get());
+            Collection<RecipeHolder<MobTransformWithItemRecipe>> listRecipeHolder =
+                manager.recipeMap().byType(ModRecipeTypes.MOB_TRANSFORM_WITH_ITEM.get());
             if (listRecipeHolder.isEmpty()) return;
             for (RecipeHolder<MobTransformWithItemRecipe> holder : listRecipeHolder) {
                 MobTransformWithItemRecipe recipe = holder.value();
@@ -136,6 +135,13 @@ public class LivingEntityEventListener {
                     break;
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void on(MobEffectEvent.Remove event) {
+        if (event.getEffect().is(ModMobEffects.RAGE)) {
+            event.setCanceled(true);
         }
     }
 }

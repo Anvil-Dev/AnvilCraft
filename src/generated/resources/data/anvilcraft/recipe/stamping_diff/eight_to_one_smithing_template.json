@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:stamping_diff",
+  "ingredients": [
+    {
+      "count": 8,
+      "items": "#anvilcraft:templates"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:eight_to_one_smithing_template"
+    }
+  ]
+}

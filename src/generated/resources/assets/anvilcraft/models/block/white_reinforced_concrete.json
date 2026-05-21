@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "anvilcraft:block/white_reinforced_concrete"
+  }
+}

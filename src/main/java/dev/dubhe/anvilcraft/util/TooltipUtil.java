@@ -4,7 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
@@ -17,7 +17,7 @@ import java.util.List;
 public final class TooltipUtil {
     public static List<Component> tooltip(Block block) {
         List<Component> tooltip = new ArrayList<>();
-        ResourceLocation key = BuiltInRegistries.BLOCK.getKey(block);
+        Identifier key = BuiltInRegistries.BLOCK.getKey(block);
         tooltip.add(block.getName());
         tooltip.add(Component.literal(key.toString()).withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(
@@ -26,9 +26,9 @@ public final class TooltipUtil {
         return tooltip;
     }
 
-    public static List<Component> recipeIDTooltip(Block block, ResourceLocation id) {
+    public static List<Component> recipeIDTooltip(Block block, Identifier id) {
         List<Component> tooltip = new ArrayList<>();
-        ResourceLocation key = BuiltInRegistries.BLOCK.getKey(block);
+        Identifier key = BuiltInRegistries.BLOCK.getKey(block);
         tooltip.add(block.getName());
         tooltip.add(Component.literal(key.toString()).withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(Component.translatable("jei.tooltip.recipe.id", id.toString()).withStyle(ChatFormatting.DARK_GRAY));

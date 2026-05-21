@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.recipe.frost;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +18,28 @@ public record PermutationRecipe(
     ItemIngredientPredicate material,
     List<RecipeResult> inputs
 ) implements IFrostSmithingRecipe {
+    public static final RecipeSerializer<PermutationRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(ins -> ins.group(
+            ItemIngredientPredicate.CODEC
+                .optionalFieldOf("template", PermutationRecipe.DEFAULT_TEMPLATE)
+                .forGetter(PermutationRecipe::template),
+            ItemIngredientPredicate.CODEC
+                .fieldOf("material")
+                .forGetter(PermutationRecipe::material),
+            RecipeResult.LIST_CODEC
+                .fieldOf("inputs")
+                .forGetter(PermutationRecipe::inputs)
+        ).apply(ins, PermutationRecipe::new)),
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC,
+            PermutationRecipe::template,
+            ItemIngredientPredicate.STREAM_CODEC,
+            PermutationRecipe::material,
+            RecipeResult.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            PermutationRecipe::inputs,
+            PermutationRecipe::new
+        )
+    );
     public static final ItemIngredientPredicate DEFAULT_TEMPLATE = ItemIngredientPredicate.of(ModItems.PERMUTATION_TEMPLATE_ITEM).build();
 
     public static Builder builder() {
@@ -37,47 +57,18 @@ public record PermutationRecipe(
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.PERMUTATION_SERIALIZER.get();
+    public RecipeType<PermutationRecipe> getType() {
+        return ModRecipeTypes.PERMUTATION.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return ModRecipeTypes.PERMUTATION_TYPE.get();
+    public String group() {
+        return "permutation";
     }
 
-    public static class Serializer implements RecipeSerializer<PermutationRecipe> {
-        private static final MapCodec<PermutationRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            ItemIngredientPredicate.CODEC
-                .optionalFieldOf("template", PermutationRecipe.DEFAULT_TEMPLATE)
-                .forGetter(PermutationRecipe::template),
-            ItemIngredientPredicate.CODEC
-                .fieldOf("material")
-                .forGetter(PermutationRecipe::material),
-            RecipeResult.LIST_CODEC
-                .fieldOf("inputs")
-                .forGetter(PermutationRecipe::inputs)
-        ).apply(ins, PermutationRecipe::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, PermutationRecipe> STREAM_CODEC = StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC,
-            PermutationRecipe::template,
-            ItemIngredientPredicate.STREAM_CODEC,
-            PermutationRecipe::material,
-            RecipeResult.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            PermutationRecipe::inputs,
-            PermutationRecipe::new
-        );
-
-        @Override
-        public MapCodec<PermutationRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, PermutationRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+    @Override
+    public RecipeSerializer<PermutationRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     public static class Builder extends BaseBuilder<Builder, PermutationRecipe> {

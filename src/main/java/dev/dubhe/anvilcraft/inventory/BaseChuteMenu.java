@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
-import dev.dubhe.anvilcraft.item.FilterItem;
+import dev.dubhe.anvilcraft.item.utility.FilterItem;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -42,17 +43,23 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         this.blockEntity = (T) blockEntity;
         this.level = inventory.player.level();
 
-        addPlayerInventory(inventory);
-        addPlayerHotbar(inventory);
+        this.addPlayerInventory(inventory);
+        this.addPlayerHotbar(inventory);
 
+        FilteredItemStackHandler handler = this.blockEntity.getItemHandler();
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                this.addSlot(new SlotItemHandlerWithFilter(this.blockEntity.getItemHandler(), i * 3 + j, 62 + j * 18, 18 + i * 18));
+                this.addSlot(new SlotItemHandlerWithFilter(
+                    handler,
+                    handler::set,
+                    i * 3 + j,
+                    62 + j * 18,
+                    18 + i * 18
+                ));
             }
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
@@ -61,7 +68,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     private void addPlayerHotbar(Inventory playerInventory) {
         for (int i = 0; i < 9; ++i) {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
@@ -86,7 +92,6 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
 
-    @SuppressWarnings("DuplicatedCode")
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
         Slot sourceSlot = slots.get(index);
@@ -100,7 +105,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (moveItemToActiveSlot(sourceStack)) {
+            if (this.moveItemToActiveSlot(sourceStack)) {
                 return ItemStack.EMPTY; // EMPTY_ITEM
             }
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
@@ -127,7 +132,7 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         int count = stack.getCount();
         for (int index = TE_INVENTORY_FIRST_SLOT_INDEX; index < 45; index++) {
             // 只有对应槽位可以放入物品时才向槽位里快速移动物品
-            if (canPlace(stack, index)) {
+            if (this.canPlace(stack, index)) {
                 moveItemStackTo(stack, index, index + 1, false);
                 if (stack.isEmpty()) {
                     break;
@@ -153,14 +158,14 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()), player, getBlock());
+        return stillValid(ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()), player, this.getBlock());
     }
 
     protected abstract Block getBlock();
 
     @Override
     public IFilterBlockEntity getFilterBlockEntity() {
-        return blockEntity;
+        return this.blockEntity;
     }
 
     @Override

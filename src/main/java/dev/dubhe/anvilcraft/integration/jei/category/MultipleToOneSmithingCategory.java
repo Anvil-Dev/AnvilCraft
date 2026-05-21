@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiTextures;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
 import lombok.Getter;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -13,28 +14,27 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
+
+import java.util.Arrays;
 
 public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHolder<BaseMultipleToOneSmithingRecipe>> {
     public static final int WIDTH = 176;
     public static final int HEIGHT = 64;
 
-    private static final ResourceLocation BACKGROUND =
-        AnvilCraft.of("textures/gui/container/smithing/background/multiple_to_one_smithing_jei.png");
-    private static final ResourceLocation DISABLED_SLOT =
-        AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
-    private static final Component TOOLTIP_NOT_CONSUMED =
-        Component.translatable("jei.anvilcraft.tooltip.not_consumed").withStyle(ChatFormatting.GOLD);
+    private static final Identifier BACKGROUND = JeiTextures.bg("multiple_to_one_smithing");
+    private static final Component TOOLTIP_NOT_CONSUMED = Component.translatable("jei.anvilcraft.tooltip.not_consumed")
+        .withStyle(ChatFormatting.GOLD);
 
     private final IDrawable background;
     @Getter
@@ -57,14 +57,14 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
             .setTextureSize(WIDTH, HEIGHT)
             .build();
         this.icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.EMBER_SMITHING_TABLE));
-        this.disabledSlotIcon = helper.drawableBuilder(DISABLED_SLOT, 0, 0, 16, 16)
+        this.disabledSlotIcon = helper.drawableBuilder(SharedTextures.DISABLED_SLOT, 0, 0, 16, 16)
             .setTextureSize(16, 16)
             .build();
         this.title = Component.translatable("gui.anvilcraft.category.multiple_to_one_smithing");
     }
 
     @Override
-    public RecipeType<RecipeHolder<BaseMultipleToOneSmithingRecipe>> getRecipeType() {
+    public IRecipeHolderType<BaseMultipleToOneSmithingRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING;
     }
 
@@ -81,40 +81,40 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BaseMultipleToOneSmithingRecipe> recipe, IFocusGroup focuses) {
         BaseMultipleToOneSmithingRecipe smithingRecipe = recipe.value();
-        builder.addSlot(RecipeIngredientRole.CATALYST, TEMPLATE_X, TEMPLATE_Y)
-            .addIngredients(Ingredient.of(smithingRecipe.getTemplate().getItems()))
-            .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(TOOLTIP_NOT_CONSUMED));
+        builder.addSlot(RecipeIngredientRole.INPUT, TEMPLATE_X, TEMPLATE_Y)
+            .addItemStacks(Arrays.stream(smithingRecipe.getTemplate().getItems()).map(ItemStackTemplate::create).toList())
+            .addRichTooltipCallback((_, tooltip) -> tooltip.add(TOOLTIP_NOT_CONSUMED));
         builder.addSlot(RecipeIngredientRole.INPUT, CENTER_INPUT_X, CENTER_INPUT_Y)
-            .addIngredients(Ingredient.of(smithingRecipe.getMaterial().getItems()));
+            .addItemStacks(Arrays.stream(smithingRecipe.getMaterial().getItems()).map(ItemStackTemplate::create).toList());
         for (int i = 0; i < Math.min(8, smithingRecipe.getInputs().size()); i++) {
             builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X[i], INPUT_Y[i])
-                .addIngredients(Ingredient.of(smithingRecipe.getInputs().get(i).getItems()));
+                .addItemStacks(Arrays.stream(smithingRecipe.getInputs().get(i).getItems()).map(ItemStackTemplate::create).toList());
         }
-        builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y)
-            .addItemStack(smithingRecipe.getResult().result().getDefaultInstance());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y).add(smithingRecipe.getResult().result().create());
     }
 
     @Override
     public void draw(
         RecipeHolder<BaseMultipleToOneSmithingRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
-        background.draw(guiGraphics);
+        this.background.draw(graphics);
         for (int i = Math.min(8, recipe.value().getInputs().size()); i < 8; i++) {
-            disabledSlotIcon.draw(guiGraphics, INPUT_X[i], INPUT_Y[i]);
+            this.disabledSlotIcon.draw(graphics, INPUT_X[i], INPUT_Y[i]);
         }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_SMITHING_TABLE), AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING, ModBlocks.EMBER_SMITHING_TABLE);
     }
 }

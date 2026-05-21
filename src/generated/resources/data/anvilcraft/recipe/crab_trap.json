@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:stick"
-    },
-    "B": {
-      "item": "minecraft:string"
-    }
+    "A": "minecraft:stick",
+    "B": "minecraft:string"
   },
   "pattern": [
     "ABA",
@@ -15,7 +11,6 @@
     "ABA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:crab_trap"
   }
 }

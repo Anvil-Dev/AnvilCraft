@@ -3,15 +3,9 @@
   "category": "misc",
   "group": "anvilcraft:processor",
   "key": {
-    "A": {
-      "item": "minecraft:comparator"
-    },
-    "B": {
-      "item": "anvilcraft:hardend_resin"
-    },
-    "C": {
-      "tag": "c:nuggets/copper"
-    }
+    "A": "minecraft:comparator",
+    "B": "anvilcraft:hardend_resin",
+    "C": "#c:nuggets/copper"
   },
   "pattern": [
     "   ",
@@ -19,7 +13,6 @@
     "BBB"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:processor"
   }
 }

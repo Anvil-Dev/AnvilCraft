@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.ISoundEventListener;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
@@ -13,46 +12,49 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class InspectionSupport {
     public static final InspectionSupport INSTANCE = new InspectionSupport();
-    private final Map<ResourceLocation, InspectionAction> inspectionActionMap = new HashMap<>();
-    private final Object2BooleanMap<ResourceLocation> inspectionState = new Object2BooleanAVLTreeMap<>();
+    private final Map<Identifier, InspectionAction> inspectionActionMap = new HashMap<>();
+    private final Object2BooleanMap<Identifier> inspectionState = new Object2BooleanAVLTreeMap<>();
 
     public static void initializeClient() {
         INSTANCE.registerActionClient(AnvilCraft.of("silencer"), (p, r, c, d) -> {
             Map<ResourceKey<Level>, List<ISoundEventListener>> map = SoundHelper.INSTANCE.getEventListeners();
             List<ISoundEventListener> listeners = map.get(Minecraft.getInstance().level.dimension());
-            MultiBufferSource.BufferSource buf = r.renderBuffers.bufferSource();
-            VertexConsumer vertex = buf.getBuffer(RenderType.LINES);
-            if (listeners == null || listeners.isEmpty()) return;
-            listeners.stream().filter(it -> it instanceof IHasAffectRange)
-                .map(it -> ((IHasAffectRange) it).shape())
-                .forEach(it -> TooltipRenderHelper.renderOutline(
-                    p,
-                    vertex,
-                    c.x,
-                    c.y,
-                    c.z,
-                    BlockPos.ZERO,
-                    Shapes.create(it),
-                    0xff00ffcc
-                ));
-            buf.endBatch();
+            List<AABB> snapshottedBoxes = listeners.stream().filter(it -> it instanceof IHasAffectRange)
+                .map(it -> ((IHasAffectRange) it).shape()).filter(Objects::nonNull)
+                .toList();
+            if (snapshottedBoxes.isEmpty()) return;
+            r.submitCustomGeometry(p, RenderTypes.lines(), ((pose, buffer) -> {
+                for (AABB it : snapshottedBoxes) {
+                    TooltipRenderHelper.renderOutline(
+                        pose,
+                        buffer,
+                        c.x,
+                        c.y,
+                        c.z,
+                        BlockPos.ZERO,
+                        Shapes.create(it),
+                        0xff00Ffcc
+                    );
+                }
+            }));
         });
     }
 
@@ -61,33 +63,33 @@ public class InspectionSupport {
      *
      * <p>检查项需同时在 {@link ModInspections} 和 {@link InspectionSupport} 中注册</p>
      *
-     * <p>对于 {@link ModInspections}，使用 {@link ModInspections#registerActionServer(ResourceLocation)} 注册检查项</p>
+     * <p>对于 {@link ModInspections}，使用 {@link ModInspections#registerActionServer(Identifier)} 注册检查项</p>
      *
      * @see ModInspections
      */
-    public void registerActionClient(ResourceLocation id, InspectionAction action) {
-        synchronized (inspectionActionMap) {
-            if (inspectionActionMap.containsKey(id)) {
+    public void registerActionClient(Identifier id, InspectionAction action) {
+        synchronized (this.inspectionActionMap) {
+            if (this.inspectionActionMap.containsKey(id)) {
                 throw new IllegalArgumentException("Duplicated inspection action id:" + id);
             }
-            inspectionActionMap.put(id, action);
-            inspectionState.put(id, false);
+            this.inspectionActionMap.put(id, action);
+            this.inspectionState.put(id, false);
         }
     }
 
-    public void changeStateClient(ResourceLocation id, boolean state) {
+    public void changeStateClient(Identifier id, boolean state) {
         log.info("{} inspection {}.", state ? "Disabling" : "Enabling", id);
-        inspectionState.put(id, state);
+        this.inspectionState.put(id, state);
     }
 
     public void onRenderInspectionAction(
         PoseStack poseStack,
-        LevelRenderer renderer,
+        SubmitNodeCollector renderer,
         Vec3 camera,
         DeltaTracker deltaTracker
     ) {
-        inspectionActionMap.forEach((id, action) -> {
-            if (inspectionState.getOrDefault(id, false)) {
+        this.inspectionActionMap.forEach((id, action) -> {
+            if (this.inspectionState.getOrDefault(id, false)) {
                 action.onRenderInspection(
                     poseStack,
                     renderer,
@@ -105,7 +107,7 @@ public class InspectionSupport {
          */
         void onRenderInspection(
             PoseStack poseStack,
-            LevelRenderer renderer,
+            SubmitNodeCollector renderer,
             Vec3 camera,
             DeltaTracker deltaTracker
         );

@@ -19,7 +19,7 @@ public class BlackHoleBlockEntity extends BlockEntity {
     @Override
     public void onLoad() {
         super.onLoad();
-        if (this.level != null && !this.level.isClientSide) {
+        if (this.level != null && !this.level.isClientSide()) {
             GravityManager.GravitySourceType type = GravityManager.GravitySourceManager.getType(this.getBlockState().getBlock());
             if (type != null) {
                 GravityManager.GravitySourceManager.addSource(this.level, this.worldPosition, type);
@@ -30,7 +30,7 @@ public class BlackHoleBlockEntity extends BlockEntity {
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (this.level != null && !this.level.isClientSide) {
+        if (this.level != null && !this.level.isClientSide()) {
             GravityManager.GravitySourceManager.removeSource(this.level, this.worldPosition);
         }
     }

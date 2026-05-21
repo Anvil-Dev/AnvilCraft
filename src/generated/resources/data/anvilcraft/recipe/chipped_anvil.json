@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:iron_block"
-    },
-    "B": {
-      "item": "minecraft:iron_ingot"
-    }
+    "A": "minecraft:iron_block",
+    "B": "minecraft:iron_ingot"
   },
   "pattern": [
     "AAB",
@@ -15,7 +11,6 @@
     "BBB"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:chipped_anvil"
   }
 }

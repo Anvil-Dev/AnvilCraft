@@ -1,0 +1,10 @@
+{
+  "amount": 2.0,
+  "random_sequence": "anvilcraft:trade_set/jeweler/level_3",
+  "trades": [
+    "anvilcraft:jeweler/topaz_block_for_emerald",
+    "anvilcraft:jeweler/sapphire_block_for_emerald",
+    "anvilcraft:jeweler/ruby_block_for_emerald",
+    "anvilcraft:jeweler/emerald_for_royal_steel_template"
+  ]
+}

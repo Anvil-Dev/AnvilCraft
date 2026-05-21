@@ -3,12 +3,15 @@ package dev.dubhe.anvilcraft.recipe.multiple;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import java.util.List;
 
 public class EightToOneSmithingRecipe extends BaseMultipleToOneSmithingRecipe {
+    public static final RecipeSerializer<EightToOneSmithingRecipe> SERIALIZER = BaseMultipleToOneSmithingRecipe.makeSerializer(
+        EightToOneSmithingRecipe::new
+    );
+
     public EightToOneSmithingRecipe(
         ItemIngredientPredicate template,
         ItemIngredientPredicate material,
@@ -31,15 +34,13 @@ public class EightToOneSmithingRecipe extends BaseMultipleToOneSmithingRecipe {
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.EIGHT_TO_ONE_SMITHING_SERIALIZER.get();
+    public String group() {
+        return "eight_to_one_smithing";
     }
 
-    public static class Serializer extends BaseSerializer<EightToOneSmithingRecipe> {
-        @Override
-        protected EightToOneSmithingRecipe fromData(Data data) {
-            return new EightToOneSmithingRecipe(data);
-        }
+    @Override
+    public RecipeSerializer<EightToOneSmithingRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     public static class Builder extends BaseBuilder<EightToOneSmithingRecipe> {

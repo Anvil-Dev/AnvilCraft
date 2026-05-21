@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.block.cfa.item;
 
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
-import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.item.block.FlexibleMultiPartBlockItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,12 +15,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public class CelestialForgingAnvilAmplifierBlockItem
-    extends FlexibleMultiPartBlockItem<DirectionCube232PartHalf, DirectionProperty, Direction> {
+    extends FlexibleMultiPartBlockItem<DirectionCube232PartHalf, EnumProperty<Direction>, Direction> {
     public CelestialForgingAnvilAmplifierBlockItem(
-        FlexibleMultiPartBlock<DirectionCube232PartHalf, DirectionProperty, Direction> block,
+        FlexibleMultiPartBlock<DirectionCube232PartHalf, EnumProperty<Direction>, Direction> block,
         Properties properties
     ) {
         super(block, properties);

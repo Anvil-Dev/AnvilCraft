@@ -1,0 +1,15 @@
+{
+  "additional_wants": {
+    "count": 32.0,
+    "id": "minecraft:smooth_basalt"
+  },
+  "gives": {
+    "id": "anvilcraft:geode"
+  },
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 64.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 30.0
+}

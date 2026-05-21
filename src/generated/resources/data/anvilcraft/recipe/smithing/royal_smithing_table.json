@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "anvilcraft:royal_steel_block"
-  },
-  "base": {
-    "item": "minecraft:smithing_table"
-  },
+  "addition": "anvilcraft:royal_steel_block",
+  "base": "minecraft:smithing_table",
   "result": {
-    "count": 1,
     "id": "anvilcraft:royal_smithing_table"
   },
-  "template": {
-    "item": "anvilcraft:royal_steel_upgrade_smithing_template"
-  }
+  "template": "anvilcraft:royal_steel_upgrade_smithing_template"
 }

@@ -22,6 +22,7 @@ import java.util.List;
  */
 @Getter
 public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
+    public static final RecipeSerializer<UnpackRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(UnpackRecipe::new);
 
     /**
      * 构造一个解包配方
@@ -52,13 +53,13 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
     }
 
     @Override
-    public RecipeSerializer<UnpackRecipe> getSerializer() {
-        return ModRecipeTypes.UNPACK_SERIALIZERS.get();
+    public RecipeType<UnpackRecipe> getType() {
+        return ModRecipeTypes.UNPACK.get();
     }
 
     @Override
-    public RecipeType<UnpackRecipe> getType() {
-        return ModRecipeTypes.UNPACK_TYPE.get();
+    public RecipeSerializer<UnpackRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     /**
@@ -68,16 +69,6 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 解包配方序列化器
-     */
-    public static class Serializer extends AbstractSerializer<UnpackRecipe> {
-        @Override
-        protected UnpackRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new UnpackRecipe(itemIngredients, results);
-        }
     }
 
     /**

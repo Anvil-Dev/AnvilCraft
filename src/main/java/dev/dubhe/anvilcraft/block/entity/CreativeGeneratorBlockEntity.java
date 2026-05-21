@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
+import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -9,8 +10,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
@@ -21,7 +20,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -49,15 +50,15 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putInt("power", power);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("power", this.power);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        this.power = tag.getInt("power");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.power = input.getIntOr("power", 0);
     }
 
     @Override
@@ -73,6 +74,14 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     @Override
     public PowerComponentType getComponentType() {
         return this.power > 0 ? PowerComponentType.PRODUCER : PowerComponentType.CONSUMER;
+    }
+
+    @Override
+    public PowerComponentInfo toPowerComponentInfo() {
+        if (this.power >= 0) {
+            return IPowerProducer.super.toPowerComponentInfo();
+        }
+        return IPowerConsumer.super.toPowerComponentInfo();
     }
 
     @Override
@@ -100,22 +109,22 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     public void setPower(int power) {
         this.power = power;
         if (level instanceof ServerLevel) {
-            if (grid != null) {
+            if (this.grid != null) {
                 this.grid.markChanged();
                 return;
             }
-            previousSyncFailed = true;
+            this.previousSyncFailed = true;
         }
     }
 
     public void tick() {
         if (level instanceof ServerLevel) {
-            if (previousSyncFailed && grid != null) {
-                previousSyncFailed = false;
-                grid.markChanged();
+            if (this.previousSyncFailed && this.grid != null) {
+                this.previousSyncFailed = false;
+                this.grid.markChanged();
             }
         }
-        time++;
+        this.time++;
     }
 
     @Override

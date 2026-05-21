@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "anvilcraft:royal_steel_block"
-  },
-  "base": {
-    "item": "minecraft:grindstone"
-  },
+  "addition": "anvilcraft:royal_steel_block",
+  "base": "minecraft:grindstone",
   "result": {
-    "count": 1,
     "id": "anvilcraft:royal_grindstone"
   },
-  "template": {
-    "item": "anvilcraft:royal_steel_upgrade_smithing_template"
-  }
+  "template": "anvilcraft:royal_steel_upgrade_smithing_template"
 }

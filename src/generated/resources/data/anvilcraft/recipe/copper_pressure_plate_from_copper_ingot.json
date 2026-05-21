@@ -2,15 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "item": "minecraft:copper_ingot"
-    }
+    "A": "minecraft:copper_ingot"
   },
   "pattern": [
     "AA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:copper_pressure_plate"
   }
 }

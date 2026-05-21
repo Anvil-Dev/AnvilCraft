@@ -1,8 +1,8 @@
 {
   "values": [
-    "anvilcraft:reinforced_concrete_light_blue",
-    "anvilcraft:reinforced_concrete_light_blue_slab",
-    "anvilcraft:reinforced_concrete_light_blue_stair",
-    "anvilcraft:reinforced_concrete_light_blue_wall"
+    "anvilcraft:light_blue_reinforced_concrete",
+    "anvilcraft:light_blue_reinforced_concrete_slab",
+    "anvilcraft:light_blue_reinforced_concrete_stair",
+    "anvilcraft:light_blue_reinforced_concrete_wall"
   ]
 }

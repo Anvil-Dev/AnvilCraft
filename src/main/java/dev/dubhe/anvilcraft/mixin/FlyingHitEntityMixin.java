@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public abstract class FlyingHitEntityMixin extends Entity {
 
     @Unique
-    private static final float DAMAGE_FACTOR = 40 / 1.7444f;
+    private static final float DAMAGE_FACTOR = 40 / 1.7444F;
 
     @Shadow
     public abstract ItemStack getItemBySlot(EquipmentSlot slot);
@@ -37,18 +37,18 @@ public abstract class FlyingHitEntityMixin extends Entity {
     }
 
     @Inject(
-        method = "travel",
+        method = "travelFallFlying",
         at =
         @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;"
-                     + "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
-            ordinal = 2,
+                     + "move("
+                     + "Lnet/minecraft/world/entity/MoverType;"
+                     + "Lnet/minecraft/world/phys/Vec3;)V",
             shift = At.Shift.AFTER
         )
     )
-    @SuppressWarnings("UnreachableCode")
-    private void onFlyingHitEntity(Vec3 travelVector, CallbackInfo ci) {
+    private void onFlyingHitEntity(Vec3 input, CallbackInfo ci) {
         Optional<ServerPlayer> playerOp = Util.castSafely(this, ServerPlayer.class);
         if (playerOp.isEmpty()) return;
         ServerPlayer thiS = playerOp.get();
@@ -62,7 +62,8 @@ public abstract class FlyingHitEntityMixin extends Entity {
         Vec3 movement = getDeltaMovement();
         float amount = (float) (movement.length() * DAMAGE_FACTOR);
         for (LivingEntity entity : entities) {
-            entity.hurt(damageSources().playerAttack(thiS), amount);
+            // noinspection deprecation
+            entity.hurtOrSimulate(damageSources().playerAttack(thiS), amount);
             anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
         }
     }

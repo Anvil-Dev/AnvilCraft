@@ -15,7 +15,7 @@ public class SoundEventListener {
         Entity entity = event.getEntity();
         event.setCanceled(SoundHelper.INSTANCE.shouldMute(
             event.getLevel(),
-            event.getSound().value().getLocation(),
+            event.getSound().getKey().identifier(),
             new Vec3(entity.getX(), entity.getY(), entity.getZ())
         ));
     }
@@ -24,7 +24,7 @@ public class SoundEventListener {
     public static void onPlaySoundAtPosition(PlayLevelSoundEvent.AtPosition event) {
         event.setCanceled(SoundHelper.INSTANCE.shouldMute(
             event.getLevel(),
-            event.getSound().value().getLocation(),
+            event.getSound().getKey().identifier(),
             event.getPosition()
         ));
     }

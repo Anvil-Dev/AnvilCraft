@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": "minecraft:honeycomb_block"
+    },
+    {
+      "blocks": "minecraft:weathered_lightning_rod"
+    }
+  ],
+  "result": {
+    "block": "minecraft:waxed_weathered_lightning_rod"
+  }
+}

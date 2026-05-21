@@ -4,12 +4,12 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
-import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
+import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -20,7 +20,6 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -30,8 +29,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +65,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
-    public static AABB getAABB(BlockPos pos) {
+    public static @Nullable AABB getAABB(BlockPos pos) {
         return ACCELERATION_AABB_MAP.get(pos);
     }
 
@@ -132,10 +131,12 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         BlockState state = getBlockState();
         if (this.level.isClientSide()) {
             if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
-            if (isWork()) {
-                addSelfToMap();
-                accelerate();
-            } else removeSelfFromMap();
+            if (this.isWork()) {
+                this.addSelfToMap();
+                this.accelerate();
+            } else {
+                this.removeSelfFromMap();
+            }
         }
         if (this.grid == null) return;
         if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
@@ -145,15 +146,15 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         } else if (!this.grid.isWorking() && !state.getValue(AccelerationRingBlock.OVERLOAD)) {
             block.updateState(this.level, getBlockPos(), AccelerationRingBlock.OVERLOAD, true, 3);
         }
-        if (!isWork()) {
-            removeSelfFromMap();
+        if (!this.isWork()) {
+            this.removeSelfFromMap();
             return;
         }
-        addSelfToMap();
+        this.addSelfToMap();
         if (state.getValue(AccelerationRingBlock.FACING).equals(Direction.UP)) {
-            attractGianAnvil();
+            this.attractGianAnvil();
         }
-        accelerate();
+        this.accelerate();
     }
 
     public void accelerate() {
@@ -209,7 +210,6 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
         assert this.level != null;
         if (
@@ -291,7 +291,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
                     .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
             );
         }
-        fallingGiantAnvilEntity.ifPresent(Entity::kill);
+        fallingGiantAnvilEntity.ifPresent(FallingGiantAnvilEntity::discard);
     }
 
     @Override
@@ -302,6 +302,6 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
     @Override
     public void setRemoved() {
         super.setRemoved();
-        removeSelfFromMap();
+        this.removeSelfFromMap();
     }
 }

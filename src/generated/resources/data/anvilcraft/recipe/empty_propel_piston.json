@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "A": "anvilcraft:ionocraft",
+    "B": "anvilcraft:capacitor_empty",
+    "C": "minecraft:iron_ingot",
+    "D": "minecraft:piston",
+    "E": "anvilcraft:ruby"
+  },
+  "pattern": [
+    "CDC",
+    "ABA",
+    "AEA"
+  ],
+  "result": {
+    "id": "anvilcraft:propel_piston"
+  }
+}

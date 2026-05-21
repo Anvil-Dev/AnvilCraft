@@ -1,11 +1,9 @@
 package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.util.PacketDistributingHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -13,17 +11,23 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Set;
 
 public class CauldronOutletEntity extends Entity {
     private static final EntityDataAccessor<BlockPos> DATA_CAULDRON_POS = SynchedEntityData.defineId(
@@ -67,7 +71,7 @@ public class CauldronOutletEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             BlockState currentState = this.level().getBlockState(this.getCauldronPos());
 
             // 0. 防止滑步
@@ -76,7 +80,7 @@ public class CauldronOutletEntity extends Entity {
                 BlockState targetState = this.level().getBlockState(this.targetPos);
 
                 if (targetState.is(BlockTags.CAULDRONS)) { // A：目标已经变成了炼药锅 -> 移动结束，落地
-                    moveToBlock(this.targetPos, targetState);
+                    this.moveToBlock(this.targetPos, targetState);
                     // 落地瞬间暂不处理物品
                     return;
                 } else if (targetState.is(Blocks.MOVING_PISTON)) { // B：目标还是移动活塞 -> 正在动画中，原地等待
@@ -92,12 +96,12 @@ public class CauldronOutletEntity extends Entity {
             if (currentState.is(Blocks.MOVING_PISTON)) {
                 BlockEntity be = this.level().getBlockEntity(this.getCauldronPos());
                 if (be instanceof PistonMovingBlockEntity pistonBe) {
-                    Direction moveDir = getMovementDirection(pistonBe);
+                    Direction moveDir = this.getMovementDirection(pistonBe);
 
                     if (pistonBe.isSourcePiston()) {
                         // A：我是源头。炼药锅正在离我而去 -> 立即追过去
                         BlockPos destPos = this.getCauldronPos().relative(moveDir);
-                        manualMove(destPos);
+                        this.manualMove(destPos);
                         return;
                     } else {
                         // B：我是目的地。说明有方块正在推入这里 -> 检查是不是连环推
@@ -108,16 +112,19 @@ public class CauldronOutletEntity extends Entity {
                         if (nextState.is(Blocks.MOVING_PISTON)) {
                             BlockEntity nextBe = this.level().getBlockEntity(nextPos);
                             // 检查链条一致性
-                            if (nextBe instanceof PistonMovingBlockEntity nextPistonBe && nextPistonBe.getMovedState()
-                                .is(BlockTags.CAULDRONS) && !nextPistonBe.isSourcePiston() && getMovementDirection(nextPistonBe).equals(
-                                moveDir)) {
+                            if (
+                                nextBe instanceof PistonMovingBlockEntity nextPistonBe
+                                && nextPistonBe.getMovedState().is(BlockTags.CAULDRONS)
+                                && !nextPistonBe.isSourcePiston()
+                                && this.getMovementDirection(nextPistonBe).equals(moveDir)
+                            ) {
                                 isChainPush = true;
                             }
                         }
 
                         if (isChainPush) {
                             // 确认是连环推 -> 移动到下一格
-                            manualMove(nextPos);
+                            this.manualMove(nextPos);
                         } else {
                             // 只是普通的被推入，原地等待变回实体
                             this.wasMoving = true;
@@ -140,12 +147,12 @@ public class CauldronOutletEntity extends Entity {
                     if (neighborState.is(Blocks.MOVING_PISTON)) {
                         BlockEntity be = this.level().getBlockEntity(neighborPos);
                         if (be instanceof PistonMovingBlockEntity pistonBe && !pistonBe.isSourcePiston()) {
-                            Direction moveDir = getMovementDirection(pistonBe);
+                            Direction moveDir = this.getMovementDirection(pistonBe);
                             BlockPos originPos = neighborPos.relative(moveDir.getOpposite());
 
                             if (originPos.equals(this.getCauldronPos())) {
                                 // 发现拉取 -> 锁定目标到邻居
-                                manualMove(neighborPos);
+                                this.manualMove(neighborPos);
                                 foundPullingPiston = true;
                                 break;
                             }
@@ -168,7 +175,7 @@ public class CauldronOutletEntity extends Entity {
             } else {
                 if (!this.wasMoving && this.targetPos == null) {
                     // 如果不在移动状态且没有目标位置，则销毁实体
-                    this.kill();
+                    this.discard();
                 }
                 return;
             }
@@ -193,12 +200,20 @@ public class CauldronOutletEntity extends Entity {
                 attachedDirection.getStepY() * 0.1,
                 attachedDirection.getStepZ() * 0.1
             );
-            entity.moveTo(ejectPos);
+            entity.moveOrInterpolateTo(ejectPos);
             entity.setDeltaMovement(motion);
             entity.anvilcraft$setIsAdsorbable(true);
-            if (!this.level().isClientSide && this.level() instanceof ServerLevel serverLevel) {
-                serverLevel.getChunkSource().broadcast(entity, new ClientboundTeleportEntityPacket(entity));
-                serverLevel.getChunkSource().broadcast(entity, new ClientboundSetEntityMotionPacket(entity));
+            if (!this.level().isClientSide() && this.level() instanceof ServerLevel) {
+                PacketDistributingHelper.sendToPlayersTrackingEntity(
+                    entity,
+                    new ClientboundTeleportEntityPacket(
+                        entity.getId(),
+                        PositionMoveRotation.of(this),
+                        Set.of(),
+                        false
+                    )
+                );
+                PacketDistributingHelper.sendToPlayersTrackingEntity(entity, new ClientboundSetEntityMotionPacket(entity));
             }
         });
     }
@@ -206,7 +221,7 @@ public class CauldronOutletEntity extends Entity {
     // 辅助方法：统一处理移动和锁定
     private void manualMove(BlockPos destPos) {
         // 更新物理位置
-        moveToBlock(destPos, this.level().getBlockState(destPos));
+        this.moveToBlock(destPos, this.level().getBlockState(destPos));
         // 设置状态
         this.wasMoving = true;
         // 锁定目标
@@ -244,6 +259,11 @@ public class CauldronOutletEntity extends Entity {
     }
 
     @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        return false;
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_CAULDRON_POS, BlockPos.ZERO)
             .define(DATA_ATTACHED_DIRECTION, Direction.UP)
@@ -275,23 +295,22 @@ public class CauldronOutletEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compoundTag) {
-        this.setCauldronPos(NbtUtils.readBlockPos(compoundTag, "CauldronPos").orElse(BlockPos.ZERO));
-        this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getInt("AttachedDirection")));
-        this.setCauldronState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK),
-            compoundTag.getCompound("CauldronState")));
+    protected void readAdditionalSaveData(ValueInput compoundTag) {
+        this.setCauldronPos(compoundTag.read("cauldron_pos", BlockPos.CODEC).orElse(BlockPos.ZERO));
+        this.setAttachedDirection(Direction.from3DDataValue(compoundTag.getIntOr("attached_direction", 0)));
+        this.setCauldronState(compoundTag.read("cauldron_state", BlockState.CODEC).orElse(Blocks.AIR.defaultBlockState()));
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compoundTag) {
-        compoundTag.put("CauldronState", NbtUtils.writeBlockState(this.getCauldronState()));
-        compoundTag.put("CauldronPos", NbtUtils.writeBlockPos(this.getCauldronPos()));
-        compoundTag.putInt("AttachedDirection", this.getAttachedDirection().get3DDataValue());
+    protected void addAdditionalSaveData(ValueOutput compoundTag) {
+        compoundTag.store("cauldron_state", BlockState.CODEC, this.getCauldronState());
+        compoundTag.store("cauldron_pos", BlockPos.CODEC, this.getCauldronPos());
+        compoundTag.putInt("attached_direction", this.getAttachedDirection().get3DDataValue());
     }
 
     @Override
-    protected AABB makeBoundingBox() {
-        return EntityDimensions.scalable(0.375f, 0.375f).makeBoundingBox(this.position());
+    protected AABB makeBoundingBox(Vec3 position) {
+        return EntityDimensions.scalable(0.375F, 0.375F).makeBoundingBox(position);
     }
 
     @Override

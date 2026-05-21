@@ -4,11 +4,8 @@
   "cookingtime": 200,
   "experience": 1.0,
   "group": "anvilcraft:lead_ingot",
-  "ingredient": {
-    "item": "anvilcraft:raw_lead"
-  },
+  "ingredient": "anvilcraft:raw_lead",
   "result": {
-    "count": 1,
     "id": "anvilcraft:lead_ingot"
   }
 }

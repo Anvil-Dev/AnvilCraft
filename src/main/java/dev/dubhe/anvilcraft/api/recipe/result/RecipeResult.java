@@ -6,8 +6,6 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.codec.CodecUtil;
-import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.ApplyData;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.ChangeDataType;
@@ -23,17 +21,18 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 
-public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modifiers) {
+public record RecipeResult(ItemStackTemplate result, @Unmodifiable List<IResultModifier> modifiers) {
     public static final MapCodec<RecipeResult> DIRECT_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        CodecUtil.ITEM
+        ItemStackTemplate.CODEC
             .fieldOf("result")
             .forGetter(RecipeResult::result),
         IResultModifier.CODEC
@@ -41,13 +40,13 @@ public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modi
             .optionalFieldOf("modifiers", List.of())
             .forGetter(RecipeResult::modifiers)
     ).apply(ins, RecipeResult::new));
-    public static final Codec<RecipeResult> INLINE_CODEC = CodecUtil.ITEM.xmap(RecipeResult::new, RecipeResult::result);
+    public static final Codec<RecipeResult> INLINE_CODEC = ItemStackTemplate.CODEC.xmap(RecipeResult::new, RecipeResult::result);
     public static final Codec<RecipeResult> CODEC = Codec.either(RecipeResult.DIRECT_CODEC.codec(), RecipeResult.INLINE_CODEC).xmap(
         Either::unwrap,
         result -> result.modifiers.isEmpty() ? Either.right(result) : Either.left(result)
     );
     public static final MapCodec<List<RecipeResult>> LIST_DIRECT_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        CodecUtil.ITEM
+        ItemStackTemplate.CODEC
             .listOf()
             .fieldOf("items")
             .forGetter(items -> Lists.transform(items, RecipeResult::result)),
@@ -55,7 +54,7 @@ public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modi
             .listOf()
             .optionalFieldOf("modifiers", List.of())
             .forGetter(items -> items.getFirst().modifiers())
-    ).apply(ins, (items, modifiers) -> Lists.transform(items, item -> new RecipeResult(item, modifiers))));
+    ).apply(ins, RecipeResult::constructFromList));
     public static final Codec<List<RecipeResult>> LIST_CODEC = Codec
         .either(RecipeResult.LIST_DIRECT_CODEC.codec(), RecipeResult.CODEC.listOf())
         .xmap(
@@ -71,27 +70,26 @@ public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modi
             }
         );
     public static final StreamCodec<RegistryFriendlyByteBuf, RecipeResult> STREAM_CODEC = StreamCodec.composite(
-        StreamCodecUtil.ITEM,
+        ItemStackTemplate.STREAM_CODEC,
         RecipeResult::result,
         IResultModifier.STREAM_CODEC.apply(ByteBufCodecs.list()),
         RecipeResult::modifiers,
         RecipeResult::new
     );
 
-    public RecipeResult(Item result) {
+    public RecipeResult(ItemStackTemplate result) {
         this(result, List.of());
     }
 
     public RecipeResult(Item result, List<IResultModifier> modifiers) {
-        this.result = result;
-        this.modifiers = modifiers;
+        this(new ItemStackTemplate(result), modifiers);
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static RecipeResult.Builder simple(ItemLike result) {
+    public static Builder simple(ItemLike result) {
         return RecipeResult.builder().result(result.asItem());
     }
 
@@ -182,7 +180,7 @@ public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modi
             return this;
         }
 
-        public Builder removeAttribute(ResourceLocation... attrs) {
+        public Builder removeAttribute(Identifier... attrs) {
             return this.removeAttribute(RemoveAttribute.removeAttr(attrs));
         }
 
@@ -198,5 +196,9 @@ public record RecipeResult(Item result, @Unmodifiable List<IResultModifier> modi
         public RecipeResult build() {
             return new RecipeResult(this.result, this.modifiers.build());
         }
+    }
+
+    private static List<RecipeResult> constructFromList(List<ItemStackTemplate> items, List<IResultModifier> modifiers) {
+        return Lists.transform(items, item -> new RecipeResult(item, modifiers));
     }
 }

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -19,17 +20,17 @@ import java.util.List;
 public class BeaconConversionBehavior implements IAnvilBehavior {
     private static final Int2DoubleOpenHashMap map = new Int2DoubleOpenHashMap() {
         {
-            put(1, 0.02f);
-            put(2, 0.05f);
-            put(3, 0.2f);
-            put(4, 1f);
+            put(1, 0.02F);
+            put(2, 0.05F);
+            put(3, 0.2F);
+            put(4, 1F);
         }
     };
 
     @Override
-    public boolean handle(Level level, BlockPos hitBlockPos, BlockState hitBlockState, float fallDistance, AnvilEvent.OnLand event) {
+    public boolean handle(ServerLevel level, BlockPos hitBlockPos, BlockState hitBlockState, double fallDistance, AnvilEvent.OnLand event) {
         BlockPos above = hitBlockPos.above();
-        int beaconLevel = getBeaconLevel(level, hitBlockPos);
+        int beaconLevel = this.getBeaconLevel(level, hitBlockPos);
         final List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, new AABB(above));
         BlockEntity blockEntity = level.getBlockEntity(hitBlockPos);
         if (!(blockEntity instanceof BeaconBlockEntity beaconBlockEntity)) {
@@ -49,7 +50,7 @@ public class BeaconConversionBehavior implements IAnvilBehavior {
                 itemEntity.setItem(stack);
                 for (int i = 1; i <= 4; i++) {
                     if (beaconLevel == i) {
-                        if (level.random.nextDouble() < map.get(i)) {
+                        if (level.getRandom().nextDouble() < map.get(i)) {
                             level.setBlockAndUpdate(hitBlockPos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
                             return true;
                         }

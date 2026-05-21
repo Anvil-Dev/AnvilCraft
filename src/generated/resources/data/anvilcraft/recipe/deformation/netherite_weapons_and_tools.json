@@ -1,10 +1,26 @@
 {
   "type": "anvilcraft:deformation",
   "inputs": [
-    "minecraft:netherite_sword",
-    "minecraft:netherite_axe",
-    "minecraft:netherite_pickaxe",
-    "minecraft:netherite_shovel",
-    "minecraft:netherite_hoe"
-  ]
+    {
+      "id": "minecraft:netherite_sword"
+    },
+    {
+      "id": "minecraft:netherite_axe"
+    },
+    {
+      "id": "minecraft:netherite_pickaxe"
+    },
+    {
+      "id": "minecraft:netherite_shovel"
+    },
+    {
+      "id": "minecraft:netherite_hoe"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:deformation_smithing_template"
+  }
 }

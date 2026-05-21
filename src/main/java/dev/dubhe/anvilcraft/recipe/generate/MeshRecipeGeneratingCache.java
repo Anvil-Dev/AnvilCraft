@@ -10,8 +10,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -37,7 +37,7 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
         Table<String, Item, List<Item>> treeIdAndLeavesAndSaplings = HashBasedTable.create();
         for (Holder<Item> holder : registries.lookupOrThrow(Registries.ITEM).listElements().toList()) {
             if (holder.value() instanceof BlockItem blockItem && blockItem.getBlock() instanceof LeavesBlock block) {
-                ResourceLocation leavesId = BuiltInRegistries.ITEM.getKey(blockItem);
+                Identifier leavesId = BuiltInRegistries.ITEM.getKey(blockItem);
                 logger.debug(
                     "Add a leaves block {} for generating mesh recipes", leavesId);
                 treeIdAndLeavesAndSaplings.put(getTreeId(block, leavesId), blockItem, new ArrayList<>());
@@ -48,7 +48,7 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
                 holder.value() instanceof BlockItem blockItem
                 && (blockItem.getBlock() instanceof SaplingBlock || blockItem.getBlock() instanceof AzaleaBlock)
             ) {
-                ResourceLocation saplingId = BuiltInRegistries.ITEM.getKey(blockItem);
+                Identifier saplingId = BuiltInRegistries.ITEM.getKey(blockItem);
                 logger.debug(
                     "Add a sapling {} for generating mesh recipes", saplingId);
                 String treeId = getTreeId(blockItem.getBlock(), saplingId);
@@ -76,19 +76,19 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
             if (leavesKey.isEmpty()) continue;
             MeshRecipe.Builder recipeBuilder = MeshRecipe.builder()
                 .requires(leaves)
-                .result(leaves.getDefaultInstance(), 0.5f);
+                .result(leaves, 0.5F);
             for (Item sapling : this.leavesAndSaplings.get(leaves)) {
-                recipeBuilder.result(sapling.getDefaultInstance(), 0.2f);
+                recipeBuilder.result(sapling, 0.2F);
             }
-            ResourceLocation leavesId = leavesKey.get().location();
-            ResourceLocation newId = AnvilCraft.of("mesh/generated/%s".formatted(leavesId.toString().replace(':', '_')));
-            recipeHolders.add(new RecipeHolder<>(newId, recipeBuilder.buildRecipe()));
+            Identifier leavesId = leavesKey.get().identifier();
+            Identifier newId = AnvilCraft.of("mesh/generated/%s".formatted(leavesId.toString().replace(':', '_')));
+            recipeHolders.add(new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, newId), recipeBuilder.buildRecipe()));
         }
 
         return Optional.of(recipeHolders);
     }
 
-    private static String getTreeId(Block source, ResourceLocation idFull) {
+    private static String getTreeId(Block source, Identifier idFull) {
         int lastUnderscore = idFull.getPath().trim().lastIndexOf('_');
         if (lastUnderscore == -1 || (source instanceof BushBlock && !idFull.getPath().contains("sapling"))) return idFull.getPath();
         return idFull.getPath().trim().substring(0, lastUnderscore);

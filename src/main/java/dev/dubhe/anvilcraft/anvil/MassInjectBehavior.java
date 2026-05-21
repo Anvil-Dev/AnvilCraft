@@ -7,11 +7,11 @@ import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -22,22 +22,22 @@ import java.util.Optional;
 public class MassInjectBehavior implements IAnvilBehavior {
     @Override
     public boolean handle(
-        Level level,
+        ServerLevel level,
         BlockPos hitBlockPos,
         BlockState hitBlockState,
-        float fallDistance,
+        double fallDistance,
         AnvilEvent.OnLand event
     ) {
         BlockEntity blockEntity = level.getBlockEntity(hitBlockPos);
         if (!(blockEntity instanceof SpaceOvercompressorBlockEntity compressor)) return false;
         int remainingProcessCount = AnvilLibRecipe.CONFIG.inWorldRecipeMaxEfficiency;
         long totalMassConsumed = 0L;
-        RecipeManager manager = level.getRecipeManager();
+        RecipeManager manager = level.recipeAccess();
         List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class,
             new AABB(hitBlockPos.above()),
             i -> !i.getItem().isEmpty());
         for (ItemEntity itemEntity : itemEntities) {
-            Optional<MassInjectRecipe> opt = manager.getRecipeFor(ModRecipeTypes.MASS_INJECT_TYPE.get(),
+            Optional<MassInjectRecipe> opt = manager.getRecipeFor(ModRecipeTypes.MASS_INJECT.get(),
                     new SingleRecipeInput(itemEntity.getItem()),
                     level)
                 .map(RecipeHolder::value);

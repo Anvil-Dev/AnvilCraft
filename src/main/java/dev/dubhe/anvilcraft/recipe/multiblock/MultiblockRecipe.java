@@ -5,45 +5,61 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
 import lombok.Getter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
+    private static final MapCodec<MultiblockRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+        BlockPattern.CODEC
+            .fieldOf("pattern")
+            .forGetter(MultiblockRecipe::getPattern),
+        ItemStackTemplate.CODEC
+            .fieldOf("result")
+            .forGetter(MultiblockRecipe::getResult)
+    ).apply(ins, MultiblockRecipe::new));
+    private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> STREAM_CODEC = StreamCodec.composite(
+        BlockPattern.STREAM_CODEC,
+        MultiblockRecipe::getPattern,
+        ItemStackTemplate.STREAM_CODEC,
+        MultiblockRecipe::getResult,
+        MultiblockRecipe::new
+    );
+    public static final RecipeSerializer<MultiblockRecipe> SERIALIZER = new RecipeSerializer<>(
+        MultiblockRecipe.CODEC,
+        MultiblockRecipe.STREAM_CODEC
+    );
     public final BlockPattern pattern;
-    public final ItemStack result;
+    public final ItemStackTemplate result;
+    private @Nullable PlacementInfo placementInfo;
 
-    public MultiblockRecipe(BlockPattern pattern, ItemStack result) {
+    public MultiblockRecipe(BlockPattern pattern, ItemStackTemplate result) {
         this.pattern = pattern;
         this.result = result;
     }
 
-    @Contract(" -> new")
     public static MultiblockBuilder builder() {
         return new MultiblockBuilder();
     }
 
-    @Contract(" _, _ -> new")
     public static MultiblockBuilder builder(ItemLike item, int count) {
         return new MultiblockBuilder(item, count);
-    }
-
-    public static MultiblockBuilder builder(String item, int count) {
-        return builder(BuiltInRegistries.ITEM.get(ResourceLocation.parse(item)), count);
     }
 
     public static MultiblockBuilder builder(ItemLike item) {
@@ -51,29 +67,33 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return ModRecipeTypes.MULTIBLOCK_TYPE.get();
+    public RecipeType<MultiblockRecipe> getType() {
+        return ModRecipeTypes.MULTIBLOCK.get();
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.MULTIBLOCK_SERIALIZER.get();
+    public PlacementInfo placementInfo() {
+        if (this.placementInfo == null) {
+            this.placementInfo = PlacementInfo.createFromOptionals(List.of());
+        }
+        return this.placementInfo;
     }
 
     @Override
-    public boolean canCraftInDimensions(int i, int i1) {
-        return true;
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return result;
+    public RecipeSerializer<MultiblockRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean matches(MultiblockInput input, Level level) {
         int size = input.size();
-        if (pattern.getLayers().size() != size) {
+        if (this.pattern.getLayers().size() != size) {
             return false;
         }
         // 无旋转
@@ -81,7 +101,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(input.getBlockState(x, y, z))) {
+                    if (!this.pattern.getPredicate(x, y, z).test(input.getBlockState(x, y, z))) {
                         flag = false;
                     }
                 }
@@ -95,7 +115,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(
+                    if (!this.pattern.getPredicate(x, y, z).test(
                         input.getBlockState(z, y, size - 1 - x).rotate(Rotation.CLOCKWISE_90))) {
                         flag = false;
                     }
@@ -110,7 +130,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(
+                    if (!this.pattern.getPredicate(x, y, z).test(
                         input.getBlockState(size - 1 - x, y, size - 1 - z).rotate(Rotation.CLOCKWISE_180))) {
                         flag = false;
                     }
@@ -125,7 +145,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
         for (int x = 0; x < size && flag; x++) {
             for (int y = 0; y < size && flag; y++) {
                 for (int z = 0; z < size && flag; z++) {
-                    if (!pattern.getPredicate(x, y, z).test(
+                    if (!this.pattern.getPredicate(x, y, z).test(
                         input.getBlockState(size - 1 - z, y, x).rotate(Rotation.COUNTERCLOCKWISE_90))) {
                         flag = false;
                     }
@@ -141,9 +161,19 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     }
 
     @Override
+    public boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    public String group() {
+        return "";
+    }
+
+    @Override
     public String toDatagen() {
         StringBuilder codeBuilder = new StringBuilder("MultiblockRecipe.builder(\"%s\", %d)"
-            .formatted(BuiltInRegistries.ITEM.getKey(result.getItem()), result.getCount()));
+            .formatted(BuiltInRegistries.ITEM.getKey(this.result.item().value()), this.result.count()));
         codeBuilder.append("\n");
 
         for (List<String> layer : this.pattern.getLayers()) {
@@ -186,37 +216,15 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
 
     @Override
     public String getSuggestedName() {
-        return BuiltInRegistries.ITEM.getKey(this.result.getItem()).getPath();
+        return BuiltInRegistries.ITEM.getKey(this.result.item().value()).getPath();
     }
 
     @Override
-    public ItemStack assemble(MultiblockInput input, HolderLookup.Provider provider) {
+    public ItemStack assemble(MultiblockInput input) {
         return ItemStack.EMPTY;
     }
 
-    public static class Serializer implements RecipeSerializer<MultiblockRecipe> {
-
-        private static final MapCodec<MultiblockRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-                BlockPattern.CODEC.fieldOf("pattern").forGetter(MultiblockRecipe::getPattern),
-                ItemStack.CODEC.fieldOf("result").forGetter(MultiblockRecipe::getResult))
-            .apply(ins, MultiblockRecipe::new));
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> STREAM_CODEC =
-            StreamCodec.composite(
-                BlockPattern.STREAM_CODEC,
-                MultiblockRecipe::getPattern,
-                ItemStack.STREAM_CODEC,
-                MultiblockRecipe::getResult,
-                MultiblockRecipe::new);
-
-        @Override
-        public MapCodec<MultiblockRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+    public static RecipeSerializer<MultiblockRecipe> serializer() {
+        return new RecipeSerializer<>(MultiblockRecipe.CODEC, MultiblockRecipe.STREAM_CODEC);
     }
 }

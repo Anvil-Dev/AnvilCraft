@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 
 public class RecipeHandler {
     public static void init(RegistrumRecipeProvider provider) {
@@ -32,8 +32,6 @@ public class RecipeHandler {
         ChargerChargingRecipeLoader.init(provider);
         AnvilCollisionCraftRecipeLoader.init(provider);
         MultipleToOneSmithingRecipeLoader.init(provider);
-        CoolingRecipeLoader.init(provider);
-        PillRecipeLoader.init(provider);
         PermutationRecipeLoader.init(provider);
         DeformationRecipeLoader.init(provider);
         EnergyWeaponMakeRecipeLoader.init(provider);

@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.state;
 import lombok.Getter;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 

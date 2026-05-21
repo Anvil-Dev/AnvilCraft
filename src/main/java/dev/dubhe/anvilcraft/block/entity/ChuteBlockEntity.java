@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.block.ChuteBlock;
+import dev.dubhe.anvilcraft.api.block.entity.IExtensibleBlockEntity;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.logistics.chute.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import lombok.Getter;
@@ -14,11 +17,11 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import org.jspecify.annotations.Nullable;
 
 @Getter
-public class ChuteBlockEntity extends BaseChuteBlockEntity {
+public class ChuteBlockEntity extends BaseChuteBlockEntity implements IExtensibleBlockEntity<SimpleChuteBlockEntity> {
     protected ChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -34,7 +37,7 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
     }
 
     @Override
-    protected DirectionProperty getFacingProperty() {
+    protected EnumProperty<Direction> getFacingProperty() {
         return ChuteBlock.FACING;
     }
 
@@ -57,9 +60,6 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
         return new ChuteBlockEntity(type, pos, blockState);
     }
 
-    public static void onBlockEntityRegister(BlockEntityType<ChuteBlockEntity> type) {
-    }
-
     @Override
     public Component getDisplayName() {
         return Component.translatable("block.anvilcraft.chute");
@@ -70,5 +70,21 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity {
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
         return new ChuteMenu(ModMenuTypes.CHUTE.get(), i, inventory, this);
+    }
+
+    @Override
+    public BlockEntityType<SimpleChuteBlockEntity> getThatType() {
+        return ModBlockEntities.SIMPLE_CHUTE.get();
+    }
+
+    @Override
+    public void extend(SimpleChuteBlockEntity newBe) {
+        ItemHandlerUtil.exportToTarget(this.getItemHandler(), 64, (_, _) -> true, newBe.getItemHandler());
+        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), newBe.getLevel(), newBe.getBlockPos().getCenter());
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.getLevel(), pos.getCenter());
     }
 }

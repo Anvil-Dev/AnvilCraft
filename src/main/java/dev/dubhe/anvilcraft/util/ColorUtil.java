@@ -2,15 +2,17 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.util.FastColor;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ColorUtil {
     public static float [] rgbToHsv(int r, int g, int b) {
-        float normR = r / 255.0f;
-        float normG = g / 255.0f;
-        float normB = b / 255.0f;
+        float normR = r / 255.0F;
+        float normG = g / 255.0F;
+        float normB = b / 255.0F;
 
         float maxC = Math.max(normR, Math.max(normG, normB));
         float minC = Math.min(normR, Math.min(normG, normB));
@@ -86,17 +88,31 @@ public class ColorUtil {
     }
 
     public static int lerpColor(float ratio, int from, int to) {
-        int r1 = FastColor.ARGB32.red(from);
-        int g1 = FastColor.ARGB32.green(from);
-        int b1 = FastColor.ARGB32.blue(from);
-        int r2 = FastColor.ARGB32.red(to);
-        int g2 = FastColor.ARGB32.green(to);
-        int b2 = FastColor.ARGB32.blue(to);
-        return FastColor.ARGB32.color(
+        int r1 = ARGB.red(from);
+        int g1 = ARGB.green(from);
+        int b1 = ARGB.blue(from);
+        int r2 = ARGB.red(to);
+        int g2 = ARGB.green(to);
+        int b2 = ARGB.blue(to);
+        return ARGB.color(
             255,
             (int) Mth.lerp(ratio, r1, r2),
             (int) Mth.lerp(ratio, g1, g2),
             (int) Mth.lerp(ratio, b1, b2)
         );
+    }
+
+    /// copied from ae2
+    public static int colorFromRatio(double ratio, boolean oneIsGreen) {
+        double p = ratio;
+
+        if (!oneIsGreen) {
+            p = 1 - p;
+        }
+
+        int r = (int) (255d * (Math.clamp(2 - 2 * p, 0, 1)));
+        int g = (int) (255d * (Math.clamp(2 * p, 0, 1)));
+
+        return 0xFF000000 + (r << 16) + (g << 8);
     }
 }

@@ -29,8 +29,8 @@ public abstract class PiglinMixin extends AbstractPiglin {
         method = "holdInOffHand",
         at = @At(value = "HEAD")
     )
-    private void startCursedZombification(ItemStack stack, CallbackInfo ci) {
-        if (!(stack.getItem() instanceof ICursed)) return;
+    private void startCursedZombification(ItemStack itemStack, CallbackInfo ci) {
+        if (!(itemStack.getItem() instanceof ICursed)) return;
         this.timeInOverworld = CONVERSION_TIME - this.level().getRandom().nextIntBetweenInclusive(
             MIN_CURSED_ZOMBIFICATION_TIME, MAX_CURSED_ZOMBIFICATION_TIME);
         this.setData(ModDataAttachments.ZOMBIFICATED_BY_CURSE, true);

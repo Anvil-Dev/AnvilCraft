@@ -3,11 +3,11 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -18,8 +18,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -34,11 +32,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -112,8 +112,8 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         if (!(level instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
-            new ChunkPos(getBlockPos()),
-            new DeflectionRingUpdateLastSpeedPacket(getBlockPos(), lastEntitySpeed)
+            ChunkPos.containing(getBlockPos()),
+            new DeflectionRingUpdateLastSpeedPacket(getBlockPos(), this.lastEntitySpeed)
         );
     }
 
@@ -123,17 +123,17 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putDouble("lastEntitySpeed", lastEntitySpeed);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putDouble("lastEntitySpeed", this.lastEntitySpeed);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        if (tag.contains("lastEntitySpeed")) {
-            this.lastEntitySpeed = tag.getDouble("entity");
+    public void loadAdditional(ValueInput input) {
+        if (input.child("lastEntitySpeed").isPresent()) {
+            this.lastEntitySpeed = input.getDoubleOr("entity", 0.0);
         }
-        super.loadAdditional(tag, provider);
+        super.loadAdditional(input);
     }
 
     @Override
@@ -168,40 +168,40 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
 
     public void tick() {
         if (level == null) return;
-        if (resetEntitySpeedTickCounter >= 40 && !level.isClientSide) updateLastEntitySpeed(0.0);
-        else resetEntitySpeedTickCounter++;
-        if (overSpeed && overSpeedTick > 1) {
-            overSpeed = false;
-            overSpeedTick = 0;
+        if (this.resetEntitySpeedTickCounter >= 40 && !level.isClientSide()) this.updateLastEntitySpeed(0.0);
+        else this.resetEntitySpeedTickCounter++;
+        if (this.overSpeed && this.overSpeedTick > 1) {
+            this.overSpeed = false;
+            this.overSpeedTick = 0;
             BlockState state = getBlockState();
             if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, state.getValue(DeflectionRingBlock.OVERLOAD), 3);
-        } else if (overSpeed) {
-            overSpeedTick++;
+        } else if (this.overSpeed) {
+            this.overSpeedTick++;
         }
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (!getBlockState().getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
-            if (isWork()) {
-                addSelfToMap();
-                accelerate();
-            } else removeSelfFromMap();
+            if (this.isWork()) {
+                this.addSelfToMap();
+                this.accelerate();
+            } else this.removeSelfFromMap();
         }
-        if (grid == null) return;
+        if (this.grid == null) return;
         BlockState state = getBlockState();
         if (!state.getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
         if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
-        if (grid.isWorking() && state.getValue(DeflectionRingBlock.OVERLOAD)) {
+        if (this.grid.isWorking() && state.getValue(DeflectionRingBlock.OVERLOAD)) {
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, false, 3);
-        } else if (!grid.isWorking() && !state.getValue(DeflectionRingBlock.OVERLOAD)) {
+        } else if (!this.grid.isWorking() && !state.getValue(DeflectionRingBlock.OVERLOAD)) {
             block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, true, 3);
         }
-        if (!isWork()) {
-            removeSelfFromMap();
+        if (!this.isWork()) {
+            this.removeSelfFromMap();
             return;
         }
-        addSelfToMap();
-        if (state.getValue(DeflectionRingBlock.FACING).getAxis().equals(Direction.Axis.Y)) attractGianAnvil();
-        accelerate();
+        this.addSelfToMap();
+        if (state.getValue(DeflectionRingBlock.FACING).getAxis().equals(Direction.Axis.Y)) this.attractGianAnvil();
+        this.accelerate();
     }
 
     private double fixPos(double p1, double p2, double p3) {
@@ -218,7 +218,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             AccelerateManager::canBeAccelerated
         );
         for (Entity entity : entities2) {
-            if (entity.getDeltaMovement().length() > Integer.MAX_VALUE * 0.99f) {
+            if (entity.getDeltaMovement().length() > Integer.MAX_VALUE * 0.99F) {
                 this.overSpeed = true;
                 BlockState state = getBlockState();
                 if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
@@ -229,34 +229,34 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             boolean applyOffset = entity instanceof FallingBlockEntity || entity instanceof Player;
             final Vec3 fixedPos = switch (facing) {
                 case UP -> new Vec3(
-                    fixPos(v.z, v.z, v.x),
+                    this.fixPos(v.z, v.z, v.x),
                     applyOffset ? -0.5 : 0,
-                    -fixPos(v.x, v.z, v.x)
+                    -this.fixPos(v.x, v.z, v.x)
                 );
                 case DOWN -> new Vec3(
-                    -fixPos(v.z, v.z, v.x),
+                    -this.fixPos(v.z, v.z, v.x),
                     applyOffset ? -0.5 : 0,
-                    fixPos(v.x, v.z, v.x)
+                    this.fixPos(v.x, v.z, v.x)
                 );
                 case NORTH -> new Vec3(
-                    fixPos(v.y, v.y, v.x),
-                    -fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
+                    this.fixPos(v.y, v.y, v.x),
+                    -this.fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
                     0
                 );
                 case SOUTH -> new Vec3(
-                    -fixPos(v.y, v.y, v.x),
-                    fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
+                    -this.fixPos(v.y, v.y, v.x),
+                    this.fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
                     0
                 );
                 case WEST -> new Vec3(
                     0,
-                    fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
-                    -fixPos(v.y, v.z, v.y)
+                    this.fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
+                    -this.fixPos(v.y, v.z, v.y)
                 );
                 case EAST -> new Vec3(
                     0,
-                    -fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
-                    fixPos(v.y, v.z, v.y)
+                    -this.fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
+                    this.fixPos(v.y, v.z, v.y)
                 );
             };
             v = switch (facing) {
@@ -296,12 +296,11 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             }
             entity.setDeltaMovement(entity.getDeltaMovement().scale(1.0204081632653061));
             entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
-            if (level.isClientSide) continue;
-            updateLastEntitySpeed(entity.getDeltaMovement().length());
+            if (level.isClientSide()) continue;
+            this.updateLastEntitySpeed(entity.getDeltaMovement().length());
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
         assert level != null;
         if (
@@ -375,7 +374,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                     .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
             );
         }
-        fallingGiantAnvilEntity.ifPresent(Entity::kill);
+        fallingGiantAnvilEntity.ifPresent(Entity::discard);
     }
 
     @Override
@@ -386,6 +385,6 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     @Override
     public void setRemoved() {
         super.setRemoved();
-        removeSelfFromMap();
+        this.removeSelfFromMap();
     }
 }

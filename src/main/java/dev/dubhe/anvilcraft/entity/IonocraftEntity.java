@@ -6,27 +6,25 @@ import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
+import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
-import static net.minecraft.world.entity.vehicle.Boat.canVehicleCollide;
 
 public class IonocraftEntity extends VehicleEntity {
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION = new DynamicPowerComponent.PowerConsumption(16);
@@ -38,14 +36,14 @@ public class IonocraftEntity extends VehicleEntity {
         this.xo = pos.x;
         this.yo = pos.y;
         this.zo = pos.z;
-        component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
-        component.getPowerConsumptions().add(CONSUMPTION);
+        this.component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
+        this.component.getPowerConsumptions().add(CONSUMPTION);
     }
 
     public IonocraftEntity(EntityType<IonocraftEntity> type, Level level) {
         super(type, level);
-        component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
-        component.getPowerConsumptions().add(CONSUMPTION);
+        this.component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
+        this.component.getPowerConsumptions().add(CONSUMPTION);
     }
 
     public AABB getPowerSupplyingBoundingBox() {
@@ -70,7 +68,7 @@ public class IonocraftEntity extends VehicleEntity {
     @Override
     public void tick() {
         this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 0.8, 0.8));
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
             PowerGrid powerGrid = PowerGrid.findPowerGridContains(level(), this.getPowerSupplyingBoundingBox()).orElse(null);
             PowerGrid findSmaller = PowerGrid.findPowerGridContains(level(), this.getBoundingBox()).orElse(null);
             this.component.switchTo(powerGrid);
@@ -86,7 +84,7 @@ public class IonocraftEntity extends VehicleEntity {
                 }
             }
         } else {
-            clientCompute();
+            this.clientCompute();
         }
         this.move(MoverType.SELF, this.getDeltaMovement());
         super.tick();
@@ -104,7 +102,7 @@ public class IonocraftEntity extends VehicleEntity {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     private Optional<SimplePowerGrid> clientFindPowerGridContains(AABB aabb) {
         Collection<SimplePowerGrid> powerGrids = PowerGridSupport.getGridMap().values();
         for (SimplePowerGrid it : powerGrids) {
@@ -115,10 +113,10 @@ public class IonocraftEntity extends VehicleEntity {
         return Optional.empty();
     }
 
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     private void clientCompute() {
-        SimplePowerGrid powerGrid = clientFindPowerGridContains(this.getPowerSupplyingBoundingBox()).orElse(null);
-        SimplePowerGrid findSmaller = clientFindPowerGridContains(this.getBoundingBox()).orElse(null);
+        SimplePowerGrid powerGrid = this.clientFindPowerGridContains(this.getPowerSupplyingBoundingBox()).orElse(null);
+        SimplePowerGrid findSmaller = this.clientFindPowerGridContains(this.getBoundingBox()).orElse(null);
         if (findSmaller == null && powerGrid != null) {
             if (powerGrid.isOverloaded()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0, -0.01, 0));
@@ -159,12 +157,12 @@ public class IonocraftEntity extends VehicleEntity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
+    protected void readAdditionalSaveData(ValueInput compound) {
 
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
+    protected void addAdditionalSaveData(ValueOutput compound) {
 
     }
 
@@ -176,12 +174,12 @@ public class IonocraftEntity extends VehicleEntity {
 
     @Override
     public boolean canCollideWith(Entity entity) {
-        return canVehicleCollide(this, entity);
+        return AbstractBoat.canVehicleCollide(this, entity);
     }
 
     @Override
-    public boolean canBeCollidedWith() {
-        return true;
+    public boolean canBeCollidedWith(@Nullable Entity other) {
+        return super.canBeCollidedWith(other);
     }
 
     @Override

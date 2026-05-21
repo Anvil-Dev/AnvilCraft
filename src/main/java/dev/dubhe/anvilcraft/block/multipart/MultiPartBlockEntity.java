@@ -4,15 +4,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface MultiPartBlockEntity<P extends Enum<P>, T extends AbstractMultiPartBlock<P>> extends EntityBlock {
     T getMultiBlock();
 
     @Override
     default @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (getMultiBlock().isMainPart(state)) {
-            return createBlockEntity(pos, state);
+        if (this.getMultiBlock().isMainPart(state)) {
+            return this.createBlockEntity(pos, state);
         }
         return null;
     }

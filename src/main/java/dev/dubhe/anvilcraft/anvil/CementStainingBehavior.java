@@ -5,10 +5,10 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 public class CementStainingBehavior implements IAnvilBehavior {
     @Override
     public boolean handle(
-        Level level,
+        ServerLevel level,
         BlockPos hitBlockPos,
         BlockState hitBlockState,
-        float fallDistance,
+        double fallDistance,
         AnvilEvent.OnLand event
     ) {
         Map<ItemEntity, ItemStack> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos)).stream()

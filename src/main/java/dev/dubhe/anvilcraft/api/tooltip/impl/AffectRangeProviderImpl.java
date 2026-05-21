@@ -19,7 +19,7 @@ public class AffectRangeProviderImpl implements IAffectRangeProvider {
         if (entity instanceof IHasAffectRange har && har.shape() instanceof AABB shape) {
             return Shapes.create(shape);
         }
-        return null;
+        return Shapes.empty();
     }
 
     @Override

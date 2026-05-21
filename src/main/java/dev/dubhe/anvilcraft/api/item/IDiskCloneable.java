@@ -1,13 +1,14 @@
 package dev.dubhe.anvilcraft.api.item;
 
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
@@ -15,9 +16,9 @@ import net.minecraft.world.phys.BlockHitResult;
  */
 public interface IDiskCloneable {
 
-    void storeDiskData(CompoundTag tag);
+    void storeDiskData(ValueOutput output);
 
-    void applyDiskData(CompoundTag data);
+    void applyDiskData(ValueInput input);
 
     /**
      * 使用磁盘物品与方块进行交互

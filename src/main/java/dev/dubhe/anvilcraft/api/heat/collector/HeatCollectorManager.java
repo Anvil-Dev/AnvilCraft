@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.heat.collector;
 
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -31,8 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static dev.dubhe.anvilcraft.api.power.PowerGrid.GRID_TICK;
-
 public class HeatCollectorManager {
     private static final Map<Level, HeatCollectorManager> INSTANCES = new HashMap<>();
     private static final List<HeatSourceEntry> SOURCE_ENTRIES = new ArrayList<>();
@@ -53,7 +52,7 @@ public class HeatCollectorManager {
         registerEntry(HeatSourceEntry.predicate(
             4,
             state -> state.getFluidState().isSourceOfType(Fluids.LAVA),
-            it -> Blocks.OBSIDIAN.defaultBlockState()
+            _ -> Blocks.OBSIDIAN.defaultBlockState()
         ));
         registerEntry(HeatSourceEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIAN_CAULDRON.get()));
 
@@ -105,9 +104,9 @@ public class HeatCollectorManager {
         AABB validRange = AABB.ofSize(pos.getCenter(), 9, 9, 9);
         for (BlockPos checkedPos : manager.heatCollectors) {
             if (validRange.contains(checkedPos.getCenter())) {
-                Optional.ofNullable(ctx.getPlayer()).ifPresent(player -> player.displayClientMessage(
+                Optional.ofNullable(ctx.getPlayer()).ifPresent(player -> player.sendOverlayMessage(
                     Component.translatable("block.anvilcraft.heat_collector.placement_too_close_to_another")
-                        .withStyle(ChatFormatting.RED), true
+                        .withStyle(ChatFormatting.RED)
                 ));
                 manager.heatCollectors.add(pos);
                 return;
@@ -125,10 +124,8 @@ public class HeatCollectorManager {
     }
 
     private void tick() {
-        if (level.isClientSide) {
-            return;
-        }
-        if (this.level.getGameTime() % GRID_TICK != 0) return;
+        if (this.level.isClientSide()) return;
+        if (this.level.getGameTime() % PowerGrid.GRID_TICK != 0) return;
         List<HeatCollectorBlockEntity> collectors = this.getCollectorsFromNWToSE();
         Map<Entry, Double2ObjectMap<HeatCollectorBlockEntity>> heatSources = new HashMap<>();
         for (HeatCollectorBlockEntity collector : collectors) {
@@ -169,7 +166,7 @@ public class HeatCollectorManager {
             BlockPos finalPos = pos;
             getEntry(state)
                 .ifPresent(entry -> {
-                    heatSourcesCache.computeIfAbsent(new Entry(finalPos, state, entry), it -> new Double2ObjectAVLTreeMap<>())
+                    heatSourcesCache.computeIfAbsent(new Entry(finalPos, state, entry), _ -> new Double2ObjectAVLTreeMap<>())
                         .put(
                             Vector3i.distance(
                                 finalPos.getX(), finalPos.getY(), finalPos.getZ(),
@@ -182,7 +179,7 @@ public class HeatCollectorManager {
         collector.setResult(HeatCollectorBlockEntity.WorkResult.SUCCESS);
         for (var entry : heatSourcesCache.entrySet()) {
             heatSources
-                .computeIfAbsent(entry.getKey(), it -> new Double2ObjectAVLTreeMap<>())
+                .computeIfAbsent(entry.getKey(), _ -> new Double2ObjectAVLTreeMap<>())
                 .putAll(entry.getValue());
         }
     }

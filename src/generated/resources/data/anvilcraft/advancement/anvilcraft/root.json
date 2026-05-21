@@ -10,7 +10,6 @@
       "translate": "advancements.anvilcraft.root.description"
     },
     "icon": {
-      "count": 1,
       "id": "anvilcraft:royal_anvil"
     },
     "show_toast": false,

@@ -2,16 +2,14 @@ package dev.dubhe.anvilcraft.api.recipe.data;
 
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.util.ISerializer;
+import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
 import dev.dubhe.anvilcraft.init.ModRegistries;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 自定义数据组件。通常为必需其它数据组件才能正常构建的数据组件。
@@ -40,22 +38,13 @@ public interface ICustomDataComponent<T> {
     Type<? extends ICustomDataComponent<?>> getType();
 
     /**
-     * 获取构建该数据组件所必需的其它已有的数据组件类型。<br><br>
-     * 由于 {@link ICustomDataComponent#make(List)} 方法强依赖于该方法返回的 {@link List} 的顺序，
-     * 返回的 {@link List} 顺序敏感。
+     * 根据上下文构建数据组件。
      *
-     * @return 一个包含所有必需的数据组件类型和其值是否可为 {@code null} 的 {@link Object2BooleanMap}
-     */
-    List<RequiredEntry> getRequired();
-
-    /**
-     * 使用所有必需的数据组件构建一个该数据组件。
-     *
-     * @param data 所有必需的数据组件。顺序由 {@link ICustomDataComponent#getRequired()} 方法中返回的 {@link List} 控制。
-     * @return 一个全新的该数据组件
+     * @param ctx 上下文
+     * @return 一个全新的数据组件
      */
     @Nullable
-    T make(List<Object> data);
+    T make(ResultContext ctx);
 
     default void applyToStack(ItemStack stack, @Nullable T value) {
         if (value == null) stack.remove(this.getDataComponentType());

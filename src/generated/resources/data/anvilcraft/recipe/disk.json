@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "A": {
-      "item": "anvilcraft:hardend_resin"
-    },
-    "B": {
-      "item": "minecraft:iron_ingot"
-    },
-    "C": {
-      "item": "anvilcraft:magnet_ingot"
-    }
+    "A": "anvilcraft:hardend_resin",
+    "B": "minecraft:iron_ingot",
+    "C": "anvilcraft:magnet_ingot"
   },
   "pattern": [
     "ABA",
@@ -18,7 +12,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:disk"
   }
 }

@@ -28,6 +28,7 @@ import net.minecraft.network.chat.Style;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+// CHECKSTYLE.SUPPRESS: AvoidStaticImport for +2 lines
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
@@ -111,9 +112,8 @@ public class MultiphaseCommand {
                         Component.literal(command).withStyle(
                             Style.EMPTY
                                 .withColor(ChatFormatting.GREEN)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
-                                .withHoverEvent(new HoverEvent(
-                                    HoverEvent.Action.SHOW_TEXT,
+                                .withClickEvent(new ClickEvent.SuggestCommand(command))
+                                .withHoverEvent(new HoverEvent.ShowText(
                                     Component.translatable("command.anvilcraft.multiphase.remove.success.hovering")
                                 ))
                         )

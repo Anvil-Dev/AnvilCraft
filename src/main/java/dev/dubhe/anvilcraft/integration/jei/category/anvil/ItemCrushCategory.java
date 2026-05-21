@@ -11,12 +11,11 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 
@@ -30,55 +29,43 @@ public class ItemCrushCategory extends AbstractProgressCategory<ItemCrushRecipe>
     }
 
     @Override
-    public RecipeType<RecipeHolder<ItemCrushRecipe>> getRecipeType() {
+    public IRecipeHolderType<ItemCrushRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.ITEM_CRUSH;
     }
 
     @Override
     public void draw(
         RecipeHolder<ItemCrushRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         final ItemCrushRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            ModBlocks.CRUSHING_TABLE.getDefaultState(),
-            81,
-            40,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, ModBlocks.CRUSHING_TABLE.getDefaultState(), 81, 40, 20);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOutputFromBelow.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(graphics, 54, 30);
+        this.arrowOutFromBelow.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
         }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.ITEM_CRUSH,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_CRUSH.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.ITEM_CRUSH);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRUSHING_TABLE), AnvilCraftJeiPlugin.ITEM_CRUSH);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.ITEM_CRUSH, ModBlocks.CRUSHING_TABLE);
     }
 }

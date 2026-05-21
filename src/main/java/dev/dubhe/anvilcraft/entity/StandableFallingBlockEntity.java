@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -97,7 +98,7 @@ public class StandableFallingBlockEntity extends FallingBlockEntity {
     }
 
     @Override
-    public boolean canBeCollidedWith() {
+    public boolean canBeCollidedWith(@Nullable Entity other) {
         return true;
     }
 
@@ -109,7 +110,7 @@ public class StandableFallingBlockEntity extends FallingBlockEntity {
 
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        return EntityDimensions.scalable(0.98f, 0.98f);
+        return EntityDimensions.scalable(0.98F, 0.98F);
     }
 
     public static boolean isFree(Level level, BlockPos pos) {

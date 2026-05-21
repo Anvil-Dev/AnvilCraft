@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.anvil.HitBeeNestBehavior;
 import dev.dubhe.anvilcraft.anvil.HitCrabTrapBehavior;
 import dev.dubhe.anvilcraft.anvil.HitSpawnerBehavior;
 import dev.dubhe.anvilcraft.anvil.ImpactPileBehavior;
-import dev.dubhe.anvilcraft.anvil.ItemStampingBehavior;
 import dev.dubhe.anvilcraft.anvil.MagnetBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.MassInjectBehavior;
 import dev.dubhe.anvilcraft.anvil.RedstoneEMPBehavior;
@@ -19,11 +18,11 @@ import dev.dubhe.anvilcraft.anvil.SugarBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
 import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
-import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
-import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
-import dev.dubhe.anvilcraft.block.CementCauldronBlock;
-import dev.dubhe.anvilcraft.block.GunpowderBlock;
-import dev.dubhe.anvilcraft.block.SugarBlock;
+import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
+import dev.dubhe.anvilcraft.block.storage.GunpowderBlock;
+import dev.dubhe.anvilcraft.block.storage.SugarBlock;
+import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
+import dev.dubhe.anvilcraft.block.utility.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
@@ -35,7 +34,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class ModAnvilBehaviors {
     @SubscribeEvent
     public static void register(AnvilBehaviorRegisterEvent event) {
-        event.registerBehavior(Blocks.REDSTONE_BLOCK, new RedstoneEMPBehavior());
+        event.registerBehavior(state -> state.is(Blocks.REDSTONE_BLOCK), new RedstoneEMPBehavior());
         event.registerBehavior(
             state -> state.is(Blocks.BEEHIVE) || state.is(Blocks.BEE_NEST),
             new HitBeeNestBehavior()
@@ -43,7 +42,6 @@ public class ModAnvilBehaviors {
         event.registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
         event.registerBehavior(ModBlocks.CRAB_TRAP.get(), new HitCrabTrapBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof CementCauldronBlock, new CementStainingBehavior());
-        event.registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         event.registerBehavior(ModBlocks.SPACE_OVERCOMPRESSOR.get(), new MassInjectBehavior());
         event.registerBehavior(state -> state.is(ModBlockTags.STORAGE_BLOCKS_LEAD), new ResetVaultBehavior());
         event.registerBehavior(
@@ -56,7 +54,7 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.getBlock() instanceof SugarBlock, new SugarBlockBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpPlayerBehavior());
         event.registerBehavior(Blocks.BEACON, new BeaconConversionBehavior());
-        event.registerBehavior(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get(), new TranscendiumBehavior());
+        event.registerBehavior(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK, new TranscendiumBehavior());
         event.registerBehavior(
             state -> state.is(ModBlocks.MAGNET_BLOCK.get()) || state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get()),
             new MagnetBlockBehavior()

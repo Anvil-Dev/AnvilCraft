@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:bronze_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:bronze_block"
-    }
+    "anvilcraft:bronze_block"
   ],
   "result": {
     "count": 9,

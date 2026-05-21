@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.ReadOnlySlot;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,13 +20,14 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +37,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     public final BatchCutterBlockEntity entity;
     private final Slot resultSlot;
     private final Level level;
-    private @Nullable List<RecipeHolder<StonecutterRecipe>> recipes;
+    private @Nullable List<RecipeHolder<StonecutterRecipe>> recipes = List.of();
 
     public BatchCutterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
@@ -58,7 +61,8 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
         this.addPlayerInventory(inventory);
         this.addPlayerHotbar(inventory);
 
-        this.addSlot(new SlotItemHandlerWithFilter(this.entity.getItemHandler(), 0, 8, 43));
+        FilteredItemStackHandler handler = this.entity.getFilteredItemStackHandler();
+        this.addSlot(new SlotItemHandlerWithFilter(handler, handler::set, 0, 8, 43));
         this.addSlot(this.resultSlot = new ReadOnlySlot(new SimpleContainer(1), 0, 152, 43));
         this.onChanged();
         this.addSlotListener(this);
@@ -108,7 +112,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (moveItemToActiveSlot(sourceStack)) {
+            if (this.moveItemToActiveSlot(sourceStack)) {
                 return ItemStack.EMPTY; // EMPTY_ITEM
             }
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
@@ -138,7 +142,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     // 移动物品到可用槽位
     private boolean moveItemToActiveSlot(ItemStack stack) {
         int count = stack.getCount();
-        if (this.canPlace(stack, BatchCutterMenu.TE_INVENTORY_FIRST_SLOT_INDEX)) {
+        if (this.canPlace(stack)) {
             this.moveItemStackTo(
                 stack,
                 BatchCutterMenu.TE_INVENTORY_FIRST_SLOT_INDEX,
@@ -150,15 +154,13 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     }
 
     // 是否可以向槽位中放入物品
-    private boolean canPlace(ItemStack stack, int index) {
-        if (this.getSlot(index) instanceof SlotItemHandlerWithFilter depositorySlot) {
+    private boolean canPlace(ItemStack stack) {
+        if (this.getSlot(BatchCutterMenu.TE_INVENTORY_FIRST_SLOT_INDEX) instanceof SlotItemHandlerWithFilter depositorySlot) {
             // 如果当前槽位被禁用，返回false
-            if (depositorySlot.isSlotDisabled(index - BatchCutterMenu.VANILLA_SLOT_COUNT)) {
-                return false;
-            }
+            if (depositorySlot.isSlotDisabled(0)) return false;
             // 当前槽位没有禁用，并且要放入的物品就是当前槽位的过滤器要过滤的物品，返回true
             // 如果未设置保留物品过滤，即所有槽位都没有被禁用，此时过滤器不会过滤任何物品，所以当前过滤器要过滤的物品为空时也应该返回true
-            ItemStack filterItem = depositorySlot.getFilterItem(index - BatchCutterMenu.VANILLA_SLOT_COUNT);
+            ItemStack filterItem = depositorySlot.getFilterItem(0);
             return filterItem.isEmpty() || filterItem.is(stack.getItem());
         }
         return true;
@@ -166,7 +168,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(level, entity.getBlockPos()), player, ModBlocks.BATCH_CUTTER.get());
+        return stillValid(ContainerLevelAccess.create(this.level, this.entity.getBlockPos()), player, ModBlocks.BATCH_CUTTER.get());
     }
 
     @Override
@@ -186,20 +188,22 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     }
 
     public void onChanged() {
-        RecipeManager manager = this.level.getRecipeManager();
-        this.recipes = manager.getRecipesFor(
-            RecipeType.STONECUTTING,
-            this.entity.createDummyInput(),
-            this.level
-        );
+        SingleRecipeInput input = this.entity.createDummyInput();
+        List<RecipeHolder<StonecutterRecipe>> list = new ArrayList<>();
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.RECIPES.byType(RecipeType.STONECUTTING)) {
+            if (holder.value().matches(input, this.level)) {
+                list.add(holder);
+            }
+        }
+        this.recipes = list;
         if (this.recipes.isEmpty()) {
             this.resultSlot.set(ItemStack.EMPTY);
         } else if (this.entity.getSelecting() >= this.recipes.size()) {
             this.entity.setSelecting(0);
-            ItemStack resultItem = this.recipes.get(this.entity.getSelecting()).value().getResultItem(this.level.registryAccess());
+            ItemStack resultItem = this.recipes.get(this.entity.getSelecting()).value().assemble(input);
             this.resultSlot.set(resultItem);
         } else {
-            ItemStack resultItem = this.recipes.get(this.entity.getSelecting()).value().getResultItem(this.level.registryAccess());
+            ItemStack resultItem = this.recipes.get(this.entity.getSelecting()).value().assemble(input);
             this.resultSlot.set(resultItem);
         }
     }

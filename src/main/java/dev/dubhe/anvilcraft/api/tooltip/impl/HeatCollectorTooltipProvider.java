@@ -37,8 +37,8 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
         if (player != null && player.isShiftKeyDown()) {
             original = true;
         }
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return null;
-        if (!(e instanceof HeatCollectorBlockEntity heatCollector)) return null;
+        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
+        if (!(e instanceof HeatCollectorBlockEntity heatCollector)) return List.of();
         if (!heatCollector.isWorking()) {
             return List.of(
                 Component.translatable("tooltip.anvilcraft.heat_collector.not_work").withStyle(ChatFormatting.RED),
@@ -48,14 +48,14 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
         boolean overloaded = false;
         BlockPos pos;
         if (e.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
-            overloaded = e.getBlockState().getValues().getOrDefault(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
+            overloaded = e.getBlockState().getValueOrElse(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
         }
         pos = e.getBlockPos();
         Optional<SimplePowerGrid> powerGrids = SimplePowerGrid.findPowerGrid(pos);
         if (powerGrids.isEmpty()) return List.of();
         SimplePowerGrid grid = powerGrids.get();
         final Optional<PowerComponentInfo> optional = grid.getInfoForPos(pos);
-        if (optional.isEmpty()) return null;
+        if (optional.isEmpty()) return List.of();
         PowerComponentInfo componentInfo = optional.get();
         overloaded |= grid.getConsume() > grid.getGenerate();
         final List<Component> lines = new ArrayList<>();

@@ -45,7 +45,7 @@ public class LevitatingBlockEntity extends FallingBlockEntity {
     @Override
     public void tick() {
         super.tick();
-        if (this.blockPosition().getY() > this.level().getMaxBuildHeight() + 64) {
+        if (this.blockPosition().getY() > this.level().getMaxY() + 64) {
             this.discard();
         }
     }

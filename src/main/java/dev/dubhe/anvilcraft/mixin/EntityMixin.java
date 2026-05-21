@@ -25,10 +25,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -39,7 +40,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
@@ -96,34 +96,34 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Override
     public boolean anvilcraft$isDeflected() {
-        return anvil$isDeflected;
+        return this.anvil$isDeflected;
     }
 
     @Override
     public Vec3 anvilcraft$getFixedDeltaMovement() {
-        return anvil$fixedDeltaMovement;
+        return this.anvil$fixedDeltaMovement;
     }
 
     @WrapOperation(
-        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(
-        value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;setPos(DDD)V", ordinal = 1
-    )
+        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;setPos(Lnet/minecraft/world/phys/Vec3;)V"
+        )
     )
     public void anvilcraft$fixFallingBlockEntity(
         Entity instance,
-        double x,
-        double y,
-        double z,
+        Vec3 pos,
         Operation<Void> original,
         @Share("isFixed") LocalBooleanRef isFixed
     ) {
         isFixed.set(false);
-        Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
+        Vec3 vec3 = new Vec3(pos.x - this.getX(), pos.y - this.getY(), pos.z - this.getZ());
         if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class, Player.class) && vec3.length() > 0.98) {
-            Vec3 s = position();
+            Vec3 s = this.position();
             Vec3 e = vec3.add(s);
             ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
-            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(level)) {
+            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(this.level)) {
                 Vec3 q = blockPos.getCenter();
                 double a = s.distanceTo(q);
                 double b = e.distanceTo(q);
@@ -136,63 +136,65 @@ public abstract class EntityMixin implements IEntityExtension {
             }
             double distance = Double.MAX_VALUE;
             BlockPos blockPos = null;
-            for (Pair<BlockPos, Double> pos : blockPosList) {
-                if (distance > pos.right()) {
-                    distance = pos.right();
-                    blockPos = pos.left();
+            for (Pair<BlockPos, Double> blockPosDoublePair : blockPosList) {
+                if (distance > blockPosDoublePair.right()) {
+                    distance = blockPosDoublePair.right();
+                    blockPos = blockPosDoublePair.left();
                 }
             }
             if (blockPos == null) {
-                anvil$isDeflected = false;
-                setPos(e);
+                this.anvil$isDeflected = false;
+                this.setPos(e);
                 return;
             }
             double a = distance / vec3.length();
 
             if (a > 1) {
-                anvil$isDeflected = false;
-                setPos(e);
+                this.anvil$isDeflected = false;
+                this.setPos(e);
                 return;
             }
-            setPos(vec3.multiply(a, a, a).add(s));
+            this.setPos(vec3.multiply(a, a, a).add(s));
             isFixed.set(true);
-            anvil$fixedDeltaMovement = vec3.multiply(a, a, a);
-            anvil$isDeflected = true;
+            this.anvil$fixedDeltaMovement = vec3.multiply(a, a, a);
+            this.anvil$isDeflected = true;
 
             return;
         }
-        anvil$isDeflected = false;
-        original.call(instance, x, y, z);
+        this.anvil$isDeflected = false;
+        original.call(instance, pos);
     }
 
     @WrapOperation(
-        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(
-        value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 0
+        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+        at = @At(
+            value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 0
+        )
     )
-    )
-    public boolean anvilcraft$cancelCollision1(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
-        return isFixed.get() || original.call(x, y);
+    public boolean anvilcraft$cancelCollision1(double a, double b, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
+        return isFixed.get() || original.call(a, b);
     }
 
     @WrapOperation(
-        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", at = @At(
-        value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 1
+        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+        at = @At(
+            value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 1
+        )
     )
-    )
-    public boolean anvilcraft$cancelCollision2(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
-        return isFixed.get() || original.call(x, y);
+    public boolean anvilcraft$cancelCollision2(double a, double b, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
+        return isFixed.get() || original.call(a, b);
     }
 
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
     public void anvilcraft$changeProjectilePosSetResult(double x, double y, double z, CallbackInfo ci) {
         if (!Util.instanceOfAny(this, Projectile.class)) return;
-        Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
-        if (vec3.add(getDeltaMovement().scale(-1)).length() > 0.5) return;
+        Vec3 vec3 = new Vec3(x - this.getX(), y - this.getY(), z - this.getZ());
+        if (vec3.add(this.getDeltaMovement().scale(-1)).length() > 0.5) return;
         if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class) && vec3.length() > 0.98) {
-            Vec3 s = position();
+            Vec3 s = this.position();
             Vec3 e = vec3.add(s);
             ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
-            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(level)) {
+            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(this.level)) {
                 Vec3 q = blockPos.getCenter();
                 double a = s.distanceTo(q);
                 double b = e.distanceTo(q);
@@ -216,16 +218,16 @@ public abstract class EntityMixin implements IEntityExtension {
 
             if (a > 1) return;
             Vec3 pos = vec3.multiply(a, a, a).add(s);
-            setPosRaw(pos.x, pos.y, pos.z);
-            setBoundingBox(makeBoundingBox());
+            this.setPosRaw(pos.x, pos.y, pos.z);
+            this.setBoundingBox(this.makeBoundingBox());
             ci.cancel();
         }
     }
 
     @Inject(method = "move", at = @At("HEAD"))
     public void anvil$recordMovement(
-        MoverType type,
-        Vec3 pos,
+        MoverType moverType,
+        Vec3 delta,
         CallbackInfo ci,
         @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement
     ) {
@@ -234,8 +236,8 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Inject(method = "move", at = @At("RETURN"))
     public void anvil$collisionCraft(
-        MoverType type,
-        Vec3 pos,
+        MoverType moverType,
+        Vec3 delta,
         CallbackInfo ci,
         @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement
     ) {
@@ -245,27 +247,26 @@ public abstract class EntityMixin implements IEntityExtension {
         BlockPos blockPos = BlockPos.containing(this.position.add(beforeBoundingMovement.get()
             .scale(0.55 / beforeBoundingMovement.get().length())
             .multiply(1, 0, 1)));
-        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, beforeBoundingMovement.get().length()));
+        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(this.level, blockPos, self, beforeBoundingMovement.get().length()));
     }
 
     @WrapOperation(
         method = "handlePortal",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;changeDimension("
-                     + "Lnet/minecraft/world/level/portal/DimensionTransition;"
-                     + ")"
+            target = "Lnet/minecraft/world/entity/Entity;teleport("
+                     + "Lnet/minecraft/world/level/portal/TeleportTransition;)"
                      + "Lnet/minecraft/world/entity/Entity;"
         )
     )
     @SuppressWarnings("deprecation")
-    private Entity handlePortal(Entity instance, DimensionTransition transition, Operation<Entity> original) {
+    private Entity handlePortal(Entity instance, TeleportTransition transition, Operation<Entity> original) {
         if (!(this.portalProcess instanceof PortalProcessorAccessor accessor)) return original.call(instance, transition);
         Block portal = Util.cast(accessor.getPortal());
         EntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new EntityThroughPortalEvent(
             this.level,
             instance,
-            new PortalType(portal.builtInRegistryHolder().key().location())
+            new PortalType(portal.builtInRegistryHolder().key().identifier())
         ));
         if (event.isCanceled()) return instance;
         return original.call(event.getEntity(), transition);

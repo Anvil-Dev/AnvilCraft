@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "B": {
-      "item": "anvilcraft:hardend_resin"
-    },
-    "Q": {
-      "item": "minecraft:quartz"
-    },
-    "T": {
-      "item": "minecraft:redstone_torch"
-    }
+    "B": "anvilcraft:hardend_resin",
+    "Q": "minecraft:quartz",
+    "T": "minecraft:redstone_torch"
   },
   "pattern": [
     " T ",
@@ -18,7 +12,6 @@
     "BBB"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:comparator"
   }
 }

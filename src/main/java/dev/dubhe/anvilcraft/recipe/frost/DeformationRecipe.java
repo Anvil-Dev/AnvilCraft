@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.recipe.frost;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +18,28 @@ public record DeformationRecipe(
     ItemIngredientPredicate material,
     List<RecipeResult> inputs
 ) implements IFrostSmithingRecipe {
+    public static final RecipeSerializer<DeformationRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(ins -> ins.group(
+            ItemIngredientPredicate.CODEC
+                .optionalFieldOf("template", DeformationRecipe.DEFAULT_TEMPLATE)
+                .forGetter(DeformationRecipe::template),
+            ItemIngredientPredicate.CODEC
+                .optionalFieldOf("material", DeformationRecipe.DEFAULT_MATERIAL)
+                .forGetter(DeformationRecipe::material),
+            RecipeResult.LIST_CODEC
+                .fieldOf("inputs")
+                .forGetter(DeformationRecipe::inputs)
+        ).apply(ins, DeformationRecipe::new)),
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC,
+            DeformationRecipe::template,
+            ItemIngredientPredicate.STREAM_CODEC,
+            DeformationRecipe::material,
+            RecipeResult.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            DeformationRecipe::inputs,
+            DeformationRecipe::new
+        )
+    );
     public static final ItemIngredientPredicate DEFAULT_TEMPLATE = ItemIngredientPredicate.of(ModItems.DEFORMATION_TEMPLATE_ITEM).build();
     public static final ItemIngredientPredicate DEFAULT_MATERIAL = ItemIngredientPredicate.of(ModItems.FROST_METAL_INGOT).build();
 
@@ -38,47 +58,18 @@ public record DeformationRecipe(
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.DEFORMATION_SERIALIZER.get();
+    public RecipeType<DeformationRecipe> getType() {
+        return ModRecipeTypes.DEFORMATION.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
-        return ModRecipeTypes.DEFORMATION_TYPE.get();
+    public RecipeSerializer<DeformationRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
-    public static class Serializer implements RecipeSerializer<DeformationRecipe> {
-        private static final MapCodec<DeformationRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-            ItemIngredientPredicate.CODEC
-                .optionalFieldOf("template", DeformationRecipe.DEFAULT_TEMPLATE)
-                .forGetter(DeformationRecipe::template),
-            ItemIngredientPredicate.CODEC
-                .optionalFieldOf("material", DeformationRecipe.DEFAULT_MATERIAL)
-                .forGetter(DeformationRecipe::material),
-            RecipeResult.LIST_CODEC
-                .fieldOf("inputs")
-                .forGetter(DeformationRecipe::inputs)
-        ).apply(ins, DeformationRecipe::new));
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, DeformationRecipe> STREAM_CODEC = StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC,
-            DeformationRecipe::template,
-            ItemIngredientPredicate.STREAM_CODEC,
-            DeformationRecipe::material,
-            RecipeResult.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            DeformationRecipe::inputs,
-            DeformationRecipe::new
-        );
-
-        @Override
-        public MapCodec<DeformationRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, DeformationRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+    @Override
+    public String group() {
+        return "deformation";
     }
 
     public static class Builder extends BaseBuilder<Builder, DeformationRecipe> {

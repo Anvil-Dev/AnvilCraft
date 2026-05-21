@@ -5,8 +5,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
@@ -61,7 +61,7 @@ public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
 
     public static final Component MISSING_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.eight.missing");
-    public static final List<ResourceLocation> EMPTY_SLOT_TEXTURES = List.of(
+    public static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
     );
 
     public EightToOneTemplateItem(Properties properties) {
@@ -74,7 +74,7 @@ public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
     }
 
     @Override
-    public List<ResourceLocation> getEmptySlotTextures() {
+    public List<Identifier> getEmptySlotTextures() {
         return EMPTY_SLOT_TEXTURES;
     }
 
@@ -89,19 +89,19 @@ public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
                 List<Holder<Enchantment>> enchantments = itemEnchantments.keySet().stream().toList();
                 int count = Math.min(4, enchantments.size());
                 for (int i = 0; i < count; i++) {
-                    int randomIndex = level.random.nextIntBetweenInclusive(0, enchantments.size() - 1);
+                    int randomIndex = level.getRandom().nextIntBetweenInclusive(0, enchantments.size() - 1);
                     Holder<Enchantment> randomEnchantment = enchantments.get(randomIndex);
                     boolean selected = false;
-                    for (ResourceKey<Enchantment> enchantmentResourceKey : enchantmentMappings.keySet()) {
+                    for (ResourceKey<Enchantment> enchantmentResourceKey : this.enchantmentMappings.keySet()) {
                         if (randomEnchantment.is(enchantmentResourceKey)) {
-                            result.add(enchantmentMappings.get(enchantmentResourceKey));
+                            result.add(this.enchantmentMappings.get(enchantmentResourceKey));
                             selected = true;
                             break;
                         }
                     }
                     if (!selected) {
-                        randomIndex = level.random.nextIntBetweenInclusive(0, otherTemplate.size() - 1);
-                        result.add(otherTemplate.get(randomIndex));
+                        randomIndex = level.getRandom().nextIntBetweenInclusive(0, this.otherTemplate.size() - 1);
+                        result.add(this.otherTemplate.get(randomIndex));
                     }
                 }
 

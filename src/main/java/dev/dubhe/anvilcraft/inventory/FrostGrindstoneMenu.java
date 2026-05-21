@@ -92,7 +92,7 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
             @Override
             public void set(ItemStack stack) {
                 super.set(stack);
-                refreshEnchantments();
+                FrostGrindstoneMenu.this.refreshEnchantments();
             }
         });
         this.addSlot(new Slot(this.result, 0, 145, 34) {
@@ -123,7 +123,7 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
              */
             private int getExperienceAmount(Level level) {
                 int xp = this.getExperience();
-                return xp > 0 ? xp + level.random.nextInt(xp) : 0;
+                return xp > 0 ? xp + level.getRandom().nextInt(xp) : 0;
             }
 
             /**
@@ -167,7 +167,7 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
 
             ItemEnchantments.Mutable newMut = mutableMap.computeIfAbsent(
                 data.type(),
-                type -> new ItemEnchantments.Mutable(ItemEnchantments.EMPTY)
+                _ -> new ItemEnchantments.Mutable(ItemEnchantments.EMPTY)
             );
             if (this.selectedIndexes.contains(i)) continue;
             newMut.set(data.enchantment(), data.level());
@@ -210,6 +210,7 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
     }
 
     @SafeVarargs
+    @SuppressWarnings("SameParameterValue")
     private void addEnchantments(ItemStack input, DataComponentType<ItemEnchantments>... types) {
         for (DataComponentType<ItemEnchantments> type : types) {
             this.addEnchantments(input, type);
@@ -279,7 +280,7 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
      */
     public void removed(Player player) {
         super.removed(player);
-        this.access.execute((level, pos) -> this.clearContainer(player, this.input));
+        this.access.execute((_, _) -> this.clearContainer(player, this.input));
     }
 
     protected void clearContainer(Player player, Container container) {

@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.init.loot;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 import java.util.function.Consumer;
 
 public class ModLootContextParamSets {
-    public static final LootContextParamSet USE_ON_ITEM = register(
+    public static final ContextKeySet USE_ON_ITEM = register(
         "use_on_item",
         it -> it.required(LootContextParams.THIS_ENTITY)
             .required(LootContextParams.ORIGIN)
@@ -17,7 +17,7 @@ public class ModLootContextParamSets {
             .required(LootContextParams.ENCHANTMENT_LEVEL)
     );
 
-    public static final LootContextParamSet POST_BREAK_BLOCK = register(
+    public static final ContextKeySet POST_BREAK_BLOCK = register(
         "post_break_block",
         it -> it.required(LootContextParams.THIS_ENTITY)
             .required(LootContextParams.ORIGIN)
@@ -25,10 +25,10 @@ public class ModLootContextParamSets {
             .required(LootContextParams.TOOL)
     );
 
-    private static LootContextParamSet register(String registryName, Consumer<LootContextParamSet.Builder> builderConsumer) {
-        LootContextParamSet.Builder builder = new LootContextParamSet.Builder();
+    private static ContextKeySet register(String registryName, Consumer<ContextKeySet.Builder> builderConsumer) {
+        ContextKeySet.Builder builder = new ContextKeySet.Builder();
         builderConsumer.accept(builder);
-        LootContextParamSet paramSet = builder.build();
+        ContextKeySet paramSet = builder.build();
         LootContextParamSets.REGISTRY.put(AnvilCraft.of(registryName), paramSet);
         return paramSet;
     }

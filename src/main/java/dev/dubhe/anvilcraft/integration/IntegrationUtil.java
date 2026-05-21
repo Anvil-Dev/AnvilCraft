@@ -13,12 +13,12 @@ import dev.dubhe.anvilcraft.client.gui.screen.IntegrationScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import org.jspecify.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 public class IntegrationUtil {
     public static Root root = Root.EMPTY;
@@ -83,7 +83,7 @@ public class IntegrationUtil {
         }
 
         public IntegrationType type() {
-            return type;
+            return this.type;
         }
 
         @Override
@@ -132,20 +132,20 @@ public class IntegrationUtil {
         }
 
         public String id() {
-            return id;
+            return this.id;
         }
 
         public Component name() {
-            return name;
+            return this.name;
         }
 
         @Nullable
         public Component description() {
-            return description;
+            return this.description;
         }
 
         public Links links() {
-            return links;
+            return this.links;
         }
 
         @Override

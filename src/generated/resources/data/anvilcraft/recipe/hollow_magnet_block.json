@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "A": {
-      "item": "anvilcraft:magnet_ingot"
-    }
+    "A": "anvilcraft:magnet_ingot"
   },
   "pattern": [
     "AAA",
@@ -12,7 +10,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:hollow_magnet_block"
   }
 }

@@ -6,14 +6,14 @@ import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
 import dev.dubhe.anvilcraft.network.HeatableSyncPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Optional;
@@ -43,7 +43,7 @@ public abstract class HeatableBlockEntity extends BlockEntity {
         this.setChanged();
         if (this.level == null || this.level.getGameTime() % 10 != 0) return;
         if (this.level instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(this.getBlockPos()),
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(this.getBlockPos()),
                 new HeatableSyncPacket(this.getBlockPos(), duration));
         }
     }
@@ -55,15 +55,15 @@ public abstract class HeatableBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putInt("duration", this.duration);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("duration", this.duration);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.duration = tag.getInt("duration");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.duration = input.getIntOr("duration", 0);
     }
 
     @Override

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:soul_sand"
-    },
-    "B": {
-      "item": "minecraft:iron_ingot"
-    }
+    "A": "minecraft:soul_sand",
+    "B": "minecraft:iron_ingot"
   },
   "pattern": [
     "A A",

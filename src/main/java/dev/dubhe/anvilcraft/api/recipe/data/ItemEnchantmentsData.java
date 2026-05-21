@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.api.recipe.data;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
+import dev.dubhe.anvilcraft.api.recipe.slot.RecipeInputSlot;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import lombok.EqualsAndHashCode;
@@ -12,40 +13,60 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
-import java.util.List;
-
 @Getter
 @EqualsAndHashCode
 public class ItemEnchantmentsData implements ICustomDataComponent<ItemEnchantments> {
-    private final List<RequiredEntry> required;
-    private final int input;
-    private final DataComponentType<ItemEnchantments> dataComponentType;
+    private final RecipeInputSlot input;
+    private final DataComponentType<ItemEnchantments> type;
+
+    private ItemEnchantmentsData(RecipeInputSlot input, DataComponentType<?> type) {
+        this.input = input;
+        this.type = Util.cast(type);
+    }
 
     private ItemEnchantmentsData(int input, DataComponentType<?> type) {
-        this.input = input;
-        this.dataComponentType = Util.cast(type);
-        this.required = List.of(new RequiredEntry(input, type, true));
+        this(RecipeInputSlot.input(input), type);
+    }
+
+    public static ItemEnchantmentsData custom(RecipeInputSlot input, DataComponentType<ItemEnchantments> type) {
+        return new ItemEnchantmentsData(input, type);
     }
 
     public static ItemEnchantmentsData custom(int input, DataComponentType<ItemEnchantments> type) {
         return new ItemEnchantmentsData(input, type);
     }
 
+    public static ItemEnchantmentsData enchantments(RecipeInputSlot input) {
+        return new ItemEnchantmentsData(input, DataComponents.ENCHANTMENTS);
+    }
+
     public static ItemEnchantmentsData enchantments(int input) {
         return new ItemEnchantmentsData(input, DataComponents.ENCHANTMENTS);
+    }
+
+    public static ItemEnchantmentsData storedEnchantments(RecipeInputSlot input) {
+        return new ItemEnchantmentsData(input, DataComponents.STORED_ENCHANTMENTS);
     }
 
     public static ItemEnchantmentsData storedEnchantments(int input) {
         return new ItemEnchantmentsData(input, DataComponents.STORED_ENCHANTMENTS);
     }
 
+    public static ItemEnchantmentsData mercilessEnchantments(RecipeInputSlot input) {
+        return new ItemEnchantmentsData(input, ModComponents.MERCILESS_ENCHANTMENTS);
+    }
+
     public static ItemEnchantmentsData mercilessEnchantments(int input) {
         return new ItemEnchantmentsData(input, ModComponents.MERCILESS_ENCHANTMENTS);
+    }
+
+    @Override
+    public DataComponentType<ItemEnchantments> getDataComponentType() {
+        return this.type;
     }
 
     @Override
@@ -54,8 +75,8 @@ public class ItemEnchantmentsData implements ICustomDataComponent<ItemEnchantmen
     }
 
     @Override
-    public ItemEnchantments make(List<Object> data) {
-        return Util.cast(data.getFirst());
+    public ItemEnchantments make(ResultContext ctx) {
+        return ctx.getInput(this.input).get(this.type);
     }
 
     @Override
@@ -70,15 +91,14 @@ public class ItemEnchantmentsData implements ICustomDataComponent<ItemEnchantmen
 
     public static class Type implements ICustomDataComponent.Type<ItemEnchantmentsData> {
         public static final MapCodec<ItemEnchantmentsData> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
-            Codec.INT
-                .fieldOf("input")
+            RecipeInputSlot.CODEC
                 .forGetter(ItemEnchantmentsData::getInput),
             DataComponentType.CODEC
                 .fieldOf("component")
                 .forGetter(ItemEnchantmentsData::getDataComponentType)
         ).apply(inst, ItemEnchantmentsData::new));
         public static final StreamCodec<RegistryFriendlyByteBuf, ItemEnchantmentsData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
+            RecipeInputSlot.STREAM_CODEC,
             ItemEnchantmentsData::getInput,
             DataComponentType.STREAM_CODEC,
             ItemEnchantmentsData::getDataComponentType,

@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:ingots/zinc"
-    }
+    "#c:ingots/zinc"
   ],
   "result": {
     "count": 9,

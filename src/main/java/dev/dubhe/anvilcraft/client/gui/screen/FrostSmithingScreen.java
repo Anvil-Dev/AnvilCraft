@@ -10,21 +10,24 @@ import dev.dubhe.anvilcraft.inventory.FrostSmithingMenu;
 import dev.dubhe.anvilcraft.item.template.frost.DeformationTemplateItem;
 import dev.dubhe.anvilcraft.item.template.frost.PermutationTemplateItem;
 import dev.dubhe.anvilcraft.network.multiple.FrostSmithingPackets;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.equipment.Equippable;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -32,33 +35,34 @@ import java.util.List;
 import java.util.Optional;
 
 public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "frost_smithing_table");
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "frost_smithing_table");
 
-    private static final ResourceLocation LEFT =
+    private static final Identifier LEFT =
         SharedTextures.textureGui("crafting/frost_smithing_table/button_left");
-    private static final ResourceLocation RIGHT =
+    private static final Identifier RIGHT =
         SharedTextures.textureGui("crafting/frost_smithing_table/button_right");
 
-    private static final ResourceLocation EMPTY_SLOT_PERMUTATION_SMITHING_TEMPLATE =
+    private static final Identifier EMPTY_SLOT_PERMUTATION_SMITHING_TEMPLATE =
         AnvilCraft.of("item/empty_slot_permutation_smithing_template");
-    private static final ResourceLocation EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE =
+    private static final Identifier EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE =
         AnvilCraft.of("item/empty_slot_deformation_smithing_template");
-    private static final ResourceLocation EMPTY_SLOT_INGOT =
-        ResourceLocation.withDefaultNamespace("item/empty_slot_ingot");
+    private static final Identifier EMPTY_SLOT_INGOT =
+        Identifier.withDefaultNamespace("item/empty_slot_ingot");
 
     private static final Component MISSING_TEMPLATE_TOOLTIP = Component.translatable(
         "screen.anvilcraft.frost_smithing.tooltip.missing_template"
     );
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
 
-    private static final List<ResourceLocation> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
+    private static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
         EMPTY_SLOT_PERMUTATION_SMITHING_TEMPLATE,
         EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE
     );
-    private static final List<ResourceLocation> EMPTY_SLOT_DEFORM_MATERIAL = List.of(
+    private static final List<Identifier> EMPTY_SLOT_DEFORM_MATERIAL = List.of(
         EMPTY_SLOT_INGOT
     );
-    public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);
+    private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f(0.0F, 1.0F, 0.0F);
+    public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
 
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
     private final CyclingSlotBackground materialIcon = new CyclingSlotBackground(1);
@@ -67,8 +71,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     private TexturedButton left;
     private TexturedButton right;
 
-    @Nullable
-    private ArmorStand armorStandPreview;
+    private final ArmorStandRenderState armorStandPreview = new ArmorStandRenderState();
 
     /**
      * 皇家锻造台 GUI
@@ -82,14 +85,14 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         this.left = this.addRenderableWidget(new TexturedButton(
             this.leftPos + 102,
@@ -100,9 +103,9 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             11,
             7,
             22,
-            button -> {
+            _ -> {
                 this.menu.turn(true);
-                PacketDistributor.sendToServer(new FrostSmithingPackets.ClickButton(true));
+                ClientPacketDistributor.sendToServer(new FrostSmithingPackets.ClickButton(true));
                 this.updateArmorStandPreview(this.menu.getSlot(3).getItem());
             }
         ));
@@ -115,9 +118,9 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             11,
             7,
             22,
-            button -> {
+            _ -> {
                 this.menu.turn(false);
-                PacketDistributor.sendToServer(new FrostSmithingPackets.ClickButton(false));
+                ClientPacketDistributor.sendToServer(new FrostSmithingPackets.ClickButton(false));
                 this.updateArmorStandPreview(this.menu.getSlot(3).getItem());
             }
         ));
@@ -126,15 +129,6 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
 
     @Override
     protected void subInit() {
-        if (this.minecraft != null && this.minecraft.level != null) {
-            this.armorStandPreview = new ArmorStand(this.minecraft.level, 0.0, 0.0, 0.0);
-            this.armorStandPreview.setNoBasePlate(true);
-            this.armorStandPreview.setShowArms(true);
-            this.armorStandPreview.yBodyRot = 210.0f;
-            this.armorStandPreview.setXRot(25.0f);
-            this.armorStandPreview.yHeadRot = this.armorStandPreview.getYRot();
-            this.armorStandPreview.yHeadRotO = this.armorStandPreview.getYRot();
-        }
         this.updateArmorStandPreview(this.menu.getSlot(3).getItem());
     }
 
@@ -178,17 +172,17 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderOnboardingTooltips(guiGraphics, mouseX, mouseY);
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractContents(graphics, mouseX, mouseY, a);
+        this.extractOnboardingTooltips(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        super.renderBg(guiGraphics, partialTick, mouseX, mouseY);
-        this.templateIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
-        this.materialIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
-        this.inputIcon.render(this.menu, guiGraphics, partialTick, this.leftPos, this.topPos);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        this.templateIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+        this.materialIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
+        this.inputIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
 
         if (!this.menu.getSlot(0).getItem().isEmpty()) {
             this.modifyButtons(this.menu.selected != -1 && this.menu.results.size() != 1);
@@ -196,16 +190,20 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             this.modifyButtons(false);
         }
 
-        if (this.armorStandPreview == null) return;
-        InventoryScreen.renderEntityInInventory(
-            guiGraphics,
-            this.leftPos + 149,
-            this.topPos + 75,
+        int x0 = this.leftPos + 149;
+        int y0 = this.topPos + 75;
+        int x1 = this.leftPos + 189;
+        int y1 = this.topPos + 135;
+        graphics.entity(
+            this.armorStandPreview,
             25,
-            new Vector3f(),
+            ARMOR_STAND_TRANSLATION,
             ARMOR_STAND_ANGLE,
             null,
-            this.armorStandPreview
+            x0,
+            y0,
+            x1,
+            y1
         );
     }
 
@@ -224,36 +222,54 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     }
 
     private void updateArmorStandPreview(ItemStack stack) {
-        if (this.armorStandPreview == null) return;
-        for (EquipmentSlot equipmentSlot : EquipmentSlot.values()) {
-            this.armorStandPreview.setItemSlot(equipmentSlot, ItemStack.EMPTY);
-        }
+        this.armorStandPreview.leftHandItemStack = ItemStack.EMPTY;
+        this.armorStandPreview.leftHandItemState.clear();
+        this.armorStandPreview.headEquipment = ItemStack.EMPTY;
+        this.armorStandPreview.headItem.clear();
+        this.armorStandPreview.chestEquipment = ItemStack.EMPTY;
+        this.armorStandPreview.legsEquipment = ItemStack.EMPTY;
+        this.armorStandPreview.feetEquipment = ItemStack.EMPTY;
         if (stack.isEmpty()) return;
-        ItemStack stackCopy = stack.copy();
-        if (stack.getItem() instanceof ArmorItem armor) {
-            this.armorStandPreview.setItemSlot(armor.getEquipmentSlot(), stackCopy);
-        } else {
-            this.armorStandPreview.setItemSlot(EquipmentSlot.OFFHAND, stackCopy);
+        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+        EquipmentSlot slot = equippable != null ? equippable.slot() : null;
+        ItemModelResolver itemModelResolver = this.minecraft.getItemModelResolver();
+        switch (slot) {
+            case HEAD -> {
+                if (HumanoidArmorLayer.shouldRender(stack, EquipmentSlot.HEAD)) {
+                    this.armorStandPreview.headEquipment = stack.copy();
+                } else {
+                    itemModelResolver.updateForTopItem(this.armorStandPreview.headItem, stack, ItemDisplayContext.HEAD, null, null, 0);
+                }
+            }
+            case CHEST -> this.armorStandPreview.chestEquipment = stack.copy();
+            case LEGS -> this.armorStandPreview.legsEquipment = stack.copy();
+            case FEET -> this.armorStandPreview.feetEquipment = stack.copy();
+            case null, default -> {
+                this.armorStandPreview.leftHandItemStack = stack.copy();
+                itemModelResolver.updateForTopItem(
+                    this.armorStandPreview.leftHandItemState, stack, ItemDisplayContext.THIRD_PERSON_LEFT_HAND, null, null, 0
+                );
+            }
         }
     }
 
     @Override
-    protected void renderErrorIcon(GuiGraphics guiGraphics, int x, int y) {
+    protected void extractErrorIcon(GuiGraphicsExtractor graphics, int x, int y) {
         if (
             (this.menu.getSlot(0).hasItem() && this.menu.getSlot(2).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
         ) {
-            guiGraphics.blit(SharedTextures.ERROR_SPRITE, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.ERROR_SPRITE, x + 83, y + 48, 0, 0, 16, 16, 16, 16);
         }
     }
 
-    private void renderOnboardingTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void extractOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (
             (this.menu.getSlot(0).hasItem() && this.menu.getSlot(2).hasItem())
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
             && this.isHovering(83, 48, 16, 16, mouseX, mouseY)
         ) {
-            graphics.renderTooltip(this.font, this.font.split(ERROR_TOOLTIP, 115), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, this.font.split(ERROR_TOOLTIP, 115), mouseX, mouseY);
             return;
         }
 
@@ -262,7 +278,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
         ItemStack template = this.menu.getSlot(0).getItem();
         if (template.isEmpty()) {
             if (this.hoveredSlot.index == 0) {
-                graphics.renderTooltip(this.font, this.font.split(MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(this.font, this.font.split(MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
             }
             return;
         }
@@ -273,9 +289,14 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
         Item item = template.getItem();
         if (item instanceof PermutationTemplateItem permutation) {
             if (this.hoveredSlot.index == 1) {
-                graphics.renderTooltip(this.font, this.font.split(permutation.getMaterialTooltip(), 115), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(
+                    this.font,
+                    this.font.split(permutation.getMaterialTooltip(), 115),
+                    mouseX,
+                    mouseY
+                );
             } else if (this.hoveredSlot.index == 2 && this.menu.getSlot(1).getItem().getItem() instanceof IPermutationMaterial material) {
-                graphics.renderTooltip(
+                graphics.setTooltipForNextFrame(
                     this.font,
                     this.font.split(material.getInputTooltip(this.menu.getSlot(1).getItem()), 115),
                     mouseX,
@@ -284,7 +305,7 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             }
         } else if (item instanceof DeformationTemplateItem deformation) {
             if (this.hoveredSlot.index == 2) {
-                graphics.renderTooltip(this.font, this.font.split(deformation.getInputTooltip(), 115), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(this.font, this.font.split(deformation.getInputTooltip(), 115), mouseX, mouseY);
             }
         }
     }

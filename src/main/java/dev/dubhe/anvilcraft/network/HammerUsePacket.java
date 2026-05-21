@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -37,6 +37,6 @@ public record HammerUsePacket(BlockPos pos, InteractionHand hand, BlockHitResult
     public void handleOnServer(Player player) {
         ServerPlayer serverside = Util.cast(player);
         ItemStack itemInHand = serverside.getItemInHand(this.hand);
-        AnvilHammerItem.useBlock(serverside, this.pos, serverside.serverLevel(), itemInHand, this.hand, this.result);
+        AnvilHammerItem.useBlock(serverside, this.pos, serverside.level(), itemInHand, this.hand, this.result);
     }
 }

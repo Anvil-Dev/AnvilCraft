@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.item.IInventoryCarriedAware;
+import net.minecraft.network.HashedStack;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,13 +21,12 @@ abstract class ServerGamePacketListenerMixin {
         method = "handleContainerClick",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;setRemoteCarried(Lnet/minecraft/world/item/ItemStack;)V"
+            target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;setRemoteCarried(Lnet/minecraft/network/HashedStack;)V"
         )
     )
     void onRemoteCarried(ServerboundContainerClickPacket packet, CallbackInfo ci) {
-        ItemStack itemStack = packet.getCarriedItem();
-        if (itemStack.getItem() instanceof IInventoryCarriedAware inventoryCarriedAware) {
-            inventoryCarriedAware.onCarriedUpdate(itemStack, player);
-        }
+        if (!(packet.carriedItem() instanceof HashedStack.ActualItem actualItem)) return;
+        if (!(actualItem.item().value() instanceof IInventoryCarriedAware inventoryCarriedAware)) return;
+        inventoryCarriedAware.onCarriedUpdate(packet.carriedItem(), this.player);
     }
 }

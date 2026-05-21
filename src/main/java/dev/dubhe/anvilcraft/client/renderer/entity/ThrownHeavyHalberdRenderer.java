@@ -1,43 +1,78 @@
 package dev.dubhe.anvilcraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.ThrownHeavyHalberdModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.state.ThrownHeavyHalberdRenderState;
+import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
-import dev.dubhe.anvilcraft.entity.model.ThrownHeavyHalberdModel;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Unit;
+import org.joml.Quaternionf;
 
-public class ThrownHeavyHalberdRenderer<T extends ThrownHeavyHalberdEntity> extends EntityRenderer<T> {
-    private final ThrownHeavyHalberdModel<ThrownHeavyHalberdEntity> model;
+public class ThrownHeavyHalberdRenderer<T extends ThrownHeavyHalberdEntity> extends EntityRenderer<T, ThrownHeavyHalberdRenderState> {
+    private final ThrownHeavyHalberdModel model;
 
     public ThrownHeavyHalberdRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.model = new ThrownHeavyHalberdModel<>(context.bakeLayer(ModModelLayers.THROWN_HEAVY_HALBERD));
+        this.model = new ThrownHeavyHalberdModel(context.bakeLayer(ModModelLayers.THROWN_HEAVY_HALBERD));
     }
 
     @Override
-    public void render(T entity, float yaw, float partialTick, PoseStack pose, MultiBufferSource buffer, int light) {
+    public ThrownHeavyHalberdRenderState createRenderState() {
+        return new ThrownHeavyHalberdRenderState();
+    }
+
+    @Override
+    public void extractRenderState(T entity, ThrownHeavyHalberdRenderState state, float partialTicks) {
+        super.extractRenderState(entity, state, partialTicks);
+        state.getRotation().add(Axis.YP.rotationDegrees(entity.getYRot(partialTicks) - 90.0F));
+        state.getRotation().add(Axis.ZP.rotationDegrees(entity.getXRot(partialTicks) + 90.0F));
+        state.setTexture(ThrownHeavyHalberdRenderer.getTextureLocation(entity));
+        state.setFoil(entity.isFoil());
+    }
+
+    @Override
+    public void submit(ThrownHeavyHalberdRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         pose.pushPose();
-        pose.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90.0F));
-        pose.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot()) + 90.0F));
+        for (Quaternionf rot : state.getRotation()) {
+            pose.mulPose(rot);
+        }
         pose.translate(0, -0.4, 0);
-        VertexConsumer vertexconsumer = ItemRenderer.getFoilBufferDirect(
-            buffer, this.model.renderType(this.getTextureLocation(entity)), false, entity.isFoil()
+        collector.order(0).submitModel(
+            this.model,
+            Unit.INSTANCE,
+            pose,
+            state.getTexture(),
+            state.lightCoords,
+            OverlayTexture.NO_OVERLAY,
+            state.outlineColor,
+            null
         );
-        this.model.renderToBuffer(pose, vertexconsumer, light, OverlayTexture.NO_OVERLAY);
+        if (state.isFoil()) {
+            collector.order(1).submitModel(
+                this.model,
+                Unit.INSTANCE,
+                pose,
+                ItemFeatureRenderer.getFoilRenderType(this.model.renderType(state.getTexture()), false),
+                state.lightCoords,
+                OverlayTexture.NO_OVERLAY,
+                state.outlineColor,
+                null
+            );
+        }
         pose.popPose();
-        super.render(entity, yaw, partialTick, pose, buffer, light);
+        super.submit(state, pose, collector, camera);
     }
 
-    @Override
-    public ResourceLocation getTextureLocation(T entity) {
-        return entity.getTextureBase().withPrefix("textures/entity/heavy_halberd/").withSuffix(".png");
+    public static Identifier getTextureLocation(ThrownHeavyHalberdEntity entity) {
+        return SharedTextures.texture("entity/heavy_halberd/" + entity.getTextureBase());
     }
 }

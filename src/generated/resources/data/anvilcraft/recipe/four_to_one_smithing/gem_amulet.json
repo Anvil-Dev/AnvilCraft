@@ -17,7 +17,9 @@
   "material": {
     "items": "anvilcraft:frost_metal_block"
   },
-  "result": "anvilcraft:gem_amulet",
+  "result": {
+    "id": "anvilcraft:gem_amulet"
+  },
   "template": {
     "items": "anvilcraft:four_to_one_smithing_template"
   }

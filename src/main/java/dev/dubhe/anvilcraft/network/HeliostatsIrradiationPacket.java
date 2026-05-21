@@ -11,9 +11,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public record HeliostatsIrradiationPacket(BlockPos pos, @Nullable BlockPos irritatePos) implements ISensitiveBiPacket {
     public static final Type<HeliostatsIrradiationPacket> TYPE = IPacket.type(AnvilCraft.of("heliostats_irradiation_pack"));

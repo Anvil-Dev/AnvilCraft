@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.network;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.item.ResonatorItem;
+import dev.dubhe.anvilcraft.item.tool.ResonateMode;
+import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,6 +28,6 @@ public record SwitchResonateModePacket(InteractionHand hand, int mode) implement
 
     @Override
     public void handleOnServer(Player player) {
-        ResonatorItem.setMode(player, this.hand, this.mode);
+        ResonatorItem.setMode(player, this.hand, ResonateMode.values()[this.mode]);
     }
 }

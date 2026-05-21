@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import com.google.common.collect.ImmutableMap;
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -81,10 +81,10 @@ public class MassInjectRecipeLoader {
     }
 
     private static void addTag(RegistrumRecipeProvider provider, TagKey<Item> tag, int mass) {
-        MassInjectRecipe.builder().requires(tag).mass(mass).save(provider);
+        MassInjectRecipe.builder(provider.getItems()).requires(tag).mass(mass).save(provider);
     }
 
     private static void addItem(RegistrumRecipeProvider provider, ItemLike item, int mass) {
-        MassInjectRecipe.builder().requires(item).mass(mass).save(provider);
+        MassInjectRecipe.builder(provider.getItems()).requires(item).mass(mass).save(provider);
     }
 }

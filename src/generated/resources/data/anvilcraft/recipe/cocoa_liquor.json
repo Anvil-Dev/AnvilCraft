@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "anvilcraft:cocoa_powder"
-    },
-    {
-      "item": "anvilcraft:cocoa_powder"
-    },
-    {
-      "item": "anvilcraft:cocoa_butter"
-    }
+    "anvilcraft:cocoa_powder",
+    "anvilcraft:cocoa_powder",
+    "anvilcraft:cocoa_butter"
   ],
   "result": {
     "count": 2,

@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -34,13 +33,6 @@ public record PulseGeneratorUpdatePacket(
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
-    }
-
-    public void encode(RegistryFriendlyByteBuf buf) {
-        buf.writeByte(this.startMode);
-        buf.writeBoolean(this.outputInvert);
-        buf.writeInt(this.waitingTime);
-        buf.writeInt(this.signalDuration);
     }
 
     @Override

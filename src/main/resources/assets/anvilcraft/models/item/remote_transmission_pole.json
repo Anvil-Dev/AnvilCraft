@@ -1,3 +1,4 @@
 {
-  "parent": "anvilcraft:block/remote_transmission_pole_overall"
+  "parent": "anvilcraft:block/remote_transmission_pole_overall",
+  "textures": {}
 }

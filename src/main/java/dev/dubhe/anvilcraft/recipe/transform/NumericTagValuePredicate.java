@@ -65,7 +65,7 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
         }
 
         boolean accept(long l, long r) {
-            return fn.apply(l, r);
+            return this.fn.apply(l, r);
         }
 
         @Override
@@ -118,24 +118,24 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
         }
 
         public NumericTagValuePredicate build() {
-            return new NumericTagValuePredicate(tagKeyPath, requirement, expected);
+            return new NumericTagValuePredicate(this.tagKeyPath, this.requirement, this.expected);
         }
     }
 
     public boolean test(CompoundTag tag) {
         try {
-            StringReader reader = new StringReader(tagKeyPath);
+            StringReader reader = new StringReader(this.tagKeyPath);
             NbtPathArgument argument = new NbtPathArgument();
             NbtPathArgument.NbtPath path = argument.parse(reader);
             List<Tag> contract = path.get(tag);
             if (contract.size() >= 2) {
                 throw new IllegalArgumentException(
-                    "TagValuePredicate does not allow multiple tag at path: " + tagKeyPath);
+                    "TagValuePredicate does not allow multiple tag at path: " + this.tagKeyPath);
             }
             if (contract.isEmpty()) return false;
             Tag value = contract.getFirst();
             if (value instanceof NumericTag tag1) {
-                return requirement.accept(tag1.getAsLong(), expected);
+                return this.requirement.accept(tag1.longValue(), this.expected);
             }
             return false;
         } catch (CommandSyntaxException e) {

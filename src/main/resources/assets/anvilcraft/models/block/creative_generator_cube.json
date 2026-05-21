@@ -2,7 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
-		"head": "anvilcraft:block/creative_generator_head"
+		"head": "anvilcraft:block/creative_generator_head",
+		"particle": "anvilcraft:block/creative_generator_head"
 	},
 	"elements": [
 		{

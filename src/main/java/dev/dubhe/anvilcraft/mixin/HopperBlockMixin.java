@@ -2,14 +2,15 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,7 +19,7 @@ import org.spongepowered.asm.mixin.Shadow;
 abstract class HopperBlockMixin implements IHammerChangeable {
     @Shadow
     @Final
-    public static DirectionProperty FACING;
+    public static EnumProperty<Direction> FACING;
 
     @Override
     @SuppressWarnings("AddedMixinMembersNamePattern")

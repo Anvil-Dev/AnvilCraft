@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
@@ -10,11 +9,10 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -30,6 +28,36 @@ import java.util.function.Supplier;
  */
 @Getter
 public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
+    public static final RecipeSerializer<ItemInjectRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemIngredientPredicate.CODEC
+                .listOf()
+                .optionalFieldOf("ingredients", List.of())
+                .forGetter(ItemInjectRecipe::getInputItems),
+            ChanceItemStack.CODEC
+                .listOf()
+                .optionalFieldOf("results", List.of())
+                .forGetter(ItemInjectRecipe::getResultItems),
+            BlockStatePredicate.CODEC
+                .fieldOf("block_ingredient")
+                .forGetter(ItemInjectRecipe::getFirstInputBlock),
+            ChanceBlockState.CODEC.codec()
+                .fieldOf("block_result")
+                .forGetter(ItemInjectRecipe::getFirstResultBlock)
+        ).apply(instance, ItemInjectRecipe::new)),
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            ItemInjectRecipe::getInputItems,
+            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            ItemInjectRecipe::getResultItems,
+            BlockStatePredicate.STREAM_CODEC,
+            ItemInjectRecipe::getFirstInputBlock,
+            ChanceBlockState.STREAM_CODEC,
+            ItemInjectRecipe::getFirstResultBlock,
+            ItemInjectRecipe::new
+        )
+    );
+
     /**
      * 构造一个物品注入配方
      *
@@ -58,13 +86,13 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
     }
 
     @Override
-    public RecipeSerializer<ItemInjectRecipe> getSerializer() {
-        return ModRecipeTypes.ITEM_INJECT_SERIALIZER.get();
+    public RecipeType<ItemInjectRecipe> getType() {
+        return ModRecipeTypes.ITEM_INJECT.get();
     }
 
     @Override
-    public RecipeType<ItemInjectRecipe> getType() {
-        return ModRecipeTypes.ITEM_INJECT_TYPE.get();
+    public RecipeSerializer<ItemInjectRecipe> getSerializer() {
+        return ItemInjectRecipe.SERIALIZER;
     }
 
     /**
@@ -74,56 +102,6 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 物品注入配方序列化器
-     */
-    public static class Serializer implements RecipeSerializer<ItemInjectRecipe> {
-        /**
-         * 编解码器
-         */
-        private static final MapCodec<ItemInjectRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ItemIngredientPredicate.CODEC
-                .listOf()
-                .optionalFieldOf("ingredients", List.of())
-                .forGetter(ItemInjectRecipe::getInputItems),
-            ChanceItemStack.CODEC
-                .listOf()
-                .optionalFieldOf("results", List.of())
-                .forGetter(ItemInjectRecipe::getResultItems),
-            BlockStatePredicate.CODEC
-                .fieldOf("block_ingredient")
-                .forGetter(ItemInjectRecipe::getFirstInputBlock),
-            ChanceBlockState.CODEC.codec()
-                .fieldOf("block_result")
-                .forGetter(ItemInjectRecipe::getFirstResultBlock)
-        ).apply(instance, ItemInjectRecipe::new));
-
-        /**
-         * 流编解码器
-         */
-        private static final StreamCodec<RegistryFriendlyByteBuf, ItemInjectRecipe> STREAM_CODEC = StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            ItemInjectRecipe::getInputItems,
-            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            ItemInjectRecipe::getResultItems,
-            BlockStatePredicate.STREAM_CODEC,
-            ItemInjectRecipe::getFirstInputBlock,
-            ChanceBlockState.STREAM_CODEC,
-            ItemInjectRecipe::getFirstResultBlock,
-            ItemInjectRecipe::new
-        );
-
-        @Override
-        public MapCodec<ItemInjectRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, ItemInjectRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
-        }
     }
 
     /**
@@ -144,6 +122,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
          * 设置输入方块
          *
          * @param block 输入方块
+         *
          * @return 构建器实例
          */
         public Builder inputBlock(Block block) {
@@ -155,6 +134,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
          * 设置输入方块（供应器形式）
          *
          * @param block 输入方块供应器
+         *
          * @return 构建器实例
          */
         public Builder inputBlock(Supplier<? extends Block> block) {
@@ -165,6 +145,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
          * 设置结果方块
          *
          * @param block 结果方块
+         *
          * @return 构建器实例
          */
         public Builder resultBlock(Block block) {
@@ -176,6 +157,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
          * 设置结果方块（供应器形式）
          *
          * @param block 结果方块供应器
+         *
          * @return 构建器实例
          */
         public Builder resultBlock(Supplier<? extends Block> block) {
@@ -188,7 +170,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             if (this.itemIngredients.isEmpty()) {
                 throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }
@@ -200,8 +182,8 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
         }
 
         @Override
-        public Item getResult() {
-            return WrapUtils.getItem(blockResult);
+        public ItemStackTemplate getResult() {
+            return WrapUtils.getItem(this.blockResult);
         }
 
         @Override

@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
@@ -26,7 +26,7 @@ public record MeshRecipeGroup(ItemIngredientPredicate ingredient, List<Result> r
     public static ImmutableList<MeshRecipeGroup> getAllRecipesGrouped() {
         maxRows = 1;
 
-        List<MeshRecipe> recipes = JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.MESH_TYPE.get());
+        List<MeshRecipe> recipes = JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.MESH.get());
         Multimap<ItemIngredientPredicate, MeshRecipe> ingredientGrouper = ArrayListMultimap.create();
 
         for (MeshRecipe recipe : recipes) {
@@ -48,14 +48,14 @@ public record MeshRecipeGroup(ItemIngredientPredicate ingredient, List<Result> r
                     int resultCount = stack.count() instanceof ConstantValue(float value)
                         ? Math.round(value)
                         : 1;
-                    results.add(new Result(stack.stack().copyWithCount(resultCount), stack.count()));
+                    results.add(new Result(stack.stack().withCount(resultCount), stack.count()));
                 }
             }
 
             results.sort(resultSorter);
 
             jeiRecipes.add(new MeshRecipeGroup(ingredient, results));
-            int rows = Mth.ceil(values.size() / 9f);
+            int rows = Mth.ceil(values.size() / 9F);
             if (rows > maxRows) {
                 maxRows = rows;
             }
@@ -63,8 +63,8 @@ public record MeshRecipeGroup(ItemIngredientPredicate ingredient, List<Result> r
         return jeiRecipes.build();
     }
 
-    public record Result(ItemStack item, NumberProvider provider, double expectedCount) {
-        public Result(ItemStack item, NumberProvider provider) {
+    public record Result(ItemStackTemplate item, NumberProvider provider, double expectedCount) {
+        public Result(ItemStackTemplate item, NumberProvider provider) {
             this(item, provider, NumberProviderUtil.expected(provider));
         }
     }

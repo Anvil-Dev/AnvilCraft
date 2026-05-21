@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.dubhe.anvilcraft.block.BlackHoleBlock;
-import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
+import dev.dubhe.anvilcraft.block.special.BlackHoleBlock;
+import dev.dubhe.anvilcraft.block.special.WhiteHoleBlock;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;
@@ -51,10 +51,10 @@ public class GravityManager {
     // 区块卸载事件，移除记录的重力源
     @SubscribeEvent
     public static void onChunkUnload(ChunkEvent.Unload event) {
-        if (event.getLevel() instanceof Level level && !level.isClientSide) {
+        if (event.getLevel() instanceof Level level && !level.isClientSide()) {
             Map<Long, List<GravitySource>> dimCache = GRAVITY_CACHE.get(level.dimension());
             if (dimCache != null) {
-                dimCache.remove(event.getChunk().getPos().toLong());
+                dimCache.remove(event.getChunk().getPos().pack());
             }
         }
     }
@@ -62,7 +62,7 @@ public class GravityManager {
     // 世界卸载事件，清除所有缓存
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
-        if (event.getLevel() instanceof Level level && !level.isClientSide) {
+        if (event.getLevel() instanceof Level level && !level.isClientSide()) {
             GRAVITY_CACHE.remove(level.dimension());
         }
     }
@@ -145,6 +145,7 @@ public class GravityManager {
     }
 
     // 应用维度重力
+    @SuppressWarnings("unused")
     public static void registerDimensionGravity(ResourceKey<Level> dimension, double gravity) {
         DIMENSION_GRAVITY_MAP.put(dimension, gravity);
     }
@@ -166,14 +167,7 @@ public class GravityManager {
         }
     }
 
-    public static class GravitySource {
-        public final BlockPos pos;
-        public final GravitySourceType type;
-
-        public GravitySource(BlockPos pos, GravitySourceType type) {
-            this.pos = pos;
-            this.type = type;
-        }
+    public record GravitySource(BlockPos pos, GravitySourceType type) {
     }
 
     // 重力源管理器
@@ -189,9 +183,9 @@ public class GravityManager {
         }
 
         public static void addSource(Level level, BlockPos pos, GravitySourceType type) {
-            long chunkKey = ChunkPos.asLong(pos);
-            List<GravitySource> list = GRAVITY_CACHE.computeIfAbsent(level.dimension(), k -> new ConcurrentHashMap<>())
-                .computeIfAbsent(chunkKey, k -> new ArrayList<>());
+            long chunkKey = ChunkPos.pack(pos);
+            List<GravitySource> list = GRAVITY_CACHE.computeIfAbsent(level.dimension(), _ -> new ConcurrentHashMap<>())
+                .computeIfAbsent(chunkKey, _ -> new ArrayList<>());
 
             // 检查列表中是否已经有该坐标的重力源
             boolean alreadyExists = false;
@@ -206,17 +200,21 @@ public class GravityManager {
                 list.add(new GravitySource(pos, type));
                 // 唤醒周围的下落方块
                 int r = type.radius;
-                BlockPos.betweenClosedStream(pos.offset(-r, -r, -r), pos.offset(r, r, r)).forEach(p -> {
-                    BlockState s = level.getBlockState(p);
-                    if (s.getBlock() instanceof FallingBlock) {
-                        level.scheduleTick(p, s.getBlock(), 2);
-                    }
-                });
+                wakeUpFallingBlocks(level, pos, r);
             }
         }
 
+        private static void wakeUpFallingBlocks(Level level, BlockPos pos, int r) {
+            BlockPos.betweenClosedStream(pos.offset(-r, -r, -r), pos.offset(r, r, r)).forEach(p -> {
+                BlockState s = level.getBlockState(p);
+                if (s.getBlock() instanceof FallingBlock) {
+                    level.scheduleTick(p, s.getBlock(), 2);
+                }
+            });
+        }
+
         public static void removeSource(Level level, BlockPos pos) {
-            long chunkKey = ChunkPos.asLong(pos);
+            long chunkKey = ChunkPos.pack(pos);
             Map<Long, List<GravitySource>> dimCache = GRAVITY_CACHE.get(level.dimension());
             if (dimCache != null) {
                 List<GravitySource> sources = dimCache.get(chunkKey);
@@ -236,12 +234,7 @@ public class GravityManager {
                     
                     if (removedSource != null) {
                         int r = removedSource.type.radius;
-                        BlockPos.betweenClosedStream(pos.offset(-r, -r, -r), pos.offset(r, r, r)).forEach(p -> {
-                            BlockState s = level.getBlockState(p);
-                            if (s.getBlock() instanceof FallingBlock) {
-                                level.scheduleTick(p, s.getBlock(), 2);
-                            }
-                        });
+                        wakeUpFallingBlocks(level, pos, r);
                     }
                 }
             }
@@ -249,8 +242,8 @@ public class GravityManager {
 
         private static double getEntityG(Entity entity) {
             return switch (entity) {
-                case LivingEntity livingEntity -> 0.08;
-                case Projectile projectile -> 0.05;
+                case LivingEntity _ -> 0.08;
+                case Projectile _ -> 0.05;
                 default -> 0.04;
             };
         }
@@ -267,7 +260,7 @@ public class GravityManager {
 
             for (int x = -1; x <= 1; x++) {
                 for (int z = -1; z <= 1; z++) {
-                    var list = cache.get(ChunkPos.asLong(cx + x, cz + z));
+                    var list = cache.get(ChunkPos.pack(cx + x, cz + z));
                     if (list == null) continue;
                     for (var s : list) {
                         double dx = s.pos.getX() + 0.5 - p.x;

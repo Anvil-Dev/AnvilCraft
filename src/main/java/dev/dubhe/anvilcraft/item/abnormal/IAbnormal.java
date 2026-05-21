@@ -3,13 +3,15 @@ package dev.dubhe.anvilcraft.item.abnormal;
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 public interface IAbnormal {
     /**
@@ -18,7 +20,7 @@ public interface IAbnormal {
      * @param level  世界
      * @param entity 实体
      */
-    default void inventoryTick(ItemStack ignored, Level level, Entity entity, int ignored1, boolean ignored2) {
+    default void inventoryTick(ItemStack ignored, ServerLevel level, Entity entity, @Nullable EquipmentSlot ignored1) {
         if (level.isClientSide()) return;
         if (!(entity instanceof Player player)) return;
         if (player.getAbilities().instabuild || player.getAbilities().invulnerable) return;

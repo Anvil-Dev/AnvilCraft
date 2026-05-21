@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -15,21 +16,20 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -50,13 +50,13 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     }
 
     @Override
-    public RecipeType<RecipeHolder<BlockSmearRecipe>> getRecipeType() {
+    public IRecipeHolderType<BlockSmearRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.BLOCK_SMEAR;
     }
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -71,104 +71,70 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockSmearRecipe> recipeHolder, IFocusGroup focuses) {
         BlockSmearRecipe recipe = recipeHolder.value();
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStacks(
-            recipe.getInputBlocks().stream().flatMap(
-                blockStatePredicate -> blockStatePredicate.getBlocks().stream().map(
-                    blockHolder -> new ItemStack(blockHolder.value())
-                )
-            ).toList()
-        );
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        JeiRecipeUtil.addInvisibleInputs(builder, recipe.getInputBlocks());
+        JeiRecipeUtil.addInvisibleOutput(builder, recipe.getFirstResultBlock());
     }
 
     @Override
     public void draw(
         RecipeHolder<BlockSmearRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         BlockSmearRecipe recipe = recipeHolder.value();
 
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        arrowDefault.draw(guiGraphics, 73, 35);
-
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            50,
-            12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK
-        );
+        this.arrowDefault.draw(graphics, 73, 35);
 
         for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
             List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
             if (renderedState == null) continue;
-            RenderSupport.renderBlock(
-                guiGraphics,
-                renderedState,
-                50,
-                30 + 10 * i,
-                10 - 10 * i,
-                12,
-                RenderSupport.SINGLE_BLOCK
-            );
+            RenderSupport.renderBlock(graphics, renderedState, 40, 30 + 10 * i, 20);
         }
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 40, 12 + anvilYOffset, 20);
 
-        RenderSupport.renderBlock(
-            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 20, 12, RenderSupport.SINGLE_BLOCK
-        );
+        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 100, 40, 20);
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-        RenderSupport.renderBlock(
-            guiGraphics,
-            renderedState,
-            110,
-            30,
-            10,
-            12,
-            RenderSupport.SINGLE_BLOCK
-        );
-        RenderSupport.renderBlock(
-            guiGraphics, recipe.getFirstResultBlock().state(), 110, 40, 0, 12, RenderSupport.SINGLE_BLOCK
-        );
+        RenderSupport.renderBlock(graphics, renderedState, 100, 30, 20);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 100, 20, 20);
     }
 
     @Override
     public void getTooltip(
         ITooltipBuilder tooltip,
         RecipeHolder<BlockSmearRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
+        IRecipeSlotsView view,
         double mouseX,
-        double mouseY) {
-        IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
+        double mouseY
+    ) {
+        IRecipeCategory.super.getTooltip(tooltip, recipeHolder, view, mouseX, mouseY);
         BlockSmearRecipe recipe = recipeHolder.value();
-        ResourceLocation id = getRegistryName(recipeHolder);
+        Identifier id = this.getIdentifier(recipeHolder);
 
-        if (mouseX >= 40 && mouseX <= 58) {
-            if (mouseY >= 24 && mouseY < 42) {
+        if (MathUtil.isInRange(mouseX, 40, 58)) {
+            if (MathUtil.isInRange(mouseY, 24, 42)) {
                 tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputBlocks().getFirst()));
             }
-            if (mouseY >= 42 && mouseY <= 52) {
+            if (MathUtil.isInRange(mouseY, 42, 52)) {
                 tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputBlocks().getLast()));
             }
         }
-        if (mouseX >= 100 && mouseX <= 118) {
-            if (mouseY >= 24 && mouseY < 42) {
+        if (MathUtil.isInRange(mouseX, 100, 118)) {
+            if (MathUtil.isInRange(mouseY, 24, 42)) {
                 tooltip.addAll(BlockTagUtil.getTooltipsForInput(recipe.getInputBlocks().getFirst()));
             }
-            if (mouseY >= 42 && mouseY <= 52) {
+            if (MathUtil.isInRange(mouseY, 42, 52)) {
                 Block block = recipe.getFirstResultBlock().state().getBlock();
                 if (id != null) {
                     tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
@@ -182,7 +148,8 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.BLOCK_SMEAR,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_SMEAR_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BLOCK_SMEAR.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

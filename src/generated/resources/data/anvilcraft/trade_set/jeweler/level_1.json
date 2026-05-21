@@ -1,0 +1,8 @@
+{
+  "amount": 2.0,
+  "random_sequence": "anvilcraft:trade_set/jeweler/level_1",
+  "trades": [
+    "anvilcraft:jeweler/amethyst_shard_for_emerald",
+    "anvilcraft:jeweler/emerald_for_tinted_glass"
+  ]
+}

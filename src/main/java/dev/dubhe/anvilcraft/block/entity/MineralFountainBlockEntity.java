@@ -8,13 +8,14 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,15 +38,15 @@ public class MineralFountainBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.tickCount = tag.getInt("tickCount");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.tickCount = input.getIntOr("tickCount", 0);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        tag.putInt("tickCount", this.tickCount);
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("tickCount", this.tickCount);
     }
 
     /**
@@ -56,8 +57,8 @@ public class MineralFountainBlockEntity extends BlockEntity {
         if (this.tickCount > -1) this.tickCount--;
         if (this.tickCount != 0) return;
         if (!(this.level instanceof ServerLevel serverLevel)) return;
-        BlockState aroundState = getAroundBlock();
-        if (this.level.getMinBuildHeight() > getBlockPos().getY() || getBlockPos().getY() > this.level.getMinBuildHeight() + 8) {
+        BlockState aroundState = this.getAroundBlock();
+        if (this.level.getMinY() > getBlockPos().getY() || getBlockPos().getY() > this.level.getMinY() + 8) {
             return;
         }
         BlockState aboveState = this.level.getBlockState(getBlockPos().above());
@@ -72,31 +73,31 @@ public class MineralFountainBlockEntity extends BlockEntity {
             this.level.setBlockAndUpdate(getBlockPos().above(), ModBlocks.CINERITE.getDefaultState());
         } else {
             MineralFountainRecipe.Input input = new MineralFountainRecipe.Input(aroundState.getBlock(), aboveState.getBlock());
-            this.level.getRecipeManager()
+            RecipeManager recipeManager = serverLevel.getServer().getRecipeManager();
+            recipeManager
                 .getRecipeFor(ModRecipeTypes.MINERAL_FOUNTAIN.get(), input, level)
                 .ifPresent(recipe -> {
-                    var chanceList = this.level
-                        .getRecipeManager()
-                        .getAllRecipesFor(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())
+                    var chanceList = recipeManager.recipeMap()
+                        .byType(ModRecipeTypes.MINERAL_FOUNTAIN_CHANCE.get())
                         .stream()
                         .filter(r -> r.value()
-                            .getDimension()
-                            .equals(this.level.dimension().location())
+                            .dimension()
+                            .equals(this.level.dimension().identifier())
                         )
-                        .filter(r -> r.value().getFromBlock().test(this.level, aboveState, null))
+                        .filter(r -> r.value().fromBlock().test(this.level, aboveState, null))
                         .toList();
                     for (var changeRecipe : chanceList) {
                         if (this.level.getRandom().nextDouble() <= changeRecipe.value().getChance(serverLevel)) {
                             this.level.setBlockAndUpdate(
                                 getBlockPos().above(),
-                                changeRecipe.value().getToBlock().state()
+                                changeRecipe.value().toBlock().state()
                             );
                             return;
                         }
                     }
                     level.setBlockAndUpdate(
                         getBlockPos().above(),
-                        recipe.value().getToBlock().state()
+                        recipe.value().toBlock().state()
                     );
                 });
         }

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -15,17 +16,15 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -46,23 +45,23 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     private final IDrawable arrowOut;
 
     public ItemInjectCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
-        slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        title = Component.translatable("gui.anvilcraft.category.item_inject");
-        timer = helper.createTickTimer(30, 60, true);
+        this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
+        this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.item_inject");
+        this.timer = helper.createTickTimer(30, 60, true);
 
-        arrowIn = JeiRenderHelper.getArrowInput(helper);
-        arrowOut = JeiRenderHelper.getArrowOutput(helper);
+        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
+        this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
     }
 
     @Override
-    public RecipeType<RecipeHolder<ItemInjectRecipe>> getRecipeType() {
+    public IRecipeHolderType<ItemInjectRecipe> getRecipeType() {
         return AnvilCraftJeiPlugin.ITEM_INJECT;
     }
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -77,75 +76,61 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     @Override
     public IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
-    public void setRecipe(
-        IRecipeLayoutBuilder builder, RecipeHolder<ItemInjectRecipe> recipeHolder, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<ItemInjectRecipe> recipeHolder, IFocusGroup focuses) {
         ItemInjectRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-            .addIngredients(Ingredient.of(
-                recipe.getFirstInputBlock().getBlocks().stream().map(state -> new ItemStack(state.value())).toArray(ItemStack[]::new)));
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        JeiRecipeUtil.addInvisibleInput(builder, recipe.getFirstInputBlock());
+        JeiRecipeUtil.addInvisibleOutput(builder, recipe.getFirstResultBlock());
     }
 
     @Override
     public void draw(
         RecipeHolder<ItemInjectRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         ItemInjectRecipe recipe = recipeHolder.value();
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            22 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
 
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         if (input.isEmpty()) return;
         BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
         if (renderedState == null) return;
-        RenderSupport.renderBlock(guiGraphics, renderedState, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
+        RenderSupport.renderBlock(graphics, renderedState, 81, 40, 20);
 
-        arrowIn.draw(guiGraphics, 54, 30);
-        arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(graphics, 54, 30);
+        this.arrowOut.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
-        RenderSupport.renderBlock(
-            guiGraphics, recipe.getFirstResultBlock().state(), 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
+        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 133, 30, 20);
     }
 
     @Override
     public void getTooltip(
         ITooltipBuilder tooltip,
         RecipeHolder<ItemInjectRecipe> recipeHolder,
-        IRecipeSlotsView recipeSlotsView,
+        IRecipeSlotsView view,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         ItemInjectRecipe recipe = recipeHolder.value();
-        ResourceLocation id = getRegistryName(recipeHolder);
-        if (mouseX >= 72 && mouseX <= 90) {
-            if (mouseY >= 34 && mouseY <= 53) {
-                tooltip.addAll(TooltipUtil.tooltip(recipe.getFirstInputBlock().constructStatesForRender().getFirst().getBlock()));
-            }
+        Identifier id = this.getIdentifier(recipeHolder);
+        if (MathUtil.isInRange(mouseX, mouseY, 72, 34, 90, 53)) {
+            tooltip.addAll(TooltipUtil.tooltip(recipe.getFirstInputBlock().constructStatesForRender().getFirst().getBlock()));
         }
-        if (mouseX >= 124 && mouseX <= 140) {
-            if (mouseY >= 24 && mouseY <= 42) {
-                Block block = recipe.getFirstResultBlock().state().getBlock();
-                if (id != null) {
-                    tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
-                } else {
-                    tooltip.addAll(TooltipUtil.tooltip(block));
-                }
+        if (MathUtil.isInRange(mouseX, mouseY, 124, 24, 140, 42)) {
+            Block block = recipe.getFirstResultBlock().state().getBlock();
+            if (id != null) {
+                tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
+            } else {
+                tooltip.addAll(TooltipUtil.tooltip(block));
             }
         }
     }
@@ -153,7 +138,8 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.ITEM_INJECT,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_INJECT_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_INJECT.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

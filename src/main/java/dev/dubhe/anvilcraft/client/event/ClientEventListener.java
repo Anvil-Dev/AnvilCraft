@@ -1,22 +1,28 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
+import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
+import net.minecraft.core.Direction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -26,24 +32,49 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterTextureAtlasesEvent;
 import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderItemInFrameEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
     @SubscribeEvent
-    public static void blockHighlight(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
+    public static void on(SubmitCustomGeometryEvent event) {
         if (BlockHighlightUtil.SUBCHUNKS.isEmpty()) return;
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         BlockHighlightUtil.render(
             level,
+            event.getSubmitNodeCollector(),
             Minecraft.getInstance().renderBuffers().bufferSource(),
             event.getPoseStack(),
-            event.getCamera()
+            event.getLevelRenderState().cameraRenderState
+        );
+    }
+
+    @SubscribeEvent
+    public static void on(RenderItemInFrameEvent event) {
+        PoseStack poseStack = event.getPoseStack();
+        if (!AnvilCraftClient.CONFIG.verticalItemFrame) return;
+        Direction direction = event.getItemFrameRenderState().direction;
+        if (direction == Direction.UP) {
+            poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+        } else if (direction == Direction.DOWN) {
+            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+        }
+    }
+
+    @SubscribeEvent
+    public static void on(RegisterTextureAtlasesEvent event) {
+        event.register(
+            new AtlasManager.AtlasConfig(
+                ModTextureAtlases.LOCATION_LASER,
+                ModAtlasIds.LASER,
+                false
+            )
         );
     }
 
@@ -101,7 +132,7 @@ public class ClientEventListener {
         Minecraft minecraft = Minecraft.getInstance();
         long curTime = minecraft.gui.getGuiTicks();
         long deltaTime = curTime - lastThoughtTime;
-        if (deltaTime > ThoughtManager.getMAX_SECONDS() * 20) {
+        if (deltaTime > ThoughtManager.getMaxSeconds() * 20) {
             ThoughtManager.onPostThought();
         }
     }
@@ -120,9 +151,9 @@ public class ClientEventListener {
     }
 
     @SubscribeEvent
-    public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Background event) {
+    public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Foreground event) {
         AbstractContainerScreen<?> screen = event.getContainerScreen();
-        Slot slot = screen.getSlotUnderMouse();
+        Slot slot = screen.getHoveredSlot();
         if (slot != null) {
             ItemStack item = slot.getItem();
             if (item.is(ModItems.PILL_BOX)) {
@@ -135,7 +166,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onRenderTooltip(RenderTooltipEvent.Pre event) {
-        GuiGraphics guiGraphics = event.getGraphics();
+        GuiGraphicsExtractor graphics = event.getGraphics();
         int x = event.getX();
         int y = event.getY();
 
@@ -143,10 +174,10 @@ public class ClientEventListener {
         if (itemStack.is(ModItems.AMULET_BOX)) {
             event.setY(y + 13);
             AmuletSelectorSupport.setCurrentHoveringItemStack(itemStack);
-            AmuletSelectorSupport.render(guiGraphics, x, y);
+            AmuletSelectorSupport.render(graphics, x, y);
         } else if (itemStack.is(ModItems.PILL_BOX)) {
             event.setY(y + 13);
-            AnvilCraftClient.pillSelectorSupport.render(guiGraphics, x, y);
+            AnvilCraftClient.pillSelectorSupport.render(graphics, x, y);
         } else {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
         }

@@ -19,11 +19,11 @@ public record MultiblockInput(List<List<List<BlockState>>> blocks, int size) imp
     }
 
     public BlockState getBlockState(int x, int y, int z) {
-        return blocks.get(y).get(z).get(x);
+        return this.blocks.get(y).get(z).get(x);
     }
 
     public void setBlockState(int x, int y, int z, BlockState state) {
-        blocks.get(y).get(z).set(x, state);
+        this.blocks.get(y).get(z).set(x, state);
     }
 
     private static Direction rotateHorizontal(Direction direction) {

@@ -19,7 +19,9 @@ import java.util.List;
  * <p>该配方用于在铁砧下落时冲压物品，需要在铁砧下方放置冲压平台作为触发条件</p>
  */
 @Getter
-public class StampingRecipe extends AbstractProcessRecipe<StampingRecipe> {
+public class StampingRecipe extends BaseStampingRecipe<StampingRecipe> {
+    public static final RecipeSerializer<StampingRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(StampingRecipe::new);
+
     /**
      * 构造一个冲压配方
      *
@@ -47,13 +49,13 @@ public class StampingRecipe extends AbstractProcessRecipe<StampingRecipe> {
     }
 
     @Override
-    public RecipeSerializer<StampingRecipe> getSerializer() {
-        return ModRecipeTypes.STAMPING_SERIALIZER.get();
+    public RecipeType<StampingRecipe> getType() {
+        return ModRecipeTypes.STAMPING.get();
     }
 
     @Override
-    public RecipeType<StampingRecipe> getType() {
-        return ModRecipeTypes.STAMPING_TYPE.get();
+    public RecipeSerializer<StampingRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     /**
@@ -63,16 +65,6 @@ public class StampingRecipe extends AbstractProcessRecipe<StampingRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 冲压配方序列化器
-     */
-    public static class Serializer extends AbstractSerializer<StampingRecipe> {
-        @Override
-        protected StampingRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new StampingRecipe(itemIngredients, results);
-        }
     }
 
     /**

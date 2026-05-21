@@ -20,6 +20,7 @@ import java.util.List;
  */
 @Getter
 public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
+    public static final RecipeSerializer<MeshRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(MeshRecipe::new);
 
     /**
      * 构造一个筛网配方
@@ -47,13 +48,13 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
     }
 
     @Override
-    public RecipeSerializer<MeshRecipe> getSerializer() {
-        return ModRecipeTypes.MESH_SERIALIZER.get();
+    public RecipeType<MeshRecipe> getType() {
+        return ModRecipeTypes.MESH.get();
     }
 
     @Override
-    public RecipeType<MeshRecipe> getType() {
-        return ModRecipeTypes.MESH_TYPE.get();
+    public RecipeSerializer<MeshRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     /**
@@ -63,16 +64,6 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 筛网配方序列化器
-     */
-    public static class Serializer extends AbstractSerializer<MeshRecipe> {
-        @Override
-        protected MeshRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new MeshRecipe(itemIngredients, results);
-        }
     }
 
     /**

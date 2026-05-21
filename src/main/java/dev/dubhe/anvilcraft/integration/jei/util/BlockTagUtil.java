@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.util;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.common.util.RegistryUtil;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
@@ -40,9 +41,12 @@ public class BlockTagUtil {
      */
     public static Optional<Block> getDisplay(TagKey<Block> tag) {
         return RegistryUtil.getRegistry(Registries.BLOCK)
-            .getTag(tag)
-            .filter(it -> it.size() > 0)
-            .map(it -> it.get((int) ((System.currentTimeMillis() / 1000) % it.size())).value());
+            .get(tag)
+            .map(named -> named.stream()
+                .map(Holder::value)
+                .toList())
+            .filter(list -> !list.isEmpty())
+            .map(list -> list.get((int) ((System.currentTimeMillis() / 1000) % list.size())));
     }
 
     /**

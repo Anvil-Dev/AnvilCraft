@@ -1,8 +1,5 @@
 package dev.dubhe.anvilcraft.api.power;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-
 import java.util.Optional;
 
 /**
@@ -22,10 +19,24 @@ public interface IPowerProducer extends IPowerComponent {
         return PowerComponentType.PRODUCER;
     }
 
+    @Override
+    default PowerComponentInfo toPowerComponentInfo() {
+        return new PowerComponentInfo(
+            getPos(),
+            0,
+            this.getOutputPower(),
+            0,
+            0,
+            getRange(),
+            getShape(),
+            PowerComponentType.PRODUCER
+        );
+    }
+
     /**
      * 实际电量
      */
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     default int getServerPower() {
         Optional<SimplePowerGrid> s = SimplePowerGrid.findPowerGrid(getPos());
         if (s.isPresent()) {
@@ -38,7 +49,7 @@ public interface IPowerProducer extends IPowerComponent {
                     : powerComponentInfo.consumes())
                 .orElse(1);
         } else {
-            return Math.abs(getOutputPower());
+            return Math.abs(this.getOutputPower());
         }
     }
 }

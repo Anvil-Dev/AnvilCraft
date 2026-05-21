@@ -20,6 +20,8 @@ import java.util.List;
  */
 @Getter
 public class ItemCrushRecipe extends AbstractProcessRecipe<ItemCrushRecipe> {
+    public static final RecipeSerializer<ItemCrushRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(ItemCrushRecipe::new);
+
     /**
      * 构造一个物品粉碎配方
      *
@@ -47,13 +49,13 @@ public class ItemCrushRecipe extends AbstractProcessRecipe<ItemCrushRecipe> {
     }
 
     @Override
-    public RecipeSerializer<ItemCrushRecipe> getSerializer() {
-        return ModRecipeTypes.ITEM_CRUSH_SERIALIZERS.get();
+    public RecipeType<ItemCrushRecipe> getType() {
+        return ModRecipeTypes.ITEM_CRUSH.get();
     }
 
     @Override
-    public RecipeType<ItemCrushRecipe> getType() {
-        return ModRecipeTypes.ITEM_CRUSH_TYPE.get();
+    public RecipeSerializer<ItemCrushRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     /**
@@ -63,16 +65,6 @@ public class ItemCrushRecipe extends AbstractProcessRecipe<ItemCrushRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 物品粉碎配方序列化器
-     */
-    public static class Serializer extends AbstractSerializer<ItemCrushRecipe> {
-        @Override
-        protected ItemCrushRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new ItemCrushRecipe(itemIngredients, results);
-        }
     }
 
     /**

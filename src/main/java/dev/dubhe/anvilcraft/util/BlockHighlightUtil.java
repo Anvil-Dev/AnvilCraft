@@ -1,26 +1,26 @@
 package dev.dubhe.anvilcraft.util;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShapeRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -28,21 +28,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BlockHighlightUtil {
-    public static final RenderType NO_DEPTH = RenderType.create(
-        AnvilCraft.MOD_ID + "_no_depth",
-        DefaultVertexFormat.POSITION_COLOR_NORMAL,
-        VertexFormat.Mode.LINES,
-        256,
-        true,
-        true,
-        RenderType.CompositeState.builder()
-            .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
-            .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-            .setCullState(RenderStateShard.NO_CULL)
-            .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
-            .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
-            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(2)))
-            .createCompositeState(true));
     public static final Map<Vector3ic, Long> SUBCHUNKS = new HashMap<>();
 
     private static final AtomicReference<Level> LEVEL_REF = new AtomicReference<>();
@@ -61,25 +46,24 @@ public class BlockHighlightUtil {
         if (level == null) return;
         SUBCHUNKS.put(
             new Vector3i(
-                Math.floorDiv(pos.getX(), 16), Math.floorDiv(pos.getY(), 16), Math.floorDiv(pos.getZ(), 16)),
-            level.getGameTime());
+                Math.floorDiv(pos.getX(), 16),
+                Math.floorDiv(pos.getY(), 16),
+                Math.floorDiv(pos.getZ(), 16)
+            ),
+            level.getGameTime()
+        );
     }
 
-    /**
-     * 渲染
-     *
-     * @param level     世界
-     * @param consumers 消耗
-     * @param poseStack 渲染空间
-     * @param camera    相机
-     */
     public static void render(
-        Level level, MultiBufferSource consumers, PoseStack poseStack, Camera camera) {
-        VertexConsumer consumer = consumers.getBuffer(NO_DEPTH);
-        Vec3 cameraPos = camera.getPosition();
+        ClientLevel level,
+        SubmitNodeCollector submitNodeCollector,
+        MultiBufferSource.BufferSource bufferSource,
+        PoseStack poseStack,
+        CameraRenderState cameraRenderState
+    ) {
+        Vec3 cameraPos = cameraRenderState.pos;
         int color = 0xFF8932B8;
         poseStack.pushPose();
-        poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         for (var iterator = BlockHighlightUtil.SUBCHUNKS.entrySet().iterator(); iterator.hasNext(); ) {
             var entry = iterator.next();
             Vector3ic subchunk = entry.getKey();
@@ -88,21 +72,27 @@ public class BlockHighlightUtil {
                 iterator.remove();
                 continue;
             }
-            Vector3ic pos1 = subchunk.mul(16, new Vector3i());
-            Vector3ic pos2 = pos1.add(16, 16, 16, new Vector3i());
-            LevelRenderer.renderLineBox(
+            Vector3fc pos1 = new Vector3f(subchunk.mul(16, new Vector3i()));
+            Vector3fc pos2 = pos1.add(16, 16, 16, new Vector3f());
+            submitNodeCollector.submitCustomGeometry(
                 poseStack,
-                consumer,
-                pos1.x(),
-                pos1.y(),
-                pos1.z(),
-                pos2.x(),
-                pos2.y(),
-                pos2.z(),
-                (color >> 16 & 0xFF) / 255f,
-                (color >> 8 & 0xFF) / 255f,
-                (color & 0xFF) / 255f,
-                (color >> 24) / 255f);
+                RenderTypes.lines(),
+                (pose, buffer) -> {
+                    PoseStack poseStack1 = new PoseStack();
+                    poseStack.last().set(pose);
+                    AABB aabb = new AABB(new Vec3(pos1), new Vec3(pos2));
+                    ShapeRenderer.renderShape(
+                        poseStack1,
+                        buffer,
+                        Shapes.create(aabb),
+                        -cameraPos.x,
+                        -cameraPos.y,
+                        -cameraPos.z,
+                        color,
+                        7f
+                    );
+                }
+            );
         }
         poseStack.popPose();
     }

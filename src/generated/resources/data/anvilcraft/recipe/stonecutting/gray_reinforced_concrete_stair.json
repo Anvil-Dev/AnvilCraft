@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "anvilcraft:gray_reinforced_concrete",
+  "result": {
+    "id": "anvilcraft:gray_reinforced_concrete_stair"
+  }
+}

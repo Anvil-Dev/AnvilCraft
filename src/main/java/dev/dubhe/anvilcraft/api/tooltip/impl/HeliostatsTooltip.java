@@ -4,9 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHandHeldItemTooltipProvider;
-import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.client.gui.GuiGraphics;
+import dev.dubhe.anvilcraft.item.block.HeliostatsItem;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -37,7 +37,7 @@ public class HeliostatsTooltip implements IHandHeldItemTooltipProvider {
     }
 
     @Override
-    public void renderTooltip(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
+    public void renderTooltip(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight) {
     }
 
     @Override

@@ -1,10 +1,26 @@
 {
   "type": "anvilcraft:deformation",
   "inputs": [
-    "anvilcraft:royal_steel_sword",
-    "anvilcraft:royal_steel_axe",
-    "anvilcraft:royal_steel_pickaxe",
-    "anvilcraft:royal_steel_shovel",
-    "anvilcraft:royal_steel_hoe"
-  ]
+    {
+      "id": "anvilcraft:royal_steel_sword"
+    },
+    {
+      "id": "anvilcraft:royal_steel_axe"
+    },
+    {
+      "id": "anvilcraft:royal_steel_pickaxe"
+    },
+    {
+      "id": "anvilcraft:royal_steel_shovel"
+    },
+    {
+      "id": "anvilcraft:royal_steel_hoe"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:frost_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:deformation_smithing_template"
+  }
 }

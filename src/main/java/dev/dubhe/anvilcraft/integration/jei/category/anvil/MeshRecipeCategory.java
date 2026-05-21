@@ -14,17 +14,18 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Arrays;
 
 public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     public static final int WIDTH = 162;
@@ -41,8 +42,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     public MeshRecipeCategory(IGuiHelper helper) {
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        this.icon =
-            new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), Blocks.SCAFFOLDING.defaultBlockState());
+        this.icon = new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), Blocks.SCAFFOLDING.defaultBlockState());
         this.title = Component.translatable("gui.anvilcraft.category.mesh");
         this.timer = helper.createTickTimer(30, 60, true);
 
@@ -50,13 +50,13 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     }
 
     @Override
-    public RecipeType<MeshRecipeGroup> getRecipeType() {
+    public IRecipeType<MeshRecipeGroup> getRecipeType() {
         return AnvilCraftJeiPlugin.MESH;
     }
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -71,46 +71,41 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MeshRecipeGroup recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 37, 14).addIngredients(Ingredient.of(recipe.ingredient().getItems()));
+        builder.addSlot(RecipeIngredientRole.INPUT, 37, 14).addItemStacks(
+            Arrays.stream(recipe.ingredient().getItems()).map(ItemStackTemplate::create).toList()
+        );
 
         for (int i = 0; i < recipe.results().size(); i++) {
             MeshRecipeGroup.Result result = recipe.results().get(i);
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9))
-                .addItemStack(result.item());
-            JeiRecipeUtil.addTooltips(slot, result.item().getCount(), result.provider());
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9)).add(
+                result.item());
+            JeiRecipeUtil.addTooltips(slot, result.item().count(), result.provider());
         }
     }
 
     @Override
     public void draw(
         MeshRecipeGroup recipe,
-        IRecipeSlotsView recipeSlotsView,
-        GuiGraphics guiGraphics,
+        IRecipeSlotsView view,
+        GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
-        float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
-        RenderSupport.renderBlock(
-            guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            12 + anvilYOffset,
-            20,
-            12,
-            RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(
-            guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+        double mouseY
+    ) {
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 20);
+        RenderSupport.renderBlock(graphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 20);
 
-        arrowIn.draw(guiGraphics, 55, 17);
-        slotDefault.draw(guiGraphics, 36, 13);
+        this.arrowIn.draw(graphics, 55, 17);
+        this.slotDefault.draw(graphics, 36, 13);
 
         for (int row = 0; row < MeshRecipeGroup.maxRows; row++) {
             for (int column = 0; column < 9; column++) {
-                slotProbability.draw(guiGraphics, column * 18, ROW_START + row * 18);
+                this.slotProbability.draw(graphics, column * 18, ROW_START + row * 18);
             }
         }
     }
@@ -121,6 +116,6 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.MESH);
-        registration.addRecipeCatalyst(new ItemStack(Items.SCAFFOLDING), AnvilCraftJeiPlugin.MESH);
+        registration.addCraftingStation(AnvilCraftJeiPlugin.MESH, Items.SCAFFOLDING);
     }
 }

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.tags;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
@@ -31,5 +32,9 @@ public class TagsHandler {
 
     public static void initEntityType(RegistrumTagsProvider<EntityType<?>> provider) {
         EntityTypeTagLoader.init(provider);
+    }
+
+    public static void initPoiType(RegistrumTagsProvider<PoiType> provider) {
+        PoiTypeTagLoader.init(provider);
     }
 }

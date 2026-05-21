@@ -24,10 +24,10 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import java.util.List;
@@ -106,12 +106,12 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
 
             public void onTake(Player player, ItemStack stack) {
                 if (!EmberGrindstoneMenu.this.hasSelectedEnchantment()) return;
-                if (!player.level().isClientSide) player.giveExperienceLevels(-EmberGrindstoneMenu.this.getCost());
+                if (!player.level().isClientSide()) player.giveExperienceLevels(-EmberGrindstoneMenu.this.getCost());
 
                 player.playSound(SoundEvents.GRINDSTONE_USE);
 
                 ItemStack toolItem = EmberGrindstoneMenu.this.tool.getItem(0);
-                EnchantmentData data = getSelectedEnchantment().orElseThrow();
+                EnchantmentData data = EmberGrindstoneMenu.this.getSelectedEnchantment().orElseThrow();
                 ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(
                     toolItem.getOrDefault(data.type(), ItemEnchantments.EMPTY)
                 );
@@ -122,7 +122,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
                     AnvilMenu.calculateIncreasedRepairCost(toolItem.getOrDefault(DataComponents.REPAIR_COST, 0))
                 );
                 EmberGrindstoneMenu.this.tool.setItem(0, toolItem);
-                refreshEnchantments();
+                EmberGrindstoneMenu.this.refreshEnchantments();
 
                 ItemStack bookItem = EmberGrindstoneMenu.this.book.getItem(0);
                 bookItem.shrink(1);
@@ -150,7 +150,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
             && !this.getSlot(0).getItem().isEmpty()
             && !this.getSlot(1).getItem().isEmpty()
         ) {
-            return EnchantedBookItem.createForEnchantment(this.getSelectedEnchantment().orElseThrow().toEnchantmentInst());
+            return EnchantmentHelper.createBook(this.getSelectedEnchantment().orElseThrow().toEnchantmentInst());
         } else {
             return ItemStack.EMPTY;
         }
@@ -163,6 +163,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
             input,
             DataComponents.ENCHANTMENTS,
             DataComponents.STORED_ENCHANTMENTS,
+            ModComponents.DISABLED_ENCHANTMENTS,
             ModComponents.MERCILESS_ENCHANTMENTS
         );
         for (DataComponentType<ItemEnchantments> type : CompatUtil.ENCHANTMENTS_TYPES) {
@@ -180,6 +181,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
     }
 
     @SafeVarargs
+    @SuppressWarnings("SameParameterValue")
     private void addEnchantments(ItemStack input, DataComponentType<ItemEnchantments>... types) {
         for (DataComponentType<ItemEnchantments> type : types) {
             this.addEnchantments(input, type);
@@ -283,7 +285,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
      */
     public void removed(Player player) {
         super.removed(player);
-        this.access.execute((level, blockPos) -> {
+        this.access.execute((_, _) -> {
             this.clearContainer(player, this.tool);
             this.clearContainer(player, this.book);
         });

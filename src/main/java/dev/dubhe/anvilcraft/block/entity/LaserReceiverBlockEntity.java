@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.LaserReceiverBlock;
+import dev.dubhe.anvilcraft.block.laser.LaserReceiverBlock;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -10,7 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -29,7 +29,7 @@ public class LaserReceiverBlockEntity extends BaseLaserBlockEntity implements IP
 
     @Override
     public int getOutputPower() {
-        return Math.min((int) Math.floor(efficiency), power);
+        return Math.min((int) Math.floor(this.efficiency), this.power);
     }
 
     @Override
@@ -41,18 +41,18 @@ public class LaserReceiverBlockEntity extends BaseLaserBlockEntity implements IP
             } else {
                 level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(LaserReceiverBlock.ACTIVE, false));
             }
-            efficiency = 0;
-            tempEfficiency = 0;
-            delay = 0;
-            power = laserLevel * 15;
+            this.efficiency = 0;
+            this.tempEfficiency = 0;
+            this.delay = 0;
+            this.power = laserLevel * 15;
         }
         if (getBlockState().getValue(LaserReceiverBlock.ACTIVE) && !changed) {
-            if (efficiency < power) {
-                delay++;
-                tempEfficiency += power * 0.005;
-                if (delay >= 20) {
-                    delay = 0;
-                    efficiency = tempEfficiency;
+            if (this.efficiency < this.power) {
+                this.delay++;
+                this.tempEfficiency += this.power * 0.005;
+                if (this.delay >= 20) {
+                    this.delay = 0;
+                    this.efficiency = this.tempEfficiency;
                 }
             }
         }

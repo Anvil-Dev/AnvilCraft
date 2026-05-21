@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.tooltip.providers;
 
 import com.google.errorprone.annotations.DoNotCall;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -27,6 +28,7 @@ public interface ITooltipProvider<T> {
 
     int priority();
 
+    @MethodsReturnNonnullByDefault
     abstract class BlockTooltipProvider implements ITooltipProvider<Triple<Level, BlockPos, BlockState>> {
         public BlockTooltipProvider() {
         }
@@ -35,13 +37,13 @@ public interface ITooltipProvider<T> {
         public abstract boolean accepts(Level level, BlockPos pos, BlockState value);
 
         public boolean accepts(Triple<Level, BlockPos, BlockState> value) {
-            return accepts(value.getLeft(), value.getMiddle(), value.getRight());
+            return this.accepts(value.getLeft(), value.getMiddle(), value.getRight());
         }
 
         @DoNotCall
         @Override
         public List<Component> tooltip(Triple<Level, BlockPos, BlockState> value) {
-            return tooltip(value.getLeft(), value.getMiddle(), value.getRight());
+            return this.tooltip(value.getLeft(), value.getMiddle(), value.getRight());
         }
 
         public abstract List<Component> tooltip(Level level, BlockPos pos, BlockState value);
@@ -49,7 +51,7 @@ public interface ITooltipProvider<T> {
         @DoNotCall
         @Override
         public ItemStack icon(Triple<Level, BlockPos, BlockState> value) {
-            return icon(value.getLeft(), value.getMiddle(), value.getRight());
+            return this.icon(value.getLeft(), value.getMiddle(), value.getRight());
         }
 
         public ItemStack icon(Level level, BlockPos pos, BlockState value) {
@@ -59,6 +61,7 @@ public interface ITooltipProvider<T> {
         public abstract int priority();
     }
 
+    @MethodsReturnNonnullByDefault
     abstract class BlockEntityTooltipProvider implements ITooltipProvider<BlockEntity> {
         public BlockEntityTooltipProvider() {
         }

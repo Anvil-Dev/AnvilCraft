@@ -23,21 +23,21 @@ public class DisintegrationLootModifier extends LootModifier {
         inst -> LootModifier.codecStart(inst).apply(inst, DisintegrationLootModifier::new)
     );
 
-    public DisintegrationLootModifier(LootItemCondition[] conditionsIn) {
-        super(conditionsIn);
+    public DisintegrationLootModifier(LootItemCondition[] conditionsIn, int priority) {
+        super(conditionsIn, priority);
     }
 
     @Override
     protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext ctx) {
         final ServerLevel level = ctx.getLevel();
-        ItemStack tool = ctx.getParamOrNull(LootContextParams.TOOL);
+        ItemStack tool = ctx.getOptionalParameter(LootContextParams.TOOL) instanceof ItemStack s ? s : null;
         if (tool == null) {
-            tool = Optional.ofNullable(ctx.getParamOrNull(LootContextParams.DIRECT_ATTACKING_ENTITY))
+            tool = Optional.ofNullable(ctx.getOptionalParameter(LootContextParams.DIRECT_ATTACKING_ENTITY))
                 .map(Entity::getWeaponItem)
                 .orElse(null);
         }
         if (tool == null) {
-            tool = Optional.ofNullable(ctx.getParamOrNull(LootContextParams.ATTACKING_ENTITY))
+            tool = Optional.ofNullable(ctx.getOptionalParameter(LootContextParams.ATTACKING_ENTITY))
                 .map(Entity::getWeaponItem)
                 .orElse(null);
         }

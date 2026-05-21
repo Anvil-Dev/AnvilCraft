@@ -4,10 +4,10 @@ import com.mojang.blaze3d.platform.Window;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.client.hud.IonoCraftBackpackHUD;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -16,12 +16,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class GuiLayerRegistrationEventListener {
 
+    @SubscribeEvent
     public static void onRegister(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(AnvilCraft.of("power"), (guiGraphics, deltaTracker) -> {
+        event.registerAboveAll(AnvilCraft.of("power"), (graphics, deltaTracker) -> {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.options.hideGui) return;
             float partialTick = deltaTracker.getGameTimeDeltaPartialTick(
@@ -37,7 +42,7 @@ public class GuiLayerRegistrationEventListener {
             ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
             if (!handItem.isEmpty()) {
                 HudTooltipManager.INSTANCE.renderHandItemHudTooltip(
-                    guiGraphics,
+                    graphics,
                     handItem,
                     partialTick,
                     screenWidth,
@@ -57,10 +62,17 @@ public class GuiLayerRegistrationEventListener {
                     BlockState s = minecraft.level.getBlockState(blockPos);
                     if (s.is(BlockTags.AIR)) return;
                     HudTooltipManager.INSTANCE.renderTooltip(
-                        guiGraphics, minecraft.level, blockPos, s, partialTick, screenWidth, screenHeight);
+                        graphics,
+                        minecraft.level,
+                        blockPos,
+                        s,
+                        partialTick,
+                        screenWidth,
+                        screenHeight
+                    );
                     return;
                 }
-                HudTooltipManager.INSTANCE.renderTooltip(guiGraphics, e, partialTick, screenWidth, screenHeight);
+                HudTooltipManager.INSTANCE.renderTooltip(graphics, e, partialTick, screenWidth, screenHeight);
             }
         });
 
@@ -68,8 +80,8 @@ public class GuiLayerRegistrationEventListener {
         event.registerAboveAll(AnvilCraft.of("ionocraft_backpack"), IonoCraftBackpackHUD::render);
     }
 
-    public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-        // PoseStack poseStack = guiGraphics.pose();
+    public static void render(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+        // PoseStack poseStack = graphics.pose();
         // Matrix4f matrix4f = poseStack.last().pose();
         // Tesselator tesselator = Tesselator.getInstance();
         // BufferBuilder bufferBuilder = tesselator.begin(
@@ -85,13 +97,13 @@ public class GuiLayerRegistrationEventListener {
         // RenderSystem.setShader(ModShaders::getRingShader);
         // ModShaders.getRingShader()
         //     .safeGetUniform("Center")
-        //     .set(10f * guiScale, 10f * guiScale);
+        //     .set(10F * guiScale, 10F * guiScale);
         // ModShaders.getRingShader()
         //     .safeGetUniform("FramebufferSize")
         //     .set((float)window.getWidth(),(float) window.getHeight());
         // ModShaders.getRingShader()
         //     .safeGetUniform("Radius")
-        //     .set(10f * guiScale);
+        //     .set(10F * guiScale);
         // RenderSystem.setShaderColor(1, 1, 1, 1);
         // BufferUploader.drawWithShader(bufferBuilder.build());
     }

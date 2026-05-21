@@ -2,12 +2,15 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.dubhe.anvilcraft.AnvilCraft;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.BlockItem;
@@ -15,20 +18,22 @@ import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MaceItem;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
+
+import java.util.List;
 
 public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
-    private static final ModelResourceLocation HOLDING_ITEM =
-        ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_item"));
-    private static final ModelResourceLocation HOLDING_BLOCK =
-        ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_block"));
+    public static final StandaloneModelKey<QuadCollection> HOLDING_ITEM =
+        new StandaloneModelKey<>(() -> "AnvilCraft: Crab Claw Holding Item Model");
+    public static final StandaloneModelKey<QuadCollection> HOLDING_BLOCK =
+        new StandaloneModelKey<>(() -> "AnvilCraft: Crab Claw Holding Block Model");
 
-    protected CrabClawItemInHandRenderer(ItemRenderer itemRenderer, IItemRenderer renderer) {
-        super(itemRenderer, renderer);
+    protected CrabClawItemInHandRenderer(ItemModelResolver itemModelResolver, IItemRenderer renderer) {
+        super(itemModelResolver, renderer);
     }
 
     @Override
-    public void render(
+    public boolean render(
         AbstractClientPlayer player,
         float partialTicks,
         float pitch,
@@ -37,14 +42,12 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
         ItemStack stack,
         float equippedProgress,
         PoseStack poseStack,
-        MultiBufferSource buffer,
-        int combinedLight,
-        CallbackInfo ci
+        SubmitNodeCollector collector,
+        int lightCoords
     ) {
         if (hand == InteractionHand.OFF_HAND) {
             poseStack.popPose();
-            ci.cancel();
-            return;
+            return true;
         }
         boolean flag = hand == InteractionHand.MAIN_HAND;
         HumanoidArm humanoidarm = flag ? player.getMainArm() : player.getMainArm().getOpposite();
@@ -55,58 +58,78 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
                 player,
                 this.offHandItem,
                 ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
-                flag2,
                 poseStack,
-                buffer,
-                combinedLight
+                collector,
+                lightCoords
             );
-            return;
+            return false;
         }
-        boolean isBlockItem = this.itemRenderer.getModel(this.mainHandItem, player.level(), player, combinedLight).isGui3d()
-            && this.mainHandItem.getItem() instanceof BlockItem;
+
         switch (stack.getUseAnimation()) {
             case EAT:
             case DRINK:
-                if (
-                    player.isUsingItem()
-                        && player.getUseItemRemainingTicks() > 0
-                        && player.getUsedItemHand() == hand
+                if (player.isUsingItem()
+                    && player.getUseItemRemainingTicks() > 0
+                    && player.getUsedItemHand() == hand
                 ) {
-                    poseStack.translate(0, -0.25f, 0.05f);
+                    poseStack.translate(0, -0.25F, 0.05F);
                 }
                 break;
             case NONE:
                 break;
             default:
-                return;
+                return false;
         }
-        if (stack.getItem() instanceof FishingRodItem) return;
-        this.itemRenderer.render(
-            this.offHandItem,
-            ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
-            flag2,
-            poseStack,
-            buffer,
-            combinedLight,
-            OverlayTexture.NO_OVERLAY,
-            this.itemRenderer
-                .getItemModelShaper()
-                .getModelManager()
-                .getModel(isBlockItem ? HOLDING_BLOCK : HOLDING_ITEM)
-        );
+        if (stack.getItem() instanceof FishingRodItem) {
+            return false;
+        }
+
+        boolean isBlockItem = this.mainHandItem.getItem() instanceof BlockItem;
+        poseStack.pushPose();
         if (isBlockItem) {
-            poseStack.mulPose(Axis.YP.rotationDegrees(60f * i));
-            poseStack.mulPose(Axis.XP.rotationDegrees(25f));
-            poseStack.scale(0.5f, 0.5f, 0.5f);
-            poseStack.translate(0.25f * i, 0.4f, -0.1f);
+            poseStack.translate(-0.32, 0.18, -0.3);
+            poseStack.scale(0.68f, 0.68f, 0.68f);
+            poseStack.mulPose(Axis.XP.rotationDegrees(30));
+            poseStack.mulPose(Axis.YP.rotationDegrees(-2));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-20));
         } else {
-            poseStack.mulPose(Axis.ZP.rotationDegrees(5f * i));
-            poseStack.scale(0.75f, 0.75f, 0.75f);
-            poseStack.translate(0, 0.45f, 0.02f);
+            poseStack.translate(-0.26, 0.5, -0.16);
+            poseStack.scale(0.68f, 0.68f, 0.68f);
+            poseStack.mulPose(Axis.XP.rotationDegrees(30));
+            poseStack.mulPose(Axis.YP.rotationDegrees(-10));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-70));
+        }
+        Minecraft mc = Minecraft.getInstance();
+        List<BakedQuad> all = mc.getModelManager()
+            .getStandaloneModel(isBlockItem ? HOLDING_BLOCK : HOLDING_ITEM)
+            .getAll();
+        collector.submitItem(
+            poseStack,
+            ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+            lightCoords,
+            OverlayTexture.NO_OVERLAY,
+            0,
+            new int[]{},
+            all,
+            stack.hasFoil() ? ItemStackRenderState.FoilType.STANDARD : ItemStackRenderState.FoilType.NONE
+        );
+
+        poseStack.popPose();
+
+        if (isBlockItem) {
+            poseStack.mulPose(Axis.YP.rotationDegrees(60F * i));
+            poseStack.mulPose(Axis.XP.rotationDegrees(25F));
+            poseStack.scale(0.5F, 0.5F, 0.5F);
+            poseStack.translate(0.25F * i, 0.4F, -0.1F);
+        } else {
+            poseStack.mulPose(Axis.ZP.rotationDegrees(5F * i));
+            poseStack.scale(0.75F, 0.75F, 0.75F);
+            poseStack.translate(0, 0.45F, 0.02F);
             if (stack.getItem() instanceof MaceItem) {
-                poseStack.mulPose(Axis.YP.rotationDegrees(-10f * i));
-                poseStack.translate(0.08f * i, -0.1f, 0);
+                poseStack.mulPose(Axis.YP.rotationDegrees(-10F * i));
+                poseStack.translate(0.08F * i, -0.1F, 0);
             }
         }
+        return false;
     }
 }

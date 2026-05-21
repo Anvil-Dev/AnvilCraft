@@ -7,13 +7,13 @@ import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
-public record InspectionStateChangedPacket(ResourceLocation id, boolean state) implements IClientboundPacket {
+public record InspectionStateChangedPacket(Identifier id, boolean state) implements IClientboundPacket {
     public static final Type<InspectionStateChangedPacket> TYPE = IPacket.type(AnvilCraft.of("inspection_state"));
     public static final StreamCodec<ByteBuf, InspectionStateChangedPacket> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC,
+        Identifier.STREAM_CODEC,
         InspectionStateChangedPacket::id,
         ByteBufCodecs.BOOL,
         InspectionStateChangedPacket::state,

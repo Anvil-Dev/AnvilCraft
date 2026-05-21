@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
-import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
+import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -28,7 +28,7 @@ public class PropelPistonTooltipProvider extends ITooltipProvider.BlockEntityToo
         BlockPos pos = blockEntity.getBlockPos();
         if (level != null) {
             BlockState state = level.getBlockState(pos);
-            if (state.getValue(PropelPiston.MOVING)) {
+            if (state.getValue(PropelPistonBlock.MOVING)) {
                 return List.of();
             }
         }
@@ -40,7 +40,7 @@ public class PropelPistonTooltipProvider extends ITooltipProvider.BlockEntityToo
         List<Component> tooltips = new ArrayList<>();
         if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
             int storedEnergy = propelPistonBlockEntity.getStoredEnergy();
-            String count = String.format("%.0f", Math.ceil(storedEnergy / 5f));
+            String count = String.format("%.0f", Math.ceil(storedEnergy / 5F));
             tooltips.add(Component.translatable("tooltip.anvilcraft.propel_piston.state").withStyle(ChatFormatting.BLUE));
             tooltips.add(Component.translatable("tooltip.anvilcraft.propel_piston.remaining_energy",
                     UnitUtil.energyUnit(storedEnergy, original))

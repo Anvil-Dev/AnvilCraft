@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:jewel_crafting",
+  "ingredients": [
+    {
+      "items": "anvilcraft:earth_core_shard"
+    },
+    {
+      "items": "minecraft:diamond"
+    }
+  ],
+  "source": {
+    "components": {
+      "predicates": {
+        "minecraft:provides_trim_material": {}
+      }
+    }
+  }
+}

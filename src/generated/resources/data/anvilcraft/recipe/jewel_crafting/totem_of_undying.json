@@ -2,20 +2,17 @@
   "type": "anvilcraft:jewel_crafting",
   "ingredients": [
     {
-      "tag": "c:storage_blocks/gold"
+      "items": "#c:storage_blocks/gold"
     },
     {
-      "item": "minecraft:emerald"
+      "count": 2,
+      "items": "minecraft:emerald"
     },
     {
-      "item": "minecraft:emerald"
-    },
-    {
-      "item": "anvilcraft:royal_steel_ingot"
+      "items": "anvilcraft:royal_steel_ingot"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "minecraft:totem_of_undying"
+  "source": {
+    "items": "minecraft:totem_of_undying"
   }
 }

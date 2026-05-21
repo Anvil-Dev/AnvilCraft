@@ -12,12 +12,14 @@
         }
       ],
       "item": {
-        "items": "anvilcraft:resin_block",
-        "predicates": {
-          "anvilcraft:saved_entity": {
-            "is_monster": true
+        "components": {
+          "predicates": {
+            "anvilcraft:saved_entity": {
+              "is_monster": true
+            }
           }
-        }
+        },
+        "items": "anvilcraft:resin_block"
       },
       "offset": [
         0.0,
@@ -32,15 +34,6 @@
     }
   ],
   "icon": {
-    "components": {
-      "anvilcraft:saved_entity": {
-        "isMonster": true,
-        "tag": {
-          "id": "minecraft:zombie"
-        }
-      }
-    },
-    "count": 1,
     "id": "anvilcraft:resentful_amber_block"
   },
   "max_efficiency": 1,
@@ -77,14 +70,6 @@
         {
           "outcome": {
             "type": "anvillib_recipe:spawn_item",
-            "components": {
-              "anvilcraft:saved_entity": {
-                "isMonster": false,
-                "tag": {
-                  "id": "minecraft:mooshroom"
-                }
-              }
-            },
             "functions": [
               {
                 "type": "anvillib_recipe:apply_tag_2_component",
@@ -104,14 +89,6 @@
         {
           "outcome": {
             "type": "anvillib_recipe:spawn_item",
-            "components": {
-              "anvilcraft:saved_entity": {
-                "isMonster": true,
-                "tag": {
-                  "id": "minecraft:zombie"
-                }
-              }
-            },
             "functions": [
               {
                 "type": "anvillib_recipe:apply_tag_2_component",

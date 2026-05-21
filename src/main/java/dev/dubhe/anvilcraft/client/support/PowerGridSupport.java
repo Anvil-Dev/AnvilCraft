@@ -1,17 +1,16 @@
 package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.anvilcraft.lib.v2.rendering.ALRPostEffects;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.Line;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.constant.Constant;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Collections;
@@ -28,50 +27,48 @@ public class PowerGridSupport {
     /**
      * 渲染
      */
-    public static void render(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, Vec3 camera) {
+    public static void submitPowerGridBounds(PoseStack poseStack, SubmitNodeCollector nodeCollector, Vec3 camera) {
         if (Minecraft.getInstance().level == null) return;
-        String level = Minecraft.getInstance().level.dimension().location().toString();
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.lines());
-        for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
-            if (!grid.shouldRender(camera)) continue;
-            if (!grid.getLevel().equals(level)) continue;
-            for (Line line : grid.getPowerGridBoundLines()) {
-                line.render(poseStack, consumer, camera, grid.getColor());
+        String level = Minecraft.getInstance().level.dimension().identifier().toString();
+        nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
+            for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
+                if (!grid.shouldRender(camera)) continue;
+                if (!grid.getLevel().equals(level)) continue;
+                for (Line line : grid.getPowerGridBoundLines()) {
+                    line.render(pose, buffer, camera, grid.getColor());
+                }
             }
-        }
+        });
     }
 
-    public static void renderEnhancedTransmitterLine(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, Vec3 camera) {
+    public static void submitEnhancedTransmitterLine(Vec3 camera) {
         if (!RenderState.isEnhancedRenderingAvailable() || !RenderState.isBloomEffectEnabled()) return;
         if (!AnvilCraftClient.CONFIG.renderPowerTransmitterLines) return;
         if (Minecraft.getInstance().level == null) return;
-        if (ModRenderTargets.getBloomTarget() != null) {
-            ModRenderTargets.getBloomTarget().setClearColor(0, 0, 0, 0);
-            ModRenderTargets.getBloomTarget().clear(Minecraft.ON_OSX);
-            ModRenderTargets.getBloomTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget());
-        }
-        String level = Minecraft.getInstance().level.dimension().location().toString();
-
-        VertexConsumer consumer1 = bufferSource.getBuffer(ModRenderTypes.LINE_BLOOM);
-        for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
-            if (!grid.shouldRender(camera)) continue;
-            if (!grid.getLevel().equals(level)) continue;
-            grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer1, camera, Constant.TRANSMITTER_LINE_COLOR));
-        }
-        bufferSource.endBatch();
+        ALRPostEffects.getBloomPostEffect().drawBloomed(((nodeCollector, poseStack1) -> {
+            String level = Minecraft.getInstance().level.dimension().identifier().toString();
+            nodeCollector.submitCustomGeometry(poseStack1, ModRenderTypes.LINE_BLOOM, (pose, buffer) -> {
+                for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
+                    if (!grid.shouldRender(camera)) continue;
+                    if (!grid.getLevel().equals(level)) continue;
+                    grid.getPowerTransmitterLines().forEach(it -> it.render(pose, buffer, camera, Constant.TRANSMITTER_LINE_COLOR));
+                }
+            });
+        }));
     }
 
-    public static void renderTransmitterLine(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, Vec3 camera) {
+    public static void submitTransmitterLine(PoseStack poseStack, SubmitNodeCollector nodeCollector, Vec3 camera) {
         if (RenderState.isEnhancedRenderingAvailable() && RenderState.isBloomEffectEnabled()) return;
         if (!AnvilCraftClient.CONFIG.renderPowerTransmitterLines) return;
         if (Minecraft.getInstance().level == null) return;
-        String level = Minecraft.getInstance().level.dimension().location().toString();
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.LINES);
-        for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
-            if (!grid.shouldRender(camera)) continue;
-            if (!grid.getLevel().equals(level)) continue;
-            grid.getPowerTransmitterLines().forEach(it -> it.render(poseStack, consumer, camera, Constant.TRANSMITTER_LINE_COLOR));
-        }
+        String level = Minecraft.getInstance().level.dimension().identifier().toString();
+        nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
+            for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
+                if (!grid.shouldRender(camera)) continue;
+                if (!grid.getLevel().equals(level)) continue;
+                grid.getPowerTransmitterLines().forEach(it -> it.render(pose, buffer, camera, Constant.TRANSMITTER_LINE_COLOR));
+            }
+        });
     }
 
     public static void clearAllGrid() {

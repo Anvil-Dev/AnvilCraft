@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -12,6 +11,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -21,6 +22,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -94,23 +97,31 @@ public class AnimateAscendingBlockEntity extends Entity {
         Vec3 mov = this.getDeltaMovement().add(0.0, 0.4, 0.0);
         this.setDeltaMovement(mov);
         this.setPos(this.getX() + mov.x, this.getY() + mov.y, this.getZ() + mov.z);
-        if (this.level().isClientSide) return;
+        if (this.level().isClientSide()) return;
         BlockPos current = this.blockPosition();
         BlockPos eyePos = BlockPos.containing(this.getEyePosition());
         BlockPos up = current.above();
         BlockState bs = this.level().getBlockState(up);
-        if (!bs.isAir() || current.getY() >= getEndPos().getY() || eyePos.getY() >= getEndPos().getY()) {
+        if (!bs.isAir() || current.getY() >= this.getEndPos().getY() || eyePos.getY() >= this.getEndPos().getY()) {
             this.discard();
         }
         this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        if (!this.isInvulnerableToBase(source)) {
+            this.markHurt();
+        }
+        return false;
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
+    protected void readAdditionalSaveData(ValueInput input) {
+    }
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput output) {
     }
 
     /**
@@ -149,7 +160,7 @@ public class AnimateAscendingBlockEntity extends Entity {
     }
 
     @Override
-    protected AABB makeBoundingBox() {
+    protected AABB makeBoundingBox(Vec3 position) {
         return new AABB(this.blockPosition());
     }
 

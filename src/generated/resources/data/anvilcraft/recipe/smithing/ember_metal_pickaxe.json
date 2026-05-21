@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "anvilcraft:ember_metal_ingot"
-  },
-  "base": {
-    "tag": "anvilcraft:ember_metal_pickaxe_base"
-  },
+  "addition": "anvilcraft:ember_metal_ingot",
+  "base": "#anvilcraft:ember_metal_pickaxe_base",
   "result": {
-    "count": 1,
     "id": "anvilcraft:ember_metal_pickaxe"
   },
-  "template": {
-    "item": "anvilcraft:ember_metal_upgrade_smithing_template"
-  }
+  "template": "anvilcraft:ember_metal_upgrade_smithing_template"
 }

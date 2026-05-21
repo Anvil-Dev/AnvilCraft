@@ -34,16 +34,16 @@ public class SmeltingLootModifier extends LootModifier {
         inst -> LootModifier.codecStart(inst).apply(inst, SmeltingLootModifier::new)
     );
 
-    public SmeltingLootModifier(LootItemCondition[] conditions) {
-        super(conditions);
+    public SmeltingLootModifier(LootItemCondition[] conditions, int priority) {
+        super(conditions, priority);
     }
 
     @Override
     protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext ctx) {
-        if (!ctx.hasParam(LootContextParams.BLOCK_STATE)) return generatedLoot;
-        if (!ctx.hasParam(LootContextParams.ORIGIN)) return generatedLoot;
+        if (!ctx.hasParameter(LootContextParams.BLOCK_STATE)) return generatedLoot;
+        if (!ctx.hasParameter(LootContextParams.ORIGIN)) return generatedLoot;
         ServerLevel level = ctx.getLevel();
-        ItemStack tool = ctx.getParamOrNull(LootContextParams.TOOL);
+        ItemStack tool = ctx.getOptionalParameter(LootContextParams.TOOL) instanceof ItemStack s ? s : null;
         if (tool == null) return generatedLoot;
         HolderLookup<Enchantment> lookup = level.holderLookup(Registries.ENCHANTMENT);
         int lvl = tool.getEnchantmentLevel(lookup.getOrThrow(ModEnchantments.SMELTING_KEY));
@@ -55,13 +55,13 @@ public class SmeltingLootModifier extends LootModifier {
         ) {
             Optional<HeatTier> tier = HeatRecorder.getTier(
                 level,
-                BlockPos.containing(ctx.getParam(LootContextParams.ORIGIN)),
+                BlockPos.containing(ctx.getParameter(LootContextParams.ORIGIN)),
                 Block.byItem(generatedLoot.getFirst().getItem()).defaultBlockState()
             );
             return tier.map(heatTier -> ObjectArrayList.of(
                 HeatRecorder.getHeatableBlock(
                         level,
-                        BlockPos.containing(ctx.getParam(LootContextParams.ORIGIN)),
+                        BlockPos.containing(ctx.getParameter(LootContextParams.ORIGIN)),
                         Block.byItem(generatedLoot.getFirst().getItem()).defaultBlockState(),
                         heatTier
                     )
@@ -73,7 +73,7 @@ public class SmeltingLootModifier extends LootModifier {
         for (ItemStack item : generatedLoot) {
             boolean needDouble = false;
             SingleRecipeInput cont = new SingleRecipeInput(item);
-            RecipeHolder<SmeltingRecipe> h = level.getRecipeManager()
+            RecipeHolder<SmeltingRecipe> h = level.getServer().getRecipeManager()
                 .getRecipeFor(RecipeType.SMELTING, cont, level)
                 .orElse(null);
             if (h == null) {
@@ -81,13 +81,13 @@ public class SmeltingLootModifier extends LootModifier {
                 continue;
             }
             if (item.is(Tags.Items.RAW_MATERIALS) || item.is(Tags.Items.ORES)) {
-                float chance = lvl == 1 ? 0 : (lvl - 1) * 0.25f;
+                float chance = lvl == 1 ? 0 : (lvl - 1) * 0.25F;
                 if (lvl >= 5) chance = 1;
                 if (ctx.getRandom().nextFloat() < chance) {
                     needDouble = true;
                 }
             }
-            ItemStack stack = h.value().result.copy();
+            ItemStack stack = h.value().result.create();
             int count = item.getCount();
             if (needDouble) count *= 2;
             int maxStack = stack.getItem().getMaxStackSize(stack);

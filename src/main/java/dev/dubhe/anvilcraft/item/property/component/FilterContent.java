@@ -4,24 +4,29 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-public record FilterContent(NonNullList<ItemStack> list, boolean includeComponents, boolean blackList) {
+public record FilterContent(NonNullList<ItemStack> list, boolean includeComponents, boolean blackList) implements TooltipProvider {
     public static final MapCodec<FilterContent> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         ItemStack.OPTIONAL_CODEC
             .listOf()
@@ -66,7 +71,7 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
 
     public int getNestingLevel() {
         int maxLevel = 0;
-        for (ItemStack stack : list) {
+        for (ItemStack stack : this.list) {
             if (stack.has(ModComponents.FILTER_CONTENT)) {
                 FilterContent content = Objects.requireNonNull(stack.get(ModComponents.FILTER_CONTENT));
                 int nestingLevel = content.getNestingLevel();
@@ -97,7 +102,7 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
                 // 匹配以#开头的标签格式
                 Pattern pattern = Pattern.compile("^#(([a-z0-9._-]*:[a-z0-9/._-]*)|[a-z0-9/._-]*)$");
                 if (pattern.matcher(string).matches()) {
-                    TagKey<Item> tag = TagKey.create(Registries.ITEM, ResourceLocation.parse(string.substring(1)));
+                    TagKey<Item> tag = TagKey.create(Registries.ITEM, Identifier.parse(string.substring(1)));
                     if (stack.is(tag)) return true;
                 }
             }
@@ -126,5 +131,26 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
 
         // 如果是黑名单模式且未找到匹配项则返回true，否则返回false
         return contentIsBlackList;
+    }
+
+    @Override
+    public void addToTooltip(Item.TooltipContext ctx, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
+        FilterContent content = components.get(ModComponents.FILTER_CONTENT);
+        Component matchComponent = Component.translatable(
+            content.includeComponents()
+            ? "screen.anvilcraft.filter.match_component"
+            : "screen.anvilcraft.filter.mismatch_component"
+        );
+        Component listMode = Component.translatable(
+            content.blackList()
+            ? "screen.anvilcraft.filter.black_list"
+            : "screen.anvilcraft.filter.white_list"
+        );
+        consumer.accept(
+            matchComponent.copy()
+                .append(", ")
+                .append(listMode)
+                .withStyle(ChatFormatting.GRAY)
+        );
     }
 }

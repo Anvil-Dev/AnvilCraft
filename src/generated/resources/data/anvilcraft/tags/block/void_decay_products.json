@@ -1,5 +1,10 @@
 {
   "values": [
+    "anvilcraft:end_dust",
+    "anvilcraft:deepslate_zinc_ore",
+    "anvilcraft:deepslate_tin_ore",
+    "anvilcraft:deepslate_lead_ore",
+    "anvilcraft:void_stone",
     "anvilcraft:flint_block",
     "minecraft:stone",
     "minecraft:deepslate",
@@ -39,11 +44,6 @@
     "minecraft:infested_deepslate",
     "minecraft:nether_gold_ore",
     "minecraft:gilded_blackstone",
-    "minecraft:nether_quartz_ore",
-    "anvilcraft:void_stone",
-    "anvilcraft:end_dust",
-    "anvilcraft:deepslate_tin_ore",
-    "anvilcraft:deepslate_zinc_ore",
-    "anvilcraft:deepslate_lead_ore"
+    "minecraft:nether_quartz_ore"
   ]
 }

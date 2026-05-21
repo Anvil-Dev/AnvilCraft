@@ -3,21 +3,22 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -97,26 +98,26 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.inputCooldownCount = tag.getInt("InputCooldownCount");
-        this.outputCooldownCount = tag.getInt("OutputCooldownCount");
-        this.chargeCount = tag.getDouble("ChargeCount");
-        this.power = tag.getInt("Power");
-        int[] charges = tag.getIntArray("Charges");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.inputCooldownCount = input.getIntOr("InputCooldownCount", 2);
+        this.outputCooldownCount = input.getIntOr("OutputCooldownCount", 10);
+        this.chargeCount = input.getDoubleOr("ChargeCount", 0);
+        this.power = input.getIntOr("Power", 0);
+        int[] charges = input.getIntArray("Charges").orElse(new int[0]);
         for (int i : charges) {
             this.charges.add(i);
         }
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        tag.putInt("InputCooldownCount", this.inputCooldownCount);
-        tag.putInt("OutputCooldownCount", this.outputCooldownCount);
-        tag.putDouble("ChargeCount", this.chargeCount);
-        tag.putInt("Power", this.power);
-        tag.putIntArray("Charges", this.charges);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("InputCooldownCount", this.inputCooldownCount);
+        output.putInt("OutputCooldownCount", this.outputCooldownCount);
+        output.putDouble("ChargeCount", this.chargeCount);
+        output.putInt("Power", this.power);
+        output.putIntArray("Charges", this.charges.stream().mapToInt(i -> i).toArray());
     }
 
     @Override
@@ -157,7 +158,7 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
         double acceptableChargeCount = num - overflow;
         PacketDistributor.sendToPlayersTrackingChunk(
             (ServerLevel) this.level,
-            this.level.getChunkAt(worldPosition).getPos(),
+            ChunkPos.containing(worldPosition),
             new ChargeCollectorIncomingChargePacket(
                 srcPos,
                 this.worldPosition,

@@ -1,8 +1,6 @@
 {
   "type": "minecraft:stonecutting",
-  "ingredient": {
-    "item": "anvilcraft:heavy_iron_block"
-  },
+  "ingredient": "anvilcraft:heavy_iron_block",
   "result": {
     "count": 8,
     "id": "anvilcraft:heavy_iron_trapdoor"

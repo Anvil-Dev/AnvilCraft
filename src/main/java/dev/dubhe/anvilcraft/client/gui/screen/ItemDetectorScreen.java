@@ -13,17 +13,17 @@ import dev.dubhe.anvilcraft.network.MachineCycleFilterModePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,7 @@ import java.util.Optional;
 public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu>
     implements IFilterScreen<ItemDetectorMenu> {
 
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "item_detector");
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "item_detector");
     private final Component scrollToChangeTooltip =
         Component.translatable("screen.anvilcraft.filter.scroll_to_change")
             .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
@@ -43,25 +43,34 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
 
     public ItemDetectorScreen(ItemDetectorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.minecraft = Minecraft.getInstance();
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
+        graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            BACKGROUND,
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.getImageWidth(),
+            this.getImageHeight(),
+            this.getImageWidth(),
+            this.getImageHeight()
+        );
     }
 
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         // filter mode
         this.cycleFilterModeButton = new CycleFilterModeButton(
@@ -69,7 +78,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             topPos + 54,
             b -> {
                 if (!(b instanceof CycleFilterModeButton button)) return;
-                PacketDistributor.sendToServer(new MachineCycleFilterModePacket(button.cycle()));
+                ClientPacketDistributor.sendToServer(new MachineCycleFilterModePacket(button.cycle()));
                 this.menu.setFilterMode(button.cycle());
             },
             () -> this.menu.getBlockEntity().getFilterMode()
@@ -82,17 +91,16 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             20,
             8,
             Minecraft.getInstance().font,
-            () -> Component.literal(
-                String.valueOf(this.menu.getBlockEntity().getRange()))
+            () -> Component.literal(String.valueOf(this.menu.getBlockEntity().getRange()))
         ));
         // range - +
         this.addRenderableWidget(new ItemCollectorButton(
             leftPos + 43,
             topPos + 23,
             "minus",
-            (b) -> {
+            _ -> {
                 this.menu.getBlockEntity().decreaseRange();
-                PacketDistributor.sendToServer(
+                ClientPacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
                 );
             }
@@ -101,9 +109,9 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             leftPos + 81,
             topPos + 23,
             "add",
-            (b) -> {
+            _ -> {
                 this.menu.getBlockEntity().increaseRange();
-                PacketDistributor.sendToServer(
+                ClientPacketDistributor.sendToServer(
                     new ItemDetectorChangeRangePacket(this.menu.getBlockEntity().getRange())
                 );
             }
@@ -111,17 +119,17 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     }
 
     @Override
-    public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
-        super.renderSlot(guiGraphics, slot);
+    protected void extractSlot(GuiGraphicsExtractor graphics, Slot slot, int mouseX, int mouseY) {
+        super.extractSlot(graphics, slot, mouseX, mouseY);
         if (slot instanceof FilterOnlySlot && slot.getItem().isEmpty()) {
-            this.renderDisabledSlot(guiGraphics, slot);
+            this.extractDisabledSlot(graphics, slot);
         }
     }
 
     @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
-        this.renderSlotTooltip(guiGraphics, x, y);
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
+        this.extractSlotTooltip(graphics, mouseX, mouseY);
     }
 
     private boolean hoveringNonEmptyFilterSlot() {
@@ -136,9 +144,9 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             .orElse(false);
     }
 
-    protected void renderSlotTooltip(GuiGraphics guiGraphics, int x, int y) {
+    protected void extractSlotTooltip(GuiGraphicsExtractor graphics, int x, int y) {
         if (this.hoveringEmptyFilterSlot()) {
-            guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
+            graphics.setTooltipForNextFrame(this.font, Component.translatable("screen.anvilcraft.slot.disable.tooltip"), x, y);
         }
     }
 
@@ -146,40 +154,34 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
     protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
         List<Component> components = super.getTooltipFromContainerItem(stack);
         if (this.hoveringNonEmptyFilterSlot()) {
-            components.add(scrollToChangeTooltip);
+            components.add(this.scrollToChangeTooltip);
             components.add(Component.translatable("screen.anvilcraft.filter.scroll_to_change")
                 .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
-            components.add(shiftToScrollFasterTooltip);
+            components.add(this.shiftToScrollFasterTooltip);
         }
         return components;
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
-    }
-
-    @Override
-    protected void slotClicked(Slot slot, int slotId, int button, ClickType type) {
+    protected void slotClicked(Slot slot, int slotId, int buttonNum, ContainerInput containerInput) {
         if (slot instanceof FilterOnlySlot filterSlot) {
             ItemStack filterStack = this.menu.getCarried();
-            if (filterStack.isEmpty() && !Screen.hasShiftDown()) return;
+            if (filterStack.isEmpty() && !this.minecraft.hasShiftDown()) return;
             int id = slot.getContainerSlot();
-            if (!filterStack.isEmpty() && button == InputConstants.MOUSE_BUTTON_RIGHT) {
+            if (!filterStack.isEmpty() && buttonNum == InputConstants.MOUSE_BUTTON_RIGHT) {
                 filterStack = filterStack.copyWithCount(1);
             } else {
                 filterStack = filterStack.copy();
             }
             filterSlot.set(filterStack);
-            PacketDistributor.sendToServer(new SlotFilterChangePacket(id, filterStack, false));
+            ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(id, filterStack, false));
             return;
         }
-        super.slotClicked(slot, slotId, button, type);
+        super.slotClicked(slot, slotId, buttonNum, containerInput);
     }
 
     private int getScrollSpeed() {
-        return Screen.hasShiftDown() ? 5 : 1;
+        return this.minecraft.hasShiftDown() ? 5 : 1;
     }
 
     @Override
@@ -192,7 +194,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             countAfter = Mth.clamp(countAfter, 1, item.getMaxStackSize());
             ItemStack newItem = item.copyWithCount(countAfter);
             filterSlot.set(newItem);
-            PacketDistributor.sendToServer(new SlotFilterChangePacket(
+            ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(
                 filterSlot.getContainerSlot(),
                 newItem,
                 false

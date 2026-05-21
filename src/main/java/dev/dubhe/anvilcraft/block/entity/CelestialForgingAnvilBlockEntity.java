@@ -11,6 +11,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     @Getter
@@ -33,15 +35,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.putBoolean("amplified", this.isAmplify);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putBoolean("amplified", this.isAmplify);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.isAmplify = tag.getBoolean("amplified");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.isAmplify = input.getBooleanOr("amplified", false);
     }
 
     @Override

@@ -10,9 +10,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 @Getter
 public class FilterContainer implements Container {
@@ -32,13 +30,13 @@ public class FilterContainer implements Container {
     public FilterContainer(Inventory inventory, FriendlyByteBuf buf) {
         this.player = inventory.player;
         this.position = buf.readInt();
-        this.stack = inventory.getItem(position);
+        this.stack = inventory.getItem(this.position);
         this.content = this.stack.getOrDefault(ModComponents.FILTER_CONTENT, new FilterContent());
     }
 
     @Override
     public int getContainerSize() {
-        return content.list().size();
+        return this.content.list().size();
     }
 
     @Override
@@ -48,7 +46,7 @@ public class FilterContainer implements Container {
 
     @Override
     public ItemStack getItem(int slot) {
-        return content.list().get(slot);
+        return this.content.list().get(slot);
     }
 
     @Override
@@ -63,26 +61,26 @@ public class FilterContainer implements Container {
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        content.list().set(slot, stack);
+        this.content.list().set(slot, stack);
     }
 
     @Override
     public void setChanged() {
-        this.stack.set(ModComponents.FILTER_CONTENT, content);
+        this.stack.set(ModComponents.FILTER_CONTENT, this.content);
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return stack == player.getInventory().getItem(position);
+        return this.stack == player.getInventory().getItem(this.position);
     }
 
     @Override
     public void clearContent() {
     }
 
-    @OnlyIn(Dist.CLIENT)
+    // @OnlyIn(Dist.CLIENT)
     public void sync() {
-        PacketDistributor.sendToServer(new FilterContentSyncPacket(position, content));
+        ClientPacketDistributor.sendToServer(new FilterContentSyncPacket(this.position, this.content));
     }
 
     public boolean includeComponents() {

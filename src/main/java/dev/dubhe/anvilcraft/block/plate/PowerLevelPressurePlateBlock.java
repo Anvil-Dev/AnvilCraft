@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BasePressurePlateBlock;
@@ -20,7 +21,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,8 +54,15 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
     }
 
     @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (!level.isClientSide) {
+    protected void entityInside(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Entity entity,
+        InsideBlockEffectApplier effectApplier,
+        boolean isPrecise
+    ) {
+        if (!level.isClientSide()) {
             int i = this.getSignalForState(state);
             if (i == 0) {
                 this.checkPressed(entity, level, pos, state, i);
@@ -72,8 +80,8 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
         boolean isActivating = currentSignal > 0;
         boolean needActivate = expectedSignal > 0;
 
-        updateSignal(level, pos, state, currentSignal, expectedSignal);
-        sendEvent(entity, level, pos, needActivate, isActivating);
+        this.updateSignal(level, pos, state, currentSignal, expectedSignal);
+        this.sendEvent(entity, level, pos, needActivate, isActivating);
 
         if (needActivate) {
             level.scheduleTick(new BlockPos(pos), this, this.getPressedTime());
@@ -82,7 +90,7 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
 
     @Override
     protected int getSignalStrength(Level level, BlockPos pos) {
-        return getSignalStrength(level, TOUCH_AABB.move(pos), getEntityClasses());
+        return this.getSignalStrength(level, TOUCH_AABB.move(pos), this.getEntityClasses());
     }
 
     protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {

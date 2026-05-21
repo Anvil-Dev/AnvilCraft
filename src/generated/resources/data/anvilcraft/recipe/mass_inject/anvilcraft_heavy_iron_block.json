@@ -1,7 +1,5 @@
 {
   "type": "anvilcraft:mass_inject",
-  "ingredient": {
-    "item": "anvilcraft:heavy_iron_block"
-  },
+  "ingredient": "anvilcraft:heavy_iron_block",
   "mass": 8000
 }

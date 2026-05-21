@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "A": {
-      "tag": "c:ingots/brass"
-    }
+    "A": "#c:ingots/brass"
   },
   "pattern": [
     "AAA",
@@ -12,7 +10,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "anvilcraft:brass_block"
   }
 }

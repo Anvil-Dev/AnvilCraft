@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -9,24 +10,28 @@ import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.entity.player.StackedItemContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -50,7 +55,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
     protected PollableFilteredItemStackHandler constructHandler() {
         return new PollableFilteredItemStackHandler(9) {
             @Override
-            public void onContentsChanged(int slot) {
+            protected void onContentsChanged(int index, ItemStack previousContents) {
                 BatchCrafterBlockEntity.this.onContentsChanged();
             }
         };
@@ -62,39 +67,36 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
     }
 
     private void onContentsChanged() {
-        if (this.level == null) {
+        if (this.level == null || this.level.isClientSide()) {
             this.setChanged();
             return;
         }
-        
-        RecipeManager manager = this.level.getRecipeManager();
+
+        ServerLevel level = Util.cast(this.level);
+        RecipeManager manager = level.recipeAccess();
+        CraftingInput input = this.dummyCraftingContainer.asCraftInput();
         Optional<RecipeHolder<CraftingRecipe>> recipeOp = manager.getRecipeFor(
             RecipeType.CRAFTING,
-            this.dummyCraftingContainer.asCraftInput(),
-            this.level
+            input,
+            level
         );
-        this.updateDisplayItem(recipeOp.map(
-            recipe -> recipe.value()
-                .getResultItem(this.level.registryAccess())
-        ).orElse(ItemStack.EMPTY));
+        this.updateDisplayItem(recipeOp.map(recipe -> recipe.value().assemble(input)).orElse(ItemStack.EMPTY));
 
-        if (!this.level.isClientSide) {
-            PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
-                this.getDisplayingStack(),
-                this.getPos()
-            ));
-        }
+        PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
+            this.getDisplayingStack(),
+            this.getPos()
+        ));
         this.setChanged();
     }
 
     @Override
-    public boolean craft(Level level) {
+    public boolean craft(ServerLevel level) {
         if (this.craftingContainer.isEmpty()) return false;
-        if (!this.canCraft()) return false;
+        if (this.cantCraft()) return false;
         ItemStack result;
         
         Optional<BatchCrafterCache> cacheOp = this.cache.stream()
-            .filter(recipe -> recipe.test(craftingContainer))
+            .filter(recipe -> recipe.test(this.craftingContainer))
             .findFirst();
         Optional<RecipeHolder<CraftingRecipe>> holderOp;
         List<ItemStack> craftRemaining;
@@ -103,10 +105,10 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
             holderOp = crafterCache.getRecipe();
             craftRemaining = crafterCache.getRemaining();
         } else {
-            holderOp = level.getRecipeManager()
-                .getRecipeFor(RecipeType.CRAFTING, this.craftingContainer.asCraftInput(), level);
-            NonNullList<ItemStack> remainingItems = level.getRecipeManager()
-                .getRemainingItemsFor(RecipeType.CRAFTING, this.craftingContainer.asCraftInput(), level);
+            CraftingInput input = this.craftingContainer.asCraftInput();
+            holderOp = level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
+            NonNullList<ItemStack> remainingItems = holderOp.map(recipe -> recipe.value().getRemainingItems(input))
+                .orElse(NonNullList.create());
             BatchCrafterCache cache = new BatchCrafterCache(this.craftingContainer, holderOp, remainingItems);
             craftRemaining = remainingItems;
             this.cache.push(cache);
@@ -116,13 +118,13 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         }
         if (holderOp.isEmpty()) return false;
         
-        result = holderOp.get().value().assemble(this.craftingContainer.asCraftInput(), level.registryAccess());
+        result = holderOp.get().value().assemble(this.craftingContainer.asCraftInput());
         this.displayingStack = result.copy();
-        if (!level.isClientSide) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
+        if (!level.isClientSide()) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
         if (!result.isItemEnabled(level.enabledFeatures())) return false;
 
-        int times = IntStream.range(0, this.handler.getSlots())
-            .mapToObj(this.handler::getStackInSlot)
+        int times = IntStream.range(0, this.handler.size())
+            .mapToObj(i -> ItemUtil.getStack(this.handler, i))
             .filter((s -> !s.isEmpty()))
             .mapToInt(ItemStack::getCount)
             .min()
@@ -135,8 +137,11 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
                 .collect(Collectors.toList());
         }
         if (this.ejectItems(result, craftRemaining, this.getDirection())) return false;
-        for (int i = 0; i < this.handler.getSlots(); i++) {
-            this.handler.extractItem(i, times, false);
+        for (int i = 0; i < this.handler.size(); i++) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                this.handler.extract(i, this.handler.getResource(i), times, transaction);
+                transaction.commit();
+            }
         }
         level.updateNeighborsAt(this.getBlockPos(), ModBlocks.BATCH_CRAFTER.get());
         return true;
@@ -210,7 +215,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
 
         @Override
         public int getContainerSize() {
-            return BatchCrafterBlockEntity.this.handler.getSlots();
+            return BatchCrafterBlockEntity.this.handler.size();
         }
 
         @Override
@@ -220,26 +225,31 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
 
         @Override
         public ItemStack getItem(int slot) {
-            return BatchCrafterBlockEntity.this.handler.getStackInSlot(slot);
+            return ItemUtil.getStack(BatchCrafterBlockEntity.this.handler, slot);
         }
 
         @Override
         public ItemStack removeItem(int slot, int amount) {
-            ItemStack stack = BatchCrafterBlockEntity.this.handler.extractItem(slot, amount, false);
+            ItemStack stack = ItemStack.EMPTY;
+            try (Transaction transaction = Transaction.openRoot()) {
+                ItemResource resource = BatchCrafterBlockEntity.this.handler.getResource(slot);
+                int extracted = BatchCrafterBlockEntity.this.handler.extract(slot, resource, amount, transaction);
+                if (extracted > 0) stack = resource.toStack(extracted);
+            }
             BatchCrafterBlockEntity.this.setChanged();
             return stack;
         }
 
         @Override
         public ItemStack removeItemNoUpdate(int slot) {
-            ItemStack stack = BatchCrafterBlockEntity.this.handler.getStackInSlot(slot);
-            BatchCrafterBlockEntity.this.handler.setStackInSlot(slot, ItemStack.EMPTY);
+            ItemStack stack = ItemUtil.getStack(BatchCrafterBlockEntity.this.handler, slot);
+            BatchCrafterBlockEntity.this.handler.set(slot, ItemResource.EMPTY, 0);
             return stack;
         }
 
         @Override
         public void setItem(int slot, ItemStack stack) {
-            BatchCrafterBlockEntity.this.handler.setStackInSlot(slot, stack);
+            BatchCrafterBlockEntity.this.handler.set(slot, ItemResource.of(stack), stack.getCount());
         }
 
         @Override
@@ -260,7 +270,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         }
 
         @Override
-        public void fillStackedContents(StackedContents contents) {
+        public void fillStackedContents(StackedItemContents contents) {
             for (int i = 0; i < this.getContainerSize(); i++) {
                 ItemStack itemStack = this.getItem(i);
                 contents.accountSimpleStack(itemStack);
@@ -291,7 +301,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
 
         @Override
         public int getContainerSize() {
-            return BatchCrafterBlockEntity.this.handler.getSlots();
+            return BatchCrafterBlockEntity.this.handler.size();
         }
 
         @Override
@@ -304,7 +314,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
 
         @Override
         public ItemStack getItem(int slot) {
-            ItemStack stack = BatchCrafterBlockEntity.this.handler.getStackInSlot(slot);
+            ItemStack stack = ItemUtil.getStack(BatchCrafterBlockEntity.this.handler, slot);
             if (stack.isEmpty()) stack = BatchCrafterBlockEntity.this.handler.getFilter(slot);
             return stack;
         }
@@ -338,7 +348,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         }
 
         @Override
-        public void fillStackedContents(StackedContents contents) {
+        public void fillStackedContents(StackedItemContents contents) {
             for (int i = 0; i < this.getContainerSize(); i++) {
                 ItemStack itemStack = this.getItem(i);
                 contents.accountSimpleStack(itemStack);

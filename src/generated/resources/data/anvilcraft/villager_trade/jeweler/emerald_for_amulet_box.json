@@ -1,0 +1,15 @@
+{
+  "additional_wants": {
+    "id": "minecraft:totem_of_undying"
+  },
+  "gives": {
+    "id": "anvilcraft:amulet_box"
+  },
+  "max_uses": 1.0,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 64.0,
+    "id": "minecraft:emerald"
+  },
+  "xp": 30.0
+}

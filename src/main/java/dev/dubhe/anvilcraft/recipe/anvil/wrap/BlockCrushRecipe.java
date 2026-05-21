@@ -1,18 +1,17 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -23,6 +22,24 @@ import net.minecraft.world.level.block.Block;
  * <p>该配方用于在铁砧下落时粉碎方块，是方块级别的粉碎处理配方</p>
  */
 public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
+    public static final RecipeSerializer<BlockCrushRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BlockStatePredicate.CODEC
+                .fieldOf("input")
+                .forGetter(BlockCrushRecipe::getFirstInputBlock),
+            ChanceBlockState.CODEC.codec()
+                .fieldOf("result")
+                .forGetter(BlockCrushRecipe::getFirstResultBlock)
+        ).apply(instance, BlockCrushRecipe::new)),
+        StreamCodec.composite(
+            BlockStatePredicate.STREAM_CODEC,
+            BlockCrushRecipe::getFirstInputBlock,
+            ChanceBlockState.STREAM_CODEC,
+            BlockCrushRecipe::getFirstResultBlock,
+            BlockCrushRecipe::new
+        )
+    );
+
     /**
      * 构造一个方块粉碎配方
      *
@@ -45,12 +62,12 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
 
     @Override
     public RecipeType<BlockCrushRecipe> getType() {
-        return ModRecipeTypes.BLOCK_CRUSH_TYPE.get();
+        return ModRecipeTypes.BLOCK_CRUSH.get();
     }
 
     @Override
     public RecipeSerializer<BlockCrushRecipe> getSerializer() {
-        return ModRecipeTypes.BLOCK_CRUSH_SERIALIZER.get();
+        return SERIALIZER;
     }
 
     /**
@@ -60,44 +77,6 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
      */
     public static Builder builder() {
         return new Builder();
-    }
-
-    /**
-     * 方块粉碎配方序列化器
-     */
-    public static class Serializer implements RecipeSerializer<BlockCrushRecipe> {
-        /**
-         * 编解码器
-         */
-        private static final MapCodec<BlockCrushRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            BlockStatePredicate.CODEC
-                .fieldOf("input")
-                .forGetter(BlockCrushRecipe::getFirstInputBlock),
-            ChanceBlockState.CODEC.codec()
-                .fieldOf("result")
-                .forGetter(BlockCrushRecipe::getFirstResultBlock)
-        ).apply(instance, BlockCrushRecipe::new));
-
-        /**
-         * 流编解码器
-         */
-        private static final StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> STREAM_CODEC = StreamCodec.composite(
-            BlockStatePredicate.STREAM_CODEC,
-            BlockCrushRecipe::getFirstInputBlock,
-            ChanceBlockState.STREAM_CODEC,
-            BlockCrushRecipe::getFirstResultBlock,
-            BlockCrushRecipe::new
-        );
-
-        @Override
-        public MapCodec<BlockCrushRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, BlockCrushRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
-        }
     }
 
     /**
@@ -118,6 +97,7 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
          * 设置输入方块
          *
          * @param input 输入方块谓词
+         *
          * @return 构建器实例
          */
         public Builder input(BlockStatePredicate input) {
@@ -129,10 +109,11 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
          * 设置输入方块（标签形式）
          *
          * @param input 输入方块标签
+         *
          * @return 构建器实例
          */
-        public Builder input(TagKey<Block> input) {
-            this.input = BlockStatePredicate.builder().of(input).build();
+        public Builder input(HolderGetter<Block> blocks, TagKey<Block> input) {
+            this.input = BlockStatePredicate.builder().of(blocks, input).build();
             return this;
         }
 
@@ -140,6 +121,7 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
          * 设置输入方块
          *
          * @param input 输入方块
+         *
          * @return 构建器实例
          */
         public Builder input(Block input) {
@@ -151,6 +133,7 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
          * 设置结果方块
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder result(ChanceBlockState result) {
@@ -159,13 +142,14 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
         }
 
         /**
-         * 设置结果方块（默认概率为1.0f）
+         * 设置结果方块（默认概率为1.0F）
          *
          * @param result 结果方块
+         *
          * @return 构建器实例
          */
         public Builder result(Block result) {
-            this.result = (new ChanceBlockState(result.defaultBlockState(), 1.0f));
+            this.result = (new ChanceBlockState(result.defaultBlockState(), 1.0F));
             return this;
         }
 
@@ -175,11 +159,11 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
-            if (input == null) {
+        public void validate(Identifier id) {
+            if (this.input == null) {
                 throw new IllegalArgumentException("Recipe input must not be null, RecipeId: " + id);
             }
-            if (result == null) {
+            if (this.result == null) {
                 throw new IllegalArgumentException("Recipe result must not be null, RecipeId: " + id);
             }
         }
@@ -190,8 +174,8 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
         }
 
         @Override
-        public Item getResult() {
-            return WrapUtils.getItem(result);
+        public ItemStackTemplate getResult() {
+            return WrapUtils.getItem(this.result);
         }
     }
 }

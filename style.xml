@@ -92,7 +92,10 @@
         <!-- 树遍历器 -->
         <module name="OuterTypeFilename"/>
         <!-- 外部类型文件名检查 -->
-        <module name="RequireThis"/>
+        <module name="RequireThis">
+            <!-- 检查所有实例方法和变量 -->
+            <property name="validateOnlyOverlapping" value="false"/>
+        </module>
         <!-- 需要 THIS -->
         <module name="MatchXpath">
             <!-- XPath匹配 -->
@@ -126,6 +129,11 @@
         </module>
         <module name="AvoidStarImport"/>
         <!-- 避免星号导入 -->
+        <module name="AvoidStaticImport">
+            <!-- 避免静态导入 -->
+            <property name="excludes" value="dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM"/>
+            <!-- 允许AnvilCraft.REGISTRUM静态导入 -->
+        </module>
         <module name="OneTopLevelClass"/>
         <!-- 一个顶级类 -->
         <module name="NoLineWrap">
@@ -392,14 +400,14 @@
         </module>
         <module name="LambdaParameterName">
             <!-- Lambda参数名 -->
-            <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+            <property name="format" value="^(?:[a-z]([a-z0-9][a-zA-Z0-9]*)?|_)$"/>
             <!-- 格式 -->
             <message key="name.invalidPattern"
                      value="Lambda parameter name ''{0}'' must match pattern ''{1}''.Lambda参数名''{0}''必须匹配模式''{1}''。"/>
         </module>
         <module name="CatchParameterName">
             <!-- Catch参数名 -->
-            <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+            <property name="format" value="^(?:[a-z]([a-z0-9][a-zA-Z0-9]*)?|_)$"/>
             <!-- 格式 -->
             <message key="name.invalidPattern"
                      value="Catch parameter name ''{0}'' must match pattern ''{1}''.Catch参数名''{0}''必须匹配模式''{1}''。"/>
@@ -413,7 +421,7 @@
         </module>
         <module name="PatternVariableName">
             <!-- 模式变量名 -->
-            <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+            <property name="format" value="^(?:[a-z]([a-z0-9][a-zA-Z0-9]*)?|_)$"/>
             <!-- 格式 -->
             <message key="name.invalidPattern"
                      value="Pattern variable name ''{0}'' must match pattern ''{1}''.模式变量名''{0}''必须匹配模式''{1}''。"/>

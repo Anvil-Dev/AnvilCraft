@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory.component;
 
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.item.utility.FilterItem;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * 可过滤槽位，允许设置自定义过滤器
  *
- * <p>PS: 与{@link dev.dubhe.anvilcraft.item.FilterItem 过滤器（物品）}无关</p>
+ * <p>PS: 与{@link FilterItem 过滤器（物品）}无关</p>
  */
 @Getter
 @Setter

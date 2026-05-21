@@ -1,12 +1,11 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
-import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
+import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
@@ -16,10 +15,9 @@ import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -34,6 +32,32 @@ import java.util.List;
  */
 @Getter
 public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
+    public static final RecipeSerializer<TimeWarpRecipe> SERIALIZER = new RecipeSerializer<>(
+        RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemIngredientPredicate.CODEC.listOf()
+                .optionalFieldOf("ingredients", List.of())
+                .forGetter(TimeWarpRecipe::getInputItems),
+            ChanceItemStack.CODEC.listOf()
+                .optionalFieldOf("results", List.of())
+                .forGetter(TimeWarpRecipe::getResultItems),
+            HasCauldronSimple.CODEC
+                .forGetter(TimeWarpRecipe::getHasCauldron),
+            ProduceHeat.Type.MAP_CODEC
+                .forGetter(TimeWarpRecipe::getProduceHeat)
+        ).apply(instance, TimeWarpRecipe::new)),
+        StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            TimeWarpRecipe::getInputItems,
+            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            TimeWarpRecipe::getResultItems,
+            HasCauldronSimple.STREAM_CODEC,
+            TimeWarpRecipe::getHasCauldron,
+            ProduceHeat.Type.STREAM_CODEC,
+            TimeWarpRecipe::getProduceHeat,
+            TimeWarpRecipe::new
+        )
+    );
+
     /**
      * 构造一个时移配方
      *
@@ -69,13 +93,13 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
     }
 
     @Override
-    public RecipeSerializer<TimeWarpRecipe> getSerializer() {
-        return ModRecipeTypes.TIME_WARP_SERIALIZER.get();
+    public RecipeType<TimeWarpRecipe> getType() {
+        return ModRecipeTypes.TIME_WARP.get();
     }
 
     @Override
-    public RecipeType<TimeWarpRecipe> getType() {
-        return ModRecipeTypes.TIME_WARP_TYPE.get();
+    public RecipeSerializer<TimeWarpRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     /**
@@ -104,53 +128,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
      */
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().consume() < 0;
-    }
-
-    /**
-     * 时移配方序列化器
-     */
-    public static class Serializer implements RecipeSerializer<TimeWarpRecipe> {
-        /**
-         * 编解码器
-         */
-        private static final MapCodec<TimeWarpRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ItemIngredientPredicate.CODEC.listOf()
-                .optionalFieldOf("ingredients", List.of())
-                .forGetter(TimeWarpRecipe::getInputItems),
-            ChanceItemStack.CODEC.listOf()
-                .optionalFieldOf("results", List.of())
-                .forGetter(TimeWarpRecipe::getResultItems),
-            HasCauldronSimple.CODEC
-                .forGetter(TimeWarpRecipe::getHasCauldron),
-            ProduceHeat.Type.MAP_CODEC
-                .forGetter(TimeWarpRecipe::getProduceHeat)
-        ).apply(instance, TimeWarpRecipe::new));
-
-        /**
-         * 流编解码器
-         */
-        private static final StreamCodec<RegistryFriendlyByteBuf, TimeWarpRecipe> STREAM_CODEC = StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            TimeWarpRecipe::getInputItems,
-            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
-            TimeWarpRecipe::getResultItems,
-            HasCauldronSimple.STREAM_CODEC,
-            TimeWarpRecipe::getHasCauldron,
-            ProduceHeat.Type.STREAM_CODEC,
-            TimeWarpRecipe::getProduceHeat,
-            TimeWarpRecipe::new
-        );
-
-        @Override
-        public MapCodec<TimeWarpRecipe> codec() {
-            return Serializer.CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, TimeWarpRecipe> streamCodec() {
-            return Serializer.STREAM_CODEC;
-        }
+        return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
     }
 
     /**
@@ -172,6 +150,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          *
          * @param tier     热量等级
          * @param duration 持续时间
+         *
          * @return 构建器实例
          */
         public Builder heat(HeatTier tier, int duration) {
@@ -183,6 +162,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置距离
          *
          * @param distance 距离
+         *
          * @return 构建器实例
          */
         public Builder distance(Distance distance) {
@@ -196,6 +176,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * @param type         距离类型
          * @param distance     距离
          * @param isHorizontal 是否水平方向
+         *
          * @return 构建器实例
          */
         public Builder distance(Distance.Type type, int distance, boolean isHorizontal) {
@@ -208,6 +189,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          *
          * @param distance     距离
          * @param isHorizontal 是否水平方向
+         *
          * @return 构建器实例
          */
         public Builder distanceEuclidean(int distance, boolean isHorizontal) {
@@ -219,6 +201,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置欧几里得距离（默认距离为1）
          *
          * @param isHorizontal 是否水平方向
+         *
          * @return 构建器实例
          */
         public Builder distanceEuclidean(boolean isHorizontal) {
@@ -230,6 +213,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置欧几里得距离（指定距离，默认为水平方向）
          *
          * @param distance 距离
+         *
          * @return 构建器实例
          */
         public Builder distanceEuclidean(int distance) {
@@ -252,6 +236,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          *
          * @param distance     距离
          * @param isHorizontal 是否水平方向
+         *
          * @return 构建器实例
          */
         public Builder distanceManhattan(int distance, boolean isHorizontal) {
@@ -263,6 +248,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置曼哈顿距离（默认距离为1）
          *
          * @param isHorizontal 是否水平方向
+         *
          * @return 构建器实例
          */
         public Builder distanceManhattan(boolean isHorizontal) {
@@ -274,6 +260,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置曼哈顿距离（指定距离，默认为水平方向）
          *
          * @param distance 距离
+         *
          * @return 构建器实例
          */
         public Builder distanceManhattan(int distance) {
@@ -294,8 +281,9 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
         /**
          * 设置切比雪夫距离（指定距离和方向）
          *
-         * @param distance    距离
+         * @param distance     距离
          * @param isHorizontal 是否水平方向
+         *
          * @return 构建器实例
          */
         public Builder distanceChebyshev(int distance, boolean isHorizontal) {
@@ -307,6 +295,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置切比雪夫距离（默认距离为1）
          *
          * @param isHorizontal 是否水平方向
+         *
          * @return 构建器实例
          */
         public Builder distanceChebyshev(boolean isHorizontal) {
@@ -318,6 +307,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置切比雪夫距离（指定距离，默认为水平方向）
          *
          * @param distance 距离
+         *
          * @return 构建器实例
          */
         public Builder distanceChebyshev(int distance) {
@@ -339,9 +329,10 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置流体
          *
          * @param fluid 流体ID
+         *
          * @return 构建器实例
          */
-        public Builder fluid(ResourceLocation fluid) {
+        public Builder fluid(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
@@ -350,6 +341,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置炼药锅方块
          *
          * @param cauldron 炼药锅方块
+         *
          * @return 构建器实例
          */
         public Builder fluid(Block cauldron) {
@@ -361,9 +353,10 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置转换后的流体
          *
          * @param transform 转换后的流体ID
+         *
          * @return 构建器实例
          */
-        public Builder transform(ResourceLocation transform) {
+        public Builder transform(Identifier transform) {
             this.hasCauldron.transform(transform);
             return this;
         }
@@ -372,6 +365,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置转换后的炼药锅方块
          *
          * @param cauldron 转换后的炼药锅方块
+         *
          * @return 构建器实例
          */
         public Builder transform(Block cauldron) {
@@ -383,6 +377,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置消耗量
          *
          * @param consume 消耗量
+         *
          * @return 构建器实例
          */
         public Builder consume(int consume) {
@@ -394,10 +389,21 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          * 设置产生量
          *
          * @param produce 产量
+         *
          * @return 构建器实例
          */
         public Builder produce(int produce) {
-            this.consume(-produce);
+            this.hasCauldron.produce(produce);
+            return this;
+        }
+
+        /**
+         * 设置需要点燃锅
+         *
+         * @return 构建器实例
+         */
+        public Builder ignite() {
+            this.hasCauldron.ignite();
             return this;
         }
 
@@ -407,11 +413,11 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
         }
 
         @Override
-        public void validate(ResourceLocation id) {
+        public void validate(Identifier id) {
             HasCauldronSimple hasCauldronSimple = this.hasCauldron.build();
             if (itemIngredients.isEmpty()
                 && (hasCauldronSimple.fluid().equals(HasCauldron.EMPTY)
-                || hasCauldronSimple.fluid().equals(HasCauldron.NULL))) {
+                    || hasCauldronSimple.fluid().equals(HasCauldron.NULL))) {
                 throw new IllegalArgumentException("Recipe input must not be empty, RecipeId: " + id);
             }
         }

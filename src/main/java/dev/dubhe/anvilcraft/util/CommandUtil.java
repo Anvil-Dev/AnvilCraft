@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import dev.anvilcraft.lib.v2.util.ComponentUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -31,7 +31,7 @@ public class CommandUtil {
      * @apiNote 例如错误信息为 {@code command.anvilcraft.multiphase.not_found}，<br>
      *          则需传入的内容id为 {@code anvilcraft:multiphase}
      */
-    public static CommandSyntaxException notFound(ResourceLocation contentId, UUID id) {
+    public static CommandSyntaxException notFound(Identifier contentId, UUID id) {
         return ERROR_NOT_FOUND.create(contentId, id);
     }
 

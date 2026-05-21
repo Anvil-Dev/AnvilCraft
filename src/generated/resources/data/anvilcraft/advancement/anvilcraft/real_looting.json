@@ -10,7 +10,6 @@
       "translate": "advancements.anvilcraft.real_looting.description"
     },
     "icon": {
-      "count": 1,
       "id": "minecraft:anvil"
     },
     "title": {

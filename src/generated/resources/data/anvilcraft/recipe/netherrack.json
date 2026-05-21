@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "blocks",
+  "cookingtime": 200,
+  "experience": 0.0,
+  "ingredient": "anvilcraft:rotten_flesh_block",
+  "result": {
+    "id": "minecraft:netherrack"
+  }
+}

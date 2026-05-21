@@ -51,7 +51,7 @@ public record ShockContext(
     public boolean testCorner(TagKey<Block> tagKey) {
         for (Direction direction1 : HORIZONTAL_X) {
             for (Direction direction2 : HORIZONTAL_Z) {
-                if (!level.getBlockState(centerPos.relative(direction1).relative(direction2)).is(tagKey)) {
+                if (!this.level.getBlockState(this.centerPos.relative(direction1).relative(direction2)).is(tagKey)) {
                     return false;
                 }
             }
@@ -60,13 +60,13 @@ public record ShockContext(
     }
 
     public boolean testCorner(Holder<Block> block) {
-        return testCorner(block.value());
+        return this.testCorner(block.value());
     }
 
     public boolean testCorner(Block block) {
         for (Direction direction1 : HORIZONTAL_X) {
             for (Direction direction2 : HORIZONTAL_Z) {
-                if (!level.getBlockState(centerPos.relative(direction1).relative(direction2)).is(block)) {
+                if (!this.level.getBlockState(this.centerPos.relative(direction1).relative(direction2)).is(block)) {
                     return false;
                 }
             }
@@ -75,12 +75,12 @@ public record ShockContext(
     }
 
     public boolean testBorder(Holder<Block> block) {
-        return testBorder(block.value());
+        return this.testBorder(block.value());
     }
 
     public boolean testBorder(TagKey<Block> tagKey) {
         for (Direction direction : HORIZONTAL) {
-            if (!level.getBlockState(centerPos.relative(direction)).is(tagKey)) {
+            if (!this.level.getBlockState(this.centerPos.relative(direction)).is(tagKey)) {
                 return false;
             }
         }
@@ -89,7 +89,7 @@ public record ShockContext(
 
     public boolean testBorder(Block block) {
         for (Direction direction : HORIZONTAL) {
-            if (!level.getBlockState(centerPos.relative(direction)).is(block)) {
+            if (!this.level.getBlockState(this.centerPos.relative(direction)).is(block)) {
                 return false;
             }
         }
@@ -98,7 +98,7 @@ public record ShockContext(
 
     public boolean testBorder(Class<? extends Block> block) {
         for (Direction direction : HORIZONTAL) {
-            if (!block.isInstance(level.getBlockState(centerPos.relative(direction)).getBlock())) {
+            if (!block.isInstance(this.level.getBlockState(this.centerPos.relative(direction)).getBlock())) {
                 return false;
             }
         }

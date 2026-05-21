@@ -1,30 +1,36 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PowerGeneratorRenderState;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
-public class ChargeCollectorRenderer extends PowerProducerRenderer<ChargeCollectorBlockEntity> {
-    public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(
-        AnvilCraft.of("block/charge_collector_cube")
+public class ChargeCollectorRenderer extends PowerProducerRenderer<ChargeCollectorBlockEntity, PowerGeneratorRenderState> {
+    public static final StandaloneModelKey<BlockStateModel> CUBE = new StandaloneModelKey<>(
+        () -> "AnvilCraft: Charge Collector Cube Model"
     );
 
-    public ChargeCollectorRenderer(BlockEntityRendererProvider.Context context) {
+    public ChargeCollectorRenderer(BlockEntityRendererProvider.Context ignored) {
+    }
+
+    @Override
+    public PowerGeneratorRenderState createRenderState() {
+        return new PowerGeneratorRenderState();
     }
 
     @Override
     protected float elevation() {
-        return 0.75f;
+        return 0.75F;
     }
 
     @Override
-    protected float rotation(ChargeCollectorBlockEntity blockEntity, float partialTick) {
-        return blockEntity.getRotation() + (float) (Math.log(blockEntity.getServerPower() + 1) * 2.5f * partialTick);
+    protected float rotation(ChargeCollectorBlockEntity be, float partialTick) {
+        return be.getRotation() + (float) (Math.log(be.getServerPower() + 1) * 2.5F * partialTick);
     }
 
     @Override
-    protected ModelResourceLocation getModel() {
-        return MODEL;
+    protected StandaloneModelKey<BlockStateModel> getModel() {
+        return CUBE;
     }
 }

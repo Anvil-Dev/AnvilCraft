@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -32,8 +32,8 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     BlockPos getPos();
 
     default AABB getShape() {
-        float range = getRange() * 2 + 1;
-        return AABB.ofSize(getPos().getCenter(), range, range, range);
+        float range = this.getRange() * 2 + 1;
+        return AABB.ofSize(this.getPos().getCenter(), range, range, range);
     }
 
     default int getRange() {
@@ -94,12 +94,28 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
     @Override
     default int compareTo(IPowerComponent powerComponent) {
         if (this.equals(powerComponent)) return 0;
-        int i = getComponentType().compareTo(powerComponent.getComponentType());
+        int i = this.getComponentType().compareTo(powerComponent.getComponentType());
         return i == 0 ? 1 : i;
     }
 
     default boolean isGridWorking() {
         return Optional.ofNullable(this.getGrid()).map(PowerGrid::isWorking).orElse(false);
+    }
+
+    /**
+     * 转换为电网元件信息
+     */
+    default PowerComponentInfo toPowerComponentInfo() {
+        return new PowerComponentInfo(
+            this.getPos(),
+            0,
+            0,
+            0,
+            0,
+            this.getRange(),
+            this.getShape(),
+            this.getComponentType()
+        );
     }
 
     default MutableComponent getCommandDiscription() {

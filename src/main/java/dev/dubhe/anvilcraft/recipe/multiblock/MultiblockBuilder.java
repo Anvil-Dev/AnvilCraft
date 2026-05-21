@@ -4,9 +4,8 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
@@ -15,48 +14,48 @@ import net.minecraft.world.level.block.Block;
 public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     private BlockPattern pattern = BlockPattern.create();
-    private ItemStack result;
+    private ItemStackTemplate result;
 
     public MultiblockBuilder() {
     }
 
     public MultiblockBuilder(ItemLike item, int count) {
-        this.result = new ItemStack(item, count);
+        this.result = new ItemStackTemplate(item.asItem(), count);
     }
 
     public MultiblockBuilder layer(String... layers) {
-        pattern.layer(layers);
+        this.pattern.layer(layers);
         return this;
     }
 
     public MultiblockBuilder symbol(char symbol, BlockPredicateWithState predicate) {
-        pattern.symbol(symbol, predicate);
+        this.pattern.symbol(symbol, predicate);
         return this;
     }
 
     public MultiblockBuilder symbol(char symbol, Block block) {
-        return symbol(symbol, BlockPredicateWithState.of(block));
+        return this.symbol(symbol, BlockPredicateWithState.of(block));
     }
 
     public MultiblockBuilder symbol(char symbol, Holder<Block> block) {
-        return symbol(symbol, block.value());
+        return this.symbol(symbol, block.value());
     }
 
     public MultiblockBuilder symbol(char symbol, String block) {
-        return symbol(symbol, BlockPredicateWithState.of(block));
+        return this.symbol(symbol, BlockPredicateWithState.of(block));
     }
 
     @Override
     public MultiblockRecipe buildRecipe() {
-        return new MultiblockRecipe(pattern, result);
+        return new MultiblockRecipe(this.pattern, this.result);
     }
 
     @Override
-    public void validate(ResourceLocation id) {
-        if (result == null) {
+    public void validate(Identifier id) {
+        if (this.result == null) {
             throw new IllegalArgumentException("Recipe result must not be null, Recipe: " + id);
         }
-        if (!pattern.checkSymbols()) {
+        if (!this.pattern.checkSymbols()) {
             throw new IllegalArgumentException("Recipe pattern must contain all valid symbols: " + id);
         }
     }
@@ -67,7 +66,7 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
     }
 
     @Override
-    public Item getResult() {
-        return result.getItem();
+    public ItemStackTemplate getResult() {
+        return this.result;
     }
 }

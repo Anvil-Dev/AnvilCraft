@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -25,7 +25,7 @@ public class PortalConversionRecipeLoader {
             .type(Util.cast(Blocks.END_PORTAL))
             .input(anvil)
             .result(ModBlocks.SPECTRAL_ANVIL, chance)
-            .save(provider, anvil.builtInRegistryHolder().key().location().getPath());
+            .save(provider, anvil.builtInRegistryHolder().key().identifier().getPath());
     }
 
     private static void spectral(RegistrumRecipeProvider provider, BlockEntry<? extends Block> anvil, float chance) {

@@ -3,20 +3,22 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
+import dev.dubhe.anvilcraft.block.power.LoadMonitorBlock;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsumer {
     @Getter
     @Setter
+    @Nullable
     private PowerGrid grid;
 
     private int cooldown = 0;
@@ -26,15 +28,15 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        tag.putInt("Cooldown", cooldown);
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.cooldown = input.getIntOr("Cooldown", 0);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        cooldown = tag.getInt("Cooldown");
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Cooldown", this.cooldown);
     }
 
     @Override
@@ -57,8 +59,8 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
     }
 
     public void tick() {
-        if (cooldown > 0) {
-            cooldown--;
+        if (this.cooldown > 0) {
+            this.cooldown--;
         } else {
             if (getGrid() == null) return;
             flushState(getLevel(), getBlockPos());
@@ -70,7 +72,7 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
                 : 0;
             BlockState state = getBlockState().setValue(LoadMonitorBlock.LOAD, load);
             getLevel().setBlockAndUpdate(getBlockPos(), state);
-            cooldown = AnvilCraft.CONFIG.loadMonitor;
+            this.cooldown = AnvilCraft.CONFIG.loadMonitor;
             getLevel().updateNeighbourForOutputSignal(getBlockPos(), state.getBlock());
         }
     }

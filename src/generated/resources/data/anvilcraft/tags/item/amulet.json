@@ -12,10 +12,6 @@
     "anvilcraft:silence_amulet",
     "anvilcraft:abnormal_amulet",
     "anvilcraft:gem_amulet",
-    "anvilcraft:nature_amulet",
-    {
-      "id": "anvilcraft:cogwheel_amulet",
-      "required": false
-    }
+    "anvilcraft:nature_amulet"
   ]
 }

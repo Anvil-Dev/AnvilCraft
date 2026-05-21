@@ -1,17 +1,16 @@
 package dev.dubhe.anvilcraft.inventory.container;
 
 import lombok.Getter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class FilterOnlyContainer implements Container {
 
@@ -30,7 +29,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public int getContainerSize() {
-        return size;
+        return this.size;
     }
 
     @Override
@@ -40,7 +39,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public ItemStack getItem(int slot) {
-        return filterList.get(slot);
+        return this.filterList.get(slot);
     }
 
     @Override
@@ -55,7 +54,7 @@ public class FilterOnlyContainer implements Container {
 
     @Override
     public void setItem(int slot, ItemStack stack) {
-        filterList.set(slot, stack);
+        this.filterList.set(slot, stack);
     }
 
     @Override
@@ -75,31 +74,28 @@ public class FilterOnlyContainer implements Container {
 
     }
 
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        ListTag nbtTagList = new ListTag();
-        for (int i = 0; i < filterList.size(); i++) {
-            if (!filterList.get(i).isEmpty()) {
-                CompoundTag itemTag = new CompoundTag();
-                itemTag.putInt("Slot", i);
-                nbtTagList.add(filterList.get(i).save(provider, itemTag));
-            }
+    public void serialize(ValueOutput output) {
+        int slots = this.filterList.size();
+        output.putInt("Size", slots);
+        ValueOutput.ValueOutputList items = output.childrenList("Items");
+        for (int i = 0; i < slots; i++) {
+            ItemStack stack = this.filterList.get(i);
+            if (stack.isEmpty()) continue;
+            ValueOutput entry = items.addChild();
+            entry.putInt("Slot", i);
+            entry.store("Item", ItemStack.OPTIONAL_CODEC, stack);
         }
-        CompoundTag nbt = new CompoundTag();
-        nbt.put("Items", nbtTagList);
-        nbt.putInt("Size", filterList.size());
-        return nbt;
     }
 
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        this.size = nbt.contains("Size", Tag.TAG_INT) ? nbt.getInt("Size") : filterList.size();
+    public void deserialize(ValueInput input) {
+        this.size = input.getIntOr("Size", this.filterList.size());
         this.filterList = NonNullList.withSize(this.size, ItemStack.EMPTY);
-        ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
-        for (int i = 0; i < tagList.size(); i++) {
-            CompoundTag itemTags = tagList.getCompound(i);
-            int slot = itemTags.getInt("Slot");
-            if (slot >= 0 && slot < filterList.size()) {
-                ItemStack.parse(provider, itemTags).ifPresent(stack -> filterList.set(slot, stack));
-            }
+        Optional<ValueInput.ValueInputList> itemsOp = input.childrenList("Items");
+        if (itemsOp.isEmpty()) return;
+        for (ValueInput entry : itemsOp.get()) {
+            int slot = entry.getIntOr("Slot", -1);
+            if (slot < 0 || slot >= this.filterList.size()) continue;
+            entry.read("Item", ItemStack.OPTIONAL_CODEC).ifPresent(stack -> this.filterList.set(slot, stack));
         }
     }
 }

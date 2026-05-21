@@ -10,11 +10,18 @@
           ]
         }
       ],
-      "result": "minecraft:netherite_pickaxe"
+      "result": {
+        "id": "minecraft:netherite_pickaxe"
+      }
     },
-    "anvilcraft:ember_metal_pickaxe"
+    {
+      "id": "anvilcraft:ember_metal_pickaxe"
+    }
   ],
   "material": {
     "items": "anvilcraft:ember_metal_ingot"
+  },
+  "template": {
+    "items": "anvilcraft:permutation_smithing_template"
   }
 }

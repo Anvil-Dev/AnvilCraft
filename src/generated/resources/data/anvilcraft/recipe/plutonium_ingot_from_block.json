@@ -3,9 +3,7 @@
   "category": "misc",
   "group": "anvilcraft:plutonium_ingot",
   "ingredients": [
-    {
-      "item": "anvilcraft:plutonium_block"
-    }
+    "anvilcraft:plutonium_block"
   ],
   "result": {
     "count": 9,

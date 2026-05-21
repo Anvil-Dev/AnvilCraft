@@ -2,14 +2,14 @@ package dev.dubhe.anvilcraft.api;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
+import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -164,16 +164,16 @@ public class SpawningManager {
      *
      * @param event 生物生成位置检查事件
      * @see MobSpawnEvent.PositionCheck
-     * @see MobSpawnType
+     * @see EntitySpawnReason
      * @see #ignoreSummonMob(Level, MobSpawnEvent.PositionCheck, Set, boolean)
      */
     @SubscribeEvent
     private static void blockEntitySummon(MobSpawnEvent.PositionCheck event) {
-        MobSpawnType spawnType = event.getSpawnType();
+        EntitySpawnReason spawnType = event.getSpawnType();
         if (
-            !spawnType.equals(MobSpawnType.NATURAL)
-            && !spawnType.equals(MobSpawnType.CHUNK_GENERATION)
-            && !spawnType.equals(MobSpawnType.PATROL)
+            !spawnType.equals(EntitySpawnReason.NATURAL)
+            && !spawnType.equals(EntitySpawnReason.CHUNK_GENERATION)
+            && !spawnType.equals(EntitySpawnReason.PATROL)
         ) {
             return;
         }

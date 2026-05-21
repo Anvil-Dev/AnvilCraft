@@ -3,25 +3,14 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
-import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
-import snownee.jade.api.ITooltip;
-import snownee.jade.api.config.IPluginConfig;
 
-public enum RubyPrismProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum RubyPrismProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    @Override
-    public void appendTooltip(ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
-        CompoundTag serverData = blockAccessor.getServerData();
-        if (serverData.contains("laser_level")) {
-            int laserLevel = serverData.getInt("laser_level");
-            tooltip.add(Component.translatable("tooltip.anvilcraft.jade.ruby_prism.power", laserLevel));
-        }
-    }
+    public static final Identifier UID = AnvilCraft.of("ruby_prism");
 
     @Override
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
@@ -31,7 +20,7 @@ public enum RubyPrismProvider implements IBlockComponentProvider, IServerDataPro
     }
 
     @Override
-    public ResourceLocation getUid() {
-        return AnvilCraft.of("ruby_prism");
+    public Identifier getUid() {
+        return UID;
     }
 }

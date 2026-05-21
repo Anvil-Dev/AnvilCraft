@@ -1,17 +1,19 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class SilencerButton extends Button {
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
     @Getter
     private final int index;
@@ -46,7 +48,7 @@ public class SilencerButton extends Button {
             10,
             Component.literal(""),
             onPress,
-            (var) -> parent.getSoundTextAt(index, variant).copy()
+            var -> parent.getSoundTextAt(index, variant).copy()
         );
         this.height = 15;
         this.width = 112;
@@ -57,11 +59,11 @@ public class SilencerButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         String searchText = this.parent.getFilterText();
-        ResourceLocation soundId = this.parent.getSoundIdAt(this.index, this.variant);
+        Identifier soundId = this.parent.getSoundIdAt(this.index, this.variant);
         if (soundId == null) return;
-        this.renderTexture(guiGraphics, this.texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
+        this.renderTexture(graphics, this.texture, this.getX(), this.getY(), 0, 0, 15, this.width, this.height, 112, 30);
         Component message;
         if (searchText.startsWith("#") || searchText.startsWith("~")) {
             message = this.parent.getSoundTextAt(this.index, this.variant);
@@ -73,16 +75,16 @@ public class SilencerButton extends Button {
                 ChatFormatting.YELLOW);
         }
         this.setMessage(message);
-        this.renderString(guiGraphics, Minecraft.getInstance().font, 16777215 | Mth.ceil(this.alpha * 255.0F) << 24);
+        int color = 16777215 | Mth.ceil(this.alpha * 255.0F) << 24;
+        Font font = Minecraft.getInstance().font;
+        graphics.centeredText(font, message, this.getX() + this.width / 2, this.getY() + 3, color);
         if (this.isHovered()) {
             Component soundIdText = highlighted(
                 soundId.toString(), searchText.replaceFirst("#", ""), ChatFormatting.GRAY, ChatFormatting.YELLOW);
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font,
-                List.of(message.getVisualOrderText(), soundIdText.getVisualOrderText()),
-                mouseX,
-                mouseY
-            );
+            this.parent.setTooltipComponents(List.of(
+                ClientTooltipComponent.create(message.getVisualOrderText()),
+                ClientTooltipComponent.create(soundIdText.getVisualOrderText())
+            ));
         }
     }
 
@@ -90,6 +92,7 @@ public class SilencerButton extends Button {
         String original,
         String hightlighted,
         ChatFormatting originalFormatting,
+        @SuppressWarnings("SameParameterValue")
         ChatFormatting highlightFormatting
     ) {
         try {
@@ -108,8 +111,8 @@ public class SilencerButton extends Button {
     }
 
     public void renderTexture(
-        GuiGraphics guiGraphics,
-        ResourceLocation texture,
+        GuiGraphicsExtractor graphics,
+        Identifier texture,
         int x,
         int y,
         int puOffset,
@@ -124,7 +127,6 @@ public class SilencerButton extends Button {
         if (this.isHovered()) {
             i += textureDifference;
         }
-        RenderSystem.enableDepthTest();
-        guiGraphics.blit(texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, puOffset, i, width, height, textureWidth, textureHeight);
     }
 }

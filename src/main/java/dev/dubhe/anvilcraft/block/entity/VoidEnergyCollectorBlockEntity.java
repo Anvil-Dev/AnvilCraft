@@ -3,21 +3,21 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
-import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
-import dev.dubhe.anvilcraft.block.VoidMatterBlock;
+import dev.dubhe.anvilcraft.block.power.generator.VoidEnergyCollectorBlock;
+import dev.dubhe.anvilcraft.block.storage.NegativeMatterBlock;
+import dev.dubhe.anvilcraft.block.storage.VoidMatterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -79,21 +79,21 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.cooldownCount = tag.getInt("cooldownCount");
-        this.decayCooldownCount = tag.getInt("decayCooldownCount");
-        this.blockCount = tag.getInt("blockCount");
-        this.power = tag.getInt("power");
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.cooldownCount = input.getIntOr("cooldownCount", 0);
+        this.decayCooldownCount = input.getIntOr("decayCooldownCount", 0);
+        this.blockCount = input.getIntOr("blockCount", 0);
+        this.power = input.getIntOr("power", 0);
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        tag.putInt("cooldownCount", this.cooldownCount);
-        tag.putInt("decayCooldownCount", this.decayCooldownCount);
-        tag.putInt("blockCount", this.blockCount);
-        tag.putInt("power", this.power);
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("cooldownCount", this.cooldownCount);
+        output.putInt("decayCooldownCount", this.decayCooldownCount);
+        output.putInt("blockCount", this.blockCount);
+        output.putInt("power", this.power);
     }
 
     private static int getPowerFromBlockCount(int count) {
@@ -112,23 +112,23 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         if (this.cooldownCount-- > 1) return;
         this.cooldownCount = COOLDOWN;
         final int oldPower = this.power;
-        this.blockCount = countBlocksInRange();
+        this.blockCount = this.countBlocksInRange();
         this.power = getPowerFromBlockCount(this.blockCount);
         if (this.power > 0 && this.getBlockState().getBlock() instanceof VoidEnergyCollectorBlock voidEnergyCollector) {
             voidEnergyCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
             if (this.decayCooldownCount-- <= 1) {
-                makeBlocksDecay();
+                this.makeBlocksDecay();
                 this.decayCooldownCount = level.getRandom().nextInt(0, 60);
             }
         }
-        if (power != oldPower && grid != null) grid.markChanged();
+        if (this.power != oldPower && this.grid != null) this.grid.markChanged();
         this.blockCount = 0;
-        time++;
+        this.time++;
     }
 
     public static boolean isOutOfBuildLimits(Level level, BlockPos pos) {
-        int minHeight = level.getMinBuildHeight();
-        int maxHeight = level.getMaxBuildHeight();
+        int minHeight = level.getMinY();
+        int maxHeight = level.getMaxY();
         int y = pos.getY();
         return y < minHeight || y >= maxHeight;
     }
@@ -220,6 +220,6 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     public void clientTick() {
-        rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
+        this.rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
     }
 }

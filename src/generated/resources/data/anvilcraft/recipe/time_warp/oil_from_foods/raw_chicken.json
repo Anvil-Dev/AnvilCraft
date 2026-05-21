@@ -1,11 +1,12 @@
 {
   "type": "anvilcraft:time_warp",
-  "consume": -250,
+  "fluid": "minecraft:null",
   "ingredients": [
     {
       "count": 64,
       "items": "#c:foods/raw_chicken"
     }
   ],
+  "produce": 250,
   "transform": "anvilcraft:oil"
 }

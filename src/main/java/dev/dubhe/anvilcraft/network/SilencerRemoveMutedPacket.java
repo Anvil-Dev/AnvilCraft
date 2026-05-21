@@ -6,13 +6,13 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 
-public record SilencerRemoveMutedPacket(ResourceLocation soundId) implements IServerboundPacket {
+public record SilencerRemoveMutedPacket(Identifier soundId) implements IServerboundPacket {
     public static final Type<SilencerRemoveMutedPacket> TYPE = IPacket.type(AnvilCraft.of("silencer_remove_muted"));
     public static final StreamCodec<ByteBuf, SilencerRemoveMutedPacket> STREAM_CODEC = StreamCodec.composite(
-        ResourceLocation.STREAM_CODEC,
+        Identifier.STREAM_CODEC,
         SilencerRemoveMutedPacket::soundId,
         SilencerRemoveMutedPacket::new
     );

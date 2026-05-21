@@ -33,7 +33,7 @@ public record PowerGridSyncPacket(SimplePowerGrid grid) implements IClientboundP
     public void handleOnClient(Player player) {
         PowerGridSupport.getGridMap().compute(
             this.grid.getId(),
-            (id, grid) -> {
+            (_, grid) -> {
                 if (grid != null) grid.destroy();
                 return this.grid;
             }

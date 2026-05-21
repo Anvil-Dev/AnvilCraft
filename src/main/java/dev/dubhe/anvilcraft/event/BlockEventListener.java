@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
-import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
-import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
+import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -81,7 +81,7 @@ public class BlockEventListener {
             for (Supplier<BaseBatchCraftingBlock> getter : BaseBatchCraftingBlock.getBatchCraftingBlockGetters()) {
                 BaseBatchCraftingBlock block = getter.get();
                 if (!stack.is(block.getToastSymbol())) continue;
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     level.setBlockAndUpdate(pos, BaseBatchCraftingBlock.copy(targetState, block.defaultBlockState()));
                     Block.popResourceFromFace(level, pos, Direction.UP, target.getToastSymbol().getDefaultInstance().copyWithCount(1));
                     stack.shrink(1);

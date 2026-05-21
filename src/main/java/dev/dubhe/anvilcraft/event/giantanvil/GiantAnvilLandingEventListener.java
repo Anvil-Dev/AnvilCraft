@@ -17,6 +17,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.Spawner;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -84,10 +85,10 @@ public class GiantAnvilLandingEventListener {
         }
         MultiblockInput input = new MultiblockInput(blocks, size);
         if (overCompressorDetected) {
-            level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.MULTIBLOCK_TYPE.get(), input, level)
+            level.getServer().getRecipeManager()
+                .getRecipeFor(ModRecipeTypes.MULTIBLOCK.get(), input, level)
                 .ifPresent(recipe -> {
-                    ItemStack result = recipe.value().getResult().copy();
+                    ItemStack result = recipe.value().getResult().create();
                     for (int y = 0; y < size; y++) {
                         for (int z = 0; z < size; z++) {
                             for (int x = 0; x < size; x++) {
@@ -104,8 +105,8 @@ public class GiantAnvilLandingEventListener {
                 });
             return;
         }
-        level.getRecipeManager()
-            .getRecipeFor(ModRecipeTypes.MULTIBLOCK_CONVERSION_TYPE.get(), input, level)
+        level.getServer().getRecipeManager()
+            .getRecipeFor(ModRecipeTypes.MULTIBLOCK_CONVERSION.get(), input, level)
             .ifPresent(recipe -> {
                 MultiblockConversionRecipe value = recipe.value();
                 Rotation rotation = value.getMatchedRotation();
@@ -139,7 +140,7 @@ public class GiantAnvilLandingEventListener {
                         for (int x = 0; x < size; x++) {
                             if (x > 0 && x < size - 1 && y > 0 && y < size - 1 && z > 0 && z < size - 1) continue;
                             mpos.setWithOffset(inputCorner, x, y, z);
-                            level.blockUpdated(mpos, input.getBlockState(x, y, z).getBlock());
+                            level.sendBlockUpdated(mpos, input.getBlockState(x, y, z), level.getBlockState(mpos), Block.UPDATE_ALL);
                             BlockState newState = level.getBlockState(mpos);
                             if (newState.hasAnalogOutputSignal()) {
                                 level.updateNeighbourForOutputSignal(mpos, newState.getBlock());
@@ -161,11 +162,23 @@ public class GiantAnvilLandingEventListener {
                         BlockPos outerPos = mpos2.setWithOffset(innerPos, direction);
                         BlockState innerState = level.getBlockState(innerPos);
                         if (innerState != input.getBlockState(x, y, z)) {
-                            level.neighborShapeChanged(direction.getOpposite(), level.getBlockState(innerPos),
-                                outerPos, innerPos, 3, 512);
+                            level.neighborShapeChanged(
+                                direction.getOpposite(),
+                                outerPos,
+                                innerPos,
+                                level.getBlockState(innerPos),
+                                3,
+                                512
+                            );
                         }
-                        level.neighborShapeChanged(direction, level.getBlockState(outerPos),
-                            innerPos, outerPos, 3, 512);
+                        level.neighborShapeChanged(
+                            direction,
+                            innerPos,
+                            outerPos,
+                            level.getBlockState(outerPos),
+                            3,
+                            512
+                        );
                     }
                 );
                 entity.ifPresent(entityType -> {

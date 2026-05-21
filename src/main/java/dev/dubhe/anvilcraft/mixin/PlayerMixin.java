@@ -1,16 +1,13 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
-import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
-import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
-import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
-import dev.dubhe.anvilcraft.item.MultitoolItem;
+import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
+import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -18,7 +15,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,7 +30,7 @@ abstract class PlayerMixin extends LivingEntity {
 
     // 飘升机背包飞行时无挖掘惩罚
     @ModifyExpressionValue(
-        method = "getDigSpeed",
+        method = "getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)F",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;onGround()Z"
@@ -46,43 +42,30 @@ abstract class PlayerMixin extends LivingEntity {
         return noDiggingPenalty || original;
     }
 
-    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
-    private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
-        if (value.getEntity() instanceof FallingBlockEntity falling
+    @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true, name = "source")
+    private DamageSource modifySource(DamageSource source, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+        if (source.getEntity() instanceof FallingBlockEntity falling
             && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
-            && !this.level().isClientSide
+            && !this.level().isClientSide()
         ) {
             ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
-            this.lastHurtByPlayer = killer;
-            this.lastHurtByPlayerTime = 1;
+            this.setLastHurtByPlayer(killer, 1);
             killerRef.set(killer);
-            DamageSource source = new DamageSource(
+            DamageSource newSource = new DamageSource(
                 this.level().damageSources().playerAttack(killer).typeHolder(),
-                falling, killer, value.getSourcePosition()
+                falling, killer, source.getSourcePosition()
             );
             if (falling.getBlockState().getBlock() instanceof TranscendenceAnvilBlock) {
                 AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
             }
-            return source;
+            return newSource;
         }
-        return value;
+        return source;
     }
 
     @Inject(method = "die", at = @At("RETURN"))
-    private void disableKiller(DamageSource cause, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
         AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
-    }
-
-    @ModifyReturnValue(method = "isScoping", at = @At("RETURN"))
-    private boolean isScoping(boolean original) {
-        return this.isUsingItem()
-               && (
-                   this.getUseItem().is(Items.SPYGLASS)
-                   || (
-                       this.getUseItem().is(ModItems.MULTITOOL_ITEM)
-                       && MultitoolItem.getMode(this.getUseItem()) == MultitoolItem.SPYGLASS_MODE
-                   )
-               );
     }
 }

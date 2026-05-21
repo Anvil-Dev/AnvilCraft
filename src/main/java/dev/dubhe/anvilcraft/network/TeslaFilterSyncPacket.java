@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
+import dev.dubhe.anvilcraft.api.teslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.Pair;
