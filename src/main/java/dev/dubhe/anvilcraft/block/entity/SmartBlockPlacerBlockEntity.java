@@ -351,7 +351,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         } else {
             // 加载新结构（客户端和服务端都加载）
             StructureLoadUtil.StructureData data = StructureLoadUtil.loadStructureFromDisk(this.level, diskStack);
-            if (!data.isEmpty()) {
+            if (data != null && !data.isEmpty()) {
                 // 根据相对朝向旋转结构
                 this.rotateStructureData(data);
                 
