@@ -4,7 +4,7 @@
       "model": "anvilcraft:block/cut_flint_slab"
     },
     "type=double": {
-      "model": "anvilcraft:block/cut_flint"
+      "model": "anvilcraft:block/cut_flint_block"
     },
     "type=top": {
       "model": "anvilcraft:block/cut_flint_slab_top"

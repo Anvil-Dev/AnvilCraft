@@ -3424,6 +3424,12 @@ public class ModBlocks {
     public static final BlockEntry<SlabBlock> CUT_FLINT_SLAB_BLOCK = REGISTRUM.block("cut_flint_slab", SlabBlock::new)
         .initialProperties(FLINT_BLOCK::get)
         .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/cut_flint_block")))
+        .blockstate(() -> DataGenUtil.slabBlock(
+            _ -> new Material(AnvilCraft.of("block/cut_flint_block")),
+            _ -> new Material(AnvilCraft.of("block/cut_flint_block")),
+            _ -> new Material(AnvilCraft.of("block/cut_flint_block")),
+            _ -> AnvilCraft.of("block/cut_flint_block")
+        ))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
         .item()
         .tag(ItemTags.SLABS)
