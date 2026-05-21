@@ -7,7 +7,10 @@ import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.util.*;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
+import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.DevourUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -204,9 +207,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 devourCenterPos,
                 devourerDirection,
                 range,
-                AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ?
-                        AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance :
-                        0
+                AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : 0
         );
 
         final List<BlockPos> filteredBlockPosList = new ArrayList<>();
