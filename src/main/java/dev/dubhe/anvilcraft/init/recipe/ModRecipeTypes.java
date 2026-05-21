@@ -235,11 +235,6 @@ public class ModRecipeTypes {
         });
     }
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT =
-        registerType("anvil_collision");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<AnvilCollisionCraftRecipe>> ANVIL_COLLISION_CRAFT_SERIALIZER =
-        RECIPE_SERIALIZERS.register("anvil_collision", AnvilCollisionCraftRecipe.Serializer::new);
-
     public static final DeferredHolder<RecipeType<?>, RecipeType<ProceduralProcessRecipe>> PROCEDURAL_PROCESS =
         registerType("procedural_process");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ProceduralProcessRecipe>> PROCEDURAL_PROCESS_SERIALIZER =
