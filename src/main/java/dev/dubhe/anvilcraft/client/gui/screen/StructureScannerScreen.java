@@ -247,8 +247,14 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 根据扫描状态更新按钮
         this.updateModeToggleButton();
         
+        // 根据磁盘状态更新文本框可编辑状态
+        this.updateNameInputEditable();
+        
         // 渲染3D预览
         this.renderPreview(guiGraphics);
+        
+        // 渲染信息栏
+        this.renderInfoPanel(guiGraphics, mouseX, mouseY);
         
         // 渲染文本输入框（参考铁砧的实现）
         this.nameInput.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -259,6 +265,99 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
         super.renderTooltip(guiGraphics, x, y);
+    }
+    
+    /**
+     * 渲染信息栏
+     */
+    private void renderInfoPanel(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity == null) return;
+        
+        // 检查是否有磁盘
+        boolean hasDisk = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+        if (!hasDisk) return;
+        
+        // 获取信息状态
+        StructureScannerBlockEntity.InfoStatus status = blockEntity.getInfoStatus();
+        
+        // 信息栏位置（在磁盘槽位上方）
+        int infoX = this.leftPos + 9;
+        int infoY = this.topPos + 52;
+        
+        // 渲染标题（使用缩放）
+        com.mojang.blaze3d.vertex.PoseStack poseStack = guiGraphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(infoX, infoY, 0);
+        poseStack.scale(0.75f, 0.75f, 1.0f);
+        guiGraphics.drawString(this.font, 
+            net.minecraft.network.chat.Component.translatable("screen.anvilcraft.structure_scanner.info_title"),
+            0, 0, 0xFFFFFF, false);
+        poseStack.popPose();
+        
+        // 状态信息位置（标题下方）
+        int statusY = infoY + 10;
+        
+        // 根据状态渲染
+        switch (status) {
+            case READY -> {
+                // 显示"结构扫描就绪"（使用缩放）
+                poseStack.pushPose();
+                poseStack.translate(infoX, statusY, 0);
+                poseStack.scale(0.5f, 0.5f, 1.0f);
+                guiGraphics.drawString(this.font, 
+                    net.minecraft.network.chat.Component.translatable("screen.anvilcraft.structure_scanner.ready"),
+                    0, 0, 0x40FF40, false);
+                poseStack.popPose();
+            }
+            case LARGE_STRUCTURE, UNKNOWN_BLOCKS, TOO_LARGE, MULTIBLOCK_BLOCKS -> {
+                // 显示叹号图标
+                boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE 
+                    || status == StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS;
+                int iconColor = isWarning ? 0xFFFF55 : 0xFF5555;
+                            
+                // 绘制叹号
+                guiGraphics.drawString(this.font, "!", infoX, statusY, iconColor, false);
+                            
+                // 检查鼠标是否在叹号上
+                if (mouseX >= infoX && mouseX < infoX + 8 && mouseY >= statusY && mouseY < statusY + 10) {
+                    // 显示tooltip
+                    Component tooltip = switch (status) {
+                        case LARGE_STRUCTURE -> net.minecraft.network.chat.Component.translatable(
+                            "screen.anvilcraft.structure_scanner.tooltip.large_structure");
+                        case UNKNOWN_BLOCKS -> net.minecraft.network.chat.Component.translatable(
+                            "screen.anvilcraft.structure_scanner.tooltip.unknown_blocks");
+                        case TOO_LARGE -> net.minecraft.network.chat.Component.translatable(
+                            "screen.anvilcraft.structure_scanner.tooltip.too_large");
+                        case MULTIBLOCK_BLOCKS -> net.minecraft.network.chat.Component.translatable(
+                            "screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks");
+                        default -> Component.empty();
+                    };
+                    
+                    guiGraphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
+                }
+            }
+        }
+    }
+    
+    /**
+     * 根据磁盘状态更新文本框可编辑状态
+     */
+    private void updateNameInputEditable() {
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity == null) {
+            this.nameInput.setEditable(false);
+            return;
+        }
+        
+        // 检查磁盘槽位是否有物品
+        boolean hasDisk = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+        this.nameInput.setEditable(hasDisk);
+        
+        // 如果没有磁盘且文本框有焦点，移除焦点
+        if (!hasDisk && this.nameInput.isFocused()) {
+            this.nameInput.setFocused(false);
+        }
     }
     
     /**
@@ -650,14 +749,20 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // 优先处理ESC键，关闭GUI
-        if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
-            this.minecraft.player.closeContainer();
-            return true;
+        // 当文本框有焦点时，优先处理所有按键输入
+        if (this.nameInput.isFocused()) {
+            // 拦截ESC键，关闭GUI
+            if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
+                this.minecraft.player.closeContainer();
+                return true;
+            }
+            // 其他所有按键都交给文本框处理
+            return this.nameInput.keyPressed(keyCode, scanCode, modifiers);
         }
         
-        // 只有当文本框有焦点时才处理文本输入
-        if (this.nameInput.isFocused() && this.nameInput.keyPressed(keyCode, scanCode, modifiers)) {
+        // 文本框没有焦点时，ESC键关闭GUI
+        if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
+            this.minecraft.player.closeContainer();
             return true;
         }
         

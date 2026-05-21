@@ -47,7 +47,7 @@ public class StructureScannerMenu extends AbstractContainerMenu {
         
         // 添加输出槽位（1个槽位）
         int outputSlotX = 8;
-        int outputSlotY = 65;
+        int outputSlotY = 137;
         this.addSlot(new Slot(
             this.blockEntity.getOutputInventory(),
             0,

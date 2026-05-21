@@ -988,10 +988,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      * @return 旋转步数(0-3)
      */
     private int calculatePreviewRotationSteps(Direction placerFacing, int scannerFacingValue) {
-        // Scanner朝向与放置器朝向是镜像对应的，需要转换
+        // Scanner朝向与放置器朝向的映射关系
+        // 映射规则:南北方向保持不变,东西方向镜像
         int scannerToPlacerMapping = switch (scannerFacingValue) {
-            case 2 -> 3;  // Scanner北 → 放置器南
-            case 3 -> 2;  // Scanner南 → 放置器北
+            case 2 -> 2;  // Scanner北 → 放置器北
+            case 3 -> 3;  // Scanner南 → 放置器南
             case 4 -> 5;  // Scanner西 → 放置器东
             case 5 -> 4;  // Scanner东 → 放置器西
             default -> scannerFacingValue;
@@ -1015,8 +1016,21 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             default -> 0;
         };
         
-        // 计算旋转步数（顺时针）
-        return (placerIndex - scannerIndex + 4) % 4;
+        // 计算基础旋转步数（顺时针）
+        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
+        
+        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
+        int rotationAfterGlobalFix = (baseRotation + 3) % 4;
+        
+        // 根据scannerFacing添加额外修正
+        int extraCorrection = switch (scannerFacingValue) {
+            case 2 -> 3;  // NORTH: 逆时针+90度(顺时针+3)
+            case 3 -> 1;  // SOUTH: 顺时针+90度
+            case 5 -> 2;  // EAST: 旋转180度(顺时针+2)
+            default -> 0;  // WEST不需要额外修正
+        };
+        
+        return (rotationAfterGlobalFix + extraCorrection) % 4;
     }
     
     /**

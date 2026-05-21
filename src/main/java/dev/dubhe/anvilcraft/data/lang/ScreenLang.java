@@ -217,5 +217,13 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.preview.empty", "No positions configured");
         provider.add("screen.anvilcraft.smart_block_placer.disk_slot", "Disk Slot: Place Disk and enable blueprint mode");
         provider.add("screen.anvilcraft.smart_block_placer.structure.loaded", "Loaded: %s");
+        
+        // Structure Scanner
+        provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
+        provider.add("screen.anvilcraft.structure_scanner.ready", "Structure scan ready");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.unknown_blocks", "Structure contains unknown blocks");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.too_large", "Structure is too large to save");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks", "Structure contains multiblock blocks, which may cause issues. Test separately before saving and placing");
     }
 }

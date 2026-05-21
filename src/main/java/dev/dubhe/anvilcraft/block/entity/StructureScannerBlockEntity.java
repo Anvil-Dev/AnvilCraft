@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -163,6 +164,99 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
      */
     public boolean isScanComplete() {
         return !this.isScanning && !this.scannedBlocks.isEmpty();
+    }
+    
+    /**
+     * 信息栏状态枚举
+     */
+    public enum InfoStatus {
+        READY,
+        LARGE_STRUCTURE,
+        UNKNOWN_BLOCKS,
+        TOO_LARGE,
+        MULTIBLOCK_BLOCKS
+    }
+    
+    /**
+     * 获取信息栏状态
+     */
+    public InfoStatus getInfoStatus() {
+        // 检查是否超过16x16x16
+        if (this.rangeX.get() > 16 || this.rangeY.get() > 16 || this.rangeZ.get() > 16) {
+            return InfoStatus.TOO_LARGE;
+        }
+        
+        // 检查是否大于5x5x5
+        if (this.rangeX.get() > 5 || this.rangeY.get() > 5 || this.rangeZ.get() > 5) {
+            return InfoStatus.LARGE_STRUCTURE;
+        }
+        
+        // 检查是否有无法保存的方块
+        if (this.hasUnknownBlocks()) {
+            return InfoStatus.UNKNOWN_BLOCKS;
+        }
+        
+        // 检查是否有多部分方块
+        if (this.hasMultiblockBlocks()) {
+            return InfoStatus.MULTIBLOCK_BLOCKS;
+        }
+        
+        return InfoStatus.READY;
+    }
+    
+    /**
+     * 检查是否有无法保存的方块
+     */
+    private boolean hasUnknownBlocks() {
+        // TODO: 实现检测逻辑，检查是否有无法序列化的方块
+        return false;
+    }
+    
+    /**
+     * 检查是否有多部分方块
+     */
+    private boolean hasMultiblockBlocks() {
+        if (this.level == null) return false;
+        
+        BlockPos pos = this.getBlockPos();
+        Direction facing = this.getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+        int rangeX = this.rangeX.get();
+        int rangeY = this.rangeY.get();
+        int rangeZ = this.rangeZ.get();
+        
+        // 计算扫描区域的起始位置
+        BlockPos startPos = this.getScanStartPos(pos, facing, rangeX, rangeZ);
+        
+        // 检查区域内是否有BlockEntity的方块（多部分方块通常有BlockEntity）
+        for (int x = 0; x < rangeX; x++) {
+            for (int y = 0; y < rangeY; y++) {
+                for (int z = 0; z < rangeZ; z++) {
+                    BlockPos checkPos = startPos.offset(x, y, z);
+                    var blockState = this.level.getBlockState(checkPos);
+                    var blockEntity = this.level.getBlockEntity(checkPos);
+                    
+                    // 检查是否有BlockEntity（简单判断多部分方块）
+                    if (blockEntity != null) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 获取扫描区域的起始位置
+     */
+    private BlockPos getScanStartPos(BlockPos scannerPos, Direction facing, int rangeX, int rangeZ) {
+        return switch (facing) {
+            case NORTH -> scannerPos.offset(-rangeX / 2, 1, 1);
+            case SOUTH -> scannerPos.offset(-rangeX / 2, 1, -rangeZ);
+            case WEST -> scannerPos.offset(1, 1, -rangeZ / 2);
+            case EAST -> scannerPos.offset(-rangeX, 1, -rangeZ / 2);
+            default -> scannerPos;
+        };
     }
 
     public StructureScannerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
