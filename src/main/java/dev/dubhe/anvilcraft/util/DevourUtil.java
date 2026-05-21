@@ -64,13 +64,13 @@ public class DevourUtil {
         Set<BlockPos> devourTargets = Streams
             .stream(BlockPos.betweenClosed(a, b))
             .flatMap(bottomPos -> {
-                // dh = 0 when DOWN, UP; above dh is chain range
-                int dh = devourDirection.getStepY() != 0 ? 0 : 2 * range;
-                int cy = bottomPos.getY() + dh;
+                // deltaHeight = 0 when DOWN, UP; above topY is chain range
+                int deltaHeight = devourDirection.getStepY() != 0 ? 0 : 2 * range;
+                int topY = bottomPos.getY() + deltaHeight;
                 return Streams
-                    .stream(BlockPos.betweenClosed(bottomPos, bottomPos.atY(cy + chainCount)))
+                    .stream(BlockPos.betweenClosed(bottomPos, bottomPos.atY(topY + chainCount)))
                     .map(BlockPos::immutable)
-                    .takeWhile(pos -> pos.getY() <= cy || DevourUtil.shouldChainDevour(level.getBlockState(pos)));
+                    .takeWhile(pos -> pos.getY() <= topY || DevourUtil.shouldChainDevour(level.getBlockState(pos)));
                 // in common devour OR chain until unchainable
             })
             .collect(Collectors.toSet());
