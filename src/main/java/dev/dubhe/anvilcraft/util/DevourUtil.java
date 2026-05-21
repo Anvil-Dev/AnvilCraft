@@ -58,6 +58,8 @@ public class DevourUtil {
                 b = centerPos;
             }
         }
+
+        List<BlockPos> normalizedOriginalPoses = new ArrayList<>();
         // BlockPos.betweenClosed: down -> up
         Set<BlockPos> devourTargets = Streams
             .stream(BlockPos.betweenClosed(a, b))
@@ -68,16 +70,20 @@ public class DevourUtil {
                 return Streams
                     .stream(BlockPos.betweenClosed(bottomPos, bottomPos.atY(topY + chainCount)))
                     .takeWhile(pos -> pos.getY() <= topY || DevourUtil.shouldChainDevour(level.getBlockState(pos)))
-                    .map(originalPos -> {
-                        BlockPos normalizedBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, originalPos);
-                        if (!originalPos.equals(normalizedBlockPos)) {
-                            return normalizedBlockPos;
-                        }
-                        return originalPos.immutable();
-                    });
+                    .map(BlockPos::immutable);
                 // in common devour OR chain until unchainable
             })
+            .map(originalPos -> {
+                BlockPos normalizedBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, originalPos);
+                if (!originalPos.equals(normalizedBlockPos)) {
+                    normalizedOriginalPoses.add(originalPos);
+                    return normalizedBlockPos;
+                }
+                return originalPos;
+            })
             .collect(Collectors.toSet());
+        // include original pos
+        devourTargets.addAll(normalizedOriginalPoses);
 
         LinkedList<BlockPos> l = new LinkedList<>();
         DevouringLevelReader devouringLevelReader = new DevouringLevelReader(level, devourTargets);
