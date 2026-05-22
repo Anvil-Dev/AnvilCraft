@@ -546,6 +546,7 @@ public class ModItems {
 
     public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM.item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .recipe(RegistrumItemRecipeLoader::structureDiskConversion)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
