@@ -33,11 +33,6 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
         SmartBlockPlacerActionPacket::new
     );
 
-    // 便捷构造函数（用于不需要参数的动作）
-    public SmartBlockPlacerActionPacket(String action) {
-        this(action, 0, "");
-    }
-    
     // 便捷构造函数（用于只需要 value 的动作）
     public SmartBlockPlacerActionPacket(String action, int value) {
         this(action, value, "");
@@ -82,7 +77,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                 String[] parts = name.split(":");
                 if (parts.length != 3) {
                     AnvilCraft.LOGGER.warn(
-                        "Player {} sent invalid position data: {}",
+                        "Player {} sent malformed position data: {}",
                         player.getName().getString(),
                         name
                     );
@@ -118,7 +113,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                     blockEntity.togglePosition(layer, position, selected);
                 } catch (NumberFormatException e) {
                     AnvilCraft.LOGGER.warn(
-                        "Player {} sent invalid position data: {}",
+                        "Player {} sent non-numeric position data: {}",
                         player.getName().getString(),
                         name
                     );
@@ -129,13 +124,11 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                 boolean skipMissingMode = value == 1;
                 blockEntity.setSkipMissingMode(skipMissingMode);
             }
-            default -> {
-                AnvilCraft.LOGGER.warn(
-                    "Player {} sent unknown SmartBlockPlacer action: {}",
-                    player.getName().getString(),
-                    action
-                );
-            }
+            default -> AnvilCraft.LOGGER.warn(
+                "Player {} sent unknown SmartBlockPlacer action: {}",
+                player.getName().getString(),
+                action
+            );
         }
     }
 }

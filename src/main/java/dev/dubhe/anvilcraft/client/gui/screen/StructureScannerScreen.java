@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.client.gui.component.SimpleIconButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
-import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -44,9 +43,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private static final ResourceLocation STOP_TEXTURE = SharedTextures.BUTTON_STOP;
     private static final ResourceLocation CONFIRM_TEXTURE = SharedTextures.BUTTON_CONFIRM;
     private static final ResourceLocation STRUCTURE_TOOL_LOCKED_TEXTURE = SharedTextures.STRUCTURE_TOOL_LOCKED;
-    private static final ResourceLocation SKIP_MISSING_TEXTURE = SharedTextures.SMART_BLOCK_PLACER_SKIP_MISSING;
-    private static final ResourceLocation STOP_MISSING_TEXTURE = SharedTextures.SMART_BLOCK_PLACER_STOP_MISSING;
-    
+
     // 预览窗口位置和尺寸
     private int previewWindowX;
     private int previewWindowY;
@@ -368,6 +365,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     /**
      * 渲染信息栏
      */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderInfoPanel(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         // 使用缓存数据
         if (this.cachedBlockEntity == null) return;
@@ -398,9 +396,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 根据状态渲染
         switch (status) {
             case READY -> {
-                // 只在扫描完成后显示“结构扫描就绪”
+                // 只在扫描完成后显示"结构扫描就绪"
                 if (this.cachedIsScanComplete) {
-                    // 显示“结构扫描就绪”（使用缩放）
+                    // 显示"结构扫描就绪"（使用缩放）
                     poseStack.pushPose();
                     poseStack.translate(infoX, statusY, 0);
                     poseStack.scale(0.5f, 0.5f, 1.0f);
@@ -415,25 +413,23 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE 
                     || status == StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS;
                 int iconColor = isWarning ? 0xFFFF55 : 0xFF5555;
-                                
+                                        
                 // 叹号图标单独设置位置和大小
-                int iconX = infoX;
-                int iconY = statusY;
                 float iconScale = 1.5f;  // 叹号图标缩放比例
-                                
+                                        
                 // 绘制叹号（使用缩放）
                 poseStack.pushPose();
-                poseStack.translate(iconX, iconY, 0);
+                poseStack.translate(infoX, statusY, 0);
                 poseStack.scale(iconScale, iconScale, 1.0f);
                 int textOffsetX = 18;  // 叹号文本的X偏移量
                 guiGraphics.drawString(this.font, "!", textOffsetX, 0, iconColor, false);
                 poseStack.popPose();
-                                
+                                        
                 // 检查鼠标是否在叹号上（考虑缩放后的实际尺寸和偏移量）
                 int scaledWidth = (int) (8 * iconScale);
                 int scaledHeight = (int) (10 * iconScale);
-                int hoverStartX = iconX + (int) (textOffsetX * iconScale);  // 考虑文本偏移量的悬停起始X
-                if (mouseX >= hoverStartX && mouseX < hoverStartX + scaledWidth && mouseY >= iconY && mouseY < iconY + scaledHeight) {
+                int hoverStartX = infoX + (int) (textOffsetX * iconScale);  // 考虑文本偏移量的悬停起始X
+                if (mouseX >= hoverStartX && mouseX < hoverStartX + scaledWidth && mouseY >= statusY && mouseY < statusY + scaledHeight) {
                     // 显示tooltip
                     Component tooltip = switch (status) {
                         case LARGE_STRUCTURE -> net.minecraft.network.chat.Component.translatable(
@@ -446,9 +442,12 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                             "screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks");
                         default -> Component.empty();
                     };
-                        
+                                
                     guiGraphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
                 }
+            }
+            default -> {
+                // 未知状态，不渲染任何内容
             }
         }
     }

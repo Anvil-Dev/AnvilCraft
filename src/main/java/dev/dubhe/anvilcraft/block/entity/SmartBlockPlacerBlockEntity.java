@@ -44,6 +44,7 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -394,10 +395,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 根据放置器和扫描器的相对朝向旋转结构数据
      * 注意：Scanner的朝向与放置器是镜像对应的（Scanner南=放置器北，Scanner东=放置器西）
+     *
      * @return 旋转后的新结构数据，不修改原始数据
      */
     @SuppressWarnings("checkstyle:OperatorWrap")
-    @Nullable
     private StructureLoadUtil.StructureData rotateStructureData(StructureLoadUtil.StructureData originalData) {
         return rotateStructureDataStatic(originalData, this.level, this.getBlockPos());
     }
@@ -412,20 +413,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @return 旋转后的结构数据
      */
     @SuppressWarnings("checkstyle:OperatorWrap")
-    @Nullable
-    public static StructureLoadUtil.StructureData rotateStructureDataStatic(
+    public static StructureLoadUtil.@NotNull StructureData rotateStructureDataStatic(
         StructureLoadUtil.StructureData originalData,
         @Nullable net.minecraft.world.level.Level level,
         BlockPos placerPos
     ) {
-        if (level == null || originalData == null) return originalData;
+        if (level == null) return originalData;
         
         // 获取放置器的朝向（安全检查：确保方块State包含facing属性）
         BlockState state = level.getBlockState(placerPos);
         if (!state.hasProperty(HorizontalDirectionalBlock.FACING)) return originalData;
         
         Direction placerFacing = state.getValue(HorizontalDirectionalBlock.FACING);
-        int placerFacingValue = placerFacing.get3DDataValue();
                 
         // 获取扫描器的朝向
         int scannerFacingValue = originalData.scannerFacing;
@@ -720,7 +719,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 // 蓝图模式：只检查索引是否超出范围 或 容器是否完全空
                 // 使用旋转后的结构数据
                 StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
-                boolean indexExhausted = rotatedData == null || this.currentPlacementIndex >= rotatedData.blocks.size();
+                boolean indexExhausted = this.currentPlacementIndex >= rotatedData.blocks.size();
                 boolean containerEmpty = !this.hasBlockItemsInContainer(level, pos);
                 
                 // 停止模式下，额外检查当前索引位置的方块是否有存量
@@ -1399,7 +1398,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean upsideDown,
         StructureLoadUtil.StructureData rotatedData
     ) {
-        if (rotatedData == null || rotatedData.blocks.isEmpty()) {
+        if (rotatedData.blocks.isEmpty()) {
             return List.of();
         }
         
@@ -1446,7 +1445,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         // 获取旋转后的结构数据
         StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
-        if (rotatedData == null || index < 0 || index >= rotatedData.blocks.size()) {
+        if (index < 0 || index >= rotatedData.blocks.size()) {
             return null;
         }
         return rotatedData.blocks.get(index).state().getBlock();

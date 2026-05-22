@@ -19,7 +19,6 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -585,10 +584,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     canPlace = true;
                 } else if (!targetState.getFluidState().isEmpty()) {
                     canPlace = true;
-                } else if (heldBlock != null && canBeStacked(
-                    targetState, heldItem.getItem()
-                                     instanceof net.minecraft.world.item.BlockItem
-                                 ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
+                } else if (canBeStacked(
+                                    targetState, heldItem.getItem()
+                                                     instanceof net.minecraft.world.item.BlockItem
+                                                 ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
                     canPlace = true;
                 } else if (canBeStacked(targetState, null)) {
                     canPlace = true;
