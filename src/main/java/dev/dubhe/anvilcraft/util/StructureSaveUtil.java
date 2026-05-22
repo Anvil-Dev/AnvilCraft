@@ -30,18 +30,17 @@ public class StructureSaveUtil {
      * @param level 世界实例
      * @param blockEntity 扫描器方块实体
      * @param structureName 结构名称
-     * @return 是否保存成功
      */
-    public static boolean saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
+    public static void saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
         if (level.isClientSide) {
             LOGGER.error("Failed to save structure: level is null or on client side");
-            return false;
+            return;
         }
         
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = blockEntity.getScannedBlocks();
         if (scannedBlocks.isEmpty()) {
             LOGGER.warn("Cannot save structure: no blocks scanned");
-            return false;
+            return;
         }
         
         try {
@@ -52,7 +51,7 @@ public class StructureSaveUtil {
             ItemStack diskStack = blockEntity.getDiskInventory().getItem(0);
             if (diskStack.isEmpty()) {
                 LOGGER.error("No structure disk in input slot");
-                return false;
+                return;
             }
             
             // 生成唯一UUID作为文件名
@@ -88,11 +87,9 @@ public class StructureSaveUtil {
             
             LOGGER.info("Structure saved to disk: {} -> {} ({} blocks)", 
                 structureName, fileName, scannedBlocks.size());
-            return true;
             
         } catch (IOException e) {
             LOGGER.error("Failed to save structure to disk: {}", e.getMessage(), e);
-            return false;
         }
     }
     
