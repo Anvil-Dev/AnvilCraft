@@ -212,6 +212,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.layer_mode.single", "Show Layer %s / 5");
         provider.add("screen.anvilcraft.smart_block_placer.operation_mode.pickup", "Pickup Mode: Retrieve blocks from containers behind");
         provider.add("screen.anvilcraft.smart_block_placer.operation_mode.move", "Move Mode: Move the blocks behind to the placement position.");
+        provider.add("screen.anvilcraft.smart_block_placer.missing_mode.skip", "Skip Mode: Skip missing blocks during placement");
+        provider.add("screen.anvilcraft.smart_block_placer.missing_mode.stop", "Stop Mode: Stop placement when blocks are missing");
         provider.add("screen.anvilcraft.smart_block_placer.position.selected", "Position (%s, %s) - Selected");
         provider.add("screen.anvilcraft.smart_block_placer.position.unselected", "Position (%s, %s) - Not selected");
         provider.add("screen.anvilcraft.smart_block_placer.preview.empty", "No positions configured");

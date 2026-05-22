@@ -1053,6 +1053,8 @@
   "screen.anvilcraft.smart_block_placer.layer.5": "ϛ ɹǝʎɐꞀ",
   "screen.anvilcraft.smart_block_placer.layer_mode.all": "sɹǝʎɐꞀ ꞁꞁⱯ ʍoɥS",
   "screen.anvilcraft.smart_block_placer.layer_mode.single": "ϛ / %s ɹǝʎɐꞀ ʍoɥS",
+  "screen.anvilcraft.smart_block_placer.missing_mode.skip": "ʇuǝɯǝɔɐꞁd ᵷuᴉɹnp sʞɔoꞁq ᵷuᴉssᴉɯ dᴉʞS :ǝpoW dᴉʞS",
+  "screen.anvilcraft.smart_block_placer.missing_mode.stop": "ᵷuᴉssᴉɯ ǝɹɐ sʞɔoꞁq uǝɥʍ ʇuǝɯǝɔɐꞁd doʇS :ǝpoW doʇS",
   "screen.anvilcraft.smart_block_placer.operation_mode.move": "˙uoᴉʇᴉsod ʇuǝɯǝɔɐꞁd ǝɥʇ oʇ puᴉɥǝq sʞɔoꞁq ǝɥʇ ǝʌoW :ǝpoW ǝʌoW",
   "screen.anvilcraft.smart_block_placer.operation_mode.pickup": "puᴉɥǝq sɹǝuᴉɐʇuoɔ ɯoɹɟ sʞɔoꞁq ǝʌǝᴉɹʇǝᴚ :ǝpoW dnʞɔᴉԀ",
   "screen.anvilcraft.smart_block_placer.position.selected": "pǝʇɔǝꞁǝS - (%s '%s) uoᴉʇᴉsoԀ",

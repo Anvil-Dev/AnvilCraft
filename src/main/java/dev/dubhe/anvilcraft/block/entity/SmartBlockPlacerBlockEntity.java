@@ -73,6 +73,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private int currentPlacementIndex = 0;
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
     private boolean isPickupMode = true;
+    private boolean isSkipMissingMode = true;  // true=跳过缺少方块, false=停止在缺少方块
     
     // 已加载的原始结构数据(未旋转)
     @Nullable
@@ -140,6 +141,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putInt("currentPlacementIndex", currentPlacementIndex);
         tag.putInt("placeCooldown", placeCooldown);
         tag.putBoolean("isPickupMode", isPickupMode);
+        tag.putBoolean("isSkipMissingMode", isSkipMissingMode);
         if (!currentHeldBlock.isEmpty()) {
             tag.put("currentHeldBlock", currentHeldBlock.save(provider));
         }
@@ -164,6 +166,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
         this.placeCooldown = tag.getInt("placeCooldown");
         this.isPickupMode = tag.getBoolean("isPickupMode");
+        this.isSkipMissingMode = tag.getBoolean("isSkipMissingMode");
         this.currentHeldBlock = tag.contains("currentHeldBlock", Tag.TAG_COMPOUND)
             ? ItemStack.parse(provider, tag.getCompound("currentHeldBlock")).orElse(ItemStack.EMPTY)
             : ItemStack.EMPTY;
@@ -396,10 +399,29 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     @SuppressWarnings("checkstyle:OperatorWrap")
     @Nullable
     private StructureLoadUtil.StructureData rotateStructureData(StructureLoadUtil.StructureData originalData) {
-        if (this.level == null) return null;
+        return rotateStructureDataStatic(originalData, this.level, this.getBlockPos());
+    }
+    
+    /**
+     * 静态方法：根据放置器和扫描器的相对朝向旋转结构数据
+     * 供客户端渲染器调用
+     * 
+     * @param originalData 原始结构数据
+     * @param level 世界（客户端level）
+     * @param placerPos 放置器位置
+     * @return 旋转后的结构数据
+     */
+    @SuppressWarnings("checkstyle:OperatorWrap")
+    @Nullable
+    public static StructureLoadUtil.StructureData rotateStructureDataStatic(
+        StructureLoadUtil.StructureData originalData,
+        @Nullable net.minecraft.world.level.Level level,
+        BlockPos placerPos
+    ) {
+        if (level == null || originalData == null) return originalData;
         
         // 获取放置器的朝向（安全检查：确保方块State包含facing属性）
-        BlockState state = this.level.getBlockState(this.getBlockPos());
+        BlockState state = level.getBlockState(placerPos);
         if (!state.hasProperty(HorizontalDirectionalBlock.FACING)) return originalData;
         
         Direction placerFacing = state.getValue(HorizontalDirectionalBlock.FACING);
@@ -409,13 +431,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         int scannerFacingValue = originalData.scannerFacing;
                 
         // 计算相对旋转步数
-        int rotationSteps = this.calculateRotationSteps(placerFacing, scannerFacingValue);
+        int rotationSteps = calculateRotationStepsStatic(placerFacing, scannerFacingValue);
         
         if (rotationSteps == 0) return originalData;  // 朝向相同，不需要旋转
-        
-        System.out.println("[SmartBlockPlacer] 结构旋转: Scanner=" + scannerFacingValue +
-                           ", Placer=" + placerFacingValue + 
-                           ", 旋转步数=" + rotationSteps);
         
         // 创建新的结构数据
         StructureLoadUtil.StructureData rotatedData = new StructureLoadUtil.StructureData();
@@ -462,22 +480,39 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int newZ = rotatedZ + centerZ;
             
             // 旋转方块朝向
-            BlockState rotatedState = this.rotateBlockState(block.state(), rotationSteps);
+            BlockState rotatedState = rotateBlockStateStatic(block.state(), rotationSteps);
             
             rotatedData.blocks.add(new StructureLoadUtil.BlockPosition(newX, block.y(), newZ, rotatedState));
         }
+        
+        // 对旋转后的 blocks 按照 y → z → x 排序，完全复用正常模式的放置顺序逻辑
+        // 正常模式：layer 升序 → row 升序 → col 升序
+        // 蓝图模式坐标映射：z 对应 row，x 对应 col
+        // 所以蓝图模式：y 升序 → z 升序 → x 升序
+        rotatedData.blocks.sort((a, b) -> {
+            // 先按 y 排序（层，从下到上）
+            if (a.y() != b.y()) {
+                return Integer.compare(a.y(), b.y());
+            }
+            // 再按 z 排序（行，从远到近，对应正常模式的 row）
+            if (a.z() != b.z()) {
+                return Integer.compare(a.z(), b.z());
+            }
+            // 最后按 x 排序（列，从左到右，对应正常模式的 col）
+            return Integer.compare(a.x(), b.x());
+        });
         
         return rotatedData;
     }
     
     /**
-     * 计算放置器和扫描器之间的相对旋转步数
+     * 静态方法：计算放置器和扫描器之间的相对旋转步数
      * 
      * @param placerFacing 放置器朝向
      * @param scannerFacingValue 扫描器朝向值
      * @return 旋转步数(0-3)
      */
-    private int calculateRotationSteps(Direction placerFacing, int scannerFacingValue) {
+    private static int calculateRotationStepsStatic(Direction placerFacing, int scannerFacingValue) {
         // Scanner朝向与放置器朝向的映射关系
         // Scanner: NORTH(2), SOUTH(3), WEST(4), EAST(5)
         // 放置器: NORTH(2), SOUTH(3), WEST(4), EAST(5)
@@ -526,9 +561,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
-     * 旋转方块的朝向属性
+     * 静态方法：旋转方块的朝向属性
      */
-    private BlockState rotateBlockState(BlockState state, int rotationSteps) {
+    private static BlockState rotateBlockStateStatic(BlockState state, int rotationSteps) {
         if (rotationSteps == 0) return state;
         
         // 获取方块的FACING属性
@@ -687,6 +722,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
                 boolean indexExhausted = rotatedData == null || this.currentPlacementIndex >= rotatedData.blocks.size();
                 boolean containerEmpty = !this.hasBlockItemsInContainer(level, pos);
+                
+                // 停止模式下，额外检查当前索引位置的方块是否有存量
+                if (!this.isSkipMissingMode && !indexExhausted && !containerEmpty) {
+                    Block requiredBlock = getRequiredBlockForPosition(this.currentPlacementIndex);
+                    if (requiredBlock != null) {
+                        ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+                        yield blockItem.isEmpty();  // 没有存量就视为资源耗尽
+                    }
+                }
+                
                 yield indexExhausted || containerEmpty;
             }
         };
@@ -1112,8 +1157,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 尝试提取物品
             ItemStack blockItem = this.extractSpecificBlockItemFromContainer(level, placerPos, requiredBlock);
             if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
-                // 当前索引需要的方块没有，跳过继续查找
-                // 重要：清空 currentHeldBlock 以确保动画状态正确
+                // 当前索引需要的方块没有，继续查找下一个
                 if (!this.currentHeldBlock.isEmpty()) {
                     this.currentHeldBlock = ItemStack.EMPTY;
                     this.onChanged();
@@ -1340,34 +1384,54 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
-     * 从结构数据构建位置列表
-     * 注意：使用旋转后的结构数据
+     * 从结构数据构建位置列表（静态公共方法，供渲染器调用）
+     * 注意：使用旋转后的结构数据，完全复用普通模式的 calculateTargetPosition 算法
+     * 
+     * @param placerPos 放置器位置
+     * @param facing 放置器朝向
+     * @param upsideDown 是否倒挂
+     * @param rotatedData 旋转后的结构数据
+     * @return 位置列表
+     */
+    public static List<BlockPos> buildBlueprintPositions(
+        BlockPos placerPos, 
+        Direction facing, 
+        boolean upsideDown,
+        StructureLoadUtil.StructureData rotatedData
+    ) {
+        if (rotatedData == null || rotatedData.blocks.isEmpty()) {
+            return List.of();
+        }
+        
+        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+        List<BlockPos> positions = new ArrayList<>();
+        
+        // 将结构数据的 x、z 转换为 row、col，使用与普通模式相同的 calculateTargetPosition
+        // 蓝图模式：x 沿 right 方向（横向），z 沿 right.getClockWise() 方向（纵向）
+        // calculateTargetPosition：col 沿 right 方向，row 沿 right.getClockWise() 方向
+        // 所以：x → col，z → row
+        for (StructureLoadUtil.BlockPosition blueprintBlock : rotatedData.blocks) {
+            int row = blueprintBlock.z();  // z 对应 row（纵向，沿 right.getClockWise() 方向）
+            int col = blueprintBlock.x();  // x 对应 col（横向，沿 right 方向）
+            int layer = blueprintBlock.y();  // y 对应 layer
+            
+            BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer, upsideDown);
+            positions.add(targetPos);
+        }
+        
+        return positions;
+    }
+    
+    /**
+     * 从结构数据构建位置列表（实例方法，内部使用）
      */
     private List<BlockPos> buildBlueprintPositions(BlockPos placerPos, Direction facing, boolean upsideDown) {
         if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
             return List.of();
         }
         
-        // 获取旋转后的结构数据
         StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
-        if (rotatedData == null) return List.of();
-        
-        List<BlockPos> positions = new ArrayList<>();
-        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
-        Direction right = facing.getClockWise();
-        
-        for (StructureLoadUtil.BlockPosition blueprintBlock : rotatedData.blocks) {
-            int yoffset = upsideDown ? blueprintBlock.y() - 4 : blueprintBlock.y();
-            // 坐标映射：与预览系统保持一致
-            // blueprintBlock.x() -> 沿 right 方向 (Z轴)
-            // blueprintBlock.z() -> 沿 right.getClockWise() 方向 (X轴)
-            BlockPos targetPos = basePos.atY(basePos.getY() + yoffset)
-                .relative(right, blueprintBlock.x() - 2)
-                .relative(right.getClockWise(), blueprintBlock.z() - 2);
-            positions.add(targetPos);
-        }
-        
-        return positions;
+        return buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
     }
     
     /**
@@ -1951,6 +2015,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     public void setPickupMode(boolean pickupMode) {
         this.isPickupMode = pickupMode;
+        this.onChanged();
+    }
+
+    public void setSkipMissingMode(boolean skipMissingMode) {
+        this.isSkipMissingMode = skipMissingMode;
         this.onChanged();
     }
 

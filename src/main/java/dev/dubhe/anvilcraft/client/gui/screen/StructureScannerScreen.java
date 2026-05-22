@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.client.gui.component.SimpleIconButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
+import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -42,6 +43,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private static final ResourceLocation REDO_TEXTURE = SharedTextures.BUTTON_REDO;
     private static final ResourceLocation STOP_TEXTURE = SharedTextures.BUTTON_STOP;
     private static final ResourceLocation CONFIRM_TEXTURE = SharedTextures.BUTTON_CONFIRM;
+    private static final ResourceLocation STRUCTURE_TOOL_LOCKED_TEXTURE = SharedTextures.STRUCTURE_TOOL_LOCKED;
+    private static final ResourceLocation SKIP_MISSING_TEXTURE = SharedTextures.SMART_BLOCK_PLACER_SKIP_MISSING;
+    private static final ResourceLocation STOP_MISSING_TEXTURE = SharedTextures.SMART_BLOCK_PLACER_STOP_MISSING;
     
     // 预览窗口位置和尺寸
     private int previewWindowX;
@@ -67,6 +71,20 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     
     // 文本输入框
     private EditBox nameInput;
+    
+    // 缓存数据
+    private StructureScannerBlockEntity cachedBlockEntity;
+    private boolean cachedHasDisk;
+    private StructureScannerBlockEntity.InfoStatus cachedInfoStatus;
+    private boolean cachedIsScanComplete;
+    private boolean cachedHasStartedScanning;
+    private int cachedRangeX = -1;
+    private int cachedRangeY = -1;
+    private int cachedRangeZ = -1;
+    
+    // 预览缓存
+    private LevelLike cachedPreviewLevelLike;
+    private Direction cachedPreviewFacing = Direction.NORTH;
 
     public StructureScannerScreen(StructureScannerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -244,6 +262,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         
+        // 更新缓存数据
+        this.updateCache();
+        
         // 根据扫描状态更新按钮
         this.updateModeToggleButton();
         
@@ -255,6 +276,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         
         // 渲染信息栏
         this.renderInfoPanel(guiGraphics, mouseX, mouseY);
+        
+        // 渲染STRUCTURE_TOOL_LOCKED贴图（一直显示）
+        guiGraphics.blit(STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126, 26);
         
         // 渲染文本输入框（参考铁砧的实现）
         this.nameInput.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -268,23 +292,96 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
     
     /**
+     * 更新缓存数据，避免每帧重复获取
+     */
+    private void updateCache() {
+        var blockEntity = this.menu.getBlockEntity();
+        
+        // 检查blockEntity是否变化
+        if (blockEntity != this.cachedBlockEntity) {
+            this.cachedBlockEntity = blockEntity;
+            this.cachedHasDisk = false;
+            this.cachedInfoStatus = StructureScannerBlockEntity.InfoStatus.READY;
+            this.cachedIsScanComplete = false;
+            this.cachedHasStartedScanning = false;
+            this.cachedRangeX = -1;
+            this.cachedRangeY = -1;
+            this.cachedRangeZ = -1;
+        }
+        
+        if (blockEntity == null) {
+            return;
+        }
+        
+        // 更新磁盘状态
+        boolean newHasDisk = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+        if (newHasDisk != this.cachedHasDisk) {
+            this.cachedHasDisk = newHasDisk;
+        }
+        
+        // 更新信息状态
+        StructureScannerBlockEntity.InfoStatus newInfoStatus = blockEntity.getInfoStatus();
+        if (newInfoStatus != this.cachedInfoStatus) {
+            this.cachedInfoStatus = newInfoStatus;
+        }
+        
+        // 更新扫描完成状态
+        boolean newIsScanComplete = blockEntity.isScanComplete();
+        if (newIsScanComplete != this.cachedIsScanComplete) {
+            this.cachedIsScanComplete = newIsScanComplete;
+        }
+        
+        // 更新扫描开始状态
+        boolean newHasStartedScanning = blockEntity.hasStartedScanning();
+        if (newHasStartedScanning != this.cachedHasStartedScanning) {
+            this.cachedHasStartedScanning = newHasStartedScanning;
+        }
+        
+        // 更新范围值
+        int newRangeX = blockEntity.getRangeX().get();
+        if (newRangeX != this.cachedRangeX) {
+            this.cachedRangeX = newRangeX;
+        }
+        
+        int newRangeY = blockEntity.getRangeY().get();
+        if (newRangeY != this.cachedRangeY) {
+            this.cachedRangeY = newRangeY;
+        }
+        
+        int newRangeZ = blockEntity.getRangeZ().get();
+        if (newRangeZ != this.cachedRangeZ) {
+            this.cachedRangeZ = newRangeZ;
+            // 范围变化时，使预览缓存失效
+            this.cachedPreviewLevelLike = null;
+        }
+        
+        // 检查扫描方块数据是否变化
+        if (!blockEntity.getScannedBlocks().isEmpty()) {
+            // 如果有扫描数据，使预览缓存失效（简单策略：每次有新数据就重建）
+            // 更优的策略可以比较扫描数据的大小或哈希
+            if (this.cachedPreviewLevelLike != null) {
+                this.cachedPreviewLevelLike = null;
+            }
+        }
+    }
+    
+    /**
      * 渲染信息栏
      */
     private void renderInfoPanel(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) return;
-        
+        // 使用缓存数据
+        if (this.cachedBlockEntity == null) return;
+            
         // 检查是否有磁盘
-        boolean hasDisk = !blockEntity.getDiskInventory().getItem(0).isEmpty();
-        if (!hasDisk) return;
-        
+        if (!this.cachedHasDisk) return;
+            
         // 获取信息状态
-        StructureScannerBlockEntity.InfoStatus status = blockEntity.getInfoStatus();
-        
+        StructureScannerBlockEntity.InfoStatus status = this.cachedInfoStatus;
+            
         // 信息栏位置（在磁盘槽位上方）
         int infoX = this.leftPos + 9;
         int infoY = this.topPos + 52;
-        
+            
         // 渲染标题（使用缩放）
         com.mojang.blaze3d.vertex.PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
@@ -294,33 +391,49 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             net.minecraft.network.chat.Component.translatable("screen.anvilcraft.structure_scanner.info_title"),
             0, 0, 0xFFFFFF, false);
         poseStack.popPose();
-        
+            
         // 状态信息位置（标题下方）
         int statusY = infoY + 10;
-        
+            
         // 根据状态渲染
         switch (status) {
             case READY -> {
-                // 显示"结构扫描就绪"（使用缩放）
-                poseStack.pushPose();
-                poseStack.translate(infoX, statusY, 0);
-                poseStack.scale(0.5f, 0.5f, 1.0f);
-                guiGraphics.drawString(this.font, 
-                    net.minecraft.network.chat.Component.translatable("screen.anvilcraft.structure_scanner.ready"),
-                    0, 0, 0x40FF40, false);
-                poseStack.popPose();
+                // 只在扫描完成后显示“结构扫描就绪”
+                if (this.cachedIsScanComplete) {
+                    // 显示“结构扫描就绪”（使用缩放）
+                    poseStack.pushPose();
+                    poseStack.translate(infoX, statusY, 0);
+                    poseStack.scale(0.5f, 0.5f, 1.0f);
+                    guiGraphics.drawString(this.font, 
+                        net.minecraft.network.chat.Component.translatable("screen.anvilcraft.structure_scanner.ready"),
+                        0, 0, 0x40FF40, false);
+                    poseStack.popPose();
+                }
             }
             case LARGE_STRUCTURE, UNKNOWN_BLOCKS, TOO_LARGE, MULTIBLOCK_BLOCKS -> {
                 // 显示叹号图标
                 boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE 
                     || status == StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS;
                 int iconColor = isWarning ? 0xFFFF55 : 0xFF5555;
-                            
-                // 绘制叹号
-                guiGraphics.drawString(this.font, "!", infoX, statusY, iconColor, false);
-                            
-                // 检查鼠标是否在叹号上
-                if (mouseX >= infoX && mouseX < infoX + 8 && mouseY >= statusY && mouseY < statusY + 10) {
+                                
+                // 叹号图标单独设置位置和大小
+                int iconX = infoX;
+                int iconY = statusY;
+                float iconScale = 1.5f;  // 叹号图标缩放比例
+                                
+                // 绘制叹号（使用缩放）
+                poseStack.pushPose();
+                poseStack.translate(iconX, iconY, 0);
+                poseStack.scale(iconScale, iconScale, 1.0f);
+                int textOffsetX = 18;  // 叹号文本的X偏移量
+                guiGraphics.drawString(this.font, "!", textOffsetX, 0, iconColor, false);
+                poseStack.popPose();
+                                
+                // 检查鼠标是否在叹号上（考虑缩放后的实际尺寸和偏移量）
+                int scaledWidth = (int) (8 * iconScale);
+                int scaledHeight = (int) (10 * iconScale);
+                int hoverStartX = iconX + (int) (textOffsetX * iconScale);  // 考虑文本偏移量的悬停起始X
+                if (mouseX >= hoverStartX && mouseX < hoverStartX + scaledWidth && mouseY >= iconY && mouseY < iconY + scaledHeight) {
                     // 显示tooltip
                     Component tooltip = switch (status) {
                         case LARGE_STRUCTURE -> net.minecraft.network.chat.Component.translatable(
@@ -333,7 +446,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                             "screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks");
                         default -> Component.empty();
                     };
-                    
+                        
                     guiGraphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
                 }
             }
@@ -344,18 +457,17 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
      * 根据磁盘状态更新文本框可编辑状态
      */
     private void updateNameInputEditable() {
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) {
+        // 使用缓存数据
+        if (this.cachedBlockEntity == null) {
             this.nameInput.setEditable(false);
             return;
         }
         
         // 检查磁盘槽位是否有物品
-        boolean hasDisk = !blockEntity.getDiskInventory().getItem(0).isEmpty();
-        this.nameInput.setEditable(hasDisk);
+        this.nameInput.setEditable(this.cachedHasDisk);
         
         // 如果没有磁盘且文本框有焦点，移除焦点
-        if (!hasDisk && this.nameInput.isFocused()) {
+        if (!this.cachedHasDisk && this.nameInput.isFocused()) {
             this.nameInput.setFocused(false);
         }
     }
@@ -364,20 +476,20 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
      * 根据扫描状态更新模式切换按钮
      */
     private void updateModeToggleButton() {
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) {
+        // 使用缓存数据
+        if (this.cachedBlockEntity == null) {
             return;
         }
         
         // 如果正在扫描，切换为 stop 状态
-        if (blockEntity.hasStartedScanning() && !blockEntity.isScanComplete()) {
+        if (this.cachedHasStartedScanning && !this.cachedIsScanComplete) {
             if (this.isScanMode) {
                 this.isScanMode = false;
                 this.modeToggleButton.setSelected(false);
                 this.modeToggleButton.setTexture(STOP_TEXTURE);
             }
         // 如果扫描完成，切换回 redo 状态
-        } else if (blockEntity.isScanComplete()) {
+        } else if (this.cachedIsScanComplete) {
             if (!this.isScanMode) {
                 this.isScanMode = true;
                 this.modeToggleButton.setSelected(true);
@@ -423,21 +535,20 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         }
         
         // 获取Structure Scanner方块的状态
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) {
+        if (this.cachedBlockEntity == null) {
             return;
         }
         
         var level = this.minecraft.level;
-        var blockState = level.getBlockState(blockEntity.getBlockPos());
+        var blockState = level.getBlockState(this.cachedBlockEntity.getBlockPos());
         var facing = blockState.getValue(HorizontalDirectionalBlock.FACING);
         
-        // 构建并渲染 LevelLike
-        LevelLike previewLevelLike = this.buildPreviewLevelLike();
+        // 构建并渲染 LevelLike（使用缓存）
+        LevelLike previewLevelLike = this.buildPreviewLevelLike(facing);
         if (previewLevelLike != null) {
             // 计算选区的实际尺寸（忽略 Scanner）
-            int rangeX = blockEntity.getRangeX().get();
-            int rangeY = blockEntity.getRangeY().get();
+            int rangeX = this.cachedRangeX;
+            int rangeY = this.cachedRangeY;
             
             // 使用选区范围作为缩放基准，忽略 Scanner 的影响
             int sizeX = Math.max(1, rangeX);
@@ -456,23 +567,23 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
     
     /**
-     * 构建预览用的LevelLike实例
+     * 构建预览用的LevelLike实例（带缓存）
      */
-    private @Nullable LevelLike buildPreviewLevelLike() {
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null || this.minecraft == null || this.minecraft.level == null) {
+    private @Nullable LevelLike buildPreviewLevelLike(Direction facing) {
+        if (this.cachedBlockEntity == null || this.minecraft == null || this.minecraft.level == null) {
             return null;
+        }
+        
+        // 如果缓存有效，直接返回
+        if (this.cachedPreviewLevelLike != null && this.cachedPreviewFacing == facing) {
+            return this.cachedPreviewLevelLike;
         }
         
         ClientLevel level = this.minecraft.level;
         LevelLike previewLevelLike = new LevelLike(level);
         
-        // 获取 Structure Scanner 的实际状态
-        BlockState scannerState = this.minecraft.level.getBlockState(blockEntity.getBlockPos());
-        Direction facing = scannerState.getValue(HorizontalDirectionalBlock.FACING);
-        
         // 获取扫描范围
-        int rangeX = blockEntity.getRangeX().get();
+        int rangeX = this.cachedRangeX;
         
         // Scanner在预览中的位置：X居中，Y=0，Z=0（选区前面）
         int scannerX = rangeX / 2;
@@ -487,7 +598,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         );
         
         // 使用缓存的扫描结果渲染方块
-        List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = blockEntity.getScannedBlocks();
+        List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = this.cachedBlockEntity.getScannedBlocks();
         
         if (!scannedBlocks.isEmpty()) {
             for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
@@ -498,11 +609,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                     rotatedState
                 );
             }
-        } else if (blockEntity.hasStartedScanning()) {
-            org.slf4j.LoggerFactory.getLogger(StructureScannerScreen.class)
-                .debug("Preview: scanning in progress but no blocks yet, isScanning={}, currentLayer={}",
-                    blockEntity.isScanning() ? "yes" : "no", blockEntity.getCurrentScanLayer());
         }
+        
+        // 更新缓存
+        this.cachedPreviewLevelLike = previewLevelLike;
+        this.cachedPreviewFacing = facing;
         
         return previewLevelLike;
     }
@@ -558,13 +669,12 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             return;
         }
             
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) return;
+        if (this.cachedBlockEntity == null) return;
             
-        // 获取扫描范围
-        int rangeX = blockEntity.getRangeX().get();
-        int rangeY = blockEntity.getRangeY().get();
-        int rangeZ = blockEntity.getRangeZ().get();
+        // 使用缓存的扫描范围
+        int rangeX = this.cachedRangeX;
+        int rangeY = this.cachedRangeY;
+        int rangeZ = this.cachedRangeZ;
         
         // 使用选区范围作为缩放基准，忽略 Scanner
         int sizeX = Math.max(1, rangeX);

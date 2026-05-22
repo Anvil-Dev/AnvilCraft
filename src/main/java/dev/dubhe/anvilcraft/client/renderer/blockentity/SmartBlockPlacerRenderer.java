@@ -477,7 +477,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         // 蓝图模式：使用结构数据计算目标位置
         var loadedStructure = entity.getLoadedStructure();
         if (loadedStructure != null && !loadedStructure.isEmpty()) {
-            return getBlueprintTargetPosition(entity, facing, upsideDown, loadedStructure);
+            // 先旋转结构数据，再计算目标位置
+            var rotatedStructure = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
+                loadedStructure, entity.getLevel(), entity.getBlockPos());
+            if (rotatedStructure != null && !rotatedStructure.isEmpty()) {
+                return getBlueprintTargetPosition(entity, facing, upsideDown, rotatedStructure);
+            }
+            return null;
         }
         
         // 普通模式：使用 layerPositions
@@ -539,16 +545,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     private BlockPos getBlueprintTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown, 
         dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData structure) {
         
-        // 构建蓝图位置列表（与普通模式一致，使用缓存）
-        List<BlockPos> allPositions = buildBlueprintPositionsForRenderer(entity, facing, upsideDown, structure);
+        // 构建蓝图位置列表（直接调用 BlockEntity 的静态方法）
+        // 注意：这里使用的是旋转后的结构数据
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
+            entity.getBlockPos(), facing, upsideDown, structure);
         
         if (allPositions.isEmpty()) {
             return null;
-        }
-        
-        int currentIndex = entity.getCurrentPlacementIndex();
-        if (currentIndex >= allPositions.size()) {
-            currentIndex = 0;
         }
         
         // 获取当前钳子中的方块类型
@@ -558,39 +561,44 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             heldBlock = heldBlockItem.getBlock();
         }
         
-        // 从当前索引开始查找
-        for (int i = 0; i < allPositions.size(); i++) {
-            int index = (currentIndex + i) % allPositions.size();
-            BlockPos targetPos = allPositions.get(index);
-            
-            if (entity.getLevel() == null) {
-                return null;
+        // 如果有 heldBlock，根据 heldBlock 类型查找匹配的位置
+        if (heldBlock != null) {
+            // 从当前位置开始查找与 heldBlock 匹配且可以放置的位置
+            int currentIndex = entity.getCurrentPlacementIndex();
+            if (currentIndex >= allPositions.size()) {
+                currentIndex = 0;
             }
             
-            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
-            
-            // 检查位置是否可以放置
-            boolean canPlace = false;
-            if (targetState.isAir()) {
-                canPlace = true;
-            } else if (!targetState.getFluidState().isEmpty()) {
-                canPlace = true;
-            } else if (heldBlock != null && canBeStacked(
-                targetState, heldItem.getItem()
-                                 instanceof net.minecraft.world.item.BlockItem
-                             ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
-                canPlace = true;
-            } else if (canBeStacked(targetState, null)) {
-                canPlace = true;
-            }
-            
-            if (!canPlace) {
-                continue;
-            }
-            
-            // 如果有 heldBlock，检查这个位置是否需要这种方块
-            if (heldBlock != null) {
-                // 获取这个位置在蓝图中需要的方块
+            for (int i = 0; i < allPositions.size(); i++) {
+                int index = (currentIndex + i) % allPositions.size();
+                BlockPos targetPos = allPositions.get(index);
+                
+                if (entity.getLevel() == null) {
+                    return null;
+                }
+                
+                net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
+                
+                // 检查位置是否可以放置
+                boolean canPlace = false;
+                if (targetState.isAir()) {
+                    canPlace = true;
+                } else if (!targetState.getFluidState().isEmpty()) {
+                    canPlace = true;
+                } else if (heldBlock != null && canBeStacked(
+                    targetState, heldItem.getItem()
+                                     instanceof net.minecraft.world.item.BlockItem
+                                 ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
+                    canPlace = true;
+                } else if (canBeStacked(targetState, null)) {
+                    canPlace = true;
+                }
+                
+                if (!canPlace) {
+                    continue;
+                }
+                
+                // 检查这个位置在蓝图中需要的方块是否与 heldBlock 匹配
                 if (index < structure.blocks.size()) {
                     net.minecraft.world.level.block.Block requiredBlock = structure.blocks.get(index).state().getBlock();
                     // 只返回与 heldBlock 匹配的位置
@@ -598,43 +606,23 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                         return targetPos;
                     }
                 }
-            } else {
-                // 没有 heldBlock，返回第一个空位
-                return targetPos;
+            }
+        } else {
+            // 没有 heldBlock，返回第一个空位
+            for (BlockPos targetPos : allPositions) {
+                if (entity.getLevel() == null) {
+                    return null;
+                }
+                
+                net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
+                
+                if (targetState.isAir() || !targetState.getFluidState().isEmpty()) {
+                    return targetPos;
+                }
             }
         }
         
         return null;
-    }
-    
-    /**
-     * 构建蓝图模式的位置列表（带缓存）
-     */
-    private List<BlockPos> buildBlueprintPositionsForRenderer(
-        SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown,
-        dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData structure) {
-        
-        String cacheKey = "blueprint_" + entity.getBlockPos().toShortString() + "_"
-                          + facing.getName() + "_" + upsideDown + "_" + structure.blocks.hashCode();
-        
-        if (this.positionCache.containsKey(cacheKey)) {
-            return this.positionCache.get(cacheKey);
-        }
-        
-        List<BlockPos> positions = new ArrayList<>();
-        BlockPos basePos = entity.getBlockPos().relative(facing.getOpposite(), -4);
-        Direction right = facing.getClockWise();
-        
-        for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blueprintBlock : structure.blocks) {
-            int yoffset = upsideDown ? blueprintBlock.y() - 4 : blueprintBlock.y();
-            BlockPos targetPos = basePos.atY(basePos.getY() + yoffset)
-                .relative(right, blueprintBlock.z() - 2)
-                .relative(right.getClockWise(), blueprintBlock.x() - 2);
-            positions.add(targetPos);
-        }
-        
-        this.positionCache.put(cacheKey, positions);
-        return positions;
     }
     
     /**

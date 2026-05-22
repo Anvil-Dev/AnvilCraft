@@ -10,9 +10,7 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
-import dev.dubhe.anvilcraft.network.SmartBlockPlacerLayerPacket;
-import dev.dubhe.anvilcraft.network.SmartBlockPlacerModePacket;
-import dev.dubhe.anvilcraft.network.SmartBlockPlacerPositionPacket;
+import dev.dubhe.anvilcraft.network.SmartBlockPlacerActionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -61,15 +59,22 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     
     // 蓝图模式贴图（已在SharedTextures中注册）
     private static final ResourceLocation BLUEPRINT_MODE_BG = SharedTextures.SMART_BLOCK_PLACER_BLUEPRINT_MODE;
+    
+    // 跳过/停止缺少方块按钮贴图
+    private static final ResourceLocation SKIP_MISSING = SharedTextures.SMART_BLOCK_PLACER_SKIP_MISSING;
+    private static final ResourceLocation STOP_MISSING = SharedTextures.SMART_BLOCK_PLACER_STOP_MISSING;
 
     private final List<TriStateButton> layerButtons = new ArrayList<>();
     private final TriStateButton[][] positionButtons = new TriStateButton[5][5];
     private ToggleButton layerModeButton;  // 分层显示切换按钮
     private ToggleButton operationModeButton;  // 取物/移动模式切换按钮
+    private TriStateButton skipMissingButton;  // 跳过缺少方块按钮
+    private TriStateButton stopMissingButton;  // 停止在缺少方块按钮
     private int currentViewLayer = 0;
     private Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
     private boolean showAllLayers = true;
     private boolean isPickupMode = true;
+    private boolean isSkipMissingMode = true;  // true=跳过缺少方块, false=停止在缺少方块
 
     private Boolean dragTargetState = null;
     
@@ -121,6 +126,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 this.layerPositions.put(entry.getKey(), new HashSet<>(entry.getValue()));
             }
             this.isPickupMode = this.menu.getBlockEntity().isPickupMode();
+            this.isSkipMissingMode = this.menu.getBlockEntity().isSkipMissingMode();
             // 检查是否处于蓝图模式(直接检查磁盘槽位)
             this.isBlueprintMode = !this.menu.getBlockEntity().getDiskInventory().getItem(0).isEmpty();
         }
@@ -132,6 +138,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.initPositionButtons();
         this.initLayerModeButton();
         this.initOperationModeButton();
+        this.initMissingModeButton();
     }
     
     private void initLayerButtons() {
@@ -220,6 +227,49 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.addRenderableWidget(this.operationModeButton);
     }
     
+    private void initMissingModeButton() {
+        // 只在蓝图模式下初始化缺少方块处理按钮
+        if (!this.isBlueprintMode) {
+            this.skipMissingButton = null;
+            this.stopMissingButton = null;
+            return;
+        }
+        
+        // 在取物/移动模式按钮下方，两个按钮并排
+        int buttonStartX = this.leftPos + 8;  // 起始X坐标
+        int buttonY = this.topPos + 86;   // operationModeButton的Y坐标(130) + 18像素间距
+
+        // 跳过缺少方块按钮
+        this.skipMissingButton = new TriStateButton(
+            buttonStartX,
+            buttonY,
+            16,
+            16,
+            SKIP_MISSING,
+            16,
+            16,
+            (btn) -> this.onSkipMissingButtonClick(),
+            List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.skip"))
+        );
+        this.skipMissingButton.setSelected(this.isSkipMissingMode);
+        this.addRenderableWidget(this.skipMissingButton);
+        
+        // 停止在缺少方块按钮
+        this.stopMissingButton = new TriStateButton(
+            buttonStartX + 18,
+            buttonY,
+            16,
+            16,
+            STOP_MISSING,
+            16,
+            16,
+            (btn) -> this.onStopMissingButtonClick(),
+            List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.stop"))
+        );
+        this.stopMissingButton.setSelected(!this.isSkipMissingMode);
+        this.addRenderableWidget(this.stopMissingButton);
+    }
+    
     private Component getLayerModeTooltip() {
         if (this.showAllLayers) {
             return Component.translatable("screen.anvilcraft.smart_block_placer.layer_mode.all");
@@ -234,6 +284,40 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             return Component.translatable("screen.anvilcraft.smart_block_placer.operation_mode.pickup");
         } else {
             return Component.translatable("screen.anvilcraft.smart_block_placer.operation_mode.move");
+        }
+    }
+    
+    private void onSkipMissingButtonClick() {
+        if (!this.isSkipMissingMode) {
+            this.isSkipMissingMode = true;
+            
+            // 互斥逻辑：选中skip，取消stop
+            if (this.skipMissingButton != null) {
+                this.skipMissingButton.setSelected(true);
+            }
+            if (this.stopMissingButton != null) {
+                this.stopMissingButton.setSelected(false);
+            }
+            
+            // 发送网络数据包同步到服务端
+            PacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("missingMode", 1));
+        }
+    }
+    
+    private void onStopMissingButtonClick() {
+        if (this.isSkipMissingMode) {
+            this.isSkipMissingMode = false;
+            
+            // 互斥逻辑：选中stop，取消skip
+            if (this.skipMissingButton != null) {
+                this.skipMissingButton.setSelected(false);
+            }
+            if (this.stopMissingButton != null) {
+                this.stopMissingButton.setSelected(true);
+            }
+            
+            // 发送网络数据包同步到服务端
+            PacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("missingMode", 0));
         }
     }
     
@@ -265,6 +349,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         if (this.isBlueprintMode) {
             this.layerPositions.clear();
         }
+        
+        // 更新缺少方块处理按钮（只在蓝图模式下显示）
+        this.removeMissingModeButtons();
+        this.initMissingModeButton();
     }
     
     /**
@@ -277,6 +365,20 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             }
         }
         this.layerButtons.clear();
+    }
+    
+    /**
+     * 移除缺少方块处理按钮
+     */
+    private void removeMissingModeButtons() {
+        if (this.skipMissingButton != null) {
+            this.removeWidget(this.skipMissingButton);
+            this.skipMissingButton = null;
+        }
+        if (this.stopMissingButton != null) {
+            this.removeWidget(this.stopMissingButton);
+            this.stopMissingButton = null;
+        }
     }
     
     private TriStateButton createPositionButton(int row, int col, int positionIndex, int startX, int startY, boolean selected) {
@@ -325,7 +427,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
 
         // 通知服务端
-        PacketDistributor.sendToServer(new SmartBlockPlacerLayerPacket(index));
+        PacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("layer", index));
     }
     
     private void onLayerModeButtonClick() {
@@ -350,7 +452,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.operationModeButton.setTooltips(List.of(this.getOperationModeTooltip()));
 
         // 发送网络数据包同步到服务端
-        PacketDistributor.sendToServer(new SmartBlockPlacerModePacket(this.isPickupMode));
+        PacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("mode", this.isPickupMode ? 1 : 0));
     }
     
     private void updatePositionButtons() {
@@ -396,7 +498,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             positions.remove(positionIndex);
         }
 
-        PacketDistributor.sendToServer(new SmartBlockPlacerPositionPacket(this.currentViewLayer, positionIndex, newState));
+        PacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("position", positionIndex, this.currentViewLayer + ":" + positionIndex + ":" + newState));
     }
     
     /**
@@ -497,7 +599,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                                 positions.remove(positionIndex);
                             }
                             PacketDistributor.sendToServer(
-                                new SmartBlockPlacerPositionPacket(this.currentViewLayer, positionIndex, this.dragTargetState)
+                                new SmartBlockPlacerActionPacket("position", positionIndex, this.currentViewLayer + ":" + positionIndex + ":" + this.dragTargetState)
                             );
                         }
                     }
