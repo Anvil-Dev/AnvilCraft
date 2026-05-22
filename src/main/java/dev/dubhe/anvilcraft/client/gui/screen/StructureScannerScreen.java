@@ -82,6 +82,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     // 预览缓存
     private LevelLike cachedPreviewLevelLike;
     private Direction cachedPreviewFacing = Direction.NORTH;
+    
+    // 扫描数据版本追踪（用于缓存失效）
+    private int cachedScannedBlocksSize = -1;
 
     public StructureScannerScreen(StructureScannerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -382,13 +385,12 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.cachedPreviewLevelLike = null;
         }
         
-        // 检查扫描方块数据是否变化
-        if (!blockEntity.getScannedBlocks().isEmpty()) {
-            // 如果有扫描数据，使预览缓存失效（简单策略：每次有新数据就重建）
-            // 更优的策略可以比较扫描数据的大小或哈希
-            if (this.cachedPreviewLevelLike != null) {
-                this.cachedPreviewLevelLike = null;
-            }
+        // 检查扫描方块数据是否变化（通过大小比较）
+        int currentScannedBlocksSize = blockEntity.getScannedBlocks().size();
+        if (currentScannedBlocksSize != this.cachedScannedBlocksSize) {
+            // 扫描数据大小变化，使预览缓存失效
+            this.cachedScannedBlocksSize = currentScannedBlocksSize;
+            this.cachedPreviewLevelLike = null;
         }
     }
     
@@ -681,10 +683,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             default -> blockFacing;
         };
     }
-    
-    /**
-     * 获取朝向对应的Y轴偏移角度
-     */
+
     @SuppressWarnings("unused")
     private float getFacingYawOffset(Direction scannerFacing) {
         return 270f;

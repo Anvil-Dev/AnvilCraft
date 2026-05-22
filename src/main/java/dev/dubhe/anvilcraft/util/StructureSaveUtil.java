@@ -63,7 +63,13 @@ public class StructureSaveUtil {
             
             // Sanitize and validate structure name to prevent path traversal
             String sanitizedName = sanitizeStructureName(structureName);
-
+            
+            // Handle null case: use a safe default name if sanitization fails
+            if (sanitizedName == null || sanitizedName.trim().isEmpty()) {
+                LOGGER.warn("Invalid structure name '{}', using default name 'unnamed_structure'", structureName);
+                sanitizedName = "unnamed_structure";
+            }
+            
             // 生成唯一UUID作为文件名
             String uuid = java.util.UUID.randomUUID().toString();
             String fileName = sanitizedName + "_" + uuid;
@@ -195,6 +201,7 @@ public class StructureSaveUtil {
     /**
      * Sanitize structure name to prevent path traversal attacks
      * Only allows alphanumeric characters, underscores, hyphens, and spaces
+     * Spaces will be replaced with underscores in the final filename to match load-side validation
      */
     private static @Nullable String sanitizeStructureName(String name) {
         if (name.trim().isEmpty()) {
@@ -215,12 +222,15 @@ public class StructureSaveUtil {
         String sanitized = name.replace('/', '_').replace('\\', '_');
         sanitized = sanitized.replace("..", "_");
         
+        // Replace spaces with underscores to match StructureLoadUtil filename validation
+        sanitized = sanitized.replace(' ', '_');
+        
         return sanitized.trim();
     }
     
     /**
      * Validate that the resolved path stays within the base directory
-     * Prevents path traversal attacks using .. sequences
+     * Prevents path traversal attacks using sequences
      */
     private static boolean isPathWithinBaseDirectory(Path resolvedPath, Path baseDir) {
         try {

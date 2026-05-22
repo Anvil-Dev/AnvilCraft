@@ -31,6 +31,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         this.level = inventory.player.level();
 
         // 添加Structure Disk物品栏槽位（1个槽位）
+        // Smart Block Placer 需要限制结构大小不超过 5x5x5
         int diskSlotX = 8;
         int diskSlotY = 119;
         this.addSlot(new StructureDiskOnlySlot(
@@ -38,6 +39,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             0,
             diskSlotX,
             diskSlotY,
+            true,  // enforceSizeLimit: 强制限制 5x5x5
             // 提取条件：只有当书槽位为空时才能取出磁盘
             () -> this.blockEntity.getBookInventory().getItem(0).isEmpty()
         ));
