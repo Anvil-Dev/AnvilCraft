@@ -1604,9 +1604,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 使用 FakePlayer 放置方块
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
             
-            // 放置失败时回滚物品
+            // 放置失败时：
+            // - pickup模式需要回滚物品（因为已经从容器提取）
+            // - move模式不需要回滚（因为源方块还在原地，没有被移除）
             if (!placeSuccess) {
-                this.rollbackExtractedItem(level, placerPos, blockItem);
+                // 只有pickup模式才回滚（itemPeeker != null 表示pickup模式）
+                if (itemPeeker != null) {
+                    this.rollbackExtractedItem(level, placerPos, blockItem);
+                }
                 this.onChanged();
                 return;
             }
