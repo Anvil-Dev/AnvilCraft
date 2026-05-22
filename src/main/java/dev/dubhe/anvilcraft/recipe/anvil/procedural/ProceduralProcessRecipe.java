@@ -38,12 +38,9 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     //  用ppr配方rl和步数能够O(1)检索，但是有必要吗？
     //  不过，wip方块对应的步骤种类数可能会稍微多一些
 
-    //TODO：写一些方块操作配方
-    // 目前是没有闪炼、时移、中子辐照对普通方块进行操作的配方的；不过，这些可能可以归并成“反向涂抹”？
+    //TODO: 红石计算机和砧子辐照怎么没人写啊
 
     //TODO：为一些具有API性质的东西写javadoc
-
-    //TODO: 把方块涂抹里面的草方块配方迁移到正确的地方去
 
     public ProceduralProcessRecipe(
         BlockStatePredicate initialBlock,

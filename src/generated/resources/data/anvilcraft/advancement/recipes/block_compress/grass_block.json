@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:block_smear/grass_block"
+        "recipe": "anvilcraft:block_compress/grass_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:block_smear/grass_block"
+      "anvilcraft:block_compress/grass_block"
     ]
   }
 }
