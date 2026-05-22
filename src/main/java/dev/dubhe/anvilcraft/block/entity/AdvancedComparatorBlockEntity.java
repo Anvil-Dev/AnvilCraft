@@ -163,14 +163,8 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         return null;
     }
 
-    public CompoundTag exportMoveData() {
-        return constructDataNbt();
-    }
-
-    public void applyMoveData(Level level, BlockPos pos, BlockState state, CompoundTag nbt) {
-        readDataNbt(nbt);
-        ((AdvancedComparatorBlock) state.getBlock()).update(level, pos, state);
-        setChanged();
+    public void notifyMoved() {
+        this.state = State.OUTPUT_LOW;
     }
 
     public enum State {

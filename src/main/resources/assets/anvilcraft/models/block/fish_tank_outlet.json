@@ -2,6 +2,7 @@
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
 	"render_type": "minecraft:cutout",
+	"ambientocclusion": false,
 	"textures": {
 		"5": "anvilcraft:block/fish_tank_outlet",
 		"particle": "anvilcraft:block/fish_tank_outlet"
@@ -11,6 +12,7 @@
 			"from": [4, 3, -1],
 			"to": [12, 11, 2],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 3, 8]},
+			"shade": false,
 			"faces": {
 				"north": {"uv": [0, 0, 8, 8], "texture": "#5"},
 				"east": {"uv": [8, 3, 16, 0], "rotation": 90, "texture": "#5"},

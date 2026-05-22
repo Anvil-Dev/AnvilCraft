@@ -5,7 +5,6 @@ import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.client.event.ClientTickRecorder;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
@@ -31,6 +30,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             maxY = minY + height * fill;
         }
 
-        PollableItemHandler handler = tank.getItemHandler();
+        ItemStackHandler handler = tank.getItemHandler();
         this.random.setSeed(ItemHandlerUtil.hash(handler));
         Level level = tank.getLevel();
         if (level == null) return;

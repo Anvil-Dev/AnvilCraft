@@ -18,12 +18,12 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 
 import static dev.dubhe.anvilcraft.block.BlockPlacerBlock.ORIENTATION;
 
@@ -171,7 +171,11 @@ public class ItemHandlerUtil {
         return itemHandler;
     }
 
-    public static @Nullable List<IItemHandler> getTargetItemHandlerList(BlockPos inputBlockPos, Direction context, @Nullable Level level) {
+    public static @Nullable List<IItemHandler> getTargetItemHandlerList(
+        BlockPos inputBlockPos,
+        @Nullable Direction context,
+        @Nullable Level level
+    ) {
         if (level == null) return null;
         List<IItemHandler> list = new ArrayList<>();
         IItemHandler input = level.getCapability(
