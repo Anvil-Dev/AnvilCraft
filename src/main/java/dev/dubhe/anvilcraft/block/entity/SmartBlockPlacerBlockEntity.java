@@ -1,3 +1,4 @@
+
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
@@ -110,6 +111,36 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
     };
 
+    /**
+     * -- GETTER --
+     *  获取书物品栏(输入)
+     */
+    // 蓝图模式书物品栏(输入)
+    private final SimpleContainer bookInventory = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            SmartBlockPlacerBlockEntity.this.setChanged();
+            // 当输入书时,自动生成材料清单到输出槽位
+            SmartBlockPlacerBlockEntity.this.onBookInputChanged();
+        }
+    };
+
+    /**
+     * -- GETTER --
+     *  获取输出书物品栏
+     */
+    // 蓝图模式输出书物品栏(输出材料清单)
+    private final SimpleContainer outputBookInventory = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            SmartBlockPlacerBlockEntity.this.setChanged();
+            // 当输出书被取走时,消耗输入书
+            SmartBlockPlacerBlockEntity.this.onOutputBookTaken();
+        }
+    };
+
     // 客户端动画状态
     private long clientAnimationStartTime = 0;
     @Nullable
@@ -159,6 +190,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         saveLayerPositions(tag);
         // 保存Disk物品栏
         tag.put("diskInventory", this.diskInventory.createTag(provider));
+        // 保存书物品栏
+        tag.put("bookInventory", this.bookInventory.createTag(provider));
+        // 保存输出书物品栏
+        tag.put("outputBookInventory", this.outputBookInventory.createTag(provider));
         
         // 保存结构缓存(保存原始未旋转的数据)
         if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
@@ -187,6 +222,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         loadLayerPositions(tag);
         // 加载Disk物品栏
         this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
+        // 加载书物品栏
+        this.bookInventory.fromTag(tag.getList("bookInventory", Tag.TAG_COMPOUND), provider);
+        // 加载输出书物品栏
+        this.outputBookInventory.fromTag(tag.getList("outputBookInventory", Tag.TAG_COMPOUND), provider);
         
         // 优先从缓存加载结构数据(原始未旋转的数据)
         if (tag.contains("cachedStructure", Tag.TAG_COMPOUND)) {
@@ -430,6 +469,60 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     @Nullable
     public StructureLoadUtil.StructureData getLoadedStructure() {
         return this.loadedStructure;
+    }
+    
+    /**
+     * 当书输入槽位变化时调用,生成材料清单书到输出槽位
+     */
+    private void onBookInputChanged() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        
+        // 检查输入槽位是否有书
+        ItemStack inputBook = this.bookInventory.getItem(0);
+        if (inputBook.isEmpty()) {
+            // 清空输出槽位
+            this.outputBookInventory.setItem(0, ItemStack.EMPTY);
+            return;
+        }
+        
+        // 检查输出槽位是否已经有书
+        ItemStack outputBook = this.outputBookInventory.getItem(0);
+        if (!outputBook.isEmpty()) {
+            // 如果输出槽位已有书,不再生成
+            return;
+        }
+        
+        // 生成材料清单书(不消耗输入书)
+        try {
+            dev.dubhe.anvilcraft.util.StructureBookUtil.generateMaterialListBookToOutput(
+                this.level,
+                this.getBlockPos(),
+                this
+            );
+        } catch (Exception e) {
+            dev.dubhe.anvilcraft.util.StructureBookUtil.LOGGER.error("Failed to generate material list book: {}", e.getMessage());
+        }
+    }
+    
+    /**
+     * 当输出书被取走时调用,消耗输入书
+     */
+    private void onOutputBookTaken() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        
+        // 检查输出槽位是否为空(被取走)
+        ItemStack outputBook = this.outputBookInventory.getItem(0);
+        if (outputBook.isEmpty()) {
+            // 消耗输入书
+            ItemStack inputBook = this.bookInventory.getItem(0);
+            if (!inputBook.isEmpty()) {
+                this.bookInventory.setItem(0, ItemStack.EMPTY);
+            }
+        }
     }
 
     /**

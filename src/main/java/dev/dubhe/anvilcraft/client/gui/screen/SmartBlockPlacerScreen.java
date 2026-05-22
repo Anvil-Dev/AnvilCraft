@@ -530,6 +530,33 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
     
     /**
+     * 渲染书槽位的tooltip
+     */
+    private void renderBookSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        // 书槽位的位置（与Menu中一致）
+        int bookSlotX = this.leftPos + 8;
+        int bookSlotY = this.topPos + 101;
+        int bookSlotWidth = 16;
+        int bookSlotHeight = 16;
+        
+        // 检查鼠标是否在书槽位上
+        if (mouseX >= bookSlotX && mouseX < bookSlotX + bookSlotWidth
+            && mouseY >= bookSlotY && mouseY < bookSlotY + bookSlotHeight) {
+            // 渲染tooltip，确保在所有元素上方
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 1500);
+            guiGraphics.renderTooltip(
+                this.font,
+                List.of(Component.translatable("screen.anvilcraft.smart_block_placer.book_slot")),
+                java.util.Optional.empty(),
+                mouseX,
+                mouseY
+            );
+            guiGraphics.pose().popPose();
+        }
+    }
+    
+    /**
      * 渲染缺失方块图标的tooltip
      */
     private void renderMissingBlockTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -746,6 +773,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         
         // 渲染Disk槽位的tooltip
         this.renderDiskSlotTooltip(guiGraphics, mouseX, mouseY);
+        
+        // 渲染书槽位的tooltip（仅在蓝图模式下）
+        if (this.isBlueprintMode) {
+            this.renderBookSlotTooltip(guiGraphics, mouseX, mouseY);
+        }
         
         // 渲染缺失方块图标的tooltip
         this.renderMissingBlockTooltip(guiGraphics, mouseX, mouseY);
