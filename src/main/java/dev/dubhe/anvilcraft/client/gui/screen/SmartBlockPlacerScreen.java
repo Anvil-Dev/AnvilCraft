@@ -106,6 +106,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean cachedBlueprintMode = false;  // 缓存蓝图模式状态
     private String cachedStructureUuid = "";  // 缓存结构UUID，用于检测结构变化
     private long cachedGameTimeBlockType = -1;  // 用于追踪方块类型的游戏时间
+    
+    // 蓝图名字滚动相关
+    private long structureNameScrollTime = 0;  // 滚动时间戳
+    private String lastRenderedStructureName = "";  // 上次渲染的结构名字
+    private boolean isStructureNameHovered = false;  // 鼠标是否悬停在文本上
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -575,7 +580,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int textY = this.titleLabelY + 56;
         Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
         int iconX = textX + this.font.width(missingText) + 4;
-        int iconY = textY + 8;
+        int iconY = textY + 18;  // 与渲染位置一致
         int iconWidth = 16;
         int iconHeight = 16;
         
@@ -689,12 +694,44 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             int blueprintY = j + (this.imageHeight - 128) / 2 - 19;
             guiGraphics.blit(BLUEPRINT_MODE_BG, blueprintX, blueprintY, 0, 0, 128, 128, 128, 128);
         }
+        
+        // 渲染磁盘槽位的虚影（当槽位为空时）
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null && blockEntity.getDiskInventory().getItem(0).isEmpty()) {
+            // 获取结构磁盘物品
+            net.minecraft.world.item.ItemStack diskStack = dev.dubhe.anvilcraft.init.item.ModItems.STRUCTURE_DISK.get().getDefaultInstance();
+            if (!diskStack.isEmpty()) {
+                int diskSlotX = i + 8;
+                int diskSlotY = j + 119;
+                renderMaskedItem(guiGraphics, diskStack, diskSlotX, diskSlotY);
+            }
+        }
+        
+        // 蓝图模式下渲染书槽位的虚影（当槽位为空时）
+        if (this.isBlueprintMode && blockEntity != null && blockEntity.getBookInventory().getItem(0).isEmpty()) {
+            // 获取书物品
+            net.minecraft.world.item.ItemStack bookStack = net.minecraft.world.item.Items.BOOK.getDefaultInstance();
+            if (!bookStack.isEmpty()) {
+                int bookSlotX = i + 46;
+                int bookSlotY = j + 86;
+                renderMaskedItem(guiGraphics, bookStack, bookSlotX, bookSlotY);
+            }
+        }
     }
     
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // 只渲染标题（方块名称），不渲染"物品栏"文字
+        // 只渲染标题（方块名称），不渲染“物品栏”文字
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+    }
+        
+    /**
+     * 渲染半透明的物品虚影
+     */
+    private void renderMaskedItem(GuiGraphics g, net.minecraft.world.item.ItemStack stack, int x, int y) {
+        final int maskColor = 0x99777777;  // 调整透明度，数值越大越透明
+        g.renderItem(stack, x, y, 0);
+        g.fill(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
     }
     
     @Override
@@ -838,33 +875,124 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             RenderSystem.enableDepthTest();
         }
         
-        // 渲染已加载的结构名称（提高图层，与"没有选区"文本一致）
+        // 渲染已加载的结构名称（提高图层，与“没有选区”文本一致）
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity != null) {
             String structureName = blockEntity.getLoadedStructureName();
             if (!structureName.isEmpty()) {
-                Component structureText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded", structureName);
-                int textX = this.titleLabelX + 96;
+                Component loadedText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded");
+                int textX = this.titleLabelX + 92;
                 int textY = this.titleLabelY + 56;
-                
+                        
                 // 禁用深度测试，确保文本在最上层渲染
                 RenderSystem.disableDepthTest();
                 guiGraphics.pose().pushPose();
                 // 将Z轴向前移动，确保文本在最前面
                 guiGraphics.pose().translate(0, 0, 1000);
-                guiGraphics.drawString(this.font, structureText, textX, textY, 0x00AA00, false);
-                
+                guiGraphics.drawString(this.font, loadedText, textX, textY, 0x00AA00, false);
+                        
+                // 渲染蓝图名字（单独一行，带滚动效果）
+                int nameY = textY + 10;
+                int maxWidth = 80;  // 最大显示宽度
+                int textWidth = this.font.width(structureName);
+                        
+                // 检测鼠标是否悬停在文本区域
+                // 使用 Screen 的 hovered 字段获取鼠标位置
+                if (this.minecraft != null && this.minecraft.screen != null) {
+                    double mouseX = this.minecraft.mouseHandler.xpos() * (double)
+                        this.width / (double)
+                                        this.minecraft.getWindow().getWidth();
+                    double mouseY = this.minecraft.mouseHandler.ypos() * (double)
+                        this.height / (double)
+                                        this.minecraft.getWindow().getHeight();
+                    this.isStructureNameHovered = mouseX >= textX && mouseX <= textX + maxWidth && mouseY >= nameY && mouseY <= nameY + 10;
+                }
+                        
+                if (textWidth > maxWidth) {
+                    // 名字太长，需要滚动
+                    if (!structureName.equals(lastRenderedStructureName)) {
+                        // 切换了新的结构名，重置滚动时间
+                        structureNameScrollTime = System.currentTimeMillis();
+                        lastRenderedStructureName = structureName;
+                    }
+                            
+                    // 只有鼠标悬停时才滚动
+                    if (this.isStructureNameHovered) {
+                        // 计算滚动偏移（每8秒一个来回周期）
+                        long time = System.currentTimeMillis() - structureNameScrollTime;
+                        double scrollCycle = 8000.0;  // 8秒一个完整周期
+                        double progress = (time % scrollCycle) / scrollCycle;
+                                
+                        // 使用正弦波实现来回滚动，但保持左侧始终有文本
+                        // 只在 0 和最大偏移之间滚动，避免出现空白
+                        double maxScroll = textWidth - maxWidth;
+                        double scrollOffset = (Math.sin(progress * Math.PI * 2 - Math.PI / 2) + 1) / 2 * maxScroll;
+                                
+                        // 应用裁剪区域
+                        guiGraphics.enableScissor(textX, nameY - 1, textX + maxWidth, nameY + 10);
+                        guiGraphics.drawString(this.font, structureName, textX - (int)
+                            scrollOffset, nameY, 0x5555FF, false);
+                        guiGraphics.disableScissor();
+                    } else {
+                        // 鼠标未悬停，重置滚动时间并显示开头部分
+                        structureNameScrollTime = System.currentTimeMillis();
+                        guiGraphics.enableScissor(textX, nameY - 1, textX + maxWidth, nameY + 10);
+                        guiGraphics.drawString(this.font, structureName, textX, nameY, 0x5555FF, false);
+                        guiGraphics.disableScissor();
+                    }
+                } else {
+                    // 名字不长，直接显示
+                    guiGraphics.drawString(this.font, structureName, textX, nameY, 0x5555FF, false);
+                }
+                        
                 // 显示缺失方块信息（服务端同步）
                 ItemStack missingItem = blockEntity.getMissingBlockItem();
                 if (!missingItem.isEmpty()) {
                     Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
-                    guiGraphics.drawString(this.font, missingText, textX, textY + 10, 0xFF5555, false);
+                    guiGraphics.drawString(this.font, missingText, textX, textY + 20, 0xFF5555, false);
                     // 渲染缺失方块图标
-                    guiGraphics.renderFakeItem(missingItem, textX + this.font.width(missingText) + 4, textY + 8);
+                    guiGraphics.renderFakeItem(missingItem, textX + this.font.width(missingText) + 4, textY + 18);
                 }
-                
+                        
                 guiGraphics.pose().popPose();
                 // 恢复深度测试
+                RenderSystem.enableDepthTest();
+            } else if (blockEntity.hasInvalidStructure() && !blockEntity.getDiskInventory().getItem(0).isEmpty()) {
+                // 磁盘存在但结构数据无效，显示提示信息（带滚动效果）
+                // 额外检查磁盘槽位是否为空，确保拿走磁盘后提示消失
+                Component invalidText = Component.translatable("screen.anvilcraft.smart_block_placer.no_structure_record");
+                int textX = this.titleLabelX + 92;
+                int textY = this.titleLabelY + 56;
+                int maxWidth = 80;  // 最大显示宽度
+                int textWidth = this.font.width(invalidText);
+                            
+                // 禁用深度测试，确保文本在最上层渲染
+                RenderSystem.disableDepthTest();
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0, 0, 1000);
+                            
+                if (textWidth > maxWidth) {
+                    // 文本太长，需要一直滚动（匀速）
+                    long time = System.currentTimeMillis();
+                    double scrollSpeed = 30.0;  // 像素/秒，控制滚动速度
+                    double totalScrollDistance = textWidth + maxWidth;  // 完整滚动距离（文本宽度+显示宽度）
+                    double scrollCycle = totalScrollDistance / scrollSpeed * 1000.0;  // 完整周期时间（毫秒）
+                    double progress = (time % scrollCycle) / scrollCycle;
+                    
+                    // 匀速滚动：从左到右，然后循环
+                    double scrollOffset = progress * totalScrollDistance - maxWidth;
+                    
+                    // 应用裁剪区域
+                    guiGraphics.enableScissor(textX, textY - 1, textX + maxWidth, textY + 10);
+                    guiGraphics.drawString(this.font, invalidText, textX - (int)
+                        scrollOffset, textY, 0xFF5555, false);
+                    guiGraphics.disableScissor();
+                } else {
+                    // 文本不长，直接显示
+                    guiGraphics.drawString(this.font, invalidText, textX, textY, 0xFF5555, false);
+                }
+                            
+                guiGraphics.pose().popPose();
                 RenderSystem.enableDepthTest();
             }
         }
@@ -1177,38 +1305,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private int calculatePreviewRotationSteps(Direction placerFacing, int scannerFacingValue) {
         // Scanner朝向与放置器朝向的映射关系
         // 映射规则:南北方向保持不变,东西方向镜像
-        int scannerToPlacerMapping = switch (scannerFacingValue) {
-            case 2 -> 2;  // Scanner北 → 放置器北
-            case 3 -> 3;  // Scanner南 → 放置器南
-            case 4 -> 5;  // Scanner西 → 放置器东
-            case 5 -> 4;  // Scanner东 → 放置器西
-            default -> scannerFacingValue;
-        };
-        
-        // 转换为0-3的索引用于计算旋转 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
-        // 并根据放置器朝向应用修正：东+3, 西+1, 南+2, 北+0
-        int placerIndex = switch (placerFacing) {
-            case NORTH -> 0;  // 北：无修正
-            case EAST -> (1 + 3) % 4;  // 东：+3
-            case SOUTH -> (2 + 2) % 4;  // 南：+2
-            case WEST -> (3 + 1) % 4;   // 西：+1
-            default -> 0;
-        };
-        
-        int scannerIndex = switch (scannerToPlacerMapping) {
-            case 2 -> 0;  // NORTH
-            case 5 -> 1;  // EAST
-            case 3 -> 2;  // SOUTH
-            case 4 -> 3;  // WEST
-            default -> 0;
-        };
-        
-        // 计算基础旋转步数（顺时针）
-        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
-        
-        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
-        int rotationAfterGlobalFix = (baseRotation + 3) % 4;
-        
+        int rotationAfterGlobalFix = getRotationAfterGlobalFix(placerFacing, scannerFacingValue);
+
         // 根据scannerFacing添加额外修正
         int extraCorrection = switch (scannerFacingValue) {
             case 2 -> 3;  // NORTH: 逆时针+90度(顺时针+3)
@@ -1218,6 +1316,64 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         };
         
         return (rotationAfterGlobalFix + extraCorrection) % 4;
+    }
+
+    private int getRotationAfterGlobalFix(Direction placerFacing, int scannerFacingValue) {
+        int scannerToPlacerMapping = switch (scannerFacingValue) {
+            case 2 -> 2;  // Scanner北 → 放置器北
+            case 3 -> 3;  // Scanner南 → 放置器南
+            case 4 -> 5;  // Scanner西 → 放置器东
+            case 5 -> 4;  // Scanner东 → 放置器西
+            default -> scannerFacingValue;
+        };
+
+        // 转换为0-3的索引用于计算旋转
+        int placerIndex = getPlacerIndex(placerFacing);
+        int scannerIndex = getScannerIndex(scannerToPlacerMapping);
+
+        // 计算基础旋转步数并应用全局修正
+        return calculateBaseRotationWithGlobalFix(placerIndex, scannerIndex);
+    }
+
+    /**
+     * 计算基础旋转步数并应用全局修正（所有方向逆时针旋转90度）
+     * 
+     * @param placerIndex 放置器索引
+     * @param scannerIndex 扫描器索引
+     * @return 应用全局修正后的旋转步数
+     */
+    private int calculateBaseRotationWithGlobalFix(int placerIndex, int scannerIndex) {
+        // 计算基础旋转步数（顺时针）
+        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
+        
+        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
+        return (baseRotation + 3) % 4;
+    }
+    
+    /**
+     * 获取放置器朝向的索引(带修正)
+     */
+    private int getPlacerIndex(Direction placerFacing) {
+        return switch (placerFacing) {
+            case NORTH -> 0;  // 北：无修正
+            case EAST -> (1 + 3) % 4;  // 东：+3
+            case SOUTH -> (2 + 2) % 4;  // 南：+2
+            case WEST -> (3 + 1) % 4;   // 西：+1
+            default -> 0;
+        };
+    }
+    
+    /**
+     * 获取扫描器朝向的索引
+     */
+    private int getScannerIndex(int scannerToPlacerMapping) {
+        return switch (scannerToPlacerMapping) {
+            case 2 -> 0;  // NORTH
+            case 5 -> 1;  // EAST
+            case 3 -> 2;  // SOUTH
+            case 4 -> 3;  // WEST
+            default -> 0;
+        };
     }
     
     /**

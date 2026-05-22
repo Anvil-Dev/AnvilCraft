@@ -219,18 +219,12 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.preview.empty", "No positions configured");
         provider.add("screen.anvilcraft.smart_block_placer.disk_slot", "Disk Slot: Place Disk and enable blueprint mode");
         provider.add("screen.anvilcraft.smart_block_placer.book_slot", "Book Slot: Place book in blueprint mode");
-        provider.add("screen.anvilcraft.smart_block_placer.structure.loaded", "Loaded: %s");
+        provider.add("screen.anvilcraft.smart_block_placer.structure.loaded", "Loaded: ");
         provider.add("screen.anvilcraft.smart_block_placer.missing.block", "Missing:");
+        provider.add("screen.anvilcraft.smart_block_placer.no_structure_record", "Record a structure with the Structure Scanner first");
         
         // Structure Material Book
-        provider.add("book.anvilcraft.material_list.title", "§l§nStructure Material List");
-        provider.add("book.anvilcraft.material_list.structure", "Structure: %s");
-        provider.add("book.anvilcraft.material_list.size", "Size: %s");
-        provider.add("book.anvilcraft.material_list.total_blocks", "Total Blocks: %s");
-        provider.add("book.anvilcraft.material_list.details_header", "§7Material Details:");
-        provider.add("book.anvilcraft.material_list.available", "§8%s§7/§8%s");
-        provider.add("book.anvilcraft.material_list.missing", "§c(-%s)");
-        provider.add("book.anvilcraft.material_list.author", "Smart Block Placer");
+        provider.add("book.anvilcraft.material_list.missing_header", "Missing:");
         
         // Structure Scanner
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");

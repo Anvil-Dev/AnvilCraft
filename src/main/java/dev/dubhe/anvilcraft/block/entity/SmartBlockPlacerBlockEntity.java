@@ -89,6 +89,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     // 结构加载状态追踪 - 用于避免重复加载
     private String loadedStructureUuid = "";
     private boolean hasStructureDisk = false;
+    private boolean hasInvalidStructure = false;  // 标记磁盘是否包含无效结构
     
     // 记录上次检查的磁盘物品，用于检测变化
     private ItemStack lastDiskItem = ItemStack.EMPTY;
@@ -432,6 +433,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (this.loadedStructure != null) {
                 this.loadedStructure = null;
                 this.loadedStructureName = "";
+                this.hasInvalidStructure = false;
                 structureChanged = true;
             }
         } else {
@@ -440,6 +442,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (data != null && !data.isEmpty()) {
                 this.loadedStructure = data;
                 this.loadedStructureName = data.structureName;
+                this.hasInvalidStructure = false;
                 structureChanged = true;
                 
                 // 清空选区（仅服务端）
@@ -448,11 +451,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     this.currentPlacementIndex = 0;
                 }
             } else {
-                // 加载失败
+                // 加载失败，标记为无效结构
                 if (this.loadedStructure != null) {
                     this.loadedStructure = null;
                     this.loadedStructureName = "";
+                    this.hasInvalidStructure = true;
                     structureChanged = true;
+                } else {
+                    // 之前就没有结构，现在也加载失败
+                    this.hasInvalidStructure = true;
                 }
             }
         }
@@ -469,6 +476,101 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     @Nullable
     public StructureLoadUtil.StructureData getLoadedStructure() {
         return this.loadedStructure;
+    }
+    
+    /**
+     * 检查是否包含无效结构（磁盘存在但结构数据无效）
+     */
+    public boolean hasInvalidStructure() {
+        return this.hasInvalidStructure;
+    }
+    
+    /**
+     * 获取比较器输出信号强度（基于放置进度）
+     * 
+     * @return 红石信号强度 0-15，0表示未开始，15表示完成
+     */
+    public int getComparatorOutput() {
+        if (this.level == null || this.level.isClientSide) {
+            return 0;
+        }
+        
+        // 蓝图模式：基于结构数据计算进度
+        if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
+            // 获取旋转后的结构数据
+            StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+            int totalBlocks = rotatedData.blocks.size();
+            
+            if (totalBlocks == 0) {
+                return 0;
+            }
+            
+            // 获取所有位置
+            Direction facing = this.getFacing(this.getBlockPos(), this.level);
+            boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+            List<BlockPos> allPositions = buildBlueprintPositions(this.getBlockPos(), facing, upsideDown);
+            
+            if (allPositions.isEmpty()) {
+                return 0;
+            }
+            
+            // 计算已放置的方块数量
+            int placedCount = 0;
+            int checkCount = Math.min(totalBlocks, allPositions.size());
+            
+            for (int i = 0; i < checkCount; i++) {
+                BlockPos targetPos = allPositions.get(i);
+                
+                // 如果位置不可以放置，说明已经放置了方块
+                if (!this.canPlaceAtPosition(this.level, targetPos, null)) {
+                    placedCount++;
+                }
+            }
+            
+            // 计算信号强度 (0-15)
+            if (placedCount >= totalBlocks) {
+                return 15;  // 完全完成时输出15
+            }
+            
+            // 根据进度计算信号强度
+            double progress = (double) placedCount / totalBlocks;
+            return (int) Math.round(progress * 15.0);  // 最大输出15
+        }
+        
+        // 普通模式（PICKUP/MOVE）：基于选区位置计算进度
+        if (!this.layerPositions.isEmpty()) {
+            Direction facing = this.level.getBlockState(this.getBlockPos()).getValue(HorizontalDirectionalBlock.FACING);
+            boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+            
+            // 使用与放置逻辑相同的方法构建位置列表
+            List<BlockPos> allPositions = buildOrderedPositionsFromLayers(this.getBlockPos(), facing, upsideDown);
+            
+            if (allPositions.isEmpty()) {
+                return 0;
+            }
+            
+            // 计算已放置的方块数量
+            int placedCount = 0;
+            int totalCount = allPositions.size();
+            
+            for (BlockPos targetPos : allPositions) {
+                // 如果位置不可以放置，说明已经放置了方块
+                if (!this.canPlaceAtPosition(this.level, targetPos, null)) {
+                    placedCount++;
+                }
+            }
+            
+            // 计算信号强度 (0-15)
+            if (placedCount >= totalCount) {
+                return 15;  // 完全完成时输出15
+            }
+            
+            // 根据进度计算信号强度
+            double progress = (double) placedCount / totalCount;
+            return (int) Math.round(progress * 15.0);  // 最大输出15
+        }
+        
+        return 0;
     }
     
     /**
@@ -547,9 +649,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return;
         }
         
-        // 获取当前索引需要的方块
-        Block requiredBlock = getRequiredBlockForPosition(this.currentPlacementIndex);
-        if (requiredBlock == null) {
+        // 获取旋转后的结构数据
+        StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+        
+        // 获取所有位置
+        Direction facing = this.getFacing(pos, level);
+        boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        List<BlockPos> allPositions = buildBlueprintPositions(pos, facing, upsideDown);
+        
+        if (allPositions.isEmpty() || rotatedData.blocks.isEmpty()) {
             if (!this.missingBlockItem.isEmpty()) {
                 this.missingBlockItem = ItemStack.EMPTY;
                 this.onChanged();
@@ -557,13 +665,37 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return;
         }
         
-        // 检查容器中是否有该方块
-        ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
-        ItemStack newMissingItem = blockItem.isEmpty() ? new ItemStack(requiredBlock) : ItemStack.EMPTY;
+        // 遍历所有位置，找到第一个未放置且缺少材料的位置
+        for (int i = 0; i < rotatedData.blocks.size() && i < allPositions.size(); i++) {
+            BlockPos targetPos = allPositions.get(i);
+            
+            // 检查目标位置是否可以放置（如果不可以放置说明已经放置了）
+            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                continue;  // 已经放置了，跳过
+            }
+            
+            // 获取这个位置需要的方块
+            Block requiredBlock = getRequiredBlockForPosition(i);
+            if (requiredBlock == null) {
+                continue;
+            }
+            
+            // 检查容器中是否有该方块
+            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+            if (blockItem.isEmpty()) {
+                // 找到了缺失的方块
+                ItemStack newMissingItem = new ItemStack(requiredBlock);
+                if (!ItemStack.isSameItemSameComponents(this.missingBlockItem, newMissingItem)) {
+                    this.missingBlockItem = newMissingItem;
+                    this.onChanged();
+                }
+                return;
+            }
+        }
         
-        // 只在变化时更新
-        if (!ItemStack.isSameItemSameComponents(this.missingBlockItem, newMissingItem)) {
-            this.missingBlockItem = newMissingItem;
+        // 所有位置都已放置完成或材料充足
+        if (!this.missingBlockItem.isEmpty()) {
+            this.missingBlockItem = ItemStack.EMPTY;
             this.onChanged();
         }
     }
@@ -839,6 +971,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             boolean shutdownIndexReset = this.currentPlacementIndex != 0;
             if (shutdownIndexReset) {
                 this.currentPlacementIndex = 0;
+            }
+            
+            // 断电时也更新缺失方块信息（清空显示）
+            if (!level.isClientSide) {
+                this.updateMissingBlockInfo(level, pos);
             }
             
             if (stateChanged || cooldownReset || heldItemCleared || shutdownIndexReset) {

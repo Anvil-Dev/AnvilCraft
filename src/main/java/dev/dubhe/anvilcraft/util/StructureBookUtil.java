@@ -2,31 +2,22 @@ package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * 结构材料清单书生成工具
@@ -34,9 +25,6 @@ import java.util.Optional;
 public class StructureBookUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(StructureBookUtil.class);
     
-    /**
-     * 生成结构材料清单书并放入输出槽位
-     */
     /**
      * 生成材料清单到输出书槽位
      * 逻辑: 蓝图需求 - 世界中已放置 = 还需要放置
@@ -75,8 +63,12 @@ public class StructureBookUtil {
             }
         }
         
-        // 如果所有方块都已放置完成
+        // 如果所有方块都已放置完成，输出普通的书
         if (neededBlocks.isEmpty()) {
+            ItemStack book = new ItemStack(Items.BOOK);
+            blockEntity.getOutputBookInventory().setItem(0, book);
+            LOGGER.info("Structure complete: {} (all blocks placed), output book", 
+                loadedStructure.structureName);
             return;
         }
         
@@ -86,64 +78,33 @@ public class StructureBookUtil {
         // 生成书页内容
         java.util.List<net.minecraft.server.network.Filterable<Component>> pages = new java.util.ArrayList<>();
         
-        // 第一页: 标题和总览
-        int totalRequired = requiredBlocks.values().stream().mapToInt(Integer::intValue).sum();
-        int totalPlaced = placedBlocks.values().stream().mapToInt(Integer::intValue).sum();
-        int totalNeeded = neededBlocks.values().stream().mapToInt(Integer::intValue).sum();
-        
-        Component titlePage = Component.translatable("book.anvilcraft.material_list.title")
-            .append(Component.literal("\n\n"))
-            .append(Component.translatable("book.anvilcraft.material_list.structure", loadedStructure.structureName))
-            .append(Component.literal("\n"))
-            .append(Component.translatable("book.anvilcraft.material_list.size", 
-                loadedStructure.sizeX + "x" + loadedStructure.sizeY + "x" + loadedStructure.sizeZ))
-            .append(Component.literal("\n"))
-            .append(Component.translatable("book.anvilcraft.material_list.total_blocks", 
-                totalNeeded + "§7/§8" + totalRequired + " §a(" + totalPlaced + "✓)"));
-        pages.add(new net.minecraft.server.network.Filterable<>(titlePage, java.util.Optional.empty()));
-        
-        // 第二页开始: 材料详情(只显示还需要的)
-        Component currentPage = Component.translatable("book.anvilcraft.material_list.details_header");
-        int lineCount = 0;
+        // 第一页开始: 材料详情(只显示缺失的)
+        Component currentPage = Component.translatable("book.anvilcraft.material_list.missing_header");
+        int lineCount = 1;
         
         for (Map.Entry<Block, Integer> entry : neededBlocks.entrySet()) {
             Block block = entry.getKey();
             int needed = entry.getValue();
-            int placed = placedBlocks.getOrDefault(block, 0);
             int available = countBlockInContainer(level, placerPos, block);
             int missing = Math.max(0, needed - available);
             
-            // 创建这一行的内容
-            Component line;
+            // 只显示缺少的方块
             if (missing > 0) {
-                // 缺少方块 - 红色
-                line = Component.literal("\n§c✗ ")
+                Component line = Component.literal("\n")
                     .append(Component.literal(block.getName().getString()))
                     .append(Component.literal(" "))
-                    .append(Component.translatable("book.anvilcraft.material_list.available", 
-                        available, needed))
-                    .append(Component.literal(" §a(" + placed + "✓)"))
-                    .append(Component.literal(" "))
-                    .append(Component.translatable("book.anvilcraft.material_list.missing", missing));
-            } else {
-                // 足够 - 绿色
-                line = Component.literal("\n§a✓ ")
-                    .append(Component.literal(block.getName().getString()))
-                    .append(Component.literal(" "))
-                    .append(Component.translatable("book.anvilcraft.material_list.available", 
-                        available, needed))
-                    .append(Component.literal(" §a(" + placed + "✓)"));
+                    .append(Component.literal("§c×" + missing));
+                
+                // 检查是否需要分页(每页约14行)
+                if (lineCount >= 13) {
+                    pages.add(new net.minecraft.server.network.Filterable<>(currentPage, java.util.Optional.empty()));
+                    currentPage = Component.literal("");
+                    lineCount = 0;
+                }
+                
+                currentPage = currentPage.copy().append(line);
+                lineCount++;
             }
-            
-            // 检查是否需要分页(每页约14行)
-            if (lineCount >= 13) {
-                pages.add(new net.minecraft.server.network.Filterable<>(currentPage, java.util.Optional.empty()));
-                currentPage = Component.literal("");
-                lineCount = 0;
-            }
-            
-            currentPage = currentPage.copy().append(line);
-            lineCount++;
         }
         
         // 添加最后一页
@@ -153,8 +114,8 @@ public class StructureBookUtil {
         
         // 设置书的专用组件
         var bookContent = new net.minecraft.world.item.component.WrittenBookContent(
-            new net.minecraft.server.network.Filterable<>(Component.translatable("book.anvilcraft.material_list.structure", loadedStructure.structureName).getString(), java.util.Optional.empty()),  // resolved title
-            Component.translatable("book.anvilcraft.material_list.author").getString(),  // owner
+            new net.minecraft.server.network.Filterable<>("Material List", java.util.Optional.empty()),  // resolved title
+            "Smart Block Placer",  // owner
             0,  // generation
             pages,  // pages
             false  // filtered
@@ -171,6 +132,7 @@ public class StructureBookUtil {
     /**
      * 统计结构中已放置的方块数量
      */
+    @SuppressWarnings("unused")
     private static Map<Block, Integer> countPlacedBlocksInStructure(
         Level level,
         BlockPos placerPos,

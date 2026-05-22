@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -19,17 +20,21 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class StructureScannerBlock extends BaseEntityBlock {
     public static final MapCodec<StructureScannerBlock> CODEC = simpleCodec(StructureScannerBlock::new);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public StructureScannerBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
     }
 
     @Override
@@ -39,7 +44,7 @@ public class StructureScannerBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, POWERED);
     }
 
     @Override
@@ -88,5 +93,109 @@ public class StructureScannerBlock extends BaseEntityBlock {
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide());
+    }
+    
+    @Override
+    public void neighborChanged(
+        BlockState state, Level level, BlockPos pos,
+        net.minecraft.world.level.block.Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+        if (level.isClientSide) {
+            return;
+        }
+        
+        boolean powered = level.hasNeighborSignal(pos);
+        boolean wasPowered = state.getValue(POWERED);
+        
+        // 更新红石状态
+        if (powered != wasPowered) {
+            level.setBlock(pos, state.setValue(POWERED, powered), 2);
+        }
+        
+        // 收到红石信号时，自动执行扫描并保存
+        if (powered && !wasPowered) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof StructureScannerBlockEntity scannerEntity) {
+                // 执行自动扫描和保存
+                autoScanAndSave(level, scannerEntity);
+            }
+        }
+    }
+    
+    /**
+     * 自动扫描并保存结构到磁盘
+     */
+    @SuppressWarnings("unused")
+    private void autoScanAndSave(Level level, StructureScannerBlockEntity scannerEntity) {
+        // 检查是否有磁盘
+        if (scannerEntity.getDiskInventory().getItem(0).isEmpty()) {
+            return;
+        }
+        
+        // 检查输出槽位是否为空
+        if (!scannerEntity.getOutputInventory().getItem(0).isEmpty()) {
+            return;
+        }
+        
+        // 检查是否已经在扫描
+        if (scannerEntity.isScanning()) {
+            return;
+        }
+        
+        // 生成结构名称（使用年月日时分格式：auto-202605221430）
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        String structureName = "auto-" + now.format(formatter);
+        
+        // 开始扫描
+        scannerEntity.startScanning();
+        
+        // 等待扫描完成后保存（需要延迟执行）
+        // 这里使用一个简单的策略：在 tickServer 中检查扫描完成状态
+        scannerEntity.scheduleAutoSave(structureName);
+    }
+    
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())) {
+            if (!level.isClientSide) {
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity instanceof StructureScannerBlockEntity scannerEntity) {
+                    // 掉落Disk物品栏中的物品
+                    for (int i = 0; i < scannerEntity.getDiskInventory().getContainerSize(); i++) {
+                        ItemStack stack = scannerEntity.getDiskInventory().getItem(i);
+                        if (!stack.isEmpty()) {
+                            Vec3 vec3 = pos.getCenter();
+                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                                level,
+                                vec3.x,
+                                vec3.y,
+                                vec3.z,
+                                stack
+                            );
+                            itemEntity.setDefaultPickUpDelay();
+                            level.addFreshEntity(itemEntity);
+                        }
+                    }
+                    
+                    // 掉落Output物品栏中的物品
+                    for (int i = 0; i < scannerEntity.getOutputInventory().getContainerSize(); i++) {
+                        ItemStack stack = scannerEntity.getOutputInventory().getItem(i);
+                        if (!stack.isEmpty()) {
+                            Vec3 vec3 = pos.getCenter();
+                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                                level,
+                                vec3.x,
+                                vec3.y,
+                                vec3.z,
+                                stack
+                            );
+                            itemEntity.setDefaultPickUpDelay();
+                            level.addFreshEntity(itemEntity);
+                        }
+                    }
+                }
+            }
+            super.onRemove(state, level, pos, newState, movedByPiston);
+        }
     }
 }

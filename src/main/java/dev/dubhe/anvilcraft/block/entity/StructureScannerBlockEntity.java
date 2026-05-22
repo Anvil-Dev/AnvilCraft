@@ -147,6 +147,10 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     
     private long lastScanTick = 0;  // 上次扫描的tick
     
+    // 自动保存相关
+    private boolean pendingAutoSave = false;  // 是否有待执行的自动保存
+    private String autoSaveStructureName = "";  // 自动保存的结构名称
+    
     /**
      * 缓存的方块数据
      */
@@ -232,7 +236,6 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             for (int y = 0; y < rangeY; y++) {
                 for (int z = 0; z < rangeZ; z++) {
                     BlockPos checkPos = startPos.offset(x, y, z);
-                    var blockState = this.level.getBlockState(checkPos);
                     var blockEntity = this.level.getBlockEntity(checkPos);
                     
                     // 检查是否有BlockEntity（简单判断多部分方块）
@@ -273,6 +276,12 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         if (this.isScanning && level.getGameTime() - this.lastScanTick >= 2) {
             this.scanNextLayer();
         }
+        
+        // 检查是否有待执行的自动保存
+        if (this.pendingAutoSave && !this.isScanning && !this.scannedBlocks.isEmpty()) {
+            // 扫描已完成，执行保存
+            this.performAutoSave();
+        }
     }
     
     /**
@@ -307,6 +316,44 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         if (this.level != null && !this.level.isClientSide) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
+    }
+    
+    /**
+     * 调度自动保存（在扫描完成后执行）
+     */
+    public void scheduleAutoSave(String structureName) {
+        this.pendingAutoSave = true;
+        this.autoSaveStructureName = structureName;
+    }
+    
+    /**
+     * 执行自动保存
+     */
+    private void performAutoSave() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        
+        // 重置标志
+        this.pendingAutoSave = false;
+        
+        // 检查是否放入了结构磁盘
+        if (this.getDiskInventory().getItem(0).isEmpty()) {
+            return;
+        }
+        
+        // 检查输出槽位是否为空
+        if (!this.getOutputInventory().getItem(0).isEmpty()) {
+            return;
+        }
+        
+        // 保存结构到磁盘
+        dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(
+            this.level, this, this.autoSaveStructureName
+        );
+        
+        // 清空结构名称
+        this.autoSaveStructureName = "";
     }
     
     /**
@@ -445,6 +492,9 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             }
             tag.put("scannedBlocks", blocksTag);
         }
+        // 保存自动保存状态
+        tag.putBoolean("pendingAutoSave", this.pendingAutoSave);
+        tag.putString("autoSaveStructureName", this.autoSaveStructureName);
     }
     
     @Override
@@ -477,5 +527,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 this.scannedBlocks.add(new CachedBlockData(x, y, z, state));
             }
         }
+        // 加载自动保存状态
+        this.pendingAutoSave = tag.getBoolean("pendingAutoSave");
+        this.autoSaveStructureName = tag.getString("autoSaveStructureName");
     }
 }

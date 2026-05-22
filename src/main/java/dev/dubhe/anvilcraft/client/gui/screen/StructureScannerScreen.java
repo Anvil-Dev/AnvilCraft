@@ -247,12 +247,34 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
+    
+    /**
+     * 渲染半透明的物品虚影
+     */
+    private void renderMaskedItem(GuiGraphics g, net.minecraft.world.item.ItemStack stack, int x, int y) {
+        final int maskColor = 0x99777777;  // 调整透明度，数值越大越透明
+        g.renderItem(stack, x, y, 0);
+        g.fill(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
+    }
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        
+        // 渲染磁盘槽位的虚影（当槽位为空时）
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity != null && blockEntity.getDiskInventory().getItem(0).isEmpty()) {
+            // 获取结构磁盘物品
+            net.minecraft.world.item.ItemStack diskStack =
+                dev.dubhe.anvilcraft.init.item.ModItems.STRUCTURE_DISK.get().getDefaultInstance();
+            if (!diskStack.isEmpty()) {
+                int diskSlotX = i + 8;
+                int diskSlotY = j + 112;
+                renderMaskedItem(guiGraphics, diskStack, diskSlotX, diskSlotY);
+            }
+        }
     }
     
     @Override
