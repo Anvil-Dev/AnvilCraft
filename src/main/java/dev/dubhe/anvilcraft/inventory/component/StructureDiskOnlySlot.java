@@ -32,9 +32,7 @@ public class StructureDiskOnlySlot extends Slot {
                 int sizeZ = tag.getInt("SizeZ");
                 
                 // 如果结构大小超过 5x5x5，拒绝放入
-                if (sizeX > 5 || sizeY > 5 || sizeZ > 5) {
-                    return false;
-                }
+                return sizeX <= 5 && sizeY <= 5 && sizeZ <= 5;
             }
         }
         

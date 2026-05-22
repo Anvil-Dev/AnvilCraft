@@ -101,17 +101,11 @@ public record StructureScannerActionPacket(String action, int value, String name
                     return;
                 }
                 
-                // 保存结构文件
+                // 保存结构文件(成功或失败都不会发送聊天消息,仅记录到服务器日志)
                 String structureName = name.isEmpty() ? "structure_" + System.currentTimeMillis() : name;
-                boolean success = dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(
+                dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(
                     player.level(), blockEntity, structureName
                 );
-                
-                if (success) {
-                    // Structure saved successfully (no chat message)
-                } else {
-                    // Failed to save (check server logs for details)
-                }
             }
             default -> {}
         }

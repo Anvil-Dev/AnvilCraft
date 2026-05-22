@@ -91,7 +91,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     // 记录上次检查的磁盘物品，用于检测变化
     private ItemStack lastDiskItem = ItemStack.EMPTY;
-    
+
+    /**
+     * -- GETTER --
+     *  获取当前缺失的方块物品
+     */
     // 当前缺失的方块物品（服务端计算，客户端渲染）
     private ItemStack missingBlockItem = ItemStack.EMPTY;
 
@@ -210,12 +214,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     var customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
                     if (customData != null) {
                         CompoundTag tag = customData.copyTag();
-                        int sizeX = tag.getInt("SizeX");
-                        int sizeY = tag.getInt("SizeY");
-                        int sizeZ = tag.getInt("SizeZ");
-                        
                         // 如果结构大小超过 5x5x5，拒绝插入
-                        if (sizeX > 5 || sizeY > 5 || sizeZ > 5) {
+                        if (tag.getInt("SizeX") > 5 || tag.getInt("SizeY") > 5 || tag.getInt("SizeZ") > 5) {
                             return stack;
                         }
                     }
@@ -240,14 +240,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     var customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
                     if (customData != null) {
                         CompoundTag tag = customData.copyTag();
-                        int sizeX = tag.getInt("SizeX");
-                        int sizeY = tag.getInt("SizeY");
-                        int sizeZ = tag.getInt("SizeZ");
-                        
                         // 如果结构大小超过 5x5x5，拒绝插入
-                        if (sizeX > 5 || sizeY > 5 || sizeZ > 5) {
-                            return false;
-                        }
+                        return tag.getInt("SizeX") <= 5 && tag.getInt("SizeY") <= 5 && tag.getInt("SizeZ") <= 5;
                     }
                 }
                 
@@ -437,14 +431,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public StructureLoadUtil.StructureData getLoadedStructure() {
         return this.loadedStructure;
     }
-    
-    /**
-     * 获取当前缺失的方块物品
-     */
-    public ItemStack getMissingBlockItem() {
-        return this.missingBlockItem;
-    }
-    
+
     /**
      * 更新缺失方块信息（服务端调用）
      */
@@ -601,58 +588,82 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
-     * 静态方法：计算放置器和扫描器之间的相对旋转步数
+     * 静态方法:计算放置器和扫描器之间的相对旋转步数
      * 
      * @param placerFacing 放置器朝向
      * @param scannerFacingValue 扫描器朝向值
      * @return 旋转步数(0-3)
      */
     private static int calculateRotationStepsStatic(Direction placerFacing, int scannerFacingValue) {
-        // Scanner朝向与放置器朝向的映射关系
-        // Scanner: NORTH(2), SOUTH(3), WEST(4), EAST(5)
-        // 放置器: NORTH(2), SOUTH(3), WEST(4), EAST(5)
-        // 映射规则:南北方向保持不变,东西方向镜像
-        int scannerToPlacerMapping = switch (scannerFacingValue) {
+        int scannerToPlacerMapping = mapScannerToPlacerFacing(scannerFacingValue);
+        int placerIndex = getPlacerDirectionIndex(placerFacing);
+        int scannerIndex = getScannerDirectionIndex(scannerToPlacerMapping);
+            
+        // 计算基础旋转步数(顺时针)
+        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
+            
+        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
+        int rotationAfterGlobalFix = (baseRotation + 3) % 4;
+            
+        // 根据scannerFacing添加额外修正
+        int extraCorrection = getExtraCorrection(scannerFacingValue);
+            
+        return (rotationAfterGlobalFix + extraCorrection) % 4;
+    }
+        
+    /**
+     * 映射扫描器朝向到放置器朝向
+     * Scanner:南北方向保持不变,东西方向镜像
+     */
+    private static int mapScannerToPlacerFacing(int scannerFacingValue) {
+        return switch (scannerFacingValue) {
             case 2 -> 2;  // Scanner北 → 放置器北
             case 3 -> 3;  // Scanner南 → 放置器南
             case 4 -> 5;  // Scanner西 → 放置器东
             case 5 -> 4;  // Scanner东 → 放置器西
             default -> scannerFacingValue;
         };
+    }
         
-        // 转换为0-3的索引用于计算旋转 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
-        // 并根据放置器朝向应用修正:东+3, 西+1, 南+2, 北+0
-        int placerIndex = switch (placerFacing) {
+    /**
+     * 获取放置器朝向索引(0-3)
+     * NORTH=0, EAST=1, SOUTH=2, WEST=3
+     * 并根据放置器朝向应用修正:东+3, 西+1, 南+2, 北+0
+     */
+    private static int getPlacerDirectionIndex(Direction placerFacing) {
+        return switch (placerFacing) {
             case NORTH -> 0;  // 北:无修正
             case EAST -> (1 + 3) % 4;  // 东:+3
             case SOUTH -> (2 + 2) % 4;  // 南:+2
             case WEST -> (3 + 1) % 4;   // 西:+1
             default -> 0;
         };
+    }
         
-        int scannerIndex = switch (scannerToPlacerMapping) {
+    /**
+     * 获取扫描器朝向索引(0-3)
+     * NORTH=0, EAST=1, SOUTH=2, WEST=3
+     */
+    private static int getScannerDirectionIndex(int scannerToPlacerMapping) {
+        return switch (scannerToPlacerMapping) {
             case 2 -> 0;  // NORTH
             case 5 -> 1;  // EAST
             case 3 -> 2;  // SOUTH
             case 4 -> 3;  // WEST
             default -> 0;
         };
+    }
         
-        // 计算基础旋转步数(顺时针)
-        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
-        
-        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
-        int rotationAfterGlobalFix = (baseRotation + 3) % 4;
-        
-        // 根据scannerFacing添加额外修正
-        int extraCorrection = switch (scannerFacingValue) {
+    /**
+     * 获取扫描器朝向的额外修正值
+     */
+    private static int getExtraCorrection(int scannerFacingValue) {
+        return switch (scannerFacingValue) {
             case 2 -> 3;  // NORTH: 逆时针+90度(顺时针+3)
             case 3 -> 1;  // SOUTH: 顺时针+90度
             case 5 -> 2;  // EAST: 旋转180度(顺时针+2)
             default -> 0;  // WEST不需要额外修正
         };
-        
-        return (rotationAfterGlobalFix + extraCorrection) % 4;
     }
     
     /**
