@@ -865,9 +865,22 @@ public class ModBlocks {
         .properties(p -> p.strength(1.5F, 6.0F).noOcclusion())
         .blockstate((ctx, provider) -> {
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
-                var model = provider.models().getExistingFile(AnvilCraft.of("block/smart_block_placer_bottom"));
                 Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
                 boolean upsideDown = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
+                boolean powered = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED);
+                boolean overload = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD);
+                
+                // 根据状态选择模型
+                String modelName;
+                if (overload) {
+                    modelName = "block/smart_block_placer_bottom_overload";
+                } else if (!powered) {
+                    modelName = "block/smart_block_placer_bottom";
+                } else {
+                    modelName = "block/smart_block_placer_bottom_off";
+                }
+                
+                var model = provider.models().getExistingFile(AnvilCraft.of(modelName));
                 
                 int rotation = switch (facing) {
                     case EAST -> 90;

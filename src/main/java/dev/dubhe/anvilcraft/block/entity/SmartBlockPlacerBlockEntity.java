@@ -1533,7 +1533,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
-     * 统一方块操作执行方法（所有模式共用）
+     * 统一方块操作执行方法（用于move模式）
+     * 注意：move模式放置失败时不回滚物品，因为源方块仍在原位
      * 
      * @param level 世界
      * @param placerPos 放置器位置
@@ -1541,7 +1542,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @param upsideDown 是否倒挂
      * @param positionProvider 位置列表提供者
      * @param itemExtractor 物品提取器（接收位置索引，返回物品）
-     * @param itemPeeker 物品预览器（可为 null，蓝图模式不需要）
+     * @param itemPeeker 物品预览器
      * @param onSuccess 成功回调
      */
     private void executeUnifiedBlockOperation(
@@ -1604,14 +1605,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 使用 FakePlayer 放置方块
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
             
-            // 放置失败时：
-            // - pickup模式需要回滚物品（因为已经从容器提取）
-            // - move模式不需要回滚（因为源方块还在原地，没有被移除）
+            // 放置失败时直接返回（move模式不需要回滚，源方块仍在原位）
             if (!placeSuccess) {
-                // 只有pickup模式才回滚（itemPeeker != null 表示pickup模式）
-                if (itemPeeker != null) {
-                    this.rollbackExtractedItem(level, placerPos, blockItem);
-                }
                 this.onChanged();
                 return;
             }
