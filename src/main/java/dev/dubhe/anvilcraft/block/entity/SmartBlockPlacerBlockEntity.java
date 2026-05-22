@@ -91,6 +91,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     // 记录上次检查的磁盘物品，用于检测变化
     private ItemStack lastDiskItem = ItemStack.EMPTY;
+    
+    // 当前缺失的方块物品（服务端计算，客户端渲染）
+    private ItemStack missingBlockItem = ItemStack.EMPTY;
 
     // Disk物品栏
     private final SimpleContainer diskInventory = new SimpleContainer(1) {
@@ -143,6 +146,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putInt("placeCooldown", placeCooldown);
         tag.putBoolean("isPickupMode", isPickupMode);
         tag.putBoolean("isSkipMissingMode", isSkipMissingMode);
+        if (!missingBlockItem.isEmpty()) {
+            tag.put("missingBlockItem", missingBlockItem.save(provider));
+        }
         if (!currentHeldBlock.isEmpty()) {
             tag.put("currentHeldBlock", currentHeldBlock.save(provider));
         }
@@ -168,6 +174,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.placeCooldown = tag.getInt("placeCooldown");
         this.isPickupMode = tag.getBoolean("isPickupMode");
         this.isSkipMissingMode = tag.getBoolean("isSkipMissingMode");
+        this.missingBlockItem = tag.contains("missingBlockItem", Tag.TAG_COMPOUND)
+            ? ItemStack.parse(provider, tag.getCompound("missingBlockItem")).orElse(ItemStack.EMPTY)
+            : ItemStack.EMPTY;
         this.currentHeldBlock = tag.contains("currentHeldBlock", Tag.TAG_COMPOUND)
             ? ItemStack.parse(provider, tag.getCompound("currentHeldBlock")).orElse(ItemStack.EMPTY)
             : ItemStack.EMPTY;
@@ -195,6 +204,23 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 if (!stack.is(ModItems.STRUCTURE_DISK.get())) {
                     return stack;
                 }
+                
+                // 检查结构大小是否超过 5x5x5
+                if (SmartBlockPlacerBlockEntity.this.level != null && !SmartBlockPlacerBlockEntity.this.level.isClientSide) {
+                    var customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+                    if (customData != null) {
+                        CompoundTag tag = customData.copyTag();
+                        int sizeX = tag.getInt("SizeX");
+                        int sizeY = tag.getInt("SizeY");
+                        int sizeZ = tag.getInt("SizeZ");
+                        
+                        // 如果结构大小超过 5x5x5，拒绝插入
+                        if (sizeX > 5 || sizeY > 5 || sizeZ > 5) {
+                            return stack;
+                        }
+                    }
+                }
+                
                 return super.insertItem(slot, stack, simulate);
             }
             
@@ -205,7 +231,27 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
-                return stack.is(ModItems.STRUCTURE_DISK.get());
+                if (!stack.is(ModItems.STRUCTURE_DISK.get())) {
+                    return false;
+                }
+                
+                // 检查结构大小是否超过 5x5x5
+                if (SmartBlockPlacerBlockEntity.this.level != null && !SmartBlockPlacerBlockEntity.this.level.isClientSide) {
+                    var customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+                    if (customData != null) {
+                        CompoundTag tag = customData.copyTag();
+                        int sizeX = tag.getInt("SizeX");
+                        int sizeY = tag.getInt("SizeY");
+                        int sizeZ = tag.getInt("SizeZ");
+                        
+                        // 如果结构大小超过 5x5x5，拒绝插入
+                        if (sizeX > 5 || sizeY > 5 || sizeZ > 5) {
+                            return false;
+                        }
+                    }
+                }
+                
+                return true;
             }
         };
     }
@@ -390,6 +436,56 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     @Nullable
     public StructureLoadUtil.StructureData getLoadedStructure() {
         return this.loadedStructure;
+    }
+    
+    /**
+     * 获取当前缺失的方块物品
+     */
+    public ItemStack getMissingBlockItem() {
+        return this.missingBlockItem;
+    }
+    
+    /**
+     * 更新缺失方块信息（服务端调用）
+     */
+    private void updateMissingBlockInfo(Level level, BlockPos pos) {
+        // 只在停止模式下检测
+        if (this.isSkipMissingMode) {
+            if (!this.missingBlockItem.isEmpty()) {
+                this.missingBlockItem = ItemStack.EMPTY;
+                this.onChanged();
+            }
+            return;
+        }
+        
+        // 只在蓝图模式下检测
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            if (!this.missingBlockItem.isEmpty()) {
+                this.missingBlockItem = ItemStack.EMPTY;
+                this.onChanged();
+            }
+            return;
+        }
+        
+        // 获取当前索引需要的方块
+        Block requiredBlock = getRequiredBlockForPosition(this.currentPlacementIndex);
+        if (requiredBlock == null) {
+            if (!this.missingBlockItem.isEmpty()) {
+                this.missingBlockItem = ItemStack.EMPTY;
+                this.onChanged();
+            }
+            return;
+        }
+        
+        // 检查容器中是否有该方块
+        ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+        ItemStack newMissingItem = blockItem.isEmpty() ? new ItemStack(requiredBlock) : ItemStack.EMPTY;
+        
+        // 只在变化时更新
+        if (!ItemStack.isSameItemSameComponents(this.missingBlockItem, newMissingItem)) {
+            this.missingBlockItem = newMissingItem;
+            this.onChanged();
+        }
     }
 
     /**
@@ -621,6 +717,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 ? WorkMode.BLUEPRINT 
                 : (this.isPickupMode ? WorkMode.PICKUP : WorkMode.MOVE);
             this.tickWorkMode(level, pos, mode);
+            
+            // 更新缺失方块信息（仅服务端）
+            if (!level.isClientSide) {
+                this.updateMissingBlockInfo(level, pos);
+            }
         } else {
             boolean cooldownReset = this.placeCooldown != 0;
             if (cooldownReset) {
@@ -1438,7 +1539,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * 注意：使用旋转后的结构数据
      */
     @Nullable
-    private Block getRequiredBlockForPosition(int index) {
+    public Block getRequiredBlockForPosition(int index) {
         if (this.loadedStructure == null) {
             return null;
         }
@@ -1624,7 +1725,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @param targetBlock 目标方块
      * @return 预览的物品，如果没有找到则返回 EMPTY
      */
-    private ItemStack peekSpecificBlockItemFromContainer(
+    public ItemStack peekSpecificBlockItemFromContainer(
         Level level, BlockPos placerPos, net.minecraft.world.level.block.Block targetBlock) {
         Direction facing = this.getFacing(placerPos, level);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());

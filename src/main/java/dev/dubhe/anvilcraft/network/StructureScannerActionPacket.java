@@ -108,17 +108,9 @@ public record StructureScannerActionPacket(String action, int value, String name
                 );
                 
                 if (success) {
-                    player.sendSystemMessage(
-                        net.minecraft.network.chat.Component.literal(
-                            "§aStructure saved to disk: " + structureName
-                        )
-                    );
+                    // Structure saved successfully (no chat message)
                 } else {
-                    player.sendSystemMessage(
-                        net.minecraft.network.chat.Component.literal(
-                            "§cFailed to save structure, check logs for details"
-                        )
-                    );
+                    // Failed to save (check server logs for details)
                 }
             }
             default -> {}

@@ -74,6 +74,10 @@ public class StructureSaveUtil {
             customDataTag.putString("StructureFile", fileName + ".nbt");
             // 保存扫描时的朝向（用于智能放置器自动旋转）
             customDataTag.putInt("ScannerFacing", scannerFacing.get3DDataValue());
+            // 保存结构尺寸（用于智能放置器大小限制检查和tooltip显示）
+            customDataTag.putInt("SizeX", blockEntity.getRangeX().get());
+            customDataTag.putInt("SizeY", blockEntity.getRangeY().get());
+            customDataTag.putInt("SizeZ", blockEntity.getRangeZ().get());
             outputDisk.set(DataComponents.CUSTOM_DATA, CustomData.of(customDataTag));
             
             // 放入输出槽，清空输入槽和扫描结果

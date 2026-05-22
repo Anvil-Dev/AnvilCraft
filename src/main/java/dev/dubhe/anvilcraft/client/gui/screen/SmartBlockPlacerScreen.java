@@ -22,6 +22,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -527,6 +528,45 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             guiGraphics.pose().popPose();
         }
     }
+    
+    /**
+     * 渲染缺失方块图标的tooltip
+     */
+    private void renderMissingBlockTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity == null) {
+            return;
+        }
+        
+        ItemStack missingItem = blockEntity.getMissingBlockItem();
+        if (missingItem.isEmpty()) {
+            return;
+        }
+        
+        // 计算缺失方块图标的位置（与渲染位置一致）
+        int textX = this.titleLabelX + 96;
+        int textY = this.titleLabelY + 56;
+        Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
+        int iconX = textX + this.font.width(missingText) + 4;
+        int iconY = textY + 8;
+        int iconWidth = 16;
+        int iconHeight = 16;
+        
+        // 检查鼠标是否在图标上
+        if (mouseX >= iconX && mouseX < iconX + iconWidth
+            && mouseY >= iconY && mouseY < iconY + iconHeight) {
+            // 渲染物品的tooltip
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 1500);
+            guiGraphics.renderTooltip(
+                this.font,
+                missingItem,
+                mouseX,
+                mouseY
+            );
+            guiGraphics.pose().popPose();
+        }
+    }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -706,6 +746,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         
         // 渲染Disk槽位的tooltip
         this.renderDiskSlotTooltip(guiGraphics, mouseX, mouseY);
+        
+        // 渲染缺失方块图标的tooltip
+        this.renderMissingBlockTooltip(guiGraphics, mouseX, mouseY);
     }
     
     /**
@@ -769,8 +812,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             String structureName = blockEntity.getLoadedStructureName();
             if (!structureName.isEmpty()) {
                 Component structureText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded", structureName);
-                int textX = this.titleLabelX + 216;
-                int textY = this.titleLabelY + 50;
+                int textX = this.titleLabelX + 96;
+                int textY = this.titleLabelY + 56;
                 
                 // 禁用深度测试，确保文本在最上层渲染
                 RenderSystem.disableDepthTest();
@@ -778,6 +821,16 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 // 将Z轴向前移动，确保文本在最前面
                 guiGraphics.pose().translate(0, 0, 1000);
                 guiGraphics.drawString(this.font, structureText, textX, textY, 0x00AA00, false);
+                
+                // 显示缺失方块信息（服务端同步）
+                ItemStack missingItem = blockEntity.getMissingBlockItem();
+                if (!missingItem.isEmpty()) {
+                    Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
+                    guiGraphics.drawString(this.font, missingText, textX, textY + 10, 0xFF5555, false);
+                    // 渲染缺失方块图标
+                    guiGraphics.renderFakeItem(missingItem, textX + this.font.width(missingText) + 4, textY + 8);
+                }
+                
                 guiGraphics.pose().popPose();
                 // 恢复深度测试
                 RenderSystem.enableDepthTest();
