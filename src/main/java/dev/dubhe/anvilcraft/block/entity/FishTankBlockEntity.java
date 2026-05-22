@@ -299,7 +299,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             int remaining = stack.getCount();
             for (IItemHandler target : targets) {
                 ItemStack remainingCache = stack.copyWithCount(remaining);
-                if (ItemHandlerUtil.insertItem(target, remainingCache, true).getCount() == remaining) return;
+                if (ItemHandlerUtil.insertItem(target, remainingCache, true).getCount() == remaining) continue;
                 remaining = ItemHandlerUtil.insertItem(target, remainingCache, false).getCount();
                 if (remaining == 0) break;
             }

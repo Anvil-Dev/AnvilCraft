@@ -259,7 +259,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
                 if (!level.isClientSide()) {
                     BlockPos relative = blockPos3.relative(facing.getOpposite());
                     if (
-                        list1.get(i).getBlock() instanceof IMoveableEntityBlock
+                        list1.get(k).getBlock() instanceof IMoveableEntityBlock
                         && level.getBlockEntity(relative) instanceof BlockEntity be
                     ) {
                         blockEntity = be;
