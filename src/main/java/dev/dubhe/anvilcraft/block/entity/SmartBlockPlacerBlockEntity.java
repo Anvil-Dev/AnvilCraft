@@ -2187,7 +2187,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     @Override
     public int getInputPower() {
-        return SmartBlockPlacerBlockEntity.POWER;
+        // 蓝图模式耗电量为64kW，其他模式为16kW
+        return (this.loadedStructure != null && !this.loadedStructure.isEmpty()) ? 64 : SmartBlockPlacerBlockEntity.POWER;
     }
 
     @Override
