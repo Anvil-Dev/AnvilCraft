@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -9,6 +10,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 结构文件保存工具
@@ -23,6 +26,9 @@ import java.util.List;
  */
 public class StructureSaveUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructureSaveUtil.class);
+    // Whitelist pattern for structure names: only allow alphanumeric, underscore, hyphen, and spaces
+    private static final Pattern VALID_STRUCTURE_NAME = Pattern.compile("^[a-zA-Z0-9_\\-\\s]+$");
+    private static final int MAX_STRUCTURE_NAME_LENGTH = 64;
     
     /**
      * 保存结构数据到磁盘物品
@@ -31,6 +37,7 @@ public class StructureSaveUtil {
      * @param blockEntity 扫描器方块实体
      * @param structureName 结构名称
      */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
         if (level.isClientSide) {
             LOGGER.error("Failed to save structure: level is null or on client side");
@@ -54,12 +61,23 @@ public class StructureSaveUtil {
                 return;
             }
             
+            // Sanitize and validate structure name to prevent path traversal
+            String sanitizedName = sanitizeStructureName(structureName);
+
             // 生成唯一UUID作为文件名
             String uuid = java.util.UUID.randomUUID().toString();
-            String fileName = structureName + "_" + uuid;
+            String fileName = sanitizedName + "_" + uuid;
             
             // 保存文件
-            Path structureFile = getStructureDirectory(level).resolve(fileName + ".nbt");
+            Path baseDir = getStructureDirectory(level);
+            Path structureFile = baseDir.resolve(fileName + ".nbt");
+            
+            // Validate the resolved path stays within the intended directory
+            if (!isPathWithinBaseDirectory(structureFile, baseDir)) {
+                LOGGER.error("Path traversal attempt detected: {}", structureFile);
+                return;
+            }
+            
             saveNbtFile(structureTag, structureFile);
             
             // 获取扫描器的朝向
@@ -105,7 +123,7 @@ public class StructureSaveUtil {
         final int rangeZ = blockEntity.getRangeZ().get();
             
         CompoundTag tag = new CompoundTag();
-        tag.putInt("DataVersion", 3955);
+        tag.putInt("DataVersion", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
         tag.putString("author", "AnvilCraft Structure Scanner");
             
         // size 字段
@@ -172,5 +190,48 @@ public class StructureSaveUtil {
         }
         Path worldDir = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
         return worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
+    }
+    
+    /**
+     * Sanitize structure name to prevent path traversal attacks
+     * Only allows alphanumeric characters, underscores, hyphens, and spaces
+     */
+    private static @Nullable String sanitizeStructureName(String name) {
+        if (name.trim().isEmpty()) {
+            return null;
+        }
+        
+        // Check length
+        if (name.length() > MAX_STRUCTURE_NAME_LENGTH) {
+            return null;
+        }
+        
+        // Validate against whitelist pattern
+        if (!VALID_STRUCTURE_NAME.matcher(name).matches()) {
+            return null;
+        }
+        
+        // Additional safety: remove any potential path separators
+        String sanitized = name.replace('/', '_').replace('\\', '_');
+        sanitized = sanitized.replace("..", "_");
+        
+        return sanitized.trim();
+    }
+    
+    /**
+     * Validate that the resolved path stays within the base directory
+     * Prevents path traversal attacks using .. sequences
+     */
+    private static boolean isPathWithinBaseDirectory(Path resolvedPath, Path baseDir) {
+        try {
+            Path normalizedResolved = resolvedPath.toAbsolutePath().normalize();
+            Path normalizedBase = baseDir.toAbsolutePath().normalize();
+            
+            // Check if the resolved path starts with the base directory
+            return normalizedResolved.startsWith(normalizedBase);
+        } catch (Exception e) {
+            LOGGER.error("Error validating path: {}", e.getMessage());
+            return false;
+        }
     }
 }

@@ -36,13 +36,15 @@ public class StructureScannerMenu extends AbstractContainerMenu {
         this.level = inventory.player.level();
 
         // 添加Structure Disk物品栏槽位（1个槽位）
+        // Structure Scanner 不限制结构大小（支持最大 16x16x16，超过 5x5x5 会显示警告）
         int diskSlotX = 8;
         int diskSlotY = 112;
         this.addSlot(new StructureDiskOnlySlot(
             this.blockEntity.getDiskInventory(),
             0,
             diskSlotX,
-            diskSlotY
+            diskSlotY,
+            false  // 不强制限制大小
         ));
         
         // 添加输出槽位（1个槽位）

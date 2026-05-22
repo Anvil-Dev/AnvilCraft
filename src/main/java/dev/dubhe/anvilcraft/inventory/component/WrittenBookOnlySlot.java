@@ -2,22 +2,17 @@ package dev.dubhe.anvilcraft.inventory.component;
 
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BooleanSupplier;
 
 /**
- * 只允许放入成书的槽位(用于输出),支持条件可见性
+ * 成书输出槽位(只允许取出,不允许放入),支持条件可见性
  */
 public class WrittenBookOnlySlot extends Slot {
     @Nullable
     private final BooleanSupplier visibilityCondition;
-    
-    public WrittenBookOnlySlot(net.minecraft.world.Container container, int slot, int x, int y) {
-        this(container, slot, x, y, null);
-    }
-    
+
     public WrittenBookOnlySlot(net.minecraft.world.Container container, int slot, int x, int y,
                               @Nullable BooleanSupplier visibilityCondition) {
         super(container, slot, x, y);
@@ -26,8 +21,8 @@ public class WrittenBookOnlySlot extends Slot {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        // 只允许放入成书
-        return stack.is(Items.WRITTEN_BOOK);
+        // 输出槽位：禁止放入任何物品
+        return false;
     }
     
     @Override

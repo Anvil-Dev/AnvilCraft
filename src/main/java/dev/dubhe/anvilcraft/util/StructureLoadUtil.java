@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.anvilcraft.lib.v2.util.DistExecutor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -10,6 +11,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.api.distmarker.Dist;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 结构文件加载工具
@@ -26,6 +29,9 @@ import java.util.List;
  */
 public class StructureLoadUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(StructureLoadUtil.class);
+    // Whitelist pattern for structure file names: only allow alphanumeric, underscore, hyphen, and dot (for .nbt extension)
+    private static final Pattern VALID_STRUCTURE_FILE = Pattern.compile("^[a-zA-Z0-9_\\-]+_[a-f0-9\\-]+\\.nbt$");
+    private static final int MAX_STRUCTURE_FILE_LENGTH = 128;
     
     /**
      * 从结构磁盘读取结构数据
@@ -55,12 +61,25 @@ public class StructureLoadUtil {
         String uuid = tag.contains("StructureUUID") ? tag.getString("StructureUUID") : "";
         int scannerFacing = tag.contains("ScannerFacing") ? tag.getInt("ScannerFacing") : 2;  // 默认为NORTH
         
+        // Validate and sanitize structure file name to prevent path traversal
+        if (!isValidStructureFile(fileName)) {
+            LOGGER.error("Invalid structure file name: {}", fileName);
+            return null;
+        }
+        
         try {
             // 获取结构文件路径
-            Path structureFile = getStructureDirectory(level).resolve(fileName);
+            Path baseDir = getStructureDirectory(level);
+            Path structureFile = baseDir.resolve(fileName);
+            
+            // Validate the resolved path stays within the intended directory
+            if (!isPathWithinBaseDirectory(structureFile, baseDir)) {
+                LOGGER.error("Path traversal attempt detected: {}", fileName);
+                return null;
+            }
             
             if (!Files.exists(structureFile)) {
-                LOGGER.error("Structure file not found: {}", structureFile.toAbsolutePath());
+                LOGGER.error("Structure file not found: {}", fileName);
                 return null;
             }
             
@@ -145,28 +164,91 @@ public class StructureLoadUtil {
             return worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
         }
         
-        // 客户端回退方案：使用 Minecraft 实例获取当前世界目录
-        // 这种情况在单人游戏中不应该发生，但为了健壮性保留
-        try {
-            var minecraft = net.minecraft.client.Minecraft.getInstance();
-            if (minecraft.level != null) {
-                // 优先使用 integratedServer（单人游戏服务端）
-                var integratedServer = minecraft.getSingleplayerServer();
-                if (integratedServer != null) {
-                    Path worldDir = integratedServer.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
-                    return worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
+        // 客户端回退方案：使用 DistExecutor 安全地访问客户端代码
+        Path clientDir = getClientStructureDirectory();
+        if (clientDir != null) {
+            return clientDir;
+        }
+        
+        // 最后的备选方案：使用当前工作目录（确保永远不返回 null）
+        return java.nio.file.Paths.get(".").toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
+    }
+    
+    /**
+     * 获取客户端结构目录（通过 Dist-gate 隔离）
+     */
+    @Nullable
+    private static Path getClientStructureDirectory() {
+        java.util.concurrent.atomic.AtomicReference<Path> result = new java.util.concurrent.atomic.AtomicReference<>();
+        
+        DistExecutor.run(Dist.CLIENT, () -> () -> {
+            try {
+                var minecraft = net.minecraft.client.Minecraft.getInstance();
+                if (minecraft.level != null) {
+                    // 优先使用 integratedServer（单人游戏服务端）
+                    var integratedServer = minecraft.getSingleplayerServer();
+                    if (integratedServer != null) {
+                        Path worldDir = integratedServer.getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT);
+                        result.set(worldDir.toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures"));
+                        return;
+                    }
+                    
+                    // 如果是纯客户端（多人游戏），结构文件应该不存在，返回一个安全的路径
+                    Path gameDir = minecraft.gameDirectory.toPath();
+                    result.set(gameDir.resolve("anvilcraft").resolve("structures"));
                 }
-                
-                // 如果是纯客户端（多人游戏），结构文件应该不存在，返回一个安全的路径
-                Path gameDir = minecraft.gameDirectory.toPath();
-                return gameDir.resolve("anvilcraft").resolve("structures");
+            } catch (Exception e) {
+                LOGGER.debug("Client-side structure directory fallback failed: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            LOGGER.debug("Client-side structure directory fallback failed: {}", e.getMessage());
+        });
+        
+        Path clientPath = result.get();
+        if (clientPath != null) {
+            return clientPath;
         }
         
         // 最后的备选方案：使用当前工作目录
         return java.nio.file.Paths.get(".").toAbsolutePath().normalize().resolve("anvilcraft").resolve("structures");
+    }
+    
+    /**
+     * Validate structure file name to prevent path traversal attacks
+     * File names must match the pattern: name_uuid.nbt
+     */
+    private static boolean isValidStructureFile(String fileName) {
+        if (fileName.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Check length
+        if (fileName.length() > MAX_STRUCTURE_FILE_LENGTH) {
+            return false;
+        }
+        
+        // Validate against whitelist pattern
+        if (!VALID_STRUCTURE_FILE.matcher(fileName).matches()) {
+            return false;
+        }
+        
+        // Additional safety: ensure no path separators
+        return !fileName.contains("/") && !fileName.contains("\\") && !fileName.contains("..");
+    }
+    
+    /**
+     * Validate that the resolved path stays within the base directory
+     * Prevents path traversal attacks using sequences
+     */
+    private static boolean isPathWithinBaseDirectory(Path resolvedPath, Path baseDir) {
+        try {
+            Path normalizedResolved = resolvedPath.toAbsolutePath().normalize();
+            Path normalizedBase = baseDir.toAbsolutePath().normalize();
+            
+            // Check if the resolved path starts with the base directory
+            return normalizedResolved.startsWith(normalizedBase);
+        } catch (Exception e) {
+            LOGGER.error("Error validating path: {}", e.getMessage());
+            return false;
+        }
     }
     
     /**

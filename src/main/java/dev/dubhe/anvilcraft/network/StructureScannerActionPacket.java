@@ -71,12 +71,24 @@ public record StructureScannerActionPacket(String action, int value, String name
             }
             case "rangeChange" -> {
                 // name 格式: "rangeX", "rangeY", "rangeZ"
-                switch (name) {
-                    case "rangeX" -> blockEntity.getRangeX().fromIndex(value);
-                    case "rangeY" -> blockEntity.getRangeY().fromIndex(value);
-                    case "rangeZ" -> blockEntity.getRangeZ().fromIndex(value);
-                    default -> {}
+                boolean validRange = switch (name) {
+                    case "rangeX" -> validateAndApplyRange(blockEntity.getRangeX(), value);
+                    case "rangeY" -> validateAndApplyRange(blockEntity.getRangeY(), value);
+                    case "rangeZ" -> validateAndApplyRange(blockEntity.getRangeZ(), value);
+                    default -> false;
+                };
+                
+                if (!validRange) {
+                    AnvilCraft.LOGGER.warn(
+                        "Player {} sent invalid range value: {} for {} (valid range: 0-{})",
+                        player.getName().getString(),
+                        value,
+                        name,
+                        name.startsWith("range") ? getRangeCount(blockEntity, name) - 1 : 0
+                    );
+                    return;
                 }
+                
                 // 同步范围到客户端
                 syncRangeToClient(player, blockEntity);
             }
@@ -84,9 +96,9 @@ public record StructureScannerActionPacket(String action, int value, String name
                 // 检查是否放入了结构磁盘
                 if (blockEntity.getDiskInventory().getItem(0).isEmpty()) {
                     player.sendSystemMessage(
-                        net.minecraft.network.chat.Component.literal(
-                            "§cPlease insert a structure disk to save the structure!"
-                        )
+                        net.minecraft.network.chat.Component.translatable(
+                            "message.anvilcraft.structure_scanner.no_disk"
+                        ).withStyle(net.minecraft.ChatFormatting.RED)
                     );
                     return;
                 }
@@ -94,9 +106,9 @@ public record StructureScannerActionPacket(String action, int value, String name
                 // 检查输出槽位是否为空
                 if (!blockEntity.getOutputInventory().getItem(0).isEmpty()) {
                     player.sendSystemMessage(
-                        net.minecraft.network.chat.Component.literal(
-                            "§cOutput slot is not empty, please take the item first!"
-                        )
+                        net.minecraft.network.chat.Component.translatable(
+                            "message.anvilcraft.structure_scanner.output_not_empty"
+                        ).withStyle(net.minecraft.ChatFormatting.RED)
                     );
                     return;
                 }
@@ -119,5 +131,37 @@ public record StructureScannerActionPacket(String action, int value, String name
                 blockEntity.getRangeZ().index()
             ));
         }
+    }
+    
+    /**
+     * Validate and apply range value with bounds checking
+     * 
+     * @param range The WatchableCyclingValue to update
+     * @param value The index value from client
+     * @return true if value was valid and applied, false otherwise
+     */
+    private static boolean validateAndApplyRange(
+        dev.dubhe.anvilcraft.util.WatchableCyclingValue<?> range, 
+        int value
+    ) {
+        // Bounds check: 0 <= value < count
+        if (value < 0 || value >= range.count()) {
+            return false;
+        }
+        
+        range.fromIndex(value);
+        return true;
+    }
+    
+    /**
+     * Get the count of valid values for a range name
+     */
+    private static int getRangeCount(StructureScannerBlockEntity blockEntity, String name) {
+        return switch (name) {
+            case "rangeX" -> blockEntity.getRangeX().count();
+            case "rangeY" -> blockEntity.getRangeY().count();
+            case "rangeZ" -> blockEntity.getRangeZ().count();
+            default -> 0;
+        };
     }
 }

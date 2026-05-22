@@ -357,20 +357,28 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         }
         
         // 更新范围值
+        boolean rangeChanged = false;
+
         int newRangeX = blockEntity.getRangeX().get();
         if (newRangeX != this.cachedRangeX) {
             this.cachedRangeX = newRangeX;
+            rangeChanged = true;
         }
         
         int newRangeY = blockEntity.getRangeY().get();
         if (newRangeY != this.cachedRangeY) {
             this.cachedRangeY = newRangeY;
+            rangeChanged = true;
         }
         
         int newRangeZ = blockEntity.getRangeZ().get();
         if (newRangeZ != this.cachedRangeZ) {
             this.cachedRangeZ = newRangeZ;
-            // 范围变化时，使预览缓存失效
+            rangeChanged = true;
+        }
+
+        if (rangeChanged) {
+            // 任一范围变化时，使预览缓存失效
             this.cachedPreviewLevelLike = null;
         }
         

@@ -156,7 +156,8 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
                 } else {
                     // 其他物品在玩家物品栏内部移动（主物品栏<->快捷栏）
                     // 非蓝图模式下,书也会走这个分支
-                    int playerInventoryStart = STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + (isBlueprintMode ? OUTPUT_BOOK_SLOT_COUNT : 0);
+                    // 玩家物品栏始终从索引 3 开始（disk + book + outputBook）
+                    int playerInventoryStart = STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT;
                     int playerInventoryEnd = 
                         STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
                     

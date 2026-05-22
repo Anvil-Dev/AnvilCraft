@@ -943,6 +943,8 @@
   "message.anvilcraft.file_save_failed": "An issue occurred while saving file %1$s, %2$s",
   "message.anvilcraft.file_saved": "File saved to %s",
   "message.anvilcraft.no_file_selected": "No file path selected",
+  "message.anvilcraft.structure_scanner.no_disk": "Please insert a structure disk to save the structure!",
+  "message.anvilcraft.structure_scanner.output_not_empty": "Output slot is not empty, please take the item first!",
   "pack.anvilcraft.builtin_data_pack": "AnvilCraft Builtin DataPack",
   "pack.anvilcraft.builtin_pack": "AnvilCraft Builtin ResourcePack",
   "pack.anvilcraft.first_ancient_debris.description": "First Ancient Debris",

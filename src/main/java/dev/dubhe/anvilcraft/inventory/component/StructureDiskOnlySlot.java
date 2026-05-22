@@ -11,20 +11,44 @@ import java.util.function.BooleanSupplier;
 
 /**
  * 只允许放入Structure Disk物品的槽位
- * 并且结构大小不能超过 5x5x5
+ * 可选择是否限制结构大小不超过 5x5x5
  */
 public class StructureDiskOnlySlot extends Slot {
     @Nullable
     private final BooleanSupplier canExtractCondition;
+    private final boolean enforceSizeLimit;
     
-    public StructureDiskOnlySlot(net.minecraft.world.Container container, int slot, int x, int y) {
-        this(container, slot, x, y, null);
+    /**
+     * 创建结构磁盘槽位
+     * 
+     * @param container 容器
+     * @param slot 槽位索引
+     * @param x X坐标
+     * @param y Y坐标
+     * @param enforceSizeLimit 是否强制执行 5x5x5 大小限制（Smart Block Placer 需要，Structure Scanner 不需要）
+     */
+    public StructureDiskOnlySlot(net.minecraft.world.Container container, int slot, int x, int y,
+                                boolean enforceSizeLimit) {
+        this(container, slot, x, y, enforceSizeLimit, null);
     }
     
+    /**
+     * 创建结构磁盘槽位（带提取条件）
+     */
     public StructureDiskOnlySlot(net.minecraft.world.Container container, int slot, int x, int y,
+                                @Nullable BooleanSupplier canExtractCondition) {
+        this(container, slot, x, y, false, canExtractCondition);
+    }
+    
+    /**
+     * 创建结构磁盘槽位（完整参数）
+     */
+    public StructureDiskOnlySlot(net.minecraft.world.Container container, int slot, int x, int y,
+                                boolean enforceSizeLimit,
                                 @Nullable BooleanSupplier canExtractCondition) {
         super(container, slot, x, y);
         this.canExtractCondition = canExtractCondition;
+        this.enforceSizeLimit = enforceSizeLimit;
     }
 
     @Override
@@ -34,7 +58,12 @@ public class StructureDiskOnlySlot extends Slot {
             return false;
         }
         
-        // 检查结构大小是否超过 5x5x5
+        // 如果不强制限制大小，直接允许放入
+        if (!enforceSizeLimit) {
+            return true;
+        }
+        
+        // 检查结构大小是否超过 5x5x5（仅用于 Smart Block Placer）
         var customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData != null) {
             CompoundTag tag = customData.copyTag();
