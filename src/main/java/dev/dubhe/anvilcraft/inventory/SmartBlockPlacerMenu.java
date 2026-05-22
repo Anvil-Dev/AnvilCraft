@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.BookOnlySlot;
 import dev.dubhe.anvilcraft.inventory.component.StructureDiskOnlySlot;
-import dev.dubhe.anvilcraft.inventory.component.WrittenBookOnlySlot;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -113,29 +112,32 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             // Structure Disk槽位（索引0）的物品移动到玩家物品栏
             if (index < STRUCTURE_DISK_SLOT_COUNT) {
                 // 检查书槽位是否有书，如果有则不允许取出磁盘
-                if (!this.blockEntity.getBookInventory().getItem(0).isEmpty()) {
+                if (this.blockEntity != null && !this.blockEntity.getBookInventory().getItem(0).isEmpty()) {
                     return ItemStack.EMPTY;
                 }
-                if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
+                if (!this.moveItemStackTo(originalStack, 
+                    STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
             }
             // Book槽位（索引1）的物品移动到玩家物品栏
             else if (index < STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT) {
-                if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
+                if (!this.moveItemStackTo(originalStack, 
+                    STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
             }
             // Output Book槽位（索引2）的物品移动到玩家物品栏
             else if (index < STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT) {
-                if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, true)) {
+                if (!this.moveItemStackTo(originalStack, 
+                    STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, true)) {
                     return ItemStack.EMPTY;
                 }
             }
             // 玩家物品栏的物品移动
             else if (index < TOTAL_SLOT_COUNT) {
                 // 检查是否是蓝图模式
-                boolean isBlueprintMode = !this.blockEntity.getDiskInventory().getItem(0).isEmpty();
+                boolean isBlueprintMode = this.blockEntity != null && !this.blockEntity.getDiskInventory().getItem(0).isEmpty();
                 
                 if (originalStack.is(ModItems.STRUCTURE_DISK.get())) {
                     // Structure Disk尝试移动到Disk槽位
@@ -147,14 +149,16 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
                     || originalStack.is(net.minecraft.world.item.Items.WRITABLE_BOOK)
                     || originalStack.is(net.minecraft.world.item.Items.BOOK))) {
                     // 蓝图模式下的书尝试移动到Book槽位（输入）
-                    if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT, STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT, false)) {
+                    if (!this.moveItemStackTo(originalStack, 
+                        STRUCTURE_DISK_SLOT_COUNT, STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT, false)) {
                         return ItemStack.EMPTY;
                     }
                 } else {
                     // 其他物品在玩家物品栏内部移动（主物品栏<->快捷栏）
                     // 非蓝图模式下,书也会走这个分支
                     int playerInventoryStart = STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + (isBlueprintMode ? OUTPUT_BOOK_SLOT_COUNT : 0);
-                    int playerInventoryEnd = STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+                    int playerInventoryEnd = 
+                        STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
                     
                     if (index >= playerInventoryEnd) {
                         // 从快捷栏移动到主物品栏
