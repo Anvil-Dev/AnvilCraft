@@ -479,7 +479,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             // 先旋转结构数据，再计算目标位置
             var rotatedStructure = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
                 loadedStructure, entity.getLevel(), entity.getBlockPos());
-            if (rotatedStructure != null && !rotatedStructure.isEmpty()) {
+            if (!rotatedStructure.isEmpty()) {
                 return getBlueprintTargetPosition(entity, facing, upsideDown, rotatedStructure);
             }
             return null;
