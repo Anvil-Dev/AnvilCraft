@@ -831,7 +831,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return switch (mode) {
             case PICKUP -> this.hasEmptyPositions(level, pos) && this.hasBlockItemsInContainer(level, pos);
             case MOVE -> this.hasTargetPositions(level, pos);
-            case BLUEPRINT -> this.hasBlueprintPositions(level, pos);
+            case BLUEPRINT -> {
+                // 蓝图模式：根据isPickupMode区分检查逻辑
+                if (this.isPickupMode) {
+                    // Pickup模式：检查是否有可放置的位置且有物品
+                    yield this.hasBlueprintPositions(level, pos) && this.hasBlockItemsInContainer(level, pos);
+                } else {
+                    // Move模式：检查是否有可放置的位置且源位置有方块
+                    yield this.hasBlueprintMoveTargets(level, pos);
+                }
+            }
         };
     }
     
@@ -846,27 +855,66 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
                     yield true;
                 }
-                // 蓝图模式：只检查索引是否超出范围 或 容器是否完全空
+                
                 // 使用旋转后的结构数据
                 StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
                 
                 // 获取有序索引列表
                 List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
                 boolean indexExhausted = this.currentPlacementIndex >= orderedIndices.size();
-                boolean containerEmpty = !this.hasBlockItemsInContainer(level, pos);
                 
-                // 停止模式下，额外检查当前索引位置的方块是否有存量
-                if (!this.isSkipMissingMode && !indexExhausted && !containerEmpty) {
-                    // 获取当前有序位置对应的原始索引
-                    int actualIndex = orderedIndices.get(this.currentPlacementIndex);
-                    Block requiredBlock = getRequiredBlockForPosition(actualIndex);
-                    if (requiredBlock != null) {
-                        ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
-                        yield blockItem.isEmpty();  // 没有存量就视为资源耗尽
-                    }
+                if (indexExhausted) {
+                    yield true;
                 }
                 
-                yield indexExhausted || containerEmpty;
+                // 根据isPickupMode选择不同的资源检查逻辑
+                if (this.isPickupMode) {
+                    // Pickup模式：检查容器是否为空
+                    boolean containerEmpty = !this.hasBlockItemsInContainer(level, pos);
+                    
+                    // 停止模式下，额外检查当前索引位置的方块是否有存量
+                    if (!this.isSkipMissingMode && !containerEmpty) {
+                        // 获取当前有序位置对应的原始索引
+                        int actualIndex = orderedIndices.get(this.currentPlacementIndex);
+                        Block requiredBlock = getRequiredBlockForPosition(actualIndex);
+                        if (requiredBlock != null) {
+                            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+                            yield blockItem.isEmpty();  // 没有存量就视为资源耗尽
+                        }
+                    }
+                    
+                    yield containerEmpty;
+                } else {
+                    // Move模式：检查源位置是否有方块 且 蓝图还有空位
+                    Direction facing = this.getFacing(pos, level);
+                    boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+                    BlockPos sourcePos = pos.relative(facing.getOpposite());
+                    
+                    // 检查源位置是否有方块
+                    BlockState sourceState = level.getBlockState(sourcePos);
+                    if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+                        yield true;  // 源位置没有方块，资源耗尽
+                    }
+                    
+                    List<BlockPos> allPositions = buildBlueprintPositions(pos, facing, upsideDown, rotatedData);
+                    if (allPositions.isEmpty()) {
+                        yield true;
+                    }
+                    
+                    // 检查蓝图是否还有可放置的空位
+                    for (int index : orderedIndices) {
+                        BlockPos targetPos = allPositions.get(index);
+                        if (this.canPlaceAtPosition(level, targetPos, null)) {
+                            // 检查源方块是否与蓝图需要的方块匹配
+                            Block requiredBlock = getRequiredBlockForPosition(index);
+                            if (requiredBlock != null && sourceState.is(requiredBlock)) {
+                                yield false;  // 找到匹配的位置，资源未耗尽
+                            }
+                        }
+                    }
+                    
+                    yield true;  // 没有找到匹配的位置
+                }
             }
         };
     }
@@ -878,7 +926,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         switch (mode) {
             case PICKUP -> this.placeBlocks(level, pos);
             case MOVE -> this.moveBlocks(level, pos);
-            case BLUEPRINT -> this.placeBlueprintBlocks(level, pos);
+            case BLUEPRINT -> {
+                // 蓝图模式也根据isPickupMode决定使用pickup还是move逻辑
+                if (this.isPickupMode) {
+                    this.placeBlueprintBlocks(level, pos);  // 从容器提取物品
+                } else {
+                    this.moveBlueprintBlocks(level, pos);   // 直接从源位置拿方块
+                }
+            }
             default -> {}
         }
     }
@@ -942,28 +997,68 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.currentPlacementIndex = 0;
         }
         
-        // 查找有物品的方块（与 placeBlueprintBlocks 逻辑一致）
-        for (int i = 0; i < orderedIndices.size(); i++) {
-            int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
-            int index = orderedIndices.get(orderIndex);
-            BlockPos targetPos = allPositions.get(index);
-            
-            // 检查目标位置是否可以放置
-            if (!this.canPlaceAtPosition(level, targetPos, null)) {
-                continue;
+        // 根据isPickupMode选择不同的预览逻辑
+        if (this.isPickupMode) {
+            // Pickup模式：从容器中查找物品
+            for (int i = 0; i < orderedIndices.size(); i++) {
+                int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
+                int index = orderedIndices.get(orderIndex);
+                BlockPos targetPos = allPositions.get(index);
+                
+                // 检查目标位置是否可以放置
+                if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                    continue;
+                }
+                
+                // 获取当前索引需要的方块
+                Block requiredBlock = getRequiredBlockForPosition(index);
+                if (requiredBlock == null) {
+                    continue;
+                }
+                
+                // 预览物品（不真正提取）
+                ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+                if (!blockItem.isEmpty()) {
+                    this.currentHeldBlock = blockItem.copy();
+                    return;
+                }
             }
+        } else {
+            // Move模式：从放置器后方1格预览方块
+            BlockPos sourcePos = pos.relative(facing.getOpposite());
+            BlockState sourceState = level.getBlockState(sourcePos);
             
-            // 获取当前索引需要的方块
-            Block requiredBlock = getRequiredBlockForPosition(index);
-            if (requiredBlock == null) {
-                continue;
-            }
-            
-            // 预览物品（不真正提取）
-            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
-            if (!blockItem.isEmpty()) {
-                this.currentHeldBlock = blockItem.copy();
+            if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+                this.currentHeldBlock = ItemStack.EMPTY;
                 return;
+            }
+            
+            // 查找第一个可以放置的位置，并且源方块与蓝图需要匹配
+            for (int i = 0; i < orderedIndices.size(); i++) {
+                int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
+                int index = orderedIndices.get(orderIndex);
+                BlockPos targetPos = allPositions.get(index);
+                
+                // 检查目标位置是否可以放置
+                if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                    continue;
+                }
+                
+                // 获取蓝图需要的方块
+                Block requiredBlock = getRequiredBlockForPosition(index);
+                if (requiredBlock == null) {
+                    continue;
+                }
+                
+                // 检查源方块是否与蓝图需要的方块匹配
+                if (sourceState.is(requiredBlock)) {
+                    // 找到匹配的位置，设置钳子中的物品
+                    ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
+                    if (!sourceItem.isEmpty()) {
+                        this.currentHeldBlock = sourceItem.copy();
+                        return;
+                    }
+                }
             }
         }
         
@@ -1116,6 +1211,44 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 检查是否还有空位（按有序索引遍历）
+        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+        for (int index : orderedIndices) {
+            BlockPos targetPos = allPositions.get(index);
+            if (this.canPlaceAtPosition(level, targetPos, null)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * 检查蓝图move模式是否有可移动的目标
+     * 检查源位置是否有方块 且 蓝图位置是否有可放置的空位
+     */
+    private boolean hasBlueprintMoveTargets(Level level, BlockPos placerPos) {
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            return false;
+        }
+        
+        Direction facing = this.getFacing(placerPos, level);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        BlockPos sourcePos = placerPos.relative(facing.getOpposite());
+        
+        // 检查源位置是否有方块
+        BlockState sourceState = level.getBlockState(sourcePos);
+        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+            return false;
+        }
+        
+        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
+        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
+        
+        if (allPositions.isEmpty()) {
+            return false;
+        }
+        
+        // 检查是否还有可放置的蓝图位置
         List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
         for (int index : orderedIndices) {
             BlockPos targetPos = allPositions.get(index);
@@ -1281,7 +1414,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     
     /**
-     * 放置蓝图中的方块
+     * 放置蓝图中的方块（pickup逻辑：从容器提取物品）
      */
     private void placeBlueprintBlocks(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
@@ -1356,6 +1489,125 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             
             // 放置成功后，修正方块的朝向为蓝图中的朝向
             this.applyBlueprintBlockFacing(level, targetPos, index);
+            
+            // 放置成功
+            this.currentHeldBlock = ItemStack.EMPTY;
+            this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
+            this.onChanged();
+            return;
+        }
+        
+        // 所有位置都遍历完了，没有找到可以放置的
+        this.currentHeldBlock = ItemStack.EMPTY;
+        this.onChanged();
+    }
+    
+    /**
+     * 移动蓝图中的方块（move逻辑：从放置器后方1格提取方块，放置到蓝图位置）
+     * 完全复用placeBlueprintBlocks的逻辑，只是把从容器提取改成从源位置拿走方块
+     */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    private void moveBlueprintBlocks(Level level, BlockPos placerPos) {
+        Direction facing = this.getFacing(placerPos, level);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        BlockPos sourcePos = placerPos.relative(facing.getOpposite());
+        
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            return;
+        }
+        
+        // 检查源方块
+        BlockState sourceState = level.getBlockState(sourcePos);
+        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+            return;
+        }
+        
+        // 保存源BlockEntity的NBT数据（如果有）
+        final net.minecraft.nbt.CompoundTag sourceBlockEntityData;
+        BlockEntity sourceBlockEntity = level.getBlockEntity(sourcePos);
+        if (sourceBlockEntity != null) {
+            sourceBlockEntityData = sourceBlockEntity.saveWithFullMetadata(level.registryAccess());
+        } else {
+            sourceBlockEntityData = null;
+        }
+
+        // 获取旋转后的结构数据
+        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
+        
+        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
+        if (allPositions.isEmpty()) {
+            return;
+        }
+        
+        // 获取有序索引列表（按 y → z → x 排序）
+        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+        if (orderedIndices.isEmpty()) {
+            return;
+        }
+        
+        // 重置索引（如果超出范围）
+        if (this.currentPlacementIndex >= orderedIndices.size()) {
+            this.currentPlacementIndex = 0;
+        }
+        
+        // 按有序索引列表遍历（与placeBlueprintBlocks完全相同的逻辑）
+        for (int i = 0; i < orderedIndices.size(); i++) {
+            int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
+            int index = orderedIndices.get(orderIndex);
+            BlockPos targetPos = allPositions.get(index);
+            
+            // 检查目标位置是否可以放置
+            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                continue;
+            }
+            
+            // 获取当前索引需要的方块
+            Block requiredBlock = getRequiredBlockForPosition(index);
+            if (requiredBlock == null) {
+                continue;
+            }
+            
+            // 检查源方块是否与蓝图需要的方块匹配
+            if (!sourceState.is(requiredBlock)) {
+                continue;
+            }
+            
+            // 设置 currentHeldBlock 用于动画显示
+            ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
+            this.currentHeldBlock = sourceItem.copy();
+            this.onChanged();
+            
+            // 先删除源方块
+            IS_BEING_MOVED_BY_PLACER.set(true);
+            try {
+                level.removeBlock(sourcePos, false);
+            } finally {
+                IS_BEING_MOVED_BY_PLACER.set(false);
+            }
+            
+            // 使用 FakePlayer 放置方块（与 placeBlueprintBlocks 一致）
+            BlockItem blockItemObj = (BlockItem) sourceItem.getItem();
+            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, sourceItem);
+            
+            if (!placeSuccess) {
+                // 放置失败，不需要回滚（源方块已删除）
+                this.currentHeldBlock = ItemStack.EMPTY;
+                this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
+                this.onChanged();
+                return;
+            }
+            
+            // 放置成功后，修正方块的朝向为蓝图中的朝向
+            this.applyBlueprintBlockFacing(level, targetPos, index);
+            
+            // 恢复BlockEntity数据（如果有）
+            if (sourceBlockEntityData != null) {
+                BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
+                if (targetBlockEntity != null) {
+                    targetBlockEntity.loadWithComponents(sourceBlockEntityData, level.registryAccess());
+                    targetBlockEntity.setChanged();
+                }
+            }
             
             // 放置成功
             this.currentHeldBlock = ItemStack.EMPTY;
