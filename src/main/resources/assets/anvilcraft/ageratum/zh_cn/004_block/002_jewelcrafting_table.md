@@ -32,7 +32,7 @@ items:
 <recipe id="anvilcraft:jewel_crafting/totem_of_undying"/>
 </row>
 
-<row>
+<row halign="center">
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns"/>
 > 所有旗帜图案都可以通过这个配方来仿制
 </row>
