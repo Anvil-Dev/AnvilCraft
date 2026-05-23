@@ -789,6 +789,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 旋转方块朝向
             BlockState rotatedState = rotateBlockStateStatic(block.state(), rotationSteps);
             
+            // 应用朝向修正（scannerFacing + placerFacing 的额外修正）
+            rotatedState = applyFacingCorrectionStatic(rotatedState, rotationSteps, scannerFacingValue, placerFacing);
+            
             rotatedData.blocks.add(new StructureLoadUtil.BlockPosition(newX, block.y(), newZ, rotatedState));
         }
         
@@ -1925,6 +1928,78 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             default -> 0;
         };
         
+        // 第二步：根据placerFacing和scannerFacing的组合应用修正
+        // 规律：每个scanner朝向有一个基准放置器
+        // Scanner WEST → 基准WEST(3), NORTH → 基准SOUTH(2), SOUTH → 基准NORTH(0), EAST → 基准EAST(1)
+        int basePlacerIndex = switch (scannerFacing) {
+            case 4 -> 3;  // Scanner WEST → 基准WEST
+            case 2 -> 2;  // Scanner NORTH → 基准SOUTH
+            case 3 -> 0;  // Scanner SOUTH → 基准NORTH
+            case 5 -> 1;  // Scanner EAST → 基准EAST
+            default -> 0;
+        };
+        
+        int actualPlacerIndex = switch (placerFacing) {
+            case NORTH -> 0;
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
+        };
+        
+        int totalCorrection = (basePlacerIndex - actualPlacerIndex + 4) % 4;
+        
+        if (totalCorrection == 0) {
+            return blueprintFacing;  // 不需要修正
+        }
+        
+        int facingIndex = switch (blueprintFacing) {
+            case NORTH -> 0;
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
+        };
+        int finalIndex = (facingIndex - totalCorrection + 4) % 4;  // 逆时针旋转
+        
+        return switch (finalIndex) {
+            case 0 -> Direction.NORTH;
+            case 1 -> Direction.EAST;
+            case 2 -> Direction.SOUTH;
+            case 3 -> Direction.WEST;
+            default -> blueprintFacing;
+        };
+    }
+    
+    /**
+     * 静态版本：根据扫描器朝向和放置器朝向应用方块朝向修正（用于结构旋转）
+     */
+    private static BlockState applyFacingCorrectionStatic(BlockState state, int rotationSteps, int scannerFacing, Direction placerFacing) {
+        // 尝试处理 BlockStateProperties.HORIZONTAL_FACING
+        if (state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING)) {
+            Direction facing = state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING);
+            Direction correctedFacing = applyFacingCorrectionLogic(facing, rotationSteps, scannerFacing, placerFacing);
+            if (correctedFacing != facing) {
+                return state.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, correctedFacing);
+            }
+        }
+        
+        // 尝试处理 HorizontalDirectionalBlock.FACING
+        if (state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
+            Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+            Direction correctedFacing = applyFacingCorrectionLogic(facing, rotationSteps, scannerFacing, placerFacing);
+            if (correctedFacing != facing) {
+                return state.setValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING, correctedFacing);
+            }
+        }
+        
+        return state;
+    }
+    
+    /**
+     * 应用朝向修正的核心逻辑
+     */
+    private static Direction applyFacingCorrectionLogic(Direction blueprintFacing, int rotationSteps, int scannerFacing, Direction placerFacing) {
         // 第二步：根据placerFacing和scannerFacing的组合应用修正
         // 规律：每个scanner朝向有一个基准放置器
         // Scanner WEST → 基准WEST(3), NORTH → 基准SOUTH(2), SOUTH → 基准NORTH(0), EAST → 基准EAST(1)
