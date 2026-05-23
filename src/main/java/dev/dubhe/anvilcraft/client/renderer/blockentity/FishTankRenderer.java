@@ -4,27 +4,39 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.util.ClientTickRecorder;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FishTankRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
+import dev.dubhe.anvilcraft.mixin.accessor.EntityAccessor;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.fish.TropicalFish;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlockEntity, FishTankRenderState> {
     public static final StandaloneModelKey<BlockStateModel> FIRE = new StandaloneModelKey<>(
@@ -32,10 +44,15 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
     );
     private static final float TANK_W = 1 / 16F + 0.001F; // avoiding Z-fighting
     private final RandomSource random = RandomSource.create();
+    private final RandomSource fishRandom = RandomSource.create();
     private final ItemModelResolver resolver;
+    private final EntityRenderDispatcher renderer;
+
+    private final Map<Long, FishCacheEntry> fishCache = new HashMap<>();
 
     public FishTankRenderer(BlockEntityRendererProvider.Context ctx) {
         this.resolver = ctx.itemModelResolver();
+        this.renderer = ctx.entityRenderer();
     }
 
     @Override
@@ -70,17 +87,45 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         state.setFire(FeatureRendererSupport.initialize(FishTankRenderer.FIRE, be));
         // seed workaround
         state.setSeed(System.identityHashCode(be));
+
+        Level level = be.getLevel();
+        if (level == null) return;
+        if (be.isEmptyOfFish()) return;
+
+        List<CompoundTag> fishData = be.getTropicalFishData();
+        int newDataHash = computeFishDataHash(fishData);
+        long cacheKey = be.getBlockPos().asLong();
+
+        // Get or create cache entry
+        FishCacheEntry cacheEntry = this.fishCache.get(cacheKey);
+        List<TropicalFish> cachedFishes;
+
+        // Rebuild cache if it doesn't exist or data has changed
+        if (cacheEntry == null || cacheEntry.dataHash != newDataHash) {
+            cachedFishes = createTropicalFishEntities(level, fishData);
+            this.fishCache.put(cacheKey, new FishCacheEntry(cachedFishes, newDataHash));
+        } else {
+            cachedFishes = cacheEntry.cachedFishes;
+        }
+
+        state.setTicks(ClientTickRecorder.getTicks() + partialTicks + this.fishRandom.nextInt(1297361));
+        for (TropicalFish fish : cachedFishes) {
+            fish.tickCount = (int) state.getTicks();
+            EntityRenderState entityState = this.renderer.extractEntity(fish, partialTicks);
+            state.getFishes().add(entityState);
+        }
+        this.fishRandom.setSeed(cachedFishes.hashCode() + be.getBlockPos().hashCode());
     }
 
     @Override
-    public void submit(FishTankRenderState state, PoseStack pose, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        super.submit(state, pose, submitNodeCollector, camera);
+    public void submit(FishTankRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        super.submit(state, pose, collector, camera);
         if (state.isIgnited()) {
             pose.pushPose();
             pose.translate(0, state.getMaxY() - (1 - TANK_W), 0);
             state.getFire().submit(
                 pose,
-                submitNodeCollector,
+                collector,
                 state.lightCoords,
                 OverlayTexture.NO_OVERLAY,
                 0
@@ -91,12 +136,13 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         FishTankRenderer.submitItemsInTank(
             state.getStacks(),
             pose,
-            submitNodeCollector,
+            collector,
             this.random,
             state.getFill(),
             state.lightCoords,
             state.getSeed()
         );
+        FishTankRenderer.submitFishesInTank(state, this.renderer, pose, collector, camera);
     }
 
     // Thanks for Create Mod, logics in this method are mostly from it.
@@ -165,5 +211,82 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             itemCount--;
         }
         pose.popPose();
+    }
+
+    private static void submitFishesInTank(
+        FishTankRenderState state,
+        EntityRenderDispatcher renderer,
+        PoseStack pose,
+        SubmitNodeCollector collector,
+        CameraRenderState camera
+    ) {
+        List<EntityRenderState> fishes = state.getFishes();
+        float height = 1 - 2 * TANK_W;
+        int count = fishes.size();
+
+        for (int i = 0; i < count; i++) {
+            int ticks = (int) state.getTicks();
+
+            float speed = 0.05F;
+            float angle = ticks * speed + (Mth.TWO_PI / count) * i;
+            float radius = 0.22F;
+            float x = 0.5F + Mth.cos(angle) * radius;
+            float z = 0.5F + Mth.sin(angle) * radius;
+
+            float y = TANK_W + height * (0.5F + Mth.sin(ticks * 0.07F + i) * 0.07F + Mth.sin(ticks * 0.19F + i) * 0.19F);
+
+            float yawDeg = -(angle * Mth.RAD_TO_DEG);
+
+            pose.pushPose();
+            pose.translate(x, y, z);
+            pose.mulPose(Axis.YP.rotationDegrees(yawDeg));
+            pose.scale(0.5F, 0.5F, 0.5F);
+            renderer.submit(fishes.get(i), camera, 0, 0, 0, pose, collector);
+            pose.popPose();
+        }
+    }
+
+    /**
+     * Creates TropicalFish entities from fish data NBT tags
+     */
+    private static List<TropicalFish> createTropicalFishEntities(Level level, List<CompoundTag> fishData) {
+        List<TropicalFish> fishes = new ArrayList<>();
+        for (CompoundTag fishDatum : fishData) {
+            TropicalFish fish = EntityType.TROPICAL_FISH.create(level, EntitySpawnReason.BUCKET);
+            if (fish == null) continue;
+
+            CompoundTag data = fishDatum.copy();
+            fish.loadFromBucketTag(data);
+            fish.fromBucket();
+            fish.setNoAi(true);
+            fish.setSilent(true);
+            EntityAccessor accessor = Util.cast(fish);
+            accessor.setWasTouchingWater(true);
+
+            fishes.add(fish);
+        }
+        return fishes;
+    }
+
+    /**
+     * Computes a hash of the fish data to detect changes
+     */
+    private static int computeFishDataHash(List<CompoundTag> fishData) {
+        if (fishData.isEmpty()) return 0;
+        int hash = fishData.size();
+        for (CompoundTag tag : fishData) {
+            hash = hash * 31 + tag.hashCode();
+        }
+        return hash;
+    }
+
+    private static class FishCacheEntry {
+        List<TropicalFish> cachedFishes;
+        int dataHash;
+
+        FishCacheEntry(List<TropicalFish> cachedFishes, int dataHash) {
+            this.cachedFishes = cachedFishes;
+            this.dataHash = dataHash;
+        }
     }
 }

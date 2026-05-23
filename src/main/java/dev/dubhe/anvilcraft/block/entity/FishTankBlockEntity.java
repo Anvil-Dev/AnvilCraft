@@ -241,7 +241,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
                 if (!resourceIn.equals(resource)) continue;
                 if (countInSlot != Integer.MAX_VALUE) return -1;
                 int amountIn = this.getAmountAsInt(i);
-                if (amountIn < this.getCapacityAsInt(i, resourceIn)) {
+                if (amountIn < this.getCapacityAsIntDirect(i, resourceIn)) {
                     slot = i;
                     countInSlot = amountIn;
                 } else {
@@ -263,11 +263,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            Item item = resource.getItem();
             boolean hasSame = false;
             int sameIndex = -1;
             for (int i = 0; i < this.size(); i++) {
-                if (!this.getResource(i).is(item)) {
+                if (!this.getResource(i).equals(resource)) {
                     continue;
                 }
 
@@ -306,9 +305,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             if (level == null || level.isClientSide()) return;
             BlockState state = FishTankBlockEntity.this.getBlockState();
             if (!state.getValue(FishTankBlock.OUTLET)) return;
-            try (Transaction root = Transaction.openRoot()) {
+            try (Transaction transaction = Transaction.openRoot()) {
                 ItemResource resourceIn = this.getResource(index);
-                int extracted = this.extract(index, resourceIn, Integer.MAX_VALUE, root);
+                if (resourceIn.isEmpty()) return;
+                int extracted = this.extract(index, resourceIn, Integer.MAX_VALUE, transaction);
                 if (extracted <= 0) return;
                 Direction outletDir = state.getValue(FishTankBlock.FACING);
 
@@ -320,7 +320,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
                 );
                 if (targets == null || targets.isEmpty()) {
                     FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, resourceIn.toStack(extracted));
-                    root.commit();
+                    transaction.commit();
                     return;
                 }
                 int remaining = extracted;
@@ -498,10 +498,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         if (!this.isValidInsertPos(hitLoc)) return false;
         if (inHand.is(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)) return false;
         if (level.isClientSide()) return true;
-        ItemStack remaining = FishTankBlockEntity.insertItemToTank(this.input, inHand.copy());
+        ItemStack inserted = FishTankBlockEntity.insertItemToTank(this.input, inHand.copy());
         int count = inHand.getCount();
-        inHand.setCount(remaining.getCount());
-        return remaining.getCount() != count;
+        inHand.setCount(count - inserted.getCount());
+        return inserted.getCount() != count;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -555,11 +555,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             return;
         }
         ItemStack stack = entity.getItem();
-        ItemStack remaining = FishTankBlockEntity.insertItemToTank(handler, stack.copy());
-        if (remaining.isEmpty()) {
+        ItemStack inserted = FishTankBlockEntity.insertItemToTank(handler, stack.copy());
+        if (inserted.getCount() == stack.getCount()) {
             entity.discard();
         } else {
-            entity.setItem(remaining);
+            entity.setItem(inserted);
         }
     }
 
@@ -568,7 +568,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
      *
      * @param handler 鱼缸物品处理器
      * @param stack   要放入的物品
-     * @return 剩余物品
+     * @return 插入的物品
      */
     public static ItemStack insertItemToTank(@Nullable ResourceHandler<ItemResource> handler, ItemStack stack) {
         if (handler == null) {
@@ -587,6 +587,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             for (int i = 0; i < 8; i++) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     ItemResource resource = this.output.getResource(i);
+                    if (resource.isEmpty()) continue;
                     int extracted = this.output.extract(i, resource, Integer.MAX_VALUE, transaction);
                     if (extracted > 0) {
                         FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, resource.toStack(extracted));
@@ -603,6 +604,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             for (int i = 0; i < 8; i++) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     ItemResource resource = this.output.getResource(i);
+                    if (resource.isEmpty()) continue;
                     int extracted = this.output.extract(i, resource, Integer.MAX_VALUE, transaction);
                     if (extracted <= 0) continue;
                     ItemStack inserted = ItemHandlerUtil.insertItem(target, resource.toStack(extracted), true);
@@ -634,6 +636,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         for (int i = 0; i < 8; i++) {
             try (Transaction transaction = Transaction.openRoot()) {
                 ItemResource resource = handler.getResource(i);
+                if (resource.isEmpty()) continue;
                 int extracted = handler.extract(i, resource, Integer.MAX_VALUE, transaction);
                 if (extracted <= 0) continue;
                 int maxSize = resource.getMaxStackSize();
@@ -652,6 +655,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             for (int i = 8; i < 16; i++) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     ItemResource resource = handler.getResource(i);
+                    if (resource.isEmpty()) continue;
                     int extracted = handler.extract(i, resource, Integer.MAX_VALUE, transaction);
                     if (extracted <= 0) continue;
                     int maxSize = resource.getMaxStackSize();
@@ -939,14 +943,14 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             return;
         }
         for (int i = 0; i < this.proxy.size(); i++) {
-            ItemResource stack = this.proxy.getResource(i);
-            if (stack.is(ModItemTags.FIRE_STARTER)) {
+            ItemResource resource = this.proxy.getResource(i);
+            if (resource.is(ModItemTags.FIRE_STARTER)) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     this.proxy.extract(i, this.proxy.getResource(i), 1, transaction);
                     transaction.commit();
                 }
                 this.setIgnited(true);
-            } else if (stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
+            } else if (resource.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
                 this.setIgnited(true);
             }
         }
@@ -960,6 +964,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         for (int slot = 0; slot < handler.size(); slot++) {
             try (Transaction transaction = Transaction.openRoot()) {
                 ItemResource resource = handler.getResource(slot);
+                if (resource.isEmpty()) continue;
                 int extracted = handler.extract(slot, resource, Integer.MAX_VALUE, transaction);
                 if (extracted > 0) {
                     Block.popResource(this.level, pos, resource.toStack(extracted));

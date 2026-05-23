@@ -186,8 +186,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             return this.changeOutlet(level, pos, state, player, hitResult);
         }
         CauldronInteraction interaction = ModInteractionMap.FISH_TANK.get(stack);
-        // noinspection ConstantValue
-        if (interaction != null) return interaction.interact(state, level, pos, player, hand, stack);
+        if (interaction != CauldronInteraction.DEFAULT) return interaction.interact(state, level, pos, player, hand, stack);
         return this.useItemOnTank(stack, state, level, pos, player, hand, hitResult);
     }
 
@@ -227,7 +226,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         BlockHitResult hitResult
     ) {
         InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-        if (result != InteractionResult.PASS) return InteractionResult.PASS;
+        if (result != InteractionResult.TRY_WITH_EMPTY_HAND) return InteractionResult.TRY_WITH_EMPTY_HAND;
         if (level.getBlockEntity(pos) instanceof FishTankBlockEntity tank) {
             if (tank.tryInteractWithTank(player, hand, hitResult)) {
                 return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
