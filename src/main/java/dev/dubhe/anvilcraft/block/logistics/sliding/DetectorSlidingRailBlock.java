@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -160,8 +159,7 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     }
 
     @Override
-    public void loadData(Level level, BlockPos pos, ValueInput input) {
-        BlockState state = level.getBlockState(pos);
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
         if (state.getBlock() != this) return;
         level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
         level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get()).ifPresent(DetectorSlidingRailBlockEntity::cleanPower);

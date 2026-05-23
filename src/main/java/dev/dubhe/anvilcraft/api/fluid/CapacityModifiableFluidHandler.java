@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.fluidtank;
+package dev.dubhe.anvilcraft.api.fluid;
 
 import net.minecraft.core.NonNullList;
 import net.neoforged.neoforge.fluids.FluidStack;
