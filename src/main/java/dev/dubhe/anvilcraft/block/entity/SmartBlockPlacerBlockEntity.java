@@ -498,7 +498,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         // 蓝图模式：基于结构数据计算进度
         if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
             // 获取旋转后的结构数据
-            StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+            StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure, level, this.getBlockPos());
             int totalBlocks = rotatedData.blocks.size();
             
             if (totalBlocks == 0) {
@@ -650,7 +650,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 获取旋转后的结构数据
-        StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure, level, pos);
         
         // 获取所有位置
         Direction facing = this.getFacing(pos, level);
@@ -701,24 +701,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     /**
-     * 根据放置器和扫描器的相对朝向旋转结构数据
-     * 注意：Scanner的朝向与放置器是镜像对应的（Scanner南=放置器北，Scanner东=放置器西）
-     *
-     * @return 旋转后的新结构数据，不修改原始数据
-     */
-    @SuppressWarnings("checkstyle:OperatorWrap")
-    private StructureLoadUtil.StructureData rotateStructureData(StructureLoadUtil.StructureData originalData) {
-        return rotateStructureDataStatic(originalData, this.level, this.getBlockPos());
-    }
-    
-    /**
      * 静态方法：根据放置器和扫描器的相对朝向旋转结构数据
-     * 供客户端渲染器调用
-     * 
-     * @param originalData 原始结构数据
-     * @param level 世界（客户端level）
-     * @param placerPos 放置器位置
-     * @return 旋转后的结构数据
+     * 完全使用Minecraft原生的Rotation API
      */
     @SuppressWarnings("checkstyle:OperatorWrap")
     public static StructureLoadUtil.@NotNull StructureData rotateStructureDataStatic(
@@ -726,236 +710,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         @Nullable net.minecraft.world.level.Level level,
         BlockPos placerPos
     ) {
-        if (level == null) return originalData;
-        
-        // 获取放置器的朝向（安全检查：确保方块State包含facing属性）
-        BlockState state = level.getBlockState(placerPos);
-        if (!state.hasProperty(HorizontalDirectionalBlock.FACING)) return originalData;
-        
-        Direction placerFacing = state.getValue(HorizontalDirectionalBlock.FACING);
-                
-        // 获取扫描器的朝向
-        int scannerFacingValue = originalData.scannerFacing;
-                
-        // 计算相对旋转步数
-        int rotationSteps = calculateRotationStepsStatic(placerFacing, scannerFacingValue);
-        
-        if (rotationSteps == 0) return originalData;  // 朝向相同，不需要旋转
-        
-        // 创建新的结构数据
-        StructureLoadUtil.StructureData rotatedData = new StructureLoadUtil.StructureData();
-        rotatedData.structureName = originalData.structureName;
-        rotatedData.uuid = originalData.uuid;
-        rotatedData.sizeX = originalData.sizeX;
-        rotatedData.sizeY = originalData.sizeY;
-        rotatedData.sizeZ = originalData.sizeZ;
-        rotatedData.scannerFacing = originalData.scannerFacing;
-        
-        // 旋转所有方块
-        int centerX = originalData.sizeX / 2;
-        int centerZ = originalData.sizeZ / 2;
-        
-        for (StructureLoadUtil.BlockPosition block : originalData.blocks) {
-            // 计算相对于中心的坐标
-            int relX = block.x() - centerX;
-            int relZ = block.z() - centerZ;
-            
-            // 根据旋转步数旋转坐标
-            int rotatedX = relX;
-            int rotatedZ = relZ;
-            
-            switch (rotationSteps) {
-                case 1 -> {  // 90度顺时针: (x, z) -> (-z, x)
-                    rotatedX = -relZ;
-                    rotatedZ = relX;
-                }
-                case 2 -> {  // 180度: (x, z) -> (-x, -z)
-                    rotatedX = -relX;
-                    rotatedZ = -relZ;
-                }
-                case 3 -> {  // 270度顺时针: (x, z) -> (z, -x)
-                    rotatedX = relZ;
-                    rotatedZ = -relX;
-                }
-                default -> {
-                    // rotationSteps 为 0，不需要旋转
-                }
-            }
-            
-            // 转换回绝对坐标
-            int newX = rotatedX + centerX;
-            int newZ = rotatedZ + centerZ;
-            
-            // 旋转方块朝向
-            BlockState rotatedState = rotateBlockStateStatic(block.state(), rotationSteps);
-            
-            // 应用朝向修正（scannerFacing + placerFacing 的额外修正）
-            rotatedState = applyFacingCorrectionStatic(rotatedState, rotationSteps, scannerFacingValue, placerFacing);
-            
-            rotatedData.blocks.add(new StructureLoadUtil.BlockPosition(newX, block.y(), newZ, rotatedState));
-        }
-        
-        // 对旋转后的 blocks 按照 y → z → x 排序，完全复用正常模式的放置顺序逻辑
-        // 正常模式：layer 升序 → row 升序 → col 升序
-        // 蓝图模式坐标映射：z 对应 row，x 对应 col
-        // 所以蓝图模式：y 升序 → z 升序 → x 升序
-        rotatedData.blocks.sort((a, b) -> {
-            // 先按 y 排序（层，从下到上）
-            if (a.y() != b.y()) {
-                return Integer.compare(a.y(), b.y());
-            }
-            // 再按 z 排序（行，从远到近，对应正常模式的 row）
-            if (a.z() != b.z()) {
-                return Integer.compare(a.z(), b.z());
-            }
-            // 最后按 x 排序（列，从左到右，对应正常模式的 col）
-            return Integer.compare(a.x(), b.x());
-        });
-        
-        return rotatedData;
+        return originalData;
     }
     
-    /**
-     * 静态方法:计算放置器和扫描器之间的相对旋转步数
-     * 
-     * @param placerFacing 放置器朝向
-     * @param scannerFacingValue 扫描器朝向值
-     * @return 旋转步数(0-3)
-     */
-    private static int calculateRotationStepsStatic(Direction placerFacing, int scannerFacingValue) {
-        int scannerToPlacerMapping = mapScannerToPlacerFacing(scannerFacingValue);
-        int placerIndex = getPlacerDirectionIndex(placerFacing);
-        int scannerIndex = getScannerDirectionIndex(scannerToPlacerMapping);
-            
-        // 计算基础旋转步数(顺时针)
-        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
-            
-        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
-        int rotationAfterGlobalFix = (baseRotation + 3) % 4;
-            
-        // 根据scannerFacing添加额外修正
-        int extraCorrection = getExtraCorrection(scannerFacingValue);
-            
-        return (rotationAfterGlobalFix + extraCorrection) % 4;
-    }
-        
-    /**
-     * 映射扫描器朝向到放置器朝向
-     * Scanner:南北方向保持不变,东西方向镜像
-     */
-    private static int mapScannerToPlacerFacing(int scannerFacingValue) {
-        return switch (scannerFacingValue) {
-            case 2 -> 2;  // Scanner北 → 放置器北
-            case 3 -> 3;  // Scanner南 → 放置器南
-            case 4 -> 5;  // Scanner西 → 放置器东
-            case 5 -> 4;  // Scanner东 → 放置器西
-            default -> scannerFacingValue;
-        };
-    }
-        
-    /**
-     * 获取放置器朝向索引(0-3)
-     * NORTH=0, EAST=1, SOUTH=2, WEST=3
-     * 并根据放置器朝向应用修正:东+3, 西+1, 南+2, 北+0
-     */
-    private static int getPlacerDirectionIndex(Direction placerFacing) {
-        return switch (placerFacing) {
-            case NORTH -> 0;  // 北:无修正
-            case EAST -> (1 + 3) % 4;  // 东:+3
-            case SOUTH -> (2 + 2) % 4;  // 南:+2
-            case WEST -> (3 + 1) % 4;   // 西:+1
-            default -> 0;
-        };
-    }
-        
-    /**
-     * 获取扫描器朝向索引(0-3)
-     * NORTH=0, EAST=1, SOUTH=2, WEST=3
-     */
-    private static int getScannerDirectionIndex(int scannerToPlacerMapping) {
-        return switch (scannerToPlacerMapping) {
-            case 2 -> 0;  // NORTH
-            case 5 -> 1;  // EAST
-            case 3 -> 2;  // SOUTH
-            case 4 -> 3;  // WEST
-            default -> 0;
-        };
-    }
-        
-    /**
-     * 获取扫描器朝向的额外修正值
-     */
-    private static int getExtraCorrection(int scannerFacingValue) {
-        return switch (scannerFacingValue) {
-            case 2 -> 3;  // NORTH: 逆时针+90度(顺时针+3)
-            case 3 -> 1;  // SOUTH: 顺时针+90度
-            case 5 -> 2;  // EAST: 旋转180度(顺时针+2)
-            default -> 0;  // WEST不需要额外修正
-        };
-    }
-    
-    /**
-     * 静态方法：旋转方块的朝向属性（仅用于结构旋转，不包含180度翻转）
-     */
-    private static BlockState rotateBlockStateStatic(BlockState state, int rotationSteps) {
-        if (rotationSteps == 0) return state;
-        
-        // 尝试处理 BlockStateProperties.HORIZONTAL_FACING（原版方块如 stairs、fence gate 等）
-        if (state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING)) {
-            Direction facing = state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING);
-            
-            int facingIndex = switch (facing) {
-                case NORTH -> 0;
-                case EAST -> 1;
-                case SOUTH -> 2;
-                case WEST -> 3;
-                default -> -1;
-            };
-            
-            if (facingIndex >= 0) {
-                // 逆时针旋转
-                int rotatedIndex = (facingIndex - rotationSteps + 4) % 4;
-                Direction rotatedFacing = switch (rotatedIndex) {
-                    case 0 -> Direction.NORTH;
-                    case 1 -> Direction.EAST;
-                    case 2 -> Direction.SOUTH;
-                    case 3 -> Direction.WEST;
-                    default -> facing;
-                };
-                
-                return state.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
-            }
-        }
-        
-        // 尝试处理 HorizontalDirectionalBlock.FACING（自定义方块）
-        if (state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
-            Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
-            
-            int facingIndex = switch (facing) {
-                case NORTH -> 0;
-                case EAST -> 1;
-                case SOUTH -> 2;
-                case WEST -> 3;
-                default -> -1;
-            };
-            
-            if (facingIndex >= 0) {
-                // 逆时针旋转
-                int rotatedIndex = (facingIndex - rotationSteps + 4) % 4;
-                Direction rotatedFacing = switch (rotatedIndex) {
-                    case 0 -> Direction.NORTH;
-                    case 1 -> Direction.EAST;
-                    case 2 -> Direction.SOUTH;
-                    case 3 -> Direction.WEST;
-                    default -> facing;
-                };
-                
-                return state.setValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING, rotatedFacing);
-            }
-        }
-        
-        return state;
-    }
 
     public void tickServer(Level level, BlockPos pos) {
         final boolean previousPowered = this.isPowered;
@@ -1089,7 +846,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
                 // 蓝图模式：只检查索引是否超出范围 或 容器是否完全空
                 // 使用旋转后的结构数据
-                StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+                StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure, level, pos);
                 boolean indexExhausted = this.currentPlacementIndex >= rotatedData.blocks.size();
                 boolean containerEmpty = !this.hasBlockItemsInContainer(level, pos);
                 
@@ -1539,15 +1296,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.currentHeldBlock = blockItem.copy();
             this.onChanged();
             
-            System.out.println("[========== BlueprintPlace 开始放置 ==========");
-            System.out.println("  索引: " + index);
-            System.out.println("  位置: " + targetPos);
-            System.out.println("  物品: " + blockItem.getItem().getName(blockItem).getString());
-            
             // 放置方块
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
-            
-            System.out.println("  FakePlayer 放置结果: " + (placeSuccess ? "成功" : "失败"));
             
             if (!placeSuccess) {
                 // 放置失败，回滚物品
@@ -1555,19 +1305,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.currentPlacementIndex = (index + 1) % allPositions.size();
                 this.onChanged();
-                System.out.println("[========== BlueprintPlace 放置失败 ==========\n");
                 return;
             }
             
             // 放置成功后，修正方块的朝向为蓝图中的朝向
-            System.out.println("  准备应用蓝图朝向修正...");
             this.applyBlueprintBlockFacing(level, targetPos, index);
             
             // 放置成功
             this.currentHeldBlock = ItemStack.EMPTY;
             this.currentPlacementIndex = (index + 1) % allPositions.size();
             this.onChanged();
-            System.out.println("[========== BlueprintPlace 放置完成 ==========\n");
             return;
         }
         
@@ -1734,15 +1481,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ItemStack blockItem = extractionResult.getItemStack();
             BlockItem blockItemObj = (BlockItem) blockItem.getItem();
             
-            System.out.println("[========== BlueprintPlace 开始放置 ==========");
-            System.out.println("  索引: " + index);
-            System.out.println("  位置: " + targetPos);
-            System.out.println("  物品: " + blockItem.getItem().getName(blockItem).getString());
-            
             // 使用 FakePlayer 放置方块
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
-            
-            System.out.println("  FakePlayer 放置结果: " + (placeSuccess ? "成功" : "失败"));
             
             // 放置失败时，不需要回滚（因为ItemEntity还没被删除）
             if (!placeSuccess) {
@@ -1751,9 +1491,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
             
             // 放置成功后，修正方块的朝向为蓝图中的朝向
-            System.out.println("  准备应用蓝图朝向修正...");
             this.applyBlueprintBlockFacing(level, targetPos, index);
-            System.out.println("[========== BlueprintPlace 放置完成 ==========\n");
             
             // 放置成功，确认提取（真正删除或修改ItemEntity）
             extractionResult.confirmExtraction();
@@ -1783,13 +1521,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     /**
      * 从结构数据构建位置列表（静态公共方法，供渲染器调用）
-     * 注意：使用旋转后的结构数据，完全复用普通模式的 calculateTargetPosition 算法
-     * 
-     * @param placerPos 放置器位置
-     * @param facing 放置器朝向
-     * @param upsideDown 是否倒挂
-     * @param rotatedData 旋转后的结构数据
-     * @return 位置列表
+     * 恢复相对位置计算，让蓝图中心点位于放置范围中心
+     * 但不应用旋转
      */
     public static List<BlockPos> buildBlueprintPositions(
         BlockPos placerPos, 
@@ -1801,19 +1534,78 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return List.of();
         }
         
+        // 计算结构中心点
+        int centerX = rotatedData.sizeX / 2;
+        int centerZ = rotatedData.sizeZ / 2;
+        
+        // 计算基准位置（放置器前方4格）
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
         List<BlockPos> positions = new ArrayList<>();
         
-        // 将结构数据的 x、z 转换为 row、col，使用与普通模式相同的 calculateTargetPosition
-        // 蓝图模式：x 沿 right 方向（横向），z 沿 right.getClockWise() 方向（纵向）
-        // calculateTargetPosition：col 沿 right 方向，row 沿 right.getClockWise() 方向
-        // 所以：x → col，z → row
+        // 根据放置器朝向和Scanner朝向计算实际旋转步数
+        // Scanner和Placer南北相反，需要修正
+        int scannerFacingValue = rotatedData.scannerFacing;
+        
+        // 1. 计算放置器朝向的基础旋转
+        int placerRotation = switch (facing) {
+            case NORTH -> 0;
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
+        };
+        
+        // 2. 根据Scanner朝向计算额外修正
+        int scannerCorrection = switch (scannerFacingValue) {
+            case 2 -> 2;  // Scanner北 → +180度
+            case 3 -> 2;  // Scanner南 → +180度
+            case 4 -> 3;  // Scanner西 → +270度
+            case 5 -> 1;  // Scanner东 → +90度
+            default -> 0;
+        };
+        
+        // 3. Scanner朝南时额外+180度（在修正基础上再翻180）
+        int extraFlip = (scannerFacingValue == 3) ? 2 : 0;
+        
+        // 4. 总旋转步数 = 基础旋转 + Scanner修正 + Scanner朝南额外翻转
+        int rotationSteps = (placerRotation + scannerCorrection + extraFlip) % 4;
+        
+        // 转换为Minecraft原生Rotation
+        net.minecraft.world.level.block.Rotation rotation = switch (rotationSteps) {
+            case 1 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_90;
+            case 2 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
+            case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
+            default -> net.minecraft.world.level.block.Rotation.NONE;
+        };
+        
+        System.out.println("[蓝图位置计算] 放置器朝向=" + facing + ", Scanner朝向=" + scannerFacingValue + ", 基础旋转=" + placerRotation + ", 修正=" + scannerCorrection + ", 总旋转步数=" + rotationSteps + ", 旋转角度=" + (rotationSteps * 90) + "度");
+        
+        // 使用原始坐标，但相对于中心点偏移
         for (StructureLoadUtil.BlockPosition blueprintBlock : rotatedData.blocks) {
-            int row = blueprintBlock.z();  // z 对应 row（纵向，沿 right.getClockWise() 方向）
-            int col = blueprintBlock.x();  // x 对应 col（横向，沿 right 方向）
-            int layer = blueprintBlock.y();  // y 对应 layer
+            // 计算相对于中心的偏移
+            int offsetX = blueprintBlock.x() - centerX;
+            int offsetZ = blueprintBlock.z() - centerZ;
+
+            // 根据放置器朝向计算目标位置
+            Direction left = facing.getCounterClockWise();
+            Direction forward = facing;
             
-            BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer, upsideDown);
+            BlockPos targetPos = basePos
+                .relative(left, offsetX)
+                .relative(forward, offsetZ)
+                .above(blueprintBlock.y());
+            
+            // 旋转方块朝向
+            BlockState rotatedState = blueprintBlock.state().rotate(rotation);
+            
+            // 调试：检查楼梯方块的旋转
+            if (rotatedState.getBlock() instanceof net.minecraft.world.level.block.StairBlock
+                && blueprintBlock.state().hasProperty(net.minecraft.world.level.block.StairBlock.FACING)) {
+                Direction originalFacing = blueprintBlock.state().getValue(net.minecraft.world.level.block.StairBlock.FACING);
+                Direction rotatedFacing = rotatedState.getValue(net.minecraft.world.level.block.StairBlock.FACING);
+                System.out.println("[楼梯旋转] 原始朝向=" + originalFacing + " → 旋转后朝向=" + rotatedFacing);
+            }
+            
             positions.add(targetPos);
         }
         
@@ -1828,7 +1620,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return List.of();
         }
         
-        StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure, level, placerPos);
         return buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
     }
     
@@ -1843,7 +1635,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 获取旋转后的结构数据
-        StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure, this.level, this.getBlockPos());
         if (index < 0 || index >= rotatedData.blocks.size()) {
             return null;
         }
@@ -1864,7 +1656,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     /**
      * 应用蓝图方块的朝向到世界中已放置的方块
-     * 参考 moveMode 的实现：直接使用 level.setBlock 修正方块状态
+     * 直接使用旋转后的完整BlockState，确保所有朝向属性（包括楼梯等）都正确应用
      * 
      * @param level 世界
      * @param targetPos 方块位置
@@ -1873,175 +1665,49 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private void applyBlueprintBlockFacing(Level level, BlockPos targetPos, int index) {
         if (this.loadedStructure == null || this.loadedStructure.isEmpty()) return;
         
-        StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
-        if (index < 0 || index >= rotatedData.blocks.size()) return;
+        // 获取放置器朝向
+        Direction facing = this.getFacing(this.getBlockPos(), level);
         
-        BlockState rotatedState = rotatedData.blocks.get(index).state();
+        // 计算旋转（与buildBlueprintPositions保持一致）
+        int scannerFacingValue = this.loadedStructure.scannerFacing;
+        int placerRotation = switch (facing) {
+            case NORTH -> 0; case EAST -> 1; case SOUTH -> 2; case WEST -> 3;
+            default -> 0;
+        };
+        int scannerCorrection = switch (scannerFacingValue) {
+            case 2 -> 2; case 3 -> 2; case 4 -> 3; case 5 -> 1;
+            default -> 0;
+        };
+        int extraFlip = (scannerFacingValue == 3) ? 2 : 0;
+        int rotationSteps = (placerRotation + scannerCorrection + extraFlip) % 4;
+        
+        net.minecraft.world.level.block.Rotation rotation = switch (rotationSteps) {
+            case 1 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_90;
+            case 2 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
+            case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
+            default -> net.minecraft.world.level.block.Rotation.NONE;
+        };
+        
+        // 获取原始方块状态并旋转
+        StructureLoadUtil.StructureData originalData = this.loadedStructure;
+        if (index < 0 || index >= originalData.blocks.size()) return;
+        
+        BlockState originalState = originalData.blocks.get(index).state();
+        BlockState rotatedState = originalState.rotate(rotation);
         BlockState worldState = level.getBlockState(targetPos);
-        Direction placerFacing = level.getBlockState(this.getBlockPos()).getValue(HorizontalDirectionalBlock.FACING);
         
-        // 计算蓝图整体旋转角度（已包含放置器朝向修正）
-        int rotationSteps = calculateRotationStepsStatic(placerFacing, rotatedData.scannerFacing);
+        if (worldState.getBlock() != rotatedState.getBlock()) return;
         
-        // 尝试应用 BlockStateProperties.HORIZONTAL_FACING
-        if (rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING)
-            && worldState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING)) {
-            Direction blueprintFacing = rotatedState.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING);
-            Direction finalFacing = applyFacingCorrection(blueprintFacing, rotationSteps, rotatedData.scannerFacing, placerFacing);
-            
-            BlockState correctedState = worldState.setValue(
-                net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, finalFacing);
-            level.setBlock(targetPos, correctedState, 3);
-            return;
+        // 调试
+        if (rotatedState.getBlock() instanceof net.minecraft.world.level.block.StairBlock) {
+            System.out.println("[应用朝向] 索引=" + index + ", 原始=" + originalState + ", 旋转后=" + rotatedState);
         }
         
-        // 尝试应用 HorizontalDirectionalBlock.FACING
-        if (rotatedState.hasProperty(HorizontalDirectionalBlock.FACING)
-            && worldState.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            Direction blueprintFacing = rotatedState.getValue(HorizontalDirectionalBlock.FACING);
-            Direction finalFacing = applyFacingCorrection(blueprintFacing, rotationSteps, rotatedData.scannerFacing, placerFacing);
-            
-            BlockState correctedState = worldState.setValue(HorizontalDirectionalBlock.FACING, finalFacing);
-            level.setBlock(targetPos, correctedState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+        if (!worldState.equals(rotatedState)) {
+            level.setBlock(targetPos, rotatedState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
         }
     }
     
-    /**
-     * 根据扫描器朝向和放置器朝向应用方块朝向修正
-     * 注意：rotatedState已经是经过rotateBlockStateStatic旋转过的，这里需要应用：
-     * 1. scannerFacing的额外修正
-     * 2. placerFacing的额外修正（因为rotationSteps计算中的placerIndex修正导致不同朝向可能得到相同rotationSteps）
-     * 
-     * @param blueprintFacing 蓝图中的朝向（已通过rotateBlockStateStatic旋转）
-     * @param rotationSteps 蓝图整体旋转步数
-     * @param scannerFacing 扫描器朝向（StructureData中的scannerFacing值）
-     * @param placerFacing 放置器朝向
-     * @return 修正后的最终朝向
-     */
-    private Direction applyFacingCorrection(Direction blueprintFacing, int rotationSteps, int scannerFacing, Direction placerFacing) {
-        // 第一步：根据scannerFacing应用额外修正
-        int extraCorrection = switch (scannerFacing) {
-            case 2 -> 3;  // Scanner NORTH: 逆时针+90度(顺时针+3)
-            case 3 -> 1;  // Scanner SOUTH: 顺时针+90度
-            case 5 -> 2;  // Scanner EAST: 旋转180度(顺时针+2)
-            case 4 -> 0;  // Scanner WEST: 不需要额外修正
-            default -> 0;
-        };
-        
-        // 第二步：根据placerFacing和scannerFacing的组合应用修正
-        // 规律：每个scanner朝向有一个基准放置器
-        // Scanner WEST → 基准WEST(3), NORTH → 基准SOUTH(2), SOUTH → 基准NORTH(0), EAST → 基准EAST(1)
-        int basePlacerIndex = switch (scannerFacing) {
-            case 4 -> 3;  // Scanner WEST → 基准WEST
-            case 2 -> 2;  // Scanner NORTH → 基准SOUTH
-            case 3 -> 0;  // Scanner SOUTH → 基准NORTH
-            case 5 -> 1;  // Scanner EAST → 基准EAST
-            default -> 0;
-        };
-        
-        int actualPlacerIndex = switch (placerFacing) {
-            case NORTH -> 0;
-            case EAST -> 1;
-            case SOUTH -> 2;
-            case WEST -> 3;
-            default -> 0;
-        };
-        
-        int totalCorrection = (basePlacerIndex - actualPlacerIndex + 4) % 4;
-        
-        if (totalCorrection == 0) {
-            return blueprintFacing;  // 不需要修正
-        }
-        
-        int facingIndex = switch (blueprintFacing) {
-            case NORTH -> 0;
-            case EAST -> 1;
-            case SOUTH -> 2;
-            case WEST -> 3;
-            default -> 0;
-        };
-        int finalIndex = (facingIndex - totalCorrection + 4) % 4;  // 逆时针旋转
-        
-        return switch (finalIndex) {
-            case 0 -> Direction.NORTH;
-            case 1 -> Direction.EAST;
-            case 2 -> Direction.SOUTH;
-            case 3 -> Direction.WEST;
-            default -> blueprintFacing;
-        };
-    }
-    
-    /**
-     * 静态版本：根据扫描器朝向和放置器朝向应用方块朝向修正（用于结构旋转）
-     */
-    private static BlockState applyFacingCorrectionStatic(BlockState state, int rotationSteps, int scannerFacing, Direction placerFacing) {
-        // 尝试处理 BlockStateProperties.HORIZONTAL_FACING
-        if (state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING)) {
-            Direction facing = state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING);
-            Direction correctedFacing = applyFacingCorrectionLogic(facing, rotationSteps, scannerFacing, placerFacing);
-            if (correctedFacing != facing) {
-                return state.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, correctedFacing);
-            }
-        }
-        
-        // 尝试处理 HorizontalDirectionalBlock.FACING
-        if (state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
-            Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
-            Direction correctedFacing = applyFacingCorrectionLogic(facing, rotationSteps, scannerFacing, placerFacing);
-            if (correctedFacing != facing) {
-                return state.setValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING, correctedFacing);
-            }
-        }
-        
-        return state;
-    }
-    
-    /**
-     * 应用朝向修正的核心逻辑
-     */
-    private static Direction applyFacingCorrectionLogic(Direction blueprintFacing, int rotationSteps, int scannerFacing, Direction placerFacing) {
-        // 第二步：根据placerFacing和scannerFacing的组合应用修正
-        // 规律：每个scanner朝向有一个基准放置器
-        // Scanner WEST → 基准WEST(3), NORTH → 基准SOUTH(2), SOUTH → 基准NORTH(0), EAST → 基准EAST(1)
-        int basePlacerIndex = switch (scannerFacing) {
-            case 4 -> 3;  // Scanner WEST → 基准WEST
-            case 2 -> 2;  // Scanner NORTH → 基准SOUTH
-            case 3 -> 0;  // Scanner SOUTH → 基准NORTH
-            case 5 -> 1;  // Scanner EAST → 基准EAST
-            default -> 0;
-        };
-        
-        int actualPlacerIndex = switch (placerFacing) {
-            case NORTH -> 0;
-            case EAST -> 1;
-            case SOUTH -> 2;
-            case WEST -> 3;
-            default -> 0;
-        };
-        
-        int totalCorrection = (basePlacerIndex - actualPlacerIndex + 4) % 4;
-        
-        if (totalCorrection == 0) {
-            return blueprintFacing;  // 不需要修正
-        }
-        
-        int facingIndex = switch (blueprintFacing) {
-            case NORTH -> 0;
-            case EAST -> 1;
-            case SOUTH -> 2;
-            case WEST -> 3;
-            default -> 0;
-        };
-        int finalIndex = (facingIndex - totalCorrection + 4) % 4;  // 逆时针旋转
-        
-        return switch (finalIndex) {
-            case 0 -> Direction.NORTH;
-            case 1 -> Direction.EAST;
-            case 2 -> Direction.SOUTH;
-            case 3 -> Direction.WEST;
-            default -> blueprintFacing;
-        };
-    }
 
     /**
      * 检查方块是否正在被智能放置器移动

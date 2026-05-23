@@ -148,7 +148,7 @@ public class StructureBookUtil {
             dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN
         );
         
-        // 旋转结构数据(与buildBlueprintPositions保持一致)
+        // 旋转结构数据（使用Minecraft原生的Rotation API，与buildBlueprintPositions保持一致）
         StructureLoadUtil.StructureData rotatedData = 
             SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
                 loadedStructure, level, placerPos

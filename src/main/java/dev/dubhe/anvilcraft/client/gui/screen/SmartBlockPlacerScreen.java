@@ -1235,6 +1235,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     
     /**
      * 为预览旋转结构方块（直接使用 SmartBlockPlacerBlockEntity.rotateStructureDataStatic 确保一致性）
+     * 注意：使用Minecraft原生的Rotation API进行旋转
      */
     private List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotateStructureForPreview(
         dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData data,
@@ -1252,7 +1253,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             return data.blocks;
         }
         
-        // 使用服务端的旋转方法
+        // 使用服务端的方法（使用Minecraft原生Rotation API旋转）
         var rotatedData = dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
             data,
             this.minecraft.level,
@@ -1261,148 +1262,5 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         
         return rotatedData.blocks;
     }
-    
-    /**
-     * 计算放置器和扫描器之间的相对旋转步数
-     * 
-     * @param placerFacing 放置器朝向
-     * @param scannerFacingValue 扫描器朝向值
-     * @return 旋转步数(0-3)
-     */
-    private int calculatePreviewRotationSteps(Direction placerFacing, int scannerFacingValue) {
-        // Scanner朝向与放置器朝向的映射关系
-        // 映射规则:南北方向保持不变,东西方向镜像
-        int rotationAfterGlobalFix = getRotationAfterGlobalFix(placerFacing, scannerFacingValue);
 
-        // 根据scannerFacing添加额外修正
-        int extraCorrection = switch (scannerFacingValue) {
-            case 2 -> 3;  // NORTH: 逆时针+90度(顺时针+3)
-            case 3 -> 1;  // SOUTH: 顺时针+90度
-            case 5 -> 2;  // EAST: 旋转180度(顺时针+2)
-            default -> 0;  // WEST不需要额外修正
-        };
-        
-        return (rotationAfterGlobalFix + extraCorrection) % 4;
-    }
-
-    private int getRotationAfterGlobalFix(Direction placerFacing, int scannerFacingValue) {
-        int scannerToPlacerMapping = switch (scannerFacingValue) {
-            case 2 -> 2;  // Scanner北 → 放置器北
-            case 3 -> 3;  // Scanner南 → 放置器南
-            case 4 -> 5;  // Scanner西 → 放置器东
-            case 5 -> 4;  // Scanner东 → 放置器西
-            default -> scannerFacingValue;
-        };
-
-        // 转换为0-3的索引用于计算旋转
-        int placerIndex = getPlacerIndex(placerFacing);
-        int scannerIndex = getScannerIndex(scannerToPlacerMapping);
-
-        // 计算基础旋转步数并应用全局修正
-        return calculateBaseRotationWithGlobalFix(placerIndex, scannerIndex);
-    }
-
-    /**
-     * 计算基础旋转步数并应用全局修正（所有方向逆时针旋转90度）
-     * 
-     * @param placerIndex 放置器索引
-     * @param scannerIndex 扫描器索引
-     * @return 应用全局修正后的旋转步数
-     */
-    private int calculateBaseRotationWithGlobalFix(int placerIndex, int scannerIndex) {
-        // 计算基础旋转步数（顺时针）
-        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
-        
-        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
-        return (baseRotation + 3) % 4;
-    }
-    
-    /**
-     * 获取放置器朝向的索引(带修正)
-     */
-    private int getPlacerIndex(Direction placerFacing) {
-        return switch (placerFacing) {
-            case NORTH -> 0;  // 北：无修正
-            case EAST -> (1 + 3) % 4;  // 东：+3
-            case SOUTH -> (2 + 2) % 4;  // 南：+2
-            case WEST -> (3 + 1) % 4;   // 西：+1
-            default -> 0;
-        };
-    }
-    
-    /**
-     * 获取扫描器朝向的索引
-     */
-    private int getScannerIndex(int scannerToPlacerMapping) {
-        return switch (scannerToPlacerMapping) {
-            case 2 -> 0;  // NORTH
-            case 5 -> 1;  // EAST
-            case 3 -> 2;  // SOUTH
-            case 4 -> 3;  // WEST
-            default -> 0;
-        };
-    }
-    
-    /**
-     * 旋转方块的朝向属性（用于预览）
-     */
-    private BlockState rotateBlockStateForPreview(BlockState state, int rotationSteps) {
-        if (rotationSteps == 0) return state;
-        
-        // 尝试处理 BlockStateProperties.HORIZONTAL_FACING（原版方块如 stairs、fence gate 等）
-        if (state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING)) {
-            Direction facing = state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING);
-            
-            int facingIndex = switch (facing) {
-                case NORTH -> 0;
-                case EAST -> 1;
-                case SOUTH -> 2;
-                case WEST -> 3;
-                default -> -1;
-            };
-            
-            if (facingIndex >= 0) {
-                // 逆时针旋转（统一顺时针转90度的修正）
-                int rotatedIndex = (facingIndex - rotationSteps + 4) % 4;
-                Direction rotatedFacing = switch (rotatedIndex) {
-                    case 0 -> Direction.NORTH;
-                    case 1 -> Direction.EAST;
-                    case 2 -> Direction.SOUTH;
-                    case 3 -> Direction.WEST;
-                    default -> facing;
-                };
-                
-                return state.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
-            }
-        }
-        
-        // 尝试处理 HorizontalDirectionalBlock.FACING（自定义方块）
-        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-            
-            int facingIndex = switch (facing) {
-                case NORTH -> 0;
-                case EAST -> 1;
-                case SOUTH -> 2;
-                case WEST -> 3;
-                default -> -1;
-            };
-            
-            if (facingIndex >= 0) {
-                // 逆时针旋转（统一顺时针转90度的修正）
-                int rotatedIndex = (facingIndex - rotationSteps + 4) % 4;
-                Direction rotatedFacing = switch (rotatedIndex) {
-                    case 0 -> Direction.NORTH;
-                    case 1 -> Direction.EAST;
-                    case 2 -> Direction.SOUTH;
-                    case 3 -> Direction.WEST;
-                    default -> facing;
-                };
-                
-                return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
-            }
-        }
-        
-        return state;
-    }
 }
