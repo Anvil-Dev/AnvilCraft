@@ -21,6 +21,6 @@ navigation:
 1. 脉冲发生器设置为循环模式：每间隔 5gt 发出长度 3gt 的信号；驱动活塞运行
 2. 箱子上的磁性溜槽设置过滤：过筛原料
 
-- 所有 <translate key="block.minecraft.smooth_stone"/> 可替换为 任意完整不透明方块
-- 所有 <translate key="block.minecraft.smooth_stone_slab"/> 可替换为 任意台阶
-- 所有 <translate key="block.minecraft.anvil"/> 可替换为 任意铁砧
+- 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
+- 所有 <ref item="minecraft:smooth_stone_slab"/> 可替换为 任意台阶
+- 所有 <ref item="minecraft:anvil"/> 可替换为 任意铁砧

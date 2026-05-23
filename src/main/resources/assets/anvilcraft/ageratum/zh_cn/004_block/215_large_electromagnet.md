@@ -14,11 +14,11 @@ items:
 <item id="anvilcraft:deflection_ring"/>
 </row>
 
-# <translate key="block.anvilcraft.acceleration_ring"/>
+# <ref item="anvilcraft:acceleration_ring"/>
 
 - 通过[多方块转化](210_giant_anvil.md#功能)获得
 - 启用耗电量256kW，受到红石信号停用
-- 朝上摆放时，启用时，可以吸引12格以内的[<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)。中间不能有方块阻挡
+- 朝上摆放时，启用时，可以吸引12格以内的<ref item="anvilcraft:giant_anvil"/>。中间不能有方块阻挡
 - 两个相同方向的启用的加速环之间会形成*加速区间*
 
 ## 加速区间
@@ -29,11 +29,11 @@ items:
 - 弹射物
 - 玩家(装备至少两件装备且头戴铁砧锤)
 
-# <translate key="block.anvilcraft.deflection_ring"/>
+# <ref item="anvilcraft:deflection_ring"/>
 
 - 通过[多方块转化](210_giant_anvil.md#功能)获得
 - 启用耗电量256kW，受到红石信号停用
-- 竖直摆放时，启用时，可以吸引12格以内的[<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)。中间不能有方块阻挡
+- 竖直摆放时，启用时，可以吸引12格以内的<ref item="anvilcraft:giant_anvil"/>。中间不能有方块阻挡
 - 启用时，扭曲前文中被加速的实体的运动，使其前进方向沿**环外箭头**所示方向旋转90°
 
 # 铁砧撞击合成
@@ -54,7 +54,7 @@ items:
 
 ## 控制速度
 
-- <translate key="block.minecraft.comparator"/>可以从[<translate key="block.anvilcraft.deflection_ring"/>](215_large_electromagnet.md)读取经过的铁砧的速度(单位: m/tick)并输出红石信号
+- <ref item="minecraft:comparator"/>可以从<ref item="anvilcraft:deflection_ring"/>读取经过的铁砧的速度(单位: m/tick)并输出红石信号
 - 输出公式： 红石信号 = 2*[(以2为底,速度的对数) - 1] 向上取整，最后取值约束在0-15之间
 
 > 32 < V ≤ 45.25 : 强度 9
@@ -69,10 +69,10 @@ items:
 铁砧移动30s后会变为物品，注意运行时间
 </warning>
 
-1. 检测铁砧达到一定速度后，对[<translate key="block.anvilcraft.deflection_ring"/>](215_large_electromagnet.md)施加红石信号使其失效
+1. 检测铁砧达到一定速度后，对<ref item="anvilcraft:deflection_ring"/>施加红石信号使其失效
 2. 铁砧就可以从此处飞出加速装置，进入撞击室
-3. 别忘了提前通过铁砧砸击[<translate key="block.anvilcraft.block_placer"/>](001_block_placer.md)，使其隔着墙壁放置被撞击方块
-4. 使用[<translate key="block.anvilcraft.item_collector"/>](101_item_collector.md)隔墙收集
+3. 别忘了提前通过铁砧砸击<ref item="anvilcraft:block_placer"/>，使其隔着墙壁放置被撞击方块
+4. 使用<ref item="anvilcraft:item_collector"/>隔墙收集
 
 ## 合成细节
 
@@ -83,7 +83,7 @@ items:
 
 ## 相关
 
-- [<translate key="item.anvilcraft.uranium_ingot"/>](../002_material/301_uranium.md)
-- [<translate key="item.anvilcraft.negative_matter"/>](../002_material/301_negative_matter.md)
-- [<translate key="item.anvilcraft.multiphase_matter"/>](../002_material/301_multiphase_matter.md)
+- <ref item="anvilcraft:uranium_ingot"/>
+- <ref item="anvilcraft:negative_matter"/>
+- <ref item="anvilcraft:multiphase_matter"/>
 - [超温的余烬金属块](../001_feature/301_overheated_block.md)

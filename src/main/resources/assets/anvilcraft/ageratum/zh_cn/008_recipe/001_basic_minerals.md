@@ -30,7 +30,7 @@ navigation:
 
 [~~预制菜~~预制机器](../009_machine/002_stone.md)
 
-# <translate key="item.minecraft.gold_ingot"/>-<translate key="item.minecraft.clay_ball"/>产线
+# <ref item="minecraft:gold_ingot"/>-<ref item="minecraft:clay_ball"/>产线
 
 <row halign="center">
 <recipe id="anvilcraft:block_crush/gravel"/>
@@ -38,7 +38,7 @@ navigation:
 <recipe id="anvilcraft:mesh/sand"/>
 </row>
 
-# <translate key="item.minecraft.quartz"/>循环产线
+# <ref item="minecraft:quartz"/>循环产线
 
 <row halign="center">
 <recipe id="minecraft:diorite"/>
@@ -46,7 +46,7 @@ navigation:
 <recipe id="anvilcraft:mesh/quartz_sand"/>
 </row>
 
-# <translate key="item.minecraft.copper_ingot"/>-<translate key="item.minecraft.glowstone_dust"/>产线
+# <ref item="minecraft:copper_ingot"/>-<ref item="minecraft:glowstone_dust"/>产线
 
 <row halign="center">
 <recipe id="minecraft:granite"/>
@@ -62,7 +62,7 @@ navigation:
 <recipe id="anvilcraft:mesh/cinerite"/>
 </row>
 
-# [<translate key="item.anvilcraft.tungsten_ingot"/>](../002_material/003_common_nugget.md)-<translate key="item.minecraft.redstone"/>产线
+# <ref item="anvilcraft:tungsten_ingot"/>-<ref item="minecraft:redstone"/>产线
 
 <row halign="center">
 <recipe id="anvilcraft:rotten_flesh_block"/>
@@ -72,9 +72,9 @@ navigation:
 </row>
 > 也可以考虑在下界自己挖下界岩
 
-# [<translate key="item.anvilcraft.titanium_ingot"/>](../002_material/003_common_nugget.md)-[<translate key="item.anvilcraft.levitation_powder"/>](../002_material/009_levitation_powder.md)产线
+# <ref item="anvilcraft:titanium_ingot"/>-<ref item="anvilcraft:levitation_powder"/>产线
 
 <row halign="center">
-生产[<translate key="block.anvilcraft.end_dust"/>](../001_feature/002_end_portal.md)
+生产<ref item="anvilcraft:end_dust"/>
 <recipe id="anvilcraft:mesh/end_dust"/>
 </row>

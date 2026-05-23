@@ -50,7 +50,7 @@ items:
 # 功能
 
 - 用于合成机器
-- 与[<translate key="item.anvilcraft.royal_steel_upgrade_smithing_template"/>](109_royal_template.md)配合，升级工具
+- 与<ref item="anvilcraft:royal_steel_upgrade_smithing_template"/>配合，升级工具
     - 工具拥有<color=#47d9e1> 钻石品质 </color>
 
 <row halign="center">

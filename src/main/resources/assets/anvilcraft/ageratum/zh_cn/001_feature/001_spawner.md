@@ -12,7 +12,7 @@ navigation:
 
 # 特性
 
-被铁砧砸中的<translate key="block.minecraft.spawner"/>会立刻尝试一次刷怪
+被铁砧砸中的<ref item="minecraft:spawner"/>会立刻尝试一次刷怪
 
 <structure id="../structures/spawner.snbt"/>
 

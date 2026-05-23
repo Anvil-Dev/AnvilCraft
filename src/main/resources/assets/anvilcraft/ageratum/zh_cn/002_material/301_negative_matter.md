@@ -28,14 +28,14 @@ items:
 
 ## 发电
 
-- [<translate key="block.anvilcraft.negative_matter_block"/>](301_negative_matter.md)蕴含了的丰富虚空能，可以增强[<translate key="block.anvilcraft.void_energy_collector"/>](../003_power/201_void_energy_collection.md)的发电能力：
-  - 对[<translate key="block.anvilcraft.void_energy_collector"/>](../003_power/201_void_energy_collection.md)而言，检测范围内每一个的负物质会抵消物质带来的影响
+- <ref item="anvilcraft:negative_matter_block"/>蕴含了的丰富虚空能，可以增强<ref item="anvilcraft:void_energy_collector"/>的发电能力：
+  - 对<ref item="anvilcraft:void_energy_collector"/>而言，检测范围内每一个的负物质会抵消物质带来的影响
   - 多余的负物质可以增加发电量：
     - 11个及以上：1024kW
     - 21个及以上：2048kW
     - 41个及以上：4096kW
 
-> [<translate key="block.anvilcraft.negative_matter_block"/>](301_negative_matter.md)相对稳定，可以用其配合[<translate key="block.anvilcraft.void_matter_block"/>](140_void_matter.md)填充发电机的检测范围，
+> <ref item="anvilcraft:negative_matter_block"/>相对稳定，可以用其配合<ref item="anvilcraft:void_matter_block"/>填充发电机的检测范围，
 > 使其无法生成物质方块，搭建一个无需维护的发电机结构
 
 ---

@@ -12,9 +12,9 @@ navigation:
 
 建造这样一台**巨型铁砧树场**，原木就能源源不断进入箱子，并且不消耗骨粉
 
-1. 使用[<translate key="block.anvilcraft.induction_light"/>](../004_block/101_induction_light.md)加快大树的生长
-2. 使用[<translate key="block.anvilcraft.giant_anvil"/>](../004_block/210_giant_anvil.md)撼地的冲击波破坏大树
-3. 使用[<translate key="block.anvilcraft.item_collector"/>](../004_block/101_item_collector.md)范围收集掉落物
+1. 使用<ref item="anvilcraft:induction_light"/>加快大树的生长
+2. 使用<ref item="anvilcraft:giant_anvil"/>撼地的冲击波破坏大树
+3. 使用<ref item="anvilcraft:item_collector"/>范围收集掉落物
 
 ## 图示
 
@@ -32,5 +32,5 @@ navigation:
 2. *物品收集器*下方的溜槽设置过滤: 树苗
 3. *物品收集器*侧边的溜槽设置过滤: 原木、木棍
 
-- 所有 <translate key="block.minecraft.glass"/> 可替换为 任意完整方块
-- 所有 <translate key="block.minecraft.smooth_stone"/> 可替换为 任意完整不透明方块
+- 所有 <ref item="minecraft:glass"/> 可替换为 任意完整方块
+- 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块

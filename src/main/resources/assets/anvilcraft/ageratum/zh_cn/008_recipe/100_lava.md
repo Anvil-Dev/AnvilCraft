@@ -19,5 +19,5 @@ navigation:
 <recipe id="anvilcraft:super_heating/lava_from_cobblestone"/>
 </row>
 
-> [<translate key="item.anvilcraft.lime_powder"/>](../002_material/004_lime_powder.md)也可以通过消耗其他材料获得
-> <translate key="block.minecraft.cobblestone"/>可以替换为任意石头
+> <ref item="anvilcraft:lime_powder"/>也可以通过消耗其他材料获得
+> <ref item="minecraft:cobblestone"/>可以替换为任意石头

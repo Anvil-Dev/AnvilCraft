@@ -38,7 +38,7 @@ items:
 # 功能
 
 - 用于合成机器
-- 与[<translate key="item.anvilcraft.ember_metal_upgrade_smithing_template"/>](210_ember_template.md)配合，升级工具
+- 与<ref item="anvilcraft:ember_metal_upgrade_smithing_template"/>配合，升级工具
 
 # 余烬金属工具
 

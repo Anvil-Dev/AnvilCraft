@@ -9,14 +9,14 @@ items:
 
 # 铁砧：物品加工
 
-让<translate key="block.minecraft.anvil"/>落在特定方块上就可以加工该方块顶部或内部的物品，不同的特定方块有不同的处理，本条目的后续页面依次介绍
+让<ref item="minecraft:anvil"/>落在特定方块上就可以加工该方块顶部或内部的物品，不同的特定方块有不同的处理，本条目的后续页面依次介绍
 
 <warning>
-注意：<translate key="block.minecraft.anvil"/>从高度不低于2格的砸落时，有概率损坏
+注意：<ref item="minecraft:anvil"/>从高度不低于2格的砸落时，有概率损坏
 </warning>
 
 <tip>
-查看此页面之前，了解[<translate key="block.anvilcraft.magnet_block"/>](../002_material/001_magnet.md)会让你更方便地加工
+查看此页面之前，了解<ref item="anvilcraft:magnet_block"/>会让你更方便地加工
 </tip>
 
 <row halign="center">
@@ -25,7 +25,7 @@ items:
 </row>
 
 # 冲压
-下方是[<translate key="block.anvilcraft.stamping_platform"/>](000_item_processing.md)时，执行**物品冲压**操作，产物会从平台前掉出
+下方是<ref item="anvilcraft:stamping_platform"/>时，执行**物品冲压**操作，产物会从平台前掉出
 
 <row halign="center">
 <structure id="../structures/item_stamping.snbt"/>
@@ -42,7 +42,7 @@ items:
 </info>
 
 # 粉碎
-下方是[<translate key="block.anvilcraft.crushing_table"/>](000_item_processing.md)时，执行**物品粉碎**操作，原料放在平台上，产物从下方掉出
+下方是<ref item="anvilcraft:crushing_table"/>时，执行**物品粉碎**操作，原料放在平台上，产物从下方掉出
 
 <row halign="center">
 <structure id="../structures/item_crush.snbt"/>
@@ -57,7 +57,7 @@ items:
 
 # 压缩
 
-下方是<translate key="item.minecraft.cauldron"/>时，执行**物品压缩**操作，原料和产物都在锅中
+下方是<ref item="minecraft:cauldron"/>时，执行**物品压缩**操作，原料和产物都在锅中
 
 <row halign="center">
 <structure id="../structures/item_compress.snbt"/>
@@ -70,7 +70,7 @@ items:
 
 # 分解
 
-下方是<translate key="block.minecraft.iron_trapdoor"/>时，执行**物品分解**操作，原料置于铁活版门上，产物出现在铁活版门下
+下方是<ref item="minecraft:iron_trapdoor"/>时，执行**物品分解**操作，原料置于铁活版门上，产物出现在铁活版门下
 
 <row halign="center">
 <structure id="../structures/unpack.snbt"/>
@@ -97,7 +97,7 @@ items:
 
 # 过筛
 
-下方是<translate key="block.minecraft.scaffolding"/>时，执行**物品过筛**操作，原料置于脚手架上，产物出现在脚手架下
+下方是<ref item="minecraft:scaffolding"/>时，执行**物品过筛**操作，原料置于脚手架上，产物出现在脚手架下
 
 <row halign="center">
 <structure id="../structures/mesh.snbt"/>
@@ -110,7 +110,7 @@ items:
 
 # 膨发
 
-下方是装水<translate key="item.minecraft.cauldron"/>时，执行**物品膨发**操作，原料和产物都在锅中，消耗一层水
+下方是装水<ref item="minecraft:cauldron"/>时，执行**物品膨发**操作，原料和产物都在锅中，消耗一层水
 
 <row halign="center">
 <structure id="../structures/bulging.snbt"/>
@@ -127,7 +127,7 @@ items:
 
 # 烹饪
 
-下方是<translate key="item.minecraft.cauldron"/>和<translate key="block.minecraft.campfire"/>时， 执行**物品膨发**操作，原料和产物都在锅中，有的配方需要水
+下方是<ref item="minecraft:cauldron"/>和<ref item="minecraft:campfire"/>时， 执行**物品膨发**操作，原料和产物都在锅中，有的配方需要水
 
 <row halign="center">
 <structure id="../structures/cooking.snbt"/>

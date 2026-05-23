@@ -13,7 +13,7 @@ items:
 ## 功能
 
 - 加热上方的[可加热方块]
-- 和<translate key="item.minecraft.cauldron"/>组成结构，执行**高温熔炼**操作
+- 和<ref item="minecraft:cauldron"/>组成结构，执行**高温熔炼**操作
 - 工作耗电16kW，电力不足时无法工作
 
 ## 高温熔炼

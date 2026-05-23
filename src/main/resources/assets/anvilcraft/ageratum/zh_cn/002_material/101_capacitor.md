@@ -18,9 +18,9 @@ items:
 <item id="anvilcraft:supercapacitor_empty"/>
 </row>
 
-# [<translate key="item.anvilcraft.capacitor"/>](101_capacitor.md)
+# <ref item="anvilcraft:capacitor"/>
 
-- 能够配合[<translate key="block.anvilcraft.charger"/>](../003_power/102_power_charge.md)存储电能或释放电能
+- 能够配合<ref item="anvilcraft:charger"/>存储电能或释放电能
 
 <recipe id="anvilcraft:capacitor_empty"/>
 
@@ -31,7 +31,7 @@ items:
 
 ---
 
-# <translate key="item.anvilcraft.supercapacitor"/>
+# <ref item="anvilcraft:supercapacitor"/>
 
 树脂块内必须装有苦力怕
 

@@ -19,9 +19,9 @@ items:
 
 ## 获取
 
-1. 完全使用[<translate key="block.anvilcraft.cursed_gold_block"/>](../002_material/122_cruse_gold.md)作为信标底座，
-2. 消耗[<translate key="item.anvilcraft.cursed_gold_ingot"/>](../002_material/122_cruse_gold.md)激活信标
-3. 信标有概率转化为[<translate key="block.anvilcraft.corrupted_beacon"/>](200_corrupted_beacon.md)(底座层数越多，转化概率越大)，此时天气被控制为雷雨天
+1. 完全使用<ref item="anvilcraft:cursed_gold_block"/>作为信标底座，
+2. 消耗<ref item="anvilcraft:cursed_gold_ingot"/>激活信标
+3. 信标有概率转化为<ref item="anvilcraft:corrupted_beacon"/>(底座层数越多，转化概率越大)，此时天气被控制为雷雨天
 
 | 层数 |  概率  | 基座诅咒金块 |   等价诅咒金锭    | 期望成功转化所需次数 | 95%的把握成功转化所需次数 |
 |:--:|:----:|:------:|:-----------:|:----------:|:--------------:|
@@ -38,7 +38,7 @@ items:
 
 - 此结构可以实现时移操作，此时腐化信标必须是激活状态
 
-> 这意味着如果使用磁铁块控制顶上的铁砧，其必须为[<translate key="block.anvilcraft.hollow_magnet_block"/>](../002_material/001_magnet.md)
+> 这意味着如果使用磁铁块控制顶上的铁砧，其必须为<ref item="anvilcraft:hollow_magnet_block"/>
 
 ## 特性
 

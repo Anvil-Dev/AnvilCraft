@@ -25,4 +25,4 @@ navigation:
 <structure id="../structures/muti_coal_block.snbt"/>
 
 - 运用[多方块合成](../004_block/210_giant_anvil.md)的力量
-- 27个 <translate key="block.minecraft.coal_block"/> ⇒ 1个 <translate key="block.minecraft.diamond_block"/>，转化率更高
+- 27个 <ref item="minecraft:coal_block"/> ⇒ 1个 <ref item="minecraft:diamond_block"/>，转化率更高

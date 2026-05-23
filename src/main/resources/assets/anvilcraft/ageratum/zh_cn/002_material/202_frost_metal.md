@@ -36,7 +36,7 @@ items:
 # 功能
 
 - 用于合成机器
-- 与[<translate key="item.anvilcraft.frost_metal_upgrade_smithing_template"/>](201_frost_template.md)配合，升级工具
+- 与<ref item="anvilcraft:frost_metal_upgrade_smithing_template"/>配合，升级工具
 
 # 浮霜金属工具
 

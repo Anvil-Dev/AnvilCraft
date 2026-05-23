@@ -14,7 +14,7 @@ items:
 <recipe id="anvilcraft:disk"/>
 </row>
 
-可以存储结构，可用于[<translate key="block.anvilcraft.smart_block_placer"/>](101_smart_block_placer.md)的蓝图模式
+可以存储结构，可用于<ref item="anvilcraft:smart_block_placer"/>的蓝图模式
 
 # 结构扫描仪
 

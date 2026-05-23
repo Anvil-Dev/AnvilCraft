@@ -16,8 +16,8 @@ items:
 
 ---
 
-- 落入末地门的方块会变成[<translate key="block.anvilcraft.end_dust"/>](002_end_portal.md)
-- 如果方块是铁砧，还有可能获得[<translate key="block.anvilcraft.spectral_anvil"/>](../004_block/105_spectral_anvil.md)
+- 落入末地门的方块会变成<ref item="anvilcraft:end_dust"/>
+- 如果方块是铁砧，还有可能获得<ref item="anvilcraft:spectral_anvil"/>
 
 <info>
 不必担心原版刷沙机的离去，正在赶来的是：[更好的刷沙机](../009_machine/003_sand.md)

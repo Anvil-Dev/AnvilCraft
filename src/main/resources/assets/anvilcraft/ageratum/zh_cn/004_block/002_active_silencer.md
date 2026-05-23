@@ -12,6 +12,6 @@ items:
 
 # 功能
 
-- [<translate key="block.anvilcraft.active_silencer"/>](002_active_silencer.md)可以消除以其为中心31x31x31内的选定声音
+- <ref item="anvilcraft:active_silencer"/>可以消除以其为中心31x31x31内的选定声音
 - 打开gui可以搜索和屏蔽声音
-> 可通过 [<translate key="item.anvilcraft.disk"/>](../006_prop/011_disk.md) 复制其设置
+> 可通过 <ref item="anvilcraft:disk"/> 复制其设置

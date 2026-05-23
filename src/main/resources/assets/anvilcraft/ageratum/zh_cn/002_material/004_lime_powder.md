@@ -20,11 +20,11 @@ items:
 
 |                                                                           原料 | 产出数量 |
 |-----------------------------------------------------------------------------:|:-----|
-|                                   <translate key="block.minecraft.calcite"/> | 4    |
-|                           <translate key="block.minecraft.dripstone_block"/> | 4    |
-|                         <translate key="block.minecraft.pointed_dripstone"/> | 1    |
-|                             <translate key="item.minecraft.nautilus_shell"/> | 1    |
-| [<translate key="item.anvilcraft.crab_claw"/>](../006_prop/001_crab_claw.md) | 1    |
+|                                   <ref item="minecraft:calcite"/> | 4    |
+|                           <ref item="minecraft:dripstone_block"/> | 4    |
+|                         <ref item="minecraft:pointed_dripstone"/> | 1    |
+|                             <ref item="minecraft:nautilus_shell"/> | 1    |
+| <ref item="anvilcraft:crab_claw"/> | 1    |
 |                                                                       失活的珊瑚块 | 4    |
 |                                                                       失活的珊瑚扇 | 1    |
 

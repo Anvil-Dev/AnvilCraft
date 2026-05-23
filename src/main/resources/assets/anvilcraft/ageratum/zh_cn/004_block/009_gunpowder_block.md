@@ -12,7 +12,7 @@ items:
 
 # 功能
 
-- 被铁砧(除[<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)外)砸击，或被<translate key="item.minecraft.flint_and_steel"/>、<translate key="item.minecraft.fire_charge"/>点燃时爆炸
+- 被铁砧(除<ref item="anvilcraft:giant_anvil"/>外)砸击，或被<ref item="minecraft:flint_and_steel"/>、<ref item="minecraft:fire_charge"/>点燃时爆炸
 - 爆炸产生的冲击波仅造成击退效果，并将砸在上方的铁砧推回原位
 
 # 特性

@@ -6,13 +6,13 @@ navigation:
 
 # 资源：刷铁机
 
-<translate key="item.minecraft.iron_ingot"/>十分重要，因此需要制作一台刷铁机。
+<ref item="minecraft:iron_ingot"/>十分重要，因此需要制作一台刷铁机。
 
-利用[铁砧抢夺](../001_feature/000_anvil_loot.md)配合[发射器修补铁傀儡](../001_feature/000_dispenser.md)的特性，自动生产大量<translate key="item.minecraft.iron_ingot"/>
+利用[铁砧抢夺](../001_feature/000_anvil_loot.md)配合[发射器修补铁傀儡](../001_feature/000_dispenser.md)的特性，自动生产大量<ref item="minecraft:iron_ingot"/>
 
-1. 足够高的<translate key="block.minecraft.anvil"/>砸到铁傀儡时会掉落<translate key="item.minecraft.iron_ingot"/>
-2. 通过<translate key="block.minecraft.dispenser"/>将一部分铁来修复受伤的铁傀儡
-3. 在一只铁傀儡身上得到无限的<translate key="item.minecraft.iron_ingot"/>
+1. 足够高的<ref item="minecraft:anvil"/>砸到铁傀儡时会掉落<ref item="minecraft:iron_ingot"/>
+2. 通过<ref item="minecraft:dispenser"/>将一部分铁来修复受伤的铁傀儡
+3. 在一只铁傀儡身上得到无限的<ref item="minecraft:iron_ingot"/>
 
 ## 图示
 
@@ -29,7 +29,7 @@ navigation:
 - 做完后记得放入一个铁砧
 
 <info>
-- 所有 <translate key="block.minecraft.glass"/> 可替换为 任意完整方块
-- 所有 <translate key="block.minecraft.smooth_stone"/> 可替换为 任意完整不透明方块
-- 所有 <translate key="block.minecraft.smooth_stone_slab"/> 可替换为 任意台阶
+- 所有 <ref item="minecraft:glass"/> 可替换为 任意完整方块
+- 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
+- 所有 <ref item="minecraft:smooth_stone_slab"/> 可替换为 任意台阶
 </info>

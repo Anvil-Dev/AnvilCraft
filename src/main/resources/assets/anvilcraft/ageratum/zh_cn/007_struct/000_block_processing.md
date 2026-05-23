@@ -6,14 +6,14 @@ navigation:
 
 # 铁砧：方块加工
 
-让<translate key="block.minecraft.anvil"/>落在不同的方块上可以触发不同的效果，本条目的后续页面将会依次介绍：
+让<ref item="minecraft:anvil"/>落在不同的方块上可以触发不同的效果，本条目的后续页面将会依次介绍：
 
 <warning>
-<translate key="block.minecraft.anvil"/>从高度不低于2格的砸落时，有概率损坏
+<ref item="minecraft:anvil"/>从高度不低于2格的砸落时，有概率损坏
 </warning>
 
 <tip>
-查看此页面之前，了解[<translate key="block.anvilcraft.magnet_block"/>](../002_material/001_magnet.md)会让你更方便地加工
+查看此页面之前，了解<ref item="anvilcraft:magnet_block"/>会让你更方便地加工
 </tip>
 
 # 方块 + 切石机：方块破坏
@@ -21,8 +21,8 @@ navigation:
 <row halign="center">
 <structure id="../structures/break.snbt"/>
 
-- 可以破坏无法被普通TNT爆炸破坏的方块，如<translate key="block.minecraft.obsidian"/>，但是普通铁砧将固定损坏一个耐久等级。
-- 为了防止方块破坏后铁砧掉在切石机上变为掉落物，你需要控制[<translate key="block.anvilcraft.magnet_block"/>](../002_material/001_magnet.md)收回铁砧的时间。
+- 可以破坏无法被普通TNT爆炸破坏的方块，如<ref item="minecraft:obsidian"/>，但是普通铁砧将固定损坏一个耐久等级。
+- 为了防止方块破坏后铁砧掉在切石机上变为掉落物，你需要控制<ref item="anvilcraft:magnet_block"/>收回铁砧的时间。
 - 属于[铁砧挖掘](../001_feature/000_anvil_destroy.md)的一种实现
 
 </row>
@@ -33,8 +33,8 @@ navigation:
 <row halign="center">
 <structure id="../structures/block_crush.snbt"/>
 
-- <translate key="block.minecraft.cobblestone"/> → <translate key="block.minecraft.gravel"/> → <translate key="block.minecraft.sand"/>
-- <translate key="block.minecraft.polished_granite"/> → <translate key="block.minecraft.granite"/> → <translate key="block.minecraft.red_sand"/>
+- <ref item="minecraft:cobblestone"/> → <ref item="minecraft:gravel"/> → <ref item="minecraft:sand"/>
+- <ref item="minecraft:polished_granite"/> → <ref item="minecraft:granite"/> → <ref item="minecraft:red_sand"/>
 - 有裂纹变种的方块 → 对应的裂纹变种
 - ...
 

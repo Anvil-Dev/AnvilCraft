@@ -29,13 +29,13 @@ items:
 
 # 宝石
 
-除了<translate key="item.minecraft.emerald"/>外，模组添加了：
+除了<ref item="minecraft:emerald"/>外，模组添加了：
 
-- 代表火元素的<translate key="item.anvilcraft.ruby"/>
-- 代表水元素的<translate key="item.anvilcraft.sapphire"/>
-- 代表电元素的<translate key="item.anvilcraft.topaz"/>
+- 代表火元素的<ref item="anvilcraft:ruby"/>
+- 代表水元素的<ref item="anvilcraft:sapphire"/>
+- 代表电元素的<ref item="anvilcraft:topaz"/>
 
-它们和<translate key="item.minecraft.emerald"/>一起，统称为宝石
+它们和<ref item="minecraft:emerald"/>一起，统称为宝石
 
 ## 首次获取
 
@@ -45,4 +45,4 @@ items:
 
 ## 量产
 
-拥有[<translate key="block.anvilcraft.corrupted_beacon"/>](../004_block/200_corrupted_beacon.md)后，可以[量产宝石](../008_recipe/204_gem.md)。但这是后话了，可以先不看
+拥有<ref item="anvilcraft:corrupted_beacon"/>后，可以[量产宝石](../008_recipe/204_gem.md)。但这是后话了，可以先不看

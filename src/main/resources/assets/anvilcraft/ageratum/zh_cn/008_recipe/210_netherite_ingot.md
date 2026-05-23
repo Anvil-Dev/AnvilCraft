@@ -16,8 +16,8 @@ navigation:
 
 # 循环产线
 
-- 利用[<translate key="block.anvilcraft.mineral_fountain"/>](../007_struct/130_mineral_fountain.md)大量生产 <translate key="item.minecraft.gold_ingot"/>
-  和 [<translate key="item.anvilcraft.tungsten_ingot"/>](../002_material/003_common_nugget.md)
+- 利用<ref item="anvilcraft:mineral_fountain"/>大量生产 <ref item="minecraft:gold_ingot"/>
+  和 <ref item="anvilcraft:tungsten_ingot"/>
 
 <row halign="center">
 <recipe id="anvilcraft:stamping/tungsten_pressure_plate"/>

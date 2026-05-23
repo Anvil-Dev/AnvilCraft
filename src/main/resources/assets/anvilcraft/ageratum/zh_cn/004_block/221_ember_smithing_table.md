@@ -17,7 +17,7 @@ items:
 
 - 不消耗任何锻造模板的特殊锻造台
 - 只能用于多合一配方
-- 通常需要配合[<translate key="item.anvilcraft.four_to_one_smithing_template"/>](../004_block/221_ember_smithing_table.md)等多合一模板使用
+- 通常需要配合<ref item="anvilcraft:four_to_one_smithing_template"/>等多合一模板使用
 
 # 多合一锻造模板
 
@@ -31,7 +31,7 @@ items:
 
 ## 合成
 
-- 使用对应数量的任意不同锻造模板，在[<translate key="block.anvilcraft.stamping_platform"/>](../007_struct/000_item_processing.md)砸合而成
+- 使用对应数量的任意不同锻造模板，在<ref item="anvilcraft:stamping_platform"/>砸合而成
 
 > 包括升级装备用的锻造模板和盔甲纹饰的锻造模板皆可，多合一锻造模板也算一种锻造模板
 
@@ -41,7 +41,7 @@ items:
 
 # 模板解离
 
-1. 将有附魔的<translate key="item.anvilcraft.eight_to_one_smithing_template"/>物品实体用任意方式摧毁
+1. 将有附魔的<ref item="anvilcraft:eight_to_one_smithing_template"/>物品实体用任意方式摧毁
 2. 随机取一条附魔(选择有可能重复)，按如下列表生成新物品
 3. 最多选择4次(即最多通过这种方式产生4个新模板)
 
@@ -96,5 +96,5 @@ items:
 </row>
 
 <info>
-如果选择了4次，且4次的结果（指生成的新模板）都不同，则额外生成一个超限[<translate key="item.anvilcraft.transcendium_upgrade_smithing_template"/>](311_transcendium_template.md)
+如果选择了4次，且4次的结果（指生成的新模板）都不同，则额外生成一个超限<ref item="anvilcraft:transcendium_upgrade_smithing_template"/>
 </info>
