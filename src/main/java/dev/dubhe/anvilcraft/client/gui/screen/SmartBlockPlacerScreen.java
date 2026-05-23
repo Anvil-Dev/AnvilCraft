@@ -1234,65 +1234,32 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
     
     /**
-     * 为预览旋转结构方块（与SmartBlockPlacerBlockEntity.rotateStructureData保持一致）
+     * 为预览旋转结构方块（直接使用 SmartBlockPlacerBlockEntity.rotateStructureDataStatic 确保一致性）
      */
     private List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotateStructureForPreview(
         dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData data,
         Direction placerFacing
     ) {
-        // 获取扫描器的朝向
-        int scannerFacingValue = data.scannerFacing;
+        // 直接使用服务端的旋转逻辑，确保预览和实际放置完全一致
+        // 需要创建一个临时的 level 来获取放置器的 blockState
+        if (this.minecraft == null || this.minecraft.level == null) {
+            return data.blocks;  // 无法获取 level，返回原始数据
+        }
         
-        // 计算相对旋转步数
-        int rotationSteps = this.calculatePreviewRotationSteps(placerFacing, scannerFacingValue);
-        if (rotationSteps == 0) {
-            // 不需要旋转，直接返回原始数据
+        // 获取 blockEntity 的位置
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity == null) {
             return data.blocks;
         }
         
-        // 旋转所有方块
-        List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
-        int centerX = data.sizeX / 2;
-        int centerZ = data.sizeZ / 2;
+        // 使用服务端的旋转方法
+        var rotatedData = dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
+            data,
+            this.minecraft.level,
+            blockEntity.getBlockPos()
+        );
         
-        for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition block : data.blocks) {
-            // 计算相对于中心的坐标
-            int relX = block.x() - centerX;
-            int relZ = block.z() - centerZ;
-            
-            // 根据旋转步数旋转坐标
-            int rotatedX = relX;
-            int rotatedZ = relZ;
-            
-            switch (rotationSteps) {
-                case 1 -> {  // 90度顺时针: (x, z) -> (-z, x)
-                    rotatedX = -relZ;
-                    rotatedZ = relX;
-                }
-                case 2 -> {  // 180度: (x, z) -> (-x, -z)
-                    rotatedX = -relX;
-                    rotatedZ = -relZ;
-                }
-                case 3 -> {  // 270度顺时针: (x, z) -> (z, -x)
-                    rotatedX = relZ;
-                    rotatedZ = -relX;
-                }
-                default -> {
-                    // rotationSteps 为 0，不需要旋转
-                }
-            }
-            
-            // 转换回绝对坐标
-            int newX = rotatedX + centerX;
-            int newZ = rotatedZ + centerZ;
-            
-            // 旋转方块朝向
-            BlockState rotatedState = this.rotateBlockStateForPreview(block.state(), rotationSteps);
-            
-            rotatedBlocks.add(new dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition(newX, block.y(), newZ, rotatedState));
-        }
-        
-        return rotatedBlocks;
+        return rotatedData.blocks;
     }
     
     /**
@@ -1382,11 +1349,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private BlockState rotateBlockStateForPreview(BlockState state, int rotationSteps) {
         if (rotationSteps == 0) return state;
         
-        // 获取方块的FACING属性
-        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+        // 尝试处理 BlockStateProperties.HORIZONTAL_FACING（原版方块如 stairs、fence gate 等）
+        if (state.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING)) {
+            Direction facing = state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING);
             
-            // 转换为0-3的索引 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
             int facingIndex = switch (facing) {
                 case NORTH -> 0;
                 case EAST -> 1;
@@ -1396,8 +1362,35 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             };
             
             if (facingIndex >= 0) {
-                // 旋转
-                int rotatedIndex = (facingIndex + rotationSteps) % 4;
+                // 逆时针旋转（统一顺时针转90度的修正）
+                int rotatedIndex = (facingIndex - rotationSteps + 4) % 4;
+                Direction rotatedFacing = switch (rotatedIndex) {
+                    case 0 -> Direction.NORTH;
+                    case 1 -> Direction.EAST;
+                    case 2 -> Direction.SOUTH;
+                    case 3 -> Direction.WEST;
+                    default -> facing;
+                };
+                
+                return state.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
+            }
+        }
+        
+        // 尝试处理 HorizontalDirectionalBlock.FACING（自定义方块）
+        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+            Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+            
+            int facingIndex = switch (facing) {
+                case NORTH -> 0;
+                case EAST -> 1;
+                case SOUTH -> 2;
+                case WEST -> 3;
+                default -> -1;
+            };
+            
+            if (facingIndex >= 0) {
+                // 逆时针旋转（统一顺时针转90度的修正）
+                int rotatedIndex = (facingIndex - rotationSteps + 4) % 4;
                 Direction rotatedFacing = switch (rotatedIndex) {
                     case 0 -> Direction.NORTH;
                     case 1 -> Direction.EAST;
