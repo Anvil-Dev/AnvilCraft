@@ -18,7 +18,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -42,9 +41,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.redstone.Orientation;
-import net.minecraft.world.level.storage.TagValueOutput;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
@@ -183,18 +179,6 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
     }
 
     @Override
-    public void storeData(Level level, BlockPos pos, ValueOutput output) {
-        if (!(level.getBlockEntity(pos) instanceof PropelPistonBlockEntity be)) return;
-        output.putInt("storedEnergyData", be.getStoredEnergy());
-    }
-
-    @Override
-    public void loadData(Level level, BlockPos pos, ValueInput input) {
-        if (!(level.getBlockEntity(pos) instanceof PropelPistonBlockEntity be)) return;
-        be.updateStoredEnergy(input.getIntOr("storedEnergyData", 0));
-    }
-
-    @Override
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
         Direction direction = state.getValue(PropelPistonBlock.FACING);
         if (id == 0) {
@@ -268,14 +252,22 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                 blockPos3 = blockPos3.relative(facing);
                 map.remove(blockPos3);
                 BlockState blockState8 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, facing);
-                TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(log), level.registryAccess());
-                if (list1.get(k).getBlock() instanceof IMoveableEntityBlock block) {
-                    block.storeData(level, blockPos3.relative(facing.getOpposite()), output);
+                BlockEntity blockEntity = null;
+                if (!level.isClientSide()) {
+                    BlockPos relative = blockPos3.relative(facing.getOpposite());
+                    if (
+                        list1.get(k).getBlock() instanceof IMoveableEntityBlock
+                        && level.getBlockEntity(relative) instanceof BlockEntity be
+                    ) {
+                        blockEntity = be;
+                        level.removeBlockEntity(relative);
+                    }
                 }
                 level.setBlock(blockPos3, blockState8, 68);
-                BlockEntity blockEntity = MovingPistonBlock.newMovingBlockEntity(blockPos3, blockState8, list1.get(k), facing, true, false);
-                if (blockEntity instanceof IPistonMovingBlockEntityExtension entity) {
-                    entity.anvillib$setData(output.buildResult());
+                BlockEntity be = MovingPistonBlock.newMovingBlockEntity(blockPos3, blockState8, list1.get(k), facing, true, false);
+                if (be instanceof IPistonMovingBlockEntityExtension entity) {
+                    // noinspection UnstableApiUsage
+                    entity.anvillib$setBlockEntity(blockEntity);
                 }
                 level.setBlockEntity(blockEntity);
                 blockStates[i++] = blockState5;

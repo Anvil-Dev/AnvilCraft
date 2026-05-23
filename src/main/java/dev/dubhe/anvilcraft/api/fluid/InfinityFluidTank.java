@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.api.fluidtank;
+package dev.dubhe.anvilcraft.api.fluid;
 
 import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
 import lombok.Getter;

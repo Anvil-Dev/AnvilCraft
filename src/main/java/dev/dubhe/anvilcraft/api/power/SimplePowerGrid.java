@@ -185,9 +185,7 @@ public class SimplePowerGrid {
         this.shapeFuture = SimplePowerGrid.EXECUTOR.submit(() -> {
             List<VoxelShape> input = new ArrayList<>();
             for (PowerComponentInfo it : this.powerComponentInfoList) {
-                Vec3 center = it.pos().getCenter();
-                float size = it.range() * 2 + 1;
-                input.add(Shapes.create(AABB.ofSize(center, size, size, size)));
+                input.add(Shapes.create(it.boundingBox()));
             }
             // noinspection CatchMayIgnoreException
             try {

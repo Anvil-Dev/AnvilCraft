@@ -8,11 +8,13 @@ repositories {
                 url = "https://server.cjsah.net:1002/maven/"
                 content {
                     includeGroup "dev.anvilcraft.lib"
+                    includeGroup "dev.dubhe"
                 }
             }
         )
         filter {
             includeGroup "dev.anvilcraft.lib"
+            includeGroup "dev.dubhe"
         }
     }
     maven { // Sodium, Embeddium, Iris, Jade

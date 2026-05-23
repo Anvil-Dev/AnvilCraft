@@ -30,7 +30,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     // 这是为了防止放下来之后在“发电了”之后，在“衰变空气”之前破坏方块，来稳定白嫖电力
     private int decayCooldownCount = 1;
     private int blockCount = 0;
-    private PowerGrid grid = null;
+    private @Nullable PowerGrid grid = null;
     private int power = 0;
     @Getter
     private int time = 0;
@@ -205,8 +205,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         if (list.isEmpty()) return;
         int i = random.nextInt(list.size());
         BlockPos bp = list.get(i);
-        BlockState b = level.getBlockState(bp);
-        level.setBlockAndUpdate(bp, VoidMatterBlock.voidDecay(level, bp, b, random));
+        level.setBlockAndUpdate(bp, VoidMatterBlock.voidDecay(level, random));
     }
 
     @Override

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.utility.redstone;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
@@ -10,7 +11,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -34,8 +34,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.redstone.Orientation;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -337,20 +335,19 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    public void storeData(Level level, BlockPos pos, ValueOutput output) {
-        level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get())
-            .ifPresent(be -> output.store("Data", CompoundTag.CODEC, be.exportMoveData()));
-    }
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be1) {
+        PulseGeneratorBlockEntity be = Util.cast(be1);
+        switch (be.getState()) {
+            case WAITING -> level.scheduleTick(pos, state.getBlock(), be.getWaitingTime());
+            case OUTPUTTING -> level.scheduleTick(pos, state.getBlock(), be.getSignalDuration());
+            default -> {
+            }
+        }
+        level.setBlock(pos, state.setValue(PulseGeneratorBlock.POWERED, be.isOutputting()), 3);
 
-    @Override
-    public void loadData(Level level, BlockPos pos, ValueInput input) {
-        level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get())
-            .ifPresent(be -> be.applyMoveData(
-                level,
-                pos,
-                level.getBlockState(pos),
-                input.read("Data", CompoundTag.CODEC).orElse(new CompoundTag())
-            ));
+        this.update(level, pos, () -> state);
+
+        be.setChanged();
     }
 }
 
