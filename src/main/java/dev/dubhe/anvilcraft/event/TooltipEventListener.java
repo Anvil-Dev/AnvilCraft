@@ -5,17 +5,19 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.utility.PillBoxItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.util.Unit;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.util.AttributeTooltipContext;
-import net.neoforged.neoforge.event.AddAttributeTooltipsEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -40,12 +42,13 @@ public class TooltipEventListener {
     ).withColor(0xFFCB62);
 
     @SubscribeEvent
-    public static void onTooltip(AddAttributeTooltipsEvent event) {
-        final ItemStack stack = event.getStack();
-        final AttributeTooltipContext ctx = event.getContext();
-        final TooltipDisplay display = ctx.tooltipDisplay();
-        final Consumer<Component> consumer = event::addTooltipLines;
-        final TooltipFlag flag = ctx.flag();
+    public static void onTooltip(ItemTooltipEvent event) {
+        final ItemStack stack = event.getItemStack();
+        final Item.TooltipContext ctx = event.getContext();
+        final TooltipDisplay display = stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
+        List<Component> tooltips = new ArrayList<>();
+        final Consumer<Component> consumer = tooltips::addFirst;
+        final TooltipFlag flag = event.getFlags();
         final boolean shift = flag.hasShiftDown();
         stack.addToTooltip(
             ModComponents.MERCILESS_ENCHANTMENTS,
@@ -67,6 +70,7 @@ public class TooltipEventListener {
         stack.addToTooltip(ModComponents.BOX_CONTENTS, ctx, display, consumer, flag);
         stack.addToTooltip(ModComponents.OVER_LIMIT_CONTAINER, ctx, display, consumer, flag);
         TooltipEventListener.addSpecialItemTooltips(stack, ctx, display, consumer, flag);
+        event.getToolTip().addAll(0, tooltips);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -88,7 +92,7 @@ public class TooltipEventListener {
 
     private static void addSpecialItemTooltips(
         ItemStack stack,
-        AttributeTooltipContext ctx,
+        Item.TooltipContext ctx,
         TooltipDisplay display,
         Consumer<Component> builder,
         TooltipFlag flag

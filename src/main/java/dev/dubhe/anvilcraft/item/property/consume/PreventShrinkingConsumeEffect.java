@@ -9,9 +9,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 public class PreventShrinkingConsumeEffect implements ConsumeEffect {
-    public static final ThreadLocal<InteractionHand> USED_HAND = new ThreadLocal<>();
+    public static final ThreadLocal<@Nullable InteractionHand> USED_HAND = new ThreadLocal<>();
     public static final PreventShrinkingConsumeEffect INSTANCE = new PreventShrinkingConsumeEffect();
     public static final MapCodec<PreventShrinkingConsumeEffect> CODEC = MapCodec.unit(INSTANCE);
     public static final StreamCodec<ByteBuf, PreventShrinkingConsumeEffect> STREAM_CODEC = StreamCodec.unit(INSTANCE);
