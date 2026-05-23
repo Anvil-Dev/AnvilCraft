@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -148,31 +149,23 @@ public class StructureBookUtil {
             dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN
         );
         
-        // 旋转结构数据（使用Minecraft原生的Rotation API，与buildBlueprintPositions保持一致）
-        StructureLoadUtil.StructureData rotatedData = 
-            SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
-                loadedStructure, level, placerPos
-            );
+        // 使用 buildBlueprintPositions 获取所有实际位置
+        List<net.minecraft.core.BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
+            placerPos, facing, upsideDown, loadedStructure
+        );
         
-        // 计算基准位置
-        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+        if (allPositions.isEmpty() || loadedStructure.blocks.isEmpty()) {
+            return placedBlocks;
+        }
         
         int totalPlaced = 0;
         int totalChecked = 0;
         
-        // 遍历所有结构方块,检查世界中是否已经放置了正确的方块
-        // 使用与buildBlueprintPositions相同的坐标映射: x→col, z→row, y→layer
-        for (var blockPosition : rotatedData.blocks) {
-            int row = blockPosition.z();   // z 对应 row(纵向)
-            int col = blockPosition.x();   // x 对应 col(横向)
-            int layer = blockPosition.y(); // y 对应 layer
-            
-            BlockPos targetPos = SmartBlockPlacerBlockEntity.calculateTargetPosition(
-                basePos, facing, row, col, layer, upsideDown
-            );
-            
+        // 遍历所有位置，检查世界中是否已经放置了正确的方块
+        for (int i = 0; i < loadedStructure.blocks.size() && i < allPositions.size(); i++) {
+            BlockPos targetPos = allPositions.get(i);
             BlockState worldState = level.getBlockState(targetPos);
-            BlockState expectedState = blockPosition.state();
+            BlockState expectedState = loadedStructure.blocks.get(i).state();
             
             totalChecked++;
             

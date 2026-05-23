@@ -1187,9 +1187,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                     }
                 }
                 
-                // 对结构方块应用旋转（与服务端放置逻辑保持一致）
+                // 对结构方块应用旋转和倒挂翻转（与服务端放置逻辑保持一致）
                 List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = 
-                    this.rotateStructureForPreview(loadedStructure, placerFacing);
+                    this.rotateStructureForPreview(loadedStructure, placerFacing, upsideDown);
                 
                 // 渲染旋转后的结构方块
                 for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blockPos : rotatedBlocks) {
@@ -1239,10 +1239,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      */
     private List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotateStructureForPreview(
         dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData data,
-        Direction placerFacing
+        Direction forward,
+        boolean upsideDown
     ) {
         // 直接使用服务端的旋转逻辑，确保预览和实际放置完全一致
-        // 需要创建一个临时的 level 来获取放置器的 blockState
         if (this.minecraft == null || this.minecraft.level == null) {
             return data.blocks;  // 无法获取 level，返回原始数据
         }
@@ -1253,14 +1253,100 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             return data.blocks;
         }
         
-        // 使用服务端的方法（使用Minecraft原生Rotation API旋转）
-        var rotatedData = dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
-            data,
-            this.minecraft.level,
-            blockEntity.getBlockPos()
-        );
+        // 计算旋转步数（与 buildBlueprintPositions 保持一致）
+        int scannerFacingValue = data.scannerFacing;
         
-        return rotatedData.blocks;
+        // 1. 计算放置器朝向的基础旋转
+        int placerRotation = switch (forward) {
+            case NORTH -> 0;
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
+        };
+        
+        // 2. 根据Scanner朝向计算额外修正
+        int scannerCorrection = switch (scannerFacingValue) {
+            case 2 -> 2;  // Scanner北 → +180度
+            case 3 -> 2;  // Scanner南 → +180度
+            case 4 -> 3;  // Scanner西 → +270度
+            case 5 -> 1;  // Scanner东 → +90度
+            default -> 0;
+        };
+        
+        // 3. Scanner朝南时额外+180度（在修正基础上再翻180）
+        int extraFlip = (scannerFacingValue == 3) ? 2 : 0;
+        
+        // 4. 总旋转步数 = 基础旋转 + Scanner修正 + Scanner朝南额外翻转
+        int rotationSteps = (placerRotation + scannerCorrection + extraFlip) % 4;
+        
+        // 转换为Minecraft原生Rotation
+        net.minecraft.world.level.block.Rotation rotation = switch (rotationSteps) {
+            case 1 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_90;
+            case 2 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
+            case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
+            default -> net.minecraft.world.level.block.Rotation.NONE;
+        };
+        
+        // 计算结构中心点
+        int centerX = data.sizeX / 2;
+        int centerZ = data.sizeZ / 2;
+        
+        // 预览中的基准位置（居中显示）
+        int baseX = 2;  // 5x5的中心
+        int baseZ = 2;
+        
+        // 计算left和forward方向（与服务端一致）
+        Direction left = forward.getCounterClockWise();
+
+        // 应用旋转和坐标变换
+        List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
+        for (var blueprintBlock : data.blocks) {
+            // 旋转方块朝向（与服务端一致）
+            net.minecraft.world.level.block.state.BlockState rotatedState = blueprintBlock.state().rotate(rotation);
+            
+            // 倒挂情况下，翻转 half 属性
+            if (upsideDown) {
+                rotatedState = dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(rotatedState);
+            }
+            
+            // 计算相对于中心的偏移（与服务端一致）
+            int offsetX = blueprintBlock.x() - centerX;
+            int offsetZ = blueprintBlock.z() - centerZ;
+            
+            // 使用relative方式计算新坐标（与服务端buildBlueprintPositions完全一致）
+            // 服务端：basePos.relative(left, offsetX).relative(forward, offsetZ)
+            // 预览中：从中心点开始，同样的relative计算
+            int newX = baseX;
+            int newZ = baseZ;
+            
+            // 应用left方向偏移
+            switch (left) {
+                case NORTH -> newZ -= offsetX;
+                case SOUTH -> newZ += offsetX;
+                case EAST -> newX += offsetX;
+                case WEST -> newX -= offsetX;
+                default -> {}
+            }
+            
+            // 应用forward方向偏移
+            switch (forward) {
+                case NORTH -> newZ -= offsetZ;
+                case SOUTH -> newZ += offsetZ;
+                case EAST -> newX += offsetZ;
+                case WEST -> newX -= offsetZ;
+                default -> {}
+            }
+            
+            // 倒挂情况下，翻转 y 坐标，并添加偏移（相对于放置器的Y=4）
+            int newY = upsideDown ? (4 - blueprintBlock.y()) : blueprintBlock.y();
+            
+            rotatedBlocks.add(new dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition(
+                newX, newY, newZ, rotatedState
+            ));
+        }
+        
+        return rotatedBlocks;
     }
 
 }

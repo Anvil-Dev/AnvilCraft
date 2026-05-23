@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -11,8 +13,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,12 +29,28 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class StructureScannerBlock extends BaseEntityBlock {
+public class StructureScannerBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final MapCodec<StructureScannerBlock> CODEC = simpleCodec(StructureScannerBlock::new);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+
+    // 基础碰撞箱(朝北)- 参考原版讲台
+    private static final VoxelShape SHAPE_NORTH = ShapeUtil.merge(
+        Block.box(0, 0, 0, 16, 4, 16),
+        Block.box(4, 4, 4, 12, 14, 12),
+        Block.box(0, 10, 0, 16, 14, 5),
+        Block.box(0, 12, 5, 16, 16, 10),
+        Block.box(0, 14, 10, 16, 18, 15)
+    );
+
+    // 使用 ShapeUtil.rotate 自动生成其他水平朝向
+    private static final VoxelShape SHAPE_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, SHAPE_NORTH);
 
     public StructureScannerBlock(Properties properties) {
         super(properties);
@@ -51,6 +71,23 @@ public class StructureScannerBlock extends BaseEntityBlock {
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    }
+
+    @Override
+    public VoxelShape getShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context
+    ) {
+        Direction facing = state.getValue(FACING);
+        
+        return switch (facing) {
+            case SOUTH -> SHAPE_SOUTH;
+            case WEST -> SHAPE_WEST;
+            case EAST -> SHAPE_EAST;
+            default -> SHAPE_NORTH;
+        };
     }
 
     @Override
