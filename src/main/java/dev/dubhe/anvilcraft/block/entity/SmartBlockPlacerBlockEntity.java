@@ -1235,6 +1235,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             () -> sourceItem,
             (blockItem, blockItemObj, targetPos) -> {
                 BlockState stateToPlace = finalSourceState;
+                
+                // 侦测器不继承POWERED状态
+                if (stateToPlace.is(net.minecraft.world.level.block.Blocks.OBSERVER) 
+                    && stateToPlace.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED)) {
+                    stateToPlace = stateToPlace.setValue(
+                        net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED, 
+                        false
+                    );
+                }
+                
                 if (finalSourceState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)) {
                     stateToPlace = finalSourceState.setValue(
                         net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, 
@@ -1242,6 +1252,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     );
                 }
                 
+                // 先删除源方块
+                IS_BEING_MOVED_BY_PLACER.set(true);
+                try {
+                    level.removeBlock(sourcePos, false);
+                } finally {
+                    IS_BEING_MOVED_BY_PLACER.set(false);
+                }
+                
+                // 放置方块到目标位置
                 level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
                 
                 if (sourceBlockEntityData != null) {
@@ -1252,12 +1271,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     }
                 }
                 
-                IS_BEING_MOVED_BY_PLACER.set(true);
-                try {
-                    level.removeBlock(sourcePos, false);
-                } finally {
-                    IS_BEING_MOVED_BY_PLACER.set(false);
-                }
+                // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的红石信号更新状态
+                level.neighborChanged(targetPos, stateToPlace.getBlock(), targetPos);
                 
                 this.currentHeldBlock = ItemStack.EMPTY;
                 return false;
@@ -1796,8 +1811,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
             default -> net.minecraft.world.level.block.Rotation.NONE;
         };
-        
-        // 获取原始方块状态并旋转
+
+        // 使用旋转后的结构数据；index 按旋转后结构数据的索引空间解释
         StructureLoadUtil.StructureData originalData = this.loadedStructure;
         if (index < 0 || index >= originalData.blocks.size()) return;
         
@@ -1813,12 +1828,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockState worldState = level.getBlockState(targetPos);
         
         if (worldState.getBlock() != rotatedState.getBlock()) return;
-        
-        // 调试
-        if (rotatedState.getBlock() instanceof net.minecraft.world.level.block.StairBlock) {
-            System.out.println("[应用朝向] 索引=" + index + ", 原始=" + originalState + ", 旋转后=" + rotatedState);
-        }
-        
+
         if (!worldState.equals(rotatedState)) {
             level.setBlock(targetPos, rotatedState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
         }
