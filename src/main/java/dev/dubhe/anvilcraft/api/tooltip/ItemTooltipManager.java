@@ -14,8 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ItemTooltipManager {
     public static final Component SHIFT_TIP = Component.translatable(
@@ -242,25 +242,24 @@ public class ItemTooltipManager {
      * 为模组物品添加工具提示
      *
      * @param stack   需要添加工具提示的物品堆叠
-     * @param tooltip 提示内容
+     * @param builder 工具提示添加器
      * @param flags   工具提示标识
      */
-    public static void addTooltip(ItemStack stack, List<Component> tooltip, TooltipFlag flags) {
+    public static void addTooltip(ItemStack stack, Consumer<Component> builder, TooltipFlag flags) {
         final Item item = stack.getItem();
         if (NORMAL.containsKey(item)) {
-            tooltip.add(1, ItemTooltipManager.getItemTooltip(item));
+            builder.accept(ItemTooltipManager.getItemTooltip(item));
         }
         if (SHIFT.containsKey(item)) {
             if (flags.hasShiftDown()) {
-                tooltip.add(1, ItemTooltipManager.getItemTooltip(item));
+                builder.accept(ItemTooltipManager.getItemTooltip(item));
             } else {
-                tooltip.add(1, SHIFT_TIP);
+                builder.accept(SHIFT_TIP);
             }
         }
         if (stack.is(ModItemTags.REINFORCED_CONCRETE)) {
             Identifier key = BuiltInRegistries.ITEM.getKey(item);
-            tooltip.add(
-                1,
+            builder.accept(
                 Component.translatable("tooltip.%s.item.reinforced_concrete".formatted(key.getNamespace()))
                     .withStyle(ChatFormatting.GRAY)
             );
