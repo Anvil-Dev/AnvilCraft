@@ -30,18 +30,21 @@ items:
 
 <row halign="center">
 <recipe id="anvilcraft:super_heating/royal_steel_ingot_base"/>
-<recipe id="anvilcraft:super_heating/royal_steel_block_base"/>
 <recipe id="anvilcraft:super_heating/royal_steel_ingot_bonus_1"/>
-<recipe id="anvilcraft:super_heating/royal_steel_block_bonus_1"/>
 <recipe id="anvilcraft:super_heating/royal_steel_ingot_bonus_2"/>
+</row>
+
+<row halign="center">
+<recipe id="anvilcraft:super_heating/royal_steel_block_base"/>
+<recipe id="anvilcraft:super_heating/royal_steel_block_bonus_1"/>
 <recipe id="anvilcraft:super_heating/royal_steel_block_bonus_2"/>
 </row>
 
-- 可以被紫水晶增产
+- 可以看出，皇家钢可以被紫水晶增产
 - 皇家喜好：根据地图种子随机选取除了绿宝石外的一种[宝石](000_gems.md)，当使用该宝石参与皇家钢合成时，产量翻倍！
 
 <warning>
-注意：无法通过JEI查看，只能尝试出来
+注意：皇家喜好无法通过JEI查看，只能尝试出来
 </warning>
 
 # 功能
