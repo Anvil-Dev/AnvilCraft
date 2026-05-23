@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "B": {
+      "item": "anvilcraft:circuit_board"
+    },
+    "D": {
+      "item": "anvilcraft:disk"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "P": {
+      "item": "anvilcraft:processor"
+    }
+  },
+  "pattern": [
+    "BDB",
+    "BPB",
+    "BIB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:redstone_computer"
+  }
+}

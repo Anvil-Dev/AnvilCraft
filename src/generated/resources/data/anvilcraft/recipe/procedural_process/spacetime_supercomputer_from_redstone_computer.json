@@ -5,7 +5,7 @@
     "id": "anvilcraft:item_collector"
   },
   "initial_block": {
-    "blocks": "minecraft:redstone_block"
+    "blocks": "anvilcraft:redstone_computer"
   },
   "loop": 3,
   "multiple_loop_first_step": {
@@ -33,7 +33,7 @@
       "content": {
         "type": "anvilcraft:item_inject",
         "block_ingredient": {
-          "blocks": "minecraft:redstone_block"
+          "blocks": "anvilcraft:redstone_computer"
         },
         "block_result": {
           "block": "anvilcraft:wip_block"
