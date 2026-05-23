@@ -33,13 +33,14 @@ public class PortalEventListener {
             return;
         }
         if (entity.blockState.is(ModBlockTags.END_PORTAL_UNABLE_CHANGE)) return;
-        Map.Entry<BlockState, CompoundTag> result = CompatUtil.PORTAL_DEFAULT_CONVERSION.get(type.getPortal());
         Optional<RecipeHolder<PortalConversionRecipe>> recipeOp = level.getRecipeManager().getRecipeFor(
             ModRecipeTypes.PORTAL_CONVERSION_TYPE.get(),
             new PortalConversionRecipe.Input(type, entity),
             level
         );
-        if (recipeOp.isPresent()) result = recipeOp.get().value().getResults().getResult(level);
+        Map.Entry<BlockState, CompoundTag> result = null;
+        if (recipeOp.isPresent()) result = recipeOp.get().value().getResult().getResult(level);
+        if (result == null) result = CompatUtil.PORTAL_DEFAULT_CONVERSION.get(type.getPortal());
         if (result == null) return;
         entity.blockState = result.getKey();
         CompoundTag nbt = result.getValue();

@@ -727,6 +727,29 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void structureScanner(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+            .pattern("AB")
+            .define('A', Blocks.LECTERN)
+            .define('B', Items.ENDER_EYE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.LECTERN), AnvilCraftDatagen.has(Blocks.LECTERN))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.ENDER_EYE), AnvilCraftDatagen.has(Items.ENDER_EYE))
+            .save(provider);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+            .pattern("AB")
+            .pattern("CD")
+            .define('A', Tags.Items.GLASS_PANES)
+            .define('B', ModItems.PROCESSOR)
+            .define('C', Blocks.LECTERN)
+            .define('D', ModBlocks.RUBY_LASER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Tags.Items.GLASS_PANES), AnvilCraftDatagen.has(Tags.Items.GLASS_PANES))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(ModItems.PROCESSOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.LECTERN), AnvilCraftDatagen.has(Blocks.LECTERN))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_LASER), AnvilCraftDatagen.has(ModBlocks.RUBY_LASER))
+            .save(provider, AnvilCraft.of("structure_scanner_alternative"));
+    }
+
     public static <T extends Block> void blockDevourer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
             .pattern("DA ")

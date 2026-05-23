@@ -4,13 +4,7 @@
     "blocks": "anvilcraft:frost_anvil"
   },
   "portal": "minecraft:end_portal",
-  "results": {
-    "states": [
-      {
-        "state": {
-          "block": "anvilcraft:spectral_anvil"
-        }
-      }
-    ]
+  "result": {
+    "block": "anvilcraft:spectral_anvil"
   }
 }

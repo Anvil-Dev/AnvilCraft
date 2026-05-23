@@ -44,6 +44,7 @@ import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
@@ -373,6 +374,11 @@ public class ModBlockEntities {
         .blockEntity("smart_block_placer", SmartBlockPlacerBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.SMART_BLOCK_PLACER)
         .renderer(() -> SmartBlockPlacerRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<StructureScannerBlockEntity> STRUCTURE_SCANNER = REGISTRUM
+        .blockEntity("structure_scanner", StructureScannerBlockEntity::new)
+        .validBlock(ModBlocks.STRUCTURE_SCANNER)
         .register();
 
     public static void register() {

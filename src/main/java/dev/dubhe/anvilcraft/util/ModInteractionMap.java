@@ -68,7 +68,7 @@ public class ModInteractionMap {
         expFluidInteractionMap.put(
             Items.EXPERIENCE_BOTTLE,
             (state, level, pos, player, hand, stack) -> {
-                if (ModBlocks.HONEY_CAULDRON.get().isFull(state)) {
+                if (ModBlocks.EXP_FLUID_CAULDRON.get().isFull(state)) {
                     return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
                 }
                 if (!level.isClientSide()) {
@@ -105,7 +105,7 @@ public class ModInteractionMap {
             Items.FLINT_AND_STEEL,
             (state, level, pos, player, hand, stack) -> {
                 OilCauldronBlock.ignite(level, pos, state);
-                stack.hurtAndBreak(2, player, LivingEntity.getSlotForHand(hand));
+                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                 return ItemInteractionResult.sidedSuccess(level.isClientSide());
             }
@@ -124,7 +124,7 @@ public class ModInteractionMap {
             (state, level, pos, player, hand, stack) -> {
                 if (MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE) {
                     OilCauldronBlock.ignite(level, pos, state);
-                    stack.hurtAndBreak(2, player, LivingEntity.getSlotForHand(hand));
+                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
                     level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                     return ItemInteractionResult.sidedSuccess(level.isClientSide());
                 }
@@ -343,7 +343,7 @@ public class ModInteractionMap {
             Items.FLINT_AND_STEEL,
             (state, level, pos, player, hand, stack) -> {
                 if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return ItemInteractionResult.FAIL;
-                stack.hurtAndBreak(2, player, LivingEntity.getSlotForHand(hand));
+                stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                 return ItemInteractionResult.sidedSuccess(level.isClientSide());
             }
@@ -362,7 +362,7 @@ public class ModInteractionMap {
             (state, level, pos, player, hand, stack) -> {
                 if (MultitoolItem.getMode(stack) == MultitoolItem.FLINT_AND_STEEL_MODE) {
                     if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return ItemInteractionResult.FAIL;
-                    stack.hurtAndBreak(2, player, LivingEntity.getSlotForHand(hand));
+                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
                     level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
                     return ItemInteractionResult.sidedSuccess(level.isClientSide());
                 }

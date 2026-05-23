@@ -62,5 +62,9 @@ public class ItemTooltipLang {
 
         provider.add("tooltip.anvilcraft.thought", "Press [%s] for more info");
         provider.add("tooltip.anvilcraft.item.amulet_box.desc", "Stores multiple active amulets or totems");
+        
+        // Structure Disk
+        provider.add("item.anvilcraft.structure_disk.structure", "Structure: %s");
+        provider.add("item.anvilcraft.structure_disk.size", "Size: %s");
     }
 }

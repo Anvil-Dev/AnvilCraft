@@ -16,7 +16,7 @@ public class ItemCollectorButton extends Button {
      */
     public ItemCollectorButton(int x, int y, String variant, OnPress onPress) {
         super(x, y, 10, 10, Component.literal(""), onPress, (var) -> Component.literal(variant));
-        texture = SharedTextures.textureGui("machine/item_collector/button_%s".formatted(variant));
+        texture = SharedTextures.textureGui("machine/button_%s".formatted(variant));
     }
 
     @Override

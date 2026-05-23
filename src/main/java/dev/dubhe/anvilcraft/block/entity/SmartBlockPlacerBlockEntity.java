@@ -1,14 +1,18 @@
+
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
+import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -40,6 +44,8 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -51,7 +57,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable {
+public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemHandlerHolder {
     private static final int POWER = 16;
     private static final int PLACEMENT_INTERVAL = 20;
     private static final int PLACEMENT_DELAY = 6;
@@ -69,6 +75,31 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private int currentPlacementIndex = 0;
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
     private boolean isPickupMode = true;
+    private boolean isSkipMissingMode = true;  // true=跳过缺少方块, false=停止在缺少方块
+    
+    // 已加载的原始结构数据(未旋转)
+    @Nullable
+    private StructureLoadUtil.StructureData loadedStructure = null;
+    /**
+     * -- GETTER --
+     *  获取已加载的结构名称
+     */
+    private String loadedStructureName = "";
+    
+    // 结构加载状态追踪 - 用于避免重复加载
+    private String loadedStructureUuid = "";
+    private boolean hasStructureDisk = false;
+    private boolean hasInvalidStructure = false;  // 标记磁盘是否包含无效结构
+    
+    // 记录上次检查的磁盘物品，用于检测变化
+    private ItemStack lastDiskItem = ItemStack.EMPTY;
+
+    /**
+     * -- GETTER --
+     *  获取当前缺失的方块物品
+     */
+    // 当前缺失的方块物品（服务端计算，客户端渲染）
+    private ItemStack missingBlockItem = ItemStack.EMPTY;
 
     // Disk物品栏
     private final SimpleContainer diskInventory = new SimpleContainer(1) {
@@ -76,6 +107,38 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         public void setChanged() {
             super.setChanged();
             SmartBlockPlacerBlockEntity.this.setChanged();
+            // 检查磁盘物品是否真正变化
+            SmartBlockPlacerBlockEntity.this.checkDiskAndLoad();
+        }
+    };
+
+    /**
+     * -- GETTER --
+     *  获取书物品栏(输入)
+     */
+    // 蓝图模式书物品栏(输入)
+    private final SimpleContainer bookInventory = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            SmartBlockPlacerBlockEntity.this.setChanged();
+            // 当输入书时,自动生成材料清单到输出槽位
+            SmartBlockPlacerBlockEntity.this.onBookInputChanged();
+        }
+    };
+
+    /**
+     * -- GETTER --
+     *  获取输出书物品栏
+     */
+    // 蓝图模式输出书物品栏(输出材料清单)
+    private final SimpleContainer outputBookInventory = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            SmartBlockPlacerBlockEntity.this.setChanged();
+            // 当输出书被取走时,消耗输入书
+            SmartBlockPlacerBlockEntity.this.onOutputBookTaken();
         }
     };
 
@@ -118,12 +181,27 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.putInt("currentPlacementIndex", currentPlacementIndex);
         tag.putInt("placeCooldown", placeCooldown);
         tag.putBoolean("isPickupMode", isPickupMode);
+        tag.putBoolean("isSkipMissingMode", isSkipMissingMode);
+        if (!missingBlockItem.isEmpty()) {
+            tag.put("missingBlockItem", missingBlockItem.save(provider));
+        }
         if (!currentHeldBlock.isEmpty()) {
             tag.put("currentHeldBlock", currentHeldBlock.save(provider));
         }
         saveLayerPositions(tag);
         // 保存Disk物品栏
         tag.put("diskInventory", this.diskInventory.createTag(provider));
+        // 保存书物品栏
+        tag.put("bookInventory", this.bookInventory.createTag(provider));
+        // 保存输出书物品栏
+        tag.put("outputBookInventory", this.outputBookInventory.createTag(provider));
+        
+        // 保存结构缓存(保存原始未旋转的数据)
+        if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
+            tag.put("cachedStructure", this.saveStructureData(this.loadedStructure, provider));
+            tag.putString("cachedStructureName", this.loadedStructureName);
+            tag.putString("cachedStructureUuid", this.loadedStructureUuid);
+        }
     }
 
     @Override
@@ -135,12 +213,719 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
         this.placeCooldown = tag.getInt("placeCooldown");
         this.isPickupMode = tag.getBoolean("isPickupMode");
+        this.isSkipMissingMode = tag.getBoolean("isSkipMissingMode");
+        this.missingBlockItem = tag.contains("missingBlockItem", Tag.TAG_COMPOUND)
+            ? ItemStack.parse(provider, tag.getCompound("missingBlockItem")).orElse(ItemStack.EMPTY)
+            : ItemStack.EMPTY;
         this.currentHeldBlock = tag.contains("currentHeldBlock", Tag.TAG_COMPOUND)
             ? ItemStack.parse(provider, tag.getCompound("currentHeldBlock")).orElse(ItemStack.EMPTY)
             : ItemStack.EMPTY;
         loadLayerPositions(tag);
         // 加载Disk物品栏
         this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
+        // 加载书物品栏
+        this.bookInventory.fromTag(tag.getList("bookInventory", Tag.TAG_COMPOUND), provider);
+        // 加载输出书物品栏
+        this.outputBookInventory.fromTag(tag.getList("outputBookInventory", Tag.TAG_COMPOUND), provider);
+        
+        // 优先从缓存加载结构数据(原始未旋转的数据)
+        if (tag.contains("cachedStructure", Tag.TAG_COMPOUND)) {
+            this.loadedStructure = this.loadStructureData(tag.getCompound("cachedStructure"), provider);
+            this.loadedStructureName = tag.getString("cachedStructureName");
+            this.loadedStructureUuid = tag.getString("cachedStructureUuid");
+            this.hasStructureDisk = true;
+        }
+        
+        // NBT加载后尝试从磁盘更新结构（如果有磁盘的话）
+        this.tryLoadStructure();
+    }
+    
+    @Override
+    public IItemHandler getItemHandler() {
+        return new InvWrapper(diskInventory) {
+            @Override
+            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+                if (!stack.is(ModItems.STRUCTURE_DISK.get())) {
+                    return stack;
+                }
+                
+                // 检查结构大小是否超过 5x5x5
+                if (SmartBlockPlacerBlockEntity.this.level != null && !SmartBlockPlacerBlockEntity.this.level.isClientSide) {
+                    var customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+                    if (customData != null) {
+                        CompoundTag tag = customData.copyTag();
+                        // 如果结构大小超过 5x5x5，拒绝插入
+                        if (tag.getInt("SizeX") > 5 || tag.getInt("SizeY") > 5 || tag.getInt("SizeZ") > 5) {
+                            return stack;
+                        }
+                    }
+                }
+                
+                return super.insertItem(slot, stack, simulate);
+            }
+            
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                return super.extractItem(slot, amount, simulate);
+            }
+            
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                if (!stack.is(ModItems.STRUCTURE_DISK.get())) {
+                    return false;
+                }
+                
+                // 检查结构大小是否超过 5x5x5
+                if (SmartBlockPlacerBlockEntity.this.level != null && !SmartBlockPlacerBlockEntity.this.level.isClientSide) {
+                    var customData = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+                    if (customData != null) {
+                        CompoundTag tag = customData.copyTag();
+                        // 如果结构大小超过 5x5x5，拒绝插入
+                        return tag.getInt("SizeX") <= 5 && tag.getInt("SizeY") <= 5 && tag.getInt("SizeZ") <= 5;
+                    }
+                }
+                
+                return true;
+            }
+        };
+    }
+    
+    /**
+     * 保存结构数据到NBT
+     *
+     * @param data 结构数据
+     * @param provider 注册表访问器（当前未使用，保留用于未来扩展）
+     */
+    @SuppressWarnings("unused")
+    private CompoundTag saveStructureData(StructureLoadUtil.StructureData data, HolderLookup.Provider provider) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("structureName", data.structureName);
+        tag.putString("uuid", data.uuid);
+        tag.putInt("sizeX", data.sizeX);
+        tag.putInt("sizeY", data.sizeY);
+        tag.putInt("sizeZ", data.sizeZ);
+        tag.putInt("scannerFacing", data.scannerFacing);  // 保存扫描器朝向
+        
+        // 保存方块列表
+        CompoundTag blocksTag = new CompoundTag();
+        for (int i = 0; i < data.blocks.size(); i++) {
+            StructureLoadUtil.BlockPosition blockPos = data.blocks.get(i);
+            CompoundTag blockTag = new CompoundTag();
+            blockTag.putInt("x", blockPos.x());
+            blockTag.putInt("y", blockPos.y());
+            blockTag.putInt("z", blockPos.z());
+            // 保存方块状态
+            try {
+                net.minecraft.world.level.block.state.BlockState.CODEC.encodeStart(
+                    net.minecraft.nbt.NbtOps.INSTANCE, blockPos.state()
+                ).result().ifPresent(encoded -> blockTag.put("state", encoded));
+            } catch (Exception e) {
+                org.slf4j.LoggerFactory.getLogger(SmartBlockPlacerBlockEntity.class)
+                    .warn("Failed to save block state: {}", e.getMessage());
+            }
+            blocksTag.put(String.valueOf(i), blockTag);
+        }
+        tag.put("blocks", blocksTag);
+        
+        return tag;
+    }
+    
+    /**
+     * 从NBT加载结构数据
+     *
+     * @param tag NBT标签
+     * @param provider 注册表访问器（当前未使用，保留用于未来扩展）
+     */
+    @SuppressWarnings("unused")
+    private StructureLoadUtil.StructureData loadStructureData(CompoundTag tag, HolderLookup.Provider provider) {
+        StructureLoadUtil.StructureData data = new StructureLoadUtil.StructureData();
+        data.structureName = tag.getString("structureName");
+        data.uuid = tag.getString("uuid");
+        data.sizeX = tag.getInt("sizeX");
+        data.sizeY = tag.getInt("sizeY");
+        data.sizeZ = tag.getInt("sizeZ");
+        data.scannerFacing = tag.getInt("scannerFacing");  // 加载扫描器朝向
+        
+        // 加载方块列表
+        CompoundTag blocksTag = tag.getCompound("blocks");
+        for (String key : blocksTag.getAllKeys()) {
+            CompoundTag blockTag = blocksTag.getCompound(key);
+            int x = blockTag.getInt("x");
+            int y = blockTag.getInt("y");
+            int z = blockTag.getInt("z");
+            
+            // 加载方块状态
+            final net.minecraft.world.level.block.state.BlockState[] stateHolder = 
+                new net.minecraft.world.level.block.state.BlockState[]{net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()};
+            if (blockTag.contains("state", Tag.TAG_COMPOUND)) {
+                try {
+                    net.minecraft.world.level.block.state.BlockState.CODEC.parse(
+                        net.minecraft.nbt.NbtOps.INSTANCE, blockTag.getCompound("state")
+                    ).result().ifPresent(s -> stateHolder[0] = s);
+                } catch (Exception e) {
+                    org.slf4j.LoggerFactory.getLogger(SmartBlockPlacerBlockEntity.class)
+                        .warn("Failed to load block state: {}", e.getMessage());
+                }
+            }
+            
+            data.blocks.add(new StructureLoadUtil.BlockPosition(x, y, z, stateHolder[0]));
+        }
+        
+        return data;
+    }
+    
+    /**
+     * 检查磁盘物品是否变化，如果变化则加载结构
+     */
+    private void checkDiskAndLoad() {
+        if (this.level == null) {
+            return;
+        }
+        
+        ItemStack currentDisk = this.diskInventory.getItem(0);
+        
+        // 快速检查：物品是否相同
+        if (ItemStack.isSameItemSameComponents(currentDisk, this.lastDiskItem)) {
+            return;
+        }
+        
+        // 更新缓存
+        this.lastDiskItem = currentDisk.copy();
+        
+        // 客户端和服务端都调用，但各自独立处理
+        this.tryLoadStructure();
+    }
+    
+    /**
+     * 尝试加载结构 - 只在磁盘物品变化时调用
+     * 注意：加载的是原始未旋转的数据，旋转在使用时动态计算
+     */
+    private void tryLoadStructure() {
+        if (this.level == null) {
+            return;
+        }
+        
+        ItemStack diskStack = this.diskInventory.getItem(0);
+        boolean nowHasDisk = !diskStack.isEmpty() && diskStack.is(ModItems.STRUCTURE_DISK.get());
+        
+        // 获取当前磁盘的UUID
+        String currentUuid = "";
+        if (nowHasDisk) {
+            var customData = diskStack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+            if (customData != null) {
+                currentUuid = customData.copyTag().getString("StructureUUID");
+            }
+        }
+        
+        // 状态没有变化，跳过加载
+        if (nowHasDisk == this.hasStructureDisk && currentUuid.equals(this.loadedStructureUuid)) {
+            return;
+        }
+        
+        // 更新状态
+        this.hasStructureDisk = nowHasDisk;
+        this.loadedStructureUuid = currentUuid;
+        
+        boolean structureChanged = false;
+        
+        if (!nowHasDisk) {
+            // 磁盘被移除
+            if (this.loadedStructure != null) {
+                this.loadedStructure = null;
+                this.loadedStructureName = "";
+                this.hasInvalidStructure = false;
+                structureChanged = true;
+            }
+        } else {
+            // 加载新结构（客户端和服务端都加载）- 不旋转，保存原始数据
+            StructureLoadUtil.StructureData data = StructureLoadUtil.loadStructureFromDisk(this.level, diskStack);
+            if (data != null && !data.isEmpty()) {
+                this.loadedStructure = data;
+                this.loadedStructureName = data.structureName;
+                this.hasInvalidStructure = false;
+                structureChanged = true;
+                
+                // 清空选区（仅服务端）
+                if (!this.level.isClientSide) {
+                    this.layerPositions.clear();
+                    this.currentPlacementIndex = 0;
+                }
+            } else {
+                // 加载失败，标记为无效结构
+                if (this.loadedStructure != null) {
+                    this.loadedStructure = null;
+                    this.loadedStructureName = "";
+                    this.hasInvalidStructure = true;
+                    structureChanged = true;
+                } else {
+                    // 之前就没有结构，现在也加载失败
+                    this.hasInvalidStructure = true;
+                }
+            }
+        }
+        
+        // 只在结构数据真正变化时才同步
+        if (structureChanged) {
+            this.onChanged();
+        }
+    }
+    
+    /**
+     * 获取已加载的结构数据
+     */
+    @Nullable
+    public StructureLoadUtil.StructureData getLoadedStructure() {
+        return this.loadedStructure;
+    }
+    
+    /**
+     * 检查是否包含无效结构（磁盘存在但结构数据无效）
+     */
+    public boolean hasInvalidStructure() {
+        return this.hasInvalidStructure;
+    }
+    
+    /**
+     * 获取比较器输出信号强度（基于放置进度）
+     * 
+     * @return 红石信号强度 0-15，0表示未开始，15表示完成
+     */
+    public int getComparatorOutput() {
+        if (this.level == null || this.level.isClientSide) {
+            return 0;
+        }
+        
+        // 蓝图模式：基于结构数据计算进度
+        if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
+            // 获取旋转后的结构数据
+            StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+            int totalBlocks = rotatedData.blocks.size();
+            
+            if (totalBlocks == 0) {
+                return 0;
+            }
+            
+            // 获取所有位置
+            Direction facing = this.getFacing(this.getBlockPos(), this.level);
+            boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+            List<BlockPos> allPositions = buildBlueprintPositions(this.getBlockPos(), facing, upsideDown);
+            
+            if (allPositions.isEmpty()) {
+                return 0;
+            }
+            
+            // 计算已放置的方块数量
+            int placedCount = 0;
+            int checkCount = Math.min(totalBlocks, allPositions.size());
+            
+            for (int i = 0; i < checkCount; i++) {
+                BlockPos targetPos = allPositions.get(i);
+                
+                // 如果位置不可以放置，说明已经放置了方块
+                if (!this.canPlaceAtPosition(this.level, targetPos, null)) {
+                    placedCount++;
+                }
+            }
+            
+            // 计算信号强度 (0-15)
+            if (placedCount >= totalBlocks) {
+                return 15;  // 完全完成时输出15
+            }
+            
+            // 根据进度计算信号强度
+            double progress = (double) placedCount / totalBlocks;
+            return (int) Math.round(progress * 15.0);  // 最大输出15
+        }
+        
+        // 普通模式（PICKUP/MOVE）：基于选区位置计算进度
+        if (!this.layerPositions.isEmpty()) {
+            Direction facing = this.level.getBlockState(this.getBlockPos()).getValue(HorizontalDirectionalBlock.FACING);
+            boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+            
+            // 使用与放置逻辑相同的方法构建位置列表
+            List<BlockPos> allPositions = buildOrderedPositionsFromLayers(this.getBlockPos(), facing, upsideDown);
+            
+            if (allPositions.isEmpty()) {
+                return 0;
+            }
+            
+            // 计算已放置的方块数量
+            int placedCount = 0;
+            int totalCount = allPositions.size();
+            
+            for (BlockPos targetPos : allPositions) {
+                // 如果位置不可以放置，说明已经放置了方块
+                if (!this.canPlaceAtPosition(this.level, targetPos, null)) {
+                    placedCount++;
+                }
+            }
+            
+            // 计算信号强度 (0-15)
+            if (placedCount >= totalCount) {
+                return 15;  // 完全完成时输出15
+            }
+            
+            // 根据进度计算信号强度
+            double progress = (double) placedCount / totalCount;
+            return (int) Math.round(progress * 15.0);  // 最大输出15
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * 当书输入槽位变化时调用,生成材料清单书到输出槽位
+     */
+    private void onBookInputChanged() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        
+        // 检查输入槽位是否有书
+        ItemStack inputBook = this.bookInventory.getItem(0);
+        if (inputBook.isEmpty()) {
+            // 清空输出槽位
+            this.outputBookInventory.setItem(0, ItemStack.EMPTY);
+            return;
+        }
+        
+        // 检查输出槽位是否已经有书
+        ItemStack outputBook = this.outputBookInventory.getItem(0);
+        if (!outputBook.isEmpty()) {
+            // 如果输出槽位已有书,不再生成
+            return;
+        }
+        
+        // 生成材料清单书(不消耗输入书)
+        try {
+            dev.dubhe.anvilcraft.util.StructureBookUtil.generateMaterialListBookToOutput(
+                this.level,
+                this.getBlockPos(),
+                this
+            );
+        } catch (Exception e) {
+            dev.dubhe.anvilcraft.util.StructureBookUtil.LOGGER.error("Failed to generate material list book: {}", e.getMessage());
+        }
+    }
+    
+    /**
+     * 当输出书被取走时调用,消耗输入书
+     */
+    private void onOutputBookTaken() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        
+        // 检查输出槽位是否为空(被取走)
+        ItemStack outputBook = this.outputBookInventory.getItem(0);
+        if (outputBook.isEmpty()) {
+            // 消耗输入书
+            ItemStack inputBook = this.bookInventory.getItem(0);
+            if (!inputBook.isEmpty()) {
+                this.bookInventory.setItem(0, ItemStack.EMPTY);
+            }
+        }
+    }
+
+    /**
+     * 更新缺失方块信息（服务端调用）
+     */
+    private void updateMissingBlockInfo(Level level, BlockPos pos) {
+        // 只在停止模式下检测
+        if (this.isSkipMissingMode) {
+            if (!this.missingBlockItem.isEmpty()) {
+                this.missingBlockItem = ItemStack.EMPTY;
+                this.onChanged();
+            }
+            return;
+        }
+        
+        // 只在蓝图模式下检测
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            if (!this.missingBlockItem.isEmpty()) {
+                this.missingBlockItem = ItemStack.EMPTY;
+                this.onChanged();
+            }
+            return;
+        }
+        
+        // 获取旋转后的结构数据
+        StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+        
+        // 获取所有位置
+        Direction facing = this.getFacing(pos, level);
+        boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        List<BlockPos> allPositions = buildBlueprintPositions(pos, facing, upsideDown);
+        
+        if (allPositions.isEmpty() || rotatedData.blocks.isEmpty()) {
+            if (!this.missingBlockItem.isEmpty()) {
+                this.missingBlockItem = ItemStack.EMPTY;
+                this.onChanged();
+            }
+            return;
+        }
+        
+        // 遍历所有位置，找到第一个未放置且缺少材料的位置
+        for (int i = 0; i < rotatedData.blocks.size() && i < allPositions.size(); i++) {
+            BlockPos targetPos = allPositions.get(i);
+            
+            // 检查目标位置是否可以放置（如果不可以放置说明已经放置了）
+            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                continue;  // 已经放置了，跳过
+            }
+            
+            // 获取这个位置需要的方块
+            Block requiredBlock = getRequiredBlockForPosition(i);
+            if (requiredBlock == null) {
+                continue;
+            }
+            
+            // 检查容器中是否有该方块
+            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+            if (blockItem.isEmpty()) {
+                // 找到了缺失的方块
+                ItemStack newMissingItem = new ItemStack(requiredBlock);
+                if (!ItemStack.isSameItemSameComponents(this.missingBlockItem, newMissingItem)) {
+                    this.missingBlockItem = newMissingItem;
+                    this.onChanged();
+                }
+                return;
+            }
+        }
+        
+        // 所有位置都已放置完成或材料充足
+        if (!this.missingBlockItem.isEmpty()) {
+            this.missingBlockItem = ItemStack.EMPTY;
+            this.onChanged();
+        }
+    }
+
+    /**
+     * 根据放置器和扫描器的相对朝向旋转结构数据
+     * 注意：Scanner的朝向与放置器是镜像对应的（Scanner南=放置器北，Scanner东=放置器西）
+     *
+     * @return 旋转后的新结构数据，不修改原始数据
+     */
+    @SuppressWarnings("checkstyle:OperatorWrap")
+    private StructureLoadUtil.StructureData rotateStructureData(StructureLoadUtil.StructureData originalData) {
+        return rotateStructureDataStatic(originalData, this.level, this.getBlockPos());
+    }
+    
+    /**
+     * 静态方法：根据放置器和扫描器的相对朝向旋转结构数据
+     * 供客户端渲染器调用
+     * 
+     * @param originalData 原始结构数据
+     * @param level 世界（客户端level）
+     * @param placerPos 放置器位置
+     * @return 旋转后的结构数据
+     */
+    @SuppressWarnings("checkstyle:OperatorWrap")
+    public static StructureLoadUtil.@NotNull StructureData rotateStructureDataStatic(
+        StructureLoadUtil.StructureData originalData,
+        @Nullable net.minecraft.world.level.Level level,
+        BlockPos placerPos
+    ) {
+        if (level == null) return originalData;
+        
+        // 获取放置器的朝向（安全检查：确保方块State包含facing属性）
+        BlockState state = level.getBlockState(placerPos);
+        if (!state.hasProperty(HorizontalDirectionalBlock.FACING)) return originalData;
+        
+        Direction placerFacing = state.getValue(HorizontalDirectionalBlock.FACING);
+                
+        // 获取扫描器的朝向
+        int scannerFacingValue = originalData.scannerFacing;
+                
+        // 计算相对旋转步数
+        int rotationSteps = calculateRotationStepsStatic(placerFacing, scannerFacingValue);
+        
+        if (rotationSteps == 0) return originalData;  // 朝向相同，不需要旋转
+        
+        // 创建新的结构数据
+        StructureLoadUtil.StructureData rotatedData = new StructureLoadUtil.StructureData();
+        rotatedData.structureName = originalData.structureName;
+        rotatedData.uuid = originalData.uuid;
+        rotatedData.sizeX = originalData.sizeX;
+        rotatedData.sizeY = originalData.sizeY;
+        rotatedData.sizeZ = originalData.sizeZ;
+        rotatedData.scannerFacing = originalData.scannerFacing;
+        
+        // 旋转所有方块
+        int centerX = originalData.sizeX / 2;
+        int centerZ = originalData.sizeZ / 2;
+        
+        for (StructureLoadUtil.BlockPosition block : originalData.blocks) {
+            // 计算相对于中心的坐标
+            int relX = block.x() - centerX;
+            int relZ = block.z() - centerZ;
+            
+            // 根据旋转步数旋转坐标
+            int rotatedX = relX;
+            int rotatedZ = relZ;
+            
+            switch (rotationSteps) {
+                case 1 -> {  // 90度顺时针: (x, z) -> (-z, x)
+                    rotatedX = -relZ;
+                    rotatedZ = relX;
+                }
+                case 2 -> {  // 180度: (x, z) -> (-x, -z)
+                    rotatedX = -relX;
+                    rotatedZ = -relZ;
+                }
+                case 3 -> {  // 270度顺时针: (x, z) -> (z, -x)
+                    rotatedX = relZ;
+                    rotatedZ = -relX;
+                }
+                default -> {
+                    // rotationSteps 为 0，不需要旋转
+                }
+            }
+            
+            // 转换回绝对坐标
+            int newX = rotatedX + centerX;
+            int newZ = rotatedZ + centerZ;
+            
+            // 旋转方块朝向
+            BlockState rotatedState = rotateBlockStateStatic(block.state(), rotationSteps);
+            
+            rotatedData.blocks.add(new StructureLoadUtil.BlockPosition(newX, block.y(), newZ, rotatedState));
+        }
+        
+        // 对旋转后的 blocks 按照 y → z → x 排序，完全复用正常模式的放置顺序逻辑
+        // 正常模式：layer 升序 → row 升序 → col 升序
+        // 蓝图模式坐标映射：z 对应 row，x 对应 col
+        // 所以蓝图模式：y 升序 → z 升序 → x 升序
+        rotatedData.blocks.sort((a, b) -> {
+            // 先按 y 排序（层，从下到上）
+            if (a.y() != b.y()) {
+                return Integer.compare(a.y(), b.y());
+            }
+            // 再按 z 排序（行，从远到近，对应正常模式的 row）
+            if (a.z() != b.z()) {
+                return Integer.compare(a.z(), b.z());
+            }
+            // 最后按 x 排序（列，从左到右，对应正常模式的 col）
+            return Integer.compare(a.x(), b.x());
+        });
+        
+        return rotatedData;
+    }
+    
+    /**
+     * 静态方法:计算放置器和扫描器之间的相对旋转步数
+     * 
+     * @param placerFacing 放置器朝向
+     * @param scannerFacingValue 扫描器朝向值
+     * @return 旋转步数(0-3)
+     */
+    private static int calculateRotationStepsStatic(Direction placerFacing, int scannerFacingValue) {
+        int scannerToPlacerMapping = mapScannerToPlacerFacing(scannerFacingValue);
+        int placerIndex = getPlacerDirectionIndex(placerFacing);
+        int scannerIndex = getScannerDirectionIndex(scannerToPlacerMapping);
+            
+        // 计算基础旋转步数(顺时针)
+        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
+            
+        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
+        int rotationAfterGlobalFix = (baseRotation + 3) % 4;
+            
+        // 根据scannerFacing添加额外修正
+        int extraCorrection = getExtraCorrection(scannerFacingValue);
+            
+        return (rotationAfterGlobalFix + extraCorrection) % 4;
+    }
+        
+    /**
+     * 映射扫描器朝向到放置器朝向
+     * Scanner:南北方向保持不变,东西方向镜像
+     */
+    private static int mapScannerToPlacerFacing(int scannerFacingValue) {
+        return switch (scannerFacingValue) {
+            case 2 -> 2;  // Scanner北 → 放置器北
+            case 3 -> 3;  // Scanner南 → 放置器南
+            case 4 -> 5;  // Scanner西 → 放置器东
+            case 5 -> 4;  // Scanner东 → 放置器西
+            default -> scannerFacingValue;
+        };
+    }
+        
+    /**
+     * 获取放置器朝向索引(0-3)
+     * NORTH=0, EAST=1, SOUTH=2, WEST=3
+     * 并根据放置器朝向应用修正:东+3, 西+1, 南+2, 北+0
+     */
+    private static int getPlacerDirectionIndex(Direction placerFacing) {
+        return switch (placerFacing) {
+            case NORTH -> 0;  // 北:无修正
+            case EAST -> (1 + 3) % 4;  // 东:+3
+            case SOUTH -> (2 + 2) % 4;  // 南:+2
+            case WEST -> (3 + 1) % 4;   // 西:+1
+            default -> 0;
+        };
+    }
+        
+    /**
+     * 获取扫描器朝向索引(0-3)
+     * NORTH=0, EAST=1, SOUTH=2, WEST=3
+     */
+    private static int getScannerDirectionIndex(int scannerToPlacerMapping) {
+        return switch (scannerToPlacerMapping) {
+            case 2 -> 0;  // NORTH
+            case 5 -> 1;  // EAST
+            case 3 -> 2;  // SOUTH
+            case 4 -> 3;  // WEST
+            default -> 0;
+        };
+    }
+        
+    /**
+     * 获取扫描器朝向的额外修正值
+     */
+    private static int getExtraCorrection(int scannerFacingValue) {
+        return switch (scannerFacingValue) {
+            case 2 -> 3;  // NORTH: 逆时针+90度(顺时针+3)
+            case 3 -> 1;  // SOUTH: 顺时针+90度
+            case 5 -> 2;  // EAST: 旋转180度(顺时针+2)
+            default -> 0;  // WEST不需要额外修正
+        };
+    }
+    
+    /**
+     * 静态方法：旋转方块的朝向属性
+     */
+    private static BlockState rotateBlockStateStatic(BlockState state, int rotationSteps) {
+        if (rotationSteps == 0) return state;
+        
+        // 获取方块的FACING属性
+        if (state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
+            Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+            
+            // 转换为0-3的索引 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
+            int facingIndex = switch (facing) {
+                case NORTH -> 0;
+                case EAST -> 1;
+                case SOUTH -> 2;
+                case WEST -> 3;
+                default -> -1;
+            };
+            
+            if (facingIndex >= 0) {
+                // 旋转
+                int rotatedIndex = (facingIndex + rotationSteps) % 4;
+                Direction rotatedFacing = switch (rotatedIndex) {
+                    case 0 -> Direction.NORTH;
+                    case 1 -> Direction.EAST;
+                    case 2 -> Direction.SOUTH;
+                    case 3 -> Direction.WEST;
+                    default -> facing;
+                };
+                
+                return state.setValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING, rotatedFacing);
+            }
+        }
+        
+        return state;
     }
 
     public void tickServer(Level level, BlockPos pos) {
@@ -163,10 +948,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
 
         if (this.isPowered && !this.hasRedstoneSignal) {
-            if (this.isPickupMode) {
-                this.tickPickupMode(level, pos);
-            } else {
-                this.tickMoveMode(level, pos);
+            // 根据模式选择工作逻辑
+            WorkMode mode = this.loadedStructure != null && !this.loadedStructure.isEmpty() 
+                ? WorkMode.BLUEPRINT 
+                : (this.isPickupMode ? WorkMode.PICKUP : WorkMode.MOVE);
+            this.tickWorkMode(level, pos, mode);
+            
+            // 更新缺失方块信息（仅服务端）
+            if (!level.isClientSide) {
+                this.updateMissingBlockInfo(level, pos);
             }
         } else {
             boolean cooldownReset = this.placeCooldown != 0;
@@ -181,6 +971,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             boolean shutdownIndexReset = this.currentPlacementIndex != 0;
             if (shutdownIndexReset) {
                 this.currentPlacementIndex = 0;
+            }
+            
+            // 断电时也更新缺失方块信息（清空显示）
+            if (!level.isClientSide) {
+                this.updateMissingBlockInfo(level, pos);
             }
             
             if (stateChanged || cooldownReset || heldItemCleared || shutdownIndexReset) {
@@ -218,31 +1013,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * 工作模式枚举
      */
     private enum WorkMode {
-        PICKUP,   // 拾取模式：从容器获取方块并放置
-        MOVE      // 移动模式：从源位置移动方块到目标位置
-    }
-    
-    private void tickPickupMode(Level level, BlockPos pos) {
-        tickWorkMode(level, pos, WorkMode.PICKUP);
-    }
-    
-    private void tickMoveMode(Level level, BlockPos pos) {
-        tickWorkMode(level, pos, WorkMode.MOVE);
+        PICKUP,     // 拾取模式：从容器获取方块并放置
+        MOVE,       // 移动模式：从源位置移动方块到目标位置
+        BLUEPRINT   // 蓝图模式：从结构文件放置方块
     }
     
     /**
      * 统一的工作模式tick逻辑
      */
     private void tickWorkMode(Level level, BlockPos pos, WorkMode mode) {
-        boolean canWork = switch (mode) {
-            case PICKUP -> this.hasEmptyPositions(level, pos) && this.hasBlockItemsInContainer(level, pos);
-            case MOVE -> this.hasTargetPositions(level, pos);
-        };
-        
-        boolean isResourceDepleted = switch (mode) {
-            case PICKUP -> !this.hasBlockItemsInContainer(level, pos);
-            case MOVE -> !this.hasTargetPositions(level, pos);
-        };
+        boolean canWork = this.checkCanWork(level, pos, mode);
+        boolean isResourceDepleted = this.checkResourceDepleted(level, pos, mode);
         
         if (stopWorkCycleIfResourceDepleted(isResourceDepleted)) {
             return;
@@ -250,31 +1031,141 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         tickCommonCooldownLogic(level,
             canWork,
-            () -> {
-                switch (mode) {
-                    case PICKUP -> this.placeBlocks(level, pos);
-                    case MOVE -> this.moveBlocks(level, pos);
-                    default -> {}
-                }
-            },
-            () -> {
-                switch (mode) {
-                    case PICKUP -> this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
-                    case MOVE -> {
-                        Direction facing = level.getBlockState(pos).getValue(HorizontalDirectionalBlock.FACING);
-                        BlockPos sourcePos = pos.relative(facing.getOpposite());
-                        BlockState sourceState = level.getBlockState(sourcePos);
-                        ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
-                        if (!sourceItem.isEmpty() && sourceItem.getItem() instanceof net.minecraft.world.item.BlockItem) {
-                            this.currentHeldBlock = sourceItem.copy();
-                        } else {
-                            this.currentHeldBlock = ItemStack.EMPTY;
-                        }
-                    }
-                    default -> {}
-                }
-            }
+            () -> this.executePlacement(level, pos, mode),
+            () -> this.prepareHeldBlock(level, pos, mode)
         );
+    }
+    
+    /**
+     * 检查是否可以工作
+     */
+    private boolean checkCanWork(Level level, BlockPos pos, WorkMode mode) {
+        return switch (mode) {
+            case PICKUP -> this.hasEmptyPositions(level, pos) && this.hasBlockItemsInContainer(level, pos);
+            case MOVE -> this.hasTargetPositions(level, pos);
+            case BLUEPRINT -> this.hasBlueprintPositions(level, pos);
+        };
+    }
+    
+    /**
+     * 检查资源是否耗尽
+     */
+    private boolean checkResourceDepleted(Level level, BlockPos pos, WorkMode mode) {
+        return switch (mode) {
+            case PICKUP -> !this.hasBlockItemsInContainer(level, pos);
+            case MOVE -> !this.hasTargetPositions(level, pos);
+            case BLUEPRINT -> {
+                if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+                    yield true;
+                }
+                // 蓝图模式：只检查索引是否超出范围 或 容器是否完全空
+                // 使用旋转后的结构数据
+                StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+                boolean indexExhausted = this.currentPlacementIndex >= rotatedData.blocks.size();
+                boolean containerEmpty = !this.hasBlockItemsInContainer(level, pos);
+                
+                // 停止模式下，额外检查当前索引位置的方块是否有存量
+                if (!this.isSkipMissingMode && !indexExhausted && !containerEmpty) {
+                    Block requiredBlock = getRequiredBlockForPosition(this.currentPlacementIndex);
+                    if (requiredBlock != null) {
+                        ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+                        yield blockItem.isEmpty();  // 没有存量就视为资源耗尽
+                    }
+                }
+                
+                yield indexExhausted || containerEmpty;
+            }
+        };
+    }
+    
+    /**
+     * 执行放置操作
+     */
+    private void executePlacement(Level level, BlockPos pos, WorkMode mode) {
+        switch (mode) {
+            case PICKUP -> this.placeBlocks(level, pos);
+            case MOVE -> this.moveBlocks(level, pos);
+            case BLUEPRINT -> this.placeBlueprintBlocks(level, pos);
+            default -> {}
+        }
+    }
+    
+    /**
+     * 准备钳子中的方块（用于动画显示）
+     */
+    private void prepareHeldBlock(Level level, BlockPos pos, WorkMode mode) {
+        switch (mode) {
+            case PICKUP -> this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
+            case MOVE -> this.prepareMoveModeHeldBlock(level, pos);
+            case BLUEPRINT -> this.prepareBlueprintModeHeldBlock(level, pos);
+            default -> {}
+        }
+    }
+    
+    /**
+     * 准备移动模式的钳子方块
+     */
+    private void prepareMoveModeHeldBlock(Level level, BlockPos pos) {
+        Direction facing = level.getBlockState(pos).getValue(HorizontalDirectionalBlock.FACING);
+        BlockPos sourcePos = pos.relative(facing.getOpposite());
+        BlockState sourceState = level.getBlockState(sourcePos);
+        ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
+        if (!sourceItem.isEmpty() && sourceItem.getItem() instanceof net.minecraft.world.item.BlockItem) {
+            this.currentHeldBlock = sourceItem.copy();
+        } else {
+            this.currentHeldBlock = ItemStack.EMPTY;
+        }
+    }
+    
+    /**
+     * 准备蓝图模式的钳子方块
+     */
+    private void prepareBlueprintModeHeldBlock(Level level, BlockPos pos) {
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            this.currentHeldBlock = ItemStack.EMPTY;
+            return;
+        }
+        
+        Direction facing = this.getFacing(pos, level);
+        boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        List<BlockPos> allPositions = buildBlueprintPositions(pos, facing, upsideDown);
+        
+        if (allPositions.isEmpty()) {
+            this.currentHeldBlock = ItemStack.EMPTY;
+            return;
+        }
+        
+        // 重置索引（如果超出范围）
+        if (this.currentPlacementIndex >= allPositions.size()) {
+            this.currentPlacementIndex = 0;
+        }
+        
+        // 查找有物品的方块（与 placeBlueprintBlocks 逻辑一致）
+        for (int i = 0; i < allPositions.size(); i++) {
+            int index = (this.currentPlacementIndex + i) % allPositions.size();
+            BlockPos targetPos = allPositions.get(index);
+            
+            // 检查目标位置是否可以放置
+            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                continue;
+            }
+            
+            // 获取当前索引需要的方块
+            Block requiredBlock = getRequiredBlockForPosition(index);
+            if (requiredBlock == null) {
+                continue;
+            }
+            
+            // 预览物品（不真正提取）
+            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+            if (!blockItem.isEmpty()) {
+                this.currentHeldBlock = blockItem.copy();
+                return;
+            }
+        }
+        
+        // 没有找到有物品的方块
+        this.currentHeldBlock = ItemStack.EMPTY;
     }
     
     /**
@@ -285,18 +1176,37 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return false;
         }
         
+        // 清空钳子中的物品（停止动画）
         if (!this.currentHeldBlock.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
         }
         
+        // 重置冷却，让下一个 tick 可以立即检查是否可以继续工作
         if (this.placeCooldown > 0) {
             this.placeCooldown = 0;
         }
         
-        this.currentPlacementIndex = 0;
+        // 不重置 currentPlacementIndex！保持当前位置，等补充物品后继续
+        // this.currentPlacementIndex = 0;  // ❌ 删除这行
         
         this.onChanged();
         return true;
+    }
+    
+    /**
+     * 方块操作成功回调接口
+     */
+    @FunctionalInterface
+    private interface BlockOperationSuccessHandler {
+        boolean handle(ItemStack blockItem, BlockItem blockItemObj, BlockPos targetPos);
+    }
+    
+    /**
+     * 方块操作成功回调接口（支持ExtractionResult）
+     */
+    @FunctionalInterface
+    private interface BlockOperationSuccessHandlerWithExtraction {
+        boolean handle(ItemStack blockItem, BlockItem blockItemObj, BlockPos targetPos, @Nullable ExtractionResult extractionResult);
     }
     
     /**
@@ -376,11 +1286,37 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
                 BlockState targetState = level.getBlockState(targetPos);
                             
-                if (targetState.isAir() || !this.canNotBePlaced(level, targetState, null)) {
+                if (targetState.isAir() || this.canBePlaced(level, targetState, null)) {
                     return true;
                 }
             }
         }
+        return false;
+    }
+    
+    /**
+     * 检查蓝图模式是否有可放置的位置
+     */
+    private boolean hasBlueprintPositions(Level level, BlockPos placerPos) {
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            return false;
+        }
+        
+        Direction facing = this.getFacing(placerPos, level);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown);
+        
+        if (allPositions.isEmpty()) {
+            return false;
+        }
+        
+        // 检查是否还有空位
+        for (BlockPos targetPos : allPositions) {
+            if (this.canPlaceAtPosition(level, targetPos, null)) {
+                return true;
+            }
+        }
+        
         return false;
     }
 
@@ -391,56 +1327,78 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     /**
-     * 判断是否不能放置方块
+     * 判断是否可以放置方块（覆盖已有方块）
      */
-    private boolean canNotBePlaced(Level level, BlockState blockState, @Nullable net.minecraft.world.item.BlockItem blockItem) {
+    private boolean canBePlaced(Level level, BlockState blockState, @Nullable net.minecraft.world.item.BlockItem blockItem) {
         if (level instanceof net.minecraft.server.level.ServerLevel) {
             if (!blockState.getFluidState().isEmpty()) {
-                return false;
+                return true;
             }
             if (blockState.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG) 
                 && blockState.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS) < 4) {
-                return blockItem != null && blockState.getBlock() != blockItem.getBlock();
+                return blockItem != null && blockState.getBlock() == blockItem.getBlock();
             }
             if (blockState.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE) 
                 && blockState.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES) < 4) {
-                return blockItem != null && blockState.getBlock() != blockItem.getBlock();
+                return blockItem != null && blockState.getBlock() == blockItem.getBlock();
             }
             if (blockState.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
                 if (blockState.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES) >= 4) {
-                    return true;
+                    return false;
                 }
-                return blockItem != null && blockState.getBlock() != blockItem.getBlock();
+                return blockItem != null && blockState.getBlock() == blockItem.getBlock();
             }
         }
-        return true;
+        return false;
+    }
+    
+    /**
+     * 检查位置是否可以放置方块
+     * 
+     * @param level 世界
+     * @param targetPos 目标位置
+     * @param blockItem 要放置的物品（可为 null）
+     * @return 是否可以放置
+     */
+    public boolean canPlaceAtPosition(Level level, BlockPos targetPos, @Nullable net.minecraft.world.item.BlockItem blockItem) {
+        BlockState targetState = level.getBlockState(targetPos);
+        if (targetState.isAir()) {
+            return true;
+        }
+        return this.canBePlaced(level, targetState, blockItem);
     }
 
     private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
-        return !getBlockItemFromContainer(level, placerPos, false).isEmpty();
+        return !getBlockItemFromContainer(level, placerPos).isEmpty();
     }
 
     private Direction getFacing(BlockPos pos, Level level) {
         return level.getBlockState(pos).getValue(HorizontalDirectionalBlock.FACING);
     }
 
+    /**
+     * 放置方块（pickup模式）
+     */
     private void placeBlocks(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         
-        executeBlockOperation(level, placerPos, facing, upsideDown,
-            () -> this.extractBlockItemFromContainer(level, placerPos),
+        // 使用预提取逻辑，放置成功后才真正删除ItemEntity
+        executeUnifiedBlockOperationWithExtraction(level, facing, upsideDown,
+            () -> buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
+            (index) -> this.preExtractBlockItemFromContainer(level, placerPos),  // 预提取
             () -> this.peekBlockItemFromContainer(level, placerPos),
-            false, // pickup模式允许堆叠到非空气方块
-            (blockItem, blockItemObj, targetPos) -> {
+            (blockItem, blockItemObj, targetPos, extractionResult) -> {
                 this.currentHeldBlock = ItemStack.EMPTY;
-                
                 BlockState newState = level.getBlockState(targetPos);
-                return !newState.isAir() && !this.canNotBePlaced(level, newState, blockItemObj);
+                return !newState.isAir() && this.canBePlaced(level, newState, blockItemObj);
             }
         );
     }
 
+    /**
+     * 移动方块（move模式）
+     */
     private void moveBlocks(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
@@ -464,10 +1422,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         final BlockState finalSourceState = sourceState;
         final ItemStack sourceItem = finalSourceState.getBlock().asItem().getDefaultInstance();
         
-        executeBlockOperation(level, placerPos, facing, upsideDown,
+        executeUnifiedBlockOperation(level, placerPos, facing, upsideDown,
+            () -> buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
+            (index) -> sourceItem,  // 忽略 index，总是源方块
             () -> sourceItem,
-            () -> sourceItem,
-            true, // move模式严格要求目标位置为空
             (blockItem, blockItemObj, targetPos) -> {
                 BlockState stateToPlace = finalSourceState;
                 if (finalSourceState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)) {
@@ -487,69 +1445,139 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     }
                 }
                 
-                // 设置标志：方块正在被智能放置器移动
                 IS_BEING_MOVED_BY_PLACER.set(true);
                 try {
                     level.removeBlock(sourcePos, false);
                 } finally {
-                    // 确保标志被重置
                     IS_BEING_MOVED_BY_PLACER.set(false);
                 }
                 
                 this.currentHeldBlock = ItemStack.EMPTY;
-                
-                // 移动模式不支持堆叠
                 return false;
             }
         );
     }
     
     /**
-     * 执行方块操作的通用逻辑
+     * 放置蓝图中的方块
+     */
+    private void placeBlueprintBlocks(Level level, BlockPos placerPos) {
+        Direction facing = this.getFacing(placerPos, level);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            return;
+        }
+        
+        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown);
+        if (allPositions.isEmpty()) {
+            return;
+        }
+        
+        // 重置索引（如果超出范围）
+        if (this.currentPlacementIndex >= allPositions.size()) {
+            this.currentPlacementIndex = 0;
+        }
+        
+        // 查找有物品且位置为空的位置
+        for (int i = 0; i < allPositions.size(); i++) {
+            int index = (this.currentPlacementIndex + i) % allPositions.size();
+            BlockPos targetPos = allPositions.get(index);
+            
+            // 检查目标位置是否可以放置
+            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                continue;
+            }
+            
+            // 获取当前索引需要的方块
+            Block requiredBlock = getRequiredBlockForPosition(index);
+            if (requiredBlock == null) {
+                continue;
+            }
+            
+            // 尝试提取物品
+            ItemStack blockItem = this.extractSpecificBlockItemFromContainer(level, placerPos, requiredBlock);
+            if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
+                // 当前索引需要的方块没有，继续查找下一个
+                if (!this.currentHeldBlock.isEmpty()) {
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    this.onChanged();
+                }
+                continue;
+            }
+            
+            // 找到了有物品的位置，设置 currentHeldBlock 用于动画显示
+            this.currentHeldBlock = blockItem.copy();
+            this.onChanged();
+            
+            // 放置方块
+            if (!this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem)) {
+                // 放置失败，回滚物品
+                this.rollbackExtractedItem(level, placerPos, blockItem);
+                this.currentHeldBlock = ItemStack.EMPTY;
+                this.currentPlacementIndex = (index + 1) % allPositions.size();
+                this.onChanged();
+                return;
+            }
+            
+            // 放置成功
+            this.currentHeldBlock = ItemStack.EMPTY;
+            this.currentPlacementIndex = (index + 1) % allPositions.size();
+            this.onChanged();
+            return;
+        }
+        
+        // 所有位置都遍历完了，没有找到可以放置的
+        this.currentHeldBlock = ItemStack.EMPTY;
+        this.onChanged();
+    }
+    
+    /**
+     * 统一方块操作执行方法（用于move模式）
+     * 注意：move模式放置失败时不回滚物品，因为源方块仍在原位
      * 
      * @param level 世界
      * @param placerPos 放置器位置
      * @param facing 朝向
      * @param upsideDown 是否倒挂
-     * @param itemExtractor 物品提取器
+     * @param positionProvider 位置列表提供者
+     * @param itemExtractor 物品提取器（接收位置索引，返回物品）
      * @param itemPeeker 物品预览器
-     * @param requireEmptyTarget 是否要求目标位置必须为空（move模式为true，pickup模式为false）
      * @param onSuccess 成功回调
      */
-    private void executeBlockOperation(Level level, BlockPos placerPos, Direction facing, boolean upsideDown,
-        java.util.function.Supplier<ItemStack> itemExtractor,
-        java.util.function.Supplier<ItemStack> itemPeeker,
-        boolean requireEmptyTarget,
+    private void executeUnifiedBlockOperation(
+        Level level, 
+        BlockPos placerPos, 
+        Direction facing, 
+        boolean upsideDown,
+        java.util.function.Supplier<List<BlockPos>> positionProvider,
+        java.util.function.IntFunction<ItemStack> itemExtractor,
+        @Nullable java.util.function.Supplier<ItemStack> itemPeeker,
         BlockOperationSuccessHandler onSuccess) {
-        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
-        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
-
+        
+        List<BlockPos> allPositions = positionProvider.get();
+        
         if (allPositions.isEmpty()) {
             return;
         }
-
+        
+        // 重置索引（如果超出范围）
         if (this.currentPlacementIndex >= allPositions.size()) {
             this.currentPlacementIndex = 0;
         }
-
+        
+        // 从当前索引开始查找空位
         for (int i = 0; i < allPositions.size(); i++) {
             int index = (this.currentPlacementIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
-
-            BlockState targetState = level.getBlockState(targetPos);
             
-            // 根据模式选择目标检查逻辑
-            boolean isValidTarget;
-            if (requireEmptyTarget) {
-                // move模式：只接受空气方块
-                isValidTarget = targetState.isAir();
-            } else {
-                // pickup模式：接受空气或可堆叠方块
-                isValidTarget = targetState.isAir() || !this.canNotBePlaced(level, targetState, null);
+            // 检查目标位置是否可以放置
+            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                continue;
             }
             
-            if (isValidTarget) {
-                // 先预览物品进行检查，不实际提取
+            // 如果有预览器，先预览检查（pickup/move 模式）
+            if (itemPeeker != null) {
                 ItemStack peekedBlockItem = itemPeeker.get();
                 if (peekedBlockItem.isEmpty() || !(peekedBlockItem.getItem() instanceof BlockItem peekedBlockItemObj)) {
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
@@ -557,51 +1585,224 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     return;
                 }
                 
-                // 使用预览的物品进行放置合法性检查
-                if (!targetState.isAir() && this.canNotBePlaced(level, targetState, peekedBlockItemObj)) {
+                if (!this.canPlaceAtPosition(level, targetPos, peekedBlockItemObj)) {
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.onChanged();
                     return;
                 }
-                
-                // 所有检查通过，现在才真正提取物品
-                ItemStack blockItem = itemExtractor.get();
-                if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
-                    this.currentPlacementIndex = (index + 1) % allPositions.size();
-                    this.onChanged();
-                    return;
-                }
-                
-                Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
-
-                if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
-                    level, targetPos, orientation, blockItemObj, blockItem) == net.minecraft.world.InteractionResult.FAIL) {
-                    // 放置失败，需要回滚物品
-                    this.rollbackExtractedItem(level, placerPos, blockItem);
-                    this.onChanged();
-                    return;
-                }
-                
-                boolean canStack = onSuccess.handle(blockItem, blockItemObj, targetPos);
-                
-                if (canStack) {
-                    this.onChanged();
-                    return;
-                }
-                
+            }
+            
+            // 提取物品（传入当前位置索引）
+            ItemStack blockItem = itemExtractor.apply(index);
+            if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
+                // 容器中没有物品或物品类型不对，立即停止
+                this.currentHeldBlock = ItemStack.EMPTY;  // 清空动画显示
                 this.currentPlacementIndex = (index + 1) % allPositions.size();
                 this.onChanged();
                 return;
             }
+            
+            // 使用 FakePlayer 放置方块
+            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
+            
+            // 放置失败时直接返回（move模式不需要回滚，源方块仍在原位）
+            if (!placeSuccess) {
+                this.onChanged();
+                return;
+            }
+            
+            // 执行成功回调
+            boolean canStack = onSuccess.handle(blockItem, blockItemObj, targetPos);
+            
+            if (canStack) {
+                this.onChanged();
+                return;
+            }
+            
+            // 更新索引
+            this.currentPlacementIndex = (index + 1) % allPositions.size();
+            this.onChanged();
+            return;
         }
     }
     
     /**
-     * 方块操作成功回调
+     * 统一方块操作执行方法（支持预提取逻辑）
+     * 用于pickup模式，在放置成功后才真正删除ItemEntity
      */
-    @FunctionalInterface
-    private interface BlockOperationSuccessHandler {
-        boolean handle(ItemStack blockItem, BlockItem blockItemObj, BlockPos targetPos);
+    private void executeUnifiedBlockOperationWithExtraction(
+        Level level, 
+        Direction facing, 
+        boolean upsideDown,
+        java.util.function.Supplier<List<BlockPos>> positionProvider,
+        java.util.function.IntFunction<ExtractionResult> itemExtractor,
+        @Nullable java.util.function.Supplier<ItemStack> itemPeeker,
+        BlockOperationSuccessHandlerWithExtraction onSuccess) {
+        
+        List<BlockPos> allPositions = positionProvider.get();
+        
+        if (allPositions.isEmpty()) {
+            return;
+        }
+        
+        // 重置索引（如果超出范围）
+        if (this.currentPlacementIndex >= allPositions.size()) {
+            this.currentPlacementIndex = 0;
+        }
+        
+        // 从当前索引开始查找空位
+        for (int i = 0; i < allPositions.size(); i++) {
+            int index = (this.currentPlacementIndex + i) % allPositions.size();
+            BlockPos targetPos = allPositions.get(index);
+            
+            // 检查目标位置是否可以放置
+            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                continue;
+            }
+            
+            // 如果有预览器，先预览检查（pickup/move 模式）
+            if (itemPeeker != null) {
+                ItemStack peekedBlockItem = itemPeeker.get();
+                if (peekedBlockItem.isEmpty() || !(peekedBlockItem.getItem() instanceof BlockItem peekedBlockItemObj)) {
+                    this.currentPlacementIndex = (index + 1) % allPositions.size();
+                    this.onChanged();
+                    return;
+                }
+                
+                if (!this.canPlaceAtPosition(level, targetPos, peekedBlockItemObj)) {
+                    this.currentPlacementIndex = (index + 1) % allPositions.size();
+                    this.onChanged();
+                    return;
+                }
+            }
+            
+            // 预提取物品（不真正删除ItemEntity）
+            ExtractionResult extractionResult = itemExtractor.apply(index);
+            if (extractionResult == null || extractionResult.getItemStack().isEmpty()
+                || !(extractionResult.getItemStack().getItem() instanceof BlockItem blockItemObj)) {
+                // 容器中没有物品或物品类型不对，立即停止
+                this.currentHeldBlock = ItemStack.EMPTY;  // 清空动画显示
+                this.currentPlacementIndex = (index + 1) % allPositions.size();
+                this.onChanged();
+                return;
+            }
+            
+            ItemStack blockItem = extractionResult.getItemStack();
+            
+            // 使用 FakePlayer 放置方块
+            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
+            
+            // 放置失败时，不需要回滚（因为ItemEntity还没被删除）
+            if (!placeSuccess) {
+                this.onChanged();
+                return;
+            }
+            
+            // 放置成功，确认提取（真正删除或修改ItemEntity）
+            extractionResult.confirmExtraction();
+            
+            // 执行成功回调
+            boolean canStack = onSuccess.handle(blockItem, blockItemObj, targetPos, extractionResult);
+            
+            if (canStack) {
+                this.onChanged();
+                return;
+            }
+            
+            // 更新索引
+            this.currentPlacementIndex = (index + 1) % allPositions.size();
+            this.onChanged();
+            return;
+        }
+    }
+    
+    /**
+     * 从 layerPositions 构建有序位置列表
+     */
+    private List<BlockPos> buildOrderedPositionsFromLayers(BlockPos placerPos, Direction facing, boolean upsideDown) {
+        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+        return buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
+    }
+    
+    /**
+     * 从结构数据构建位置列表（静态公共方法，供渲染器调用）
+     * 注意：使用旋转后的结构数据，完全复用普通模式的 calculateTargetPosition 算法
+     * 
+     * @param placerPos 放置器位置
+     * @param facing 放置器朝向
+     * @param upsideDown 是否倒挂
+     * @param rotatedData 旋转后的结构数据
+     * @return 位置列表
+     */
+    public static List<BlockPos> buildBlueprintPositions(
+        BlockPos placerPos, 
+        Direction facing, 
+        boolean upsideDown,
+        StructureLoadUtil.StructureData rotatedData
+    ) {
+        if (rotatedData.blocks.isEmpty()) {
+            return List.of();
+        }
+        
+        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+        List<BlockPos> positions = new ArrayList<>();
+        
+        // 将结构数据的 x、z 转换为 row、col，使用与普通模式相同的 calculateTargetPosition
+        // 蓝图模式：x 沿 right 方向（横向），z 沿 right.getClockWise() 方向（纵向）
+        // calculateTargetPosition：col 沿 right 方向，row 沿 right.getClockWise() 方向
+        // 所以：x → col，z → row
+        for (StructureLoadUtil.BlockPosition blueprintBlock : rotatedData.blocks) {
+            int row = blueprintBlock.z();  // z 对应 row（纵向，沿 right.getClockWise() 方向）
+            int col = blueprintBlock.x();  // x 对应 col（横向，沿 right 方向）
+            int layer = blueprintBlock.y();  // y 对应 layer
+            
+            BlockPos targetPos = calculateTargetPosition(basePos, facing, row, col, layer, upsideDown);
+            positions.add(targetPos);
+        }
+        
+        return positions;
+    }
+    
+    /**
+     * 从结构数据构建位置列表（实例方法，内部使用）
+     */
+    private List<BlockPos> buildBlueprintPositions(BlockPos placerPos, Direction facing, boolean upsideDown) {
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            return List.of();
+        }
+        
+        StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+        return buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
+    }
+    
+    /**
+     * 获取指定索引位置需要的方块类型
+     * 注意：使用旋转后的结构数据
+     */
+    @Nullable
+    public Block getRequiredBlockForPosition(int index) {
+        if (this.loadedStructure == null) {
+            return null;
+        }
+        
+        // 获取旋转后的结构数据
+        StructureLoadUtil.StructureData rotatedData = this.rotateStructureData(this.loadedStructure);
+        if (index < 0 || index >= rotatedData.blocks.size()) {
+            return null;
+        }
+        return rotatedData.blocks.get(index).state().getBlock();
+    }
+    
+    /**
+     * 尝试使用 FakePlayer 放置方块
+     * 
+     * @return 是否放置成功
+     */
+    private boolean tryPlaceBlockWithFakePlayer(Level level, BlockPos targetPos, Direction facing, 
+        boolean upsideDown, BlockItem blockItemObj, ItemStack blockItem) {
+        Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
+        return AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
+            level, targetPos, orientation, blockItemObj, blockItem) != net.minecraft.world.InteractionResult.FAIL;
     }
 
     /**
@@ -663,14 +1864,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private ItemStack peekBlockItemFromContainer(Level level, BlockPos placerPos) {
-        return this.getBlockItemFromContainer(level, placerPos, false);
+        return this.getBlockItemFromContainer(level, placerPos);
     }
-
-    private ItemStack extractBlockItemFromContainer(Level level, BlockPos placerPos) {
-        return this.getBlockItemFromContainer(level, placerPos, true);
-    }
-
-    private ItemStack getBlockItemFromContainer(Level level, BlockPos placerPos, boolean extract) {
+    
+    /**
+     * 预提取物品：不真正删除ItemEntity，只返回物品信息和来源引用
+     * 在放置成功后调用 ExtractionResult.confirmExtraction() 才真正删除
+     */
+    @Nullable
+    private ExtractionResult preExtractBlockItemFromContainer(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
         BlockPos inputPos = placerPos.relative(facing.getOpposite());
 
@@ -679,13 +1881,268 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
             ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
             if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
-                if (extract) {
+                // 从容器预提取：先模拟提取，返回物品信息，放置成功后再真正提取
+                // 细雪桶特殊处理：预提取时就返还桶
+                if (blockItemStack.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
+                    itemHandler.insertItem(slot, new ItemStack(net.minecraft.world.item.Items.BUCKET), false);
+                }
+                return new ContainerExtractionResult(blockItemStack.copy(), itemHandler, slot);
+            }
+        }
+
+        if (itemHandler == null) {
+            AABB aabb = new AABB(inputPos);
+            List<Entity> rawEntities = level.getEntitiesOfClass(
+                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+            );
+            
+            for (Entity rawEntity : rawEntities) {
+                if (rawEntity instanceof ContainerEntity containerEntity) {
+                    IItemHandler entityHandler = ((Entity) containerEntity).getCapability(
+                        Capabilities.ItemHandler.ENTITY, null
+                    );
+                    if (entityHandler != null) {
+                        for (slot = 0; slot < entityHandler.getSlots(); slot++) {
+                            ItemStack blockItemStack = entityHandler.extractItem(slot, 1, true);
+                            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
+                                // 从实体容器预提取：先模拟提取，返回物品信息，放置成功后再真正提取
+                                // 细雪桶特殊处理：预提取时就返还桶
+                                if (blockItemStack.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
+                                    entityHandler.insertItem(slot, new ItemStack(net.minecraft.world.item.Items.BUCKET), false);
+                                }
+                                return new ContainerExtractionResult(blockItemStack.copy(), entityHandler, slot);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 从 ItemEntity 预提取：不真正删除，只记录引用
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        if (entities.isEmpty()) {
+            return null;
+        }
+
+        ItemEntity itemEntity = null;
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() instanceof BlockItem) {
+                itemEntity = entity;
+                break;
+            }
+        }
+
+        if (itemEntity == null) {
+            return null;
+        }
+
+        // 返回物品信息和ItemEntity引用，但不真正删除
+        ItemStack extracted = itemEntity.getItem().copyWithCount(1);
+        
+        // 细雪桶特殊处理：预提取时就生成空桶掉落物
+        if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
+            // 生成空桶掉落物
+            ItemEntity bucketEntity = new ItemEntity(level, 
+                itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), 
+                new ItemStack(net.minecraft.world.item.Items.BUCKET));
+            bucketEntity.setDeltaMovement(0, 0, 0);
+            level.addFreshEntity(bucketEntity);
+        }
+        
+        return new ExtractionResult(extracted, itemEntity, true);
+    }
+    
+    /**
+     * 预览容器中特定方块物品（不提取）
+     * 
+     * @param level 世界
+     * @param placerPos 放置器位置
+     * @param targetBlock 目标方块
+     * @return 预览的物品，如果没有找到则返回 EMPTY
+     */
+    public ItemStack peekSpecificBlockItemFromContainer(
+        Level level, BlockPos placerPos, net.minecraft.world.level.block.Block targetBlock) {
+        Direction facing = this.getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
+
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        int slot;
+        for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
+            ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
+            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
+                // 检查是否是需要的方块
+                if (blockItem.getBlock() == targetBlock) {
+                    return blockItemStack.copy();
+                }
+            }
+        }
+
+        if (itemHandler == null) {
+            AABB aabb = new AABB(inputPos);
+            List<Entity> rawEntities = level.getEntitiesOfClass(
+                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+            );
+            
+            for (Entity rawEntity : rawEntities) {
+                if (rawEntity instanceof ContainerEntity containerEntity) {
+                    IItemHandler entityHandler = ((Entity) containerEntity).getCapability(
+                        Capabilities.ItemHandler.ENTITY, null
+                    );
+                    if (entityHandler != null) {
+                        for (slot = 0; slot < entityHandler.getSlots(); slot++) {
+                            ItemStack blockItemStack = entityHandler.extractItem(slot, 1, true);
+                            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
+                                if (blockItem.getBlock() == targetBlock) {
+                                    return blockItemStack.copy();
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        if (entities.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemEntity itemEntity = null;
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() instanceof BlockItem blockItem) {
+                if (blockItem.getBlock() == targetBlock) {
+                    itemEntity = entity;
+                    break;
+                }
+            }
+        }
+
+        if (itemEntity == null) {
+            return ItemStack.EMPTY;
+        }
+
+        // 返回副本，不修改实体
+        return itemEntity.getItem().copy();
+    }
+    
+    /**
+     * 从容器中提取特定方块物品
+     * 
+     * @param level 世界
+     * @param placerPos 放置器位置
+     * @param targetBlock 目标方块
+     * @return 提取的物品，如果没有找到则返回 EMPTY
+     */
+    private ItemStack extractSpecificBlockItemFromContainer(
+        Level level, BlockPos placerPos, net.minecraft.world.level.block.Block targetBlock) {
+        Direction facing = this.getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
+
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        int slot;
+        for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
+            ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
+            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
+                // 检查是否是需要的方块
+                if (blockItem.getBlock() == targetBlock) {
+                    // 直接提取，不需要先检查
                     ItemStack extracted = itemHandler.extractItem(slot, 1, false);
+                    if (extracted.isEmpty()) {
+                        return ItemStack.EMPTY;
+                    }
                     if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
                         itemHandler.insertItem(slot, new ItemStack(net.minecraft.world.item.Items.BUCKET), false);
                     }
                     return extracted;
                 }
+            }
+        }
+
+        if (itemHandler == null) {
+            AABB aabb = new AABB(inputPos);
+            List<Entity> rawEntities = level.getEntitiesOfClass(
+                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+            );
+            
+            for (Entity rawEntity : rawEntities) {
+                if (rawEntity instanceof ContainerEntity containerEntity) {
+                    IItemHandler entityHandler = ((Entity) containerEntity).getCapability(
+                        Capabilities.ItemHandler.ENTITY, null
+                    );
+                    if (entityHandler != null) {
+                        for (slot = 0; slot < entityHandler.getSlots(); slot++) {
+                            ItemStack blockItemStack = entityHandler.extractItem(slot, 1, true);
+                            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
+                                if (blockItem.getBlock() == targetBlock) {
+                                    return entityHandler.extractItem(slot, 1, false);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        if (entities.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemEntity itemEntity = null;
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() instanceof BlockItem blockItem) {
+                if (blockItem.getBlock() == targetBlock) {
+                    itemEntity = entity;
+                    break;
+                }
+            }
+        }
+
+        if (itemEntity == null) {
+            return ItemStack.EMPTY;
+        }
+
+        // 提取时先保存物品副本，再修改实体数量
+        ItemStack extracted = itemEntity.getItem().copyWithCount(1);
+        int count = itemEntity.getItem().getCount();
+        if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
+            itemEntity.setItem(new ItemStack(net.minecraft.world.item.Items.BUCKET, count));
+            itemEntity.setDeltaMovement(0, 0, 0);
+        } else if (count > 1) {
+            itemEntity.getItem().setCount(count - 1);
+        } else {
+            itemEntity.discard();
+        }
+        return extracted;
+    }
+
+    private ItemStack getBlockItemFromContainer(Level level, BlockPos placerPos) {
+        Direction facing = this.getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
+
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        int slot;
+        for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
+            ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
+            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
                 return blockItemStack.copy();
             }
         }
@@ -705,11 +2162,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                         for (slot = 0; slot < entityHandler.getSlots(); slot++) {
                             ItemStack blockItemStack = entityHandler.extractItem(slot, 1, true);
                             if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem) {
-                                if (!extract) {
-                                    return blockItemStack.copy();
-                                } else {
-                                    return entityHandler.extractItem(slot, 1, false);
-                                }
+                                return blockItemStack.copy();
                             }
                         }
                     }
@@ -740,21 +2193,68 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return ItemStack.EMPTY;
         }
 
-        // 提取时先保存物品副本，再修改实体数量
-        ItemStack extracted = itemEntity.getItem().copyWithCount(1);
-        if (extract) {
-            int count = itemEntity.getItem().getCount();
-            if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
-                itemEntity.setItem(new ItemStack(net.minecraft.world.item.Items.BUCKET, count));
-                itemEntity.setDeltaMovement(0, 0, 0);
-            } else if (count > 1) {
-                itemEntity.getItem().setCount(count - 1);
-            } else {
-                itemEntity.discard();
-            }
-            return extracted;
-        }
         return itemEntity.getItem().copy();
+    }
+    
+    /**
+     * 提取操作结果封装类
+     * 用于支持"预提取"逻辑：先获取物品信息，放置成功后再真正删除
+     */
+    private static class ExtractionResult {
+        @Getter
+        private final ItemStack itemStack;
+        @Nullable
+        private final ItemEntity sourceItemEntity;  // 如果来源是ItemEntity,记录引用
+        @Getter
+        private final boolean fromItemEntity;
+            
+        ExtractionResult(ItemStack itemStack, @Nullable ItemEntity sourceItemEntity, boolean fromItemEntity) {
+            this.itemStack = itemStack;
+            this.sourceItemEntity = sourceItemEntity;
+            this.fromItemEntity = fromItemEntity;
+        }
+
+        /**
+         * 确认提取：在放置成功后调用，真正删除或修改ItemEntity
+         * 注意：细雪桶的返还已在预提取阶段处理，这里只需删除细雪桶
+         */
+        public void confirmExtraction() {
+            if (fromItemEntity && sourceItemEntity != null && sourceItemEntity.isAlive()) {
+                int count = sourceItemEntity.getItem().getCount();
+                // 不需要处理细雪桶，因为预提取时已经生成空桶掉落物了
+                if (count > 1) {
+                    sourceItemEntity.getItem().setCount(count - 1);
+                } else {
+                    sourceItemEntity.discard();
+                }
+            }
+        }
+    }
+    
+    /**
+     * 容器提取结果封装类
+     * 用于支持容器的预提取逻辑：先模拟提取，放置成功后再真正提取
+     */
+    private static class ContainerExtractionResult extends ExtractionResult {
+        private final IItemHandler itemHandler;
+        private final int slot;
+        
+        ContainerExtractionResult(ItemStack itemStack, IItemHandler itemHandler, int slot) {
+            super(itemStack, null, false);
+            this.itemHandler = itemHandler;
+            this.slot = slot;
+        }
+        
+        /**
+         * 确认提取：在放置成功后调用，真正从容器中提取物品
+         * 注意：细雪桶的返还已在预提取阶段处理，这里只需删除细雪桶
+         */
+        @Override
+        public void confirmExtraction() {
+            // 真正从容器中删除物品
+            itemHandler.extractItem(slot, 1, false);
+            // 不需要处理细雪桶，因为预提取时已经把桶插回去了
+        }
     }
     
     private Orientation calculatePlacementOrientation(Direction facing, boolean upsideDown) {
@@ -793,13 +2293,34 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (!remaining.isEmpty()) {
                 ItemEntity itemEntity = new ItemEntity(level,
                     inputPos.getX() + 0.5, inputPos.getY() + 0.5, inputPos.getZ() + 0.5, remaining);
+                itemEntity.setDeltaMovement(0, 0, 0);  // 清除动量
                 level.addFreshEntity(itemEntity);
             }
             return;
         }
         
-        // 如果没有ItemHandler，直接生成ItemEntity
+        // 检查是否已经有相同位置的ItemEntity，尝试堆叠回去
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() == extractedItem.getItem()
+                && ItemStack.isSameItemSameComponents(entity.getItem(), extractedItem)) {
+                // 可以堆叠，增加数量
+                int newCount = entity.getItem().getCount() + extractedItem.getCount();
+                entity.getItem().setCount(newCount);
+                entity.setDeltaMovement(0, 0, 0);  // 清除动量
+                return;
+            }
+        }
+        
+        // 如果没有可堆叠的ItemEntity，创建新的
         ItemEntity itemEntity = new ItemEntity(level, inputPos.getX() + 0.5, inputPos.getY() + 0.5, inputPos.getZ() + 0.5, extractedItem);
+        itemEntity.setDeltaMovement(0, 0, 0);  // 清除动量
         level.addFreshEntity(itemEntity);
     }
     
@@ -835,6 +2356,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     public void setPickupMode(boolean pickupMode) {
         this.isPickupMode = pickupMode;
+        this.onChanged();
+    }
+
+    public void setSkipMissingMode(boolean skipMissingMode) {
+        this.isSkipMissingMode = skipMissingMode;
         this.onChanged();
     }
 
@@ -891,7 +2417,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     @Override
     public int getInputPower() {
-        return SmartBlockPlacerBlockEntity.POWER;
+        // 蓝图模式耗电量为64kW，其他模式为16kW
+        return (this.loadedStructure != null && !this.loadedStructure.isEmpty()) ? 64 : SmartBlockPlacerBlockEntity.POWER;
     }
 
     @Override

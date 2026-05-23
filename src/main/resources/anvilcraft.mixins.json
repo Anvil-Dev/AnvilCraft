@@ -72,9 +72,6 @@
     "piglin.PiglinMixin",
     "poachfixers.GiveCommandMixin",
     "poachfixers.JeiServerCommandUtilMixin",
-    "portal.EndGatewayBlockMixin",
-    "portal.EndPortalBlockMixin",
-    "portal.NetherPortalBlockMixin",
     "providence.ApplyBonusCountMixin",
     "providence.DamageEntityMixin",
     "providence.EnchantedCountIncreaseFunctionMixin"
