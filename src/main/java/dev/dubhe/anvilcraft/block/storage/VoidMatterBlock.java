@@ -19,14 +19,14 @@ public class VoidMatterBlock extends Block {
         super(properties.randomTicks());
     }
 
-    public static BlockState voidDecay(Level level, BlockPos pos, BlockState state, RandomSource random) {
+    public static BlockState voidDecay(Level level, RandomSource random) {
         Iterable<Holder<Block>> tagOrEmpty = level.registryAccess().lookupOrThrow(Registries.BLOCK)
             .getTagOrEmpty(ModBlockTags.VOID_DECAY_PRODUCTS);
         int count = 0;
         Block randomBlock = null;
         for (Holder<Block> blockHolder : tagOrEmpty) {
             count++;
-            if (level.getRandom().nextInt(count) == 0) {
+            if (random.nextInt(count) == 0) {
                 randomBlock = blockHolder.value();
             }
         }
@@ -36,12 +36,15 @@ public class VoidMatterBlock extends Block {
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        long neighborVoidMatterCount = Direction.stream()
-            .map(d -> level.getBlockState(pos.relative(d)))
-            .filter(b -> b.getBlock() instanceof VoidMatterBlock)
-            .count();
+        long neighborVoidMatterCount = 0L;
+        for (Direction d : Direction.values()) {
+            BlockState b = level.getBlockState(pos.relative(d));
+            if (b.getBlock() instanceof VoidMatterBlock) {
+                neighborVoidMatterCount++;
+            }
+        }
         if (neighborVoidMatterCount >= VOID_DECAY_THRESHOLD) {
-            level.setBlockAndUpdate(pos, voidDecay(level, pos, state, random));
+            level.setBlockAndUpdate(pos, voidDecay(level, random));
         }
     }
 
