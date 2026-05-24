@@ -685,9 +685,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 continue;
             }
             
-            // 检查容器中是否有该方块
-            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
-            if (blockItem.isEmpty()) {
+            // 检查是否有该方块（根据模式检查不同来源）
+            boolean hasBlock;
+            if (this.isPickupMode) {
+                // Pickup模式：检查容器和掉落物实体
+                ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+                hasBlock = !blockItem.isEmpty();
+            } else {
+                // Move模式：检查源位置的方块
+                BlockPos sourcePos = pos.relative(facing.getOpposite());
+                BlockState sourceState = level.getBlockState(sourcePos);
+                hasBlock = !sourceState.isAir() && sourceState.is(requiredBlock);
+            }
+            
+            if (!hasBlock) {
                 // 找到了缺失的方块
                 ItemStack newMissingItem = new ItemStack(requiredBlock);
                 if (!ItemStack.isSameItemSameComponents(this.missingBlockItem, newMissingItem)) {
