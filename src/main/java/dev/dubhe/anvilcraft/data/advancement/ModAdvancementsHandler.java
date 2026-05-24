@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.advancement;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumAdvancementProvider;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -31,7 +32,7 @@ public class ModAdvancementsHandler {
         HolderGetter<Item> itemLookup = registries.lookupOrThrow(Registries.ITEM);
         HolderGetter<Block> blockLookup = registries.lookupOrThrow(Registries.BLOCK);
         HolderGetter<EntityType<?>> entityTypeLookup = registries.lookupOrThrow(Registries.ENTITY_TYPE);
-        AdvancementLineHelper mainLine = new AdvancementLineHelper();
+        AdvancementLineHelper mainLine = new AdvancementLineHelper(AnvilCraft.MOD_ID);
         AdvancementHolder root = mainLine.next()
             .display(
                 ModBlocks.ROYAL_ANVIL.asItem(),
@@ -100,7 +101,7 @@ public class ModAdvancementsHandler {
                 true,
                 false
             )
-            .useItem("use_geode", itemLookup, ModItems.GEODE)
+            .consumeItem("use_geode", itemLookup, ModItems.GEODE)
             .save(provider, "geode");
         AdvancementHolder amethystPickaxe = geodeLine.next()
             .display(
@@ -126,7 +127,7 @@ public class ModAdvancementsHandler {
                 true,
                 false
             )
-            .useItem("use_topaz", itemLookup, ModItems.TOPAZ)
+            .consumeItem("use_topaz", itemLookup, ModItems.TOPAZ)
             .save(provider, "topaz");
         AdvancementHolder liftingAnvil = geodeLine.next()
             .display(
