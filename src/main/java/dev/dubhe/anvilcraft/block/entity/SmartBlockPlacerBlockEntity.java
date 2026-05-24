@@ -515,7 +515,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
             
             // 获取有序索引列表
-            List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+            List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
             
             // 计算已放置的方块数量
             int placedCount = 0;
@@ -668,7 +668,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 获取有序索引列表
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         
         // 遍历所有位置，找到第一个未放置且缺少材料的位置
         for (int index : orderedIndices) {
@@ -859,8 +859,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 // 使用旋转后的结构数据
                 StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
                 
+                // 获取倒挂状态
+                boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+                
                 // 获取有序索引列表
-                List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+                List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
                 boolean indexExhausted = this.currentPlacementIndex >= orderedIndices.size();
                 
                 if (indexExhausted) {
@@ -887,7 +890,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 } else {
                     // Move模式：检查源位置是否有方块 且 蓝图还有空位
                     Direction facing = this.getFacing(pos, level);
-                    boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
                     BlockPos sourcePos = pos.relative(facing.getOpposite());
                     
                     // 检查源位置是否有方块
@@ -986,7 +988,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 获取有序索引列表
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         if (orderedIndices.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
             return;
@@ -1211,7 +1213,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 检查是否还有空位（按有序索引遍历）
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
             BlockPos targetPos = allPositions.get(index);
             if (this.canPlaceAtPosition(level, targetPos, null)) {
@@ -1249,7 +1251,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 检查是否还有可放置的蓝图位置
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
             BlockPos targetPos = allPositions.get(index);
             if (this.canPlaceAtPosition(level, targetPos, null)) {
@@ -1433,7 +1435,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 获取有序索引列表（按 y → z → x 排序）
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         if (orderedIndices.isEmpty()) {
             return;
         }
@@ -1504,12 +1506,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     
     /**
      * 移动蓝图中的方块（move逻辑：从放置器后方1格提取方块，放置到蓝图位置）
-     * 完全复用placeBlueprintBlocks的逻辑，只是把从容器提取改成从源位置拿走方块
+     * 复用普通move模式的executeUnifiedBlockOperation方法
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void moveBlueprintBlocks(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
-        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos sourcePos = placerPos.relative(facing.getOpposite());
         
         if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
@@ -1530,95 +1530,80 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         } else {
             sourceBlockEntityData = null;
         }
-
+        
+        final BlockState finalSourceState = sourceState;
+        final ItemStack sourceItem = finalSourceState.getBlock().asItem().getDefaultInstance();
+        final boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        
         // 获取旋转后的结构数据
         StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
         
-        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
-        if (allPositions.isEmpty()) {
-            return;
-        }
-        
-        // 获取有序索引列表（按 y → z → x 排序）
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
-        if (orderedIndices.isEmpty()) {
-            return;
-        }
-        
-        // 重置索引（如果超出范围）
-        if (this.currentPlacementIndex >= orderedIndices.size()) {
-            this.currentPlacementIndex = 0;
-        }
-        
-        // 按有序索引列表遍历（与placeBlueprintBlocks完全相同的逻辑）
-        for (int i = 0; i < orderedIndices.size(); i++) {
-            int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
-            int index = orderedIndices.get(orderIndex);
-            BlockPos targetPos = allPositions.get(index);
-            
-            // 检查目标位置是否可以放置
-            if (!this.canPlaceAtPosition(level, targetPos, null)) {
-                continue;
-            }
-            
-            // 获取当前索引需要的方块
-            Block requiredBlock = getRequiredBlockForPosition(index);
-            if (requiredBlock == null) {
-                continue;
-            }
-            
-            // 检查源方块是否与蓝图需要的方块匹配
-            if (!sourceState.is(requiredBlock)) {
-                continue;
-            }
-            
-            // 设置 currentHeldBlock 用于动画显示
-            ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
-            this.currentHeldBlock = sourceItem.copy();
-            this.onChanged();
-            
-            // 先删除源方块
-            IS_BEING_MOVED_BY_PLACER.set(true);
-            try {
-                level.removeBlock(sourcePos, false);
-            } finally {
-                IS_BEING_MOVED_BY_PLACER.set(false);
-            }
-            
-            // 使用 FakePlayer 放置方块（与 placeBlueprintBlocks 一致）
-            BlockItem blockItemObj = (BlockItem) sourceItem.getItem();
-            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, sourceItem);
-            
-            if (!placeSuccess) {
-                // 放置失败，不需要回滚（源方块已删除）
-                this.currentHeldBlock = ItemStack.EMPTY;
-                this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
-                this.onChanged();
-                return;
-            }
-            
-            // 放置成功后，修正方块的朝向为蓝图中的朝向
-            this.applyBlueprintBlockFacing(level, targetPos, index);
-            
-            // 恢复BlockEntity数据（如果有）
-            if (sourceBlockEntityData != null) {
-                BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
-                if (targetBlockEntity != null) {
-                    targetBlockEntity.loadWithComponents(sourceBlockEntityData, level.registryAccess());
-                    targetBlockEntity.setChanged();
+        // 复用普通move模式的执行方法，只是位置列表提供者改为蓝图位置
+        executeUnifiedBlockOperation(level, facing, upsideDown,
+            () -> buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData),
+            (index) -> {
+                // 检查源方块是否与蓝图需要的方块匹配
+                Block requiredBlock = getRequiredBlockForPosition(index);
+                if (requiredBlock != null && sourceState.is(requiredBlock)) {
+                    return sourceItem;
                 }
+                return ItemStack.EMPTY;
+            },
+            () -> sourceItem,
+            (blockItem, blockItemObj, targetPos) -> {
+                // 从有序索引列表中获取原始索引，用于应用蓝图朝向
+                int orderedIndex = this.currentPlacementIndex > 0 ? this.currentPlacementIndex - 1 : 0;
+                List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+                if (orderedIndex < orderedIndices.size()) {
+                    int originalIndex = orderedIndices.get(orderedIndex);
+                    // 放置成功后，修正方块的朝向为蓝图中的朝向
+                    this.applyBlueprintBlockFacing(level, targetPos, originalIndex);
+                }
+                
+                BlockState stateToPlace = finalSourceState;
+                
+                // 侦测器不继承POWERED状态
+                if (stateToPlace.is(net.minecraft.world.level.block.Blocks.OBSERVER) 
+                    && stateToPlace.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED)) {
+                    stateToPlace = stateToPlace.setValue(
+                        net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED, 
+                        false
+                    );
+                }
+                
+                if (finalSourceState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)) {
+                    stateToPlace = finalSourceState.setValue(
+                        net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, 
+                        false
+                    );
+                }
+                
+                // 先删除源方块
+                IS_BEING_MOVED_BY_PLACER.set(true);
+                try {
+                    level.removeBlock(sourcePos, false);
+                } finally {
+                    IS_BEING_MOVED_BY_PLACER.set(false);
+                }
+                
+                // 放置方块到目标位置
+                level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+                
+                if (sourceBlockEntityData != null) {
+                    BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
+                    if (targetBlockEntity != null) {
+                        targetBlockEntity.loadWithComponents(sourceBlockEntityData, level.registryAccess());
+                        targetBlockEntity.setChanged();
+                    }
+                }
+                
+                // 在目标位置发送方块更新通知
+                level.neighborChanged(targetPos, stateToPlace.getBlock(), targetPos);
+                
+                this.currentHeldBlock = ItemStack.EMPTY;
+                return false;
             }
-            
-            // 放置成功
-            this.currentHeldBlock = ItemStack.EMPTY;
-            this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
-            this.onChanged();
-            return;
-        }
-        
-        // 所有位置都遍历完了，没有找到可以放置的
-        this.currentHeldBlock = ItemStack.EMPTY;
-        this.onChanged();
+        );
     }
     
     /**
@@ -1839,41 +1824,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockPos basePos = placerPos.relative(forward.getOpposite(), -4);
         List<BlockPos> positions = new ArrayList<>();
         
-        // 根据放置器朝向和Scanner朝向计算实际旋转步数
+        // 根据放置器朝向和Scanner朝向计算实际旋转
         // Scanner和Placer南北相反，需要修正
-        int scannerFacingValue = rotatedData.scannerFacing;
-        
-        // 1. 计算放置器朝向的基础旋转
-        int placerRotation = switch (forward) {
-            case NORTH -> 0;
-            case EAST -> 1;
-            case SOUTH -> 2;
-            case WEST -> 3;
-            default -> 0;
-        };
-        
-        // 2. 根据Scanner朝向计算额外修正
-        int scannerCorrection = switch (scannerFacingValue) {
-            case 2 -> 2;  // Scanner北 → +180度
-            case 3 -> 2;  // Scanner南 → +180度
-            case 4 -> 3;  // Scanner西 → +270度
-            case 5 -> 1;  // Scanner东 → +90度
-            default -> 0;
-        };
-        
-        // 3. Scanner朝南时额外+180度（在修正基础上再翻180）
-        int extraFlip = (scannerFacingValue == 3) ? 2 : 0;
-        
-        // 4. 总旋转步数 = 基础旋转 + Scanner修正 + Scanner朝南额外翻转
-        int rotationSteps = (placerRotation + scannerCorrection + extraFlip) % 4;
-        
-        // 转换为Minecraft原生Rotation
-        net.minecraft.world.level.block.Rotation rotation = switch (rotationSteps) {
-            case 1 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_90;
-            case 2 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
-            case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
-            default -> net.minecraft.world.level.block.Rotation.NONE;
-        };
+        net.minecraft.world.level.block.Rotation rotation = getRotationForPlacement(forward, rotatedData.scannerFacing);
         
         // 使用原始坐标，但相对于中心点偏移
         for (StructureLoadUtil.BlockPosition blueprintBlock : rotatedData.blocks) {
@@ -1896,6 +1849,55 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         return positions;
+    }
+    
+    /**
+     * 计算放置器朝向和Scanner朝向的旋转步数
+     * 
+     * @param forward 放置器朝向
+     * @param scannerFacing Scanner朝向值
+     * @return 旋转步数 (0-3)
+     */
+    private static int calculateRotationSteps(Direction forward, int scannerFacing) {
+        // 1. 计算放置器朝向的基础旋转
+        int placerRotation = switch (forward) {
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
+        };
+        
+        // 2. 根据Scanner朝向计算额外修正
+        int scannerCorrection = switch (scannerFacing) {
+            case 2 -> 2;  // Scanner北 → +180度
+            case 3 -> 2;  // Scanner南 → +180度
+            case 4 -> 3;  // Scanner西 → +270度
+            case 5 -> 1;  // Scanner东 → +90度
+            default -> 0;
+        };
+        
+        // 3. Scanner朝南时额外+180度（在修正基础上再翻180）
+        int extraFlip = (scannerFacing == 3) ? 2 : 0;
+        
+        // 4. 总旋转步数 = 基础旋转 + Scanner修正 + Scanner朝南额外翻转
+        return (placerRotation + scannerCorrection + extraFlip) % 4;
+    }
+    
+    /**
+     * 获取放置器朝向和Scanner朝向对应的Minecraft原生Rotation
+     * 
+     * @param forward 放置器朝向
+     * @param scannerFacing Scanner朝向值
+     * @return Minecraft Rotation对象
+     */
+    private static net.minecraft.world.level.block.Rotation getRotationForPlacement(Direction forward, int scannerFacing) {
+        int rotationSteps = calculateRotationSteps(forward, scannerFacing);
+        return switch (rotationSteps) {
+            case 1 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_90;
+            case 2 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
+            case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
+            default -> net.minecraft.world.level.block.Rotation.NONE;
+        };
     }
     
     /**
@@ -1939,9 +1941,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * 按 y → z → x 排序（对应 layer → row → col），保持与正常模式一致的放置顺序
      * 
      * @param rotatedData 旋转后的结构数据
+     * @param upsideDown 是否倒挂（倒挂时从上到下放置）
      * @return 排序后的索引列表
      */
-    public static List<Integer> buildOrderedBlueprintIndices(StructureLoadUtil.StructureData rotatedData) {
+    public static List<Integer> buildOrderedBlueprintIndices(StructureLoadUtil.StructureData rotatedData, boolean upsideDown) {
         if (rotatedData.blocks.isEmpty()) {
             return List.of();
         }
@@ -1953,11 +1956,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 按方块坐标的 y → z(降序) → x(降序) 排序
-        // y升序=从下到上, z降序=从远到近, x降序=从右到左
+        // 正常模式：y升序=从下到上
+        // 倒挂模式：y降序=从上到下（因为倒挂后最高层先放置）
+        // z降序=从远到近, x降序=从右到左
+        final boolean finalUpsideDown = upsideDown;
         indices.sort((i, j) -> {
             StructureLoadUtil.BlockPosition a = rotatedData.blocks.get(i);
             StructureLoadUtil.BlockPosition b = rotatedData.blocks.get(j);
-            if (a.y() != b.y()) return Integer.compare(a.y(), b.y());
+            if (a.y() != b.y()) {
+                return finalUpsideDown ? Integer.compare(b.y(), a.y()) : Integer.compare(a.y(), b.y());
+            }
             if (a.z() != b.z()) return Integer.compare(b.z(), a.z());  // z降序
             return Integer.compare(b.x(), a.x());  // x降序
         });
@@ -2006,7 +2014,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         
         // 获取有序索引列表
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData);
+        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         if (orderedIndices.isEmpty() || this.currentPlacementIndex >= orderedIndices.size()) {
             return null;
         }
@@ -2045,24 +2053,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         Direction facing = this.getFacing(this.getBlockPos(), level);
         
         // 计算旋转（与buildBlueprintPositions保持一致）
-        int scannerFacingValue = this.loadedStructure.scannerFacing;
-        int placerRotation = switch (facing) {
-            case NORTH -> 0; case EAST -> 1; case SOUTH -> 2; case WEST -> 3;
-            default -> 0;
-        };
-        int scannerCorrection = switch (scannerFacingValue) {
-            case 2 -> 2; case 3 -> 2; case 4 -> 3; case 5 -> 1;
-            default -> 0;
-        };
-        int extraFlip = (scannerFacingValue == 3) ? 2 : 0;
-        int rotationSteps = (placerRotation + scannerCorrection + extraFlip) % 4;
-        
-        net.minecraft.world.level.block.Rotation rotation = switch (rotationSteps) {
-            case 1 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_90;
-            case 2 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
-            case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
-            default -> net.minecraft.world.level.block.Rotation.NONE;
-        };
+        net.minecraft.world.level.block.Rotation rotation = getRotationForPlacement(facing, this.loadedStructure.scannerFacing);
 
         // 使用旋转后的结构数据；index 按旋转后结构数据的索引空间解释
         StructureLoadUtil.StructureData originalData = this.loadedStructure;

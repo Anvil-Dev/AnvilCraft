@@ -586,7 +586,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 // 检查这个位置在蓝图中需要的方块是否与 heldBlock 匹配
                 int currentIndex = entity.getCurrentPlacementIndex();
                 // 使用传入的 structure 参数（已经是旋转后的数据）
-                List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure);
+                List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
                 
                 if (currentIndex < orderedIndices.size()) {
                     int actualIndex = orderedIndices.get(currentIndex);
@@ -602,7 +602,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             // 当前位置不匹配，查找下一个匹配的位置
             List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
                 entity.getBlockPos(), facing, upsideDown, structure);
-            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure);
+            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
             
             int currentOrderIndex = entity.getCurrentPlacementIndex();
             for (int i = 1; i < orderedIndices.size(); i++) {
@@ -647,7 +647,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             // 当前位置不可放置，查找下一个空位
             List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
                 entity.getBlockPos(), facing, upsideDown, structure);
-            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure);
+            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
             
             int currentOrderIndex = entity.getCurrentPlacementIndex();
             for (int i = 1; i < orderedIndices.size(); i++) {
