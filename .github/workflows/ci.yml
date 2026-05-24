@@ -36,9 +36,9 @@ jobs:
         with:
           file: gradle/libs.versions.toml
           fields: |
-            - versions.minecraft
-            - versions.neoForge
-            - versions.anvillib
+            versions.minecraft
+            versions.neoForge
+            versions.anvillib
 
       - name: Setup Java ${{ steps.properties.outputs.java_version }}
         uses: actions/setup-java@v3.6.0
