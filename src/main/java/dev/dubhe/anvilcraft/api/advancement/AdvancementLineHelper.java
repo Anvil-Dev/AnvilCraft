@@ -20,7 +20,6 @@ import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -28,6 +27,7 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.DisplayInfo;
+import net.minecraft.advancements.criterion.ConsumeItemTrigger;
 import net.minecraft.advancements.criterion.DamagePredicate;
 import net.minecraft.advancements.criterion.DamageSourcePredicate;
 import net.minecraft.advancements.criterion.DataComponentMatchers;
@@ -65,14 +65,19 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class AdvancementLineHelper {
-    private AdvancementHolder parent;
+    private final String namespace;
+    private @Nullable AdvancementHolder parent;
+
+    public AdvancementLineHelper(String namespace) {
+        this.namespace = namespace;
+    }
 
     public AdvancementHelper next() {
         return new AdvancementHelper(this);
     }
 
     public AdvancementLineHelper createBranch() {
-        AdvancementLineHelper branch = new AdvancementLineHelper();
+        AdvancementLineHelper branch = new AdvancementLineHelper(this.namespace);
         branch.parent = this.parent;
         return branch;
     }
@@ -170,6 +175,13 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, PlayerTrigger.TriggerInstance.tick());
         }
 
+        public AdvancementHelper hasItems(HolderGetter<Item> items, TagKey<Item> tag) {
+            return this.addCriterion(
+                "has_" + tag.location().toShortString().replace(':', '_'),
+                InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items, tag))
+            );
+        }
+
         public AdvancementHelper hasItems(String key, HolderGetter<Item> items, TagKey<Item> tag) {
             return this.addCriterion(key, InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items, tag)));
         }
@@ -188,8 +200,8 @@ public class AdvancementLineHelper {
             return this;
         }
 
-        public AdvancementHelper useItem(String key, HolderGetter<Item> items, ItemLike item) {
-            return this.addCriterion(key, UseItemTrigger.TriggerInstance.useItem(items, item.asItem()));
+        public AdvancementHelper consumeItem(String key, HolderGetter<Item> items, ItemLike item) {
+            return this.addCriterion(key, ConsumeItemTrigger.TriggerInstance.usedItem(items, item.asItem()));
         }
 
         public AdvancementHelper recipe(String key, Identifier recipeId) {
@@ -375,7 +387,9 @@ public class AdvancementLineHelper {
         }
 
         public AdvancementHolder build(String id) {
-            AdvancementHolder holder = this.current.build(AnvilCraft.advancement(id));
+            AdvancementHolder holder = this.current.build(
+                Identifier.fromNamespaceAndPath(this.lineHelper.namespace, this.lineHelper.namespace + "/" + id)
+            );
             this.lineHelper.parent = holder;
             return holder;
         }

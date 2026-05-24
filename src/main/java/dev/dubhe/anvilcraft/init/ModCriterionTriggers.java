@@ -18,7 +18,6 @@ import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -38,8 +37,6 @@ public class ModCriterionTriggers {
         "devourer_devour_block",
         DevourerDevourTrigger::new
     );
-
-    public static final DeferredHolder<CriterionTrigger<?>, UseItemTrigger> USE_ITEM = REGISTER.register("use_item", UseItemTrigger::new);
 
     public static final DeferredHolder<CriterionTrigger<?>, MagnetLiftingAnvilTrigger> LIFTING_ANVIL = REGISTER.register(
         "lifting_anvil",
