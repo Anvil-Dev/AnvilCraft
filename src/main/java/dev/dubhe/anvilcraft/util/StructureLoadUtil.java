@@ -38,6 +38,18 @@ public class StructureLoadUtil {
     private static final int MAX_STRUCTURE_FILE_LENGTH = 128;
     
     /**
+     * 从结构磁盘读取结构数据（不过滤多方块方块，用于预览）
+     * 
+     * @param level 世界实例
+     * @param diskStack 结构磁盘物品
+     * @return 结构数据，如果读取失败返回 null
+     */
+    @Nullable
+    public static StructureData loadStructureFromDiskForPreview(Level level, ItemStack diskStack) {
+        return loadStructureFromDisk(level, diskStack, false);
+    }
+    
+    /**
      * 从结构磁盘读取结构数据
      * 
      * @param level 世界实例
@@ -46,6 +58,19 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDisk(Level level, ItemStack diskStack) {
+        return loadStructureFromDisk(level, diskStack, true);
+    }
+    
+    /**
+     * 从结构磁盘读取结构数据
+     * 
+     * @param level 世界实例
+     * @param diskStack 结构磁盘物品
+     * @param filterMultiblock 是否过滤多方块方块
+     * @return 结构数据，如果读取失败返回 null
+     */
+    @Nullable
+    private static StructureData loadStructureFromDisk(Level level, ItemStack diskStack, boolean filterMultiblock) {
 
         // 从磁盘读取结构信息
         var customData = diskStack.get(DataComponents.CUSTOM_DATA);
@@ -92,7 +117,7 @@ public class StructureLoadUtil {
             
             // 解析结构数据
             HolderLookup.Provider registry = level.registryAccess();
-            StructureData data = parseStructureNBT(structureTag, registry);
+            StructureData data = parseStructureNBT(structureTag, registry, filterMultiblock);
             data.structureName = structureName;
             data.uuid = uuid;
             data.scannerFacing = scannerFacing;
@@ -108,8 +133,12 @@ public class StructureLoadUtil {
     
     /**
      * 解析结构 NBT 数据
+     * 
+     * @param tag NBT标签
+     * @param registry 注册表
+     * @param filterMultiblock 是否过滤多方块方块
      */
-    private static StructureData parseStructureNBT(CompoundTag tag, HolderLookup.Provider registry) {
+    private static StructureData parseStructureNBT(CompoundTag tag, HolderLookup.Provider registry, boolean filterMultiblock) {
         StructureData data = new StructureData();
         
         // 读取尺寸
@@ -151,8 +180,8 @@ public class StructureLoadUtil {
                 if (stateIndex >= 0 && stateIndex < palette.size()) {
                     BlockState state = palette.get(stateIndex);
                     
-                    // 过滤掉多方块方块
-                    if (!isMultiblockBlock(state)) {
+                    // 根据参数决定是否过滤多方块方块
+                    if (!filterMultiblock || !isMultiblockBlock(state)) {
                         data.blocks.add(new BlockPosition(x, y, z, state));
                     }
                 }

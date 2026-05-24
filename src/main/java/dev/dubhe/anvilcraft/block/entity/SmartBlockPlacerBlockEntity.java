@@ -36,6 +36,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -524,7 +525,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 BlockPos targetPos = allPositions.get(index);
                 
                 // 如果位置不可以放置，说明已经放置了方块
-                if (!this.canPlaceAtPosition(this.level, targetPos, null)) {
+                if (this.isPositionOccupied(this.level, targetPos, null)) {
                     placedCount++;
                 }
             }
@@ -557,7 +558,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             
             for (BlockPos targetPos : allPositions) {
                 // 如果位置不可以放置，说明已经放置了方块
-                if (!this.canPlaceAtPosition(this.level, targetPos, null)) {
+                if (this.isPositionOccupied(this.level, targetPos, null)) {
                     placedCount++;
                 }
             }
@@ -675,7 +676,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos targetPos = allPositions.get(index);
             
             // 检查目标位置是否可以放置（如果不可以放置说明已经放置了）
-            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+            if (this.isPositionOccupied(level, targetPos, null)) {
                 continue;  // 已经放置了，跳过
             }
             
@@ -1011,7 +1012,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 BlockPos targetPos = allPositions.get(index);
                 
                 // 检查目标位置是否可以放置
-                if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                if (this.isPositionOccupied(level, targetPos, null)) {
                     continue;
                 }
                 
@@ -1045,7 +1046,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 BlockPos targetPos = allPositions.get(index);
                 
                 // 检查目标位置是否可以放置
-                if (!this.canPlaceAtPosition(level, targetPos, null)) {
+                if (this.isPositionOccupied(level, targetPos, null)) {
                     continue;
                 }
                 
@@ -1220,7 +1221,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
             BlockPos targetPos = allPositions.get(index);
-            if (this.canPlaceAtPosition(level, targetPos, null)) {
+            // 修复：与普通模式保持一致，检查 isAir() 或 canBePlaced()
+            BlockState targetState = level.getBlockState(targetPos);
+            if (targetState.isAir() || this.canBePlaced(level, targetState, null)) {
                 return true;
             }
         }
@@ -1258,7 +1261,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
             BlockPos targetPos = allPositions.get(index);
-            if (this.canPlaceAtPosition(level, targetPos, null)) {
+            // 修复：与普通模式保持一致，检查 isAir() 或 canBePlaced()
+            BlockState targetState = level.getBlockState(targetPos);
+            if (targetState.isAir() || this.canBePlaced(level, targetState, null)) {
                 return true;
             }
         }
@@ -1312,6 +1317,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return true;
         }
         return this.canBePlaced(level, targetState, blockItem);
+    }
+    
+    /**
+     * 检查位置是否已被占据（不能放置）
+     * 
+     * @param level 世界
+     * @param targetPos 目标位置
+     * @param blockItem 要放置的物品（可为 null）
+     * @return 如果位置已被占据返回 true
+     */
+    private boolean isPositionOccupied(Level level, BlockPos targetPos, @Nullable net.minecraft.world.item.BlockItem blockItem) {
+        return !this.canPlaceAtPosition(level, targetPos, blockItem);
     }
 
     private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
@@ -1455,7 +1472,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
             
             // 检查目标位置是否可以放置
-            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+            if (this.isPositionOccupied(level, targetPos, null)) {
                 continue;
             }
             
@@ -1569,7 +1586,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
             
             // 检查目标位置是否可以放置
-            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+            if (this.isPositionOccupied(level, targetPos, null)) {
                 continue;
             }
             
@@ -1612,19 +1629,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 放置成功后，修正方块的朝向为蓝图中的朝向
             this.applyBlueprintBlockFacing(level, targetPos, index);
             
-            BlockState stateToPlace = sourceState;
+            // 获取蓝图中的目标状态（已经包含旋转和倒挂处理）
+            BlockState blueprintState = getBlueprintBlockState(index, level);
             
             // 侦测器不继承POWERED状态
-            if (stateToPlace.is(net.minecraft.world.level.block.Blocks.OBSERVER) 
-                && stateToPlace.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED)) {
-                stateToPlace = stateToPlace.setValue(
+            if (blueprintState.is(net.minecraft.world.level.block.Blocks.OBSERVER) 
+                && blueprintState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED)) {
+                blueprintState = blueprintState.setValue(
                     net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED, 
                     false
                 );
             }
             
-            if (sourceState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)) {
-                stateToPlace = sourceState.setValue(
+            // 移除waterlogged属性
+            if (blueprintState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)) {
+                blueprintState = blueprintState.setValue(
                     net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, 
                     false
                 );
@@ -1638,8 +1657,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 IS_BEING_MOVED_BY_PLACER.set(false);
             }
             
-            // 放置方块到目标位置
-            level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+            // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向）
+            level.setBlock(targetPos, blueprintState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
             
             if (sourceBlockEntityData != null) {
                 BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
@@ -1650,7 +1669,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
             
             // 在目标位置发送方块更新通知
-            level.neighborChanged(targetPos, stateToPlace.getBlock(), targetPos);
+            level.neighborChanged(targetPos, blueprintState.getBlock(), targetPos);
             
             // 放置成功
             this.currentHeldBlock = ItemStack.EMPTY;
@@ -1702,7 +1721,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos targetPos = allPositions.get(index);
             
             // 检查目标位置是否可以放置
-            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+            if (this.isPositionOccupied(level, targetPos, null)) {
                 continue;
             }
             
@@ -1715,7 +1734,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     return;
                 }
                 
-                if (!this.canPlaceAtPosition(level, targetPos, peekedBlockItemObj)) {
+                if (this.isPositionOccupied(level, targetPos, peekedBlockItemObj)) {
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.onChanged();
                     return;
@@ -1786,7 +1805,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos targetPos = allPositions.get(index);
             
             // 检查目标位置是否可以放置
-            if (!this.canPlaceAtPosition(level, targetPos, null)) {
+            if (this.isPositionOccupied(level, targetPos, null)) {
                 continue;
             }
             
@@ -1799,7 +1818,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     return;
                 }
                 
-                if (!this.canPlaceAtPosition(level, targetPos, peekedBlockItemObj)) {
+                if (this.isPositionOccupied(level, targetPos, peekedBlockItemObj)) {
                     this.currentPlacementIndex = (index + 1) % allPositions.size();
                     this.onChanged();
                     return;
@@ -2095,14 +2114,46 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
             level, targetPos, orientation, blockItemObj, blockItem) != net.minecraft.world.InteractionResult.FAIL;
     }
+
+    /**
+     * 获取蓝图中指定索引的方块状态（已应用旋转和倒挂处理）
+     * 
+     * @param index 索引
+     * @param level 世界
+     * @return 蓝图中的方块状态
+     */
+    private BlockState getBlueprintBlockState(int index, Level level) {
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            return Blocks.AIR.defaultBlockState();
+        }
+        
+        // 获取放置器朝向
+        Direction facing = this.getFacing(this.getBlockPos(), level);
+        
+        // 计算旋转（与buildBlueprintPositions保持一致）
+        net.minecraft.world.level.block.Rotation rotation = getRotationForPlacement(facing, this.loadedStructure.scannerFacing);
+        
+        // 获取原始状态并应用旋转
+        StructureLoadUtil.StructureData originalData = this.loadedStructure;
+        if (index < 0 || index >= originalData.blocks.size()) {
+            return Blocks.AIR.defaultBlockState();
+        }
+        
+        BlockState originalState = originalData.blocks.get(index).state();
+        BlockState rotatedState = originalState.rotate(rotation);
+        
+        // 倒挂情况下，翻转 half 属性
+        boolean upsideDown = level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        if (upsideDown) {
+            rotatedState = flipHalfProperty(rotatedState);
+        }
+        
+        return rotatedState;
+    }
     
     /**
-     * 应用蓝图方块的朝向到世界中已放置的方块
-     * 直接使用旋转后的完整BlockState，确保所有朝向属性（包括楼梯等）都正确应用
-     * 
-     * @param level 世界
-     * @param targetPos 方块位置
-     * @param index 在旋转后结构数据中的索引
+     * 应用蓝图中方块的朝向到已放置的方块
+     * 用于修正 FakePlayer 放置后的方块朝向
      */
     private void applyBlueprintBlockFacing(Level level, BlockPos targetPos, int index) {
         if (this.loadedStructure == null || this.loadedStructure.isEmpty()) return;
