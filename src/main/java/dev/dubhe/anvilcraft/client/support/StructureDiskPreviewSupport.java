@@ -19,11 +19,20 @@ import java.util.Map;
  */
 public class StructureDiskPreviewSupport {
     
-    /** 预览缓存：使用ItemStack的hashCode作为key */
-    private static final Map<Integer, PreviewCache> PREVIEW_CACHE = new HashMap<>();
+    /** 预览缓存：使用StructureUUID作为key */
+    private static final Map<String, PreviewCache> PREVIEW_CACHE = new HashMap<>();
     
     /** 缓存过期时间（毫秒） */
     private static final long CACHE_EXPIRY_MS = 5000;
+    
+    /** 最大缓存条目数 */
+    private static final int MAX_CACHE_SIZE = 50;
+    
+    /** 上次清理时间 */
+    private static long lastCleanupTime = 0;
+    
+    /** 清理间隔（毫秒） */
+    private static final long CLEANUP_INTERVAL_MS = 10000;
     
     /**
      * 预览缓存数据
@@ -121,7 +130,15 @@ public class StructureDiskPreviewSupport {
      */
     @Nullable
     private static PreviewCache getOrCreateCache(ItemStack diskStack, ClientLevel level) {
-        int cacheKey = diskStack.getComponents().hashCode();
+        // 尝试从ItemStack获取StructureUUID作为缓存key
+        String cacheKey = getStructureUuidFromDisk(diskStack);
+        if (cacheKey == null || cacheKey.isEmpty()) {
+            // 如果没有UUID，回退到使用components hashCode
+            cacheKey = "hash_" + diskStack.getComponents().hashCode();
+        }
+        
+        // 定期清理过期缓存
+        cleanupExpiredCache();
         
         // 检查缓存
         PreviewCache cache = PREVIEW_CACHE.get(cacheKey);
@@ -134,6 +151,11 @@ public class StructureDiskPreviewSupport {
         if (data == null || data.isEmpty()) {
             PREVIEW_CACHE.remove(cacheKey);
             return null;
+        }
+        
+        // 使用实际的UUID更新cacheKey（如果之前用的是hash）
+        if (!data.uuid.isEmpty()) {
+            cacheKey = data.uuid;
         }
         
         // 构建LevelLike
@@ -173,5 +195,49 @@ public class StructureDiskPreviewSupport {
         }
         
         return levelLike;
+    }
+    
+    /**
+     * 从磁盘ItemStack中提取StructureUUID
+     */
+    @Nullable
+    private static String getStructureUuidFromDisk(ItemStack diskStack) {
+        var customData = diskStack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return null;
+        }
+        
+        net.minecraft.nbt.CompoundTag tag = customData.copyTag();
+        if (tag.contains("StructureUUID")) {
+            return tag.getString("StructureUUID");
+        }
+        
+        return null;
+    }
+    
+    /**
+     * 清理过期缓存条目
+     */
+    private static void cleanupExpiredCache() {
+        long currentTime = System.currentTimeMillis();
+        
+        // 如果距离上次清理时间不足间隔，则跳过
+        if (currentTime - lastCleanupTime < CLEANUP_INTERVAL_MS) {
+            return;
+        }
+        
+        lastCleanupTime = currentTime;
+        
+        // 移除过期条目
+        PREVIEW_CACHE.entrySet().removeIf(entry -> entry.getValue().isExpired());
+        
+        // 如果缓存仍然过大，移除最老的条目
+        if (PREVIEW_CACHE.size() > MAX_CACHE_SIZE) {
+            // 按时间戳排序,移除最老的
+            PREVIEW_CACHE.entrySet().stream()
+                .sorted(java.util.Comparator.comparingLong(entry -> entry.getValue().timestamp))
+                .limit(PREVIEW_CACHE.size() - MAX_CACHE_SIZE)
+                .forEach(entry -> PREVIEW_CACHE.remove(entry.getKey()));
+        }
     }
 }
