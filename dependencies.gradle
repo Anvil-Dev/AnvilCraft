@@ -1,20 +1,20 @@
 dependencies {
     // AnvilLib
-    runtimeOnly(libs.anvillib)
-    compileOnly(libs.bundles.anvillib)
+    api(libs.anvillib)
     interfaceInjectionData(libs.anvillib.recipe)
     interfaceInjectionData(libs.anvillib.moveableEntityBlock)
-//    jarJar(libs.anvillib)
+    // jarJar(libs.anvillib)
 
     // JEI
-    compileOnlyApi(libs.jei.common.api) { transitive = false }
-    compileOnlyApi(libs.jei.forge.api) { transitive = false }
-    implementation(libs.jei.forge) { transitive = false }
+    compileClasspath(libs.jei.common.api) { transitive = false }
+    compileClasspath(libs.jei.forge.api) { transitive = false }
+    compileClasspath(libs.jei.forge) { transitive = false }
+    runtimeClasspath(libs.jei.forge) { transitive = false }
 
     // Sodium, Iris
-    compileOnly(libs.sodium)
-    compileOnly(libs.iris)
+    compileClasspath(libs.sodium)
+    compileClasspath(libs.iris)
 
     // Jade
-    compileOnly(libs.jade)
+    compileClasspath(libs.jade)
 }

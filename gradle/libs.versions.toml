@@ -17,21 +17,9 @@ jei-forge = { group = "mezz.jei", name = "jei-26.1.2-neoforge", version.ref = "j
 sodium = {  group = "maven.modrinth", name = "sodium", version.ref = "sodium"}
 iris = {  group = "maven.modrinth", name = "iris", version.ref = "iris"}
 jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
-anvillib-codec = { group = "dev.anvilcraft.lib", name = "anvillib-codec-neoforge-26.1", version.ref = "anvillib" }
-anvillib-config = { group = "dev.anvilcraft.lib", name = "anvillib-config-neoforge-26.1", version.ref = "anvillib" }
 anvillib-recipe = { group = "dev.anvilcraft.lib", name = "anvillib-recipe-neoforge-26.1", version.ref = "anvillib" }
-anvillib-registrum = { group = "dev.anvilcraft.lib", name = "anvillib-registrum-neoforge-26.1", version.ref = "anvillib" }
 anvillib-moveableEntityBlock = { group = "dev.anvilcraft.lib", name = "anvillib-moveable-entity-block-neoforge-26.1", version.ref = "anvillib" }
-anvillib-multiblock = { group = "dev.anvilcraft.lib", name = "anvillib-multiblock-neoforge-26.1", version.ref = "anvillib" }
-anvillib-network = { group = "dev.anvilcraft.lib", name = "anvillib-network-neoforge-26.1", version.ref = "anvillib" }
-anvillib-integration = { group = "dev.anvilcraft.lib", name = "anvillib-integration-neoforge-26.1", version.ref = "anvillib" }
-anvillib-util = { group = "dev.anvilcraft.lib", name = "anvillib-util-neoforge-26.1", version.ref = "anvillib" }
-anvillib-wheel = { group = "dev.anvilcraft.lib", name = "anvillib-wheel-neoforge-26.1", version.ref = "anvillib" }
-anvillib-rendering = { group = "dev.anvilcraft.lib", name = "anvillib-rendering-neoforge-26.1", version.ref = "anvillib" }
 anvillib = { group = "dev.anvilcraft.lib", name = "anvillib-neoforge-26.1", version.ref = "anvillib" }
-
-[bundles]
-anvillib = [ "anvillib-codec", "anvillib-config", "anvillib-recipe", "anvillib-registrum", "anvillib-moveableEntityBlock", "anvillib-multiblock", "anvillib-network", "anvillib-integration", "anvillib-rendering", "anvillib-util", "anvillib-wheel" ]
 
 [plugins]
 modDevGradle = { id = "net.neoforged.moddev", version.ref = "modDevGradle" }
