@@ -30,6 +30,16 @@ jobs:
           path: gradle.properties
           properties: 'mod_id mod_name java_version'
 
+      - name: Read Lib Version
+        id: 'lib_version'
+        uses: Gu-ZT/toml-reader-action@1.0.0
+        with:
+          file: gradle/libs.versions.toml
+          fields: |
+            versions.minecraft
+            versions.neoForge
+            versions.anvillib
+
       - name: Setup Java ${{ steps.properties.outputs.java_version }}
         uses: actions/setup-java@v3.6.0
         with:
@@ -72,10 +82,10 @@ jobs:
         with:
           mods: |
             build/libs/anvilcraft-neoforge-${{ steps.version.outputs.version }}.jar
-          minecraft_version: '26.1.2'
+          minecraft_version: ${{ steps.lib_version.outputs.versions_minecraft }}
           mod_loader: 'neoforge'
-          loader_version: '26.1.2.59-beta'
-          extra-mods: 'anvil-lib:2.0.0+snapshot.384'
+          loader_version: ${{ steps.lib_version.outputs.versions_neoForge }}
+          extra-mods: "anvil-lib:${{ steps.lib_version.outputs.versions_anvillib }}"
           quiet-setup: 'True'
 
       - name: publish neoforge mc mod
