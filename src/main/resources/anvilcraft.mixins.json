@@ -33,7 +33,6 @@
     "IdDispatchCodecMixin",
     "InventoryMixin",
     "ItemEntityMixin",
-    "ItemMixin",
     "ItemStackMixin",
     "LevelChunkMixin",
     "LightningBoltMixin",
