@@ -29,7 +29,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -70,7 +69,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return this.icon;
     }
 
@@ -91,13 +90,12 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
     ) {
         BlockSmearRecipe recipe = recipeHolder.value();
 
-        this.arrowDefault.draw(graphics, 73, 35);
+        this.arrowDefault.draw(graphics, 73, 40);
 
         for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
             List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
             BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-            if (renderedState == null) continue;
             RenderSupport.renderBlock(graphics, renderedState, 40, 30 + 10 * i, 20);
         }
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);

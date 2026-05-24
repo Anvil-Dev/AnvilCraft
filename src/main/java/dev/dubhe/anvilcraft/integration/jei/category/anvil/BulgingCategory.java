@@ -71,8 +71,10 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
         double mouseY
     ) {
         BulgingRecipe recipe = recipeHolder.value();
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
+
+        this.arrowIn.draw(graphics, 54, 30);
+        this.arrowOut.draw(graphics, 92, 29);
+
         BlockState state;
         if (recipe.isFromWater()) {
             state = CauldronUtil.fullState(Blocks.WATER_CAULDRON);
@@ -81,10 +83,9 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
         } else {
             state = recipe.getHasCauldron().getTransformCauldron().defaultBlockState();
         }
-        RenderSupport.renderBlock(graphics, state, 81, 40, 20);
-
-        this.arrowIn.draw(graphics, 54, 30);
-        this.arrowOutFromBelow.draw(graphics, 92, 29);
+        RenderSupport.renderBlock(graphics, state, 71, 35, 20);
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
 
         JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         if (!recipe.getResultItems().isEmpty()) {
@@ -138,7 +139,7 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
             } else {
                 state = CauldronUtil.fullState(result);
             }
-            RenderSupport.renderBlock(graphics, state, 133, 30, 20);
+            RenderSupport.renderBlock(graphics, state, 123, 25, 20);
         }
     }
 
