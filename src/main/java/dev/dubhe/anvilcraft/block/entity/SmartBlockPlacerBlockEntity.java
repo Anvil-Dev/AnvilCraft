@@ -2181,6 +2181,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         if (worldState.getBlock() != rotatedState.getBlock()) return;
 
+        // 对于活塞方块，忽略其推出状态，默认放置未推出的活塞
+        if (rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.EXTENDED)) {
+            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.EXTENDED, false);
+        }
+
         if (!worldState.equals(rotatedState)) {
             level.setBlock(targetPos, rotatedState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
         }

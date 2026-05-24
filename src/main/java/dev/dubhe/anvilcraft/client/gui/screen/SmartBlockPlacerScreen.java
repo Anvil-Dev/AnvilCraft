@@ -111,6 +111,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private long structureNameScrollTime = 0;  // 滚动时间戳
     private String lastRenderedStructureName = "";  // 上次渲染的结构名字
     private boolean isStructureNameHovered = false;  // 鼠标是否悬停在文本上
+    
+    // 结构信息文本基础位置（统一计算）
+    private int structureInfoBaseX;
+    private int structureInfoBaseY;
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -139,6 +143,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         this.previewWindowX = this.leftPos + 136;
         this.previewWindowY = this.topPos + 18;
+        
+        // 计算结构信息文本的基础位置
+        this.structureInfoBaseX = this.leftPos + 12;
+        this.structureInfoBaseY = this.topPos + 36;
 
         this.initLayerButtons();
         this.initPositionButtons();
@@ -576,8 +584,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
         
         // 计算缺失方块图标的位置（与渲染位置一致）
-        int textX = this.titleLabelX + 96;
-        int textY = this.titleLabelY + 56;
+        int textX = this.structureInfoBaseX + 4;  // 相对于基础位置偏移
+        int textY = this.structureInfoBaseY;
         Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
         int iconX = textX + this.font.width(missingText) + 4;
         int iconY = textY + 18;  // 与渲染位置一致
@@ -881,8 +889,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             String structureName = blockEntity.getLoadedStructureName();
             if (!structureName.isEmpty()) {
                 Component loadedText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded");
-                int textX = this.titleLabelX + 92;
-                int textY = this.titleLabelY + 56;
+                int textX = this.structureInfoBaseX;
+                int textY = this.structureInfoBaseY;
                         
                 // 禁用深度测试，确保文本在最上层渲染
                 RenderSystem.disableDepthTest();
@@ -961,8 +969,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 // 磁盘存在但结构数据无效，显示提示信息（带滚动效果）
                 // 额外检查磁盘槽位是否为空，确保拿走磁盘后提示消失
                 Component invalidText = Component.translatable("screen.anvilcraft.smart_block_placer.no_structure_record");
-                int textX = this.titleLabelX + 92;
-                int textY = this.titleLabelY + 56;
+                int textX = this.structureInfoBaseX;
+                int textY = this.structureInfoBaseY;
                 int maxWidth = 80;  // 最大显示宽度
                 int textWidth = this.font.width(invalidText);
                             
