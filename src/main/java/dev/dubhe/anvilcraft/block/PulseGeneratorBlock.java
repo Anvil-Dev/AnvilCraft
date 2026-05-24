@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -324,17 +323,19 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     @Override
-    public CompoundTag clearData(Level level, BlockPos pos) {
-        CompoundTag[] data = new CompoundTag[1];
-        level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get())
-            .ifPresent(be -> data[0] = be.exportMoveData());
-        return data[0];
-    }
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be1) {
+        PulseGeneratorBlockEntity be = Util.cast(be1);
+        switch (be.getState()) {
+            case WAITING -> level.scheduleTick(pos, state.getBlock(), be.getWaitingTime());
+            case OUTPUTTING -> level.scheduleTick(pos, state.getBlock(), be.getSignalDuration());
+            default -> {
+            }
+        }
+        level.setBlock(pos, state.setValue(PulseGeneratorBlock.POWERED, be.isOutputting()), 3);
 
-    @Override
-    public void setData(Level level, BlockPos pos, CompoundTag tag) {
-        level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get())
-            .ifPresent(be -> be.applyMoveData(level, pos, level.getBlockState(pos), tag));
+        this.update(level, pos, () -> state);
+
+        be.setChanged();
     }
 }
 

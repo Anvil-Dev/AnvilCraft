@@ -12,6 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.IFluidTank;
@@ -21,7 +23,19 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int CAPACITY = 16 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 640 * FluidType.BUCKET_VOLUME;
-    protected final FluidTank tank = new FluidTank(CAPACITY);
+    protected final FluidTank tank = new FluidTank(CAPACITY) {
+        @Override
+        public FluidTank readFromNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
+            FluidTank tank = super.readFromNBT(lookupProvider, nbt);
+            this.onContentsChanged();
+            return tank;
+        }
+
+        @Override
+        protected void onContentsChanged() {
+            FluidTankBlockEntity.this.updateLightLevel();
+        }
+    };
     protected boolean isBigger = false;
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -36,6 +50,25 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     public void onUnformed() {
         this.isBigger = false;
         this.tank.setCapacity(CAPACITY);
+    }
+
+    private void updateLightLevel() {
+        if (this.level == null) {
+            return;
+        }
+
+        BlockPos pos = this.getBlockPos();
+        AuxiliaryLightManager manager = this.level.getAuxLightManager(pos);
+        if (manager == null) {
+            return;
+        }
+        manager.setLightAt(pos, this.computeLightLevel());
+    }
+
+    private int computeLightLevel() {
+        FluidStack stack = this.tank.getFluid();
+        float fill = (float) this.tank.getFluidAmount() / this.tank.getCapacity();
+        return (int) Math.ceil(stack.getFluidType().getLightLevel(stack) * fill);
     }
 
     @Override

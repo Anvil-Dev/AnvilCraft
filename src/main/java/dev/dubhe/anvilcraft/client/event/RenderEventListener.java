@@ -80,6 +80,7 @@ public class RenderEventListener {
         Optional<BlockHitResult> hitResult = Util.castSafely(Minecraft.getInstance().hitResult, BlockHitResult.class);
         hitResult.ifPresent(hit -> renderDragonRodOutline(pose, hit, vertexConsumer3, camX, camY, camZ, handItem));
         hitResult.ifPresent(hit -> renderSmartBlockPlacerRange(pose, hit, vertexConsumer3, camX, camY, camZ));
+        hitResult.ifPresent(hit -> renderStructureScannerRange(pose, hit, vertexConsumer3, camX, camY, camZ));
         if (!AnvilHammerItem.shouldRenderEffect(player)) return;
         PowerGridSupport.render(pose, bufferSource, vec3);
         hitResult.ifPresent(hit -> renderAffectRange(pose, hit, vertexConsumer3, camX, camY, camZ));
@@ -153,6 +154,86 @@ public class RenderEventListener {
             basePos.getX() + 3, basePos.getY() + 5 + yOffset, basePos.getZ() + 3
         );
 
+        TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
+    }
+    
+    /**
+     * 渲染 Structure Scanner 的边框
+     */
+    private static void renderStructureScannerRange(
+        PoseStack pose, BlockHitResult hitResult, VertexConsumer consumer,
+        double camX, double camY, double camZ
+    ) {
+        Player player = Minecraft.getInstance().player;
+        if (player == null || !AnvilHammerItem.shouldRenderEffect(player)) return;
+        if (hitResult.miss) return;
+
+        BlockPos hitPos = hitResult.getBlockPos();
+        if (Minecraft.getInstance().level == null) return;
+
+        var blockState = Minecraft.getInstance().level.getBlockState(hitPos);
+        if (!blockState.is(ModBlocks.STRUCTURE_SCANNER.get())) return;
+
+        // 获取 BlockEntity 以读取范围值
+        var blockEntity = Minecraft.getInstance().level.getBlockEntity(hitPos);
+        if (!(blockEntity instanceof dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity scannerBE)) return;
+        
+        int rangeX = scannerBE.getRangeX().get();
+        int rangeY = scannerBE.getRangeY().get();
+        int rangeZ = scannerBE.getRangeZ().get();
+                
+        int halfRangeX = (rangeX - 1) / 2;
+        int halfRangeZ = (rangeZ - 1) / 2;
+        
+        // 获取 Structure Scanner 的朝向
+        final Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        
+        final int minY = hitPos.getY();
+        final int maxY = hitPos.getY() + rangeY;
+        final int minX;
+        final int maxX;
+        final int minZ;
+        final int maxZ;
+        
+        switch (scannerFacing) {
+            case NORTH -> {
+                minX = hitPos.getX() - halfRangeX;
+                maxX = hitPos.getX() + rangeX - halfRangeX;
+                minZ = hitPos.getZ() + 1;
+                maxZ = hitPos.getZ() + rangeZ + 1;
+            }
+            case SOUTH -> {
+                minX = hitPos.getX() - halfRangeX;
+                maxX = hitPos.getX() + rangeX - halfRangeX;
+                minZ = hitPos.getZ() - rangeZ;
+                maxZ = hitPos.getZ();
+            }
+            case WEST -> {
+                minX = hitPos.getX() + 1;
+                maxX = hitPos.getX() + rangeZ + 1;
+                minZ = hitPos.getZ() - halfRangeX;
+                maxZ = hitPos.getZ() + rangeX - halfRangeX;
+            }
+            case EAST -> {
+                minX = hitPos.getX() - rangeZ;
+                maxX = hitPos.getX();
+                minZ = hitPos.getZ() - halfRangeX;
+                maxZ = hitPos.getZ() + rangeX - halfRangeX;
+            }
+            default -> {
+                minX = hitPos.getX() - halfRangeX;
+                maxX = hitPos.getX() + rangeX - halfRangeX;
+                minZ = hitPos.getZ() - halfRangeZ;
+                maxZ = hitPos.getZ() + rangeZ - halfRangeZ;
+            }
+        }
+        
+        VoxelShape rangeShape = Shapes.create(
+            minX, minY, minZ,
+            maxX, maxY, maxZ
+        );
+
+        // 渲染青色边框（与智能放置器一致）
         TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
     }
 }

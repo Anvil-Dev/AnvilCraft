@@ -118,6 +118,7 @@ import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.StepEffectBlock;
 import dev.dubhe.anvilcraft.block.StepEffectSlabBlock;
 import dev.dubhe.anvilcraft.block.StepEffectStairBlock;
+import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
@@ -861,18 +862,41 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::blockDevourer)
         .register();
 
+    public static final BlockEntry<? extends StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
+        .lang("Structure Scanner")
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
+        .recipe(RegistrumBlockRecipeLoader::structureScanner)
+        .register();
+
     public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
         .block("smart_block_placer", SmartBlockPlacerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.strength(1.5F, 6.0F).noOcclusion())
         .blockstate((ctx, provider) -> {
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
-                var model = provider.models().getExistingFile(AnvilCraft.of("block/smart_block_placer_bottom"));
                 Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
                 boolean upsideDown = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
+                boolean powered = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED);
+                boolean overload = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD);
+                
+                // 根据状态选择模型
+                String modelName;
+                if (overload) {
+                    modelName = "block/smart_block_placer_bottom_overload";
+                } else if (!powered) {
+                    modelName = "block/smart_block_placer_bottom";
+                } else {
+                    modelName = "block/smart_block_placer_bottom_off";
+                }
+                
+                var model = provider.models().getExistingFile(AnvilCraft.of(modelName));
                 
                 int rotation = switch (facing) {
-                    case NORTH -> 0;
                     case EAST -> 90;
                     case SOUTH -> 180;
                     case WEST -> 270;

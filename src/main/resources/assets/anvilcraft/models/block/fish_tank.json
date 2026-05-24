@@ -1,8 +1,8 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/cube_all",
-    "render_type": "minecraft:translucent",
+	"parent": "minecraft:block/block",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "anvilcraft:block/fish_tank_bottom",
 		"1": "anvilcraft:block/fish_tank_inner",
@@ -28,7 +28,7 @@
 			"from": [0, 14, 0],
 			"to": [16, 14, 16],
 			"faces": {
-				"down": {"uv": [0, 0, 16, 16], "texture": "#4", "cullface": "down"}
+				"down": {"uv": [0, 0, 16, 16], "texture": "#4"}
 			}
 		},
 		{
@@ -57,7 +57,6 @@
 			"name": "cube inverted",
 			"from": [14, 16, 14],
 			"to": [2, 14, 2],
-			"rotation": {"angle": 0, "axis": "y", "origin": [24, 16, 14]},
 			"faces": {
 				"north": {"uv": [2, 0, 14, 2], "texture": "#4"},
 				"east": {"uv": [2, 0, 14, 2], "texture": "#4"},

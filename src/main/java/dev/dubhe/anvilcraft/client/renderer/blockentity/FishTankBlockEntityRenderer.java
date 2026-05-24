@@ -5,12 +5,12 @@ import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.client.event.ClientTickRecorder;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.mixin.accessor.EntityAccessor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -31,6 +31,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.joml.Quaternionf;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
     public static final float FISH_SCALE = 0.5F;
     private static final ModelResourceLocation FIRE = ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4"));
     private final RandomSource random = RandomSource.create();
+    private final RandomSource fishRandom = RandomSource.create();
     private final BlockRenderDispatcher dispatcher;
 
     private final Map<Long, FishCacheEntry> fishCache = new HashMap<>();
@@ -82,7 +84,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             maxY = minY + height * fill;
         }
 
-        PollableItemHandler handler = tank.getItemHandler();
+        ItemStackHandler handler = tank.getItemHandler();
         this.random.setSeed(ItemHandlerUtil.hash(handler));
         Level level = tank.getLevel();
         if (level == null) return;
@@ -113,7 +115,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
                 1,
                 1,
                 1,
-                0xFFFFFF,
+                LightTexture.FULL_BRIGHT,
                 overlay,
                 ModelData.EMPTY,
                 RenderType.cutout()
@@ -244,7 +246,8 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
         }
 
         EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        float ticks = ClientTickRecorder.getTicks() + partialTick;
+        this.fishRandom.setSeed(cachedFishes.hashCode() + tank.getBlockPos().hashCode());
+        float ticks = ClientTickRecorder.getTicks() + partialTick + this.fishRandom.nextInt(1297361);
         float height = 1 - 2 * TANK_W;
         int count = cachedFishes.size();
 

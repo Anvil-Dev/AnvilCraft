@@ -43,6 +43,11 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         return getBlockState().getValue(PropelPiston.FACING);
     }
 
+    public void notifyMoved() {
+        this.delay = 0;
+        this.power = 0;
+    }
+
     public void updateStoredEnergy(Integer energy) {
         this.storedEnergy = Math.clamp(energy, 0, 80000);
         if (level == null || !(level instanceof ServerLevel serverLevel)) {

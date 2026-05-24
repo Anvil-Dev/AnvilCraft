@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -193,6 +194,7 @@ public class HudTooltipManager {
         renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00ffcc);
     }
 
+    @Nullable
     private IHandHeldItemTooltipProvider determineHandHeldItemTooltipProvider(ItemStack itemStack) {
         if (itemStack == null || itemStack.isEmpty()) return null;
         return handItemProviders.stream()
@@ -201,6 +203,7 @@ public class HudTooltipManager {
             .orElse(null);
     }
 
+    @Nullable
     private ITooltipProvider.BlockTooltipProvider determineBlockTooltipProvider(Level level, BlockPos pos, BlockState state) {
         if (state == null) return null;
         return blockProviders.stream()
@@ -209,6 +212,7 @@ public class HudTooltipManager {
             .orElse(null);
     }
 
+    @Nullable
     private ITooltipProvider.BlockEntityTooltipProvider determineBlockEntityTooltipProvider(BlockEntity entity) {
         if (entity == null) return null;
         return blockEntityProviders.stream()
@@ -217,6 +221,7 @@ public class HudTooltipManager {
             .orElse(null);
     }
 
+    @Nullable
     private IAffectRangeProvider determineAffectRangeProvider(BlockEntity entity) {
         if (entity == null) return null;
         return affectRangeProviders.stream()

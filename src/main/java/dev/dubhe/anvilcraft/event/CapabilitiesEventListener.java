@@ -29,7 +29,9 @@ public class CapabilitiesEventListener {
             ModBlockEntities.NESTING_SHULKER_BOX.get(),
             ModBlockEntities.OVER_NESTING_SHULKER_BOX.get(),
             ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get(),
-            ModBlockEntities.FISH_TANK.get()
+            ModBlockEntities.FISH_TANK.get(),
+            ModBlockEntities.STRUCTURE_SCANNER.get(),
+            ModBlockEntities.SMART_BLOCK_PLACER.get()
         ).forEach(type -> event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
                 type,
