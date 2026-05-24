@@ -25,7 +25,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Matrix4f;
 
@@ -70,7 +70,7 @@ public class HammerEffectRenderEventListener {
 
     // TODO: use custom render type for colored overlay
     @SubscribeEvent
-    public static void onRender(RenderLevelStageEvent.AfterOpaqueFeatures event) {
+    public static void onRender(SubmitCustomGeometryEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof IHasHammerEffect hasHammerEffect)) return;
         if (!hasHammerEffect.shouldRender()) return;
@@ -87,8 +87,7 @@ public class HammerEffectRenderEventListener {
         );
         poseStack.scale(1.001F, 1.001F, 1.001F);
         BlockModelRenderState model = renderState.getRenderData(HammerEffectRenderEventListener.HAMMER_STATE);
-        LevelRendererAccessor accessor = Util.cast(event.getLevelRenderer());
-        model.submit(poseStack, accessor.getSubmitNodeStorage(), 1, OverlayTexture.NO_OVERLAY, 0);
+        model.submit(poseStack, event.getSubmitNodeCollector(), 1, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
     }
 }

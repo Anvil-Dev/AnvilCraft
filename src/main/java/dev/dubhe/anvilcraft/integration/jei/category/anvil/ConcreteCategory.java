@@ -26,7 +26,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -76,7 +75,7 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return this.icon;
     }
 
@@ -97,12 +96,12 @@ public class ConcreteCategory implements IRecipeCategory<ColoredConcreteRecipe> 
         double mouseX,
         double mouseY
     ) {
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
-        RenderSupport.renderBlock(graphics, ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState(), 81, 40, 20);
-
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);
+
+        RenderSupport.renderBlock(graphics, ModBlocks.CEMENT_CAULDRONS.get(recipe.color()).getDefaultState(), 71, 35, 20);
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
 
         JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.ingredients().size());
         JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, 1);

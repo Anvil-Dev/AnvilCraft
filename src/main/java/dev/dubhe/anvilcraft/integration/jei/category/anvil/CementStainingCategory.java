@@ -25,7 +25,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
-import org.jspecify.annotations.Nullable;
 
 public class CementStainingCategory implements IRecipeCategory<CementStainingRecipe> {
     public static final int WIDTH = 162;
@@ -38,7 +37,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
     private final ITickTimer colorTimer;
 
     private final IDrawable arrowIn;
-    private final IDrawable arrowOutFromBelow;
+    private final IDrawable arrowOut;
 
     public CementStainingCategory(IGuiHelper helper) {
         this.icon = new DrawableBlockStateIcon(
@@ -50,7 +49,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
         this.colorTimer = helper.createTickTimer(20 * Color.values().length, Color.values().length - 1, false);
 
         this.arrowIn = JeiRenderHelper.getArrowInput(helper);
-        this.arrowOutFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
+        this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
     }
 
     @Override
@@ -74,7 +73,7 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return this.icon;
     }
 
@@ -95,27 +94,29 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
         double mouseX,
         double mouseY
     ) {
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.anvilTimer);
+        this.arrowIn.draw(graphics, 54, 30);
+        this.arrowOut.draw(graphics, 91, 29);
+
         Color color = Color.getColorByIndex(this.colorTimer.getValue());
         RenderSupport.renderBlock(
             graphics,
-            Blocks.ANVIL.defaultBlockState(),
-            81,
-            22 + anvilYOffset,
+            ModBlocks.CEMENT_CAULDRONS.get(color).getDefaultState(),
+            71,
+            35,
             20
         );
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.anvilTimer);
         RenderSupport.renderBlock(
             graphics,
-            ModBlocks.CEMENT_CAULDRONS.get(color).getDefaultState(),
-            81,
-            40,
-            20);
-        this.arrowIn.draw(graphics, 54, 30);
-        this.arrowOutFromBelow.draw(graphics, 92, 29);
+            Blocks.ANVIL.defaultBlockState(),
+            71,
+            17 + anvilYOffset,
+            20
+        );
 
         JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.ingredients().size());
 
-        RenderSupport.renderBlock(graphics, recipe.resultBlock().defaultBlockState(), 133, 30, 20);
+        RenderSupport.renderBlock(graphics, recipe.resultBlock().defaultBlockState(), 122, 25, 20);
     }
 
     @Override
