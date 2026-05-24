@@ -243,10 +243,10 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             for (int y = 0; y < rangeY; y++) {
                 for (int z = 0; z < rangeZ; z++) {
                     BlockPos checkPos = this.calculateWorldPos(x, y, z, halfRangeX);
-                    var blockEntity = this.level.getBlockEntity(checkPos);
+                    net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(checkPos);
                     
-                    // 检查是否有BlockEntity（简单判断多部分方块）
-                    if (blockEntity != null) {
+                    // 检查是否为多方块方块
+                    if (isMultiblockBlock(blockState)) {
                         return true;
                     }
                 }
@@ -254,6 +254,24 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
         
         return false;
+    }
+    
+    /**
+     * 检查一个方块是否为多方块方块
+     * 
+     * @param blockState 方块状态
+     * @return 如果是多方块方块返回true
+     */
+    private boolean isMultiblockBlock(net.minecraft.world.level.block.state.BlockState blockState) {
+        net.minecraft.world.level.block.Block block = blockState.getBlock();
+        
+        // 使用switch表达式检查是否实现了多方块方块相关接口
+        return switch (block) {
+            case dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity<?, ?> ignored1 -> true;
+            case dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock<?> ignored2 -> true;
+            case dev.dubhe.anvilcraft.api.IHasMultiBlock ignored3 -> true;
+            default -> false;
+        };
     }
 
     public StructureScannerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {

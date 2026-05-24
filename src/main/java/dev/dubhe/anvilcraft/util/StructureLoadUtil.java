@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
+import dev.dubhe.anvilcraft.api.IHasMultiBlock;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -10,6 +13,7 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import org.jetbrains.annotations.Nullable;
@@ -132,7 +136,7 @@ public class StructureLoadUtil {
             }
         }
         
-        // 读取 blocks
+        // 读取 blocks，过滤掉多方块方块
         ListTag blocksTag = tag.getList("blocks", 10);  // 10 = COMPOUND
         for (int i = 0; i < blocksTag.size(); i++) {
             CompoundTag blockTag = blocksTag.getCompound(i);
@@ -145,7 +149,12 @@ public class StructureLoadUtil {
                 int stateIndex = blockTag.getInt("state");
                 
                 if (stateIndex >= 0 && stateIndex < palette.size()) {
-                    data.blocks.add(new BlockPosition(x, y, z, palette.get(stateIndex)));
+                    BlockState state = palette.get(stateIndex);
+                    
+                    // 过滤掉多方块方块
+                    if (!isMultiblockBlock(state)) {
+                        data.blocks.add(new BlockPosition(x, y, z, state));
+                    }
                 }
             }
         }
@@ -272,4 +281,22 @@ public class StructureLoadUtil {
      * 方块位置数据
      */
     public record BlockPosition(int x, int y, int z, BlockState state) {}
+    
+    /**
+     * 检查一个方块是否为多方块方块
+     * 
+     * @param state 方块状态
+     * @return 如果是多方块方块返回true
+     */
+    private static boolean isMultiblockBlock(BlockState state) {
+        Block block = state.getBlock();
+            
+        // 使用switch表达式检查是否实现了多方块方块相关接口
+        return switch (block) {
+            case MultiPartBlockEntity<?, ?> ignored1 -> true;
+            case AbstractMultiPartBlock<?> ignored2 -> true;
+            case IHasMultiBlock ignored3 -> true;
+            default -> false;
+        };
+    }
 }
