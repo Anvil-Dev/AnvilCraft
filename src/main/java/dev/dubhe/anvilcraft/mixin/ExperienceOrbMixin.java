@@ -56,16 +56,32 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
                 int expFluid = value * 20;
                 int totalExpFluid = value * count * 20;
                 if (collector.getFluidTank().getCapacity() - collector.getFluidTank().getFluidAmount() >= totalExpFluid) {
-                    collector.getFluidTank().internalFill(new FluidStack(ModFluids.EXP_FLUID, totalExpFluid), IFluidHandler.FluidAction.EXECUTE);
-                    level.sendBlockUpdated(collector.getBlockPos(), collector.getBlockState(), collector.getBlockState(), Block.UPDATE_ALL);
+                    collector.getFluidTank().internalFill(
+                        new FluidStack(ModFluids.EXP_FLUID, totalExpFluid),
+                        IFluidHandler.FluidAction.EXECUTE
+                    );
+                    level.sendBlockUpdated(
+                        collector.getBlockPos(),
+                        collector.getBlockState(),
+                        collector.getBlockState(),
+                        Block.UPDATE_ALL
+                    );
                     this.remove(Entity.RemovalReason.DISCARDED);
                     this.discard();
                     anvilcraft$discarded = true;
                     break;
                 } else {
                     while (collector.getFluidTank().getCapacity() - collector.getFluidTank().getFluidAmount() >= expFluid) {
-                        collector.getFluidTank().internalFill(new FluidStack(ModFluids.EXP_FLUID, expFluid), IFluidHandler.FluidAction.EXECUTE);
-                        level.sendBlockUpdated(collector.getBlockPos(), collector.getBlockState(), collector.getBlockState(), Block.UPDATE_ALL);
+                        collector.getFluidTank().internalFill(
+                            new FluidStack(ModFluids.EXP_FLUID, expFluid),
+                            IFluidHandler.FluidAction.EXECUTE
+                        );
+                        level.sendBlockUpdated(
+                            collector.getBlockPos(),
+                            collector.getBlockState(),
+                            collector.getBlockState(),
+                            Block.UPDATE_ALL
+                        );
                         this.count--;
                         if (this.count < 1) {
                             this.remove(Entity.RemovalReason.DISCARDED);

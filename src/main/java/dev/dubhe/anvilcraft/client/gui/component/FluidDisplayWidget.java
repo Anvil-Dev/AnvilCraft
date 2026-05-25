@@ -108,7 +108,10 @@ public class FluidDisplayWidget extends AbstractWidget {
         final int stored = this.fluidHandler.getFluidInTank(0).getAmount();
         if (stored > 0 && stored < this.fluidHandler.getTankCapacity(0) / this.height) {
             return 1;
-        } else if (stored < this.fluidHandler.getTankCapacity(0) && stored > (this.fluidHandler.getTankCapacity(0) / this.height) * this.height - 1) {
+        } else if (
+            stored < this.fluidHandler.getTankCapacity(0)
+            && stored > (this.fluidHandler.getTankCapacity(0) / this.height) * this.height - 1
+        ) {
             return this.height - 1;
         } else if (stored >= this.fluidHandler.getTankCapacity(0)) {
             return this.height;
