@@ -514,99 +514,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         PacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("position", positionIndex, this.currentViewLayer + ":" + positionIndex + ":" + newState));
     }
-    
-    /**
-     * 渲染Disk槽位的tooltip
-     */
-    private void renderDiskSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // Disk槽位的位置（与Menu中一致）
-        int diskSlotX = this.leftPos + 8;
-        int diskSlotY = this.topPos + 119;
-        int diskSlotWidth = 16;
-        int diskSlotHeight = 16;
-        
-        // 检查鼠标是否在Disk槽位上
-        if (mouseX >= diskSlotX && mouseX < diskSlotX + diskSlotWidth
-            && mouseY >= diskSlotY && mouseY < diskSlotY + diskSlotHeight) {
-            // 渲染tooltip，确保在所有元素上方
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, 0, 1500);
-            guiGraphics.renderTooltip(
-                this.font,
-                List.of(Component.translatable("screen.anvilcraft.smart_block_placer.disk_slot")),
-                java.util.Optional.empty(),
-                mouseX,
-                mouseY
-            );
-            guiGraphics.pose().popPose();
-        }
-    }
-    
-    /**
-     * 渲染书槽位的tooltip
-     */
-    private void renderBookSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // 书槽位的位置（与Menu中一致）
-        int bookSlotX = this.leftPos + 8;
-        int bookSlotY = this.topPos + 101;
-        int bookSlotWidth = 16;
-        int bookSlotHeight = 16;
-        
-        // 检查鼠标是否在书槽位上
-        if (mouseX >= bookSlotX && mouseX < bookSlotX + bookSlotWidth
-            && mouseY >= bookSlotY && mouseY < bookSlotY + bookSlotHeight) {
-            // 渲染tooltip，确保在所有元素上方
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, 0, 1500);
-            guiGraphics.renderTooltip(
-                this.font,
-                List.of(Component.translatable("screen.anvilcraft.smart_block_placer.book_slot")),
-                java.util.Optional.empty(),
-                mouseX,
-                mouseY
-            );
-            guiGraphics.pose().popPose();
-        }
-    }
-    
-    /**
-     * 渲染缺失方块图标的tooltip
-     */
-    private void renderMissingBlockTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) {
-            return;
-        }
-        
-        ItemStack missingItem = blockEntity.getMissingBlockItem();
-        if (missingItem.isEmpty()) {
-            return;
-        }
-        
-        // 计算缺失方块图标的位置（与渲染位置一致）
-        int textX = this.structureInfoBaseX + 4;  // 相对于基础位置偏移
-        int textY = this.structureInfoBaseY;
-        Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
-        int iconX = textX + this.font.width(missingText) + 4;
-        int iconY = textY + 18;  // 与渲染位置一致
-        int iconWidth = 16;
-        int iconHeight = 16;
-        
-        // 检查鼠标是否在图标上
-        if (mouseX >= iconX && mouseX < iconX + iconWidth
-            && mouseY >= iconY && mouseY < iconY + iconHeight) {
-            // 渲染物品的tooltip
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, 0, 1500);
-            guiGraphics.renderTooltip(
-                this.font,
-                missingItem,
-                mouseX,
-                mouseY
-            );
-            guiGraphics.pose().popPose();
-        }
-    }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -802,7 +709,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 渲染3D预览
         this.renderPreview(guiGraphics);
-
+        
+        // 最后统一渲染所有tooltip，确保在所有元素上方
+        // 收集所有需要渲染的tooltip
+        List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
+        
         // 检查鼠标是否在Disk槽位上
         int diskSlotX = this.leftPos + 8;
         int diskSlotY = this.topPos + 119;
@@ -811,21 +722,84 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         boolean isMouseOnDiskSlot = mouseX >= diskSlotX && mouseX < diskSlotX + diskSlotWidth
             && mouseY >= diskSlotY && mouseY < diskSlotY + diskSlotHeight;
         
-        // 如果鼠标在Disk槽位上，不渲染默认tooltip
+        // 如果鼠标不在Disk槽位上，添加默认tooltip
         if (!isMouseOnDiskSlot) {
-            this.renderTooltip(guiGraphics, mouseX, mouseY);
+            // 获取鼠标悬停位置的slot的tooltip
+            if (this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+                tooltipsToRender.add(new TooltipRenderInfo(
+                    this.font,
+                    this.getTooltipFromContainerItem(this.hoveredSlot.getItem()),
+                    mouseX,
+                    mouseY
+                ));
+            }
         }
         
-        // 渲染Disk槽位的tooltip
-        this.renderDiskSlotTooltip(guiGraphics, mouseX, mouseY);
+        // 检查Disk槽位tooltip
+        if (isMouseOnDiskSlot) {
+            tooltipsToRender.add(new TooltipRenderInfo(
+                this.font,
+                List.of(Component.translatable("screen.anvilcraft.smart_block_placer.disk_slot")),
+                mouseX,
+                mouseY
+            ));
+        }
         
-        // 渲染书槽位的tooltip（仅在蓝图模式下）
+        // 检查书槽位tooltip（仅在蓝图模式下）
         if (this.isBlueprintMode) {
-            this.renderBookSlotTooltip(guiGraphics, mouseX, mouseY);
+            int bookSlotX = this.leftPos + 8;
+            int bookSlotY = this.topPos + 101;
+            int bookSlotWidth = 16;
+            int bookSlotHeight = 16;
+            
+            if (mouseX >= bookSlotX && mouseX < bookSlotX + bookSlotWidth
+                && mouseY >= bookSlotY && mouseY < bookSlotY + bookSlotHeight) {
+                tooltipsToRender.add(new TooltipRenderInfo(
+                    this.font,
+                    List.of(Component.translatable("screen.anvilcraft.smart_block_placer.book_slot")),
+                    mouseX,
+                    mouseY
+                ));
+            }
         }
         
-        // 渲染缺失方块图标的tooltip
-        this.renderMissingBlockTooltip(guiGraphics, mouseX, mouseY);
+        // 检查缺失方块图标的tooltip
+        if (blockEntity != null) {
+            ItemStack missingItem = blockEntity.getMissingBlockItem();
+            if (!missingItem.isEmpty()) {
+                int textX = this.structureInfoBaseX + 4;
+                int textY = this.structureInfoBaseY;
+                Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
+                int iconX = textX + this.font.width(missingText) + 4;
+                int iconY = textY + 18;
+                int iconWidth = 16;
+                int iconHeight = 16;
+                
+                if (mouseX >= iconX && mouseX < iconX + iconWidth
+                    && mouseY >= iconY && mouseY < iconY + iconHeight) {
+                    tooltipsToRender.add(new TooltipRenderInfo(
+                        this.font,
+                        this.getTooltipFromContainerItem(missingItem),
+                        mouseX,
+                        mouseY
+                    ));
+                }
+            }
+        }
+        
+        // 统一渲染所有tooltip，使用高Z轴确保在最上层
+        for (TooltipRenderInfo tooltipInfo : tooltipsToRender) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 2000);  // 使用更高的Z轴层级
+            guiGraphics.renderTooltip(
+                tooltipInfo.font,
+                tooltipInfo.tooltip,
+                java.util.Optional.empty(),
+                tooltipInfo.x,
+                tooltipInfo.y
+            );
+            guiGraphics.pose().popPose();
+        }
     }
     
     /**
@@ -1351,5 +1325,15 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         
         return rotatedBlocks;
     }
+    
+    /**
+     * Tooltip渲染信息记录类
+     */
+    private record TooltipRenderInfo(
+        net.minecraft.client.gui.Font font,
+        java.util.List<Component> tooltip,
+        int x,
+        int y
+    ) {}
 
 }

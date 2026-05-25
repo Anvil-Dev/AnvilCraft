@@ -35,6 +35,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StructureScannerScreen extends AbstractContainerScreen<StructureScannerMenu> {
@@ -296,8 +297,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 渲染3D预览
         this.renderPreview(guiGraphics);
         
-        // 渲染信息栏
-        this.renderInfoPanel(guiGraphics, mouseX, mouseY);
+        // 渲染信息栏（不渲染tooltip）
+        this.renderInfoPanelWithoutTooltip(guiGraphics);
         
         // 渲染STRUCTURE_TOOL_LOCKED贴图（一直显示）
         guiGraphics.blit(STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126, 26);
@@ -305,7 +306,38 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 渲染文本输入框（参考铁砧的实现）
         this.nameInput.render(guiGraphics, mouseX, mouseY, partialTick);
         
-        this.renderTooltip(guiGraphics, mouseX, mouseY);
+        // 最后统一渲染所有tooltip，确保在所有元素上方
+        List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
+        
+        // 收集默认slot tooltip
+        if (this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+            tooltipsToRender.add(new TooltipRenderInfo(
+                this.font,
+                this.getTooltipFromContainerItem(this.hoveredSlot.getItem()),
+                mouseX,
+                mouseY
+            ));
+        }
+        
+        // 收集信息栏叹号tooltip
+        TooltipRenderInfo infoPanelTooltip = this.collectInfoPanelTooltip(mouseX, mouseY);
+        if (infoPanelTooltip != null) {
+            tooltipsToRender.add(infoPanelTooltip);
+        }
+        
+        // 统一渲染所有tooltip，使用高Z轴确保在最上层
+        for (TooltipRenderInfo tooltipInfo : tooltipsToRender) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 2000);  // 使用更高的Z轴层级
+            guiGraphics.renderTooltip(
+                tooltipInfo.font,
+                tooltipInfo.tooltip,
+                java.util.Optional.empty(),
+                tooltipInfo.x,
+                tooltipInfo.y
+            );
+            guiGraphics.pose().popPose();
+        }
     }
     
     @Override
@@ -395,23 +427,23 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
     
     /**
-     * 渲染信息栏
+     * 渲染信息栏（不渲染tooltip）
      */
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
-    private void renderInfoPanel(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    private void renderInfoPanelWithoutTooltip(GuiGraphics guiGraphics) {
         // 使用缓存数据
         if (this.cachedBlockEntity == null) return;
-            
+                
         // 检查是否有磁盘
         if (!this.cachedHasDisk) return;
-            
+                
         // 获取信息状态
         StructureScannerBlockEntity.InfoStatus status = this.cachedInfoStatus;
-            
+                
         // 信息栏位置（在磁盘槽位上方）
         int infoX = this.leftPos + 9;
         int infoY = this.topPos + 52;
-            
+                
         // 渲染标题（使用缩放）
         com.mojang.blaze3d.vertex.PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
@@ -421,16 +453,16 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             net.minecraft.network.chat.Component.translatable("screen.anvilcraft.structure_scanner.info_title"),
             0, 0, 0xFFFFFF, false);
         poseStack.popPose();
-            
+                
         // 状态信息位置（标题下方）
         int statusY = infoY + 10;
-            
+                
         // 根据状态渲染
         switch (status) {
             case READY -> {
-                // 只在扫描完成后显示"结构扫描就绪"
+                // 只在扫描完成后显示“结构扫描就绪”
                 if (this.cachedIsScanComplete) {
-                    // 显示"结构扫描就绪"（使用缩放）
+                    // 显示“结构扫描就绪”（使用缩放）
                     poseStack.pushPose();
                     poseStack.translate(infoX, statusY, 0);
                     poseStack.scale(0.5f, 0.5f, 1.0f);
@@ -445,10 +477,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE 
                     || status == StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS;
                 int iconColor = isWarning ? 0xFFFF55 : 0xFF5555;
-                                        
+                                            
                 // 叹号图标单独设置位置和大小
                 float iconScale = 1.5f;  // 叹号图标缩放比例
-                                        
+                                            
                 // 绘制叹号（使用缩放）
                 poseStack.pushPose();
                 poseStack.translate(infoX, statusY, 0);
@@ -456,32 +488,68 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 int textOffsetX = 18;  // 叹号文本的X偏移量
                 guiGraphics.drawString(this.font, "!", textOffsetX, 0, iconColor, false);
                 poseStack.popPose();
-                                        
-                // 检查鼠标是否在叹号上（考虑缩放后的实际尺寸和偏移量）
-                int scaledWidth = (int) (8 * iconScale);
-                int scaledHeight = (int) (10 * iconScale);
-                int hoverStartX = infoX + (int) (textOffsetX * iconScale);  // 考虑文本偏移量的悬停起始X
-                if (mouseX >= hoverStartX && mouseX < hoverStartX + scaledWidth && mouseY >= statusY && mouseY < statusY + scaledHeight) {
-                    // 显示tooltip
-                    Component tooltip = switch (status) {
-                        case LARGE_STRUCTURE -> net.minecraft.network.chat.Component.translatable(
-                            "screen.anvilcraft.structure_scanner.tooltip.large_structure");
-                        case UNKNOWN_BLOCKS -> net.minecraft.network.chat.Component.translatable(
-                            "screen.anvilcraft.structure_scanner.tooltip.unknown_blocks");
-                        case TOO_LARGE -> net.minecraft.network.chat.Component.translatable(
-                            "screen.anvilcraft.structure_scanner.tooltip.too_large");
-                        case MULTIBLOCK_BLOCKS -> net.minecraft.network.chat.Component.translatable(
-                            "screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks");
-                        default -> Component.empty();
-                    };
-                                
-                    guiGraphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
-                }
             }
             default -> {
                 // 未知状态，不渲染任何内容
             }
         }
+    }
+        
+    /**
+     * 收集信息栏叹号tooltip（不渲染）
+     */
+    @Nullable
+    private TooltipRenderInfo collectInfoPanelTooltip(int mouseX, int mouseY) {
+        // 使用缓存数据
+        if (this.cachedBlockEntity == null) return null;
+                
+        // 检查是否有磁盘
+        if (!this.cachedHasDisk) return null;
+                
+        // 获取信息状态
+        StructureScannerBlockEntity.InfoStatus status = this.cachedInfoStatus;
+            
+        // 只有特定状态才有tooltip
+        if (status != StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE 
+            && status != StructureScannerBlockEntity.InfoStatus.UNKNOWN_BLOCKS 
+            && status != StructureScannerBlockEntity.InfoStatus.TOO_LARGE 
+            && status != StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS) {
+            return null;
+        }
+                
+        // 信息栏位置（在磁盘槽位上方）
+        int infoX = this.leftPos + 9;
+        int infoY = this.topPos + 52;
+        int statusY = infoY + 10;
+            
+        // 叹号图标缩放比例
+        float iconScale = 1.5f;
+        int textOffsetX = 18;
+            
+        // 检查鼠标是否在叹号上（考虑缩放后的实际尺寸和偏移量）
+        int scaledWidth = (int) (8 * iconScale);
+        int scaledHeight = (int) (10 * iconScale);
+        int hoverStartX = infoX + (int) (textOffsetX * iconScale);
+            
+        if (mouseX >= hoverStartX && mouseX < hoverStartX + scaledWidth 
+            && mouseY >= statusY && mouseY < statusY + scaledHeight) {
+            // 收集tooltip
+            Component tooltip = switch (status) {
+                case LARGE_STRUCTURE -> net.minecraft.network.chat.Component.translatable(
+                    "screen.anvilcraft.structure_scanner.tooltip.large_structure");
+                case UNKNOWN_BLOCKS -> net.minecraft.network.chat.Component.translatable(
+                    "screen.anvilcraft.structure_scanner.tooltip.unknown_blocks");
+                case TOO_LARGE -> net.minecraft.network.chat.Component.translatable(
+                    "screen.anvilcraft.structure_scanner.tooltip.too_large");
+                case MULTIBLOCK_BLOCKS -> net.minecraft.network.chat.Component.translatable(
+                    "screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks");
+                default -> Component.empty();
+            };
+                
+            return new TooltipRenderInfo(this.font, List.of(tooltip), mouseX, mouseY);
+        }
+            
+        return null;
     }
     
     /**
@@ -934,4 +1002,14 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
+    
+    /**
+     * Tooltip渲染信息记录类
+     */
+    private record TooltipRenderInfo(
+        net.minecraft.client.gui.Font font,
+        java.util.List<Component> tooltip,
+        int x,
+        int y
+    ) {}
 }
