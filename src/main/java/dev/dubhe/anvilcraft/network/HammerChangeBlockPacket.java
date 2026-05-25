@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.network;
 
 import dev.anvilcraft.lib.util.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -34,9 +35,12 @@ public record HammerChangeBlockPacket(
     public  void handle(IPayloadContext context) {
         context.enqueueWork(() -> {
             Level level = context.player().level();
-            if (level.isLoaded(pos)) {
-                level.setBlock(pos, state, Block.UPDATE_ALL_IMMEDIATE);
+            if (!level.isLoaded(this.pos)) return;
+            BlockState blockState = level.getBlockState(this.pos);
+            if (!StateUtil.verifyPossibleStatesForProperty(blockState, this.state)) {
+                return;
             }
+            level.setBlock(this.pos, this.state, Block.UPDATE_ALL_IMMEDIATE);
         });
     }
 }
