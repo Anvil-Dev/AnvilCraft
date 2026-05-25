@@ -46,7 +46,6 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
         ChunkPos chunkPos = this.chunkPosition();
         List<ExpCollectorBlockEntity> list = map.get(chunkPos);
         if (list == null || list.isEmpty()) return;
-        boolean flag = false;
         for (ExpCollectorBlockEntity collector : list) {
             if (collector.isGridWorking()
                 && !collector.getBlockState().getValue(ExpCollectorBlock.POWERED)
@@ -54,36 +53,29 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
                 && !collector.isRemoved()) {
                 int count = this.count;
                 int value = this.value;
-                int totalExp = count * value;
-                int mb = value * 20;
-                int totalMB = totalExp * 20;
-                IFluidHandler fluidHandler = collector.getFluidHandler();
-                if (fluidHandler.getTankCapacity(0) - fluidHandler.getFluidInTank(0).getAmount() >= mb) {
-                    fluidHandler.fill(new FluidStack(ModFluids.EXP_FLUID, totalExp), IFluidHandler.FluidAction.EXECUTE);
+                int expFluid = value * 20;
+                int totalExpFluid = value * count * 20;
+                if (collector.getFluidTank().getCapacity() - collector.getFluidTank().getFluidAmount() >= totalExpFluid) {
+                    collector.getFluidTank().internalFill(new FluidStack(ModFluids.EXP_FLUID, totalExpFluid), IFluidHandler.FluidAction.EXECUTE);
                     level.sendBlockUpdated(collector.getBlockPos(), collector.getBlockState(), collector.getBlockState(), Block.UPDATE_ALL);
-                    flag = true;
+                    this.remove(Entity.RemovalReason.DISCARDED);
+                    this.discard();
+                    anvilcraft$discarded = true;
+                    break;
                 } else {
-                    while (fluidHandler.getTankCapacity(0) - fluidHandler.getFluidInTank(0).getAmount() >= totalMB) {
-                        fluidHandler.fill(new FluidStack(ModFluids.EXP_FLUID, value), IFluidHandler.FluidAction.EXECUTE);
-                        level.sendBlockUpdated(
-                            collector.getBlockPos(),
-                            collector.getBlockState(),
-                            collector.getBlockState(),
-                            Block.UPDATE_ALL
-                        );
+                    while (collector.getFluidTank().getCapacity() - collector.getFluidTank().getFluidAmount() >= expFluid) {
+                        collector.getFluidTank().internalFill(new FluidStack(ModFluids.EXP_FLUID, expFluid), IFluidHandler.FluidAction.EXECUTE);
+                        level.sendBlockUpdated(collector.getBlockPos(), collector.getBlockState(), collector.getBlockState(), Block.UPDATE_ALL);
                         this.count--;
                         if (this.count < 1) {
-                            flag = true;
+                            this.remove(Entity.RemovalReason.DISCARDED);
+                            this.discard();
+                            anvilcraft$discarded = true;
                             break;
                         }
                     }
                 }
             }
-        }
-        if (flag) {
-            this.remove(Entity.RemovalReason.DISCARDED);
-            this.discard();
-            anvilcraft$discarded = true;
         }
     }
 

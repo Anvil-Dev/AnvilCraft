@@ -173,16 +173,15 @@ public class ExpCollectorBlockEntity extends BlockEntity
         for (ExperienceOrb experienceOrb : experienceOrbs) {
             int count = experienceOrb.count;
             int value = experienceOrb.value;
-            int totalExp = count * value;
-            int mb = value * 20;
-            int totalMB = totalExp * 20;
-            if (this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount() >= mb) {
-                this.fluidTank.internalFill(new FluidStack(ModFluids.EXP_FLUID, mb), IFluidHandler.FluidAction.EXECUTE);
+            int expFluid = value * 20;
+            int totalExpFluid = value * count * 20;
+            if (this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount() >= totalExpFluid) {
+                this.fluidTank.internalFill(new FluidStack(ModFluids.EXP_FLUID, totalExpFluid), IFluidHandler.FluidAction.EXECUTE);
                 level.sendBlockUpdated(getBlockPos(), state, state, Block.UPDATE_ALL);
                 experienceOrb.discard();
             } else {
-                while (this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount() >= totalMB) {
-                    this.fluidTank.internalFill(new FluidStack(ModFluids.EXP_FLUID, totalExp), IFluidHandler.FluidAction.EXECUTE);
+                while (this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount() >= expFluid) {
+                    this.fluidTank.internalFill(new FluidStack(ModFluids.EXP_FLUID, expFluid), IFluidHandler.FluidAction.EXECUTE);
                     level.sendBlockUpdated(getBlockPos(), state, state, Block.UPDATE_ALL);
                     experienceOrb.count--;
                     if (experienceOrb.count < 1) {

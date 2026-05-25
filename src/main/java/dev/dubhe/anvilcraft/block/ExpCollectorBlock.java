@@ -113,13 +113,20 @@ public class ExpCollectorBlock extends BetterBaseEntityBlock implements IHammerR
                 IFluidHandler fluidHandler = expCollectorBlockEntity.getFluidHandler();
                 FluidStack fluidStack = fluidHandler.getFluidInTank(0);
                 if (fluidStack.getAmount() >= 1000) {
-                    level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS);
                     fluidHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
-                    player.addItem(ModItems.EXP_BUCKET.asStack());
                     expCollectorBlockEntity.setChanged();
                     level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
-                    if (!player.isCreative()) {
-                        item.shrink(1);
+                    level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS);
+                    if (player.isCreative()) {
+                        player.addItem(ModItems.EXP_BUCKET.asStack());
+                    } else {
+                        if (item.getCount() > 1) {
+                            ItemStack itemStack = stack.copyWithCount(stack.getCount() - 1);
+                            player.setItemInHand(hand, itemStack);
+                            player.addItem(ModItems.EXP_BUCKET.asStack());
+                        } else if (item.getCount() == 1) {
+                            player.setItemInHand(hand, ModItems.EXP_BUCKET.asStack());
+                        }
                     }
                     return ItemInteractionResult.SUCCESS;
                 }
