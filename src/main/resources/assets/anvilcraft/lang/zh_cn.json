@@ -1384,7 +1384,7 @@
   "screen.anvilcraft.integration_screen.note": "要访问手册，需先选择并下载第三方手册模组，再下载对应的附加兼容模组。总共需要 %d 个额外的模组。已提供下载链接，点击按钮即可访问。",
   "tooltip.anvilcraft.item.fish_tank": "比看起来坚固，可以代替炼药锅执行相关的铁砧合成。\n可以戴在头上获得临时水下呼吸效果。\n持物品右击顶部放入物品。\n持热带鱼桶右击下半鱼缸放入热带鱼。",
   "block.anvilcraft.shulker_container": "潜影集装箱",
-  "block.anvilcraft.neoforge": "NeoForge砧",
+  "block.anvilcraft.neoforge": "NeoForge",
   "item.anvilcraft.processor": "处理器",
   "item.anvilcraft.anvil_railgun": "铁砧轨道炮",
   "item.anvilcraft.energy_weapon_platform": "能量武器平台",
@@ -1451,6 +1451,8 @@
   "screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks": "结构包含多方块，智能方块放置器不能识别多方块 ",
   "screen.anvilcraft.structure_scanner.tooltip.too_large": "结构太大了，不能存储",
   "screen.anvilcraft.structure_scanner.tooltip.unknown_blocks": "结构包含未知方块",
-  "tooltip.anvilcraft.item.smart_block_placer": "高级版的方块放置器，拥有 5×5×5 的放置范围，可通过GUI界面进行点位设置。\n支持拾取模式（从容器中拿取）与移动模式（移动世界中的方块）。\n设备需接入电力供应，耗电量为 16 kW。",
-  "tooltip.anvilcraft.property.stored_energy": "剩余电量：%s"
+  "tooltip.anvilcraft.item.smart_block_placer": "高级版的方块放置器，拥有 5×5×5 的放置范围，可通过GUI界面进行点位设置。\n支持拾取模式（从容器中拿取）与移动模式（移动世界中的方块）。\n设备需接入电力供应，耗电量为 8 kW。\n放入结构磁盘以开启蓝图模式。\n耗电量为64 kW。",
+  "tooltip.anvilcraft.property.stored_energy": "剩余电量：%s",
+  "block.anvilcraft.exp_collector": "经验收集器",
+  "screen.anvilcraft.exp_collector.tooltip": "经验：%s/%smB"
 }
