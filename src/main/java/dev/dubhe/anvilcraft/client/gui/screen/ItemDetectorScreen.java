@@ -31,7 +31,7 @@ import java.util.Optional;
 public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu>
     implements IFilterScreen<ItemDetectorMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "item_detector");
-    private static final String TEXTURES_PREFIX = "machine/item_collector/button_";
+    private static final String TEXTURES_PREFIX = "machine/button_";
 
     private final Component scrollToChangeTooltip =
         Component.translatable("screen.anvilcraft.filter.scroll_to_change")

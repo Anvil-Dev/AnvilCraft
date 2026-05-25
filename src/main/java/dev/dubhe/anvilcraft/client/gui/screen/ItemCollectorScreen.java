@@ -32,7 +32,7 @@ import java.util.function.BiFunction;
 public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMenu> implements IFilterScreen<ItemCollectorMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "item_collector");
     BiFunction<Integer, Integer, EnableFilterButton> enableFilterButtonSupplier = this.getEnableFilterButtonSupplier(75, 54);
-    private static final String TEXTURES_PREFIX = "machine/item_collector/button_";
+    private static final String TEXTURES_PREFIX = "machine/button_";
 
     @Getter
     private EnableFilterButton enableFilterButton = null;

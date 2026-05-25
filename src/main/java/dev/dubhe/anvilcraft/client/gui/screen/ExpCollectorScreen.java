@@ -22,7 +22,7 @@ import java.util.Optional;
 @OnlyIn(Dist.CLIENT)
 public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "exp_collector");
-    private static final String TEXTURES_PREFIX = "machine/item_collector/button_";
+    private static final String TEXTURES_PREFIX = "machine/button_";
 
     public ExpCollectorScreen(ExpCollectorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
