@@ -7,7 +7,9 @@ import net.minecraft.world.level.block.state.properties.Property;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class StateUtil {
     public static <O, T extends StateHolder<O, T>, E extends Comparable<E>> List<T> findPossibleStatesForProperty(
@@ -26,7 +28,10 @@ public class StateUtil {
 
     @SuppressWarnings("unchecked")
     public static <O, T extends StateHolder<O, T>, E extends Comparable<E>> boolean equalsState(T state1, T state2) {
-        for (Property<?> property : state1.getProperties()) {
+        Set<Property<?>> properties = new HashSet<>();
+        properties.addAll(state1.getProperties());
+        properties.addAll(state2.getProperties());
+        for (Property<?> property : properties) {
             E value1 = (E) state1.getValue(property);
             E value2 = (E) state2.getValue(property);
             // noinspection ConstantValue
