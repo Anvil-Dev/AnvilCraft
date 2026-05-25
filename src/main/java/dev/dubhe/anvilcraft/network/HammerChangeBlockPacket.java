@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.util.StateUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
@@ -31,6 +32,10 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
     public void handleOnServer(Player player) {
         Level level = player.level();
         if (!level.isLoaded(this.pos)) return;
+        BlockState blockState = level.getBlockState(this.pos);
+        if (!StateUtil.verifyPossibleStatesForProperty(blockState, this.state)) {
+            return;
+        }
         level.setBlock(this.pos, this.state, Block.UPDATE_ALL_IMMEDIATE);
     }
 }
