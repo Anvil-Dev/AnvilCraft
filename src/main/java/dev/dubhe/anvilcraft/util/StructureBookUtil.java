@@ -45,7 +45,9 @@ public class StructureBookUtil {
         Map<Block, Integer> requiredBlocks = new LinkedHashMap<>();
         for (var blockPosition : loadedStructure.blocks) {
             Block block = blockPosition.state().getBlock();
-            requiredBlocks.merge(block, 1, Integer::sum);
+            // 检查是否是可堆叠方块，如果是则累加堆叠数量
+            int stackCount = getStackCountFromState(blockPosition.state());
+            requiredBlocks.merge(block, stackCount, Integer::sum);
         }
         
         // 第二步: 统计世界中已放置的方块数量
@@ -197,7 +199,9 @@ public class StructureBookUtil {
             // 检查世界中的方块是否与蓝图中的方块匹配
             if (!worldState.isAir() && worldState.getBlock() == expectedState.getBlock()) {
                 Block worldBlock = worldState.getBlock();
-                placedBlocks.merge(worldBlock, 1, Integer::sum);
+                // 检查是否是可堆叠方块，如果是则累加实际堆叠数量
+                int placedCount = getStackCountFromState(worldState);
+                placedBlocks.merge(worldBlock, placedCount, Integer::sum);
                 totalPlaced++;
             }
         }
@@ -280,5 +284,22 @@ public class StructureBookUtil {
         }
         
         return 0;
+    }
+    
+    /**
+     * 从方块状态中获取堆叠数量
+     * 
+     * @param state 方块状态
+     * @return 堆叠数量，1表示不可堆叠
+     */
+    private static int getStackCountFromState(BlockState state) {
+        if (state.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG)) {
+            return state.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS);
+        } else if (state.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE)) {
+            return state.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES);
+        } else if (state.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
+            return state.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES);
+        }
+        return 1;
     }
 }

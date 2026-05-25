@@ -1,6 +1,7 @@
 
 package dev.dubhe.anvilcraft.block.entity;
 
+import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
@@ -64,12 +65,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.google.common.collect.ImmutableSet;
 
 @Getter
 @Setter
 public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemHandlerHolder {
-    private static final int POWER = 16;
+    private static final int POWER = 8;
     private static final int PLACEMENT_INTERVAL = 20;
     private static final int PLACEMENT_DELAY = 6;
     
@@ -744,8 +744,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             boolean hasBlock;
             if (this.isPickupMode) {
                 // Pickup模式：检查容器和掉落物实体
-                ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
-                hasBlock = !blockItem.isEmpty();
+                // 先获取蓝图状态，检查是否是可堆叠方块
+                BlockState blueprintState = getBlueprintBlockState(index, level);
+                int stackCount = getStackCountFromState(blueprintState);
+                
+                if (stackCount > 1) {
+                    // 可堆叠方块：检查数量是否足够
+                    int availableCount = countBlockItemInContainer(level, pos, requiredBlock);
+                    hasBlock = availableCount >= stackCount;
+                } else {
+                    // 普通方块：检查是否有存量
+                    ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+                    hasBlock = !blockItem.isEmpty();
+                }
             } else {
                 // Move模式：检查源位置的方块
                 BlockPos sourcePos = pos.relative(facing.getOpposite());
@@ -947,8 +958,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                         int actualIndex = orderedIndices.get(this.currentPlacementIndex);
                         Block requiredBlock = getRequiredBlockForPosition(actualIndex);
                         if (requiredBlock != null) {
-                            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
-                            yield blockItem.isEmpty();  // 没有存量就视为资源耗尽
+                            // 检查是否是可堆叠方块
+                            BlockState blueprintState = getBlueprintBlockState(actualIndex, level);
+                            int stackCount = getStackCountFromState(blueprintState);
+                            
+                            if (stackCount > 1) {
+                                // 可堆叠方块：检查数量是否足够
+                                int availableCount = countBlockItemInContainer(level, pos, requiredBlock);
+                                yield availableCount < stackCount;  // 数量不足视为资源耗尽
+                            } else {
+                                // 普通方块：检查是否有存量
+                                ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+                                yield blockItem.isEmpty();  // 没有存量就视为资源耗尽
+                            }
                         }
                     }
                     
@@ -1492,6 +1514,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 放置蓝图中的方块（pickup逻辑：从容器提取物品）
      */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void placeBlueprintBlocks(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
@@ -1525,20 +1548,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int index = orderedIndices.get(orderIndex);  // 获取原始数据中的真实索引
             BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
             
-            // 检查目标位置是否可以放置
-            if (this.isPositionOccupied(level, targetPos, null)) {
-                continue;
-            }
-            
             // 获取当前索引需要的方块
             Block requiredBlock = getRequiredBlockForPosition(index);
             if (requiredBlock == null) {
                 continue;
             }
             
-            // 尝试提取物品
-            ItemStack blockItem = this.extractSpecificBlockItemFromContainer(level, placerPos, requiredBlock);
-            if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
+            // 先获取物品，用于后续的位置检查
+            ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, placerPos, requiredBlock);
+            if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem)) {
                 // Stop mode：容器中没有需要的方块，停止在当前位置
                 if (!this.isSkipMissingMode) {
                     this.currentHeldBlock = ItemStack.EMPTY;
@@ -1553,16 +1571,77 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 continue;
             }
             
-            // 找到了有物品的位置，设置 currentHeldBlock 用于动画显示
+            // 获取蓝图状态，检查是否是可堆叠方块
+            BlockState blueprintState = getBlueprintBlockState(index, level);
+            int stackCount = getStackCountFromState(blueprintState);
+            
+            if (!level.isClientSide) {
+                System.out.println("[Blueprint] 位置 " + index + " 需要方块 " + requiredBlock.getName().getString() + "，堆叠数量 " + stackCount);
+            }
+            
+            if (stackCount > 1) {
+                // 可堆叠方块：先检查容器中是否有足够的物品
+                int availableCount = countBlockItemInContainer(level, placerPos, requiredBlock);
+                
+                if (!level.isClientSide) {
+                    System.out.println("[Blueprint] 位置 " + index + " 需要 " + stackCount + " 个，容器有 " + availableCount + " 个");
+                }
+                
+                if (availableCount < stackCount) {
+                    // 物品不足，不触发放置和动画
+                    if (!level.isClientSide) {
+                        System.out.println("[Blueprint] 物品不足，跳过放置！");
+                    }
+                    
+                    if (!this.isSkipMissingMode) {
+                        // Stop mode：停止在当前位置
+                        this.currentHeldBlock = ItemStack.EMPTY;
+                        this.onChanged();
+                        return;
+                    }
+                    // Skip mode：跳过这个位置
+                    continue;
+                }
+            }
+            
+            // 检查目标位置是否可以放置
+            if (this.isPositionOccupied(level, targetPos, null)) {
+                continue;
+            }
+            
+            // 物品充足且位置可以放置，设置 currentHeldBlock 用于动画显示
             this.currentHeldBlock = blockItem.copy();
             this.onChanged();
             
+            if (stackCount > 1) {
+                // 可堆叠方块：需要提取 stackCount 个物品
+                if (!extractAndPlaceStackableBlock(level, placerPos, targetPos, facing, upsideDown, 
+                    requiredBlock, stackCount, index, orderIndex, orderedIndices.size())) {
+                    // 提取或放置失败
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    this.onChanged();
+                    return;
+                }
+                // 成功，已经在 extractAndPlaceStackableBlock 中更新了索引
+                return;
+            }
+            
+            // 普通方块：提取并放置单个物品
+            ItemStack extractedItem = this.extractSpecificBlockItemFromContainer(level, placerPos, requiredBlock);
+            if (extractedItem.isEmpty() || !(extractedItem.getItem() instanceof BlockItem extractedBlockItemObj)) {
+                // 提取失败，清空并继续
+                this.currentHeldBlock = ItemStack.EMPTY;
+                this.onChanged();
+                continue;
+            }
+            
             // 放置方块
-            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
+            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
+                level, targetPos, facing, upsideDown, extractedBlockItemObj, extractedItem);
             
             if (!placeSuccess) {
                 // 放置失败，回滚物品
-                this.rollbackExtractedItem(level, placerPos, blockItem);
+                this.rollbackExtractedItem(level, placerPos, extractedItem);
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
                 this.onChanged();
@@ -2153,6 +2232,115 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     /**
+     * 从方块状态中获取堆叠数量
+     * 
+     * @param state 方块状态
+     * @return 堆叠数量，1表示不可堆叠
+     */
+    private int getStackCountFromState(BlockState state) {
+        if (state.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG)) {
+            return state.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS);
+        } else if (state.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE)) {
+            return state.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES);
+        } else if (state.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
+            return state.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES);
+        }
+        return 1;
+    }
+    
+    /**
+     * 统计容器中指定方块物品的数量
+     * 
+     * @param level 世界
+     * @param placerPos 放置器位置
+     * @param targetBlock 目标方块
+     * @return 可用数量
+     */
+    private int countBlockItemInContainer(Level level, BlockPos placerPos, Block targetBlock) {
+        Direction facing = this.getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
+        
+        int totalCount = 0;
+        
+        // 检查容器
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        if (itemHandler != null) {
+            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
+                ItemStack stack = itemHandler.extractItem(slot, Integer.MAX_VALUE, true);
+                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem) {
+                    if (blockItem.getBlock() == targetBlock) {
+                        totalCount += stack.getCount();
+                    }
+                }
+            }
+            return totalCount;
+        }
+        
+        // 检查 ItemEntity
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() instanceof BlockItem blockItem) {
+                if (blockItem.getBlock() == targetBlock) {
+                    totalCount += entity.getItem().getCount();
+                }
+            }
+        }
+        
+        return totalCount;
+    }
+    
+    /**
+     * 提取并放置可堆叠方块
+     * 
+     * @return 是否成功
+     */
+    private boolean extractAndPlaceStackableBlock(
+        Level level, BlockPos placerPos, BlockPos targetPos, Direction facing, boolean upsideDown,
+        Block requiredBlock, int stackCount, int index, int orderIndex, int orderedSize
+    ) {
+        // 先从容器中提取 stackCount 个物品
+        for (int i = 0; i < stackCount; i++) {
+            ItemStack extracted = this.extractSpecificBlockItemFromContainer(level, placerPos, requiredBlock);
+            if (extracted.isEmpty()) {
+                // 物品不足，回滚已经提取的物品
+                for (int j = 0; j < i; j++) {
+                    this.rollbackExtractedItem(level, placerPos, new ItemStack(requiredBlock));
+                }
+                return false;
+            }
+        }
+        
+        // 提取成功，放置第1个方块
+        ItemStack firstItem = new ItemStack(requiredBlock);
+        if (firstItem.getItem() instanceof BlockItem firstBlockItemObj) {
+            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, firstBlockItemObj, firstItem);
+            if (!placeSuccess) {
+                // 放置失败，回滚所有物品
+                for (int i = 0; i < stackCount; i++) {
+                    this.rollbackExtractedItem(level, placerPos, new ItemStack(requiredBlock));
+                }
+                return false;
+            }
+        }
+        
+        // 放置成功，应用蓝图状态（包含正确的堆叠数量）
+        this.applyBlueprintBlockFacing(level, targetPos, index);
+        
+        // 更新索引
+        this.currentPlacementIndex = (orderIndex + 1) % orderedSize;
+        this.currentHeldBlock = ItemStack.EMPTY;
+        this.onChanged();
+        
+        return true;
+    }
+    
+    /**
      * 获取蓝图中指定索引的方块状态（已应用旋转和倒挂处理）
      * 
      * @param index 索引
@@ -2510,6 +2698,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     if (extracted.is(net.minecraft.world.item.Items.POWDER_SNOW_BUCKET)) {
                         itemHandler.insertItem(slot, new ItemStack(net.minecraft.world.item.Items.BUCKET), false);
                     }
+                    // 发送容器更新，让比较器能正确检测物品数量
+                    level.sendBlockUpdated(inputPos, level.getBlockState(inputPos), level.getBlockState(inputPos), 3);
                     return extracted;
                 }
             }
@@ -2576,6 +2766,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         } else {
             itemEntity.discard();
         }
+        // 发送容器更新，让比较器能正确检测物品数量
+        level.sendBlockUpdated(inputPos, level.getBlockState(inputPos), level.getBlockState(inputPos), 3);
         return extracted;
     }
 
@@ -2734,6 +2926,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             for (int slot = 0; slot < itemHandler.getSlots() && !remaining.isEmpty(); slot++) {
                 remaining = itemHandler.insertItem(slot, remaining, false);
             }
+            // 发送容器更新，让比较器能正确检测物品数量
+            level.sendBlockUpdated(inputPos, level.getBlockState(inputPos), level.getBlockState(inputPos), 3);
             // 如果还有剩余物品，生成ItemEntity
             if (!remaining.isEmpty()) {
                 ItemEntity itemEntity = new ItemEntity(level,
