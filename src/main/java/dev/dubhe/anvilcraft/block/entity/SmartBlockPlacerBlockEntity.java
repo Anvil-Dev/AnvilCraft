@@ -6,7 +6,14 @@ import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
+import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.OverseerBlock;
+import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
+import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -41,6 +48,8 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -55,6 +64,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.google.common.collect.ImmutableSet;
 
 @Getter
 @Setter
@@ -62,6 +72,50 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private static final int POWER = 16;
     private static final int PLACEMENT_INTERVAL = 20;
     private static final int PLACEMENT_DELAY = 6;
+    
+    // 白名单：蓝图中需要保留的方块状态属性
+    private static final Set<Property<?>> INHERITED_PROPERTIES = ImmutableSet.of(
+        // 方块朝向
+        BlockStateProperties.FACING,
+        BlockStateProperties.HORIZONTAL_FACING,
+        BlockStateProperties.AXIS,
+        BlockStateProperties.HORIZONTAL_AXIS,
+        BlockStateProperties.ROTATION_16,
+        BlockStateProperties.ORIENTATION,
+        BlockStateProperties.VERTICAL_DIRECTION,
+        BlockStateProperties.ATTACH_FACE,
+        BlockStateProperties.RAIL_SHAPE,
+        BlockStateProperties.RAIL_SHAPE_STRAIGHT,
+        // 方块是top/bottom
+        BlockStateProperties.HALF,
+        BlockStateProperties.DOUBLE_BLOCK_HALF,
+        BlockStateProperties.BED_PART,
+        BlockStateProperties.HANGING,
+        BlockStateProperties.BELL_ATTACHMENT,
+        // 门的手动开启状态（不是红石激活）
+        BlockStateProperties.OPEN,
+        // 中继器的挡位
+        BlockStateProperties.DELAY,
+        // 比较器的模式
+        net.minecraft.world.level.block.ComparatorBlock.MODE,
+        // 可以堆叠放置的方块的数量
+        BlockStateProperties.FLOWER_AMOUNT,
+        BlockStateProperties.CANDLES,
+        BlockStateProperties.EGGS,
+        BlockStateProperties.PICKLES,
+        BlockStateProperties.LAYERS,
+        BlockStateProperties.SLAB_TYPE,
+        BlockStateProperties.LEVEL_CAULDRON,
+        // 多方块方块的部件标识
+        GiantAnvilBlock.CUBE,
+        GiantAnvilBlock.HALF,
+        RemoteTransmissionPoleBlock.HALF,
+        TransmissionPoleBlock.HALF,
+        TeslaTowerBlock.HALF,
+        OverseerBlock.HALF,
+        LargeCakeBlock.HALF,
+        AccelerationRingBlock.HALF
+    );
     
     // 标记当前是否有方块正在被智能放置器移动
     private static final ThreadLocal<Boolean> IS_BEING_MOVED_BY_PLACER = ThreadLocal.withInitial(() -> false);
@@ -2131,26 +2185,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             rotatedState = flipHalfProperty(rotatedState);
         }
         
-        // 忽略活塞的推出状态
-        if (rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.EXTENDED)) {
-            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.EXTENDED, false);
-        }
-        
-        // 忽略侦测器的红石信号状态
-        if (rotatedState.is(net.minecraft.world.level.block.Blocks.OBSERVER)
-            && rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED)) {
-            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED, false);
-        }
-        
-        // 忽略方块的含水状态
-        if (rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)) {
-            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, false);
-        }
-        
-        // 忽略信标的点亮状态
-        if (rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT)) {
-            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT, false);
-        }
+        // 应用白名单过滤：只保留白名单中的状态属性
+        rotatedState = applyWhitelistFilter(rotatedState);
         
         return rotatedState;
     }
@@ -2185,30 +2221,33 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         
         if (worldState.getBlock() != rotatedState.getBlock()) return;
 
-        // 对于活塞方块，忽略其推出状态，默认放置未推出的活塞
-        if (rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.EXTENDED)) {
-            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.EXTENDED, false);
-        }
-        
-        // 忽略侦测器的红石信号状态
-        if (rotatedState.is(net.minecraft.world.level.block.Blocks.OBSERVER)
-            && rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED)) {
-            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.POWERED, false);
-        }
-        
-        // 忽略方块的含水状态
-        if (rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED)) {
-            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED, false);
-        }
-        
-        // 忽略信标的点亮状态
-        if (rotatedState.hasProperty(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT)) {
-            rotatedState = rotatedState.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT, false);
-        }
+        // 应用白名单过滤：只保留白名单中的状态属性
+        rotatedState = applyWhitelistFilter(rotatedState);
 
         if (!worldState.equals(rotatedState)) {
             level.setBlock(targetPos, rotatedState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
         }
+    }
+    
+    /**
+     * 应用白名单过滤：只保留白名单中的状态属性，其他属性重置为默认值
+     * 
+     * @param state 原始方块状态
+     * @return 过滤后的方块状态
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private BlockState applyWhitelistFilter(BlockState state) {
+        BlockState defaultState = state.getBlock().defaultBlockState();
+        
+        // 遍历白名单中的属性，如果在当前状态中存在，则复制到默认状态
+        for (Property property : INHERITED_PROPERTIES) {
+            if (state.hasProperty(property)) {
+                Comparable value = state.getValue(property);
+                defaultState = defaultState.setValue(property, value);
+            }
+        }
+        
+        return defaultState;
     }
 
     /**
