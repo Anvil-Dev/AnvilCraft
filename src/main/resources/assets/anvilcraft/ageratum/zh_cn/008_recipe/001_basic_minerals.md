@@ -28,7 +28,9 @@ navigation:
 
 # 刷石机——万物之源
 
-[~~预制菜~~预制机器](../009_machine/002_stone.md)
+<tip>
+可以试试本模组提供的预制机器：[刷石机](../009_machine/002_stone.md) / [三模沙机](../009_machine/003_sand.md)
+</tip>
 
 # <ref item="minecraft:gold_ingot"/>-<ref item="minecraft:clay_ball"/>产线
 
