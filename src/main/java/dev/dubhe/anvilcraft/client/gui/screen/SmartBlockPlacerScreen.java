@@ -634,6 +634,94 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
     }
     
+    /**
+     * 收集所有按钮的tooltip信息
+     */
+    private void collectButtonTooltips(List<TooltipRenderInfo> tooltipsToRender, int mouseX, int mouseY) {
+        // 收集Layer按钮的tooltip
+        for (TriStateButton button : this.layerButtons) {
+            if (button != null && button.visible && button.isMouseOver(mouseX, mouseY)) {
+                if (!button.getTooltips().isEmpty()) {
+                    tooltipsToRender.add(new TooltipRenderInfo(
+                        this.font,
+                        button.getTooltips(),
+                        mouseX,
+                        mouseY
+                    ));
+                }
+            }
+        }
+        
+        // 收集位置按钮的tooltip
+        for (int row = 0; row < 5; row++) {
+            for (int col = 0; col < 5; col++) {
+                TriStateButton button = this.positionButtons[row][col];
+                if (button != null && button.visible && button.isMouseOver(mouseX, mouseY)) {
+                    if (!button.getTooltips().isEmpty()) {
+                        tooltipsToRender.add(new TooltipRenderInfo(
+                            this.font,
+                            button.getTooltips(),
+                            mouseX,
+                            mouseY
+                        ));
+                    }
+                }
+            }
+        }
+        
+        // 收集分层显示切换按钮的tooltip
+        if (this.layerModeButton != null && this.layerModeButton.visible 
+            && this.layerModeButton.isMouseOver(mouseX, mouseY)) {
+            if (!this.layerModeButton.getTooltips().isEmpty()) {
+                tooltipsToRender.add(new TooltipRenderInfo(
+                    this.font,
+                    this.layerModeButton.getTooltips(),
+                    mouseX,
+                    mouseY
+                ));
+            }
+        }
+        
+        // 收集取物/移动模式按钮的tooltip
+        if (this.operationModeButton != null && this.operationModeButton.visible 
+            && this.operationModeButton.isMouseOver(mouseX, mouseY)) {
+            if (!this.operationModeButton.getTooltips().isEmpty()) {
+                tooltipsToRender.add(new TooltipRenderInfo(
+                    this.font,
+                    this.operationModeButton.getTooltips(),
+                    mouseX,
+                    mouseY
+                ));
+            }
+        }
+        
+        // 收集跳过缺少方块按钮的tooltip
+        if (this.skipMissingButton != null && this.skipMissingButton.visible 
+            && this.skipMissingButton.isMouseOver(mouseX, mouseY)) {
+            if (!this.skipMissingButton.getTooltips().isEmpty()) {
+                tooltipsToRender.add(new TooltipRenderInfo(
+                    this.font,
+                    this.skipMissingButton.getTooltips(),
+                    mouseX,
+                    mouseY
+                ));
+            }
+        }
+        
+        // 收集停止在缺少方块按钮的tooltip
+        if (this.stopMissingButton != null && this.stopMissingButton.visible 
+            && this.stopMissingButton.isMouseOver(mouseX, mouseY)) {
+            if (!this.stopMissingButton.getTooltips().isEmpty()) {
+                tooltipsToRender.add(new TooltipRenderInfo(
+                    this.font,
+                    this.stopMissingButton.getTooltips(),
+                    mouseX,
+                    mouseY
+                ));
+            }
+        }
+    }
+    
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         // 只渲染标题（方块名称），不渲染“物品栏”文字
@@ -713,6 +801,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 最后统一渲染所有tooltip，确保在所有元素上方
         // 收集所有需要渲染的tooltip
         List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
+        
+        // 收集所有按钮的tooltip
+        this.collectButtonTooltips(tooltipsToRender, mouseX, mouseY);
         
         // 检查鼠标是否在Disk槽位上
         int diskSlotX = this.leftPos + 8;
