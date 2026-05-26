@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
+import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -621,17 +622,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             return;
         }
 
-        int guiScale = (int) this.minecraft.getWindow().getGuiScale();
-        int fbWidth = this.previewWindowWidth * guiScale;
-        int fbHeight = this.previewWindowHeight * guiScale;
-
-        // 创建/重建离屏帧缓冲
-        if (this.previewFbo == null) {
-            this.previewFbo = new TextureTarget(fbWidth, fbHeight, true, Minecraft.ON_OSX);
-        } else if (this.previewFbo.width != fbWidth || this.previewFbo.height != fbHeight) {
-            this.previewFbo.resize(fbWidth, fbHeight, Minecraft.ON_OSX);
-        }
-
         // 阶段1: 正常渲染 3D 预览到主帧缓冲
         final double guiScaleD = this.minecraft.getWindow().getGuiScale();
         RenderSystem.enableScissor(
@@ -649,7 +639,19 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         RenderSystem.disableScissor();
 
-        // 阶段2: 将预览区域从主帧缓冲复制到离屏帧缓冲
+        // 阶段2&3: 扫描着色器后处理（仅在配置启用时）
+        if (!RenderState.isScanPreviewEffectEnabled()) return;
+
+        int guiScale = (int) this.minecraft.getWindow().getGuiScale();
+        int fbWidth = this.previewWindowWidth * guiScale;
+        int fbHeight = this.previewWindowHeight * guiScale;
+
+        if (this.previewFbo == null) {
+            this.previewFbo = new TextureTarget(fbWidth, fbHeight, true, Minecraft.ON_OSX);
+        } else if (this.previewFbo.width != fbWidth || this.previewFbo.height != fbHeight) {
+            this.previewFbo.resize(fbWidth, fbHeight, Minecraft.ON_OSX);
+        }
+
         final RenderTarget mainTarget = this.minecraft.getMainRenderTarget();
         int srcX = (int) (this.previewWindowX * guiScaleD);
         int srcY = (int) ((this.minecraft.getWindow().getGuiScaledHeight()
@@ -665,13 +667,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
         GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
 
-        // 恢复主帧缓冲绑定
         mainTarget.bindWrite(false);
 
-        // 阶段3: 使用扫描着色器 blit 回主帧缓冲
-
         ShaderInstance shader = ModShaders.getScanPreviewShader();
-        // noinspection ConstantValue
         if (shader == null) return;
 
         RenderSystem.enableBlend();

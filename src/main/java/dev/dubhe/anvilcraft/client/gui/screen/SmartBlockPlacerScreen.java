@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
+import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -931,17 +932,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         LevelLike previewLevelLike = this.getOrCreateCachedPreviewLevelLike();
 
-        int guiScale = (int) this.minecraft.getWindow().getGuiScale();
-        int fbWidth = this.previewWindowWidth * guiScale;
-        int fbHeight = this.previewWindowHeight * guiScale;
-
-        // 创建/重建离屏帧缓冲
-        if (this.previewFbo == null) {
-            this.previewFbo = new TextureTarget(fbWidth, fbHeight, true, Minecraft.ON_OSX);
-        } else if (this.previewFbo.width != fbWidth || this.previewFbo.height != fbHeight) {
-            this.previewFbo.resize(fbWidth, fbHeight, Minecraft.ON_OSX);
-        }
-
         // 阶段1: 正常渲染 3D 预览到主帧缓冲
         final double guiScaleD = this.minecraft.getWindow().getGuiScale();
         RenderSystem.enableScissor(
@@ -962,64 +952,75 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         RenderSystem.disableScissor();
 
-        // 阶段2: 将预览区域从主帧缓冲复制到离屏帧缓冲
-        final RenderTarget mainTarget = this.minecraft.getMainRenderTarget();
-        int srcX = (int) (this.previewWindowX * guiScaleD);
-        int srcY = (int) ((this.minecraft.getWindow().getGuiScaledHeight()
-            - this.previewWindowY - this.previewWindowHeight) * guiScaleD);
+        // 阶段2&3: 扫描着色器后处理（仅在配置启用时）
+        if (RenderState.isScanPreviewEffectEnabled()) {
+            int guiScale = (int) this.minecraft.getWindow().getGuiScale();
+            int fbWidth = this.previewWindowWidth * guiScale;
+            int fbHeight = this.previewWindowHeight * guiScale;
 
-        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainTarget.frameBufferId);
-        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, this.previewFbo.frameBufferId);
-        GL30.glBlitFramebuffer(
-            srcX, srcY, srcX + fbWidth, srcY + fbHeight,
-            0, 0, fbWidth, fbHeight,
-            GL11.GL_COLOR_BUFFER_BIT, GL11.GL_NEAREST
-        );
-        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
-        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
+            if (this.previewFbo == null) {
+                this.previewFbo = new TextureTarget(fbWidth, fbHeight, true, Minecraft.ON_OSX);
+            } else if (this.previewFbo.width != fbWidth || this.previewFbo.height != fbHeight) {
+                this.previewFbo.resize(fbWidth, fbHeight, Minecraft.ON_OSX);
+            }
 
-        mainTarget.bindWrite(false);
+            final RenderTarget mainTarget = this.minecraft.getMainRenderTarget();
+            int srcX = (int) (this.previewWindowX * guiScaleD);
+            int srcY = (int) ((this.minecraft.getWindow().getGuiScaledHeight()
+                - this.previewWindowY - this.previewWindowHeight) * guiScaleD);
 
-        // 阶段3: 使用扫描着色器 blit 回主帧缓冲
-        float fbW = this.previewFbo.width;
-        float fbH = this.previewFbo.height;
-        float screenX = this.previewWindowX * guiScale;
-        float screenY = (this.minecraft.getWindow().getGuiScaledHeight()
-            - this.previewWindowY - this.previewWindowHeight) * guiScale;
-
-        ShaderInstance shader = ModShaders.getScanPreviewShader();
-        if (shader != null) {
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.viewport(0, 0,
-                this.minecraft.getWindow().getWidth(),
-                this.minecraft.getWindow().getHeight());
-
-            shader.setSampler("DiffuseSampler", this.previewFbo);
-            shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
-            shader.safeGetUniform("InSize").set(fbW, fbH);
-            shader.safeGetUniform("OutPos").set(screenX, screenY);
-            shader.safeGetUniform("OutSize").set(fbW, fbH);
-            shader.safeGetUniform("GameTime").set(
-                (float) (System.currentTimeMillis() % 100000) / 1000.0f
+            GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainTarget.frameBufferId);
+            GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, this.previewFbo.frameBufferId);
+            GL30.glBlitFramebuffer(
+                srcX, srcY, srcX + fbWidth, srcY + fbHeight,
+                0, 0, fbWidth, fbHeight,
+                GL11.GL_COLOR_BUFFER_BIT, GL11.GL_NEAREST
             );
+            GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
+            GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
 
-            RenderSystem.depthFunc(GL11.GL_ALWAYS);
-            shader.apply();
+            mainTarget.bindWrite(false);
 
-            BufferBuilder bufferbuilder = Tesselator.getInstance()
-                .begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-            bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);
-            bufferbuilder.addVertex(fbW, 0.0F, 0.0F);
-            bufferbuilder.addVertex(fbW, fbH, 0.0F);
-            bufferbuilder.addVertex(0.0F, fbH, 0.0F);
-            BufferUploader.draw(bufferbuilder.buildOrThrow());
+            float fbW = this.previewFbo.width;
+            float fbH = this.previewFbo.height;
+            float screenX = this.previewWindowX * guiScale;
+            float screenY = (this.minecraft.getWindow().getGuiScaledHeight()
+                - this.previewWindowY - this.previewWindowHeight) * guiScale;
 
-            RenderSystem.depthFunc(GL11.GL_LEQUAL);
-            ProgramManager.glUseProgram(0);
-            RenderSystem.disableBlend();
+            ShaderInstance shader = ModShaders.getScanPreviewShader();
+            if (shader != null) {
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
+                RenderSystem.viewport(0, 0,
+                    this.minecraft.getWindow().getWidth(),
+                    this.minecraft.getWindow().getHeight());
 
-            this.previewFbo.unbindRead();
+                shader.setSampler("DiffuseSampler", this.previewFbo);
+                shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
+                shader.safeGetUniform("InSize").set(fbW, fbH);
+                shader.safeGetUniform("OutPos").set(screenX, screenY);
+                shader.safeGetUniform("OutSize").set(fbW, fbH);
+                shader.safeGetUniform("GameTime").set(
+                    (float) (System.currentTimeMillis() % 100000) / 1000.0f
+                );
+
+                RenderSystem.depthFunc(GL11.GL_ALWAYS);
+                shader.apply();
+
+                BufferBuilder bufferbuilder = Tesselator.getInstance()
+                    .begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+                bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);
+                bufferbuilder.addVertex(fbW, 0.0F, 0.0F);
+                bufferbuilder.addVertex(fbW, fbH, 0.0F);
+                bufferbuilder.addVertex(0.0F, fbH, 0.0F);
+                BufferUploader.draw(bufferbuilder.buildOrThrow());
+
+                RenderSystem.depthFunc(GL11.GL_LEQUAL);
+                ProgramManager.glUseProgram(0);
+                RenderSystem.disableBlend();
+
+                this.previewFbo.unbindRead();
+            }
         }
 
         // 如果没有配置选区位置且不在蓝图模式下，显示提示文本（在裁剪区域外渲染，确保在最上层）

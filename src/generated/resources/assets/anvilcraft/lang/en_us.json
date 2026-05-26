@@ -201,6 +201,8 @@
   "anvilcraft.configuration.render_bloom_effect.tooltip": "Bloom effect on laser and power transmitter lines.",
   "anvilcraft.configuration.render_power_transmitter_lines": "Render Power Transmitter Lines",
   "anvilcraft.configuration.render_power_transmitter_lines.tooltip": "Render lines between power transmitters",
+  "anvilcraft.configuration.render_scan_preview_effect": "Render Scan Preview Effect",
+  "anvilcraft.configuration.render_scan_preview_effect.tooltip": "Scanline post-processing effect on 3D structure previews.",
   "anvilcraft.configuration.royal_anvil_beyond_max_level": "Royal Anvil Beyond Max Level",
   "anvilcraft.configuration.royal_anvil_beyond_max_level.tooltip": "Combining items with Enchanted Books beyond max level in Royal Anvil",
   "anvilcraft.configuration.section.anvilcraft.client.toml": "Anvilcraft Client Configuration",
