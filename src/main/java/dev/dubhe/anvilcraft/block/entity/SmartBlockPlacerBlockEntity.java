@@ -106,6 +106,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockStateProperties.LAYERS,
         BlockStateProperties.SLAB_TYPE,
         BlockStateProperties.LEVEL_CAULDRON,
+        // 多面方向属性（发光地衣、藤蔓等）
+        BlockStateProperties.NORTH,
+        BlockStateProperties.SOUTH,
+        BlockStateProperties.EAST,
+        BlockStateProperties.WEST,
+        BlockStateProperties.UP,
+        BlockStateProperties.DOWN,
         // 多方块方块的部件标识
         GiantAnvilBlock.CUBE,
         GiantAnvilBlock.HALF,
@@ -578,8 +585,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             for (int index : orderedIndices) {
                 BlockPos targetPos = allPositions.get(index);
                 
-                // 如果位置不可以放置，说明已经放置了方块
-                if (this.isPositionOccupied(this.level, targetPos, null)) {
+                // 蓝图模式：只检查位置是否有方块（不检查状态）
+                if (this.isBlueprintPositionOccupied(this.level, targetPos)) {
                     placedCount++;
                 }
             }
@@ -729,8 +736,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (int index : orderedIndices) {
             BlockPos targetPos = allPositions.get(index);
             
-            // 检查目标位置是否可以放置（如果不可以放置说明已经放置了）
-            if (this.isPositionOccupied(level, targetPos, null)) {
+            // 蓝图模式：只检查位置是否有方块（不检查状态）
+            if (this.isBlueprintPositionOccupied(level, targetPos)) {
                 continue;  // 已经放置了，跳过
             }
             
@@ -1087,8 +1094,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 int index = orderedIndices.get(orderIndex);
                 BlockPos targetPos = allPositions.get(index);
                 
-                // 检查目标位置是否可以放置
-                if (this.isPositionOccupied(level, targetPos, null)) {
+                // 检查目标位置是否可以放置（蓝图模式：只检查是否有方块，不检查状态）
+                if (this.isBlueprintPositionOccupied(level, targetPos)) {
                     continue;
                 }
                 
@@ -1098,7 +1105,28 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     continue;
                 }
                 
-                // 预览物品（不真正提取）
+                // 获取蓝图状态，检查是否是可堆叠方块
+                BlockState blueprintState = getBlueprintBlockState(index, level);
+                int stackCount = getStackCountFromState(blueprintState);
+                
+                if (stackCount > 1) {
+                    // 可堆叠方块：检查容器中是否有足够的数量
+                    int availableCount = countBlockItemInContainer(level, pos, requiredBlock);
+                    if (availableCount < stackCount) {
+                        // 数量不足，跳过
+                        continue;
+                    }
+                } else {
+                    // 普通方块：检查是否有物品
+                    ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
+                    if (blockItem.isEmpty()) {
+                        continue;
+                    }
+                    this.currentHeldBlock = blockItem.copy();
+                    return;
+                }
+                
+                // 可堆叠方块数量充足，设置 currentHeldBlock
                 ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
                 if (!blockItem.isEmpty()) {
                     this.currentHeldBlock = blockItem.copy();
@@ -1121,8 +1149,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 int index = orderedIndices.get(orderIndex);
                 BlockPos targetPos = allPositions.get(index);
                 
-                // 检查目标位置是否可以放置
-                if (this.isPositionOccupied(level, targetPos, null)) {
+                // 检查目标位置是否可以放置（蓝图模式：只检查是否有方块，不检查状态）
+                if (this.isBlueprintPositionOccupied(level, targetPos)) {
                     continue;
                 }
                 
@@ -1297,9 +1325,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
             BlockPos targetPos = allPositions.get(index);
-            // 修复：与普通模式保持一致，检查 isAir() 或 canBePlaced()
+            // 蓝图模式：只检查位置是否为空（是否有方块）
             BlockState targetState = level.getBlockState(targetPos);
-            if (targetState.isAir() || this.canBePlaced(level, targetState, null)) {
+            if (targetState.isAir()) {
                 return true;
             }
         }
@@ -1337,9 +1365,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
             BlockPos targetPos = allPositions.get(index);
-            // 修复：与普通模式保持一致，检查 isAir() 或 canBePlaced()
+            // 蓝图模式：只检查位置是否为空（是否有方块）
             BlockState targetState = level.getBlockState(targetPos);
-            if (targetState.isAir() || this.canBePlaced(level, targetState, null)) {
+            if (targetState.isAir()) {
                 return true;
             }
         }
@@ -1405,6 +1433,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     private boolean isPositionOccupied(Level level, BlockPos targetPos, @Nullable net.minecraft.world.item.BlockItem blockItem) {
         return !this.canPlaceAtPosition(level, targetPos, blockItem);
+    }
+    
+    /**
+     * 检查蓝图位置是否已被占据（只检查是否有方块，不检查状态）
+     * 用于蓝图模式，防止覆盖已有方块
+     * 
+     * @param level 世界
+     * @param targetPos 目标位置
+     * @return 如果位置已有方块（非空气）返回 true
+     */
+    private boolean isBlueprintPositionOccupied(Level level, BlockPos targetPos) {
+        BlockState targetState = level.getBlockState(targetPos);
+        return !targetState.isAir();
     }
 
     private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
@@ -1604,8 +1645,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
             }
             
-            // 检查目标位置是否可以放置
-            if (this.isPositionOccupied(level, targetPos, null)) {
+            // 检查目标位置是否可以放置（蓝图模式：只检查是否有方块，不检查状态）
+            if (this.isBlueprintPositionOccupied(level, targetPos)) {
                 continue;
             }
             
@@ -1650,6 +1691,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             
             // 放置成功后，修正方块的朝向为蓝图中的朝向
             this.applyBlueprintBlockFacing(level, targetPos, index);
+            
+            // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的状态更新
+            level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), targetPos);
             
             // 放置成功
             this.currentHeldBlock = ItemStack.EMPTY;
@@ -1718,8 +1762,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int index = orderedIndices.get(orderIndex);  // 获取原始数据中的真实索引
             BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
             
-            // 检查目标位置是否可以放置
-            if (this.isPositionOccupied(level, targetPos, null)) {
+            // 检查目标位置是否可以放置（蓝图模式：只检查是否有方块，不检查状态）
+            if (this.isBlueprintPositionOccupied(level, targetPos)) {
                 continue;
             }
             
@@ -1773,8 +1817,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 IS_BEING_MOVED_BY_PLACER.set(false);
             }
             
-            // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向）
-            level.setBlock(targetPos, blueprintState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+            // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向），只更新客户端
+            level.setBlock(targetPos, blueprintState, Block.UPDATE_CLIENTS);
             
             if (sourceBlockEntityData != null) {
                 BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
@@ -1966,6 +2010,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             
             // 放置成功后，修正方块的朝向为蓝图中的朝向
             this.applyBlueprintBlockFacing(level, targetPos, index);
+            
+            // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的状态更新
+            level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), targetPos);
             
             // 放置成功，确认提取（真正删除或修改ItemEntity）
             extractionResult.confirmExtraction();
@@ -2244,6 +2291,27 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return state.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES);
         } else if (state.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
             return state.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES);
+        } else if (state.is(net.minecraft.world.level.block.Blocks.SNOW)) {
+            // 雪片：获取层数（1-8）
+            return state.getValue(BlockStateProperties.LAYERS);
+        } else if (state.is(net.minecraft.world.level.block.Blocks.GLOW_LICHEN)) {
+            // 发光地衣：统计启用的方向面数量
+            int count = 0;
+            if (state.getValue(BlockStateProperties.NORTH)) count++;
+            if (state.getValue(BlockStateProperties.SOUTH)) count++;
+            if (state.getValue(BlockStateProperties.EAST)) count++;
+            if (state.getValue(BlockStateProperties.WEST)) count++;
+            if (state.getValue(BlockStateProperties.UP)) count++;
+            if (state.getValue(BlockStateProperties.DOWN)) count++;
+            return Math.max(count, 1);  // 至少为1
+        } else if (state.is(net.minecraft.world.level.block.Blocks.VINE)) {
+            // 藤蔓：统计启用的方向面数量（只有四面，没有UP和DOWN）
+            int count = 0;
+            if (state.getValue(BlockStateProperties.NORTH)) count++;
+            if (state.getValue(BlockStateProperties.SOUTH)) count++;
+            if (state.getValue(BlockStateProperties.EAST)) count++;
+            if (state.getValue(BlockStateProperties.WEST)) count++;
+            return Math.max(count, 1);  // 至少为1
         }
         return 1;
     }
@@ -2332,6 +2400,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         // 放置成功，应用蓝图状态（包含正确的堆叠数量）
         this.applyBlueprintBlockFacing(level, targetPos, index);
         
+        // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的状态更新
+        level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), targetPos);
+        
         // 更新索引
         this.currentPlacementIndex = (orderIndex + 1) % orderedSize;
         this.currentHeldBlock = ItemStack.EMPTY;
@@ -2411,9 +2482,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
         // 应用白名单过滤：只保留白名单中的状态属性
         rotatedState = applyWhitelistFilter(rotatedState);
+        
+        // 海泡菜特殊处理：手动将 waterlogged 设置为 false
+        if (rotatedState.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE) 
+            && rotatedState.hasProperty(BlockStateProperties.WATERLOGGED)) {
+            rotatedState = rotatedState.setValue(BlockStateProperties.WATERLOGGED, false);
+        }
 
         if (!worldState.equals(rotatedState)) {
-            level.setBlock(targetPos, rotatedState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+            // 只更新客户端，不触发邻居更新（由调用方统一处理）
+            level.setBlock(targetPos, rotatedState, Block.UPDATE_CLIENTS);
         }
     }
     

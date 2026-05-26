@@ -465,7 +465,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                     // 显示“结构扫描就绪”（使用缩放）
                     poseStack.pushPose();
                     poseStack.translate(infoX, statusY, 0);
-                    poseStack.scale(0.5f, 0.5f, 1.0f);
                     guiGraphics.drawString(this.font, 
                         net.minecraft.network.chat.Component.translatable("screen.anvilcraft.structure_scanner.ready"),
                         0, 0, 0x40FF40, false);
