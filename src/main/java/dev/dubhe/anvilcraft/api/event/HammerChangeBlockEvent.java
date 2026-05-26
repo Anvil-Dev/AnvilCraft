@@ -11,6 +11,8 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 
 public class HammerChangeBlockEvent extends BlockEvent {
     @Getter
+    private final Player player;
+    @Getter
     private final BlockState oldState;
     @Getter
     @Setter
@@ -25,6 +27,7 @@ public class HammerChangeBlockEvent extends BlockEvent {
         boolean isVerified
     ) {
         super(level, pos, state);
+        this.player = player;
         this.oldState = oldState;
         this.isVerified = isVerified;
     }

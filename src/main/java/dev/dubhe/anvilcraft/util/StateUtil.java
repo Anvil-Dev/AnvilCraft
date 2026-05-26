@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.util;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateHolder;
@@ -32,14 +31,20 @@ public class StateUtil {
         properties.addAll(state1.getProperties());
         properties.addAll(state2.getProperties());
         for (Property<?> property : properties) {
-            E value1 = Util.cast(state1.getValue(property));
-            E value2 = Util.cast(state2.getValue(property));
-            // noinspection ConstantValue
-            if (value1 == null || value2 == null || value1.compareTo(value2) != 0) {
-                return false;
-            }
+            if (!StateUtil.equalsProperty(property, state1, state2)) return false;
         }
         return true;
+    }
+
+    public static <O, T extends StateHolder<O, T>, E extends Comparable<E>> boolean equalsProperty(
+        Property<E> property,
+        T state1,
+        T state2
+    ) {
+        if (state1.hasProperty(property) != state2.hasProperty(property)) return false;
+        E value1 = state1.getValue(property);
+        E value2 = state2.getValue(property);
+        return value1.compareTo(value2) == 0;
     }
 
     public static boolean verifyPossibleStatesForProperty(BlockState initialState, BlockState targetState) {
