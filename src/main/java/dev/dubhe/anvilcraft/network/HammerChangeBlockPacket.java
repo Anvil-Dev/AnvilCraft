@@ -49,7 +49,11 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             this.pos,
             this.state,
             blockState,
-            hasHammer && stateVerified && distanceVerified
+            hasHammer
+            && stateVerified
+            && distanceVerified
+            && level.mayInteract(player, this.pos)
+            && player.getAbilities().mayBuild
         )) {
             return;
         }
