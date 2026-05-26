@@ -1208,16 +1208,16 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         float scale = Math.min(scaleY, scaleX);
         poseStack.scale(-scale, -scale, -scale);
         
-        // 3. 平移到中心
-        poseStack.translate(-(float) 5 / 2, -(float) 5 / 2, 0);
-        
+        // 3. 平移到中心（5为奇数，加0.5与RenderSupport保持一致）
+        poseStack.translate(-(float) 5 / 2 + 0.5f, -(float) 5 / 2, 0);
+
         // 4. 先应用X轴旋转
         poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(this.previewRotationX));
-        
+
         // 5. Y轴旋转的中心点 - 固定基于5x5范围计算，忽略放置器
         // 与RenderSupport.renderLevelLikeWithFixedSize保持一致
-        float offsetX = (float) -5 / 2 + 0.05f;
-        float offsetZ = (float) -5 / 2 + 1;
+        float offsetX = (float) -5 / 2 + 0.05f + 0.5f;
+        float offsetZ = (float) -5 / 2 + 1 + 0.5f;
         poseStack.translate(-offsetX, 0, -offsetZ);
         poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(this.previewRotationY + 45));
         poseStack.translate(offsetX, 0, offsetZ);

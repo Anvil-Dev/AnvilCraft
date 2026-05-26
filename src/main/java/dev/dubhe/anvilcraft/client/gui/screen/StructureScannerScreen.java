@@ -913,15 +913,16 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         float scale = Math.min(scaleY, scaleX);
         poseStack.scale(-scale, -scale, -scale);
             
-        // 3. 平移到中心
-        poseStack.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
-            
+        // 3. 平移到中心（奇数尺寸加0.5，与RenderSupport保持一致）
+        float centerOffset = (sizeX % 2 != 0) ? 0.5f : 0.0f;
+        poseStack.translate(-(float) sizeX / 2 + centerOffset, -(float) sizeY / 2, 0);
+
         // 4. 应用X轴旋转
         poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(this.previewRotationX));
-            
+
         // 5. Y轴旋转
-        float offsetX = (float) -sizeX / 2 + 0.05f;
-        float offsetZ = (float) -sizeX / 2 + 1;
+        float offsetX = (float) -sizeX / 2 + 0.05f + centerOffset;
+        float offsetZ = (float) -sizeX / 2 + 1 + centerOffset;
         poseStack.translate(-offsetX, 0, -offsetZ);
         // 应用朝向旋转偏移
         float yawOffset = getFacingYawOffset(facing);
