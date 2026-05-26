@@ -55,7 +55,11 @@ public record HammerChangeBlockPacket(
                 this.pos,
                 this.state,
                 blockState,
-                hasHammer && stateVerified && distanceVerified
+                hasHammer
+                && stateVerified
+                && distanceVerified
+                && level.mayInteract(player, this.pos)
+                && player.getAbilities().mayBuild
             )) {
                 return;
             }
