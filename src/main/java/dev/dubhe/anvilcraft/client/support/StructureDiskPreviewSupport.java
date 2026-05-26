@@ -1,14 +1,27 @@
 package dev.dubhe.anvilcraft.client.support;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,12 +40,18 @@ public class StructureDiskPreviewSupport {
     
     /** 最大缓存条目数 */
     private static final int MAX_CACHE_SIZE = 50;
-    
+
     /** 上次清理时间 */
     private static long lastCleanupTime = 0;
-    
+
     /** 清理间隔（毫秒） */
     private static final long CLEANUP_INTERVAL_MS = 10000;
+
+    /** 离屏帧缓冲 — 用于扫描预览后处理 */
+    @Nullable
+    private static RenderTarget previewFbo;
+    /** 上次帧缓冲的 guiScale，用于检测变化 */
+    private static int lastFboGuiScale = 0;
     
     /**
      * 预览缓存数据
@@ -116,10 +135,78 @@ public class StructureDiskPreviewSupport {
             60.0f,  // 缩放因子
             2.0f    // 旋转速度
         );
-        
+
         // 恢复Z轴层级
         guiGraphics.pose().popPose();
-        
+
+        // 扫描预览后处理: 复制预览区域 → 着色器回写
+        int guiScale = (int) minecraft.getWindow().getGuiScale();
+        int fbWidth = previewSize * guiScale;
+        int fbHeight = previewSize * guiScale;
+
+        if (lastFboGuiScale != guiScale) {
+            if (previewFbo != null) previewFbo.destroyBuffers();
+            previewFbo = null;
+            lastFboGuiScale = guiScale;
+        }
+        if (previewFbo == null) {
+            previewFbo = new TextureTarget(fbWidth, fbHeight, true, Minecraft.ON_OSX);
+        }
+
+        final RenderTarget mainTarget = minecraft.getMainRenderTarget();
+        int srcX = (int) (previewX * guiScale);
+        int srcY = (int) ((minecraft.getWindow().getGuiScaledHeight() - previewY - previewSize) * guiScale);
+
+        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainTarget.frameBufferId);
+        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, previewFbo.frameBufferId);
+        GL30.glBlitFramebuffer(
+            srcX, srcY, srcX + fbWidth, srcY + fbHeight,
+            0, 0, fbWidth, fbHeight,
+            GL11.GL_COLOR_BUFFER_BIT, GL11.GL_NEAREST
+        );
+        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
+        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
+
+        mainTarget.bindWrite(false);
+
+        ShaderInstance shader = ModShaders.getScanPreviewShader();
+        if (shader != null) {
+            final float fbW = previewFbo.width;
+            final float fbH = previewFbo.height;
+            final float screenX = previewX * guiScale;
+            final float screenY = (minecraft.getWindow().getGuiScaledHeight() - previewY - previewSize) * guiScale;
+
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.viewport(0, 0,
+                minecraft.getWindow().getWidth(),
+                minecraft.getWindow().getHeight());
+
+            shader.setSampler("DiffuseSampler", previewFbo);
+            shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
+            shader.safeGetUniform("InSize").set(fbW, fbH);
+            shader.safeGetUniform("OutPos").set(screenX, screenY);
+            shader.safeGetUniform("OutSize").set(fbW, fbH);
+            shader.safeGetUniform("GameTime").set(
+                (float) (System.currentTimeMillis() % 100000) / 1000.0f
+            );
+
+            RenderSystem.depthFunc(GL11.GL_ALWAYS);
+            shader.apply();
+
+            BufferBuilder bufferbuilder = Tesselator.getInstance()
+                .begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+            bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);
+            bufferbuilder.addVertex(fbW, 0.0F, 0.0F);
+            bufferbuilder.addVertex(fbW, fbH, 0.0F);
+            bufferbuilder.addVertex(0.0F, fbH, 0.0F);
+            BufferUploader.draw(bufferbuilder.buildOrThrow());
+
+            RenderSystem.depthFunc(GL11.GL_LEQUAL);
+            ProgramManager.glUseProgram(0);
+
+            previewFbo.unbindRead();
+        }
+
         // 禁用深度测试
         RenderSystem.disableDepthTest();
         RenderSystem.disableBlend();

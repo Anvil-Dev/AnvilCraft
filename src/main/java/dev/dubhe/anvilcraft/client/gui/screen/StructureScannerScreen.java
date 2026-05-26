@@ -1,14 +1,24 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.SimpleIconButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
+import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -23,6 +33,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -34,6 +45,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +99,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     
     // 扫描数据版本追踪（用于缓存失效）
     private int cachedScannedBlocksSize = -1;
+
+    // 离屏帧缓冲 — 用于扫描预览后处理
+    @Nullable
+    private RenderTarget previewFbo;
 
     public StructureScannerScreen(StructureScannerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -597,30 +614,106 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
     
     /**
-     * 渲染3D预览（包含Structure Scanner方块和边框）
+     * 渲染3D预览（含扫描仪后处理）
      */
     private void renderPreview(GuiGraphics guiGraphics) {
         if (this.minecraft == null || this.minecraft.level == null) {
             return;
         }
-        
-        // 启用裁剪，限制渲染区域在预览窗口内
-        double guiScale = this.minecraft.getWindow().getGuiScale();
+
+        int guiScale = (int) this.minecraft.getWindow().getGuiScale();
+        int fbWidth = this.previewWindowWidth * guiScale;
+        int fbHeight = this.previewWindowHeight * guiScale;
+
+        // 创建/重建离屏帧缓冲
+        if (this.previewFbo == null) {
+            this.previewFbo = new TextureTarget(fbWidth, fbHeight, true, Minecraft.ON_OSX);
+        } else if (this.previewFbo.width != fbWidth || this.previewFbo.height != fbHeight) {
+            this.previewFbo.resize(fbWidth, fbHeight, Minecraft.ON_OSX);
+        }
+
+        // 阶段1: 正常渲染 3D 预览到主帧缓冲
+        final double guiScaleD = this.minecraft.getWindow().getGuiScale();
         RenderSystem.enableScissor(
-            (int) (this.previewWindowX * guiScale),
-            (int) ((this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * guiScale),
-            (int) (this.previewWindowWidth * guiScale),
-            (int) (this.previewWindowHeight * guiScale)
+            (int) (this.previewWindowX * guiScaleD),
+            (int) ((this.minecraft.getWindow().getGuiScaledHeight()
+                - this.previewWindowY - this.previewWindowHeight) * guiScaleD),
+            (int) (this.previewWindowWidth * guiScaleD),
+            (int) (this.previewWindowHeight * guiScaleD)
         );
-        
-        // 渲染3D预览
+
         this.renderPreviewContent(guiGraphics,
             this.previewWindowX + this.previewWindowWidth / 2,
             this.previewWindowY + this.previewWindowHeight / 2 + 5
         );
-        
-        // 禁用裁剪
+
         RenderSystem.disableScissor();
+
+        // 阶段2: 将预览区域从主帧缓冲复制到离屏帧缓冲
+        final RenderTarget mainTarget = this.minecraft.getMainRenderTarget();
+        int srcX = (int) (this.previewWindowX * guiScaleD);
+        int srcY = (int) ((this.minecraft.getWindow().getGuiScaledHeight()
+            - this.previewWindowY - this.previewWindowHeight) * guiScaleD);
+
+        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainTarget.frameBufferId);
+        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, this.previewFbo.frameBufferId);
+        GL30.glBlitFramebuffer(
+            srcX, srcY, srcX + fbWidth, srcY + fbHeight,
+            0, 0, fbWidth, fbHeight,
+            GL11.GL_COLOR_BUFFER_BIT, GL11.GL_NEAREST
+        );
+        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0);
+        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
+
+        // 恢复主帧缓冲绑定
+        mainTarget.bindWrite(false);
+
+        // 阶段3: 使用扫描着色器 blit 回主帧缓冲
+
+        ShaderInstance shader = ModShaders.getScanPreviewShader();
+        // noinspection ConstantValue
+        if (shader == null) return;
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.viewport(0, 0,
+            this.minecraft.getWindow().getWidth(),
+            this.minecraft.getWindow().getHeight()
+        );
+
+        float fbW = this.previewFbo.width;
+        float fbH = this.previewFbo.height;
+
+        shader.setSampler("DiffuseSampler", this.previewFbo);
+        shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
+        shader.safeGetUniform("InSize").set(fbW, fbH);
+
+        float screenX = this.previewWindowX * guiScale;
+        float screenY = (this.minecraft.getWindow().getGuiScaledHeight()
+                         - this.previewWindowY - this.previewWindowHeight) * guiScale;
+
+        shader.safeGetUniform("OutPos").set(screenX, screenY);
+        shader.safeGetUniform("OutSize").set(fbW, fbH);
+        shader.safeGetUniform("GameTime").set(
+            (float) (System.currentTimeMillis() % 100000) / 1000.0f
+        );
+
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        shader.apply();
+
+        BufferBuilder bufferbuilder = Tesselator.getInstance()
+            .begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);
+        bufferbuilder.addVertex(fbW, 0.0F, 0.0F);
+        bufferbuilder.addVertex(fbW, fbH, 0.0F);
+        bufferbuilder.addVertex(0.0F, fbH, 0.0F);
+        BufferUploader.draw(bufferbuilder.buildOrThrow());
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        ProgramManager.glUseProgram(0);
+        RenderSystem.disableBlend();
+
+        this.previewFbo.unbindRead();
     }
     
     /**
@@ -904,7 +997,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             
             // 垂直移动 -> X轴旋转（有限制，反转方向）
             this.previewRotationX -= deltaY * ROTATION_SENSITIVITY;
-            this.previewRotationX = Math.max(MIN_ROTATION_X, Math.min(MAX_ROTATION_X, this.previewRotationX));
+            this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
             
             this.lastMouseX = currentMouseX;
             this.lastMouseY = currentMouseY;
@@ -973,6 +1066,15 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 可以在这里处理文本变化逻辑
     }
     
+    @Override
+    public void removed() {
+        if (this.previewFbo != null) {
+            this.previewFbo.destroyBuffers();
+            this.previewFbo = null;
+        }
+        super.removed();
+    }
+
     @Override
     public void resize(Minecraft minecraft, int width, int height) {
         String string = this.nameInput.getValue();
