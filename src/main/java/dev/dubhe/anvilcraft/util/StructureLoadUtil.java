@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
+import dev.dubhe.anvilcraft.api.IHasMultiBlock;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -10,6 +13,7 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +38,18 @@ public class StructureLoadUtil {
     private static final int MAX_STRUCTURE_FILE_LENGTH = 128;
     
     /**
+     * 从结构磁盘读取结构数据（不过滤多方块方块，用于预览）
+     * 
+     * @param level 世界实例
+     * @param diskStack 结构磁盘物品
+     * @return 结构数据，如果读取失败返回 null
+     */
+    @Nullable
+    public static StructureData loadStructureFromDiskForPreview(Level level, ItemStack diskStack) {
+        return loadStructureFromDisk(level, diskStack, false);
+    }
+    
+    /**
      * 从结构磁盘读取结构数据
      * 
      * @param level 世界实例
@@ -42,6 +58,19 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDisk(Level level, ItemStack diskStack) {
+        return loadStructureFromDisk(level, diskStack, true);
+    }
+    
+    /**
+     * 从结构磁盘读取结构数据
+     * 
+     * @param level 世界实例
+     * @param diskStack 结构磁盘物品
+     * @param filterMultiblock 是否过滤多方块方块
+     * @return 结构数据，如果读取失败返回 null
+     */
+    @Nullable
+    private static StructureData loadStructureFromDisk(Level level, ItemStack diskStack, boolean filterMultiblock) {
 
         // 从磁盘读取结构信息
         var customData = diskStack.get(DataComponents.CUSTOM_DATA);
@@ -88,7 +117,7 @@ public class StructureLoadUtil {
             
             // 解析结构数据
             HolderLookup.Provider registry = level.registryAccess();
-            StructureData data = parseStructureNBT(structureTag, registry);
+            StructureData data = parseStructureNBT(structureTag, registry, filterMultiblock);
             data.structureName = structureName;
             data.uuid = uuid;
             data.scannerFacing = scannerFacing;
@@ -104,8 +133,12 @@ public class StructureLoadUtil {
     
     /**
      * 解析结构 NBT 数据
+     * 
+     * @param tag NBT标签
+     * @param registry 注册表
+     * @param filterMultiblock 是否过滤多方块方块
      */
-    private static StructureData parseStructureNBT(CompoundTag tag, HolderLookup.Provider registry) {
+    private static StructureData parseStructureNBT(CompoundTag tag, HolderLookup.Provider registry, boolean filterMultiblock) {
         StructureData data = new StructureData();
         
         // 读取尺寸
@@ -132,7 +165,7 @@ public class StructureLoadUtil {
             }
         }
         
-        // 读取 blocks
+        // 读取 blocks，过滤掉多方块方块
         ListTag blocksTag = tag.getList("blocks", 10);  // 10 = COMPOUND
         for (int i = 0; i < blocksTag.size(); i++) {
             CompoundTag blockTag = blocksTag.getCompound(i);
@@ -145,7 +178,12 @@ public class StructureLoadUtil {
                 int stateIndex = blockTag.getInt("state");
                 
                 if (stateIndex >= 0 && stateIndex < palette.size()) {
-                    data.blocks.add(new BlockPosition(x, y, z, palette.get(stateIndex)));
+                    BlockState state = palette.get(stateIndex);
+                    
+                    // 根据参数决定是否过滤多方块方块
+                    if (!filterMultiblock || !isMultiblockBlock(state)) {
+                        data.blocks.add(new BlockPosition(x, y, z, state));
+                    }
                 }
             }
         }
@@ -272,4 +310,33 @@ public class StructureLoadUtil {
      * 方块位置数据
      */
     public record BlockPosition(int x, int y, int z, BlockState state) {}
+    
+    /**
+     * 检查一个方块是否为多方块方块
+     * 
+     * @param state 方块状态
+     * @return 如果是多方块方块返回true
+     */
+    private static boolean isMultiblockBlock(BlockState state) {
+        Block block = state.getBlock();
+            
+        // 使用switch表达式检查是否实现了多方块方块相关接口
+        if (switch (block) {
+                case MultiPartBlockEntity<?, ?> ignored1 -> true;
+                case AbstractMultiPartBlock<?> ignored2 -> true;
+                case IHasMultiBlock ignored3 -> true;
+                default -> false;
+            }) {
+            return true;
+        }
+        
+        // 检查原版多方块方块
+        // 床（BED）：由两个方块组成
+        if (block instanceof net.minecraft.world.level.block.BedBlock) {
+            return true;
+        }
+        
+        // 门（DOOR）：由上下两个方块组成
+        return block instanceof net.minecraft.world.level.block.DoorBlock;
+    }
 }

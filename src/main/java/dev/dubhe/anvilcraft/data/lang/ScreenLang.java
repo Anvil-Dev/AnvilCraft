@@ -202,7 +202,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools", "Add Netherite weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools", "Add Frost Metal weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
-        
+
+        provider.add("screen.anvilcraft.exp_collector.tooltip", "Exp: %s/%smB");
+
         provider.add("screen.anvilcraft.smart_block_placer.layer.1", "Layer 1");
         provider.add("screen.anvilcraft.smart_block_placer.layer.2", "Layer 2");
         provider.add("screen.anvilcraft.smart_block_placer.layer.3", "Layer 3");
@@ -232,6 +234,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.unknown_blocks", "Structure contains unknown blocks");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.too_large", "Structure is too large to save");
-        provider.add("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks", "Structure contains multiblock blocks, which may cause issues. Test separately before saving and placing");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks", "Structure contains multiblock blocks, cannot be recognized by Smart Block Placer");
     }
 }

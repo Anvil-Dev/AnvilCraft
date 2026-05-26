@@ -111,6 +111,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private long structureNameScrollTime = 0;  // 滚动时间戳
     private String lastRenderedStructureName = "";  // 上次渲染的结构名字
     private boolean isStructureNameHovered = false;  // 鼠标是否悬停在文本上
+    
+    // 结构信息文本基础位置（统一计算）
+    private int structureInfoBaseX;
+    private int structureInfoBaseY;
 
     public SmartBlockPlacerScreen(SmartBlockPlacerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -139,6 +143,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         this.previewWindowX = this.leftPos + 136;
         this.previewWindowY = this.topPos + 18;
+        
+        // 计算结构信息文本的基础位置
+        this.structureInfoBaseX = this.leftPos + 12;
+        this.structureInfoBaseY = this.topPos + 36;
 
         this.initLayerButtons();
         this.initPositionButtons();
@@ -506,99 +514,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         PacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("position", positionIndex, this.currentViewLayer + ":" + positionIndex + ":" + newState));
     }
-    
-    /**
-     * 渲染Disk槽位的tooltip
-     */
-    private void renderDiskSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // Disk槽位的位置（与Menu中一致）
-        int diskSlotX = this.leftPos + 8;
-        int diskSlotY = this.topPos + 119;
-        int diskSlotWidth = 16;
-        int diskSlotHeight = 16;
-        
-        // 检查鼠标是否在Disk槽位上
-        if (mouseX >= diskSlotX && mouseX < diskSlotX + diskSlotWidth
-            && mouseY >= diskSlotY && mouseY < diskSlotY + diskSlotHeight) {
-            // 渲染tooltip，确保在所有元素上方
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, 0, 1500);
-            guiGraphics.renderTooltip(
-                this.font,
-                List.of(Component.translatable("screen.anvilcraft.smart_block_placer.disk_slot")),
-                java.util.Optional.empty(),
-                mouseX,
-                mouseY
-            );
-            guiGraphics.pose().popPose();
-        }
-    }
-    
-    /**
-     * 渲染书槽位的tooltip
-     */
-    private void renderBookSlotTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // 书槽位的位置（与Menu中一致）
-        int bookSlotX = this.leftPos + 8;
-        int bookSlotY = this.topPos + 101;
-        int bookSlotWidth = 16;
-        int bookSlotHeight = 16;
-        
-        // 检查鼠标是否在书槽位上
-        if (mouseX >= bookSlotX && mouseX < bookSlotX + bookSlotWidth
-            && mouseY >= bookSlotY && mouseY < bookSlotY + bookSlotHeight) {
-            // 渲染tooltip，确保在所有元素上方
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, 0, 1500);
-            guiGraphics.renderTooltip(
-                this.font,
-                List.of(Component.translatable("screen.anvilcraft.smart_block_placer.book_slot")),
-                java.util.Optional.empty(),
-                mouseX,
-                mouseY
-            );
-            guiGraphics.pose().popPose();
-        }
-    }
-    
-    /**
-     * 渲染缺失方块图标的tooltip
-     */
-    private void renderMissingBlockTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) {
-            return;
-        }
-        
-        ItemStack missingItem = blockEntity.getMissingBlockItem();
-        if (missingItem.isEmpty()) {
-            return;
-        }
-        
-        // 计算缺失方块图标的位置（与渲染位置一致）
-        int textX = this.titleLabelX + 96;
-        int textY = this.titleLabelY + 56;
-        Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
-        int iconX = textX + this.font.width(missingText) + 4;
-        int iconY = textY + 18;  // 与渲染位置一致
-        int iconWidth = 16;
-        int iconHeight = 16;
-        
-        // 检查鼠标是否在图标上
-        if (mouseX >= iconX && mouseX < iconX + iconWidth
-            && mouseY >= iconY && mouseY < iconY + iconHeight) {
-            // 渲染物品的tooltip
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0, 0, 1500);
-            guiGraphics.renderTooltip(
-                this.font,
-                missingItem,
-                mouseX,
-                mouseY
-            );
-            guiGraphics.pose().popPose();
-        }
-    }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -794,7 +709,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 渲染3D预览
         this.renderPreview(guiGraphics);
-
+        
+        // 最后统一渲染所有tooltip，确保在所有元素上方
+        // 收集所有需要渲染的tooltip
+        List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
+        
         // 检查鼠标是否在Disk槽位上
         int diskSlotX = this.leftPos + 8;
         int diskSlotY = this.topPos + 119;
@@ -803,21 +722,84 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         boolean isMouseOnDiskSlot = mouseX >= diskSlotX && mouseX < diskSlotX + diskSlotWidth
             && mouseY >= diskSlotY && mouseY < diskSlotY + diskSlotHeight;
         
-        // 如果鼠标在Disk槽位上，不渲染默认tooltip
+        // 如果鼠标不在Disk槽位上，添加默认tooltip
         if (!isMouseOnDiskSlot) {
-            this.renderTooltip(guiGraphics, mouseX, mouseY);
+            // 获取鼠标悬停位置的slot的tooltip
+            if (this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+                tooltipsToRender.add(new TooltipRenderInfo(
+                    this.font,
+                    this.getTooltipFromContainerItem(this.hoveredSlot.getItem()),
+                    mouseX,
+                    mouseY
+                ));
+            }
         }
         
-        // 渲染Disk槽位的tooltip
-        this.renderDiskSlotTooltip(guiGraphics, mouseX, mouseY);
+        // 检查Disk槽位tooltip
+        if (isMouseOnDiskSlot) {
+            tooltipsToRender.add(new TooltipRenderInfo(
+                this.font,
+                List.of(Component.translatable("screen.anvilcraft.smart_block_placer.disk_slot")),
+                mouseX,
+                mouseY
+            ));
+        }
         
-        // 渲染书槽位的tooltip（仅在蓝图模式下）
+        // 检查书槽位tooltip（仅在蓝图模式下）
         if (this.isBlueprintMode) {
-            this.renderBookSlotTooltip(guiGraphics, mouseX, mouseY);
+            int bookSlotX = this.leftPos + 8;
+            int bookSlotY = this.topPos + 101;
+            int bookSlotWidth = 16;
+            int bookSlotHeight = 16;
+            
+            if (mouseX >= bookSlotX && mouseX < bookSlotX + bookSlotWidth
+                && mouseY >= bookSlotY && mouseY < bookSlotY + bookSlotHeight) {
+                tooltipsToRender.add(new TooltipRenderInfo(
+                    this.font,
+                    List.of(Component.translatable("screen.anvilcraft.smart_block_placer.book_slot")),
+                    mouseX,
+                    mouseY
+                ));
+            }
         }
         
-        // 渲染缺失方块图标的tooltip
-        this.renderMissingBlockTooltip(guiGraphics, mouseX, mouseY);
+        // 检查缺失方块图标的tooltip
+        if (blockEntity != null) {
+            ItemStack missingItem = blockEntity.getMissingBlockItem();
+            if (!missingItem.isEmpty()) {
+                int textX = this.structureInfoBaseX + 4;
+                int textY = this.structureInfoBaseY;
+                Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
+                int iconX = textX + this.font.width(missingText) + 4;
+                int iconY = textY + 18;
+                int iconWidth = 16;
+                int iconHeight = 16;
+                
+                if (mouseX >= iconX && mouseX < iconX + iconWidth
+                    && mouseY >= iconY && mouseY < iconY + iconHeight) {
+                    tooltipsToRender.add(new TooltipRenderInfo(
+                        this.font,
+                        this.getTooltipFromContainerItem(missingItem),
+                        mouseX,
+                        mouseY
+                    ));
+                }
+            }
+        }
+        
+        // 统一渲染所有tooltip，使用高Z轴确保在最上层
+        for (TooltipRenderInfo tooltipInfo : tooltipsToRender) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0, 0, 2000);  // 使用更高的Z轴层级
+            guiGraphics.renderTooltip(
+                tooltipInfo.font,
+                tooltipInfo.tooltip,
+                java.util.Optional.empty(),
+                tooltipInfo.x,
+                tooltipInfo.y
+            );
+            guiGraphics.pose().popPose();
+        }
     }
     
     /**
@@ -881,8 +863,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             String structureName = blockEntity.getLoadedStructureName();
             if (!structureName.isEmpty()) {
                 Component loadedText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded");
-                int textX = this.titleLabelX + 92;
-                int textY = this.titleLabelY + 56;
+                int textX = this.structureInfoBaseX;
+                int textY = this.structureInfoBaseY;
                         
                 // 禁用深度测试，确保文本在最上层渲染
                 RenderSystem.disableDepthTest();
@@ -961,8 +943,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 // 磁盘存在但结构数据无效，显示提示信息（带滚动效果）
                 // 额外检查磁盘槽位是否为空，确保拿走磁盘后提示消失
                 Component invalidText = Component.translatable("screen.anvilcraft.smart_block_placer.no_structure_record");
-                int textX = this.titleLabelX + 92;
-                int textY = this.titleLabelY + 56;
+                int textX = this.structureInfoBaseX;
+                int textY = this.structureInfoBaseY;
                 int maxWidth = 80;  // 最大显示宽度
                 int textWidth = this.font.width(invalidText);
                             
@@ -1178,18 +1160,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         if (this.isBlueprintMode) {
             var loadedStructure = blockEntity.getLoadedStructure();
             if (loadedStructure != null && !loadedStructure.isEmpty()) {
-                // 获取放置器朝向
-                Direction placerFacing = Direction.NORTH;  // 默认
-                if (this.minecraft.level != null) {
-                    BlockState placerState = this.minecraft.level.getBlockState(blockEntity.getBlockPos());
-                    if (placerState.hasProperty(HorizontalDirectionalBlock.FACING)) {
-                        placerFacing = placerState.getValue(HorizontalDirectionalBlock.FACING);
-                    }
-                }
+                // 预览中放置器固定朝北，所以使用NORTH作为forward参数
+                // 这样旋转计算才能与预览中的朝向一致
+                Direction previewFacing = Direction.NORTH;
                 
-                // 对结构方块应用旋转（与服务端放置逻辑保持一致）
+                // 对结构方块应用旋转和倒挂翻转（与服务端放置逻辑保持一致）
                 List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = 
-                    this.rotateStructureForPreview(loadedStructure, placerFacing);
+                    this.rotateStructureForPreview(loadedStructure, previewFacing, upsideDown);
                 
                 // 渲染旋转后的结构方块
                 for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blockPos : rotatedBlocks) {
@@ -1234,182 +1211,129 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
     
     /**
-     * 为预览旋转结构方块（与SmartBlockPlacerBlockEntity.rotateStructureData保持一致）
+     * 为预览旋转结构方块（直接使用 SmartBlockPlacerBlockEntity.rotateStructureDataStatic 确保一致性）
+     * 注意：使用Minecraft原生的Rotation API进行旋转
      */
     private List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotateStructureForPreview(
         dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData data,
-        Direction placerFacing
+        Direction forward,
+        boolean upsideDown
     ) {
-        // 获取扫描器的朝向
-        int scannerFacingValue = data.scannerFacing;
+        // 直接使用服务端的旋转逻辑，确保预览和实际放置完全一致
+        if (this.minecraft == null || this.minecraft.level == null) {
+            return data.blocks;  // 无法获取 level，返回原始数据
+        }
         
-        // 计算相对旋转步数
-        int rotationSteps = this.calculatePreviewRotationSteps(placerFacing, scannerFacingValue);
-        if (rotationSteps == 0) {
-            // 不需要旋转，直接返回原始数据
+        // 获取 blockEntity 的位置
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity == null) {
             return data.blocks;
         }
         
-        // 旋转所有方块
-        List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
+        // 计算旋转步数（与 buildBlueprintPositions 保持一致）
+        int scannerFacingValue = data.scannerFacing;
+        
+        // 1. 计算放置器朝向的基础旋转
+        int placerRotation = switch (forward) {
+            case NORTH -> 0;
+            case EAST -> 1;
+            case SOUTH -> 2;
+            case WEST -> 3;
+            default -> 0;
+        };
+        
+        // 2. 根据Scanner朝向计算额外修正
+        int scannerCorrection = switch (scannerFacingValue) {
+            case 2 -> 2;  // Scanner北 → +180度
+            case 3 -> 2;  // Scanner南 → +180度
+            case 4 -> 3;  // Scanner西 → +270度
+            case 5 -> 1;  // Scanner东 → +90度
+            default -> 0;
+        };
+        
+        // 3. Scanner朝南时额外+180度（在修正基础上再翻180）
+        int extraFlip = (scannerFacingValue == 3) ? 2 : 0;
+        
+        // 4. 总旋转步数 = 基础旋转 + Scanner修正 + Scanner朝南额外翻转
+        int rotationSteps = (placerRotation + scannerCorrection + extraFlip) % 4;
+        
+        // 转换为Minecraft原生Rotation
+        net.minecraft.world.level.block.Rotation rotation = switch (rotationSteps) {
+            case 1 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_90;
+            case 2 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
+            case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
+            default -> net.minecraft.world.level.block.Rotation.NONE;
+        };
+        
+        // 计算结构中心点
         int centerX = data.sizeX / 2;
         int centerZ = data.sizeZ / 2;
         
-        for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition block : data.blocks) {
-            // 计算相对于中心的坐标
-            int relX = block.x() - centerX;
-            int relZ = block.z() - centerZ;
+        // 预览中的基准位置（居中显示）
+        int baseX = 2;  // 5x5的中心
+        int baseZ = 2;
+        
+        // 计算left和forward方向（与服务端一致）
+        Direction left = forward.getCounterClockWise();
+
+        // 应用旋转和坐标变换
+        List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
+        for (var blueprintBlock : data.blocks) {
+            // 旋转方块朝向（与服务端一致）
+            net.minecraft.world.level.block.state.BlockState rotatedState = blueprintBlock.state().rotate(rotation);
             
-            // 根据旋转步数旋转坐标
-            int rotatedX = relX;
-            int rotatedZ = relZ;
-            
-            switch (rotationSteps) {
-                case 1 -> {  // 90度顺时针: (x, z) -> (-z, x)
-                    rotatedX = -relZ;
-                    rotatedZ = relX;
-                }
-                case 2 -> {  // 180度: (x, z) -> (-x, -z)
-                    rotatedX = -relX;
-                    rotatedZ = -relZ;
-                }
-                case 3 -> {  // 270度顺时针: (x, z) -> (z, -x)
-                    rotatedX = relZ;
-                    rotatedZ = -relX;
-                }
-                default -> {
-                    // rotationSteps 为 0，不需要旋转
-                }
+            // 倒挂情况下，翻转 half 属性
+            if (upsideDown) {
+                rotatedState = dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(rotatedState);
             }
             
-            // 转换回绝对坐标
-            int newX = rotatedX + centerX;
-            int newZ = rotatedZ + centerZ;
+            // 计算相对于中心的偏移（与服务端一致）
+            int offsetX = blueprintBlock.x() - centerX;
+            int offsetZ = blueprintBlock.z() - centerZ;
             
-            // 旋转方块朝向
-            BlockState rotatedState = this.rotateBlockStateForPreview(block.state(), rotationSteps);
+            // 使用relative方式计算新坐标（与服务端buildBlueprintPositions完全一致）
+            // 服务端：basePos.relative(left, offsetX).relative(forward, offsetZ)
+            // 预览中：从中心点开始，同样的relative计算
+            int newX = baseX;
+            int newZ = baseZ;
             
-            rotatedBlocks.add(new dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition(newX, block.y(), newZ, rotatedState));
+            // 应用left方向偏移
+            switch (left) {
+                case NORTH -> newZ -= offsetX;
+                case SOUTH -> newZ += offsetX;
+                case EAST -> newX += offsetX;
+                case WEST -> newX -= offsetX;
+                default -> {}
+            }
+            
+            // 应用forward方向偏移
+            switch (forward) {
+                case NORTH -> newZ -= offsetZ;
+                case SOUTH -> newZ += offsetZ;
+                case EAST -> newX += offsetZ;
+                case WEST -> newX -= offsetZ;
+                default -> {}
+            }
+            
+            // 倒挂情况下，翻转 y 坐标，并添加偏移（相对于放置器的Y=4）
+            int newY = upsideDown ? (4 - blueprintBlock.y()) : blueprintBlock.y();
+            
+            rotatedBlocks.add(new dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition(
+                newX, newY, newZ, rotatedState
+            ));
         }
         
         return rotatedBlocks;
     }
     
     /**
-     * 计算放置器和扫描器之间的相对旋转步数
-     * 
-     * @param placerFacing 放置器朝向
-     * @param scannerFacingValue 扫描器朝向值
-     * @return 旋转步数(0-3)
+     * Tooltip渲染信息记录类
      */
-    private int calculatePreviewRotationSteps(Direction placerFacing, int scannerFacingValue) {
-        // Scanner朝向与放置器朝向的映射关系
-        // 映射规则:南北方向保持不变,东西方向镜像
-        int rotationAfterGlobalFix = getRotationAfterGlobalFix(placerFacing, scannerFacingValue);
+    private record TooltipRenderInfo(
+        net.minecraft.client.gui.Font font,
+        java.util.List<Component> tooltip,
+        int x,
+        int y
+    ) {}
 
-        // 根据scannerFacing添加额外修正
-        int extraCorrection = switch (scannerFacingValue) {
-            case 2 -> 3;  // NORTH: 逆时针+90度(顺时针+3)
-            case 3 -> 1;  // SOUTH: 顺时针+90度
-            case 5 -> 2;  // EAST: 旋转180度(顺时针+2)
-            default -> 0;  // WEST不需要额外修正
-        };
-        
-        return (rotationAfterGlobalFix + extraCorrection) % 4;
-    }
-
-    private int getRotationAfterGlobalFix(Direction placerFacing, int scannerFacingValue) {
-        int scannerToPlacerMapping = switch (scannerFacingValue) {
-            case 2 -> 2;  // Scanner北 → 放置器北
-            case 3 -> 3;  // Scanner南 → 放置器南
-            case 4 -> 5;  // Scanner西 → 放置器东
-            case 5 -> 4;  // Scanner东 → 放置器西
-            default -> scannerFacingValue;
-        };
-
-        // 转换为0-3的索引用于计算旋转
-        int placerIndex = getPlacerIndex(placerFacing);
-        int scannerIndex = getScannerIndex(scannerToPlacerMapping);
-
-        // 计算基础旋转步数并应用全局修正
-        return calculateBaseRotationWithGlobalFix(placerIndex, scannerIndex);
-    }
-
-    /**
-     * 计算基础旋转步数并应用全局修正（所有方向逆时针旋转90度）
-     * 
-     * @param placerIndex 放置器索引
-     * @param scannerIndex 扫描器索引
-     * @return 应用全局修正后的旋转步数
-     */
-    private int calculateBaseRotationWithGlobalFix(int placerIndex, int scannerIndex) {
-        // 计算基础旋转步数（顺时针）
-        int baseRotation = (placerIndex - scannerIndex + 4) % 4;
-        
-        // 所有方向都逆时针旋转90度(相当于顺时针-1步或+3步)
-        return (baseRotation + 3) % 4;
-    }
-    
-    /**
-     * 获取放置器朝向的索引(带修正)
-     */
-    private int getPlacerIndex(Direction placerFacing) {
-        return switch (placerFacing) {
-            case NORTH -> 0;  // 北：无修正
-            case EAST -> (1 + 3) % 4;  // 东：+3
-            case SOUTH -> (2 + 2) % 4;  // 南：+2
-            case WEST -> (3 + 1) % 4;   // 西：+1
-            default -> 0;
-        };
-    }
-    
-    /**
-     * 获取扫描器朝向的索引
-     */
-    private int getScannerIndex(int scannerToPlacerMapping) {
-        return switch (scannerToPlacerMapping) {
-            case 2 -> 0;  // NORTH
-            case 5 -> 1;  // EAST
-            case 3 -> 2;  // SOUTH
-            case 4 -> 3;  // WEST
-            default -> 0;
-        };
-    }
-    
-    /**
-     * 旋转方块的朝向属性（用于预览）
-     */
-    private BlockState rotateBlockStateForPreview(BlockState state, int rotationSteps) {
-        if (rotationSteps == 0) return state;
-        
-        // 获取方块的FACING属性
-        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-            
-            // 转换为0-3的索引 (NORTH=0, EAST=1, SOUTH=2, WEST=3)
-            int facingIndex = switch (facing) {
-                case NORTH -> 0;
-                case EAST -> 1;
-                case SOUTH -> 2;
-                case WEST -> 3;
-                default -> -1;
-            };
-            
-            if (facingIndex >= 0) {
-                // 旋转
-                int rotatedIndex = (facingIndex + rotationSteps) % 4;
-                Direction rotatedFacing = switch (rotatedIndex) {
-                    case 0 -> Direction.NORTH;
-                    case 1 -> Direction.EAST;
-                    case 2 -> Direction.SOUTH;
-                    case 3 -> Direction.WEST;
-                    default -> facing;
-                };
-                
-                return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
-            }
-        }
-        
-        return state;
-    }
 }

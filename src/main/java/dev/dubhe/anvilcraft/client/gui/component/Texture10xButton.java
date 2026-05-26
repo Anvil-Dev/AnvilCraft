@@ -7,16 +7,15 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class ItemCollectorButton extends Button {
-
+public class Texture10xButton extends Button {
     private final ResourceLocation texture;
 
     /**
      * 物品收集器 screen 的加减按钮
      */
-    public ItemCollectorButton(int x, int y, String variant, OnPress onPress) {
-        super(x, y, 10, 10, Component.literal(""), onPress, (var) -> Component.literal(variant));
-        texture = SharedTextures.textureGui("machine/button_%s".formatted(variant));
+    public Texture10xButton(int x, int y, String path, Button.CreateNarration narration, OnPress onPress) {
+        super(x, y, 10, 10, Component.literal(""), onPress, narration);
+        texture = SharedTextures.textureGui(path);
     }
 
     @Override

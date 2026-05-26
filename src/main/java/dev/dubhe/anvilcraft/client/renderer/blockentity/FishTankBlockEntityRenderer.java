@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.event.ClientTickRecorder;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.mixin.accessor.EntityAccessor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -114,7 +115,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
                 1,
                 1,
                 1,
-                0xFFFFFF,
+                LightTexture.FULL_BRIGHT,
                 overlay,
                 ModelData.EMPTY,
                 RenderType.cutout()

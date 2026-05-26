@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.inventory.component.CyclingValueHandler;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterMenu, ContainerListener {
+public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterMenu, ContainerListener, CyclingValueHandler {
     @Getter
     private final ItemCollectorBlockEntity blockEntity;
     private final Level level;
@@ -174,6 +175,12 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
         this.onChanged();
     }
 
+    @Override
+    public int getFilterSlotIndex(Slot slot) {
+        return slot.index - 36;
+    }
+
+    @Override
     public void notify(int index, String name) {
         if (name.contentEquals("rangeRadius")) {
             blockEntity.getRangeRadius().fromIndex(index);
@@ -182,10 +189,5 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
                 blockEntity.getCooldown().fromIndex(index);
             }
         }
-    }
-
-    @Override
-    public int getFilterSlotIndex(Slot slot) {
-        return slot.index - 36;
     }
 }

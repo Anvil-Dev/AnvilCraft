@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
+import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -150,5 +151,40 @@ public class ClientEventListener {
         } else {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
         }
+    }
+    
+    @SubscribeEvent
+    public static void onContainerScreenRenderPost(ScreenEvent.Render.Post event) {
+        // 在容器屏幕渲染完成后，渲染结构磁盘的3D预览窗口
+        // 这样可以确保预览窗口在所有物品和UI之上
+        if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) {
+            return;
+        }
+        
+        // 获取鼠标悬停的slot
+        Slot slot = containerScreen.getSlotUnderMouse();
+        if (slot == null || !slot.hasItem()) {
+            return;
+        }
+        
+        ItemStack itemStack = slot.getItem();
+        if (!itemStack.is(ModItems.STRUCTURE_DISK.get())) {
+            return;
+        }
+        
+        // 获取真实鼠标位置
+        net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
+        int mouseX = (int) (
+            minecraft.mouseHandler.xpos() * minecraft.getWindow().getGuiScaledWidth() / minecraft.getWindow().getScreenWidth());
+        int mouseY = (int) (
+            minecraft.mouseHandler.ypos() * minecraft.getWindow().getGuiScaledHeight() / minecraft.getWindow().getScreenHeight());
+        
+        // 渲染预览窗口
+        StructureDiskPreviewSupport.renderPreviewAt(
+            event.getGuiGraphics(),
+            itemStack,
+            mouseX,
+            mouseY
+        );
     }
 }

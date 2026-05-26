@@ -35,12 +35,14 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
@@ -115,7 +117,19 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        return true;
+    }
+
+    @Override
     public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        AuxiliaryLightManager manager = level.getAuxLightManager(pos);
+        if (manager == null) return 0;
+        return manager.getLightAt(pos);
+    }
+
+    @Override
+    protected int getLightBlock(BlockState state, BlockGetter level, BlockPos pos) {
         return level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
             .map(be -> be.getFluidHandler().getFluid().getFluidType())
             .map(FluidType::getLightLevel)
@@ -186,7 +200,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (stack.is(ModItemTags.ANVIL_HAMMER)) return this.changeOutlet(level, pos, state, player, hitResult);
+        if (stack.is(ModItemTags.ANVIL_HAMMER) && hitResult.getDirection().getAxis() != Direction.Axis.Y) {
+            return this.changeOutlet(level, pos, state, player, hitResult);
+        }
         CauldronInteraction interaction = ModInteractionMap.FISH_TANK.map().get(stack.getItem());
         if (interaction != null) return interaction.interact(state, level, pos, player, hand, stack);
         return this.useItemOnTank(stack, state, level, pos, player, hand, hitResult);
@@ -195,11 +211,12 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     public ItemInteractionResult changeOutlet(Level level, BlockPos pos, BlockState state, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide()) {
             // 水平的四个方向根据被右键的方向转换
-            Direction outletDir = Direction.from2DDataValue((hitResult.getDirection().get2DDataValue()));
+            Direction outletDir = hitResult.getDirection();
             boolean hasOutlet = outletDir != state.getValue(FishTankBlock.FACING) || !state.getValue(FishTankBlock.OUTLET);
             BlockState newState = state.setValue(FishTankBlock.OUTLET, hasOutlet).setValue(FishTankBlock.FACING, outletDir);
 
-            level.setBlock(pos, newState, 3);
+            level.setBlock(pos, newState, Block.UPDATE_CLIENTS);
+            level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(newState));
             if (hasOutlet) {
                 level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
                     .ifPresent(FishTankBlockEntity::tryAutoOutputResults);

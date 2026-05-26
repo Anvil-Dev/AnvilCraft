@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jetbrains.annotations.Nullable;
 
 import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
@@ -120,6 +121,19 @@ public class LargeFluidTankBlock
     }
 
     @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockPos mainPartPos = this.getMainPartPos(pos, state);
+        AuxiliaryLightManager manager = level.getAuxLightManager(mainPartPos);
+        if (manager == null) return 0;
+        return manager.getLightAt(mainPartPos);
+    }
+
+    @Override
     public Block getBlock() {
         return this;
     }
@@ -143,6 +157,6 @@ public class LargeFluidTankBlock
 
     @Override
     public BlockPos correctPos(ServerLevel level, BlockPos pos, BlockState state) {
-        return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
+        return this.getMainPartPos(pos, state);
     }
 }

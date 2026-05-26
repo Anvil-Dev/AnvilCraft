@@ -44,6 +44,15 @@ public class StructureDiskItem extends Item {
                 int sizeZ = tag.getInt("SizeZ");
                 String sizeText = sizeX + " x " + sizeY + " x " + sizeZ;
                 tooltipComponents.add(Component.translatable("item.anvilcraft.structure_disk.size", sizeText));
+                
+                // 检查结构是否超过5x5x5
+                if (sizeX <= 5 && sizeY <= 5 && sizeZ <= 5) {
+                    tooltipComponents.add(Component.translatable("item.anvilcraft.structure_disk.fit_placer")
+                        .withStyle(net.minecraft.ChatFormatting.GREEN));
+                } else {
+                    tooltipComponents.add(Component.translatable("item.anvilcraft.structure_disk.too_large_for_placer")
+                        .withStyle(net.minecraft.ChatFormatting.RED));
+                }
             }
         }
     }

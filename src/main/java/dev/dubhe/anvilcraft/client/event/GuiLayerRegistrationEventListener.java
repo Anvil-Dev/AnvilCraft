@@ -71,6 +71,8 @@ public class GuiLayerRegistrationEventListener {
 
         event.registerAboveAll(AnvilCraft.of("test"), GuiLayerRegistrationEventListener::render);
         event.registerAboveAll(AnvilCraft.of("ionocraft_backpack"), IonoCraftBackpackHUD::render);
+        // 注意：结构磁盘预览不在这里注册，因为它需要在Screen的tooltip之后渲染
+        // 改用Screen的事件监听器来实现
     }
 
     public static void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {

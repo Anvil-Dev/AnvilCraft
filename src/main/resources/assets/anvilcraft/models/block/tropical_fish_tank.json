@@ -56,6 +56,17 @@
 			}
 		},
 		{
+			"name": "cube inverted",
+			"from": [14, 16, 14],
+			"to": [2, 14, 2],
+			"faces": {
+				"north": {"uv": [2, 0, 14, 2], "texture": "#4"},
+				"east": {"uv": [2, 0, 14, 2], "texture": "#4"},
+				"south": {"uv": [2, 0, 14, 2], "texture": "#4"},
+				"west": {"uv": [2, 0, 14, 2], "texture": "#4"}
+			}
+		},
+		{
 			"from": [1, 1, 1],
 			"to": [15, 2, 15],
 			"faces": {
@@ -263,29 +274,30 @@
 		4,
 		5,
 		6,
+		7,
 		{
 			"name": "group",
 			"origin": [0, 0, 0],
 			"color": 0,
-			"children": [7, 8]
+			"children": [8, 9]
 		},
 		{
 			"name": "group",
 			"origin": [5, 3, 12],
 			"color": 0,
-			"children": [9, 10, 11]
+			"children": [10, 11, 12]
 		},
 		{
 			"name": "group",
 			"origin": [4.5, 7, 13],
 			"color": 0,
-			"children": [12, 13, 14, 15, 16]
+			"children": [13, 14, 15, 16, 17]
 		},
 		{
 			"name": "group",
 			"origin": [7.5, 6.5, 12],
 			"color": 0,
-			"children": [17, 18, 19, 20, 21, 22]
+			"children": [18, 19, 20, 21, 22, 23]
 		}
 	]
 }

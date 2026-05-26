@@ -11,12 +11,14 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,7 +45,9 @@ public class StructureBookUtil {
         Map<Block, Integer> requiredBlocks = new LinkedHashMap<>();
         for (var blockPosition : loadedStructure.blocks) {
             Block block = blockPosition.state().getBlock();
-            requiredBlocks.merge(block, 1, Integer::sum);
+            // 检查是否是可堆叠方块，如果是则累加堆叠数量
+            int stackCount = getStackCountFromState(blockPosition.state());
+            requiredBlocks.merge(block, stackCount, Integer::sum);
         }
         
         // 第二步: 统计世界中已放置的方块数量
@@ -72,24 +76,38 @@ public class StructureBookUtil {
             return;
         }
         
-        // 第四步: 创建成书
-        ItemStack writtenBook = new ItemStack(Items.WRITTEN_BOOK);
-        
         // 生成书页内容
         java.util.List<net.minecraft.server.network.Filterable<Component>> pages = new java.util.ArrayList<>();
         
         // 第一页开始: 材料详情(只显示缺失的)
         Component currentPage = Component.translatable("book.anvilcraft.material_list.missing_header");
         int lineCount = 1;
+        boolean hasMissingContent = false;  // 标记是否有缺失内容
+        
+        // 获取是否为蓝图move模式
+        boolean isPickupMode = blockEntity.isPickupMode();
+        boolean isBlueprintMode = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+        boolean isBlueprintMoveMode = isBlueprintMode && !isPickupMode;
         
         for (Map.Entry<Block, Integer> entry : neededBlocks.entrySet()) {
             Block block = entry.getKey();
             int needed = entry.getValue();
-            int available = countBlockInContainer(level, placerPos, block);
+            int available;
+            
+            if (isBlueprintMoveMode) {
+                // 蓝图move模式：检查源位置的方块
+                available = countBlockAtSourcePosition(level, placerPos, block);
+            } else {
+                // 蓝图pickup模式或普通模式：检查容器中的方块
+                available = countBlockInContainer(level, placerPos, block);
+            }
+            
             int missing = Math.max(0, needed - available);
             
             // 只显示缺少的方块
             if (missing > 0) {
+                hasMissingContent = true;  // 标记有缺失内容
+                
                 Component line = Component.literal("\n")
                     .append(Component.literal(block.getName().getString()))
                     .append(Component.literal(" "))
@@ -107,12 +125,22 @@ public class StructureBookUtil {
             }
         }
         
-        // 添加最后一页
-        if (lineCount > 0) {
+        // 添加最后一页（只有当有缺失内容时才添加）
+        if (hasMissingContent && lineCount > 0) {
             pages.add(new net.minecraft.server.network.Filterable<>(currentPage, java.util.Optional.empty()));
         }
         
+        // 如果pages为空（所有需要的方块都有足够存量），输出普通的书
+        if (pages.isEmpty()) {
+            ItemStack book = new ItemStack(Items.BOOK);
+            blockEntity.getOutputBookInventory().setItem(0, book);
+            LOGGER.info("Structure material available: {} (all needed blocks available), output book", 
+                loadedStructure.structureName);
+            return;
+        }
+        
         // 设置书的专用组件
+        final ItemStack writtenBook = new ItemStack(Items.WRITTEN_BOOK);
         var bookContent = new net.minecraft.world.item.component.WrittenBookContent(
             new net.minecraft.server.network.Filterable<>("Material List", java.util.Optional.empty()),  // resolved title
             "Smart Block Placer",  // owner
@@ -148,38 +176,32 @@ public class StructureBookUtil {
             dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN
         );
         
-        // 旋转结构数据(与buildBlueprintPositions保持一致)
-        StructureLoadUtil.StructureData rotatedData = 
-            SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
-                loadedStructure, level, placerPos
-            );
+        // 使用 buildBlueprintPositions 获取所有实际位置
+        List<net.minecraft.core.BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
+            placerPos, facing, upsideDown, loadedStructure
+        );
         
-        // 计算基准位置
-        BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+        if (allPositions.isEmpty() || loadedStructure.blocks.isEmpty()) {
+            return placedBlocks;
+        }
         
         int totalPlaced = 0;
         int totalChecked = 0;
         
-        // 遍历所有结构方块,检查世界中是否已经放置了正确的方块
-        // 使用与buildBlueprintPositions相同的坐标映射: x→col, z→row, y→layer
-        for (var blockPosition : rotatedData.blocks) {
-            int row = blockPosition.z();   // z 对应 row(纵向)
-            int col = blockPosition.x();   // x 对应 col(横向)
-            int layer = blockPosition.y(); // y 对应 layer
-            
-            BlockPos targetPos = SmartBlockPlacerBlockEntity.calculateTargetPosition(
-                basePos, facing, row, col, layer, upsideDown
-            );
-            
+        // 遍历所有位置，检查世界中是否已经放置了正确的方块
+        for (int i = 0; i < loadedStructure.blocks.size() && i < allPositions.size(); i++) {
+            BlockPos targetPos = allPositions.get(i);
             BlockState worldState = level.getBlockState(targetPos);
-            BlockState expectedState = blockPosition.state();
+            BlockState expectedState = loadedStructure.blocks.get(i).state();
             
             totalChecked++;
             
             // 检查世界中的方块是否与蓝图中的方块匹配
             if (!worldState.isAir() && worldState.getBlock() == expectedState.getBlock()) {
                 Block worldBlock = worldState.getBlock();
-                placedBlocks.merge(worldBlock, 1, Integer::sum);
+                // 检查是否是可堆叠方块，如果是则累加实际堆叠数量
+                int placedCount = getStackCountFromState(worldState);
+                placedBlocks.merge(worldBlock, placedCount, Integer::sum);
                 totalPlaced++;
             }
         }
@@ -190,7 +212,7 @@ public class StructureBookUtil {
     }
     
     /**
-     * 计算容器中指定方块的数量
+     * 计算容器中指定方块的数量（包括掉落物实体）
      */
     private static int countBlockInContainer(Level level, BlockPos placerPos, Block targetBlock) {
         // 获取放置器朝向
@@ -222,6 +244,62 @@ public class StructureBookUtil {
             }
         }
         
+        // 检查掉落物实体
+        net.minecraft.world.phys.AABB aabb = new net.minecraft.world.phys.AABB(inputPos);
+        java.util.List<net.minecraft.world.entity.item.ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(net.minecraft.world.entity.item.ItemEntity.class),
+            aabb,
+            net.minecraft.world.entity.Entity::isAlive
+        );
+        
+        for (net.minecraft.world.entity.item.ItemEntity entity : entities) {
+            ItemStack stack = entity.getItem();
+            if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem) {
+                if (blockItem.getBlock() == targetBlock) {
+                    count += stack.getCount();
+                }
+            }
+        }
+        
         return count;
+    }
+    
+    /**
+     * 计算源位置指定方块的数量（用于蓝图move模式）
+     */
+    private static int countBlockAtSourcePosition(Level level, BlockPos placerPos, Block targetBlock) {
+        // 获取放置器朝向
+        BlockState state = level.getBlockState(placerPos);
+        if (!state.hasProperty(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING)) {
+            return 0;
+        }
+        
+        Direction facing = state.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        BlockPos sourcePos = placerPos.relative(facing.getOpposite());
+        
+        // 检查源位置的方块是否匹配
+        BlockState sourceState = level.getBlockState(sourcePos);
+        if (!sourceState.isAir() && sourceState.getBlock() == targetBlock) {
+            return 1;  // 源位置只有一个方块
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * 从方块状态中获取堆叠数量
+     * 
+     * @param state 方块状态
+     * @return 堆叠数量，1表示不可堆叠
+     */
+    private static int getStackCountFromState(BlockState state) {
+        if (state.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG)) {
+            return state.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS);
+        } else if (state.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE)) {
+            return state.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES);
+        } else if (state.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
+            return state.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES);
+        }
+        return 1;
     }
 }

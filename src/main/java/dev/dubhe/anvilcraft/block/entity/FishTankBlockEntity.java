@@ -27,13 +27,13 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
@@ -53,6 +53,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -78,14 +79,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     private static final double FLUID_CONTENT_AREA_HEIGHT = 7.0 / 8;
     private static final String TAG_TROPICAL_FISH_DATA = "TropicalFishData";
 
-    // region private final List<CompoundTag> tropicalFishData = new ArrayList<>();
     private final List<CompoundTag> tropicalFishData = new ArrayList<>() {
         @Override
         public boolean add(CompoundTag tag) {
             if (this.size() >= MAX_TROPICAL_FISH) return false;
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.sendUpdate();
-            FishTankBlockEntity.this.sendNeighbourUpdate();
             return super.add(tag);
         }
 
@@ -93,7 +92,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         public CompoundTag removeLast() {
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.sendUpdate();
-            FishTankBlockEntity.this.sendNeighbourUpdate();
             return super.removeLast();
         }
 
@@ -101,13 +99,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         public void clear() {
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.sendUpdate();
-            FishTankBlockEntity.this.sendNeighbourUpdate();
             super.clear();
         }
     };
-    // endregion
     private AABB fluidContentArea = new AABB(FLUID_CONTENT_AREA_MIN, FLUID_CONTENT_AREA_MAX);
-    // region private final FluidTank fluidHandler = new FluidTank(FishTankBlockEntity.CAPACITY);
     private final FluidTank fluidHandler = new FluidTank(FishTankBlockEntity.CAPACITY) {
         @Override
         protected void onContentsChanged() {
@@ -115,9 +110,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             FishTankBlockEntity.this.refreshIgnited();
             FishTankBlockEntity.this.sendUpdate();
             FishTankBlockEntity.this.sendNeighbourUpdate();
+            FishTankBlockEntity.this.updateLightLevel();
             this.updateContentArea();
-            if (this.getFluid().is(Fluids.WATER)) return;
 
+            if (this.getFluid().is(Fluids.WATER)) return;
             FishTankBlockEntity.this.dropFish();
             FishTankBlockEntity.this.updateFishState();
         }
@@ -138,13 +134,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             );
         }
     };
-    // endregion
 
     /**
      * 0-7 为输出产物，<br>
      * 8-15 为输入原料
      */
-    // region private final ItemStackHandler proxy = new ItemStackHandler(16);
     private final ItemStackHandler proxy = new ItemStackHandler(16) {
         @Override
         public ItemStack getStackInSlot(int slot) {
@@ -238,8 +232,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             }
         }
     };
-    // endregion
-    // region private final PollableItemHandler input = new PollableItemHandler(8);
     private final PollableItemHandler input = new PollableItemHandler(8) {
         @Override
         protected int getEmptyOrSmallerSlot(ItemStack stack) {
@@ -252,10 +244,13 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
                     continue;
                 }
                 if (!ItemStack.isSameItemSameComponents(stackInSlot, stack)) continue;
+                if (countInSlot != Integer.MAX_VALUE) return -1;
                 int stackInSlotCount = stackInSlot.getCount();
-                if (stackInSlotCount <= countInSlot && stackInSlotCount < this.getSlotLimit(i)) {
+                if (stackInSlotCount < this.getStackLimit(i, stackInSlot)) {
                     slot = i;
                     countInSlot = stackInSlotCount;
+                } else {
+                    return -1;
                 }
             }
             return slot;
@@ -268,14 +263,43 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             FishTankBlockEntity.this.sendUpdate();
         }
     };
-    // endregion
-    // region private final ItemStackHandler output = new ItemStackHandler(8);
     private final ItemStackHandler output = new ItemStackHandler(8) {
         private boolean autoOutputting = false;
 
         @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            boolean hasSame = false;
+            int sameSlot = -1;
+            for (int i = 0; i < this.getSlots(); i++) {
+                if (!ItemStack.isSameItemSameComponents(this.getStackInSlot(i), stack)) {
+                    continue;
+                }
+
+                if (hasSame) {
+                    return false;
+                } else {
+                    hasSame = true;
+                    sameSlot = i;
+                }
+            }
+            if (!hasSame) return this.getStackInSlot(slot).isEmpty();
+            return sameSlot == slot;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            ItemStack stack = this.getStackInSlot(slot);
+            int stackMax = stack.getMaxStackSize();
+            if (stack.isEmpty()) {
+                stackMax = Item.DEFAULT_MAX_STACK_SIZE;
+            }
+            return Math.min(super.getSlotLimit(slot), stackMax);
+        }
+
+        @Override
         protected void onContentsChanged(int slot) {
-            if (!this.autoOutputting) this.checkAutoOutput(slot);
+            if (this.autoOutputting) return;
+            this.checkAutoOutput(slot);
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.refreshIgnited();
             FishTankBlockEntity.this.sendUpdate();
@@ -308,7 +332,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             this.autoOutputting = false;
         }
     };
-    // endregion
     private boolean ignited = false;
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -327,12 +350,35 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             this.getBlockPos(),
             this.getBlockState(),
             this.getBlockState(),
-            Block.UPDATE_ALL
+            Block.UPDATE_CLIENTS
         );
     }
 
     private void sendNeighbourUpdate() {
-        if (this.level != null) this.level.updateNeighborsAt(this.getBlockPos(), this.getBlockState().getBlock());
+        if (this.level == null) return;
+        this.level.updateNeighborsAt(this.getBlockPos(), this.getBlockState().getBlock());
+    }
+
+    private void updateLightLevel() {
+        if (this.level == null) {
+            return;
+        }
+        if (this.ignited) {
+            return;
+        }
+
+        BlockPos pos = this.getBlockPos();
+        AuxiliaryLightManager manager = this.level.getAuxLightManager(pos);
+        if (manager == null) {
+            return;
+        }
+        manager.setLightAt(pos, this.computeLightLevel());
+    }
+
+    private int computeLightLevel() {
+        FluidStack stack = this.fluidHandler.getFluid();
+        float fill = (float) this.fluidHandler.getFluidAmount() / this.fluidHandler.getCapacity();
+        return (int) Math.ceil(stack.getFluidType().getLightLevel(stack) * fill);
     }
 
     @Override
@@ -396,7 +442,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         }
         this.input.deserializeNBT(registries, tag.getCompound("Inputs"));
         this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
-        this.ignited = tag.getBoolean("ignited") && FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid());
+        this.setIgnited(tag.getBoolean("ignited") && FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid()));
 
         this.tropicalFishData.clear();
         if (tag.contains(TAG_TROPICAL_FISH_DATA, Tag.TAG_LIST)) {
@@ -550,6 +596,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
      * @param entity  要放入的物品实体
      */
     public static void insertItemToTank(@Nullable IItemHandler handler, ItemEntity entity) {
+        if (!entity.anvilcraft$isAdsorbable()) {
+            return;
+        }
         ItemStack stack = entity.getItem();
         ItemStack remaining = FishTankBlockEntity.insertItemToTank(handler, stack.copy());
         if (remaining.isEmpty()) {
@@ -567,7 +616,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
      * @return 剩余物品
      */
     public static ItemStack insertItemToTank(@Nullable IItemHandler handler, ItemStack stack) {
-        if (handler == null) return stack;
+        if (handler == null) {
+            return stack;
+        }
         return ItemHandlerUtil.insertItem(handler, stack, false);
     }
 
@@ -654,17 +705,13 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         int stepX = direction.getStepX();
         int stepY = direction.getStepY();
         int stepZ = direction.getStepZ();
-        double halfWidth = (double) EntityType.ITEM.getWidth() / 2.0;
-        double posX = (double) pos.getX() + 0.5
-                      + (stepX == 0 ? Mth.nextDouble(level.random, -0.25, 0.25) : (double) stepX * (0.5 + halfWidth));
-        double posY = pos.getY() + 0.5;
-        double posZ = (double) pos.getZ() + 0.5
-                      + (stepZ == 0 ? Mth.nextDouble(level.random, -0.25, 0.25) : (double) stepZ * (0.5 + halfWidth));
-        double deltaX = stepX == 0 ? Mth.nextDouble(level.random, -0.1, 0.1) : (double) stepX * 0.1;
-        double deltaY = stepY == 0 ? Mth.nextDouble(level.random, 0.0, 0.1) : (double) stepY * 0.1 + 0.1;
-        double deltaZ = stepZ == 0 ? Mth.nextDouble(level.random, -0.1, 0.1) : (double) stepZ * 0.1;
-        ItemEntity entity = new ItemEntity(level, posX, posY, posZ, stack, deltaX, deltaY, deltaZ);
-        entity.setDefaultPickUpDelay();
+        double extra = 0.5 + (double) EntityType.ITEM.getWidth() / 2.0;
+        double posX = (double) pos.getX() + 0.5 + stepX * extra;
+        double posY = (double) pos.getY() + 0.5 + stepY * extra;
+        double posZ = (double) pos.getZ() + 0.5 + stepZ * extra;
+        Vec3 delta = new Vec3(stepX, stepY, stepZ).multiply(0.25, 0.25, 0.25);
+        ItemEntity entity = new ItemEntity(level, posX, posY, posZ, stack, delta.x, delta.y, delta.z);
+        entity.anvilcraft$setIsAdsorbable(false);
         level.addFreshEntity(entity);
     }
     // endregion
@@ -682,30 +729,28 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         FluidStack stack = this.fluidHandler.getFluid();
         BlockPos pos = this.getBlockPos();
         if (stack.is(Fluids.WATER)) {
+            FluidStack drained = this.fluidHandler.drain(250, IFluidHandler.FluidAction.SIMULATE);
+            if (drained.getAmount() != 250) return false;
+            if (level.isClientSide()) return true;
+            this.fluidHandler.drain(250, IFluidHandler.FluidAction.EXECUTE);
+
             ItemStack result = Items.POTION.getDefaultInstance();
             player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result));
             player.awardStat(Stats.USE_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-
-            FluidStack drained = this.fluidHandler.drain(250, IFluidHandler.FluidAction.SIMULATE);
-            if (drained.getAmount() != 250) return false;
-            if (level.isClientSide()) return true;
-            this.fluidHandler.drain(250, IFluidHandler.FluidAction.EXECUTE);
-
             level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS);
             level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
             return true;
         } else if (stack.is(ModFluids.EXP_FLUID)) {
-            ItemStack result = Items.EXPERIENCE_BOTTLE.getDefaultInstance();
-            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result));
-            player.awardStat(Stats.USE_CAULDRON);
-            player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-
             FluidStack drained = this.fluidHandler.drain(250, IFluidHandler.FluidAction.SIMULATE);
             if (drained.getAmount() != 250) return false;
             if (level.isClientSide()) return true;
             this.fluidHandler.drain(250, IFluidHandler.FluidAction.EXECUTE);
 
+            ItemStack result = Items.EXPERIENCE_BOTTLE.getDefaultInstance();
+            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result));
+            player.awardStat(Stats.USE_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
             level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS);
             level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
             return true;
@@ -719,35 +764,33 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             if (Objects.requireNonNull(contents).potion().isEmpty()) return false;
             Holder<Potion> potion = contents.potion().get();
             if (potion == Potions.WATER) {
-                player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, Items.GLASS_BOTTLE.getDefaultInstance()));
-                player.awardStat(Stats.FILL_CAULDRON);
-                player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-
                 FluidStack stack = new FluidStack(Fluids.WATER, 250);
                 int filled = this.fluidHandler.fill(stack, IFluidHandler.FluidAction.SIMULATE);
                 if (filled != 250) return false;
                 if (level.isClientSide()) return true;
                 this.fluidHandler.fill(stack, IFluidHandler.FluidAction.EXECUTE);
 
+                player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, Items.GLASS_BOTTLE.getDefaultInstance()));
+                player.awardStat(Stats.FILL_CAULDRON);
+                player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
                 BlockPos pos = this.getBlockPos();
                 level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
                 level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
                 return true;
             }
         } else if (inHand.is(Items.EXPERIENCE_BOTTLE)) {
-            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, Items.GLASS_BOTTLE.getDefaultInstance()));
-            player.awardStat(Stats.FILL_CAULDRON);
-            player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-
+            FluidStack stack = new FluidStack(ModFluids.EXP_FLUID, 250);
+            int filled = this.fluidHandler.fill(stack, IFluidHandler.FluidAction.SIMULATE);
+            if (filled != 250) return false;
+            if (level.isClientSide()) return true;
             // 50%概率
             if (level.getRandom().nextBoolean()) {
-                FluidStack stack = new FluidStack(ModFluids.EXP_FLUID, 250);
-                int filled = this.fluidHandler.fill(stack, IFluidHandler.FluidAction.SIMULATE);
-                if (filled != 250) return false;
-                if (level.isClientSide()) return true;
                 this.fluidHandler.fill(stack, IFluidHandler.FluidAction.EXECUTE);
             }
 
+            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, Items.GLASS_BOTTLE.getDefaultInstance()));
+            player.awardStat(Stats.FILL_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
             BlockPos pos = this.getBlockPos();
             level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
             level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
@@ -840,9 +883,17 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         if (this.level == null) return;
 
         if (this.isEmptyOfFish() && getBlockState().getValue(FishTankBlock.TROPICAL)) {
-            this.level.setBlock(getBlockPos(), getBlockState().setValue(FishTankBlock.TROPICAL, false), 3);
+            this.level.setBlock(
+                getBlockPos(),
+                getBlockState().setValue(FishTankBlock.TROPICAL, false),
+                Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE
+            );
         } else if (!this.isEmptyOfFish() && !getBlockState().getValue(FishTankBlock.TROPICAL)) {
-            this.level.setBlock(getBlockPos(), getBlockState().setValue(FishTankBlock.TROPICAL, true), 3);
+            this.level.setBlock(
+                getBlockPos(),
+                getBlockState().setValue(FishTankBlock.TROPICAL, true),
+                Block.UPDATE_CLIENTS + Block.UPDATE_KNOWN_SHAPE
+            );
         }
     }
 
@@ -892,15 +943,31 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     public void setIgnited(boolean ignited) {
-        if (this.ignited == ignited) return;
+        if (this.ignited == ignited) {
+            return;
+        }
         this.ignited = ignited;
         this.setChanged();
         this.sendUpdate();
+
+        if (this.level == null) {
+            return;
+        }
+        BlockPos pos = this.getBlockPos();
+        AuxiliaryLightManager manager = this.level.getAuxLightManager(pos);
+        if (manager == null) {
+            return;
+        }
+        manager.setLightAt(pos, ignited ? 15 : this.computeLightLevel());
     }
 
     public void refreshIgnited() {
-        if (!FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid())) this.setIgnited(false);
-        if (this.isIgnited()) return;
+        if (!FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid())) {
+            this.setIgnited(false);
+        }
+        if (this.isIgnited()) {
+            return;
+        }
         for (int i = 0; i < this.proxy.getSlots(); i++) {
             ItemStack stack = this.proxy.getStackInSlot(i);
             if (stack.is(ModItemTags.FIRE_STARTER)) {

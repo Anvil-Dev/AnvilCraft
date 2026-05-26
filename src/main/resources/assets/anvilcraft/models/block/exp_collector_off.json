@@ -1,6 +1,7 @@
 {
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "anvilcraft:block/exp_collector",
+	"render_type": "cutout",
 	"textures": {
 		"bottom": "anvilcraft:block/exp_collector_bottom",
 		"side": "anvilcraft:block/exp_collector_side_off",

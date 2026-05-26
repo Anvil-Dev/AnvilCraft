@@ -60,5 +60,11 @@ public class CapabilitiesEventListener {
             (stack, ctx) -> new PowderSnowWrapper(stack),
             Items.POWDER_SNOW_BUCKET
         );
+
+        event.registerBlockEntity(
+            Capabilities.FluidHandler.BLOCK,
+            ModBlockEntities.EXP_COLLECTOR.get(),
+            (be, side) -> be.getFluidHandler()
+        );
     }
 }
