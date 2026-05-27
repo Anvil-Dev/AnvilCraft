@@ -12,7 +12,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
@@ -20,10 +23,14 @@ import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.network.SmartBlockPlacerActionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
+import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -34,15 +41,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
@@ -51,7 +60,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import javax.annotation.Nullable;
 
 @SuppressWarnings("checkstyle:LineLength")
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
@@ -123,7 +136,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean cachedShowAllLayers = true;
     private boolean cachedPickupMode = true;
     private boolean cachedBlueprintMode = false;  // 缓存蓝图模式状态
-    private String cachedStructureUuid = "";  // 缓存结构UUID，用于检测结构变化
+    private @Nullable UUID cachedStructureUuid = null;  // 缓存结构UUID，用于检测结构变化
     private long cachedGameTimeBlockType = -1;  // 用于追踪方块类型的游戏时间
 
     // 蓝图名字滚动相关
@@ -674,7 +687,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity != null && blockEntity.getDiskInventory().getItem(0).isEmpty()) {
             // 获取结构磁盘物品
-            net.minecraft.world.item.ItemStack diskStack = dev.dubhe.anvilcraft.init.item.ModItems.STRUCTURE_DISK.get()
+            ItemStack diskStack = ModItems.STRUCTURE_DISK.get()
                 .getDefaultInstance();
             if (!diskStack.isEmpty()) {
                 int diskSlotX = i + 8;
@@ -686,7 +699,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 蓝图模式下渲染书槽位的虚影（当槽位为空时）
         if (this.isBlueprintMode && blockEntity != null && blockEntity.getBookInventory().getItem(0).isEmpty()) {
             // 获取书物品
-            net.minecraft.world.item.ItemStack bookStack = net.minecraft.world.item.Items.BOOK.getDefaultInstance();
+            ItemStack bookStack = Items.BOOK.getDefaultInstance();
             if (!bookStack.isEmpty()) {
                 int bookSlotX = i + 46;
                 int bookSlotY = j + 86;
@@ -758,10 +771,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 渲染半透明的物品虚影
      */
-    private void renderMaskedItem(GuiGraphics g, net.minecraft.world.item.ItemStack stack, int x, int y) {
+    private void renderMaskedItem(GuiGraphics g, ItemStack stack, int x, int y) {
         final int maskColor = 0x99777777;  // 调整透明度，数值越大越透明
         g.renderItem(stack, x, y, 0);
-        g.fill(net.minecraft.client.renderer.RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
+        g.fill(RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
     }
 
     @Override
@@ -901,7 +914,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         for (TooltipRenderInfo tooltipInfo : tooltipsToRender) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0, 0, 2000);  // 使用更高的Z轴层级
-            guiGraphics.renderTooltip(tooltipInfo.font, tooltipInfo.tooltip, java.util.Optional.empty(), tooltipInfo.x, tooltipInfo.y);
+            guiGraphics.renderTooltip(tooltipInfo.font, tooltipInfo.tooltip, Optional.empty(), tooltipInfo.x, tooltipInfo.y);
             guiGraphics.pose().popPose();
         }
     }
@@ -1200,7 +1213,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         );
 
         // 2. 使用与预览相同的缩放计算
-        float scaleX = 80.0f / (5 * net.minecraft.util.Mth.SQRT_OF_TWO);
+        float scaleX = 80.0f / (5 * Mth.SQRT_OF_TWO);
         float scaleY = 80.0f / 5.0f;
         float scale = Math.min(scaleY, scaleX);
         poseStack.scale(-scale, -scale, -scale);
@@ -1209,14 +1222,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         poseStack.translate(-(float) 5 / 2, -(float) 5 / 2, 0);
 
         // 4. 先应用X轴旋转
-        poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(this.previewRotationX));
+        poseStack.mulPose(Axis.XP.rotationDegrees(this.previewRotationX));
 
         // 5. Y轴旋转的中心点 - 固定基于5x5范围计算，忽略放置器
         // 与RenderSupport.renderLevelLikeWithFixedSize保持一致
         float offsetX = (float) -5 / 2 + 0.05f;
         float offsetZ = (float) -5 / 2 + 1;
         poseStack.translate(-offsetX, 0, -offsetZ);
-        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(this.previewRotationY + 45));
+        poseStack.mulPose(Axis.YP.rotationDegrees(this.previewRotationY + 45));
         poseStack.translate(offsetX, 0, offsetZ);
 
         // 6. 平移Z轴（与方块保持一致，在Z=-1处渲染）
@@ -1249,13 +1262,19 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         long currentBlockTypeTime = currentGameTime / (PREVIEW_BLOCK_SWITCH_INTERVAL * 2);
 
         // 获取当前结构UUID（用于检测结构变化）
-        String currentStructureUuid = "";
+        UUID currentStructureUuid = null;
         if (this.isBlueprintMode && blockEntity.getLoadedStructure() != null) {
-            currentStructureUuid = blockEntity.getLoadedStructure().uuid;
+            currentStructureUuid = blockEntity.getLoadedStructure().diskData.uuid();
         }
 
-        boolean needsRebuild = this.cachedPreviewLevelLike == null || !this.cachedLayerPositions.equals(this.layerPositions) || this.cachedViewLayer != this.currentViewLayer || this.cachedShowAllLayers != this.showAllLayers || this.cachedPickupMode != this.isPickupMode || this.cachedBlueprintMode != this.isBlueprintMode || !this.cachedStructureUuid.equals(
-            currentStructureUuid) || this.cachedGameTimeBlockType != currentBlockTypeTime;
+        boolean needsRebuild = this.cachedPreviewLevelLike == null
+                               || !this.cachedLayerPositions.equals(this.layerPositions)
+                               || this.cachedViewLayer != this.currentViewLayer
+                               || this.cachedShowAllLayers != this.showAllLayers
+                               || this.cachedPickupMode != this.isPickupMode
+                               || this.cachedBlueprintMode != this.isBlueprintMode
+                               || !Objects.equals(this.cachedStructureUuid, currentStructureUuid)
+                               || this.cachedGameTimeBlockType != currentBlockTypeTime;
 
         if (needsRebuild) {
             this.cachedPreviewLevelLike = this.buildPreviewLevelLike();
@@ -1300,10 +1319,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         boolean overload = true;
         if (this.minecraft.level != null) {
             BlockState placerState = this.minecraft.level.getBlockState(this.menu.getBlockEntity().getBlockPos());
-            if (placerState.getBlock() instanceof dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock) {
-                upsideDown = placerState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
-                powered = placerState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED);
-                overload = placerState.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD);
+            if (placerState.getBlock() instanceof SmartBlockPlacerBlock) {
+                upsideDown = placerState.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+                powered = placerState.getValue(SmartBlockPlacerBlock.POWERED);
+                overload = placerState.getValue(SmartBlockPlacerBlock.OVERLOAD);
             }
         }
 
@@ -1317,12 +1336,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 应用实际的 POWERED 和 OVERLOAD 状态以显示正确的贴图
         previewLevelLike.setBlockStateAlwaysRender(
             new BlockPos(placerX, placerY, placerZ),
-            dev.dubhe.anvilcraft.init.block.ModBlocks.SMART_BLOCK_PLACER.get()
+            ModBlocks.SMART_BLOCK_PLACER.get()
                 .defaultBlockState()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
-                .setValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
-                .setValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED, powered)
-                .setValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD, overload)
+                .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
+                .setValue(SmartBlockPlacerBlock.POWERED, powered)
+                .setValue(SmartBlockPlacerBlock.OVERLOAD, overload)
         );
 
         // 蓝图模式：渲染磁盘中的结构
@@ -1334,14 +1353,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 Direction previewFacing = Direction.NORTH;
 
                 // 对结构方块应用旋转和倒挂翻转（与服务端放置逻辑保持一致）
-                List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = this.rotateStructureForPreview(
+                List<StructureLoadUtil.BlockPosition> rotatedBlocks = this.rotateStructureForPreview(
                     loadedStructure,
                     previewFacing,
                     upsideDown
                 );
 
                 // 渲染旋转后的结构方块
-                for (dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition blockPos : rotatedBlocks) {
+                for (StructureLoadUtil.BlockPosition blockPos : rotatedBlocks) {
                     int x = blockPos.x();
                     int y = blockPos.y();
                     int z = blockPos.z();
@@ -1386,8 +1405,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      * 为预览旋转结构方块（直接使用 SmartBlockPlacerBlockEntity.rotateStructureDataStatic 确保一致性）
      * 注意：使用Minecraft原生的Rotation API进行旋转
      */
-    private List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotateStructureForPreview(
-        dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData data,
+    private List<StructureLoadUtil.BlockPosition> rotateStructureForPreview(
+        StructureLoadUtil.StructureData data,
         Direction forward,
         boolean upsideDown
     ) {
@@ -1403,7 +1422,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
 
         // 计算旋转步数（与 buildBlueprintPositions 保持一致）
-        int scannerFacingValue = data.scannerFacing;
+        Direction scannerFacingValue = data.diskData.direction();
 
         // 1. 计算放置器朝向的基础旋转
         int placerRotation = switch (forward) {
@@ -1416,30 +1435,30 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 2. 根据Scanner朝向计算额外修正
         int scannerCorrection = switch (scannerFacingValue) {
-            case 2 -> 2;  // Scanner北 → +180度
-            case 3 -> 2;  // Scanner南 → +180度
-            case 4 -> 3;  // Scanner西 → +270度
-            case 5 -> 1;  // Scanner东 → +90度
+            case Direction.NORTH -> 2;  // Scanner北 → +180度
+            case Direction.SOUTH -> 2;  // Scanner南 → +180度
+            case Direction.WEST -> 3;  // Scanner西 → +270度
+            case Direction.EAST -> 1;  // Scanner东 → +90度
             default -> 0;
         };
 
         // 3. Scanner朝南时额外+180度（在修正基础上再翻180）
-        int extraFlip = (scannerFacingValue == 3) ? 2 : 0;
+        int extraFlip = (scannerFacingValue == Direction.SOUTH) ? 2 : 0;
 
         // 4. 总旋转步数 = 基础旋转 + Scanner修正 + Scanner朝南额外翻转
         int rotationSteps = (placerRotation + scannerCorrection + extraFlip) % 4;
 
         // 转换为Minecraft原生Rotation
-        net.minecraft.world.level.block.Rotation rotation = switch (rotationSteps) {
-            case 1 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_90;
-            case 2 -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
-            case 3 -> net.minecraft.world.level.block.Rotation.COUNTERCLOCKWISE_90;
-            default -> net.minecraft.world.level.block.Rotation.NONE;
+        Rotation rotation = switch (rotationSteps) {
+            case 1 -> Rotation.CLOCKWISE_90;
+            case 2 -> Rotation.CLOCKWISE_180;
+            case 3 -> Rotation.COUNTERCLOCKWISE_90;
+            default -> Rotation.NONE;
         };
 
         // 计算结构中心点
-        int centerX = data.sizeX / 2;
-        int centerZ = data.sizeZ / 2;
+        int centerX = data.diskData.sizeX() / 2;
+        int centerZ = data.diskData.sizeZ() / 2;
 
         // 预览中的基准位置（居中显示）
         int baseX = 2;  // 5x5的中心
@@ -1449,14 +1468,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         Direction left = forward.getCounterClockWise();
 
         // 应用旋转和坐标变换
-        List<dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
+        List<StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
         for (var blueprintBlock : data.blocks) {
             // 旋转方块朝向（与服务端一致）
-            net.minecraft.world.level.block.state.BlockState rotatedState = blueprintBlock.state().rotate(rotation);
+            BlockState rotatedState = blueprintBlock.state().rotate(rotation);
 
             // 倒挂情况下，翻转 half 属性
             if (upsideDown) {
-                rotatedState = dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(rotatedState);
+                rotatedState = SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(rotatedState);
             }
 
             // 计算相对于中心的偏移（与服务端一致）
@@ -1492,7 +1511,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             // 倒挂情况下，翻转 y 坐标，并添加偏移（相对于放置器的Y=4）
             int newY = upsideDown ? (4 - blueprintBlock.y()) : blueprintBlock.y();
 
-            rotatedBlocks.add(new dev.dubhe.anvilcraft.util.StructureLoadUtil.BlockPosition(newX, newY, newZ, rotatedState));
+            rotatedBlocks.add(new StructureLoadUtil.BlockPosition(newX, newY, newZ, rotatedState));
         }
 
         return rotatedBlocks;
@@ -1502,7 +1521,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      * Tooltip渲染信息记录类
      */
     private record TooltipRenderInfo(
-        net.minecraft.client.gui.Font font, java.util.List<Component> tooltip, int x, int y
+        Font font, List<Component> tooltip, int x, int y
     ) {
     }
 
