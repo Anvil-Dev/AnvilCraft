@@ -61,12 +61,11 @@ public class OverseerCommand {
             level = DimensionArgument.getDimension(ctx, "dimension");
         } catch (CommandSyntaxException exception) {
             source.sendFailure(Component.translatable("command.anvilcraft.overseer.invalid_dimension").withStyle(ChatFormatting.RED));
-            return -1;
+            return 1;
         }
         ResourceKey<Level> dimension = level.dimension();
         Set<BlockPos> overseersPoses = OverseerUtil.getPlacedOverseers(dimension);
         MutableComponent msg = Component.translatable("command.anvilcraft.overseer.head", dimension.location().toString());
-        int cnt = 0;
         for (BlockPos pos : overseersPoses) {
             Optional<OverseerBlockEntity> overseerBlockEntityOptional = level.getBlockEntity(pos, ModBlockEntities.OVERSEER.get());
             if (overseerBlockEntityOptional.isEmpty()) {
@@ -74,19 +73,16 @@ public class OverseerCommand {
                 continue;
             }
             OverseerBlockEntity overseerBlockEntity = overseerBlockEntityOptional.get();
-            if (!includeInactive && overseerBlockEntity.getLoadLevel() <= 0) continue;
-            MutableComponent component = ComponentUtils.wrapInSquareBrackets(
-                Component.translatable(
-                    "command.anvilcraft.overseer.entry",
-                    Component.translatable("chat.coordinates", pos.getX(), pos.getY(), pos.getZ()),
-                    overseerBlockEntity.getLoadLevel(),
-                    overseerBlockEntity.getRandomTick()
-                )
+            if (!includeInactive && overseerBlockEntity.getLoadLevel() < 0) continue;
+            MutableComponent component = Component.translatable(
+                "command.anvilcraft.overseer.entry",
+                Component.translatable("chat.coordinates", pos.getX(), pos.getY(), pos.getZ()),
+                overseerBlockEntity.getLoadLevel(),
+                overseerBlockEntity.getRandomTick()
             );
             msg.append(Component.literal("\n")).append(component);
-            cnt++;
         }
         source.sendSuccess(() -> msg, true);
-        return cnt;
+        return 0;
     }
 }
