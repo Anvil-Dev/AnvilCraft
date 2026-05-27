@@ -4,14 +4,8 @@
     "blocks": "minecraft:chipped_anvil"
   },
   "portal": "minecraft:end_portal",
-  "results": {
-    "states": [
-      {
-        "state": {
-          "block": "anvilcraft:spectral_anvil",
-          "chance": 0.02
-        }
-      }
-    ]
+  "result": {
+    "block": "anvilcraft:spectral_anvil",
+    "chance": 0.02
   }
 }

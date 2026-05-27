@@ -482,6 +482,19 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    @SuppressWarnings("unused")
+    public static <T extends Item> void structureDiskConversion(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.DISK.get())
+            .requires(ModItems.STRUCTURE_DISK.get())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.STRUCTURE_DISK.get()), AnvilCraftDatagen.has(ModItems.STRUCTURE_DISK.get()))
+            .save(provider, AnvilCraft.of("structure_disk_to_disk"));
+        
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.STRUCTURE_DISK.get())
+            .requires(ModItems.DISK.get())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DISK.get()), AnvilCraftDatagen.has(ModItems.DISK.get()))
+            .save(provider, AnvilCraft.of("disk_to_structure_disk"));
+    }
+
     public static <T extends Item> void filter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
             .pattern("ACA")

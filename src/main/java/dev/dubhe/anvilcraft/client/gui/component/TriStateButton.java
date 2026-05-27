@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.gui.component;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -59,21 +58,6 @@ public class TriStateButton extends Button {
         }
         
         guiGraphics.blit(texture, this.getX(), this.getY(), 0, yOffset, this.width, this.height, this.texWidth, this.texHeight * 3);
-        
-        // 渲染tooltip，确保在所有元素上方（包括预览窗口提示文本）
-        if (this.isHovered && tooltips != null && !tooltips.isEmpty()) {
-            guiGraphics.pose().pushPose();
-            // 将Z轴向前移动，确保tooltip在所有按钮和预览窗口提示文本上方
-            guiGraphics.pose().translate(0, 0, 1500);
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font, 
-                tooltips, 
-                java.util.Optional.empty(), 
-                mouseX, 
-                mouseY
-            );
-            guiGraphics.pose().popPose();
-        }
     }
 
     @Override

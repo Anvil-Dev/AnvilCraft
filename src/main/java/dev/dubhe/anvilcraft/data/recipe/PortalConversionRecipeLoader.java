@@ -24,7 +24,7 @@ public class PortalConversionRecipeLoader {
         PortalConversionRecipe.builder()
             .type(Util.cast(Blocks.END_PORTAL))
             .input(anvil)
-            .result(ModBlocks.SPECTRAL_ANVIL, chance)
+            .result(ModBlocks.SPECTRAL_ANVIL.getDefaultState(), chance)
             .save(provider, anvil.builtInRegistryHolder().key().location().getPath());
     }
 
@@ -32,7 +32,7 @@ public class PortalConversionRecipeLoader {
         PortalConversionRecipe.builder()
             .type(Util.cast(Blocks.END_PORTAL))
             .input(anvil)
-            .result(ModBlocks.SPECTRAL_ANVIL, chance)
+            .result(ModBlocks.SPECTRAL_ANVIL.getDefaultState(), chance)
             .save(provider, anvil.getId().getPath());
     }
 }

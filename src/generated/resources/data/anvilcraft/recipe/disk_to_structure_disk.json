@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "anvilcraft:disk"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:structure_disk"
+  }
+}
