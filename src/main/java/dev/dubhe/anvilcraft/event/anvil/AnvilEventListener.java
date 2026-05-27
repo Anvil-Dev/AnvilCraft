@@ -276,8 +276,11 @@ public class AnvilEventListener {
         ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer(level);
         int baseExp = entity.getExperienceReward(level, killer);
         int expMultiplier = 1;
-        if (rate >= 0.8) expMultiplier = 3;
-        else if (rate >= 0.6) expMultiplier = 2;
+        if (rate >= 0.8) {
+            expMultiplier = 3;
+        } else if (rate >= 0.6) {
+            expMultiplier = 2;
+        }
         ExperienceOrb.award(level, pos, baseExp * expMultiplier);
         AnvilCraftFakePlayers.anvilcraftKiller.disable(killer);
     }
