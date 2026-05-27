@@ -21,7 +21,7 @@ public class OverseerUtil {
     public static void onLoadOverseer(Level level, OverseerBlockEntity overseerBlockEntity) {
         if (!shouldTrack(level, overseerBlockEntity)) return;
         placedOverseers
-            .computeIfAbsent(level.dimension(),din -> ConcurrentHashMap.newKeySet())
+            .computeIfAbsent(level.dimension(), dim -> ConcurrentHashMap.newKeySet())
             .add(overseerBlockEntity.getBlockPos());
     }
 
