@@ -344,7 +344,8 @@ public class RenderSupport {
         float rotationX,
         float rotationY,
         int fixedSizeX,
-        int fixedSizeY
+        int fixedSizeY,
+        float centerOffset
     ) {
         RenderSystem.enableBlend();
         final Minecraft minecraft = Minecraft.getInstance();
@@ -358,7 +359,7 @@ public class RenderSupport {
         pose.scale(-scale, -scale, -scale);
 
         // 奇数尺寸时旋转中心偏移0.5，使 block 居中对齐
-        float centerOffset = (fixedSizeX % 2 != 0) ? 0.5f : 0.0f;
+        centerOffset += (fixedSizeX % 2 != 0) ? 0.5f : 0.0f;
         pose.translate(-(float) fixedSizeX / 2 + centerOffset, -(float) fixedSizeY / 2, 0);
 
         // 先应用X轴旋转（俯视角度）
