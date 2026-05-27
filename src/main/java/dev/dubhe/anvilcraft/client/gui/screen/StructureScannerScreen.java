@@ -474,7 +474,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
             case LARGE_STRUCTURE, UNKNOWN_BLOCKS, TOO_LARGE, MULTIBLOCK_BLOCKS -> {
                 // 显示叹号图标
-                boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE || status == StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS;
+                boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE
+                                    || status == StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS;
                 int iconColor = isWarning ? 0xFFFF55 : 0xFF5555;
 
                 // 叹号图标单独设置位置和大小
@@ -509,7 +510,12 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         StructureScannerBlockEntity.InfoStatus status = this.cachedInfoStatus;
 
         // 只有特定状态才有tooltip
-        if (status != StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE && status != StructureScannerBlockEntity.InfoStatus.UNKNOWN_BLOCKS && status != StructureScannerBlockEntity.InfoStatus.TOO_LARGE && status != StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS) {
+        if (
+            status != StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE
+            && status != StructureScannerBlockEntity.InfoStatus.UNKNOWN_BLOCKS
+            && status != StructureScannerBlockEntity.InfoStatus.TOO_LARGE
+            && status != StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS
+        ) {
             return null;
         }
 
@@ -653,10 +659,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
 
         mainTarget.bindWrite(false);
-
-        ShaderInstance shader = ModShaders.getScanPreviewShader();
-        if (shader == null) return;
-
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
@@ -664,6 +666,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         float fbW = this.previewFbo.width;
         float fbH = this.previewFbo.height;
 
+        ShaderInstance shader = ModShaders.getScanPreviewShader();
         shader.setSampler("DiffuseSampler", this.previewFbo);
         shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
         shader.safeGetUniform("InSize").set(fbW, fbH);
@@ -981,7 +984,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
      * 检查鼠标是否在预览窗口内
      */
     private boolean isMouseInPreviewWindow(double mouseX, double mouseY) {
-        return mouseX >= this.previewWindowX && mouseX < this.previewWindowX + this.previewWindowWidth && mouseY >= this.previewWindowY && mouseY < this.previewWindowY + this.previewWindowHeight;
+        return mouseX >= this.previewWindowX
+               && mouseX < this.previewWindowX + this.previewWindowWidth
+               && mouseY >= this.previewWindowY
+               && mouseY < this.previewWindowY + this.previewWindowHeight;
     }
 
     /**

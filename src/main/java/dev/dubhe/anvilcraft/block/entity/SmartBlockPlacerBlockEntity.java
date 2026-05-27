@@ -2449,6 +2449,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
 
         BlockState originalState = originalData.blocks.get(index).state();
+        @SuppressWarnings("deprecation")
         BlockState rotatedState = originalState.rotate(rotation);
 
         // 倒挂情况下，翻转 half 属性
@@ -2481,6 +2482,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (index < 0 || index >= originalData.blocks.size()) return;
 
         BlockState originalState = originalData.blocks.get(index).state();
+        @SuppressWarnings("deprecation")
         BlockState rotatedState = originalState.rotate(rotation);
 
         // 倒挂情况下，翻转 half 属性
@@ -2514,24 +2516,22 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @param state 原始方块状态
      * @return 过滤后的方块状态
      */
-    @SuppressWarnings(
-        {
-            "unchecked",
-            "rawtypes"
-        }
-    )
     private BlockState applyWhitelistFilter(BlockState state) {
         BlockState defaultState = state.getBlock().defaultBlockState();
 
         // 遍历白名单中的属性，如果在当前状态中存在，则复制到默认状态
-        for (Property property : INHERITED_PROPERTIES) {
+        for (Property<?> property : INHERITED_PROPERTIES) {
             if (state.hasProperty(property)) {
-                Comparable value = state.getValue(property);
-                defaultState = defaultState.setValue(property, value);
+                SmartBlockPlacerBlockEntity.setAllowedValue(property, defaultState, state);
             }
         }
 
         return defaultState;
+    }
+
+    public static <T extends Comparable<T>> void setAllowedValue(Property<T> property, BlockState defaultState, BlockState state) {
+        T value = state.getValue(property);
+        defaultState.setValue(property, value);
     }
 
     /**

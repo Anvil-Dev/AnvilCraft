@@ -625,7 +625,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
             // 垂直移动 -> X轴旋转（有限制，反转方向）
             this.previewRotationX -= deltaY * ROTATION_SENSITIVITY;
-            this.previewRotationX = Math.max(MIN_ROTATION_X, Math.min(MAX_ROTATION_X, this.previewRotationX));
+            this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
 
             this.lastMouseX = currentMouseX;
             this.lastMouseY = currentMouseY;
@@ -922,12 +922,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 构建并渲染3D预览（含扫描仪后处理）
      */
-    @SuppressWarnings(
-        {
-            "checkstyle:VariableDeclarationUsageDistance",
-            "checkstyle:LineLength"
-        }
-    )
     private void renderPreview(GuiGraphics guiGraphics) {
         if (this.menu.getBlockEntity() == null || this.minecraft == null || this.minecraft.level == null) {
             return;
@@ -996,57 +990,51 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
             mainTarget.bindWrite(false);
 
-            float fbW = this.previewFbo.width;
-            float fbH = this.previewFbo.height;
-            float screenX = this.previewWindowX * guiScale;
-            float screenY = (
-                                this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight
-                            ) * guiScale;
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
 
             ShaderInstance shader = ModShaders.getScanPreviewShader();
-            if (shader != null) {
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-                RenderSystem.viewport(0, 0, this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight());
+            float fbW = this.previewFbo.width;
+            float fbH = this.previewFbo.height;
+            shader.setSampler("DiffuseSampler", this.previewFbo);
+            shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
+            shader.safeGetUniform("InSize").set(fbW, fbH);
+            float screenX = this.previewWindowX * guiScale;
+            float screenY = (this.minecraft.getWindow().getGuiScaledHeight() - this.previewWindowY - this.previewWindowHeight) * guiScale;
+            shader.safeGetUniform("OutPos").set(screenX, screenY);
+            shader.safeGetUniform("OutSize").set(fbW, fbH);
+            shader.safeGetUniform("GameTime").set((float) (System.currentTimeMillis() % 100000) / 1000.0f);
 
-                shader.setSampler("DiffuseSampler", this.previewFbo);
-                shader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
-                shader.safeGetUniform("InSize").set(fbW, fbH);
-                shader.safeGetUniform("OutPos").set(screenX, screenY);
-                shader.safeGetUniform("OutSize").set(fbW, fbH);
-                shader.safeGetUniform("GameTime").set((float) (System.currentTimeMillis() % 100000) / 1000.0f);
+            RenderSystem.depthFunc(GL11.GL_ALWAYS);
+            shader.apply();
 
-                RenderSystem.depthFunc(GL11.GL_ALWAYS);
-                shader.apply();
+            BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+            bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);
+            bufferbuilder.addVertex(fbW, 0.0F, 0.0F);
+            bufferbuilder.addVertex(fbW, fbH, 0.0F);
+            bufferbuilder.addVertex(0.0F, fbH, 0.0F);
+            BufferUploader.draw(bufferbuilder.buildOrThrow());
 
-                BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-                bufferbuilder.addVertex(0.0F, 0.0F, 0.0F);
-                bufferbuilder.addVertex(fbW, 0.0F, 0.0F);
-                bufferbuilder.addVertex(fbW, fbH, 0.0F);
-                bufferbuilder.addVertex(0.0F, fbH, 0.0F);
-                BufferUploader.draw(bufferbuilder.buildOrThrow());
+            RenderSystem.depthFunc(GL11.GL_LEQUAL);
+            ProgramManager.glUseProgram(0);
+            RenderSystem.disableBlend();
 
-                RenderSystem.depthFunc(GL11.GL_LEQUAL);
-                ProgramManager.glUseProgram(0);
-                RenderSystem.disableBlend();
-
-                this.previewFbo.unbindRead();
-            }
+            this.previewFbo.unbindRead();
         }
 
         // 如果没有配置选区位置且不在蓝图模式下，显示提示文本（在裁剪区域外渲染，确保在最上层）
         if (!this.isBlueprintMode && this.menu.getBlockEntity().getLayerPositions().isEmpty()) {
-            Component emptyText = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
-            int textWidth = (int) (this.font.width(emptyText) * 0.8f);
-            int textX = this.previewWindowX + (this.previewWindowWidth - textWidth) / 2;
-            int textY = this.previewWindowY + (this.previewWindowHeight - (int) (this.font.lineHeight * 0.8f)) / 2;
-
             // 禁用深度测试，确保文本在最上层渲染
             RenderSystem.disableDepthTest();
             guiGraphics.pose().pushPose();
             // 将Z轴向前移动，确保文本在最前面
             guiGraphics.pose().translate(0, 0, 1000);
             guiGraphics.pose().scale(0.8f, 0.8f, 0.8f);
+            Component emptyText = Component.translatable("screen.anvilcraft.smart_block_placer.preview.empty");
+            int textWidth = (int) (this.font.width(emptyText) * 0.8f);
+            int textX = this.previewWindowX + (this.previewWindowWidth - textWidth) / 2;
+            int textY = this.previewWindowY + (this.previewWindowHeight - (int) (this.font.lineHeight * 0.8f)) / 2;
             guiGraphics.drawString(this.font, emptyText, (int) (textX / 0.8f), (int) (textY / 0.8f), 0xFFFFFF, true);
             guiGraphics.pose().popPose();
             // 恢复深度测试
@@ -1058,15 +1046,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         if (blockEntity != null) {
             String structureName = blockEntity.getLoadedStructureName();
             if (!structureName.isEmpty()) {
-                Component loadedText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded");
-                int textX = this.structureInfoBaseX;
-                int textY = this.structureInfoBaseY;
-
                 // 禁用深度测试，确保文本在最上层渲染
                 RenderSystem.disableDepthTest();
                 guiGraphics.pose().pushPose();
                 // 将Z轴向前移动，确保文本在最前面
                 guiGraphics.pose().translate(0, 0, 1000);
+                Component loadedText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded");
+                int textX = this.structureInfoBaseX;
+                int textY = this.structureInfoBaseY;
                 guiGraphics.drawString(this.font, loadedText, textX, textY, 0x00AA00, false);
 
                 // 渲染蓝图名字（单独一行，带滚动效果）
@@ -1135,17 +1122,17 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             } else if (blockEntity.hasInvalidStructure() && !blockEntity.getDiskInventory().getItem(0).isEmpty()) {
                 // 磁盘存在但结构数据无效，显示提示信息（带滚动效果）
                 // 额外检查磁盘槽位是否为空，确保拿走磁盘后提示消失
-                Component invalidText = Component.translatable("screen.anvilcraft.smart_block_placer.no_structure_record");
-                int textX = this.structureInfoBaseX;
-                int textY = this.structureInfoBaseY;
-                int maxWidth = 80;  // 最大显示宽度
-                int textWidth = this.font.width(invalidText);
 
                 // 禁用深度测试，确保文本在最上层渲染
                 RenderSystem.disableDepthTest();
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().translate(0, 0, 1000);
 
+                int textX = this.structureInfoBaseX;
+                int textY = this.structureInfoBaseY;
+                int maxWidth = 80;  // 最大显示宽度
+                Component invalidText = Component.translatable("screen.anvilcraft.smart_block_placer.no_structure_record");
+                int textWidth = this.font.width(invalidText);
                 if (textWidth > maxWidth) {
                     // 文本太长，需要一直滚动（匀速）
                     long time = System.currentTimeMillis();
@@ -1471,8 +1458,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         List<StructureLoadUtil.BlockPosition> rotatedBlocks = new ArrayList<>();
         for (var blueprintBlock : data.blocks) {
             // 旋转方块朝向（与服务端一致）
+            @SuppressWarnings("deprecation")
             BlockState rotatedState = blueprintBlock.state().rotate(rotation);
-
             // 倒挂情况下，翻转 half 属性
             if (upsideDown) {
                 rotatedState = SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(rotatedState);

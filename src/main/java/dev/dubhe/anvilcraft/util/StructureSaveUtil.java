@@ -104,8 +104,8 @@ public class StructureSaveUtil {
                 uuid,
                 scannerFacing,
                 blockEntity.getRangeX().get(),
-                blockEntity.getRangeX().get(),
-                blockEntity.getRangeX().get()
+                blockEntity.getRangeY().get(),
+                blockEntity.getRangeZ().get()
             );
             outputDisk.set(ModComponents.STRUCTURE_DISK_DATA, data);
 
