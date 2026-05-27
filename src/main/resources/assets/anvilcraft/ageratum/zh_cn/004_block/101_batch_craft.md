@@ -21,7 +21,7 @@ items:
 - 打开GUI
   - 可以设置过滤
   - 在槽位中使用滚轮可以设置物品上限
-- 手持<translate key="block.minecraft.crafter"/>或<translate key="block.minecraft.stonecutter"/>shift+右键切换形态
+- 手持<ref item="minecraft:crafter"/>或<ref item="minecraft:stonecutter"/>shift+右键切换形态
 
 <row>
 <item id="minecraft:crafter"/>

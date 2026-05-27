@@ -12,9 +12,9 @@ items:
 
 # 功能
 
-- [<translate key="block.anvilcraft.royal_anvil"/>](103_royal_anvil.md)永远不会损坏，
+- <ref item="anvilcraft:royal_anvil"/>永远不会损坏，
 - 锻造时不会触发”过于昂贵“
-- 使用带特殊字符的<translate key="item.minecraft.name_tag"/>，可以给物品名称修改样式
+- 使用带特殊字符的<ref item="minecraft:name_tag"/>，可以给物品名称修改样式
 
 # 相关
 - [铁砧挖掘](../001_feature/000_anvil_destroy.md)

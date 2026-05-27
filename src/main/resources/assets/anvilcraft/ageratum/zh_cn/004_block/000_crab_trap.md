@@ -12,9 +12,9 @@ items:
 
 # 功能
 
-- [<translate key="block.anvilcraft.crab_trap"/>](000_crab_trap.md)放置在水面，确保四面紧邻的方块至少三个为水源或含水方块
+- <ref item="anvilcraft:crab_trap"/>放置在水面，确保四面紧邻的方块至少三个为水源或含水方块
 - 可以自动产出鱼获
-- 不同生物群系产出略有不同，但都会产出[<translate key="item.anvilcraft.crab_claw"/>](../006_prop/001_crab_claw.md)
+- 不同生物群系产出略有不同，但都会产出<ref item="anvilcraft:crab_claw"/>
 
 # 特性
 

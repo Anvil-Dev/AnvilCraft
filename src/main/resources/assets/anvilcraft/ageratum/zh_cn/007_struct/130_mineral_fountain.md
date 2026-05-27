@@ -16,26 +16,28 @@ items:
 <item id="anvilcraft:sturdy_deepslate"/>
 </row>
 
-# 获得
+## 获得
 
 <recipe id="anvilcraft:impact_pile"/>
 
-1. 制作[<translate key="block.anvilcraft.impact_pile"/>](130_mineral_fountain.md)
-2. 将[<translate key="block.anvilcraft.impact_pile"/>](130_mineral_fountain.md)放置在<translate key="block.minecraft.bedrock"/>或<translate key="block.minecraft.deepslate"/>上，
-   并确保其位置**不高于**世界底部 8 格
-3. 用至少 20 格的高度下落的**完好的**<translate key="block.minecraft.anvil"/>砸击它
-4. 最终[<translate key="block.anvilcraft.impact_pile"/>](130_mineral_fountain.md)和<translate key="block.minecraft.anvil"/>都会消失，
-   并生成一个包含[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)、[<translate key="block.anvilcraft.sturdy_deepslate"/>](130_mineral_fountain.md)和熔岩的结构
+1. 制作<ref item="anvilcraft:impact_pile"/>
+2. 将<ref item="anvilcraft:impact_pile"/>放置在<ref item="minecraft:bedrock"/>或<ref item="minecraft:deepslate"/>上，并确保其位置**不高于**世界底部 8 格
+3. 用至少 20 格的高度下落的**完好的**<ref item="minecraft:anvil"/>砸击它
+4. 最终<ref item="anvilcraft:impact_pile"/>和<ref item="minecraft:anvil"/>都会消失，并生成一个包含<ref item="anvilcraft:mineral_fountain"/>、<ref item="anvilcraft:sturdy_deepslate"/>和熔岩的结构
 
-> 生成[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)的高度固定为世界最低高度+5
->
-> 生成的结构会将除<translate key="block.minecraft.bedrock"/>外的方块替换
+<info>
+生成<ref item="anvilcraft:mineral_fountain"/>的高度固定为世界最低高度+5
+</info>
 
-## <translate key="block.anvilcraft.sturdy_deepslate"/>
+<warning>
+生成的结构会将除<ref item="minecraft:bedrock"/>外的方块替换
+</warning>
+
+### <ref item="anvilcraft:sturdy_deepslate"/>
 
 很硬的石头，没什么用
 
-# 特性
+## 特性
 
 - 坚硬抗爆
 - 极难挖掘
@@ -51,19 +53,18 @@ items:
 
 <structure id="../structures/mineral_fountain/raw_mineral.snbt"/>
 
-- 如果[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)的四面都是**同种粗矿块**，
-  则将上方<translate key="block.minecraft.deepslate"/>转化为对应的**深层矿**
-- 有概率转而生成[<translate key="block.anvilcraft.earth_core_shard_ore"/>](../002_material/140_earth_core_shard.md)或[<translate key="block.anvilcraft.void_stone"/>](../002_material/140_void_matter.md)
+- 如果<ref item="anvilcraft:mineral_fountain"/>的四面都是**同种粗矿块**，则将上方<ref item="minecraft:deepslate"/>转化为对应的**深层矿**
+- 有概率转而生成<ref item="anvilcraft:earth_core_shard_ore"/>或<ref item="anvilcraft:void_stone"/>
 
 <info>
-粗矿可通过[<translate key="block.anvilcraft.corrupted_beacon"/>](../004_block/200_corrupted_beacon.md)获得
+粗矿可通过<ref item="anvilcraft:corrupted_beacon"/>获得
 </info>
 
-| 世界  | 生成[<translate key="block.anvilcraft.earth_core_shard_ore"/>](../002_material/140_earth_core_shard.md)概率 | 生成[<translate key="block.anvilcraft.void_stone"/>](../002_material/140_void_matter.md)概率 | 
-|:---:|:-------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------:|
-| 主世界 |                                                   1%                                                    |                                            1%                                            |
-| 下界  |                                                   10%                                                   |                                            0                                             |
-| 末地  |                                                    0                                                    |                                           10%                                            |
+| 世界  | 生成<ref item="anvilcraft:earth_core_shard_ore"/>概率 | 生成<ref item="anvilcraft:void_stone"/>概率 | 
+|:---:|:-------------------------------------------------:|:---------------------------------------:|
+| 主世界 |                        1%                         |                   1%                    |
+| 下界  |                        10%                        |                    0                    |
+| 末地  |                         0                         |                   10%                   |
 
 ---
 
@@ -71,7 +72,7 @@ items:
 
 <structure id="../structures/mineral_fountain/lava.snbt"/>
 
-- 四周被**熔岩**环绕的[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)可以生成**熔岩**
+- 四周被**熔岩**环绕的<ref item="anvilcraft:mineral_fountain"/>可以生成**熔岩**
 
 ---
 
@@ -79,8 +80,7 @@ items:
 
 <structure id="../structures/mineral_fountain/heat.snbt"/>
 
-- 四周被**熔岩**环绕的[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)可以将 [可加热方块](../001_feature/101_heated_block.md)
-  加热到<color=#aa2222>红热等级</color>
+- 四周被**熔岩**环绕的<ref item="anvilcraft:mineral_fountain"/>可以将[可加热方块](../001_feature/101_heated_block.md)加热到<color=#aa2222>红热等级</color>
 
 ---
 
@@ -88,5 +88,5 @@ items:
 
 <structure id="../structures/mineral_fountain/cinerite.snbt"/>
 
-- 其他结构都不满足时，[<translate key="block.anvilcraft.mineral_fountain"/>](130_mineral_fountain.md)在上方生成<translate key="block.anvilcraft.cinerite"/>，可将其用于[筛矿](../008_recipe/001_basic_minerals.md)
+- 其他结构都不满足时，<ref item="anvilcraft:mineral_fountain"/>在上方生成<ref item="anvilcraft:cinerite"/>，可将其用于[筛矿](../008_recipe/001_basic_minerals.md)
 

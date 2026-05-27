@@ -18,7 +18,7 @@ items:
 <item id="anvilcraft:advanced_comparator"/>
 </row>
 
-# <translate key="block.anvilcraft.block_comparator"/>
+# <ref item="anvilcraft:block_comparator"/>
 
 <recipe id="anvilcraft:block_comparator"/>
 
@@ -27,7 +27,7 @@ items:
 - <color=#999922>普通模式</color>下，仅检查方块是否相同
 - <color=#999922>精准模式</color>下，会检查方块的状态是否完全相同
 
-# <translate key="block.anvilcraft.pulse_generator"/>
+# <ref item="anvilcraft:pulse_generator"/>
 
 <recipe id="anvilcraft:pulse_generator"/>
 
@@ -42,7 +42,7 @@ items:
 - 在<color=#999922>右边</color>设置发出信号的持续时间
 - <color=#999922>左下角</color>的按钮控制输出信号为正常模式/反转模式
 
-# <translate key="block.anvilcraft.item_detector"/>
+# <ref item="anvilcraft:item_detector"/>
 
 <recipe id="anvilcraft:item_detector"/>
 
@@ -56,7 +56,7 @@ items:
 - <color=#999922>设置过滤</color>时，若过滤的掉落物都不存在，则不输出信号。否则，对**每个**
   检测到物品的过滤格，分别根据对应掉落物数量计算红石信号(数量达到[64*过滤数量]时计算满信号强度)。最终输出选择所有红石信号的**最小值**输出
 
-# <translate key="block.anvilcraft.advanced_comparator"/>
+# <ref item="anvilcraft:advanced_comparator"/>
 
 <recipe id="anvilcraft:advanced_comparator"/>
 

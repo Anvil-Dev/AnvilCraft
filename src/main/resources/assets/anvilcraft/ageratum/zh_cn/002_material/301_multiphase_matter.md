@@ -25,7 +25,7 @@ items:
 
 # 用途
 
-- [<translate key="item.anvilcraft.ember_metal_resonator"/>](../005_tool/301_resonator.md)
-- [<translate key="item.anvilcraft.ember_metal_heavy_halberd"/>](../005_tool/301_heavy_halberd.md)
-- [<translate key="item.anvilcraft.multitool"/>](../005_tool/301_multitool.md)
+- <ref item="anvilcraft:ember_metal_resonator"/>
+- <ref item="anvilcraft:ember_metal_heavy_halberd"/>
+- <ref item="anvilcraft:multitool"/>
 

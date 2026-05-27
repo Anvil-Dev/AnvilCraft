@@ -42,7 +42,7 @@ items:
 
 # 相关
 
-- [余烬锻造台](../004_block/101_royal_smithing_table.md)
+- [余烬锻造台](../004_block/221_ember_smithing_table.md)
 - [余烬金属工具](../002_material/211_ember_metal.md)
 - [浮霜金属工具](../002_material/202_frost_metal.md)
 - [超限金属工具](../002_material/312_transcendium.md)

@@ -44,8 +44,8 @@ items:
 
 ## 电容供电
 
-- 使用背包内的[<translate key="item.anvilcraft.capacitor"/>](../002_material/101_capacitor.md)补充4MJ（飞行时间+80秒）
-- 使用背包内的[<translate key="item.anvilcraft.supercapacitor"/>](../002_material/101_capacitor.md)直接充满（飞行时间变为1200秒）
+- 使用背包内的<ref item="anvilcraft:capacitor"/>补充4MJ（飞行时间+80秒）
+- 使用背包内的<ref item="anvilcraft:supercapacitor"/>直接充满（飞行时间变为1200秒）
 
 # 相关
 

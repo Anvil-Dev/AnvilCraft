@@ -11,7 +11,7 @@ items:
 
 # 功能
 
-- 每4秒电击半径8格以内最近的生物或<translate key="block.minecraft.lightning_rod"/>，造成 10 点伤害
+- 每4秒电击半径8格以内最近的生物或<ref item="minecraft:lightning_rod"/>，造成 10 点伤害
 - 可在GUI内设置白名单
 
 ---

@@ -27,5 +27,5 @@ navigation:
 关闭*总开关*后，再调整模式
 </warning>
 
-- 所有 <translate key="block.minecraft.smooth_stone"/> 可替换为 任意完整不透明方块
-- 所有 <translate key="block.minecraft.glass"/> 可替换为 任意透明方块
+- 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
+- 所有 <ref item="minecraft:glass"/> 可替换为 任意透明方块

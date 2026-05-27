@@ -26,7 +26,7 @@ items:
 - 按住<Key id="key.anvilcraft.switch_resonate_mode"></Key>键呼出轮盘，轮盘上有五个选项
   - 默认选择Auto，加速破坏任意方块
   - 选择对应的工具类型时，只加速破坏对应的方块，但可以执行相应的*去皮*、*耕地*等操作
-- 共振挖掘：对任意方块长按右键一小段时间立刻挖掘下来，专治坚硬方块 (<translate key="block.minecraft.bedrock"/>这类方块除外)
+- 共振挖掘：对任意方块长按右键一小段时间立刻挖掘下来，专治坚硬方块 (<ref item="minecraft:bedrock"/>这类方块除外)
 
 # 合成
 

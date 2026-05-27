@@ -16,13 +16,13 @@ items:
 
 # 首次获得
 
-- 手持<translate key="block.minecraft.anvil"/>右键僵尸，将铁砧塞到它手上
-- 使得持有铁砧的僵尸被[<translate key="block.anvilcraft.corrupted_beacon"/>](200_corrupted_beacon.md)照射
-- 僵尸有 [手持铁砧数量*5%] 的概率变为拿着[<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)的**巨人僵尸**
-- 击杀**巨人僵尸**，就可以[<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)
+- 手持<ref item="minecraft:anvil"/>右键僵尸，将铁砧塞到它手上
+- 使得持有铁砧的僵尸被<ref item="anvilcraft:corrupted_beacon"/>照射
+- 僵尸有 [手持铁砧数量*5%] 的概率变为拿着<ref item="anvilcraft:giant_anvil"/>的**巨人僵尸**
+- 击杀**巨人僵尸**，就可以<ref item="anvilcraft:giant_anvil"/>
 
 <tip>
-可以使用[<translate key="block.anvilcraft.resin_block"/>](../006_prop/000_resin_block.md)抓捕僵尸
+可以使用<ref item="anvilcraft:resin_block"/>抓捕僵尸
 </tip>
 
 <warning>
@@ -31,26 +31,26 @@ items:
 
 # 便捷合成
 
-获得第一个[<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)之后，
-就可以通过**多方块转化**这一方式生产[<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)
+获得第一个<ref item="anvilcraft:giant_anvil"/>之后，
+就可以通过**多方块转化**这一方式生产<ref item="anvilcraft:giant_anvil"/>
 
 # 功能
 
 ## 1.多方块转换
 
-[<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)砸中<translate key="block.minecraft.crafting_table"/>时，对下方多方块结构进行转化，生成新的方块
+<ref item="anvilcraft:giant_anvil"/>砸中<ref item="minecraft:crafting_table"/>时，对下方多方块结构进行转化，生成新的方块
 
 <structure id="../structures/mutiblock_convert.snbt"/>
 
 <tip>
-如果觉得<translate key="block.minecraft.crafting_table"/>不好看，可以试试[<translate key="block.anvilcraft.transparent_crafting_table"/>](210_giant_anvil.md)
+如果觉得<ref item="minecraft:crafting_table"/>不好看，可以试试<ref item="anvilcraft:transparent_crafting_table"/>
 </tip>
 
 <recipe id="anvilcraft:transparent_crafting_table"/>
 
 ## 2.多方块合成
 
-- 将正中间的<translate key="block.minecraft.crafting_table"/>替换为[<translate key="block.anvilcraft.space_overcompressor"/>](220_space_overcompressor.md)，就能执行**多方块合成**
+- 将正中间的<ref item="minecraft:crafting_table"/>替换为<ref item="anvilcraft:space_overcompressor"/>，就能执行**多方块合成**
 - 生产的结果为**掉落物**形式
 - 兼容转换出一个方块的**多方块转换**配方
 - 处理额外特殊配方
@@ -59,14 +59,14 @@ items:
 
 ## 3.撼地
 
-- [<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)的正中心砸中[<translate key="block.anvilcraft.heavy_iron_block"/>](../002_material/007_heavy_iron_block.md)时，执行**撼地**操作
-- 此时，其可以影响同一水平面上的方块或实体。根据[<translate key="block.anvilcraft.heavy_iron_block"/>](../002_material/007_heavy_iron_block.md)周围方块的不同，撼地产生的效果也不尽相同
+- <ref item="anvilcraft:giant_anvil"/>的正中心砸中<ref item="anvilcraft:heavy_iron_block"/>时，执行**撼地**操作
+- 此时，其可以影响同一水平面上的方块或实体。根据<ref item="anvilcraft:heavy_iron_block"/>周围方块的不同，撼地产生的效果也不尽相同
 - 坠落高度提高 1 格，影响范围扩大 1 圈
 
 ### 定义
 
-- 方便起见，我们将与[<translate key="block.anvilcraft.heavy_iron_block"/>](../002_material/007_heavy_iron_block.md)
-  相邻的方块称为“邻块”，多方块结构中不与[<translate key="block.anvilcraft.heavy_iron_block"/>](../002_material/007_heavy_iron_block.md)相邻的方块称为“角块”
+- 方便起见，我们将与<ref item="anvilcraft:heavy_iron_block"/>
+  相邻的方块称为“邻块”，多方块结构中不与<ref item="anvilcraft:heavy_iron_block"/>相邻的方块称为“角块”
 - **邻块**决定撼地的工作模式
 - **角块**决定模式的工作类型
 
@@ -91,21 +91,21 @@ items:
 
 ### 工作模式：震起
 
-- **邻块**和**角块**均为[<translate key="block.anvilcraft.resin_block"/>](../006_prop/000_resin_block.md)时启用
+- **邻块**和**角块**均为<ref item="anvilcraft:resin_block"/>时启用
 - **撼地**可以使周围的，任意种类的小型铁砧震起 1 格
 
 ### 工作模式：伤害
 
-- **邻块**为[<translate key="block.anvilcraft.cursed_gold_block"/>](../002_material/122_cruse_gold.md)时启用
-- [<translate key="block.anvilcraft.giant_anvil"/>](210_giant_anvil.md)落点高度越高，**撼地**造成的伤害越高
+- **邻块**为<ref item="anvilcraft:cursed_gold_block"/>时启用
+- <ref item="anvilcraft:giant_anvil"/>落点高度越高，**撼地**造成的伤害越高
 - **角块**决定伤害类型，对应关系如下：
 
 |                       角块                       |     伤害类型      |
 |:----------------------------------------------:|:-------------:|
-|    [<translate key="block.anvilcraft.ruby_block"/>](../002_material/000_gems.md)     |     火焰伤害      |
-|  [<translate key="block.anvilcraft.sapphire_block"/>](../002_material/000_gems.md)   |     冰冻伤害      |
-|    [<translate key="block.anvilcraft.topaz_block"/>](../002_material/000_gems.md)    |     雷电伤害      |
-| [<translate key="block.anvilcraft.void_matter_block"/>](../002_material/140_void_matter.md) |     虚空伤害      |
+|    <ref item="anvilcraft:ruby_block"/>     |     火焰伤害      |
+|  <ref item="anvilcraft:sapphire_block"/>   |     冰冻伤害      |
+|    <ref item="anvilcraft:topaz_block"/>    |     雷电伤害      |
+| <ref item="anvilcraft:void_matter_block"/> |     虚空伤害      |
 |                       其他                       | 摔落伤害(可以穿靴子避免) |
 
 ### 工作模式：破坏
@@ -116,8 +116,8 @@ items:
 
 |                      角块                      | 方块类型                                             |
 |:--------------------------------------------:|:-------------------------------------------------|
-|     <translate key="block.minecraft.obsidian"/>     | 任意方块                                             |
-|   <translate key="block.minecraft.grass_block"/>    | 花、草、菌、灌木、藤蔓、农作物和雪片                               |
-|    <translate key="block.minecraft.hay_block"/>     | 收割并补种包括小麦、南瓜、浆果、可可豆与下界疣等农作物。可以操作高于工作平面的相连原木上的可可豆 |
-| <translate key="block.minecraft.oak_log"/>等任意**原木** | 原木、树叶、菌柄、疣块、仙人掌、紫颂植株与甘蔗。可以破坏高于工作平面的相连方面          |
-|  <translate key="block.minecraft.amethyst_block"/>  | 紫水晶簇                                             |
+|     <ref item="minecraft:obsidian"/>     | 任意方块                                             |
+|   <ref item="minecraft:grass_block"/>    | 花、草、菌、灌木、藤蔓、农作物和雪片                               |
+|    <ref item="minecraft:hay_block"/>     | 收割并补种包括小麦、南瓜、浆果、可可豆与下界疣等农作物。可以操作高于工作平面的相连原木上的可可豆 |
+| <ref item="minecraft:oak_log"/>等任意**原木** | 原木、树叶、菌柄、疣块、仙人掌、紫颂植株与甘蔗。可以破坏高于工作平面的相连方面          |
+|  <ref item="minecraft:amethyst_block"/>  | 紫水晶簇                                             |

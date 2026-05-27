@@ -18,9 +18,9 @@ items:
 
 ## 怨念琥珀块
 
-- [<translate key="block.anvilcraft.resin_block"/>](../006_prop/000_resin_block.md)可被[时移](../004_block/200_corrupted_beacon.md)为[<translate key="block.anvilcraft.amber_block"/>](../002_material/200_amber.md)
-- 如果[<translate key="block.anvilcraft.resin_block"/>](../006_prop/000_resin_block.md)中含有**非被动生物**，则有 5% 的概率产生[<translate key="block.anvilcraft.resentful_amber_block"/>](210_spawner.md)
-- 利用[<translate key="block.anvilcraft.resentful_amber_block"/>](210_spawner.md)和[<translate key="block.anvilcraft.cursed_gold_block"/>](../002_material/122_cruse_gold.md)，可以生产对应的<translate key="block.minecraft.spawner"/>
+- <ref item="anvilcraft:resin_block"/>可被[时移](../004_block/200_corrupted_beacon.md)为<ref item="anvilcraft:amber_block"/>
+- 如果<ref item="anvilcraft:resin_block"/>中含有**非被动生物**，则有 5% 的概率产生<ref item="anvilcraft:resentful_amber_block"/>
+- 利用<ref item="anvilcraft:resentful_amber_block"/>和<ref item="anvilcraft:cursed_gold_block"/>，可以生产对应的<ref item="minecraft:spawner"/>
 
 ## 制作刷怪笼
 
@@ -28,11 +28,11 @@ items:
 <structure id="../structures/muti_spawner.snbt"/>
 
 <info>
-制造<translate key="block.minecraft.spawner"/>，仅接受[多方块转化](../004_block/210_giant_anvil.md#功能)，不接受[多方块合成](../004_block/210_giant_anvil.md#功能)!
+制造<ref item="minecraft:spawner"/>，仅接受[多方块转化](../004_block/210_giant_anvil.md#功能)，不接受[多方块合成](../004_block/210_giant_anvil.md#功能)!
 </info>
 
 <warning>
-若没有搬运<translate key="block.minecraft.spawner"/>的手段，请提前规划好位置
+若没有搬运<ref item="minecraft:spawner"/>的手段，请提前规划好位置
 </warning>
 
 <tip>

@@ -22,4 +22,4 @@ items:
 <recipe id="anvilcraft:heart_of_the_sea"/>
 </row>
 
-> 需要量产[<translate key="item.anvilcraft.sapphire"/>](../002_material/000_gems.md)
+> 需要量产<ref item="anvilcraft:sapphire"/>

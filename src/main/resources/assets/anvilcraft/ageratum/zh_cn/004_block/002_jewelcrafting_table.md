@@ -20,36 +20,27 @@ items:
 </tip>
 
 <row halign="center">
-<recipe id="anvilcraft:jewel_crafting/elytra"/>
+<recipe id="anvilcraft:jewel_crafting/trial_key"/>
 <recipe id="anvilcraft:jewel_crafting/ominous_bottle"/>
+<recipe id="anvilcraft:jewel_crafting/ominous_trial_key"/>
 <recipe id="anvilcraft:jewel_crafting/heavy_core"/>
-<recipe id="anvilcraft:jewel_crafting/enchanted_golden_apple"/>
 </row>
 
 <row halign="center">
-<recipe id="anvilcraft:jewel_crafting/trial_key"/>
-<recipe id="anvilcraft:jewel_crafting/ominous_trial_key"/>
+<recipe id="anvilcraft:jewel_crafting/elytra"/>
+<recipe id="anvilcraft:jewel_crafting/enchanted_golden_apple"/>
 <recipe id="anvilcraft:jewel_crafting/totem_of_undying"/>
 </row>
 
-<row>
+<row halign="center">
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns"/>
-> 所有旗帜图案都可以通过这个配方来仿制
-</row>
-
-<row halign="center">
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs"/>
-> 所有音乐唱片都可以通过这个配方来仿制
-</row>
-
-<row halign="center">
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_blade_pottery_sherd_from_minecraft_blade_pottery_sherd_for_pottery_sherds"/>
-> 所有纹样陶片都可以通过这个配方来仿制
+<recipe id="anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates"/>
 </row>
 
 <row halign="center">
-<recipe id="anvilcraft:jewel_crafting/generated/minecraft_silence_armor_trim_smithing_template_from_minecraft_silence_armor_trim_smithing_template_for_trim_templates"/>
-> 所有盔甲纹饰锻造模板都可以通过这个配方来仿制
+所有旗帜图案、音乐唱片、纹样陶片和盔甲纹饰锻造模板都可以通过上述配方来仿制
 </row>
 
 # 特性

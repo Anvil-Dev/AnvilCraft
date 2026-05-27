@@ -25,4 +25,4 @@ items:
 <recipe id="anvilcraft:neutron_irradiation/plutonium_nugget"/>
 </row>
 
-> 如果不小心把[<translate key="block.anvilcraft.uranium_block"/>](../002_material/301_uranium.md)丢进去加工会引发大爆炸
+> 如果不小心把<ref item="anvilcraft:uranium_block"/>丢进去加工会引发大爆炸

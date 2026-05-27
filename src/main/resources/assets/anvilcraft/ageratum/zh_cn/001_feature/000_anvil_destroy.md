@@ -28,9 +28,9 @@ navigation:
 <item id="anvilcraft:transcendence_anvil"/>
 </row>
 
--  <translate key="block.minecraft.anvil"/>：常规挖掘
-- [<translate key="block.anvilcraft.spectral_anvil"/>](../004_block/105_spectral_anvil.md)：常规挖掘
-- [<translate key="block.anvilcraft.royal_anvil"/>](../004_block/103_royal_anvil.md)：精准采集
-- [<translate key="block.anvilcraft.frost_anvil"/>](../004_block/233_frost_anvil.md)：[崩解](100_enchantment.md#崩解)
-- [<translate key="block.anvilcraft.ember_anvil"/>](../004_block/223_ember_anvil.md)：[熔炼](100_enchantment.md#熔炼)
-- [<translate key="block.anvilcraft.transcendence_anvil"/>](../004_block/311_transcendence_anvil.md)：时运V
+-  <ref item="minecraft:anvil"/>：常规挖掘
+- <ref item="anvilcraft:spectral_anvil"/>：常规挖掘
+- <ref item="anvilcraft:royal_anvil"/>：精准采集
+- <ref item="anvilcraft:frost_anvil"/>：[崩解](100_enchantment.md#崩解)
+- <ref item="anvilcraft:ember_anvil"/>：[熔炼](100_enchantment.md#熔炼)
+- <ref item="anvilcraft:transcendence_anvil"/>：时运V

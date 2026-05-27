@@ -11,7 +11,7 @@ items:
 
 <recipe id="anvilcraft:stamping/pill"/>
 
-- 再将空白[<translate key="item.anvilcraft.pill"/>](011_pill.md)和药水在合成栏合成，得到对应药水效果的药片
+- 再将空白<ref item="anvilcraft:pill"/>和药水在合成栏合成，得到对应药水效果的药片
 
 ## 作用
 
@@ -26,10 +26,10 @@ items:
 
 ## 存取
 
-- 左键拿起[<translate key="item.anvilcraft.pill"/>](011_pill.md)后，再左键点击[<translate key="item.anvilcraft.pill_box"/>](011_pill.md)可以存放
-- 光标悬浮于[<translate key="item.anvilcraft.pill_box"/>](011_pill.md)上，通过滚轮选取[<translate key="item.anvilcraft.pill"/>](011_pill.md)，右键拿出
+- 左键拿起<ref item="anvilcraft:pill"/>后，再左键点击<ref item="anvilcraft:pill_box"/>可以存放
+- 光标悬浮于<ref item="anvilcraft:pill_box"/>上，通过滚轮选取<ref item="anvilcraft:pill"/>，右键拿出
 
 ## 使用
 
-- 右键可以一次性吃掉里面每种不同的[<translate key="item.anvilcraft.pill"/>](011_pill.md)各一片，冷却2秒
-- 可以设置快捷键:<Key id="key.anvilcraft.use_pill_box"></Key>在背包中使用（背包中有多个[<translate key="item.anvilcraft.pill"/>](011_pill.md)时，用快捷键只使用更靠前的）
+- 右键可以一次性吃掉里面每种不同的<ref item="anvilcraft:pill"/>各一片，冷却2秒
+- 可以设置快捷键:<Key id="key.anvilcraft.use_pill_box"></Key>在背包中使用（背包中有多个<ref item="anvilcraft:pill"/>时，用快捷键只使用更靠前的）
