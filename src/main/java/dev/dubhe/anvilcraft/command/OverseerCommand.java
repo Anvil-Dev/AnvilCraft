@@ -23,11 +23,12 @@ import org.slf4j.Logger;
 import java.util.Optional;
 import java.util.Set;
 
-import static net.minecraft.commands.Commands.literal;
 import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class OverseerCommand {
     private static final Logger logger = LogUtils.getLogger();
+
     public static void registerCommand(LiteralArgumentBuilder<CommandSourceStack> builder) {
         LiteralArgumentBuilder<CommandSourceStack> root = literal("overseer").requires(source -> source.hasPermission(2));
         root.then(
@@ -45,15 +46,15 @@ public class OverseerCommand {
     }
 
     private static int listOverseers(CommandContext<CommandSourceStack> ctx) {
-        return listOverseers(ctx, false);
+        return listOverseersInternal(ctx, false);
     }
 
     private static int listOverseersWithFlag(CommandContext<CommandSourceStack> ctx) {
         boolean includeInactive = BoolArgumentType.getBool(ctx, "includeInactive");
-        return listOverseers(ctx, includeInactive);
+        return listOverseersInternal(ctx, includeInactive);
     }
 
-    private static int listOverseers(CommandContext<CommandSourceStack> ctx, boolean includeInactive) {
+    private static int listOverseersInternal(CommandContext<CommandSourceStack> ctx, boolean includeInactive) {
         CommandSourceStack source = ctx.getSource();
         ServerLevel level;
         try {
