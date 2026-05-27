@@ -178,9 +178,10 @@ public class ItemHandlerUtil {
     ) {
         int i = 0;
         do {
-            if (level == null) return null;
-            if (
-                level.getBlockState(inputPos).is(source)
+            if (level == null) {
+                return null;
+            }
+            if (level.getBlockState(inputPos).is(source)
                     && level.getBlockState(inputPos).getValue(BlockPlacerBlock.ORIENTATION).getDirection() == context
             ) {
                 i++;
@@ -201,20 +202,28 @@ public class ItemHandlerUtil {
                     try (Transaction transaction = Transaction.open(root)) {
                         stack.setCount(pollable.insertNoPolling(i, pollable.getResourceFrom(stack), stack.getCount(), transaction));
                         if (stack.isEmpty()) {
-                            if (!simulate) transaction.commit();
+                            if (!simulate) {
+                                transaction.commit();
+                            }
                             return ItemStack.EMPTY;
                         }
-                        if (!simulate) transaction.commit();
+                        if (!simulate) {
+                            transaction.commit();
+                        }
                     }
                 }
-                if (!simulate) root.commit();
+                if (!simulate) {
+                    root.commit();
+                }
             }
         } else {
             try (Transaction transaction = Transaction.openRoot()) {
                 int stackCount = stack.getCount();
                 int inserted = dest.insert(ItemResource.of(stack.getItem(), stack.getComponentsPatch()), stackCount, transaction);
                 stack.setCount(inserted);
-                if (!simulate) transaction.commit();
+                if (!simulate) {
+                    transaction.commit();
+                }
             }
         }
         return stack;

@@ -227,7 +227,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         drops.forEach(itemStack -> {
             if (cap != null) {
                 ItemStack outItemStack = ItemHandlerUtil.insertItem(cap, itemStack, true);
-                if (outItemStack.isEmpty()) {
+                if (!outItemStack.isEmpty()) {
                     ItemHandlerUtil.insertItem(cap, itemStack, false);
                 } else {
                     this.level.addFreshEntity(new ItemEntity(
