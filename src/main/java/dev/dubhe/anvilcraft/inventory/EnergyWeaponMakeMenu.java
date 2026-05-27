@@ -62,7 +62,7 @@ public class EnergyWeaponMakeMenu extends AbstractContainerMenu {
         super(type, containerId);
         this.level = playerInventory.player.level();
         this.inventory = playerInventory;
-        this.recipes = List.copyOf(RecipesRecord.RECIPES.byType(ModRecipeTypes.ENERGY_WEAPON_MAKE.get()));
+        this.recipes = List.copyOf(RecipesRecord.get().byType(ModRecipeTypes.ENERGY_WEAPON_MAKE.get()));
 
         if (playerInventory.player.getMainHandItem().is(ModItems.ENERGY_WEAPON_PLATFORM)) this.usedHand[0] = true;
         if (playerInventory.player.getOffhandItem().is(ModItems.ENERGY_WEAPON_PLATFORM)) this.usedHand[1] = true;

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe.sync;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
 import it.unimi.dsi.fastutil.ints.Int2ObjectRBTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -36,7 +37,7 @@ public class MutableRecipeMap {
     }
 
     public static MutableRecipeMap create() {
-        return new MutableRecipeMap(ArrayListMultimap.create(), new HashMap<>());
+        return new MutableRecipeMap(MultimapBuilder.hashKeys().hashSetValues().build(), new HashMap<>());
     }
 
     public MutableRecipeMap add(RecipeHolder<?> recipe) {
@@ -69,7 +70,7 @@ public class MutableRecipeMap {
 
         for (RecipeHolder<?> recipe : this.byKey.values()) {
             int priority = recipePriorities.getOrDefault(recipe.id(), 0);
-            priorityBuilder.computeIfAbsent(priority, p -> new ArrayList<>()).add(recipe);
+            priorityBuilder.computeIfAbsent(priority, _ -> new ArrayList<>()).add(recipe);
         }
 
         for (var list : priorityBuilder.reversed().values()) {

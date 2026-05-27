@@ -46,6 +46,6 @@ public record RecipesSyncPacket(
 
     @Override
     public void handleOnClient(Player player) {
-        RecipesRecord.RECIPES.addAll(this.recipes);
+        RecipesRecord.CLIENTSIDE.addAll(this.recipes);
     }
 }

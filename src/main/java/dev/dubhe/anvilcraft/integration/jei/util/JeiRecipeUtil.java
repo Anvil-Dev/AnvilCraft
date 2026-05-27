@@ -24,21 +24,20 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class JeiRecipeUtil {
     private static final DecimalFormat FORMATTER = new DecimalFormat();
 
     public static <I extends RecipeInput, T extends Recipe<I>> List<T> getRecipesFromType(RecipeType<T> recipeType) {
-        return RecipesRecord.RECIPES
-            .byType(recipeType)
-            .stream()
-            .map(RecipeHolder::value)
-            .collect(Collectors.toCollection(ArrayList::new));
+        List<T> recipes = new ArrayList<>();
+        for (RecipeHolder<T> holder : RecipesRecord.get().byType(recipeType)) {
+            recipes.add(holder.value());
+        }
+        return recipes;
     }
 
     public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipeHoldersFromType(RecipeType<T> recipeType) {
-        return new ArrayList<>(RecipesRecord.RECIPES.byType(recipeType));
+        return new ArrayList<>(RecipesRecord.get().byType(recipeType));
     }
 
     public static void addInvisibleInput(IRecipeLayoutBuilder builder, BlockStatePredicate predicate) {

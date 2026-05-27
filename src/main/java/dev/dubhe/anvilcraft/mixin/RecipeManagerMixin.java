@@ -52,7 +52,7 @@ abstract class RecipeManagerMixin {
 
     @Inject(method = "finalizeRecipeLoading", at = @At("RETURN"))
     private void sendRecipes2C(FeatureFlagSet enabledFlags, CallbackInfo ci) {
-        RecipesRecord.RECIPES.syncFrom(this.recipes);
+        RecipesRecord.SERVERSIDE.syncFrom(this.recipes);
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server == null) return;
         RecipesRecord.sync2C(

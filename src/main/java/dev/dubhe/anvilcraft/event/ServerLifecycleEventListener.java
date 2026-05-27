@@ -35,15 +35,15 @@ public class ServerLifecycleEventListener {
     }
 
     @SubscribeEvent
-    public static void onServerStopped(ServerStoppedEvent event) {
-        PowerGrid.isServerClosing = false;
-        PowerGrid.clear();
-        RecipesRecord.RECIPES.clear();
-        SoundHelper.INSTANCE.clear();
+    public static void onServerStopping(ServerStoppingEvent event) {
+        PowerGrid.isServerClosing = true;
     }
 
     @SubscribeEvent
-    public static void onServerStopping(ServerStoppingEvent event) {
-        PowerGrid.isServerClosing = true;
+    public static void onServerStopped(ServerStoppedEvent event) {
+        PowerGrid.isServerClosing = false;
+        PowerGrid.clear();
+        RecipesRecord.get().clear();
+        SoundHelper.INSTANCE.clear();
     }
 }

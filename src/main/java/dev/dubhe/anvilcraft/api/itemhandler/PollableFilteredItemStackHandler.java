@@ -25,8 +25,8 @@ public class PollableFilteredItemStackHandler extends FilteredItemStackHandler {
         int countInSlot = Integer.MAX_VALUE;
         for (int slot = size - 1; slot >= 0; slot--) {
             if (this.isSlotDisabled(slot)) continue;
+            if (!this.isFiltered(slot, resource.toStack())) continue;
             ItemResource resourceIn = this.getResource(slot);
-            if (!this.isFiltered(slot, resourceIn.toStack())) continue;
             if (resourceIn.isEmpty()) return slot;
             if (!resourceIn.equals(resource)) continue;
             int stackInSlotCount = this.getAmountAsInt(slot);

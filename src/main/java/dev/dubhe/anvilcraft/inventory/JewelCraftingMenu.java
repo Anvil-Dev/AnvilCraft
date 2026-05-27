@@ -66,7 +66,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         this.addSlot(new Slot(this.sourceContainer, 0, 80, 19) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return RecipesRecord.RECIPES.byType(ModRecipeTypes.JEWEL_CRAFTING.get())
+                return RecipesRecord.get().byType(ModRecipeTypes.JEWEL_CRAFTING.get())
                     .stream()
                     .anyMatch(holder -> holder.value().source().test(stack));
             }
@@ -185,7 +185,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         ItemStack itemStack = ItemStack.EMPTY;
         ServerPlayer serverPlayer = (ServerPlayer) player;
         var input = new JewelCraftingRecipe.Input(sourceContainer.getItem(0), craftingContainer.getItems());
-        Optional<RecipeHolder<JewelCraftingRecipe>> recipeOp = RecipesRecord.RECIPES.getRecipeFor(
+        Optional<RecipeHolder<JewelCraftingRecipe>> recipeOp = RecipesRecord.get().getRecipeFor(
             ModRecipeTypes.JEWEL_CRAFTING.get(),
             input,
             serverPlayer.level()

@@ -27,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -58,7 +59,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
         }
     };
     private int head;
-    private ItemStack renderingTooltip;
+    private @Nullable ItemStack renderingTooltip;
     @Getter
     private EnableFilterButton enableFilterButton = null;
 
@@ -100,6 +101,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
             int top = this.topPos + 23;
             int down = top + 36;
             graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
                 SharedTextures.SWITCH_TABLE_SLIDER,
                 left,
                 top + (int) ((down - top - 12) * this.scrollable.getScrollOffs()),

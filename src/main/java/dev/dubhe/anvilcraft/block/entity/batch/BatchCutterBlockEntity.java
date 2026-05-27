@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -20,7 +19,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
@@ -74,7 +72,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
 
         SingleRecipeInput input = this.createDummyInput();
         List<RecipeHolder<StonecutterRecipe>> recipes = new ArrayList<>();
-        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.RECIPES.byType(RecipeType.STONECUTTING)) {
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.get().byType(RecipeType.STONECUTTING)) {
             if (holder.value().matches(input, level)) {
                 recipes.add(holder);
             }
@@ -123,8 +121,8 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         if (!result.isItemEnabled(level.enabledFeatures())) return false;
 
         int times = IntStream.range(0, this.handler.size())
-            .mapToObj(i -> ItemUtil.getStack(this.handler, i))
-            .filter((s -> !s.isEmpty()))
+            .mapToObj(index -> ItemUtil.getStack(this.handler, index))
+            .filter(stack -> !stack.isEmpty())
             .mapToInt(ItemStack::getCount)
             .min()
             .orElse(0);
@@ -147,19 +145,20 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             .findFirst();
         if (cacheOp.isPresent()) {
             return cacheOp.get();
-        } else {
-            SingleRecipeInput input = this.createInput();
-            List<RecipeHolder<StonecutterRecipe>> recipes = RecipesRecord.RECIPES.byType(RecipeType.STONECUTTING)
-                .stream()
-                .filter(holder -> holder.value().matches(input, level))
-                .toList();
-            BatchCutterCache cache = new BatchCutterCache(this.handler, recipes);
-            this.cache.push(cache);
-            while (this.cache.size() >= 10) {
-                this.cache.pop();
-            }
-            return cache;
         }
+        SingleRecipeInput input = this.createInput();
+        List<RecipeHolder<StonecutterRecipe>> recipes = new ArrayList<>();
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.get().byType(RecipeType.STONECUTTING)) {
+            if (holder.value().matches(input, level)) {
+                recipes.add(holder);
+            }
+        }
+        BatchCutterCache cache = new BatchCutterCache(this.handler, recipes);
+        this.cache.push(cache);
+        while (this.cache.size() >= 10) {
+            this.cache.pop();
+        }
+        return cache;
     }
 
     public SingleRecipeInput createInput() {
@@ -199,7 +198,9 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
             this.updateDisplayItem(recipes.get(this.selecting).value().assemble(this.createDummyInput()));
         }
 
-        PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(this.selecting, this.getPos()));
+        if (!this.level.isClientSide()) {
+            PacketDistributor.sendToAllPlayers(new BatchCutterSelectPacket(this.selecting, this.getPos()));
+        }
     }
 
     @Getter
