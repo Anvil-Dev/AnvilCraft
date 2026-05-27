@@ -67,6 +67,7 @@ import dev.dubhe.anvilcraft.item.RoyalSteelIngotItem;
 import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
+import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.StructureToolItem;
 import dev.dubhe.anvilcraft.item.SuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.TopazItem;
@@ -543,8 +544,9 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::disk)
         .register();
 
-    public static final ItemEntry<Item> STRUCTURE_DISK = REGISTRUM.item("structure_disk", Item::new)
+    public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM.item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
+        .recipe(RegistrumItemRecipeLoader::structureDiskConversion)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)

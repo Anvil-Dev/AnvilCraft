@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
-import dev.anvilcraft.lib.v2.util.predicate.WeightedChanceBlockStates;
 import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
@@ -44,27 +43,27 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
         BlockStatePredicate.CODEC
             .fieldOf("input")
             .forGetter(PortalConversionRecipe::getInput),
-        WeightedChanceBlockStates.CODEC
-            .fieldOf("results")
-            .forGetter(PortalConversionRecipe::getResults)
+        ChanceBlockState.CODEC
+            .fieldOf("result")
+            .forGetter(PortalConversionRecipe::getResult)
     ).apply(inst, PortalConversionRecipe::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, PortalConversionRecipe> STREAM_CODEC = StreamCodec.composite(
         PortalType.STREAM_CODEC,
         PortalConversionRecipe::getPortalType,
         BlockStatePredicate.STREAM_CODEC,
         PortalConversionRecipe::getInput,
-        WeightedChanceBlockStates.STREAM_CODEC,
-        PortalConversionRecipe::getResults,
+        ChanceBlockState.STREAM_CODEC,
+        PortalConversionRecipe::getResult,
         PortalConversionRecipe::new
     );
     private final PortalType type;
     private final BlockStatePredicate input;
-    private final WeightedChanceBlockStates results;
+    private final ChanceBlockState result;
 
-    public PortalConversionRecipe(PortalType type, BlockStatePredicate input, WeightedChanceBlockStates results) {
+    public PortalConversionRecipe(PortalType type, BlockStatePredicate input, ChanceBlockState result) {
         this.type = type;
         this.input = input;
-        this.results = results;
+        this.result = result;
     }
 
     public static Builder builder() {
@@ -92,7 +91,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
     @Deprecated
     @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return new ItemStack(this.results.states().getFirst().state().state().getBlock());
+        return new ItemStack(this.result.state().getBlock());
     }
 
     @Override
@@ -144,7 +143,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
         @Setter(AccessLevel.NONE)
         private ResourceLocation typeId;
         private final BlockStatePredicate.Builder input = BlockStatePredicate.builder();
-        private final WeightedChanceBlockStates.Builder results = WeightedChanceBlockStates.builder();
+        private ChanceBlockState result = null;
 
         @SuppressWarnings("deprecation")
         public <T extends Block & Portal> Builder type(T portal) {
@@ -223,199 +222,21 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
             return this;
         }
 
-        public Builder result(NumberProvider weight, ChanceBlockState state) {
-            this.results.add(weight, state);
-            return this;
-        }
-
-        public Builder result(float weight, ChanceBlockState state) {
-            this.results.add(weight, state);
-            return this;
-        }
-
-        public Builder result(ChanceBlockState state) {
-            this.results.add(state);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, BlockState state, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(weight, state, nbt, chance);
-            return this;
-        }
-
-        public Builder result(float weight, BlockState state, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(weight, state, nbt, chance);
-            return this;
-        }
-
-        public Builder result(BlockState state, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(state, nbt, chance);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, BlockState state, CompoundTag nbt, float chance) {
-            this.results.add(weight, state, nbt, chance);
-            return this;
-        }
-
-        public Builder result(float weight, BlockState state, CompoundTag nbt, float chance) {
-            this.results.add(weight, state, nbt, chance);
-            return this;
-        }
-
-        public Builder result(BlockState state, CompoundTag nbt, float chance) {
-            this.results.add(state, nbt, chance);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, BlockState state, float chance) {
-            this.results.add(weight, state, chance);
-            return this;
-        }
-
-        public Builder result(float weight, BlockState state, float chance) {
-            this.results.add(weight, state, chance);
+        public Builder result(ChanceBlockState result) {
+            this.result = result;
             return this;
         }
 
         public Builder result(BlockState state, float chance) {
-            this.results.add(state, chance);
-            return this;
+            return this.result(new ChanceBlockState(state, chance));
         }
 
-        public Builder result(NumberProvider weight, BlockState state) {
-            this.results.add(weight, state);
-            return this;
+        public Builder result(BlockState state, NumberProvider chance) {
+            return this.result(new ChanceBlockState(state, chance));
         }
 
-        public Builder result(float weight, BlockState state) {
-            this.results.add(weight, state);
-            return this;
-        }
-
-        public Builder result(BlockState state) {
-            this.results.add(state);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, Block block, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(weight, block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(float weight, Block block, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(weight, block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(Block block, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, Block block, CompoundTag nbt, float chance) {
-            this.results.add(weight, block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(float weight, Block block, CompoundTag nbt, float chance) {
-            this.results.add(weight, block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(Block block, CompoundTag nbt, float chance) {
-            this.results.add(block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, Block block, float chance) {
-            this.results.add(weight, block, chance);
-            return this;
-        }
-
-        public Builder result(float weight, Block block, float chance) {
-            this.results.add(weight, block, chance);
-            return this;
-        }
-
-        public Builder result(Block block, float chance) {
-            this.results.add(block, chance);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, Block block) {
-            this.results.add(weight, block);
-            return this;
-        }
-
-        public Builder result(float weight, Block block) {
-            this.results.add(weight, block);
-            return this;
-        }
-
-        public Builder result(Block block) {
-            this.results.add(block);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, Supplier<? extends Block> block, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(weight, block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(float weight, Supplier<? extends Block> block, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(weight, block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(Supplier<? extends Block> block, CompoundTag nbt, NumberProvider chance) {
-            this.results.add(block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, Supplier<? extends Block> block, CompoundTag nbt, float chance) {
-            this.results.add(weight, block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(float weight, Supplier<? extends Block> block, CompoundTag nbt, float chance) {
-            this.results.add(weight, block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(Supplier<? extends Block> block, CompoundTag nbt, float chance) {
-            this.results.add(block, nbt, chance);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, Supplier<? extends Block> block, float chance) {
-            this.results.add(weight, block, chance);
-            return this;
-        }
-
-        public Builder result(float weight, Supplier<? extends Block> block, float chance) {
-            this.results.add(weight, block, chance);
-            return this;
-        }
-
-        public Builder result(Supplier<? extends Block> block, float chance) {
-            this.results.add(block, chance);
-            return this;
-        }
-
-        public Builder result(NumberProvider weight, Supplier<? extends Block> block) {
-            this.results.add(weight, block);
-            return this;
-        }
-
-        public Builder result(float weight, Supplier<? extends Block> block) {
-            this.results.add(weight, block);
-            return this;
-        }
-
-        public Builder result(Supplier<? extends Block> block) {
-            this.results.add(block);
-            return this;
+        public Builder result(BlockState state, CompoundTag nbt, NumberProvider chance) {
+            return this.result(new ChanceBlockState(state, nbt, chance));
         }
 
         @Override
@@ -423,14 +244,14 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
             if (this.typeId == null) {
                 throw new IllegalArgumentException("The portal type of portal conversion recipe cannot be null. Recipe id: " + id);
             }
-            if (this.results.isEmpty()) {
-                throw new IllegalArgumentException("The results of portal conversion recipe cannot be null. Recipe id: " + id);
+            if (this.result == null) {
+                throw new IllegalArgumentException("The result of portal conversion recipe cannot be null. Recipe id: " + id);
             }
         }
 
         @Override
         public PortalConversionRecipe buildRecipe() {
-            return new PortalConversionRecipe(new PortalType(this.typeId), this.input.build(), this.results.build());
+            return new PortalConversionRecipe(new PortalType(this.typeId), this.input.build(), this.result);
         }
 
         @Override
@@ -440,7 +261,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
 
         @Override
         public Item getResult() {
-            return this.results.build().states().getFirst().state().state().getBlock().asItem();
+            return this.result.state().getBlock().asItem();
         }
     }
 }

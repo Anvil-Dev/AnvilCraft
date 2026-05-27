@@ -258,6 +258,7 @@ public class ModFluids {
         event.register(NeoForgeRegistries.FLUID_TYPES.key(), helper -> {
             helper.register(ModFluids.POWDER_SNOW_TYPE.getId(), new FluidType(
                 FluidType.Properties.create()
+                    .canExtinguish(true)
                     .descriptionId(Blocks.POWDER_SNOW.getDescriptionId())
                     .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL_POWDER_SNOW)
                     .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY_POWDER_SNOW)

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:royal_steel_ingot"
+    },
+    "B": {
+      "item": "anvilcraft:magnetoelectric_core"
+    },
+    "C": {
+      "item": "minecraft:sculk_catalyst"
+    },
+    "D": {
+      "item": "anvilcraft:fluid_tank"
+    }
+  },
+  "pattern": [
+    "ABA",
+    " C ",
+    "ADA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:exp_collector"
+  }
+}

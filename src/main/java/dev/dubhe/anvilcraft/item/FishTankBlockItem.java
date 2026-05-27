@@ -35,6 +35,6 @@ public class FishTankBlockItem extends BlockItem implements Equipable {
         if (!(entity instanceof Player player)) return;
         ItemStack headSlot = player.getItemBySlot(EquipmentSlot.HEAD);
         if (!headSlot.getItem().equals(ModBlocks.FISH_TANK.asItem()) || player.isInWater()) return;
-        player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 601, 0, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 601, 0, false, false, true));
     }
 }

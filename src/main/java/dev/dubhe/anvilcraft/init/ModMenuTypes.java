@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EnergyWeaponMakeScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ExpCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FilterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FrostAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FrostGrindstoneScreen;
@@ -24,6 +25,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SmartBlockPlacerScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
@@ -36,6 +38,7 @@ import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.EnergyWeaponMakeMenu;
+import dev.dubhe.anvilcraft.inventory.ExpCollectorMenu;
 import dev.dubhe.anvilcraft.inventory.FilterMenu;
 import dev.dubhe.anvilcraft.inventory.FrostAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.FrostGrindstoneMenu;
@@ -50,6 +53,7 @@ import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
+import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
@@ -168,6 +172,14 @@ public class ModMenuTypes {
         .register();
     public static final MenuEntry<EnergyWeaponMakeMenu> ENERGY_WEAPON_MAKE = REGISTRUM
         .menu("energy_weapon_make", EnergyWeaponMakeMenu::new, () -> EnergyWeaponMakeScreen::new).register();
+
+    public static final MenuEntry<StructureScannerMenu> STRUCTURE_SCANNER = REGISTRUM
+        .menu("structure_scanner", (type, id, inv, buf) -> new StructureScannerMenu(type, id, inv, buf), () -> StructureScannerScreen::new)
+        .register();
+
+    public static final MenuEntry<ExpCollectorMenu> EXP_COLLECTOR = REGISTRUM
+        .menu("exp_collector", ExpCollectorMenu::new, () -> ExpCollectorScreen::new)
+        .register();
 
     public static void register() {
     }

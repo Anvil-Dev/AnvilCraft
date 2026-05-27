@@ -215,7 +215,23 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
                             itemEntity.setDefaultPickUpDelay();
                             level.addFreshEntity(itemEntity);
                         }
-
+                    }
+                    
+                    // 掉落书物品栏中的物品（输入书，如果有的话）
+                    for (int i = 0; i < placerEntity.getBookInventory().getContainerSize(); i++) {
+                        ItemStack stack = placerEntity.getBookInventory().getItem(i);
+                        if (!stack.isEmpty()) {
+                            Vec3 vec3 = pos.getCenter();
+                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                                level,
+                                vec3.x,
+                                vec3.y,
+                                vec3.z,
+                                stack
+                            );
+                            itemEntity.setDefaultPickUpDelay();
+                            level.addFreshEntity(itemEntity);
+                        }
                     }
                 }
             }
@@ -228,5 +244,22 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
             level.setBlock(pos, state.cycle(POWERED), 2);
         }
+    }
+    
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+    
+    @Override
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        if (level.isClientSide) {
+            return 0;
+        }
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
+            return placerEntity.getComparatorOutput();
+        }
+        return 0;
     }
 }

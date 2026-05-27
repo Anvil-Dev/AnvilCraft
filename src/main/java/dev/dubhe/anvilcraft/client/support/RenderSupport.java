@@ -259,11 +259,13 @@ public class RenderSupport {
         float scale = Math.min(scaleY, scaleX);
         pose.scale(-scale, -scale, -scale);
 
-        pose.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
+        // 奇数尺寸时旋转中心偏移0.5，使 block 居中对齐
+        float centerOffset = ((sizeX + 1) % 2 != 0) ? -0.5f : 0.0f;
+        pose.translate(-(float) sizeX / 2 + centerOffset, -(float) sizeY / 2, 0);
         pose.mulPose(Axis.XP.rotationDegrees(-30));
 
-        float offsetX = (float) -sizeX / 2;
-        float offsetZ = (float) -sizeX / 2 + 1;
+        float offsetX = (float) -sizeX / 2 + centerOffset;
+        float offsetZ = (float) -sizeX / 2 + 1 + centerOffset;
         float rotationY = (clientLevel.getGameTime() + tracker.getGameTimeDeltaPartialTick(true)) * rotationSpeed;
 
         pose.translate(-offsetX, 0, -offsetZ);
@@ -355,14 +357,16 @@ public class RenderSupport {
         float scale = Math.min(scaleY, scaleX);
         pose.scale(-scale, -scale, -scale);
 
-        pose.translate(-(float) fixedSizeX / 2, -(float) fixedSizeY / 2, 0);
-        
+        // 奇数尺寸时旋转中心偏移0.5，使 block 居中对齐
+        float centerOffset = (fixedSizeX % 2 != 0) ? 0.5f : 0.0f;
+        pose.translate(-(float) fixedSizeX / 2 + centerOffset, -(float) fixedSizeY / 2, 0);
+
         // 先应用X轴旋转（俯视角度）
         pose.mulPose(Axis.XP.rotationDegrees(rotationX));
 
         // Y轴旋转中心：固定基于5x5范围计算，忽略放置器
-        float offsetX = (float) -fixedSizeX / 2;
-        float offsetZ = (float) -fixedSizeX / 2 + 1;
+        float offsetX = (float) -fixedSizeX / 2 + centerOffset;
+        float offsetZ = (float) -fixedSizeX / 2 + 1 + centerOffset;
         
         // 再应用Y轴旋转（水平旋转）
         pose.translate(-offsetX, 0, -offsetZ);
