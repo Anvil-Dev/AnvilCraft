@@ -15,19 +15,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OverseerUtil {
     private static final Map<ResourceKey<Level>, Set<BlockPos>> placedOverseers = new ConcurrentHashMap<>();
 
-    public static void OnLoadOverseer(Level level, OverseerBlockEntity overseerBlockEntity) {
+    public static void onLoadOverseer(Level level, OverseerBlockEntity overseerBlockEntity) {
         if (!shouldTrack(level, overseerBlockEntity)) return;
         placedOverseers
             .computeIfAbsent(level.dimension(), dim -> new HashSet<>())
             .add(overseerBlockEntity.getBlockPos());
     }
 
-    public static void OnUnloadOverseer(Level level, OverseerBlockEntity overseerBlockEntity) {
+    public static void onUnloadOverseer(Level level, OverseerBlockEntity overseerBlockEntity) {
         if (!shouldTrack(level, overseerBlockEntity)) return;
         placedOverseers
             .getOrDefault(level.dimension(), Set.of())
             .remove(overseerBlockEntity.getBlockPos());
     }
+
     public static Set<BlockPos> getPlacedOverseers(ResourceKey<Level> dimension) {
         return OverseerUtil.placedOverseers.getOrDefault(dimension, Set.of());
     }
@@ -36,6 +37,6 @@ public class OverseerUtil {
     private static boolean shouldTrack(Level level, OverseerBlockEntity overseerBlockEntity) {
         if (level.isClientSide) return false;
         BlockState state = overseerBlockEntity.getBlockState();
-        return ((OverseerBlock)state.getBlock()).isMainPart(state);
+        return ((OverseerBlock) state.getBlock()).isMainPart(state);
     }
 }

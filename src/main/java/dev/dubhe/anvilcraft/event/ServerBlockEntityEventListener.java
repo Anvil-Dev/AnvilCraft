@@ -28,7 +28,7 @@ public class ServerBlockEntityEventListener {
             HeaterManager.addHeatableBlock(heatable.getBlockPos(), event.getLevel());
         }
         if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
-            OverseerUtil.OnLoadOverseer(event.getLevel(), overseerBlockEntity);
+            OverseerUtil.onLoadOverseer(event.getLevel(), overseerBlockEntity);
         }
     }
 
@@ -41,7 +41,7 @@ public class ServerBlockEntityEventListener {
             ChargeCollectorManager.getInstance(event.getLevel()).removeChargeCollector(chargeCollector);
         } else if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
             LevelLoadManager.unregister(overseerBlockEntity.getBlockPos(), event.getLevel());
-            OverseerUtil.OnUnloadOverseer(event.getLevel(), overseerBlockEntity);
+            OverseerUtil.onUnloadOverseer(event.getLevel(), overseerBlockEntity);
         }
     }
 }
