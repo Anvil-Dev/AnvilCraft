@@ -12,8 +12,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -73,10 +74,17 @@ public class OverseerCommand {
                 continue;
             }
             OverseerBlockEntity overseerBlockEntity = overseerBlockEntityOptional.get();
-            if (!includeInactive && overseerBlockEntity.getLoadLevel() < 0) continue;
+            if (!includeInactive && overseerBlockEntity.getLoadLevel() <= 0) continue;
             MutableComponent component = Component.translatable(
                 "command.anvilcraft.overseer.entry",
-                Component.translatable("chat.coordinates", pos.getX(), pos.getY(), pos.getZ()),
+                Component.translatable("chat.coordinates", pos.getX(), pos.getY(), pos.getZ())
+                    .withStyle((style) -> style.withClickEvent(new ClickEvent(
+                        ClickEvent.Action.COPY_TO_CLIPBOARD,
+                        "%s %s %s".formatted(pos.getX(), pos.getY(), pos.getZ())
+                    )).withHoverEvent(new HoverEvent(
+                        HoverEvent.Action.SHOW_TEXT,
+                        Component.translatable("chat.copy.click")
+                    )).withColor(ChatFormatting.GREEN)),
                 overseerBlockEntity.getLoadLevel(),
                 overseerBlockEntity.getRandomTick()
             );
