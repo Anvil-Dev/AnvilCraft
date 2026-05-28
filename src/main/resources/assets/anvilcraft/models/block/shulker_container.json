@@ -1,7 +1,7 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "anvilcraft:template_large_block",
+	"parent": "anvilcraft:block/template_large_block",
 	"render_type": "cutout",
 	"texture_size": [64, 64],
 	"textures": {
