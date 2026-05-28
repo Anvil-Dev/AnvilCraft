@@ -10,7 +10,7 @@ dependencies {
     // jarJar(libs.ageratum)
 
     // Ageratum 藿香
-    implementation(libs.ageratum)
+    api(libs.ageratum)
     jarJar(libs.ageratum)
 
     // JEI
