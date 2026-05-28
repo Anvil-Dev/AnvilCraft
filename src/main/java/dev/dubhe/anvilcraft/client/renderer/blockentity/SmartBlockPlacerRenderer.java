@@ -715,13 +715,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
         
         poseStack.pushPose();
-        poseStack.translate(0.5, 0.95, 0.0);
+        poseStack.translate(0.5, 0.96, 0.1);
+        poseStack.mulPose(Axis.XP.rotationDegrees(-40));
         poseStack.scale(0.65f, 0.65f, 0.65f);
         
         net.minecraft.client.renderer.entity.ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         itemRenderer.renderStatic(
             stack,
-            net.minecraft.world.item.ItemDisplayContext.FIXED,
+            net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
             packedLight,
             packedOverlay,
             poseStack,

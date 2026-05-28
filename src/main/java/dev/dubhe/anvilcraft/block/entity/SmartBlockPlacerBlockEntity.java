@@ -2498,10 +2498,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         // 应用白名单过滤：只保留白名单中的状态属性
         rotatedState = applyWhitelistFilter(rotatedState);
 
-        // 海泡菜特殊处理：手动将 waterlogged 设置为 false
+        // 海泡菜特殊处理:手动将 waterlogged 设置为 false
         if (rotatedState.is(Blocks.SEA_PICKLE)
             && rotatedState.hasProperty(BlockStateProperties.WATERLOGGED)) {
             rotatedState = rotatedState.setValue(BlockStateProperties.WATERLOGGED, false);
+        }
+        
+        // 树叶方块特殊处理:蓝图模式下默认设置 persistent=true
+        if (rotatedState.is(net.minecraft.tags.BlockTags.LEAVES)
+            && rotatedState.hasProperty(BlockStateProperties.PERSISTENT)) {
+            rotatedState = rotatedState.setValue(BlockStateProperties.PERSISTENT, true);
         }
 
         if (!worldState.equals(rotatedState)) {
