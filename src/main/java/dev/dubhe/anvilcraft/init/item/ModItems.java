@@ -440,13 +440,6 @@ public class ModItems {
     ).properties((properties) -> properties.durability(2031).fireResistant()
     ).model(DataGenUtil::noExtraModelOrState).register();
 
-    public static final ItemEntry<EnergyWeaponPlatformItem> ENERGY_WEAPON_PLATFORM = REGISTRUM
-        .item("energy_weapon_platform", EnergyWeaponPlatformItem::new)
-        .properties(properties -> properties.stacksTo(1))
-        .model(DataGenUtil::noExtraModelOrState)
-        .recipe(RegistrumItemRecipeLoader::energyWeaponPlatform)
-        .register();
-
     public static final ItemEntry<? extends SpectralSlingshotItem> SPECTRAL_SLINGSHOT = REGISTRUM
         .item("spectral_slingshot", SpectralSlingshotItem::new)
         .tag(
@@ -456,6 +449,13 @@ public class ModItems {
         .properties((properties) -> properties.durability(1561))
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::spectralSlingshot)
+        .register();
+
+    public static final ItemEntry<EnergyWeaponPlatformItem> ENERGY_WEAPON_PLATFORM = REGISTRUM
+        .item("energy_weapon_platform", EnergyWeaponPlatformItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .model(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumItemRecipeLoader::energyWeaponPlatform)
         .register();
 
     public static final ItemEntry<? extends SpectralWeaponLauncherItem> SPECTRAL_WEAPON_LAUNCHER = REGISTRUM
