@@ -16,7 +16,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {
     @Unique
-    ItemEntity anvilcraft$addedEntity;
+    ItemEntity anvilcraft$addedItem;
+    @Unique
+    ExperienceOrb anvilcraft$addedExperienceOrb;
     @Unique
     boolean anvilcraft$shouldCheckDiscarded;
 
@@ -41,8 +43,11 @@ public class ServerLevelMixin {
     )
     public void recordAddedItemEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof ItemEntity e1) {
-            anvilcraft$addedEntity = e1;
-            anvilcraft$shouldCheckDiscarded = true;
+            this.anvilcraft$addedItem = e1;
+            this.anvilcraft$shouldCheckDiscarded = true;
+        } else if (entity instanceof ExperienceOrb e1) {
+            this.anvilcraft$addedExperienceOrb = e1;
+            this.anvilcraft$shouldCheckDiscarded = true;
         }
     }
 
@@ -53,9 +58,14 @@ public class ServerLevelMixin {
         )
     )
     public void cancelItemDiscardedWarn(Logger instance, String string, Object o, Operation<Void> original) {
-        if (anvilcraft$shouldCheckDiscarded && anvilcraft$addedEntity.anvilcraft$getDiscarded()) {
-            anvilcraft$shouldCheckDiscarded = false;
-            return;
+        if (this.anvilcraft$shouldCheckDiscarded) {
+            this.anvilcraft$shouldCheckDiscarded = false;
+            if (
+                this.anvilcraft$addedItem != null && this.anvilcraft$addedItem.anvilcraft$getDiscarded()
+                || this.anvilcraft$addedExperienceOrb != null && this.anvilcraft$addedExperienceOrb.anvilcraft$getDiscarded()
+            ) {
+                return;
+            }
         }
 
         original.call(instance, string, o);

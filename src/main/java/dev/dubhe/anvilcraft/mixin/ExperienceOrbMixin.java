@@ -95,9 +95,8 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
         }
     }
 
-    @Unique
     @Override
-    public void anvilcraft$setShouldPoach(boolean shouldPoach) {
-        this.anvilcraft$shouldPoach = shouldPoach;
+    public boolean anvilcraft$getDiscarded() {
+        return this.anvilcraft$discarded;
     }
 }
