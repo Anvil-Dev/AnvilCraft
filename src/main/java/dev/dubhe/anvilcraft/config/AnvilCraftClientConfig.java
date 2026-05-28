@@ -26,7 +26,7 @@ public class AnvilCraftClientConfig {
     public boolean renderPowerTransmitterLines = true;
 
     @Comment("Bloom effect on laser and power transmitter lines.")
-    public boolean renderBloomEffect = false;
+    public boolean renderBloomEffect = true;
 
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
