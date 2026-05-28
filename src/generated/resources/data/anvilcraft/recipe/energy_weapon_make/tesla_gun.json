@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:energy_weapon_make",
+  "ingredients": [
+    {
+      "count": 4,
+      "items": "anvilcraft:tesla_tower"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:tesla_gun"
+  }
+}

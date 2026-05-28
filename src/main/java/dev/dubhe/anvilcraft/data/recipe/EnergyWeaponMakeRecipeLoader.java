@@ -17,5 +17,19 @@ public class EnergyWeaponMakeRecipeLoader {
             .requires(ModBlocks.SLIDING_RAIL, 4)
             .result(ModItems.ANVIL_RAILGUN.asStack())
             .save(provider);
+        EnergyWeaponMakeRecipe.builder()
+            .requires(ModBlocks.CORRUPTED_BEACON, 1)
+            .requires(ModBlocks.CURSED_GOLD_BLOCK, 9)
+            .result(ModItems.CORRUPTED_BEACON_ACTIVATOR.asStack())
+            .save(provider);
+        EnergyWeaponMakeRecipe.builder()
+            .requires(ModBlocks.TESLA_TOWER, 4)
+            .result(ModItems.TESLA_GUN.asStack())
+            .save(provider);
+        EnergyWeaponMakeRecipe.builder()
+            .requires(ModBlocks.RUBY_LASER, 16)
+            .requires(ModBlocks.RUBY_PRISM, 4)
+            .result(ModItems.LASER_GUN.asStack())
+            .save(provider);
     }
 }

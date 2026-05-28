@@ -94,7 +94,10 @@ import dev.dubhe.anvilcraft.item.template.mto.EightToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.FourToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.TwoToOneTemplateItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
+import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
+import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
+import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -468,6 +471,27 @@ public class ModItems {
 
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+
+    public static final ItemEntry<? extends CorruptedBeaconActivatorItem> CORRUPTED_BEACON_ACTIVATOR = REGISTRUM
+        .item("corrupted_beacon_activator", CorruptedBeaconActivatorItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+
+    public static final ItemEntry<? extends TeslaGunItem> TESLA_GUN = REGISTRUM
+        .item("tesla_gun", TeslaGunItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+
+    public static final ItemEntry<? extends LaserGunItem> LASER_GUN = REGISTRUM
+        .item("laser_gun", LaserGunItem::new)
         .properties(properties -> properties.stacksTo(1))
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::noExtraModelOrState)

@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:energy_weapon_make",
+  "ingredients": [
+    {
+      "count": 16,
+      "items": "anvilcraft:ruby_laser"
+    },
+    {
+      "count": 4,
+      "items": "anvilcraft:ruby_prism"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:laser_gun"
+  }
+}
