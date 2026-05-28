@@ -139,7 +139,9 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         if (this.ejectItems(result, craftRemaining, this.getDirection())) return false;
         for (int i = 0; i < this.handler.size(); i++) {
             try (Transaction transaction = Transaction.openRoot()) {
-                this.handler.extract(i, this.handler.getResource(i), times, transaction);
+                ItemResource resource = this.handler.getResource(i);
+                if (resource.isEmpty()) continue;
+                this.handler.extract(i, resource, times, transaction);
                 transaction.commit();
             }
         }

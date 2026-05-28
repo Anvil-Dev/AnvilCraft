@@ -30,6 +30,7 @@ import java.util.Objects;
 
 public class HeliostatsBlockEntity extends BlockEntity {
     @Getter
+    @Nullable
     private BlockPos irritatePos;
 
     @Getter
@@ -123,13 +124,14 @@ public class HeliostatsBlockEntity extends BlockEntity {
         Vec3 irritateVec3 =
             this.getSurfaceVec3(irritatePos.getCenter(), getBlockPos().getCenter());
         BlockHitResult blockHitResult = level.clip(new ClipContext(
-            getBlockPos().getCenter().add(0F, 1.376F, 0F),
-            irritateVec3,
-            ClipContext.Block.COLLIDER,
-            ClipContext.Fluid.NONE,
-            level.isClientSide()
-                ? Objects.requireNonNull(Minecraft.getInstance().player)
-                : AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer())
+                getBlockPos().getCenter().add(0F, 1.376F, 0F),
+                irritateVec3,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                level.isClientSide()
+                    ? Objects.requireNonNull(Minecraft.getInstance().player)
+                    : AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer()
+            )
         );
         if (!blockHitResult.getBlockPos().equals(irritatePos)) {
             return WorkResult.OBSCURED;
@@ -153,19 +155,15 @@ public class HeliostatsBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt("Ix", this.irritatePos.getX());
-        output.putInt("Iy", this.irritatePos.getY());
-        output.putInt("Iz", this.irritatePos.getZ());
+        if (this.irritatePos != null) {
+            output.store("irritate_pos", BlockPos.CODEC, this.irritatePos);
+        }
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        if (input.getInt("Ix").isEmpty()) return;
-        int x = input.getIntOr("Ix", 0);
-        int y = input.getIntOr("Iy", 0);
-        int z = input.getIntOr("Iz", 0);
-        this.irritatePos = new BlockPos(x, y, z);
+        this.irritatePos = input.read("irritate_pos", BlockPos.CODEC).orElse(null);
     }
 
     /**

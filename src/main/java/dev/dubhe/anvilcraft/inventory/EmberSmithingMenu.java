@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -57,16 +58,14 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
             containerId,
             playerInventory,
             access,
-            EmberSmithingMenu.createInputSlotDefinitions(List.copyOf(
-                RecipesRecord.RECIPES.byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get())
-            ))
+            EmberSmithingMenu.createInputSlotDefinitions(RecipesRecord.get().byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()))
         );
         this.level = playerInventory.player.level();
-        this.recipes = List.copyOf(RecipesRecord.RECIPES.byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()));
+        this.recipes = List.copyOf(RecipesRecord.get().byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()));
     }
 
     protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions(
-        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> recipes
+        Collection<RecipeHolder<BaseMultipleToOneSmithingRecipe>> recipes
     ) {
         return ItemCombinerMenuSlotDefinition.create().withSlot(
             0,
@@ -193,7 +192,7 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
         }
         MultipleToOneSmithingRecipeInput input = this.createRecipeInput();
         List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> list =
-            RecipesRecord.RECIPES.getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get(), input, this.level).toList();
+            RecipesRecord.get().getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get(), input, this.level).toList();
         if (list.isEmpty()) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
         } else {

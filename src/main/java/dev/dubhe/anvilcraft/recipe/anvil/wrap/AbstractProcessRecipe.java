@@ -39,6 +39,7 @@ import net.minecraft.world.level.storage.loot.providers.number.BinomialDistribut
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +81,11 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
 
     @Override
     public abstract RecipeType<T> getType();
+
+    @Override
+    public boolean isSpecial() {
+        return true;
+    }
 
     /**
      * 获取输入物品列表
@@ -457,12 +463,12 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 输入物品列表
          */
-        private List<ItemIngredientPredicate> inputItems = null;
+        private @Nullable List<ItemIngredientPredicate> inputItems = null;
 
         /**
          * 差异输入物品列表
          */
-        private List<ItemIngredientPredicate> diffInputItems = null;
+        private @Nullable List<ItemIngredientPredicate> diffInputItems = null;
 
         /**
          * 物品输出偏移量
@@ -472,7 +478,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 结果物品列表
          */
-        private List<ChanceItemStack> resultItems = null;
+        private @Nullable List<ChanceItemStack> resultItems = null;
 
         /**
          * 方块输入偏移量
@@ -484,7 +490,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 输入方块列表
          */
-        private List<BlockStatePredicate> inputBlocks = null;
+        private @Nullable List<BlockStatePredicate> inputBlocks = null;
 
         /**
          * 方块输出偏移量
@@ -494,7 +500,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 结果方块列表
          */
-        private List<ChanceBlockState> resultBlocks = null;
+        private @Nullable List<ChanceBlockState> resultBlocks = null;
 
         /**
          * 炼药锅偏移量
@@ -504,7 +510,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 炼药锅条件
          */
-        private HasCauldronSimple hasCauldron = null;
+        private @Nullable HasCauldronSimple hasCauldron = null;
 
         /**
          * 铁砧条件
@@ -514,12 +520,12 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 产热信息
          */
-        private ProduceHeat produceHeat = null;
+        private @Nullable ProduceHeat produceHeat = null;
 
         /**
          * 优先级
          */
-        private Integer priority = null;
+        private @Nullable Integer priority = null;
 
         /**
          * 额外结果列表
@@ -815,7 +821,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
                    + (this.inputBlocks == null ? 0 : this.inputBlocks.size() * 100)
                    + (this.resultBlocks == null ? 0 : this.resultBlocks.size())
                    + this.getHasCauldronPriority()
-                   + (this.hasAnvil != null ? 1 : 0);
+                   + (this.hasAnvil.anvil().isPresent() ? 1 : 0);
         }
 
         private int getHasCauldronPriority() {

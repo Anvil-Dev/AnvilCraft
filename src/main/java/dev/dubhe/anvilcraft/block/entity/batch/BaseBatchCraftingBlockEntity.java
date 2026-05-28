@@ -51,6 +51,7 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     protected final int inputPower = 4;
     @Getter
     @Setter
+    @Nullable
     protected PowerGrid grid;
 
     protected final PollableFilteredItemStackHandler handler = this.constructHandler();

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.sync;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.network.RecipesSyncPacket;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
@@ -12,7 +13,16 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public class RecipesRecord {
-    public static final MutableRecipeMap RECIPES = MutableRecipeMap.create();
+    public static final MutableRecipeMap CLIENTSIDE = MutableRecipeMap.create();
+    public static final MutableRecipeMap SERVERSIDE = MutableRecipeMap.create();
+
+    public static MutableRecipeMap get() {
+        if (Util.isServer()) {
+            return RecipesRecord.SERVERSIDE;
+        } else {
+            return RecipesRecord.CLIENTSIDE;
+        }
+    }
 
     public static void sync2C(
         BiConsumer<RecipesSyncPacket, RecipesSyncPacket[]> sender,
