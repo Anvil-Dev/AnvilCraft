@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -73,7 +74,8 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
         BlockState state,
         BlockGetter level,
         BlockPos pos,
-        CollisionContext context) {
+        CollisionContext context
+    ) {
         return switch (state.getValue(FACING)) {
             case UP -> UP_MODEL;
             case DOWN -> DOWN_MODEL;
@@ -116,5 +118,12 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+    }
+
+    @Override
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
+        if (be instanceof BaseLaserBlockEntity laserBlockEntity) {
+            laserBlockEntity.clearIrradiateSelfLaserBlockSet();
+        }
     }
 }

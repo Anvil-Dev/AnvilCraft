@@ -36,6 +36,14 @@ public class OverseerBlockEntity extends BlockEntity {
         return new OverseerBlockEntity(type, pos, blockState);
     }
 
+    public int getLoadLevel() {
+        return this.oldlevel;
+    }
+
+    public boolean getRandomTick() {
+        return this.oldRandomTick;
+    }
+
     /**
      * tick 逻辑
      *
