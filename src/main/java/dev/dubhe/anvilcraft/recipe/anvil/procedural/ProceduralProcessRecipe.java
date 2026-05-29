@@ -34,10 +34,6 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     public final int loop;
     public final Optional<ProceduralProcessStep> multiLoopFirstStep;
 
-    //TODO：考虑重构方块->步骤的检索过程
-    //  用ppr配方rl和步数能够O(1)检索，但是有必要吗？
-    //  不过，wip方块对应的步骤种类数可能会稍微多一些
-
     //TODO：为一些具有API性质的东西写javadoc
 
     //TODO: JEI（查看配方）和Jade（查看方块实体内容：哪个配方第几步）支持
