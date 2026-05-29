@@ -38,9 +38,9 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     //  用ppr配方rl和步数能够O(1)检索，但是有必要吗？
     //  不过，wip方块对应的步骤种类数可能会稍微多一些
 
-    //TODO: 红石计算机和砧子辐照怎么没人写啊
-
     //TODO：为一些具有API性质的东西写javadoc
+
+    //TODO: JEI（查看配方）和Jade（查看方块实体内容：哪个配方第几步）支持
 
     public ProceduralProcessRecipe(
         BlockStatePredicate initialBlock,

@@ -16,11 +16,13 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
+
     public WipBlock(Properties properties) {
         super(properties);
     }
@@ -37,8 +39,17 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
     }
 
     @Override
-    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        return List.of();
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        BlockEntity be = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (!(be instanceof WipBlockEntity wipBe)) {
+            return super.getDrops(state, params);
+        }
+        BlockState initialBlockState = wipBe.getInitialBlock();
+        if (initialBlockState == null || initialBlockState.isAir()) {
+            return super.getDrops(state, params);
+        }
+
+        return initialBlockState.getDrops(params);
     }
 
     @Override
