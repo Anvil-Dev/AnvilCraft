@@ -5,14 +5,6 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class IntegrationScreenLang {
     public static void init(RegistrumLangProvider provider) {
         provider.add("screen.anvilcraft.integration_screen.title", "Integrations");
-        provider.add(
-            "screen.anvilcraft.integration_screen.note",
-            "To access the manual, "
-            + "first choose and download a third-party manual mod, "
-            + "then download the compatibility add-on for it from this mod. "
-            + "A total of %d additional mods are required. "
-            + "Download links have been provided and can be accessed by clicking the button."
-        );
         provider.add("screen.anvilcraft.integration_screen.category.guide", "Guide");
         provider.add("screen.anvilcraft.integration_screen.category.recipe_query", "Recipe Query");
         provider.add("screen.anvilcraft.integration_screen.category.info_hud", "Info HUD");

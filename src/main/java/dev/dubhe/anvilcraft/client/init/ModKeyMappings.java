@@ -36,7 +36,7 @@ public class ModKeyMappings {
         "thought",
         KeyConflictContext.GUI,
         Type.KEYSYM,
-        GLFW.GLFW_KEY_W
+        GLFW.GLFW_KEY_A
     );
 
     @SuppressWarnings("SameParameterValue")
