@@ -3094,7 +3094,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.getBlockPos(),
                 this.getBlockState(),
                 this.getBlockState(),
-                Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS  // 同时更新客户端和邻居（比较器）
+                Block.UPDATE_CLIENTS
             );
         }
     }
