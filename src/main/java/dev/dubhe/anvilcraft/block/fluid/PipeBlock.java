@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -16,7 +17,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.Locale;
 
@@ -114,10 +114,15 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock 
         return neighborState.getBlock() instanceof PipeBlock && hasConnectionToward(neighborState, dir.getOpposite());
     }
 
+    public static boolean isFluidHandler(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        BlockEntity be = level.getBlockEntity(pos);
+        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, state, be, null) != null;
+    }
+
     public static boolean isNeighborOccupied(Level level, BlockPos pos, Direction dir) {
         if (isNeighborPipeToward(level, pos, dir)) return true;
-        BlockEntity be = level.getBlockEntity(pos.relative(dir));
-        return be instanceof IFluidHandler;
+        return isFluidHandler(level, pos.relative(dir));
     }
 
     public enum CornerEnded implements StringRepresentable {

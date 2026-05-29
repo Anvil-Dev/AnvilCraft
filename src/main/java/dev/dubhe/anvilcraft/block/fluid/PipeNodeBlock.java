@@ -12,7 +12,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +96,7 @@ public class PipeNodeBlock extends PipeBlock {
         if (neighborState.getBlock() instanceof PipeBlock && hasConnectionToward(neighborState, dir.getOpposite())) {
             return NodePipe.PIPE;
         }
-        if (level.getBlockEntity(neighborPos) instanceof IFluidHandler) {
+        if (isFluidHandler(level, neighborPos)) {
             return NodePipe.END;
         }
         return NodePipe.NONE;

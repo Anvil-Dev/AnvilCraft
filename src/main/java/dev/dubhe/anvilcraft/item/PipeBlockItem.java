@@ -29,7 +29,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
 
@@ -95,7 +94,7 @@ public class PipeBlockItem extends Item {
 
         boolean shiftDown = player != null && player.isShiftKeyDown();
         boolean clickedOnPipe = targetBlock instanceof PipeBlock;
-        boolean clickedOnFluidHandler = level.getBlockEntity(targetPos) instanceof IFluidHandler;
+        boolean clickedOnFluidHandler = PipeBlock.isFluidHandler(level, targetPos);
 
         // Shift+click or not clicking on pipe/fluid handler: place along look direction
         if (shiftDown || (!clickedOnPipe && !clickedOnFluidHandler)) {
