@@ -21,7 +21,9 @@ public class ProceduralProcessSerializer implements RecipeSerializer<ProceduralP
                 ChanceBlockState.CODEC.fieldOf("result_block").forGetter(ProceduralProcessRecipe::getResultBlock),
                 ItemStack.CODEC.fieldOf("icon").forGetter(ProceduralProcessRecipe::getIcon),
                 Codec.INT.fieldOf("loop").forGetter(ProceduralProcessRecipe::getLoop),
-                ProceduralProcessStep.CODEC.optionalFieldOf("multiple_loop_first_step").forGetter(ProceduralProcessRecipe::getMultiLoopFirstStep)
+                ProceduralProcessStep.CODEC
+                    .optionalFieldOf("multiple_loop_first_step")
+                    .forGetter(ProceduralProcessRecipe::getMultiLoopFirstStep)
                 )
             .apply(ins, ProceduralProcessRecipe::new)
         );

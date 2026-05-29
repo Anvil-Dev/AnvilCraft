@@ -75,8 +75,9 @@ public class AnvilEventListener {
             brokeBlock(level, hitBlockPos, event);
             return;
         }
-        if (!ProceduralProcessStepManager.checkAnyMatches(event))
+        if (!ProceduralProcessStepManager.checkAnyMatches(event)) {
             handleNeoAnvilRecipe(event);
+        }
         for (IAnvilBehavior behavior : IAnvilBehavior.findMatching(hitBlockState)) {
             if (behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event)) {
                 return;

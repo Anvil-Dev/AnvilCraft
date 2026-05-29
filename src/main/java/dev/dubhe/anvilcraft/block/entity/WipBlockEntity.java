@@ -42,8 +42,9 @@ public class WipBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
         tag.putInt("StepCount", stepCount);
         tag.put("InitialBlock", NbtUtils.writeBlockState(initialBlock));
-        if (recipeId != null)
+        if (recipeId != null) {
             tag.putString("Recipe", recipeId.toString());
+        }
     }
 
     @Override

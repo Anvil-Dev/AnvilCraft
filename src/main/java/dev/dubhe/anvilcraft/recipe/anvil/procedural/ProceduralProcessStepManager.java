@@ -33,7 +33,7 @@ public class ProceduralProcessStepManager {
     public static Map<Block, List<ProceduralProcessStep>> PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
 
     /**
-     * 这个既和是 存在任何ProceduralProcess步骤 的 方块 的集合
+     * 这个集合是 存在任何ProceduralProcess步骤 的 方块 的集合
      * 也就是说，这个集合可以在铁砧砸到某个方块的时候快速查询这次铁砧砸是否能触发任何配方的任何步骤
      */
     public static Set<Block> PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY = new HashSet<>();
@@ -41,22 +41,24 @@ public class ProceduralProcessStepManager {
     /**
      * 在recipe manager构建配方之后执行
      * 指路：dev.dubhe.anvilcraft.mixin.RecipeManagerMixin.afterBuildRecipe
+     *
+     * @param byName Minecraft的RecipeManager的配方注册表
      */
     public static void initialize(Map<ResourceLocation, RecipeHolder<?>> byName) {
         for (ResourceLocation rl : byName.keySet()) {
             if (byName.get(rl).value() instanceof ProceduralProcessRecipe recipe) {
                 List<ProceduralProcessStep> steps = recipe.getSteps();
-                //实际上数据包里的编号没有用，因为这里会重新编号……
+                // 实际上数据包里的编号没有用，因为这里会重新编号……
                 for (int index = 0; index < steps.size(); index++) {
                     ProceduralProcessStep step = steps.get(index);
-                    //这里是在【加载】时设置这个step是本配方中第几步
+                    // 这里是在【加载】时设置这个step是本配方中第几步
                     step.setStepIndex(index);
-                    //同样是在【加载】时，记录这个step属于哪个序列装配配方
+                    // 同样是在【加载】时，记录这个step属于哪个序列装配配方
                     step.setPpRecipeId(rl);
-                    //第一步是0，第二步是1……
+                    // 第一步是0，第二步是1……
                     ProceduralProcessStepManager.addStep(step);
                 }
-                //对于多圈配方的第一步，需要额外注册
+                // 对于多圈配方的第一步，需要额外注册
                 if (recipe.getMultiLoopFirstStep().isPresent()) {
                     ProceduralProcessStep step = recipe.getMultiLoopFirstStep().get();
                     step.setStepIndex(0);
@@ -72,6 +74,7 @@ public class ProceduralProcessStepManager {
      * 在将ProceduralProcessRecipe加载时，需要填充上方的映射表或者检查其是否是apr，
      * 这个函数是用来给每个step填到上面的映射表的
      * 如果couldBeFirstStep为false，则不会填充PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY，否则会根据数据填充
+     *
      * @param step 打包好的step数据结构
      * @param couldBeFirstStep 如果这个步骤哪怕index为0也不该成为触发配方的步骤，则为false，否则默认为true
      */
@@ -79,7 +82,7 @@ public class ProceduralProcessStepManager {
         if (step.getContent() instanceof AbstractProcessRecipe<?> apr) {
             HolderSet<Block> contactBlocks = apr.getFirstInputBlock().getBlocks();
             if (couldBeFirstStep && step.getStepIndex() == 0) {
-                //如果是第一步，加入第一步的查询表
+                // 如果是第一步，加入第一步的查询表
                 for (Holder<Block> contactBlock : contactBlocks) {
                     Block b = contactBlock.value();
                     if (!PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.containsKey(b)) {
@@ -88,13 +91,12 @@ public class ProceduralProcessStepManager {
                     PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.get(b).add(step);
                 }
             }
-            //不管是否是第一步，都加入“任意步骤”的表格中
+            // 不管是否是第一步，都加入“任意步骤”的表格中
             for (Holder<Block> contactBlock : contactBlocks) {
                 Block b = contactBlock.value();
                 PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY.add(b);
             }
-        }
-        else {
+        } else {
             String recipeTypeWarning =  "Each step of ProceduralProcessRecipe is expected to be an AbstractProcessRecipe. Received: ";
             recipeTypeWarning += step.getContent().getType().toString();
             AnvilCraft.LOGGER.warn(recipeTypeWarning);
@@ -109,17 +111,17 @@ public class ProceduralProcessStepManager {
     /**
      * 在将ProceduralProcessRecipe加载时，需要填充上方的映射表或者检查其是否是apr，
      * 这个函数是用来给每个step填到上面的映射表的
+     *
      * @param step 打包好的step数据结构
      */
     public static void addStep(ProceduralProcessStep step) {
         ProceduralProcessStepManager.addStep(step, true);
     }
 
-
-
     /**
      * 判断这次铁砧落地事件是否有序列装配配方步骤可以执行，
      * 如果有，且步骤正确，则执行它
+     *
      * @param event 铁砧落地事件
      * @return 是否执行了配方
      */
@@ -128,7 +130,7 @@ public class ProceduralProcessStepManager {
         if (level instanceof ServerLevel sl) {
             BlockPos hitPos = event.getPos().below();
             BlockState state = sl.getBlockState(hitPos);
-            //如果可能触发任意步骤，才进入处理
+            // 如果可能触发任意步骤，才进入处理
             if (PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY.contains(state.getBlock())) {
                 InWorldRecipeContext context = new InWorldRecipeContext(
                     sl,
@@ -136,7 +138,7 @@ public class ProceduralProcessStepManager {
                     event.getEntity()
                 );
                 WipBlockEntity wip = ProceduralProcessRecipe.getWipBlockFromContext(context);
-                //如果已有wip方块，检测wip方块中的配方Id（如果存在的话）
+                // 如果已有wip方块，检测wip方块中的配方Id（如果存在的话）
                 if (wip != null && wip.getRecipeId() != null) {
                     ResourceLocation recipeId = wip.getRecipeId();
                     Optional<RecipeHolder<?>> recipeHolder = sl.getRecipeManager().byKey(recipeId);
@@ -144,17 +146,19 @@ public class ProceduralProcessStepManager {
                         int loopMax = ppr.getLoop();
                         int oneLoopSize = ppr.getSteps().size();
                         int q = wip.getStepCount() / oneLoopSize;
-                        //wip方块中储存的步数除以一个循环有多少步的商，也就是wip方块是第几（0，1，2……）个循环的
+                        // wip方块中储存的步数除以一个循环有多少步的商，也就是wip方块是第几（0，1，2……）个循环的
                         int r = wip.getStepCount() - q * oneLoopSize;
-                        //余数，也就是是那个循环的第几步
+                        // 余数，也就是是那个循环的第几步
                         ProceduralProcessStep step;
-                        if (r == 0 && ppr.getMultiLoopFirstStep().isPresent() && q >= 1)
+                        if (r == 0 && ppr.getMultiLoopFirstStep().isPresent() && q >= 1) {
                             step = ppr.getMultiLoopFirstStep().get();
-                        //如果是多圈的第一步，则需要特殊处理
-                        else step = ppr.getSteps().get(r);
-                        //获取wip方块存储的recipe中stepIndex编号为r的步骤
-                        //一共执行一圈的时候loopMax是1，这个时候q应该是0才能继续执行
-                        //然后是如果该步骤有内容且matches，那么我们执行这个步骤
+                            // 如果是多圈的第一步，则需要特殊处理
+                        } else {
+                            step = ppr.getSteps().get(r);
+                            // 获取wip方块存储的recipe中stepIndex编号为r的步骤
+                        }
+                        // 一共执行一圈的时候loopMax是1，这个时候q应该是0才能继续执行
+                        // 然后是如果该步骤有内容且matches，那么我们执行这个步骤
                         if (
                             q < loopMax
                                 && step.getContent() instanceof AbstractProcessRecipe<?> apr
@@ -163,9 +167,9 @@ public class ProceduralProcessStepManager {
                             BlockState initialBlock = wip.getInitialBlock();
                             apr.assemble(context, sl.registryAccess());
                             context.accept();
-                            //这个时候原本的wip大概率已经消失了，会有一个新的wip方块
+                            // 这个时候原本的wip大概率已经消失了，会有一个新的wip方块
                             WipBlockEntity wip2 = ProceduralProcessRecipe.getWipBlockFromContext(context);
-                            //对于配方结束时仍然有wip方块的配方（比如不止一圈的配方），需要单独设置结果
+                            // 对于配方结束时仍然有wip方块的配方（比如不止一圈的配方），需要单独设置结果
                             if (wip2 != null && q == loopMax - 1 && r == oneLoopSize - 1) {
                                 BlockPos pos = wip2.getBlockPos();
                                 Map.Entry<BlockState, CompoundTag> entry = ppr.getResultBlock().getResult(sl);
@@ -179,54 +183,50 @@ public class ProceduralProcessStepManager {
                                     }
                                 }
 
-                            }
-                            else {
+                            } else {
                                 if (wip2 != null) {
                                     wip2.setStepCount(q * oneLoopSize + step.stepIndex + 1);
-                                    //第一步执行过之后wip方块的值应该是1，第二步之后是2……要注意，在step的数据结构中第一步是0，这里要+1
+                                    // 第一步执行过之后wip方块的值应该是1，第二步之后是2……要注意，在step的数据结构中第一步是0，这里要+1
                                     wip2.setInitialBlock(initialBlock);
                                     wip2.setRecipeId(recipeId);
-                                    //将当前执行的配方设置进去
+                                    // 将当前执行的配方设置进去
                                     wip2.setChanged();
                                     sl.sendBlockUpdated(wip2.getBlockPos(), wip2.getBlockState(), wip2.getBlockState(), 3);
                                 }
-                                //如果新的wip方块存在，且不是最后一圈，则设置其中数据
-                                //如果不存在，那么我们就假设它是最后一步吧。
+                                // 如果新的wip方块存在，且不是最后一圈，则设置其中数据
+                                // 如果不存在，那么我们就假设它是最后一步吧。
                             }
                             return true;
                         }
                     }
-                }
-                else {
-                    //如果是第一步——没有wip方块——则需要遍历所有可能的配方步骤
+                } else {
+                    // 如果是第一步——没有wip方块——则需要遍历所有可能的配方步骤
                     List<ProceduralProcessStep> possibleSteps = PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.get(state.getBlock());
-                    //获取所有可能的第一步
+                    // 获取所有可能的第一步
                     for (ProceduralProcessStep step : possibleSteps) {
-                        //这个context需要在每次判定之后重建，不然的话物品哪怕没有消耗，数量也会被临时扣掉导致下一次无法检测到
+                        // 这个context需要在每次判定之后重建，不然的话物品哪怕没有消耗，数量也会被临时扣掉导致下一次无法检测到
                         InWorldRecipeContext contextOfStep = new InWorldRecipeContext(
                             sl,
                             event.getPos().getCenter().subtract(0.0, 0.5, 0.0),
                             event.getEntity()
                         );
                         if (step.getContent() instanceof AbstractProcessRecipe<?> apr) {
-                            //如果matches了就直接执行这个步骤
+                            // 如果matches了就直接执行这个步骤
                             if (apr.matches(contextOfStep, sl)) {
                                 ResourceLocation stepRecipeId = step.getPpRecipeId();
                                 Optional<RecipeHolder<?>> recipeHolder = sl.getRecipeManager().byKey(stepRecipeId);
                                 if (recipeHolder.isPresent() && recipeHolder.get().value() instanceof ProceduralProcessRecipe ppr) {
-                                    //这里已经判定过了没有存在配方id的wip方块，而且PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY中只存在第一步
-                                    ResourceLocation rl = step.getPpRecipeId();
+                                    // 这里已经判定过了没有存在配方id的wip方块，而且PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY中只存在第一步
                                     // 接下来获取初始方块
                                     // 要搜索一下世界上（这里还是暂且以下方2个方块为范围）是否有匹配配方中标注的方块，
                                     // 如果有则按照那个写，如果没有搜索到则直接用配方里的
                                     BlockPos pos = BlockPos.containing(contextOfStep.getPos());
                                     pos = pos.below();
                                     BlockState initialBlock = ppr.getInitialBlock().getBlocks().get(0).value().defaultBlockState();
-                                    // 初始值是配方里的方块信息的默认方块状态
+                                    // 初始值是配方里的初始方块信息的默认方块状态
                                     if (ppr.initialBlock.test(sl, sl.getBlockState(pos), sl.getBlockEntity(pos))) {
                                         initialBlock = sl.getBlockState(pos);
-                                    }
-                                    else {
+                                    } else {
                                         pos = pos.below();
                                         if (ppr.initialBlock.test(sl, sl.getBlockState(pos), sl.getBlockEntity(pos))) {
                                             initialBlock = sl.getBlockState(pos);
@@ -235,26 +235,26 @@ public class ProceduralProcessStepManager {
                                     // 两个方块逐个判断过后，如果都不是则还是初始值，如果有一个是那就是两个方块里的值
                                     apr.assemble(contextOfStep, sl.registryAccess());
                                     contextOfStep.accept();
-                                    //然后给新作出来的wip方块进行设置
+                                    // 然后给新做出来的wip方块进行设置
                                     WipBlockEntity wip0 = ProceduralProcessRecipe.getWipBlockFromContext(contextOfStep);
                                     if (wip0 != null) {
                                         wip0.setStepCount(1);
-                                        //第一步执行过之后wip方块的值应该是1
+                                        // 第一步执行过之后wip方块的值应该是1
                                         wip0.setInitialBlock(initialBlock);
-                                        wip0.setRecipeId(rl);
-                                        //将当前执行的配方设置进去
+                                        wip0.setRecipeId(step.getPpRecipeId());
+                                        // 将当前执行的配方设置进去
                                         wip0.setChanged();
                                         sl.sendBlockUpdated(wip0.getBlockPos(), wip0.getBlockState(), wip0.getBlockState(), 3);
                                     }
                                     return true;
-                                    //这里没有考虑“第一步就是最后一步，且结果写在result里而非步骤里”的情况，不过正常来讲应该也没人会写这种配方……
-                                    //如果有需求就再补上
+                                    // 这里没有考虑“第一步就是最后一步，且结果写在result里而非步骤里”的情况，不过正常来讲应该也没人会写这种配方……
+                                    // 如果有需求就再补上
                                 }
                             }
-                            //注意，如果步骤不对不会直接返回false，而是会看下一个step
+                            // 注意，如果步骤不对不会直接返回false，而是会看下一个step
                         }
-                        //如果不是apr的话，是要被忽略的——按理来说不应该填入其他类型的配方，但是还是那句话，数据包作者写什么东西都有可能
-                        //加载时就已经报过相关的警告了，没必要在每次执行的时候再报一堆
+                        // 如果不是apr的话，是要被忽略的——按理来说不应该填入其他类型的配方，但是还是那句话，数据包作者写什么东西都有可能
+                        // 加载时就已经报过相关的警告了，没必要在每次执行的时候再报一堆
                     }
                 }
 

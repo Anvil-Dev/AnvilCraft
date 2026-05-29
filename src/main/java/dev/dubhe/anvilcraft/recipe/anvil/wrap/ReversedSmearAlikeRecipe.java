@@ -28,7 +28,7 @@ import java.util.List;
  *  序列装配配方中的“闪炼、时移、中子辐照、砧子辐照”实际上都是反向涂抹，
  *  因为并不是物品-炼药锅-方块操作，而是方块-方块操作
  */
-public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmearAlikeRecipe>{
+public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmearAlikeRecipe> {
 
     public ReversedSmearAlikeRecipe(
         List<BlockStatePredicate> inputs,
@@ -75,7 +75,7 @@ public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmea
                 .fieldOf("result")
                 .forGetter(ReversedSmearAlikeRecipe::getFirstResultBlock)
         ).apply(instance, ReversedSmearAlikeRecipe::new));
-        //实际上它的输入输出和涂抹都是一模一样的，只是位置不一样……
+        // 实际上它的输入输出和涂抹都是一模一样的，只是位置不一样……
 
         /**
          * 流编解码器
@@ -143,8 +143,14 @@ public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmea
             return this;
         }
 
-        //小巧思来了
+        // 小巧思来了：序列装配中所使用到的闪炼、时移、中子辐照、砧子辐照由于不涉及物品和炼药锅操作，实际上都是“反向涂抹”
 
+        /**
+         * 直接构建一个（用于序列装配配方的）伪闪炼配方
+         *
+         * @param input 输入的上方方块
+         * @return 构建器实例
+         */
         public ReversedSmearAlikeRecipe.Builder fakeSuperHeating(Block input) {
             this.inputs.add(BlockStatePredicate.builder().of(input).build());
             this.inputs.add(BlockStatePredicate.builder()
@@ -154,6 +160,12 @@ public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmea
             return this;
         }
 
+        /**
+         * 构建一个（用于序列装配配方的）伪时移配方
+         *
+         * @param input 输入的上方方块
+         * @return 构建器实例
+         */
         public ReversedSmearAlikeRecipe.Builder fakeTimeWarp(Block input) {
             this.inputs.add(BlockStatePredicate.builder().of(input).build());
             this.inputs.add(BlockStatePredicate.builder()
@@ -163,8 +175,14 @@ public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmea
             return this;
         }
 
-        //砧子辐照还没人写，有人写了记得调整这里
+        // TODO: 砧子辐照还没人写，有人写了记得调整这里
 
+        /**
+         * 构建一个（用于序列装配配方的）伪中子辐照配方
+         *
+         * @param input 输入的上方方块
+         * @return 构建器实例
+         */
         public ReversedSmearAlikeRecipe.Builder fakeNeutronIrradiation(Block input) {
             this.inputs.add(BlockStatePredicate.builder().of(input).build());
             this.inputs.add(BlockStatePredicate.builder()
