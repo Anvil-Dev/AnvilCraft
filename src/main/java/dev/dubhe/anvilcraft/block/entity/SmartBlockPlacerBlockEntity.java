@@ -804,6 +804,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 静态方法：根据放置器和扫描器的相对朝向旋转结构数据
      * 完全使用Minecraft原生的Rotation API
+     * 注意：当前实现返回原始数据，旋转逻辑由调用方（如buildBlueprintPositions、getBlueprintBlockState）单独处理
      */
     @SuppressWarnings("checkstyle:OperatorWrap")
     public static StructureLoadUtil.StructureData rotateStructureDataStatic(
@@ -2523,21 +2524,22 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @return 过滤后的方块状态
      */
     private BlockState applyWhitelistFilter(BlockState state) {
-        BlockState defaultState = state.getBlock().defaultBlockState();
+        BlockState resultState = state.getBlock().defaultBlockState();
 
-        // 遍历白名单中的属性，如果在当前状态中存在，则复制到默认状态
+        // 遍历白名单中的属性，如果在当前状态中存在，则复制到结果状态
         for (Property<?> property : INHERITED_PROPERTIES) {
             if (state.hasProperty(property)) {
-                SmartBlockPlacerBlockEntity.setAllowedValue(property, defaultState, state);
+                resultState = setAllowedValue(property, resultState, state);
             }
         }
 
-        return defaultState;
+        return resultState;
     }
 
-    public static <T extends Comparable<T>> void setAllowedValue(Property<T> property, BlockState defaultState, BlockState state) {
-        T value = state.getValue(property);
-        defaultState.setValue(property, value);
+    public static <T extends Comparable<T>> BlockState setAllowedValue(
+        Property<T> property, BlockState targetState, BlockState sourceState) {
+        T value = sourceState.getValue(property);
+        return targetState.setValue(property, value);
     }
 
     /**
@@ -3092,7 +3094,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.getBlockPos(),
                 this.getBlockState(),
                 this.getBlockState(),
-                Block.UPDATE_CLIENTS
+                Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS  // 同时更新客户端和邻居（比较器）
             );
         }
     }
