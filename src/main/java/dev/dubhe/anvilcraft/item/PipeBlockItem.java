@@ -136,8 +136,10 @@ public class PipeBlockItem extends Item {
     }
 
     @Nullable
-    private BlockState handleCornerPlacement(Level level, BlockPos placePos, Direction clickedFace,
-                                             BlockPos cornerPos, BlockState cornerState) {
+    private BlockState handleCornerPlacement(
+        Level level, BlockPos placePos, Direction clickedFace,
+        BlockPos cornerPos, BlockState cornerState
+    ) {
         if (level.isClientSide) return null;
 
         PipeBlock.CornerEnded corner = cornerState.getValue(PipeBlock.CORNER_ENDED);
@@ -150,27 +152,33 @@ public class PipeBlockItem extends Item {
         boolean bothOccupied = firstOccupied && secondOccupied;
         boolean directionMatches = corner.containsDirection(clickedFace);
         boolean oppositeOccupied = (firstOccupied && clickedFace == first.getOpposite())
-                                || (secondOccupied && clickedFace == second.getOpposite());
+                                   || (secondOccupied && clickedFace == second.getOpposite());
 
         if (bothOccupied) {
             BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
                 .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
-            nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(first),
-                PipeNodeBlock.evaluateNeighbor(level, cornerPos, first));
-            nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(second),
-                PipeNodeBlock.evaluateNeighbor(level, cornerPos, second));
+            nodeState = nodeState.setValue(
+                PipeBlock.getPropertyForDirection(first),
+                PipeNodeBlock.evaluateNeighbor(level, cornerPos, first)
+            );
+            nodeState = nodeState.setValue(
+                PipeBlock.getPropertyForDirection(second),
+                PipeNodeBlock.evaluateNeighbor(level, cornerPos, second)
+            );
             nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
             level.setBlockAndUpdate(cornerPos, nodeState);
         } else if (bothFree || directionMatches || oppositeOccupied) {
             Direction.Axis axis = clickedFace.getAxis();
             Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
             Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
-            Direction towardPlace = clickedFace;
 
             boolean startIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, startDir);
             boolean endIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, endDir);
-            if (towardPlace == startDir) startIsPipe = true;
-            else if (towardPlace == endDir) endIsPipe = true;
+            if (clickedFace == startDir) {
+                startIsPipe = true;
+            } else if (clickedFace == endDir) {
+                endIsPipe = true;
+            }
 
             BlockState straightState = ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
                 .setValue(PipeBlock.AXIS, axis)
@@ -187,8 +195,8 @@ public class PipeBlockItem extends Item {
             BlockState newCornerState = ModBlocks.PIPE_CORNER.get().defaultBlockState()
                 .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED))
                 .setValue(PipeBlock.CORNER_ENDED, newCorner)
-                .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : false)
-                .setValue(PipeBlock.HAS_END_END, firstIsOccupied ? false : !occupiedEndIsPipe);
+                .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
+                .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
             level.setBlockAndUpdate(cornerPos, newCornerState);
         }
 
@@ -208,7 +216,7 @@ public class PipeBlockItem extends Item {
         return makeStraightState(level, placePos, axis, !startIsPipe, !endIsPipe);
     }
 
-    private static Direction.Axis getLookAxis(Player player) {
+    private static Direction.Axis getLookAxis(@Nullable Player player) {
         if (player == null) return Direction.Axis.Y;
         Vec3 lookVec = player.getViewVector(1.0f);
         return Direction.getNearest(lookVec.x, lookVec.y, lookVec.z).getAxis();

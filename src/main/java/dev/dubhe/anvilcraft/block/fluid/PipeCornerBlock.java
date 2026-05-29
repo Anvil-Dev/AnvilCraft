@@ -58,8 +58,6 @@ public class PipeCornerBlock extends PipeBlock {
     ) {
         if (level.isClientSide) return;
         CornerEnded corner = state.getValue(CORNER_ENDED);
-        Direction first = corner.getFirstDirection();
-        Direction second = corner.getSecondDirection();
 
         Direction neighborDir = null;
         for (Direction dir : Direction.values()) {
@@ -74,6 +72,8 @@ public class PipeCornerBlock extends PipeBlock {
 
         boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
 
+        Direction first = corner.getFirstDirection();
+        Direction second = corner.getSecondDirection();
         BlockState newState = state;
         if (neighborDir == first) {
             newState = newState.setValue(HAS_END_START, !neighborIsPipeToward);

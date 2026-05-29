@@ -107,8 +107,11 @@ public class PipeNodeBlock extends PipeBlock {
         boolean hasEnd = false;
         for (Direction dir : Direction.values()) {
             NodePipe value = state.getValue(getPropertyForDirection(dir));
-            if (value == NodePipe.PIPE) pipeDirs.add(dir);
-            else if (value == NodePipe.END) hasEnd = true;
+            if (value == NodePipe.PIPE) {
+                pipeDirs.add(dir);
+            } else if (value == NodePipe.END) {
+                hasEnd = true;
+            }
         }
 
         if (pipeDirs.size() == 2 && !hasEnd) {

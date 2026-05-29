@@ -3,20 +3,18 @@ package dev.dubhe.anvilcraft.block.fluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import java.util.Locale;
 
@@ -96,16 +94,12 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock 
 
     public static boolean hasConnectionToward(BlockState state, Direction toward) {
         Block block = state.getBlock();
-        if (block instanceof PipeStraightBlock) {
-            return toward.getAxis() == state.getValue(AXIS);
-        }
-        if (block instanceof PipeCornerBlock) {
-            return state.getValue(CORNER_ENDED).containsDirection(toward);
-        }
-        if (block instanceof PipeNodeBlock) {
-            return state.getValue(getPropertyForDirection(toward)) == NodePipe.PIPE;
-        }
-        return false;
+        return switch (block) {
+            case PipeStraightBlock ignored -> toward.getAxis() == state.getValue(AXIS);
+            case PipeCornerBlock ignored -> state.getValue(CORNER_ENDED).containsDirection(toward);
+            case PipeNodeBlock ignored -> state.getValue(getPropertyForDirection(toward)) == NodePipe.PIPE;
+            default -> false;
+        };
     }
 
     public static boolean isNeighborPipeToward(Level level, BlockPos pos, Direction dir) {
