@@ -103,7 +103,7 @@ public class PipeBlockItem extends Item {
         }
 
         // Connect mode: clicking on pipe or fluid handler
-        if (targetBlock instanceof PipeCornerBlock && !shiftDown) {
+        if (targetBlock instanceof PipeCornerBlock) {
             return handleCornerPlacement(level, placePos, clickedFace, targetPos, targetState);
         }
 
@@ -112,8 +112,8 @@ public class PipeBlockItem extends Item {
         Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
         Direction towardTarget = clickedFace.getOpposite();
 
-        boolean startIsPipe = false;
-        boolean endIsPipe = false;
+        boolean startIsPipe;
+        boolean endIsPipe;
 
         if (towardTarget == startDir) {
             startIsPipe = clickedOnPipe;
@@ -127,12 +127,11 @@ public class PipeBlockItem extends Item {
     }
 
     private BlockState makeStraightState(Level level, BlockPos pos, Direction.Axis axis, boolean hasEndStart, boolean hasEndEnd) {
-        BlockState state = ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
+        return ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
             .setValue(PipeBlock.AXIS, axis)
             .setValue(PipeBlock.HAS_END_START, hasEndStart)
             .setValue(PipeBlock.HAS_END_END, hasEndEnd)
             .setValue(PipeBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
-        return state;
     }
 
     @Nullable
@@ -241,7 +240,7 @@ public class PipeBlockItem extends Item {
         return context.getLevel().setBlock(context.getClickedPos(), state, 11);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
+    @SuppressWarnings({"UnusedReturnValue", "unused"})
     protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state) {
         return PipeBlockItem.updateCustomBlockEntityTag(level, player, pos, stack);
     }
