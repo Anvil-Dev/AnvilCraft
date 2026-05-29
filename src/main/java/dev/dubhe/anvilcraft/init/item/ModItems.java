@@ -56,6 +56,7 @@ import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
 import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.PillBoxItem;
+import dev.dubhe.anvilcraft.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.item.RecoveryPearl;
 import dev.dubhe.anvilcraft.item.ResonatorCoreItem;
 import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
@@ -135,10 +136,12 @@ import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings({
-    "unused",
-    "CodeBlock2Expr"
-})
+@SuppressWarnings(
+    {
+        "unused",
+        "CodeBlock2Expr"
+    }
+)
 public class ModItems {
     static {
         REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_TOOL.getKey());
@@ -1056,6 +1059,12 @@ public class ModItems {
         .tag(ModItemTags.OIL_BUCKETS, Tags.Items.BUCKETS)
         .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
+        .register();
+
+    public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
+        .model((ctx, provider) -> provider
+            .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/pipe"))
+        )
         .register();
 
     public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = registerAllCementBuckets();

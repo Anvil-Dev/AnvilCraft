@@ -140,6 +140,9 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInter
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
+import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
@@ -191,6 +194,7 @@ import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.FragmentationDegree;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
+import dev.dubhe.anvilcraft.data.generator.PipeBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
@@ -3815,6 +3819,27 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM.block("pipe_straight", PipeStraightBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::pipeStraightBlock)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM.block("pipe_corner", PipeCornerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::pipeCornerBlock)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM.block("pipe_node", PipeNodeBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::pipeNodeBlock)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static void register() {
