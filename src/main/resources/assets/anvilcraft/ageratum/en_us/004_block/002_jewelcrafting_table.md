@@ -19,12 +19,6 @@ items:
 After placing the item to replicate, press [Space] to auto-fill materials
 </tip>
 
-<row halign="center">
-<recipe id="anvilcraft:jewel_crafting/trial_key"/>
-<recipe id="anvilcraft:jewel_crafting/ominous_bottle"/>
-<recipe id="anvilcraft:jewel_crafting/ominous_trial_key"/>
-<recipe id="anvilcraft:jewel_crafting/heavy_core"/>
-</row>
 
 <row halign="center">
 <recipe id="anvilcraft:jewel_crafting/elytra"/>

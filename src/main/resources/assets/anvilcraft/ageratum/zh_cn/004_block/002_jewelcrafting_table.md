@@ -20,13 +20,6 @@ items:
 </tip>
 
 <row halign="center">
-<recipe id="anvilcraft:jewel_crafting/trial_key"/>
-<recipe id="anvilcraft:jewel_crafting/ominous_bottle"/>
-<recipe id="anvilcraft:jewel_crafting/ominous_trial_key"/>
-<recipe id="anvilcraft:jewel_crafting/heavy_core"/>
-</row>
-
-<row halign="center">
 <recipe id="anvilcraft:jewel_crafting/elytra"/>
 <recipe id="anvilcraft:jewel_crafting/enchanted_golden_apple"/>
 <recipe id="anvilcraft:jewel_crafting/totem_of_undying"/>
