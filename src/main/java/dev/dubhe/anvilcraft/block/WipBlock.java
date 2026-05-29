@@ -5,10 +5,6 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -68,35 +64,4 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
         return 0;
     }
 
-    @Override
-    public CompoundTag clearData(Level level, BlockPos pos) {
-        CompoundTag tag = new CompoundTag();
-        BlockEntity e = level.getBlockEntity(pos);
-        if (e instanceof WipBlockEntity wipBlockEntity) {
-            tag.putInt("stepCount", wipBlockEntity.getStepCount());
-            tag.put("initialBlock", NbtUtils.writeBlockState(wipBlockEntity.getInitialBlock()));
-            tag.putString("recipe", wipBlockEntity.getRecipeId().toString());
-        }
-        return tag;
-    }
-
-    @Override
-    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
-        BlockEntity e = level.getBlockEntity(pos);
-        if (e instanceof WipBlockEntity wipBlockEntity) {
-            if (nbt.contains("stepCount")) {
-                wipBlockEntity.setStepCount(nbt.getInt("stepCount"));
-            }
-            if (nbt.contains("initialBlock")) {
-                wipBlockEntity.setInitialBlock(NbtUtils.readBlockState(
-                    level.holderLookup(Registries.BLOCK),
-                    nbt.getCompound("initialBlock")
-                ));
-            }
-            if (nbt.contains("recipe")) {
-                wipBlockEntity.setRecipeId(ResourceLocation.parse(nbt.getString("recipe")));
-            }
-            wipBlockEntity.setChanged();
-        }
-    }
 }

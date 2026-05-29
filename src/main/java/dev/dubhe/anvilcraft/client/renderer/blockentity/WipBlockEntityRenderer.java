@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,6 +33,7 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
         Minecraft minecraft = Minecraft.getInstance();
         Level level = wipBlockEntity.getLevel();
         if (level == null) return;
+        poseStack.pushPose();
         BlockRenderDispatcher blockRenderDispatcher = minecraft.getBlockRenderer();
         BlockState state = wipBlockEntity.getInitialBlock();
         BakedModel bakedModel = blockRenderDispatcher.getBlockModel(state);
@@ -43,7 +43,6 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
             rand,
             ModelData.EMPTY
         );
-        BlockPos pos = wipBlockEntity.getBlockPos();
         for (RenderType renderType : types.asList()) {
             blockRenderDispatcher.getModelRenderer().renderModel(
                 poseStack.last(),
@@ -57,6 +56,6 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
                 packedOverlay
             );
         }
-
+        poseStack.popPose();
     }
 }
