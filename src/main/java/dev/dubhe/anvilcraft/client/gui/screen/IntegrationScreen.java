@@ -38,9 +38,6 @@ public class IntegrationScreen extends Screen {
     public static final Component TITLE = Component.translatable(
         "screen.anvilcraft.integration_screen.title"
     );
-    public static final Component NOTE = Component.translatable(
-        "screen.anvilcraft.integration_screen.note", 2
-    );
     public static final Component CATEGORY_GUIDE = Component.translatable(
         "screen.anvilcraft.integration_screen.category.guide"
     );
@@ -365,7 +362,6 @@ public class IntegrationScreen extends Screen {
             );
             IntegrationUtil.Root root = IntegrationUtil.load();
             IntegrationUtil.Integrations integrations = root.integration();
-            this.addEntry(new NoteIntegrationEntry(IntegrationScreen.NOTE));
             this.addEntry(new CategoryIntegrationEntry(IntegrationScreen.CATEGORY_GUIDE));
             integrations.guide().forEach(integration -> this.addEntry(new IntegrationEntry(integration)));
             this.addEntry(new CategoryIntegrationEntry(IntegrationScreen.CATEGORY_RECIPE_QUERY));

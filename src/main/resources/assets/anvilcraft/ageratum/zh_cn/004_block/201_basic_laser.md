@@ -31,12 +31,20 @@ items:
 > 如果<ref item="anvilcraft:ruby_prism"/>背部是也是**同方向**的<ref item="anvilcraft:ruby_prism"/>，
 > 则从最后一个<ref item="anvilcraft:ruby_prism"/>的背部输出
 
-|    等级    | 提取冷却(s) |    等级    |                加热能力                 |
-|:--------:|:-------:|:--------:|:-----------------------------------:|
-|  [4, 7]  |   24    |  [1, 3]  | <color=#661111>高温</color> |
-| [8, 11]  |    6    | [4, 15]  | <color=#aa2222>红热</color> |
-| [12, 15] |    3    | [16, 63] | <color=#cc5533>炽热</color> |
-| [16, +∞) |    1    | [64,+∞)  | <color=#ee7744>白炽</color> |
+|    等级    | 提取冷却(s) |
+|:--------:|:-------:|
+|  [4, 7]  |   24    |
+| [8, 11]  |    6    |
+| [12, 15] |    3    |
+| [16, +∞) |    1    |
+
+|    等级    |           加热能力            | 
+|:--------:|:-------------------------:| 
+|  [1, 3]  | <color=#661111>高温</color> | 
+| [4, 15]  | <color=#aa2222>红热</color> | 
+| [16, 63] | <color=#cc5533>炽热</color> | 
+| [64,+∞)  | <color=#ee7744>白炽</color> | 
+
 
 # <ref item="anvilcraft:ruby_laser"/>
 
@@ -46,14 +54,12 @@ items:
 - 受到红石信号停用
 - 启用时发射激光[等级: 1, 射程: 128格]
 
-
 # <ref item="anvilcraft:ruby_prism"/>
 
 <recipe id="anvilcraft:ruby_prism"/>
 
 - 不消耗电能
 - 汇总其他5个方向的激光及其等级，向前发射[射程: 128格]
-
 
 # <ref item="anvilcraft:laser_receiver"/>
 

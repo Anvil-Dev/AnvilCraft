@@ -69,7 +69,7 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
         AgeratumUtil.renderItems(context, this.getResultItems(), mouseX, mouseY, 194, 46);
 
         // 渲染输出方块（如果有）
-        if (!this.getOutputBlockState().isEmpty() && !getOutputBlockState().isAir()) {
+        if (!this.getOutputBlockState().isEmpty() && !this.getOutputBlockState().isAir()) {
             AgeratumUtil.renderBlock(context, this.getOutputBlockState(), mouseX, mouseY, OUTPUT_BLOCK_X, BLOCK_Y);
         }
     }
