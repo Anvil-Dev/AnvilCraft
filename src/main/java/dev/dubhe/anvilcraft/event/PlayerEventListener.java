@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -17,6 +16,7 @@ import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
+import dev.dubhe.anvilcraft.util.DevourUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -127,7 +127,7 @@ public class PlayerEventListener {
         if (blockFace == null) return;
         if (state.getDestroySpeed(level, pos) < 0.0F) return;
         if (!stack.has(ModComponents.DEVOUR_RANGE)) return;
-        if (!DragonRodItem.canDevour(player, stack) || !BlockDevourerBlock.canDevour(state)) {
+        if (!DragonRodItem.canDevour(player, stack) || !DevourUtil.canDevour(state)) {
             event.setCanceled(true);
             return;
         }

@@ -35,49 +35,6 @@
             }
           ]
         }
-      },
-      {
-        "id": "guideme",
-        "type": "extra",
-        "name": [
-          {
-            "translate": "integration.anvilcraft.guide.guideme"
-          }
-        ],
-        "links": {
-          "target": [
-            {
-              "type": "mcmod",
-              "url": "https://www.mcmod.cn/class/18414.html"
-            },
-            {
-              "type": "curseforge",
-              "url": "https://www.curseforge.com/minecraft/mc-mods/guideme"
-            },
-            {
-              "type": "modrinth",
-              "url": "https://modrinth.com/mod/guideme"
-            },
-            {
-              "type": "github",
-              "url": "https://github.com/AppliedEnergistics/GuideME"
-            }
-          ],
-          "extra": [
-            {
-              "type": "curseforge",
-              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-guideme"
-            },
-            {
-              "type": "modrinth",
-              "url": "https://modrinth.com/mod/anvilcraft-guideme"
-            },
-            {
-              "type": "github",
-              "url": "https://github.com/Anvil-Dev/AnvilCraft-GuideME"
-            }
-          ]
-        }
       }
     ],
     "recipe_query": [

@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.piston.injection.IPistonMovingBlockEntityExtension;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
@@ -13,7 +14,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -177,23 +177,8 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
     }
 
     @Override
-    public CompoundTag clearData(Level level, BlockPos pos) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-            CompoundTag tag = new CompoundTag();
-            tag.putInt("storedEnergyData", propelPistonBlockEntity.getStoredEnergy());
-            return tag;
-        }
-        return new CompoundTag();
-    }
-
-    @Override
-    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-            int data = nbt.getInt("storedEnergyData");
-            propelPistonBlockEntity.updateStoredEnergy(data);
-        }
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
+        Util.<PropelPistonBlockEntity>cast(be).notifyMoved();
     }
 
     @Override
@@ -270,16 +255,24 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
                 blockPos3 = blockPos3.relative(facing);
                 map.remove(blockPos3);
                 BlockState blockState8 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, facing);
-                CompoundTag nbt = new CompoundTag();
-                if (list1.get(k).getBlock() instanceof IMoveableEntityBlock block) {
-                    nbt = block.clearData(level, blockPos3.relative(facing.getOpposite()));
+                BlockEntity blockEntity = null;
+                if (!level.isClientSide()) {
+                    BlockPos relative = blockPos3.relative(facing.getOpposite());
+                    if (
+                        list1.get(k).getBlock() instanceof IMoveableEntityBlock
+                        && level.getBlockEntity(relative) instanceof BlockEntity be
+                    ) {
+                        blockEntity = be;
+                        level.removeBlockEntity(relative);
+                    }
                 }
                 level.setBlock(blockPos3, blockState8, 68);
-                BlockEntity blockEntity = MovingPistonBlock.newMovingBlockEntity(blockPos3, blockState8, list1.get(k), facing, true, false);
-                if (blockEntity instanceof IPistonMovingBlockEntityExtension entity) {
-                    entity.anvillib$setData(nbt);
+                BlockEntity be = MovingPistonBlock.newMovingBlockEntity(blockPos3, blockState8, list1.get(k), facing, true, false);
+                if (be instanceof IPistonMovingBlockEntityExtension entity) {
+                    // noinspection UnstableApiUsage
+                    entity.anvillib$setBlockEntity(blockEntity);
                 }
-                level.setBlockEntity(blockEntity);
+                level.setBlockEntity(be);
                 blockStates[i++] = blockState5;
             }
 

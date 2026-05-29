@@ -57,7 +57,7 @@ public class CelestialForgingAnvilAmplifierBlock
     public static final VoxelShape EAST_RIGHT_WING = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_RIGHT_WING);
 
     public static final VoxelShape NORTH_BASE = ShapeUtil.merge(
-        new AABB(0, 0, 2, 16, 4, 16),
+        new AABB(2, 0, 2, 16, 4, 16),
         new AABB(6, 4, 6, 16, 12, 16),
         new AABB(2, 12, 2, 16, 16, 16),
 

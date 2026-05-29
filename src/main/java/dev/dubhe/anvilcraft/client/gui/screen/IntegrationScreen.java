@@ -38,9 +38,6 @@ public class IntegrationScreen extends Screen {
     public static final Component TITLE = Component.translatable(
         "screen.anvilcraft.integration_screen.title"
     );
-    public static final Component NOTE = Component.translatable(
-        "screen.anvilcraft.integration_screen.note", 2
-    );
     public static final Component CATEGORY_GUIDE = Component.translatable(
         "screen.anvilcraft.integration_screen.category.guide"
     );
@@ -272,59 +269,6 @@ public class IntegrationScreen extends Screen {
         }
     }
 
-    public class NoteIntegrationEntry extends AbstractIntegrationEntry {
-        final Component note;
-
-        static final float SCALE = 0.9f;
-
-        public NoteIntegrationEntry(Component note) {
-            super(null);
-            this.note = note;
-        }
-
-        @Override
-        public void render(
-            GuiGraphics guiGraphics,
-            int index,
-            int top,
-            int left,
-            int width,
-            int height,
-            int mouseX,
-            int mouseY,
-            boolean hovering,
-            float partialTick
-        ) {
-            PoseStack pose = guiGraphics.pose();
-            pose.pushPose();
-            pose.translate(left, top, 0);
-            pose.scale(SCALE, SCALE, 1.0f);
-            int maxWidth = (int) (width / SCALE);
-            guiGraphics.drawWordWrap(Minecraft.getInstance().font, this.note, 0, 0, maxWidth, -1);
-            pose.popPose();
-        }
-
-        @Override
-        public List<? extends GuiEventListener> children() {
-            return ImmutableList.of();
-        }
-
-        @Override
-        public List<? extends NarratableEntry> narratables() {
-            return ImmutableList.of(new NarratableEntry() {
-                @Override
-                public NarrationPriority narrationPriority() {
-                    return NarrationPriority.FOCUSED;
-                }
-
-                @Override
-                public void updateNarration(NarrationElementOutput output) {
-                    output.add(NarratedElementType.HINT, NoteIntegrationEntry.this.note);
-                }
-            });
-        }
-    }
-
     public class CategoryIntegrationEntry extends AbstractIntegrationEntry {
         final Component label;
 
@@ -410,7 +354,6 @@ public class IntegrationScreen extends Screen {
             );
             IntegrationUtil.Root root = IntegrationUtil.load();
             IntegrationUtil.Integrations integrations = root.integration();
-            this.addEntry(new NoteIntegrationEntry(IntegrationScreen.NOTE));
             this.addEntry(new CategoryIntegrationEntry(IntegrationScreen.CATEGORY_GUIDE));
             integrations.guide().forEach(integration -> this.addEntry(new IntegrationEntry(integration)));
             this.addEntry(new CategoryIntegrationEntry(IntegrationScreen.CATEGORY_RECIPE_QUERY));

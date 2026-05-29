@@ -20,10 +20,10 @@ navigation:
 
 # 高级铁砧额外效果
 
-- 使用[<translate key="block.anvilcraft.ember_anvil"/>](../004_block/223_ember_anvil.md)可以产出本需要玩家**手动击杀**而产生的掉落物
+- 使用<ref item="anvilcraft:ember_anvil"/>可以产出本需要玩家**手动击杀**而产生的掉落物
 
 <info>
-例如烈焰人本需要由玩家击杀才掉落烈焰棒，想要自动处死获得掉落物就必须依赖<translate key="block.anvilcraft.ember_anvil"/>
+例如烈焰人本需要由玩家击杀才掉落烈焰棒，想要自动处死获得掉落物就必须依赖<ref item="anvilcraft:ember_anvil"/>
 </info>
 
-- 使用[<translate key="block.anvilcraft.transcendence_anvil"/>](../004_block/311_transcendence_anvil.md)可以产出本需要玩家**手动击杀**而产生的掉落物。获得更多掉落。
+- 使用<ref item="anvilcraft:transcendence_anvil"/>可以产出本需要玩家**手动击杀**而产生的掉落物。获得更多掉落。

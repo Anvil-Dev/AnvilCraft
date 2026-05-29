@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.google.common.collect.Streams;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
@@ -10,7 +9,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
-import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
+import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -201,66 +200,20 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             devourerDirection,
             level
         );
-        Vec3 center = outputPos.getCenter();
-        Iterable<BlockPos> devourBlockPosList;
-        int maxY;
-        switch (devourerDirection) {
-            case DOWN, UP -> {
-                devourBlockPosList = BlockPos.betweenClosed(
-                    devourCenterPos.relative(Direction.NORTH, range).relative(Direction.WEST, range),
-                    devourCenterPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range)
-                );
-                maxY = devourCenterPos.getY();
-            }
-            case NORTH, SOUTH -> {
-                devourBlockPosList = BlockPos.betweenClosed(
-                    devourCenterPos.relative(Direction.UP, range).relative(Direction.WEST, range),
-                    devourCenterPos.relative(Direction.DOWN, range).relative(Direction.EAST, range)
-                );
-                maxY = devourCenterPos.relative(Direction.UP, range).getY();
-            }
-            case WEST, EAST -> {
-                devourBlockPosList = BlockPos.betweenClosed(
-                    devourCenterPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
-                    devourCenterPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range)
-                );
-                maxY = devourCenterPos.relative(Direction.UP, range).getY();
-            }
-            default -> {
-                devourBlockPosList = List.of(devourCenterPos);
-                maxY = devourCenterPos.getY();
-            }
-        }
-        devourBlockPosList = Streams.stream(devourBlockPosList).map(BlockPos::immutable).toList();
 
-        final List<BlockPos> chainDevourBlockPosList = new ArrayList<>();
+        Vec3 center = outputPos.getCenter();
+        Iterable<BlockPos> devourBlockPosList = DevourUtil.getDevourPosList(
+                level,
+                devourCenterPos,
+                devourerDirection,
+                range,
+                AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring ? AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance : 0
+        );
+
         final List<BlockPos> filteredBlockPosList = new ArrayList<>();
         for (BlockPos devourBlockPos : devourBlockPosList) {
-            if (
-                AnvilCraft.CONFIG.blockDevourerUpwardChainDevouring && devourBlockPos.getY() == maxY
-            ) {
-                for (BlockPos chainDevourBlockPos : BlockPos.betweenClosed(
-                    devourBlockPos.above(), devourBlockPos.above(AnvilCraft.CONFIG.blockDevourerUpwardChainDevouringDistance)
-                )) {
-                    if (!level.getBlockState(chainDevourBlockPos).is(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)) break;
-                    chainDevourBlockPosList.add(chainDevourBlockPos.immutable());
-                }
-            }
-
             devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
         }
-        for (BlockPos devourBlockPos : chainDevourBlockPosList) {
-            devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
-        }
-    }
-
-    /**
-     * 检查目标位置是否可以破坏
-     *
-     * @param devourBlockState       目标方块
-     * */
-    public static boolean canDevour(BlockState devourBlockState) {
-        return !devourBlockState.is(ModBlockTags.DEVOUR_BLACKLIST) && devourBlockState.getBlock().defaultDestroyTime() >= 0;
     }
 
     private static void devourSingleBlockInternalLogic(
@@ -273,8 +226,8 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
 
         if (filteredBlockPosList.contains(devourBlockPos)) return;
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
-        if (devourBlockState.isAir()) return;
-        if (!BlockDevourerBlock.canDevour(devourBlockState)) return;
+        if (!DevourUtil.shouldDevour(devourBlockState)) return;
+
         if (
             !(anvil instanceof FrostAnvilBlock)
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
@@ -283,8 +236,6 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             level.destroyBlock(devourBlockPos, false);
             return;
         }
-        devourBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
-        devourBlockState = level.getBlockState(devourBlockPos);
         if (anvil instanceof FrostAnvilBlock) {
             ServerPlayer destroyer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(level);
             ItemStack dummyTool = BreakBlockUtil.getDummyDisintegrationTool(level);

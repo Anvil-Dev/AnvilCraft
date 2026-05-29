@@ -18,10 +18,10 @@ public interface IItemEntityExtension {
     }
 
     default void anvilcraft$setShouldPoach(boolean shouldPoach) {
-        throw new AssertionError();
+        throw new UnsupportedOperationException("anvilcraft$setShouldPoach");
     }
 
     default void anvilcraft$poach() {
-        throw new AssertionError();
+        throw new UnsupportedOperationException("anvilcraft$poach");
     }
 }

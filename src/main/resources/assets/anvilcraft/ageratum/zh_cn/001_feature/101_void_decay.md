@@ -12,11 +12,11 @@ navigation:
 
 # 定义
 
-- [<translate key="block.anvilcraft.void_matter_block"/>](../002_material/140_void_matter.md)在一定条件下，会自发地转化为随机方块
+- <ref item="anvilcraft:void_matter_block"/>在一定条件下，会自发地转化为随机方块
 
 # 详细
 
-1. [<translate key="block.anvilcraft.void_matter_block"/>](../002_material/140_void_matter.md)相邻至少5个面接触到[<translate key="block.anvilcraft.void_matter_block"/>](../002_material/140_void_matter.md)
+1. <ref item="anvilcraft:void_matter_block"/>相邻至少5个面接触到<ref item="anvilcraft:void_matter_block"/>
 2. 接收到随机刻时，自身随机转化为以下方块:
    - 三界的各种岩石、砂岩
    - 泥土、砂土、缠根泥土

@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "§a附魔"
+  title: "§2附魔"
   icon: "minecraft:enchanted_book"
 ---
 

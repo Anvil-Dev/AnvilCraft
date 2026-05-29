@@ -22,7 +22,7 @@ items:
 
 # 用途
 
-- 用于合成<translate key="item.minecraft.paper"/>和<translate key="item.minecraft.charcoal"/>
+- 用于合成<ref item="minecraft:paper"/>和<ref item="minecraft:charcoal"/>
 - 作为燃料
 
 <row halign="center">

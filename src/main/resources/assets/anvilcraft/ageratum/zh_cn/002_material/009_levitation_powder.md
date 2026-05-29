@@ -23,9 +23,9 @@ items:
 
 # 特性
 
-[<translate key="item.anvilcraft.levitation_powder"/>](009_levitation_powder.md)和[<translate key="block.anvilcraft.levitation_powder_block"/>](009_levitation_powder.md)会向上飞
+<ref item="anvilcraft:levitation_powder"/>和<ref item="anvilcraft:levitation_powder_block"/>会向上飞
 
 # 功能
 
-- 可用于制作 [<translate key="block.anvilcraft.controllable_sand"/>](../004_block/003_controllable_sand.md)
+- 可用于制作 <ref item="anvilcraft:controllable_sand"/>
 

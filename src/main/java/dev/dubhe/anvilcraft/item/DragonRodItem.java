@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.item;
 
-import com.google.common.collect.Streams;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
-import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
-import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
+import dev.dubhe.anvilcraft.util.DevourUtil;
 import it.unimi.dsi.fastutil.ints.IntIterators;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import lombok.extern.slf4j.Slf4j;
@@ -107,36 +105,23 @@ public class DragonRodItem extends Item {
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, -1);
         if (range == -1) return;
         range = (range - 1) / 2;
-        Iterable<BlockPos> devouringPoses;
-        switch (clickedSide) {
-            case DOWN, UP -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.NORTH, range).relative(Direction.WEST, range),
-                centerPos.relative(Direction.SOUTH, range).relative(Direction.EAST, range)
-            );
-            case NORTH, SOUTH -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.UP, range).relative(Direction.WEST, range),
-                centerPos.relative(Direction.DOWN, range).relative(Direction.EAST, range)
-            );
-            case WEST, EAST -> devouringPoses = BlockPos.betweenClosed(
-                centerPos.relative(Direction.UP, range).relative(Direction.NORTH, range),
-                centerPos.relative(Direction.DOWN, range).relative(Direction.SOUTH, range)
-            );
-            default -> devouringPoses = List.of(centerPos);
-        }
-        devouringPoses = Streams.stream(devouringPoses).map(BlockPos::immutable).toList();
+        Iterable<BlockPos> devouringPoses = DevourUtil.getDevourPosList(
+                level,
+                centerPos,
+                clickedSide,
+                range,
+                0
+        );
 
         for (BlockPos devouringPos : devouringPoses) {
             BlockState devouringState = level.getBlockState(devouringPos);
-            if (devouringState.isAir()) continue;
-            if (!BlockDevourerBlock.canDevour(devouringState)) continue;
+            if (!DevourUtil.shouldDevour(devouringState)) continue;
+
             if (devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                 && level.random.nextDouble() > 0.05) {
                 level.destroyBlock(devouringPos, false);
                 continue;
             }
-
-            devouringPos = MultiPartBlockUtil.getChainableMainPartPos(level, devouringPos);
-            devouringState = level.getBlockState(devouringPos);
 
             if (!player.getAbilities().instabuild) {
                 int expCount = EnchantmentHelper.processBlockExperience(

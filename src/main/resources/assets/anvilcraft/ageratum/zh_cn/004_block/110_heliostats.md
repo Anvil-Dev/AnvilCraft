@@ -14,13 +14,13 @@ items:
 
 # 功能
 
-- 手持[<translate key="block.anvilcraft.heliostats"/>](110_heliostats.md)右键绑定方块后放置，可利用日光加热被绑定方块及其上的方块，相当于一次加热两个[可加热方块](../001_feature/101_heated_block.md)
+- 手持<ref item="anvilcraft:heliostats"/>右键绑定方块后放置，可利用日光加热被绑定方块及其上的方块，相当于一次加热两个[可加热方块](../001_feature/101_heated_block.md)
 
 <info>
-如果使用64个[<translate key="block.anvilcraft.heliostats"/>](110_heliostats.md)，创造的热量可转换为512kW的电力
+如果使用64个<ref item="anvilcraft:heliostats"/>，创造的热量可转换为512kW的电力
 </info>
 
-- 不同数量的[<translate key="block.anvilcraft.heliostats"/>](110_heliostats.md)汇聚起来的加热能力不同
+- 不同数量的<ref item="anvilcraft:heliostats"/>汇聚起来的加热能力不同
 
 | 数量 |                  4                  |                 12                  |                 32                  |                 64                  |
 |:--:|:-----------------------------------:|:-----------------------------------:|:-----------------------------------:|:-----------------------------------:|

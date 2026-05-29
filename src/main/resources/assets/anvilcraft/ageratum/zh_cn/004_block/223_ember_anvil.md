@@ -12,8 +12,8 @@ items:
 
 ## 功能
 
-- [<translate key="block.anvilcraft.ember_anvil"/>](223_ember_anvil.md)永远不会损坏
-- 具有[<translate key="block.anvilcraft.royal_anvil"/>](103_royal_anvil.md)的一切锻造能力
+- <ref item="anvilcraft:ember_anvil"/>永远不会损坏
+- 具有<ref item="anvilcraft:royal_anvil"/>的一切锻造能力
 - 即使在生存模式下，也可以给物品强行添加一些不兼容的附魔
 
 ---

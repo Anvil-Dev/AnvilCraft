@@ -98,8 +98,6 @@ public abstract class LivingEntityMixin extends Entity {
                 );
                 if (anvil instanceof TranscendenceAnvilBlock) {
                     AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
-                } else if (anvil instanceof FrostAnvilBlock) {
-                    AnvilCraftFakePlayers.anvilcraftKiller.enableDisintegration((ServerLevel) this.level(), killer);
                 }
                 return source;
             }

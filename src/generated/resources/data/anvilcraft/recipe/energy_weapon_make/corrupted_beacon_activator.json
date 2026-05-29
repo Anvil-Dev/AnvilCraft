@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:energy_weapon_make",
+  "ingredients": [
+    {
+      "items": "anvilcraft:corrupted_beacon"
+    },
+    {
+      "count": 9,
+      "items": "anvilcraft:cursed_gold_block"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:corrupted_beacon_activator"
+  }
+}

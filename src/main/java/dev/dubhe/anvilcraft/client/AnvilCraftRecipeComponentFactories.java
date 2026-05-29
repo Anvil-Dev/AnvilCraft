@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.MDJewelCraftingRecipeComponen
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDMultipleToOneSmithingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDPortalConversionRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCompressRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCrushRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBoilingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBulgingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDCookingRecipeComponent;
@@ -123,6 +124,14 @@ public class AnvilCraftRecipeComponentFactories {
         "block_compress", () -> MDRecipeComponent.RecipeComponentFactory.create(
             ModRecipeTypes.BLOCK_COMPRESS_TYPE.get(),
             MDBlockCompressRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        BLOCK_CRUSH = RECIPE_COMPONENT_FACTORIES.register(
+        "block_crush", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.BLOCK_CRUSH_TYPE.get(),
+            MDBlockCrushRecipeComponent::new
         )
     );
 

@@ -23,5 +23,5 @@ items:
 可以放入有过滤格的机器当中，放置后，该格可以存放所有符合该过滤器的物品
 
 <info>
-有过滤格的机器包括 [<translate key="block.anvilcraft.chute"/>](../004_block/001_chute.md) [<translate key="block.anvilcraft.magnetic_chute"/>](../004_block/001_chute.md) ...
+有过滤格的机器包括 <ref item="anvilcraft:chute"/> <ref item="anvilcraft:magnetic_chute"/> ...
 </info>

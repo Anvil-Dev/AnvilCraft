@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
+import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -36,6 +37,11 @@ public class ModComponents {
     public static final DataComponentType<DiskData> DISK_DATA = register(
         "disk_data",
         b -> b.persistent(DiskData.CODEC).networkSynchronized(DiskData.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<StructureDiskData> STRUCTURE_DISK_DATA = register(
+        "structure_disk_data",
+        b -> b.persistent(StructureDiskData.CODEC).networkSynchronized(StructureDiskData.STREAM_CODEC)
     );
 
     public static final DataComponentType<SavedEntity> SAVED_ENTITY = register(

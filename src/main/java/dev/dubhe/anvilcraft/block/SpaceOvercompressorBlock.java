@@ -6,8 +6,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -32,24 +30,5 @@ public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements I
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new SpaceOvercompressorBlockEntity(pos, state);
-    }
-
-    @Override
-    public CompoundTag clearData(Level level, BlockPos pos) {
-        CompoundTag tag = new CompoundTag();
-        BlockEntity entity = level.getBlockEntity(pos);
-        if (entity instanceof SpaceOvercompressorBlockEntity s) {
-            tag.putLong("storedMass", s.getStoredMass());
-        }
-        return tag;
-    }
-
-    @Override
-    public void setData(Level level, BlockPos pos, CompoundTag nbt) {
-        BlockEntity entity = level.getBlockEntity(pos);
-        long mass = nbt.getLong("storedMass");
-        if (entity instanceof SpaceOvercompressorBlockEntity s) {
-            s.injectMass(mass - s.getStoredMass());
-        }
     }
 }

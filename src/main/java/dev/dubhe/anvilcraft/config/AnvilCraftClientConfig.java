@@ -28,6 +28,9 @@ public class AnvilCraftClientConfig {
     @Comment("Bloom effect on laser and power transmitter lines.")
     public boolean renderBloomEffect = false;
 
+    @Comment("Scanline post-processing effect on 3D structure previews.")
+    public boolean renderScanPreviewEffect = true;
+
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
 

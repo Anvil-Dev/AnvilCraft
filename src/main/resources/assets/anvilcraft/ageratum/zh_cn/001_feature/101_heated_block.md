@@ -41,7 +41,7 @@ items:
 
 - 作为<color=#cc44cc>抽象概念</color>，反映方块的温度
 - 可通过外部加热提升并维持**温度等级**
-- <translate key="block.minecraft.netherite_block"/>、<translate key="block.anvilcraft.tungsten_block"/>具有5个温度等级：
+- <ref item="minecraft:netherite_block"/>、<ref item="anvilcraft:tungsten_block"/>具有5个温度等级：
   - <color=#666666>普通</color>
   - <color=#661111>高温</color>
   - <color=#aa2222>红热</color>
@@ -53,7 +53,7 @@ items:
 - 作为<color=#cc44cc>抽象概念</color>，反映方块因为散热，将在多久后降低**温度等级**
 - 自动减少，若归零，则**温度等级**下降，**持续时间**重置为10s
 - 收到外部加热时提升，最大值: 20min
-- <translate key="block.minecraft.comparator"/>可以检测持续时间，输出红石信号
+- <ref item="minecraft:comparator"/>可以检测持续时间，输出红石信号
 
 # 高温方块
 
@@ -61,7 +61,7 @@ items:
 
 ## 特性
 
-- 可以为[<translate key="block.anvilcraft.heat_collector"/>](../003_power/201_heat_collection.md)提供给热量以发电
+- 可以为<ref item="anvilcraft:heat_collector"/>提供给热量以发电
 - 挖掘时，如果工具没有*精准采集/熔炼*附魔，则**温度等级**降低一级
 - 放置时，**温度等级**降低一级
 - <color=#aa2222>红热</color>及以上等级的方块，烫伤踩在上面的生物
@@ -80,8 +80,8 @@ items:
 
 |                     加热方式                      |                加热能力                 | 提升时间(s) |
 |:---------------------------------------------:|:-----------------------------------:|:--------|
-|      [<translate key="block.anvilcraft.heater"/>](../004_block/100_heater.md)      | <color=#661111>高温</color> | 0.1     |
-| [<translate key="block.anvilcraft.mineral_fountain"/>](../007_struct/130_mineral_fountain.md) | <color=#aa2222>红热</color> | 1       |
-|    [<translate key="block.anvilcraft.heliostats"/>](../004_block/110_heliostats.md)    |                 可变                  | 4       |
-|    [<translate key="block.anvilcraft.ruby_laser"/>](../004_block/201_basic_laser.md)    |                 可变                  | 0.1     |
+|      <ref item="anvilcraft:heater"/>      | <color=#661111>高温</color> | 0.1     |
+| <ref item="anvilcraft:mineral_fountain"/> | <color=#aa2222>红热</color> | 1       |
+|    <ref item="anvilcraft:heliostats"/>    |                 可变                  | 4       |
+|    <ref item="anvilcraft:ruby_laser"/>    |                 可变                  | 0.1     |
 |       [等离子喷流](../007_struct/201_plasma_jets.md)       | <color=#cc5533>炽热</color> | 0.1 / 1 |

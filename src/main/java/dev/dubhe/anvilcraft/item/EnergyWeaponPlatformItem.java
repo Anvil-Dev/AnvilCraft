@@ -19,7 +19,7 @@ public class EnergyWeaponPlatformItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
-        if (level.isClientSide) return InteractionResultHolder.pass(stack);
+        if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
         ModMenuTypes.open(
             Util.cast(player),
             new SimpleMenuProvider(

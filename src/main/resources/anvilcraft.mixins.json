@@ -23,6 +23,7 @@
     "EnchantmentPredicateMixin",
     "EntityMixin",
     "EntityTypeBuilderMixin",
+    "ExperienceOrbMixin",
     "ExplosionMixin",
     "FallingBlockEntityMixin",
     "FallingBlockMixin",

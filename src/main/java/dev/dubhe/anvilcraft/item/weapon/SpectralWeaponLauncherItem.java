@@ -103,7 +103,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     @Override
     public int getBarWidth(ItemStack stack) {
         int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        return Math.clamp(energy / SpectralWeaponLauncherItem.MAX_ENERGY, 0, 1) * 13;
+        return Math.round(Math.clamp((float) energy / SpectralWeaponLauncherItem.MAX_ENERGY, 0, 1) * 13);
     }
 
     @Override

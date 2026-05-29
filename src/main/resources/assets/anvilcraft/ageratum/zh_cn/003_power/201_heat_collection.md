@@ -10,7 +10,7 @@ items:
 
 <item id="anvilcraft:heat_collector"/>
 
-# <translate key="block.anvilcraft.heat_collector"/>
+# <ref item="anvilcraft:heat_collector"/>
 
 <recipe id="anvilcraft:heat_collector"/>
 
@@ -24,10 +24,10 @@ items:
 
 |                                             方块                                              |                      转化结果                      | 提供能量(kW) |
 |:-------------------------------------------------------------------------------------------:|:----------------------------------------------:|:--------:|
-|                       <translate key="block.minecraft.magma_block"/>                        | <translate key="block.minecraft.netherrack"/>  |    2     |
-|                         <translate key="block.minecraft.campfire"/>                         | 熄灭的<translate key="block.minecraft.campfire"/> |    4     |
-|                                             熔岩                                              |  <translate key="block.minecraft.obsidian"/>   |    4     |
-| [<translate key="block.anvilcraft.ember_metal_block"/>](../002_material/211_ember_metal.md) |                       不变                       |    4     |
+|                       <ref item="minecraft:magma_block"/>                        | <ref item="minecraft:netherrack"/>  |    2     |
+|                         <ref item="minecraft:campfire"/>                         | 熄灭的<ref item="minecraft:campfire"/> |    4     |
+|                                             熔岩                                              |  <ref item="minecraft:obsidian"/>   |    4     |
+| <ref item="anvilcraft:ember_metal_block"/> |                       不变                       |    4     |
 |            <color=#661111>高温</color>的[可加热方块](../001_feature/101_heated_block.md)            |                       不变                       |    4     |  
 |            <color=#aa2222>红热</color>的[可加热方块](../001_feature/101_heated_block.md)            |                       不变                       |    16    |
 |            <color=#cc5533>炽热</color>的[可加热方块](../001_feature/101_heated_block.md)            |                       不变                       |    64    |
@@ -39,7 +39,7 @@ items:
 
 ## 太阳能发电
 
-- 通过[<translate key="block.anvilcraft.heliostats"/>](../004_block/110_heliostats.md)将太阳能收集到可加热方块上，集热器再吸收热能发电
+- 通过<ref item="anvilcraft:heliostats"/>将太阳能收集到可加热方块上，集热器再吸收热能发电
 - 优点：耗材简单，且无须后续投入
 - 缺点：但是占地较大，且光路上不可有方块阻挡
 

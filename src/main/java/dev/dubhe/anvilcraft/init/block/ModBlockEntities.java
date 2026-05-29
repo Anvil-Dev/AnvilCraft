@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
@@ -44,6 +45,7 @@ import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
@@ -68,6 +70,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ExpCollectorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
@@ -371,10 +374,21 @@ public class ModBlockEntities {
         .renderer(() -> FishTankBlockEntityRenderer::new)
         .register();
 
+    public static final BlockEntityEntry<ExpCollectorBlockEntity> EXP_COLLECTOR = REGISTRUM
+        .blockEntity("exp_collector", ExpCollectorBlockEntity::new)
+        .validBlocks(ModBlocks.EXP_COLLECTOR)
+        .renderer(() -> ExpCollectorBlockEntityRenderer::new)
+        .register();
+
     public static final BlockEntityEntry<SmartBlockPlacerBlockEntity> SMART_BLOCK_PLACER = REGISTRUM
         .blockEntity("smart_block_placer", SmartBlockPlacerBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.SMART_BLOCK_PLACER)
         .renderer(() -> SmartBlockPlacerRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<StructureScannerBlockEntity> STRUCTURE_SCANNER = REGISTRUM
+        .blockEntity("structure_scanner", StructureScannerBlockEntity::new)
+        .validBlock(ModBlocks.STRUCTURE_SCANNER)
         .register();
 
     public static final BlockEntityEntry<WipBlockEntity> WIP_BLOCK = REGISTRUM

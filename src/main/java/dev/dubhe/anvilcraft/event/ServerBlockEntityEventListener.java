@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
+import dev.dubhe.anvilcraft.util.OverseerUtil;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -26,6 +27,9 @@ public class ServerBlockEntityEventListener {
         if (event.getEntity() instanceof HeatableBlockEntity heatable) {
             HeaterManager.addHeatableBlock(heatable.getBlockPos(), event.getLevel());
         }
+        if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
+            OverseerUtil.onLoadOverseer(event.getLevel(), overseerBlockEntity);
+        }
     }
 
     @SubscribeEvent
@@ -37,6 +41,7 @@ public class ServerBlockEntityEventListener {
             ChargeCollectorManager.getInstance(event.getLevel()).removeChargeCollector(chargeCollector);
         } else if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
             LevelLoadManager.unregister(overseerBlockEntity.getBlockPos(), event.getLevel());
+            OverseerUtil.onUnloadOverseer(event.getLevel(), overseerBlockEntity);
         }
     }
 }
