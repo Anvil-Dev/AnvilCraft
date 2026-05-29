@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -29,10 +29,8 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     public static final int WIDTH = 176;
     public static final int HEIGHT = 64;
 
-    private static final ResourceLocation BACKGROUND =
-        AnvilCraft.of("textures/gui/container/smithing/background/multiple_to_one_smithing_jei.png");
-    private static final ResourceLocation DISABLED_SLOT =
-        AnvilCraft.of("textures/gui/container/machine/disabled_slot.png");
+    private static final ResourceLocation BACKGROUND = SharedTextures.bg("jei", "multiple_to_one_smithing");
+    private static final ResourceLocation DISABLED_SLOT = SharedTextures.DISABLED_SLOT;
     private static final Component TOOLTIP_NOT_CONSUMED =
         Component.translatable("jei.anvilcraft.tooltip.not_consumed").withStyle(ChatFormatting.GOLD);
 
@@ -111,7 +109,8 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get()));
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING_TYPE.get())
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

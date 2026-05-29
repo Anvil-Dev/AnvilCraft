@@ -1,7 +1,0 @@
-{
-  "parent": "anvilcraft:block/shulker_container_corner",
-  "textures": {
-    "0": "anvilcraft:block/shulker_container_open_corner",
-    "particle": "anvilcraft:block/shulker_container_open_corner"
-  }
-}
