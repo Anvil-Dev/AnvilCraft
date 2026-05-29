@@ -22,4 +22,5 @@ dependencies {
 
     // Jade
     compileClasspath(libs.jade)
+    runtimeClasspath(libs.jade)
 }

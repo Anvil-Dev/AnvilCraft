@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,13 +38,21 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
 
         @Override
         protected void onContentsChanged() {
+            LargeFluidTankBlockEntity.this.setChanged();
             LargeFluidTankBlockEntity.this.updateLightLevel();
+            LargeFluidTankBlockEntity.this.updateBlock();
         }
     };
     protected boolean isBigger = false;
 
     public LargeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    private void updateBlock() {
+        if (this.level != null) {
+            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        }
     }
 
     public void tick() {
@@ -134,11 +143,11 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     }
 
     public IFluidTank getTank() {
-        return getMainPart().tank;
+        return this.getMainPart().tank;
     }
 
     public IFluidHandler getFluidHandler() {
-        return getMainPart().tank;
+        return this.getMainPart().tank;
     }
 
     public boolean isMainPart() {
@@ -151,6 +160,6 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         BlockPos mainPartPos = block.getMainPartPos(this.getBlockPos(), this.getBlockState());
         if (this.getLevel() == null) return this;
         BlockEntity mainPart = this.getLevel().getBlockEntity(mainPartPos);
-        return mainPart instanceof LargeFluidTankBlockEntity ? (LargeFluidTankBlockEntity) mainPart : this;
+        return mainPart instanceof LargeFluidTankBlockEntity mainPart1 ? mainPart1 : this;
     }
 }

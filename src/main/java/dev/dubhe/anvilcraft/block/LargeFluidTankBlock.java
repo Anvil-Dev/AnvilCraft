@@ -71,6 +71,10 @@ public class LargeFluidTankBlock
         return this;
     }
 
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return createBlockEntity(pos, state);
+    }
+
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.LARGE_FLUID_TANK.create(pos, state);

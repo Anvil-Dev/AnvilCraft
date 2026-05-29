@@ -47,6 +47,7 @@ public class CapabilitiesEventListener {
 
         List.of(
             ModBlockEntities.FISH_TANK.get(),
+            ModBlockEntities.EXP_COLLECTOR.get(),
             ModBlockEntities.FLUID_TANK.get(),
             ModBlockEntities.LARGE_FLUID_TANK.get()
         ).forEach(type -> event.registerBlockEntity(
@@ -59,12 +60,6 @@ public class CapabilitiesEventListener {
             Capabilities.FluidHandler.ITEM,
             (stack, ctx) -> new PowderSnowWrapper(stack),
             Items.POWDER_SNOW_BUCKET
-        );
-
-        event.registerBlockEntity(
-            Capabilities.FluidHandler.BLOCK,
-            ModBlockEntities.EXP_COLLECTOR.get(),
-            (be, side) -> be.getFluidHandler()
         );
     }
 }
