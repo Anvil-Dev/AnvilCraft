@@ -152,6 +152,7 @@ import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
+import dev.dubhe.anvilcraft.block.item.FishTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
@@ -200,7 +201,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.block.item.FishTankBlockItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.util.DangerUtil;
@@ -901,7 +901,7 @@ public class ModBlocks {
                 boolean upsideDown = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
                 boolean powered = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED);
                 boolean overload = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD);
-                
+
                 // 根据状态选择模型
                 String modelName;
                 if (overload) {
@@ -911,21 +911,21 @@ public class ModBlocks {
                 } else {
                     modelName = "block/smart_block_placer_bottom_off";
                 }
-                
+
                 var model = provider.models().getExistingFile(AnvilCraft.of(modelName));
-                
+
                 int rotation = switch (facing) {
                     case EAST -> 90;
                     case SOUTH -> 180;
                     case WEST -> 270;
                     default -> 0;
                 };
-                
+
                 // 倒挂时，需要额外旋转180度来修正模型翻转
                 if (upsideDown) {
                     rotation = (rotation + 180) % 360;
                 }
-                
+
                 return net.neoforged.neoforge.client.model.generators.ConfiguredModel.builder()
                     .modelFile(model)
                     .rotationX(upsideDown ? 180 : 0)
