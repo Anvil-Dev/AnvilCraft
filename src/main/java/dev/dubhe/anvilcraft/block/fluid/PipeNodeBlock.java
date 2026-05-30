@@ -67,6 +67,7 @@ public class PipeNodeBlock extends PipeBlock {
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (state.is(oldState.getBlock())) return;
         BlockState updated = scanAllDirections(state, level, pos);
+        updated = trySimplify(updated);
         if (updated != state) {
             level.setBlockAndUpdate(pos, updated);
         }
@@ -111,35 +112,54 @@ public class PipeNodeBlock extends PipeBlock {
 
     private static BlockState trySimplify(BlockState state) {
         List<Direction> pipeDirs = new ArrayList<>();
-        boolean hasEnd = false;
+        List<Direction> endDirs = new ArrayList<>();
         for (Direction dir : Direction.values()) {
             NodePipe value = state.getValue(getPropertyForDirection(dir));
-            if (value == NodePipe.PIPE) {
-                pipeDirs.add(dir);
-            } else if (value == NodePipe.END) {
-                hasEnd = true;
-            }
+            if (value == NodePipe.PIPE) pipeDirs.add(dir);
+            else if (value == NodePipe.END) endDirs.add(dir);
         }
 
-        if (pipeDirs.size() <= 2 && !hasEnd) {
-            Direction a = pipeDirs.get(0);
-            Direction b = pipeDirs.get(1);
-            if (a.getOpposite() == b) {
+        int total = pipeDirs.size() + endDirs.size();
+        if (total > 2) return state;
+        if (total == 0) return state;
+
+        if (total == 2) {
+            java.util.List<Direction> all = new ArrayList<>();
+            all.addAll(pipeDirs);
+            all.addAll(endDirs);
+            Direction a = all.get(0);
+            Direction b = all.get(1);
+            boolean aIsPipe = pipeDirs.contains(a);
+            boolean bIsPipe = pipeDirs.contains(b);
+            if (a.getAxis() == b.getAxis()) {
+                Direction.Axis ax = a.getAxis();
+                Direction neg = getDirectionFromAxis(ax, Direction.AxisDirection.NEGATIVE);
                 return ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
-                    .setValue(AXIS, a.getAxis())
-                    .setValue(HAS_END_START, false)
-                    .setValue(HAS_END_END, false)
+                    .setValue(AXIS, ax)
+                    .setValue(HAS_END_START, neg == a ? !aIsPipe : !bIsPipe)
+                    .setValue(HAS_END_END, neg == a ? !bIsPipe : !aIsPipe)
                     .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
             } else {
+                CornerEnded corner = CornerEnded.fromDirections(a, b);
+                boolean firstIsA = corner.getFirstDirection() == a;
                 return ModBlocks.PIPE_CORNER.get().defaultBlockState()
-                    .setValue(CORNER_ENDED, CornerEnded.fromDirections(a, b))
-                    .setValue(HAS_END_START, false)
-                    .setValue(HAS_END_END, false)
+                    .setValue(CORNER_ENDED, corner)
+                    .setValue(HAS_END_START, firstIsA ? !aIsPipe : !bIsPipe)
+                    .setValue(HAS_END_END, firstIsA ? !bIsPipe : !aIsPipe)
                     .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
             }
         }
 
-        return state;
+        // total == 1: single pipe or end → straight pipe on that axis
+        Direction only = !pipeDirs.isEmpty() ? pipeDirs.get(0) : endDirs.get(0);
+        boolean onlyIsPipe = !pipeDirs.isEmpty();
+        Direction.Axis ax = only.getAxis();
+        Direction neg = getDirectionFromAxis(ax, Direction.AxisDirection.NEGATIVE);
+        return ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
+            .setValue(AXIS, ax)
+            .setValue(HAS_END_START, neg == only ? !onlyIsPipe : true)
+            .setValue(HAS_END_END, neg == only ? true : !onlyIsPipe)
+            .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
     }
 
     private static BlockState scanAllDirections(BlockState state, Level level, BlockPos pos) {

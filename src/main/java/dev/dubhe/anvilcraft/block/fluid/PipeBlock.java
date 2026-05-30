@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +21,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 
 import java.util.Locale;
 
-public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock {
+public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable {
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final EnumProperty<CornerEnded> CORNER_ENDED = EnumProperty.create("corner_ended", CornerEnded.class);
     public static final BooleanProperty HAS_END_START = BooleanProperty.create("has_end_start");
