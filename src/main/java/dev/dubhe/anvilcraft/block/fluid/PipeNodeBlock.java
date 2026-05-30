@@ -121,7 +121,7 @@ public class PipeNodeBlock extends PipeBlock {
             }
         }
 
-        if (pipeDirs.size() == 2 && !hasEnd) {
+        if (pipeDirs.size() <= 2 && !hasEnd) {
             Direction a = pipeDirs.get(0);
             Direction b = pipeDirs.get(1);
             if (a.getOpposite() == b) {
@@ -201,7 +201,9 @@ public class PipeNodeBlock extends PipeBlock {
             }
         }
 
-        level.setBlockAndUpdate(pos, state.setValue(prop, NodePipe.NONE));
+        BlockState newState = state.setValue(prop, NodePipe.NONE);
+        newState = trySimplify(newState);
+        level.setBlockAndUpdate(pos, newState);
         return ItemInteractionResult.sidedSuccess(false);
     }
 }
