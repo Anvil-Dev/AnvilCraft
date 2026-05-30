@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -7,6 +8,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluids;
@@ -59,8 +61,6 @@ public class PipeStraightBlock extends PipeBlock {
     ) {
         if (level.isClientSide) return;
         Direction.Axis axis = state.getValue(AXIS);
-        Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-        Direction endDir = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
 
         Direction neighborDir = null;
         for (Direction dir : Direction.values()) {
@@ -85,7 +85,14 @@ public class PipeStraightBlock extends PipeBlock {
             return;
         }
 
+        Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+        Direction ignore = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
         boolean neighborIsPipe = level.getBlockState(neighborPos).getBlock() instanceof PipeBlock;
         this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipe);
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModBlockEntities.PIPE.create(pos, state);
     }
 }

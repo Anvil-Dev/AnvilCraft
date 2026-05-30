@@ -1,14 +1,17 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 public class PipeCornerBlock extends PipeBlock {
     public PipeCornerBlock(Properties properties) {
@@ -63,5 +66,10 @@ public class PipeCornerBlock extends PipeBlock {
 
         Direction startDir = corner.getFirstDirection();
         this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipeToward);
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModBlockEntities.PIPE.create(pos, state);
     }
 }

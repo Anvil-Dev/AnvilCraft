@@ -54,6 +54,8 @@ import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.IncandescentBlockEntity;
@@ -396,6 +398,16 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<StructureScannerBlockEntity> STRUCTURE_SCANNER = REGISTRUM
         .blockEntity("structure_scanner", StructureScannerBlockEntity::new)
         .validBlock(ModBlocks.STRUCTURE_SCANNER)
+        .register();
+
+    public static final BlockEntityEntry<PipeNodeBlockEntity> PIPE_NODE = REGISTRUM
+        .blockEntity("pipe_node", PipeNodeBlockEntity::create)
+        .validBlock(ModBlocks.PIPE_NODE)
+        .register();
+
+    public static final BlockEntityEntry<PipeBlockEntity> PIPE = REGISTRUM
+        .blockEntity("pipe", PipeBlockEntity::create)
+        .validBlocks(ModBlocks.PIPE_STRAIGHT, ModBlocks.PIPE_CORNER)
         .register();
 
     public static final BlockEntityEntry<LargeLaserBlockEntity> LARGE_LASER = REGISTRUM
