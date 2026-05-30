@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -16,6 +17,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -146,6 +149,26 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
         if (newState != state) {
             level.setBlockAndUpdate(pos, newState);
         }
+    }
+
+    @Override
+    protected BlockState updateShape(
+        BlockState state,
+        Direction direction,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
+    ) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     public VoxelShape getShape(BlockState state, Direction startDir, Direction endDir) {

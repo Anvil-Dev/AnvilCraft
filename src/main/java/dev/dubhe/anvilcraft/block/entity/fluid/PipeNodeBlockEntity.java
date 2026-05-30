@@ -1,15 +1,20 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
@@ -72,5 +77,45 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    public static void tick(Level level, BlockPos pos, BlockState state) {
+        if (!(state.getBlock() instanceof PipeNodeBlock)) {
+            return;
+        }
+        for (Direction direction : Direction.values()) {
+            EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
+            PipeBlock.NodePipe value = state.getValue(property);
+            if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.UP)) {
+                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                    level,
+                    pos,
+                    Direction.UP,
+                    pos.relative(Direction.UP),
+                    Direction.DOWN
+                );
+            }
+            if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.DOWN)) {
+                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                    level,
+                    pos.relative(Direction.DOWN),
+                    Direction.UP,
+                    pos,
+                    Direction.DOWN
+                );
+            }
+            if (!value.equals(PipeBlock.NodePipe.PIPE)) {
+                continue;
+            }
+            PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos.relative(direction), direction.getOpposite());
+            if (pipeEnd == null) continue;
+            AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                level,
+                pos.relative(direction),
+                direction.getOpposite(),
+                pipeEnd.pos(),
+                pipeEnd.direction()
+            );
+        }
     }
 }

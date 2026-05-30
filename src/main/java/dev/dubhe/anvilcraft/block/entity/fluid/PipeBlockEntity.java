@@ -2,15 +2,12 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
-import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-
-import javax.annotation.Nullable;
 
 public class PipeBlockEntity extends AbstractPipeBlockEntity {
     protected PipeBlockEntity(
@@ -25,61 +22,66 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
         return new PipeBlockEntity(type, pos, blockState);
     }
 
-    public static @Nullable PipeEnd getPipeEnd(Level level, BlockPos blockPos, Direction direction) {
-        if (!level.isLoaded(blockPos)) return null;
-        BlockState blockState = level.getBlockState(blockPos);
-        if (blockState.getBlock() instanceof PipeNodeBlock) {
-            return new PipeEnd(blockPos, null);
+    public static int getEndCount(BlockState blockState) {
+        if (!(blockState.getBlock() instanceof PipeStraightBlock) && !(blockState.getBlock() instanceof PipeCornerBlock)) {
+            return -1;
         }
-        if (blockState.getBlock() instanceof PipeStraightBlock) {
-            return getPipeStraightEnd(level, blockPos, blockState, direction);
-        }
-        if (blockState.getBlock() instanceof PipeCornerBlock) {
-            return getPipeCornerEnd(level, blockPos, blockState, direction);
-        }
-        return null;
+        int count = 0;
+        if (blockState.getValue(PipeStraightBlock.HAS_END_START)) count++;
+        if (blockState.getValue(PipeStraightBlock.HAS_END_END)) count++;
+        return count;
     }
 
-    public static @Nullable PipeEnd getPipeStraightEnd(Level level, BlockPos blockPos, BlockState blockState, Direction direction) {
-        Direction.Axis axis = blockState.getValue(PipeStraightBlock.AXIS);
-        if (!direction.getAxis().equals(axis)) {
-            return null;
+    public static void tick(Level level, BlockPos pos, BlockState state) {
+        int endCount = PipeBlockEntity.getEndCount(state);
+        if (endCount <= 0) {
+            return;
         }
-        Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-        boolean hasNext;
-        if (direction.equals(startDir)) {
-            hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_END);
+        boolean isStraight = state.getBlock() instanceof PipeStraightBlock;
+        if (endCount == 2 && isStraight && Direction.Axis.Y.equals(state.getValue(PipeStraightBlock.AXIS))) {
+            return;
+        }
+        if (
+            endCount == 2
+            && !isStraight
+            && !state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.DOWN)
+            && !state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.UP)
+        ) {
+            return;
+        }
+        if (endCount == 2) {
+            if (isStraight) {
+                AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, Direction.UP, pos, Direction.DOWN);
+            } else {
+                if (state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.DOWN)) {
+                    PipeBlock.CornerEnded cornerEnded = state.getValue(PipeCornerBlock.CORNER_ENDED);
+                    AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, cornerEnded.getSecondDirection(), pos, Direction.DOWN);
+                } else {
+                    PipeBlock.CornerEnded cornerEnded = state.getValue(PipeCornerBlock.CORNER_ENDED);
+                    AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, Direction.UP, pos, cornerEnded.getSecondDirection());
+                }
+            }
+            return;
+        }
+        Direction sourceDirection;
+        boolean hasEndStart = state.getValue(PipeBlock.HAS_END_START);
+        if (isStraight) {
+            if (hasEndStart) {
+                sourceDirection = PipeBlock.getDirectionFromAxis(state.getValue(PipeStraightBlock.AXIS), Direction.AxisDirection.NEGATIVE);
+            } else {
+                sourceDirection = PipeBlock.getDirectionFromAxis(state.getValue(PipeStraightBlock.AXIS), Direction.AxisDirection.POSITIVE);
+            }
         } else {
-            hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_START);
+            if (hasEndStart) {
+                sourceDirection = state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection();
+            } else {
+                sourceDirection = state.getValue(PipeCornerBlock.CORNER_ENDED).getSecondDirection();
+            }
         }
-        Direction targetDir = direction.getOpposite();
-        if (!hasNext) {
-            return new PipeEnd(blockPos, targetDir);
+        PipeEnd pipeEnd = PipeBlockEntity.getPipeEnd(level, pos, sourceDirection);
+        if (pipeEnd == null) {
+            return;
         }
-        return getPipeEnd(level, blockPos.relative(targetDir), direction);
-    }
-
-    public static @Nullable PipeEnd getPipeCornerEnd(Level level, BlockPos blockPos, BlockState blockState, Direction direction) {
-        PipeBlock.CornerEnded corner = blockState.getValue(PipeCornerBlock.CORNER_ENDED);
-        if (!direction.equals(corner.getFirstDirection()) && !direction.equals(corner.getSecondDirection())) {
-            return null;
-        }
-        Direction startDir = corner.getFirstDirection();
-        boolean hasNext;
-        Direction targetDir;
-        if (direction.equals(startDir)) {
-            hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_END);
-            targetDir = corner.getSecondDirection();
-        } else {
-            hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_START);
-            targetDir = startDir;
-        }
-        if (!hasNext) {
-            return new PipeEnd(blockPos, targetDir);
-        }
-        return getPipeEnd(level, blockPos.relative(targetDir), targetDir.getOpposite());
-    }
-
-    public record PipeEnd(BlockPos pos, @Nullable Direction direction) {
+        AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, sourceDirection, pipeEnd.pos(), pipeEnd.direction());
     }
 }
