@@ -8,19 +8,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class PipeCornerBlock extends PipeBlock {
     public PipeCornerBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-            this.getStateDefinition()
-                .any()
-                .setValue(CORNER_ENDED, CornerEnded.UP_NORTH)
-                .setValue(HAS_END_START, true)
-                .setValue(HAS_END_END, true)
-        );
+        this.registerDefaultState(this.getStateDefinition()
+            .any()
+            .setValue(CORNER_ENDED, CornerEnded.UP_NORTH)
+            .setValue(HAS_END_START, true)
+            .setValue(HAS_END_END, true));
     }
 
     @Override
@@ -34,27 +31,19 @@ public class PipeCornerBlock extends PipeBlock {
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
         CornerEnded corner = state.getValue(CORNER_ENDED);
-        Direction first = corner.getFirstDirection();
-        Direction second = corner.getSecondDirection();
-
-        VoxelShape shape = PIPE_CENTER;
-        if (state.getValue(HAS_END_START)) {
-            shape = Shapes.or(shape, makeEnd(first));
-        } else {
-            shape = Shapes.or(shape, makeNoEnd(first));
-        }
-        if (state.getValue(HAS_END_END)) {
-            shape = Shapes.or(shape, makeEnd(second));
-        } else {
-            shape = Shapes.or(shape, makeNoEnd(second));
-        }
-        return shape;
+        Direction startDir = corner.getFirstDirection();
+        Direction endDir = corner.getSecondDirection();
+        return this.getShape(state, startDir, endDir);
     }
 
     @Override
     protected void neighborChanged(
-        BlockState state, Level level, BlockPos pos, Block neighborBlock,
-        BlockPos neighborPos, boolean movedByPiston
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
     ) {
         if (level.isClientSide) return;
         CornerEnded corner = state.getValue(CORNER_ENDED);
@@ -72,17 +61,8 @@ public class PipeCornerBlock extends PipeBlock {
 
         boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
 
-        Direction first = corner.getFirstDirection();
-        Direction second = corner.getSecondDirection();
-        BlockState newState = state;
-        if (neighborDir == first) {
-            newState = newState.setValue(HAS_END_START, !neighborIsPipeToward);
-        } else {
-            newState = newState.setValue(HAS_END_END, !neighborIsPipeToward);
-        }
-
-        if (newState != state) {
-            level.setBlockAndUpdate(pos, newState);
-        }
+        Direction startDir = corner.getFirstDirection();
+        Direction ignore = corner.getSecondDirection();
+        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipeToward);
     }
 }

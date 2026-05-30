@@ -11,20 +11,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class PipeStraightBlock extends PipeBlock {
     public PipeStraightBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(
-            this.getStateDefinition()
-                .any()
-                .setValue(AXIS, Direction.Axis.X)
-                .setValue(HAS_END_START, true)
-                .setValue(HAS_END_END, true)
-        );
+        this.registerDefaultState(this.getStateDefinition()
+            .any()
+            .setValue(AXIS, Direction.Axis.X)
+            .setValue(HAS_END_START, true)
+            .setValue(HAS_END_END, true));
     }
 
     @Override
@@ -40,11 +37,7 @@ public class PipeStraightBlock extends PipeBlock {
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
             .setValue(AXIS, context.getClickedFace().getAxis())
-            .setValue(
-                WATERLOGGED,
-                context.getLevel().getFluidState(context.getClickedPos())
-                    .getType() == Fluids.WATER
-            );
+            .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
     }
 
     @Override
@@ -52,25 +45,17 @@ public class PipeStraightBlock extends PipeBlock {
         Direction.Axis axis = state.getValue(AXIS);
         Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
         Direction endDir = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
-
-        VoxelShape shape = PIPE_CENTER;
-        if (state.getValue(HAS_END_START)) {
-            shape = Shapes.or(shape, makeEnd(startDir));
-        } else {
-            shape = Shapes.or(shape, makeNoEnd(startDir));
-        }
-        if (state.getValue(HAS_END_END)) {
-            shape = Shapes.or(shape, makeEnd(endDir));
-        } else {
-            shape = Shapes.or(shape, makeNoEnd(endDir));
-        }
-        return shape;
+        return this.getShape(state, startDir, endDir);
     }
 
     @Override
     protected void neighborChanged(
-        BlockState state, Level level, BlockPos pos, Block neighborBlock,
-        BlockPos neighborPos, boolean movedByPiston
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
     ) {
         if (level.isClientSide) return;
         Direction.Axis axis = state.getValue(AXIS);
@@ -94,16 +79,9 @@ public class PipeStraightBlock extends PipeBlock {
             boolean endOccupied = isNeighborOccupied(level, pos, endDir);
 
             if (startOccupied && endOccupied) {
-                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
-                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
-                nodeState = nodeState.setValue(
-                    getPropertyForDirection(startDir),
-                    PipeNodeBlock.evaluateNeighbor(level, pos, startDir)
-                );
-                nodeState = nodeState.setValue(
-                    getPropertyForDirection(endDir),
-                    PipeNodeBlock.evaluateNeighbor(level, pos, endDir)
-                );
+                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+                nodeState = nodeState.setValue(getPropertyForDirection(startDir), PipeNodeBlock.evaluateNeighbor(level, pos, startDir));
+                nodeState = nodeState.setValue(getPropertyForDirection(endDir), PipeNodeBlock.evaluateNeighbor(level, pos, endDir));
                 nodeState = nodeState.setValue(getPropertyForDirection(neighborDir), NodePipe.PIPE);
                 level.setBlockAndUpdate(pos, nodeState);
             } else {
@@ -112,7 +90,8 @@ public class PipeStraightBlock extends PipeBlock {
                 boolean pipeEndIsPipe = isNeighborPipeToward(level, pos, pipeEnd);
                 boolean firstIsPipeEnd = corner.getFirstDirection() == pipeEnd;
                 boolean hasEndPipeEnd = !pipeEndIsPipe;
-                BlockState cornerState = ModBlocks.PIPE_CORNER.get().defaultBlockState()
+                BlockState cornerState = ModBlocks.PIPE_CORNER.get()
+                    .defaultBlockState()
                     .setValue(WATERLOGGED, state.getValue(WATERLOGGED))
                     .setValue(CORNER_ENDED, corner)
                     .setValue(HAS_END_START, firstIsPipeEnd && hasEndPipeEnd)
@@ -124,15 +103,6 @@ public class PipeStraightBlock extends PipeBlock {
 
         boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
 
-        BlockState newState = state;
-        if (neighborDir == startDir) {
-            newState = newState.setValue(HAS_END_START, !neighborIsPipeToward);
-        } else {
-            newState = newState.setValue(HAS_END_END, !neighborIsPipeToward);
-        }
-
-        if (newState != state) {
-            level.setBlockAndUpdate(pos, newState);
-        }
+        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipeToward);
     }
 }

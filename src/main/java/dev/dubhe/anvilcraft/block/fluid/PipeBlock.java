@@ -126,6 +126,41 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock 
         return ModItems.PIPE.get();
     }
 
+    protected void changePipeState(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        Direction startDir,
+        Direction neighborDir,
+        boolean neighborIsPipeToward
+    ) {
+        BlockState newState = state;
+        if (neighborDir == startDir) {
+            newState = newState.setValue(HAS_END_START, !neighborIsPipeToward);
+        } else {
+            newState = newState.setValue(HAS_END_END, !neighborIsPipeToward);
+        }
+
+        if (newState != state) {
+            level.setBlockAndUpdate(pos, newState);
+        }
+    }
+
+    public VoxelShape getShape(BlockState state, Direction startDir, Direction endDir) {
+        VoxelShape shape = PIPE_CENTER;
+        if (state.getValue(HAS_END_START)) {
+            shape = Shapes.or(shape, makeEnd(startDir));
+        } else {
+            shape = Shapes.or(shape, makeNoEnd(startDir));
+        }
+        if (state.getValue(HAS_END_END)) {
+            shape = Shapes.or(shape, makeEnd(endDir));
+        } else {
+            shape = Shapes.or(shape, makeNoEnd(endDir));
+        }
+        return shape;
+    }
+
     public enum CornerEnded implements StringRepresentable {
         DOWN_NORTH(Direction.DOWN, Direction.NORTH),
         DOWN_SOUTH(Direction.DOWN, Direction.SOUTH),
