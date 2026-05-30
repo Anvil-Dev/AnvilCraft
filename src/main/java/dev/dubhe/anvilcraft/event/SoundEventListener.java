@@ -14,22 +14,28 @@ public class SoundEventListener {
     public static void onPlaySoundAtEntity(PlayLevelSoundEvent.AtEntity event) {
         Entity entity = event.getEntity();
         if (event.getSound() != null && event.getSound().getKey() != null) {
-            event.setCanceled(SoundHelper.INSTANCE.shouldMute(
+            boolean canceled = SoundHelper.INSTANCE.shouldMute(
                 event.getLevel(),
                 event.getSound().getKey().identifier(),
                 new Vec3(entity.getX(), entity.getY(), entity.getZ())
-            ));
+            );
+            if (canceled) {
+                event.setCanceled(true);
+            }
         }
     }
 
     @SubscribeEvent
     public static void onPlaySoundAtPosition(PlayLevelSoundEvent.AtPosition event) {
         if (event.getSound() != null && event.getSound().getKey() != null) {
-            event.setCanceled(SoundHelper.INSTANCE.shouldMute(
+            boolean canceled = SoundHelper.INSTANCE.shouldMute(
                 event.getLevel(),
                 event.getSound().getKey().identifier(),
                 event.getPosition()
-            ));
+            );
+            if (canceled) {
+                event.setCanceled(true);
+            }
         }
     }
 }
