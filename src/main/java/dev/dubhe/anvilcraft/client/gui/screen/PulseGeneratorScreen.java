@@ -12,11 +12,14 @@ import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -39,8 +42,9 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
         SharedTextures.textureGui("machine/pulse_generator/button_minus_m");
 
     private final Minecraft minecraft;
-    private TextWidget waitingTime;
-    private TextWidget signalDuration;
+    private @Nullable TextWidget waitingTime;
+    private @Nullable TextWidget signalDuration;
+    private @Nullable List<ClientTooltipComponent> tooltip;
 
     public PulseGeneratorScreen(PulseGeneratorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 176, 77);
@@ -75,7 +79,8 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop")
-            )
+            ),
+            tooltip -> this.tooltip = tooltip
         );
         final SwitchableButton outputMode = new SwitchableButton(
             this.leftPos + 28,
@@ -87,7 +92,8 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             List.of(
                 Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on")
-            )
+            ),
+            tooltip -> this.tooltip = tooltip
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> addTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -143,14 +149,14 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             32, 9,
             this.minecraft.font,
             () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getWaitingTime(), 5))
-        ).setRenderMode(TextWidget.RenderMode.SCALED);
+        ).setRenderMode(TextWidget.RenderMode.SCALED).alignCenter();
         this.signalDuration = new TextWidget(
             this.leftPos + 115,
             this.topPos + 38,
             32, 9,
             this.minecraft.font,
             () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getSignalDuration(), 5))
-        ).setRenderMode(TextWidget.RenderMode.SCALED);
+        ).setRenderMode(TextWidget.RenderMode.SCALED).alignCenter();
         startMode.setCurrent(this.menu.getBlockEntity().getStartMode().index());
         outputMode.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
         this.addRenderableWidget(startMode);
@@ -172,6 +178,12 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     }
 
     @Override
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.tooltip = null;
+        super.extractContents(graphics, mouseX, mouseY, a);
+    }
+
+    @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
         graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
@@ -190,6 +202,14 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             256,
             128
         );
+    }
+
+    @Override
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
+        if (this.tooltip != null) {
+            graphics.tooltip(this.font, this.tooltip, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
+        }
     }
 
     @Override

@@ -46,7 +46,8 @@ public class TextWidget extends StringWidget {
         return this;
     }
 
-    protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+    @Override
+    public void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         Component component = this.getMessage();
         Font font = this.getFont();
         switch (this.mode) {
