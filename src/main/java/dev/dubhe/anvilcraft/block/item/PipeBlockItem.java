@@ -368,7 +368,7 @@ public class PipeBlockItem extends Item {
             return !state.getValue(PipeBlock.HAS_END_END);
         }
         if (state.getBlock() instanceof PipeNodeBlock) {
-            return state.getValue(PipeBlock.getPropertyForDirection(toward)) == PipeBlock.NodePipe.PIPE;
+            return state.getValue(PipeBlock.getPropertyForDirection(toward)) != PipeBlock.NodePipe.NONE;
         }
         return false;
     }
