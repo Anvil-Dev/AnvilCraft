@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.item;
+package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
@@ -274,7 +274,7 @@ public class PipeBlockItem extends Item {
             );
             nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
             level.setBlockAndUpdate(cornerPos, nodeState);
-        } else if (bothFree || directionMatches || oppositeOccupied) {
+        } else if (bothFree || oppositeOccupied) {
             Direction.Axis axis = clickedFace.getAxis();
             Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
             Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
@@ -291,7 +291,7 @@ public class PipeBlockItem extends Item {
                 .setValue(PipeBlock.HAS_END_END, !endIsPipe)
                 .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
             level.setBlockAndUpdate(cornerPos, straightState);
-        } else {
+        } else if (!directionMatches) {
             Direction occupiedEnd = firstOccupied ? first : second;
             PipeBlock.CornerEnded newCorner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, clickedFace);
             boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, occupiedEnd);

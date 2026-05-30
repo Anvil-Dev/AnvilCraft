@@ -56,7 +56,7 @@ import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
 import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.PillBoxItem;
-import dev.dubhe.anvilcraft.item.PipeBlockItem;
+import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.item.RecoveryPearl;
 import dev.dubhe.anvilcraft.item.ResonatorCoreItem;
 import dev.dubhe.anvilcraft.item.RoyalAnvilHammerItem;
@@ -1041,6 +1041,7 @@ public class ModItems {
         .model((ctx, provider) -> provider
             .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/pipe"))
         )
+        .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
         .register();
 
     private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
