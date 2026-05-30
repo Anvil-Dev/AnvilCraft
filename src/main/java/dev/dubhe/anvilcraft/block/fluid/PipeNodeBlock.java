@@ -19,6 +19,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.Tags;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,9 @@ public class PipeNodeBlock extends PipeBlock {
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        if (state.is(oldState.getBlock())) return;
+        if (state.is(oldState.getBlock())) {
+            return;
+        }
         BlockState updated = scanAllDirections(state, level, pos);
         updated = trySimplify(updated);
         if (updated != state) {
@@ -78,7 +81,9 @@ public class PipeNodeBlock extends PipeBlock {
         BlockState state, Level level, BlockPos pos, Block neighborBlock,
         BlockPos neighborPos, boolean movedByPiston
     ) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) {
+            return;
+        }
 
         Direction neighborDir = null;
         for (Direction dir : Direction.values()) {
@@ -87,11 +92,15 @@ public class PipeNodeBlock extends PipeBlock {
                 break;
             }
         }
-        if (neighborDir == null) return;
+        if (neighborDir == null) {
+            return;
+        }
 
         EnumProperty<NodePipe> prop = getPropertyForDirection(neighborDir);
         NodePipe newValue = evaluateNeighbor(level, pos, neighborDir);
-        if (state.getValue(prop) == newValue) return;
+        if (state.getValue(prop) == newValue) {
+            return;
+        }
 
         BlockState newState = state.setValue(prop, newValue);
         BlockState simplified = trySimplify(newState);
@@ -115,50 +124,57 @@ public class PipeNodeBlock extends PipeBlock {
         List<Direction> endDirs = new ArrayList<>();
         for (Direction dir : Direction.values()) {
             NodePipe value = state.getValue(getPropertyForDirection(dir));
-            if (value == NodePipe.PIPE) pipeDirs.add(dir);
-            else if (value == NodePipe.END) endDirs.add(dir);
+            if (value == NodePipe.PIPE) {
+                pipeDirs.add(dir);
+            } else if (value == NodePipe.END) {
+                endDirs.add(dir);
+            }
         }
 
         int total = pipeDirs.size() + endDirs.size();
-        if (total > 2) return state;
-        if (total == 0) return state;
+        if (total > 2) {
+            return state;
+        }
+        if (total == 0) {
+            return state;
+        }
 
         if (total == 2) {
             java.util.List<Direction> all = new ArrayList<>();
             all.addAll(pipeDirs);
             all.addAll(endDirs);
-            Direction a = all.get(0);
-            Direction b = all.get(1);
-            boolean aIsPipe = pipeDirs.contains(a);
-            boolean bIsPipe = pipeDirs.contains(b);
-            if (a.getAxis() == b.getAxis()) {
-                Direction.Axis ax = a.getAxis();
+            Direction pipe1 = all.get(0);
+            Direction pipe2 = all.get(1);
+            boolean pipe1IsPipe = pipeDirs.contains(pipe1);
+            boolean pipe2IsPipe = pipeDirs.contains(pipe2);
+            if (pipe1.getAxis() == pipe2.getAxis()) {
+                Direction.Axis ax = pipe1.getAxis();
                 Direction neg = getDirectionFromAxis(ax, Direction.AxisDirection.NEGATIVE);
                 return ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
                     .setValue(AXIS, ax)
-                    .setValue(HAS_END_START, neg == a ? !aIsPipe : !bIsPipe)
-                    .setValue(HAS_END_END, neg == a ? !bIsPipe : !aIsPipe)
+                    .setValue(HAS_END_START, neg == pipe1 ? !pipe1IsPipe : !pipe2IsPipe)
+                    .setValue(HAS_END_END, neg == pipe1 ? !pipe2IsPipe : !pipe1IsPipe)
                     .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
             } else {
-                CornerEnded corner = CornerEnded.fromDirections(a, b);
-                boolean firstIsA = corner.getFirstDirection() == a;
+                CornerEnded corner = CornerEnded.fromDirections(pipe1, pipe2);
+                boolean firstIsA = corner.getFirstDirection() == pipe1;
                 return ModBlocks.PIPE_CORNER.get().defaultBlockState()
                     .setValue(CORNER_ENDED, corner)
-                    .setValue(HAS_END_START, firstIsA ? !aIsPipe : !bIsPipe)
-                    .setValue(HAS_END_END, firstIsA ? !bIsPipe : !aIsPipe)
+                    .setValue(HAS_END_START, firstIsA ? !pipe1IsPipe : !pipe2IsPipe)
+                    .setValue(HAS_END_END, firstIsA ? !pipe2IsPipe : !pipe1IsPipe)
                     .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
             }
         }
 
         // total == 1: single pipe or end → straight pipe on that axis
-        Direction only = !pipeDirs.isEmpty() ? pipeDirs.get(0) : endDirs.get(0);
+        Direction only = !pipeDirs.isEmpty() ? pipeDirs.getFirst() : endDirs.getFirst();
         boolean onlyIsPipe = !pipeDirs.isEmpty();
         Direction.Axis ax = only.getAxis();
         Direction neg = getDirectionFromAxis(ax, Direction.AxisDirection.NEGATIVE);
         return ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
             .setValue(AXIS, ax)
-            .setValue(HAS_END_START, neg == only ? !onlyIsPipe : true)
-            .setValue(HAS_END_END, neg == only ? true : !onlyIsPipe)
+            .setValue(HAS_END_START, neg != only || !onlyIsPipe)
+            .setValue(HAS_END_END, neg == only || !onlyIsPipe)
             .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
     }
 
@@ -187,6 +203,27 @@ public class PipeNodeBlock extends PipeBlock {
             return ItemInteractionResult.sidedSuccess(true);
         }
 
+        Direction armDir = getArmDirection(pos, hitResult);
+        if (armDir == null) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        EnumProperty<NodePipe> prop = getPropertyForDirection(armDir);
+        NodePipe current = state.getValue(prop);
+        if (current == NodePipe.NONE) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (current == NodePipe.PIPE) {
+            BlockPos neighborPos = pos.relative(armDir);
+            BlockState neighborState = level.getBlockState(neighborPos);
+            if (!(neighborState.getBlock() instanceof PipeNodeBlock)) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+        }
+
+        BlockState newState = state.setValue(prop, NodePipe.NONE);
+        newState = trySimplify(newState);
+        level.setBlockAndUpdate(pos, newState);
+        return ItemInteractionResult.sidedSuccess(false);
+    }
+
+    private static @Nullable Direction getArmDirection(BlockPos pos, BlockHitResult hitResult) {
         Vec3 loc = hitResult.getLocation();
         double bx = loc.x - pos.getX();
         double by = loc.y - pos.getY();
@@ -208,22 +245,6 @@ public class PipeNodeBlock extends PipeBlock {
                 armDir = dir;
             }
         }
-        if (armDir == null) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-
-        EnumProperty<NodePipe> prop = getPropertyForDirection(armDir);
-        NodePipe current = state.getValue(prop);
-        if (current == NodePipe.NONE) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if (current == NodePipe.PIPE) {
-            BlockPos neighborPos = pos.relative(armDir);
-            BlockState neighborState = level.getBlockState(neighborPos);
-            if (!(neighborState.getBlock() instanceof PipeNodeBlock)) {
-                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            }
-        }
-
-        BlockState newState = state.setValue(prop, NodePipe.NONE);
-        newState = trySimplify(newState);
-        level.setBlockAndUpdate(pos, newState);
-        return ItemInteractionResult.sidedSuccess(false);
+        return armDir;
     }
 }
