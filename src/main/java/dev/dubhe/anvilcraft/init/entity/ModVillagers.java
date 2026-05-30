@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
@@ -39,7 +40,7 @@ public class ModVillagers {
     public static final DeferredHolder<VillagerProfession, VillagerProfession> JEWELER = VILLAGER_PROFESSIONS.register(
         "jeweler",
         () -> new VillagerProfession(
-            net.minecraft.network.chat.Component.translatable("entity.minecraft.villager.jeweler"),
+            Component.translatable("entity.anvilcraft.villager.jeweler"),
             entry -> entry.is(JEWELER_POI.getKey()),
             entry -> entry.is(JEWELER_POI.getKey()),
             ImmutableSet.of(),

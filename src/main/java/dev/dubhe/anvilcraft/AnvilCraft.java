@@ -29,7 +29,9 @@ import dev.dubhe.anvilcraft.init.command.ModCommands;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentEffectComponents;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentEffects;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.init.entity.ModEntitySubPredicates;
 import dev.dubhe.anvilcraft.init.entity.ModVillagers;
+import dev.dubhe.anvilcraft.init.item.ModAmuletDefinitionTypes;
 import dev.dubhe.anvilcraft.init.item.ModAmuletTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModConsumeEffects;
@@ -103,7 +105,9 @@ public class AnvilCraft {
         ModLootModifiers.register(modEventBus);
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
+        ModAmuletDefinitionTypes.register(modEventBus);
         ModConsumeEffects.register(modEventBus);
+        ModEntitySubPredicates.register(modEventBus);
 
         // datagen
         AnvilCraftDatagen.init();

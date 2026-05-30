@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei;
 
 import com.google.common.collect.ImmutableList;
+import dev.anvilcraft.lib.v2.util.Lazy;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.BaseChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
@@ -101,7 +102,7 @@ import net.minecraft.world.level.ItemLike;
 
 @JeiPlugin
 public class AnvilCraftJeiPlugin implements IModPlugin {
-    public static final ImmutableList<ItemLike> ANVIL_PROCESSING_CATALYSTS = ImmutableList.of(
+    public static final Lazy<ImmutableList<ItemLike>> ANVIL_PROCESSING_CATALYSTS = new Lazy<>(() -> ImmutableList.of(
         Items.ANVIL,
         ModBlocks.ROYAL_ANVIL,
         ModBlocks.EMBER_ANVIL,
@@ -113,7 +114,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ModItems.ROYAL_ANVIL_HAMMER,
         ModItems.EMBER_ANVIL_HAMMER,
         ModItems.TRANSCENDENCE_ANVIL_HAMMER
-    );
+    ));
     public static final ImmutableList<ItemLike> CAULDRON_CATALYSTS = ImmutableList.of(
         Items.CAULDRON,
         ModBlocks.FISH_TANK
@@ -372,7 +373,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     }
 
     public static void addAnvilProcessingCatalysts(IRecipeCatalystRegistration registration, IRecipeType<?> recipeType) {
-        AnvilCraftJeiPlugin.ANVIL_PROCESSING_CATALYSTS.forEach(item -> registration.addCraftingStation(recipeType, item));
+        AnvilCraftJeiPlugin.ANVIL_PROCESSING_CATALYSTS.get().forEach(item -> registration.addCraftingStation(recipeType, item));
     }
 
     public static void addCauldronCatalysts(IRecipeCatalystRegistration registration, IRecipeType<?> recipeType) {

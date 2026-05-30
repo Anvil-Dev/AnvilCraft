@@ -14,7 +14,7 @@ public class OtherLang {
         provider.add("item.anvilcraft.spectral_slingshot.unload_return", "Returned when Unloaded");
         provider.add("item.anvilcraft.spectral_slingshot.unload_vanish", "Vanishes when Unloaded");
 
-        provider.add("entity.minecraft.villager.anvilcraft.jeweler", "Jeweler");
+        provider.add("entity.anvilcraft.villager.jeweler", "Jeweler");
 
         provider.add("pack.anvilcraft.builtin_pack", "AnvilCraft Builtin ResourcePack");
         provider.add("pack.anvilcraft.builtin_data_pack", "AnvilCraft Builtin DataPack");
@@ -42,6 +42,7 @@ public class OtherLang {
         provider.add("enchantment.anvilcraft.disintegration", "Disintegration");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
+        provider.add("death.attack.anvilcraft.falling_giant_anvil", "%1$s died due to systemic resonance caused by ground vibrations");
 
         provider.add("effect.anvilcraft.rage", "Rage");
 

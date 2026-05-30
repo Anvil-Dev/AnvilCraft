@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.storage;
 
 import dev.dubhe.anvilcraft.entity.FloatingBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
@@ -49,7 +50,7 @@ public class EndDustBlock extends Block {
         @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.values()) {
+        for (Direction dir : Direction.values()) {
             if (level.getFluidState(pos.relative(dir)).is(FluidTags.WATER)) {
                 level.scheduleTick(pos, this, this.getDelayAfterPlace());
                 return;

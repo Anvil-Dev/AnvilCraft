@@ -7,7 +7,7 @@
           "items": "anvilcraft:topaz"
         }
       },
-      "trigger": "anvilcraft:use_item"
+      "trigger": "minecraft:consume_item"
     }
   },
   "display": {

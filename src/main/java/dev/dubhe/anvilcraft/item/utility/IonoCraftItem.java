@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.utility;
 
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -61,7 +62,7 @@ public class IonoCraftItem extends Item {
                     }
 
                     player.awardStat(Stats.ITEM_USED.get(this));
-                    return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                    return Util.sidedSuccess(level);
                 }
             } else {
                 return InteractionResult.PASS;

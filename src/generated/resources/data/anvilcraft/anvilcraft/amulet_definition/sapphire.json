@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:normal",
+  "amulet": {
+    "id": "anvilcraft:ruby_amulet"
+  },
+  "obtain": {
+    "source_entity": {
+      "type": "#anvilcraft:amulet_valid/sapphire"
+    },
+    "tags": [
+      {
+        "expected": true,
+        "id": "anvilcraft:amulet_valid/sapphire"
+      }
+    ]
+  }
+}

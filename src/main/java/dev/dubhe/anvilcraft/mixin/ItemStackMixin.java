@@ -1,7 +1,13 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AppendCustomHoverTextEvent;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -36,5 +42,14 @@ public class ItemStackMixin {
             tooltipFlag,
             builder
         ));
+    }
+
+    @WrapMethod(method = "typeHolder")
+    private Holder<Item> storeStack(
+        Operation<Holder<Item>> original,
+        @Share(namespace = AnvilCraft.MOD_ID, value = "stack") LocalRef<ItemStack> stack
+    ) {
+        stack.set(Util.cast(this));
+        return original.call();
     }
 }

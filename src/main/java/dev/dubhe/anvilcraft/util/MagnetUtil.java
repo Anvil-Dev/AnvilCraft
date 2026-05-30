@@ -52,14 +52,14 @@ public abstract class MagnetUtil {
             if (entity.blockPos.equals(pos)) {
                 entity.discard();
                 player.getCooldowns().addCooldown(context.getItemInHand(), 5);
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return Util.sidedSuccess(level);
             }
         }
         Vec3 nodePos = pos.getBottomCenter().add(0, maxY, 0);
         MagnetizedNodeEntity magnetizedNodeEntity = new MagnetizedNodeEntity(level, nodePos, pos);
         level.addFreshEntity(magnetizedNodeEntity);
         player.getCooldowns().addCooldown(context.getItemInHand(), 5);
-        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return Util.sidedSuccess(level);
     }
 
     public static InteractionResult magnetizeItems(
@@ -85,6 +85,6 @@ public abstract class MagnetUtil {
         if (totalXp > 0 && level instanceof ServerLevel serverLevel) ExperienceOrb.award(serverLevel, player.position(), totalXp);
         itemStack.hurtAndBreak(1, player, usedHand.asEquipmentSlot());
         player.getCooldowns().addCooldown(itemStack, 5);
-        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return Util.sidedSuccess(level);
     }
 }

@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.init;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -15,20 +14,6 @@ public class ModDataAttachments {
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, AnvilCraft.MOD_ID);
 
-    public static final Supplier<AttachmentType<Float>> DISCOUNT_RATE = ATTACHMENT_TYPES.register(
-        "discount_rate",
-        () -> AttachmentType.builder(() -> 0F)
-            .sync(ByteBufCodecs.FLOAT)
-            .build()
-    );
-
-    public static final Supplier<AttachmentType<Boolean>> ZOMBIFICATED_BY_CURSE = ATTACHMENT_TYPES.register(
-        "zombificated_by_curse",
-        () -> AttachmentType.builder(() -> false)
-            .serialize(Codec.BOOL.fieldOf("zombificated_by_curse"))
-            .build()
-    );
-
     public static final Supplier<AttachmentType<AmuletRaffleProbability>> AMULET_RAFFLE_PROBABILITY = ATTACHMENT_TYPES.register(
         "amulet_raffle_probability",
         () -> AttachmentType.builder(() -> AmuletRaffleProbability.EMPTY)
@@ -37,24 +22,10 @@ public class ModDataAttachments {
             .build()
     );
 
-    public static final Supplier<AttachmentType<Boolean>> SCARE_SKELETONS = ATTACHMENT_TYPES.register(
-        "scare_skeletons",
+    public static final Supplier<AttachmentType<Boolean>> ZOMBIFICATED_BY_CURSE = ATTACHMENT_TYPES.register(
+        "zombificated_by_curse",
         () -> AttachmentType.builder(() -> false)
-            .sync(ByteBufCodecs.BOOL)
-            .build()
-    );
-
-    public static final Supplier<AttachmentType<Boolean>> SCARE_CREEPERS = ATTACHMENT_TYPES.register(
-        "scare_creepers",
-        () -> AttachmentType.builder(() -> false)
-            .sync(ByteBufCodecs.BOOL)
-            .build()
-    );
-
-    public static final Supplier<AttachmentType<Boolean>> SCARE_PHANTOMS = ATTACHMENT_TYPES.register(
-        "scare_phantoms",
-        () -> AttachmentType.builder(() -> false)
-            .sync(ByteBufCodecs.BOOL)
+            .serialize(Codec.BOOL.fieldOf("zombificated_by_curse"))
             .build()
     );
 

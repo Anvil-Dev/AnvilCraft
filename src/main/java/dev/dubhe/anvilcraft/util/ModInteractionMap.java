@@ -145,7 +145,7 @@ public class ModInteractionMap {
                 OilCauldronBlock.ignite(level, pos);
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
         );
         event.register(
@@ -155,7 +155,7 @@ public class ModInteractionMap {
                 OilCauldronBlock.ignite(level, pos);
                 stack.shrink(1);
                 level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
         );
         event.register(
@@ -166,7 +166,7 @@ public class ModInteractionMap {
                 OilCauldronBlock.ignite(level, pos);
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
         );
 
@@ -248,7 +248,7 @@ public class ModInteractionMap {
                 if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return InteractionResult.FAIL;
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
         );
         event.register(
@@ -258,7 +258,7 @@ public class ModInteractionMap {
                 if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return InteractionResult.FAIL;
                 stack.shrink(1);
                 level.playSound(null, pos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS);
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
         );
         event.register(
@@ -269,7 +269,7 @@ public class ModInteractionMap {
                 if (!Util.<FishTankBlock>cast(state.getBlock()).tryIgnite(level, pos)) return InteractionResult.FAIL;
                 stack.hurtAndBreak(2, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS);
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
         );
         

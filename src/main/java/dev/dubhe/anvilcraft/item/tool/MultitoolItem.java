@@ -3,12 +3,12 @@ package dev.dubhe.anvilcraft.item.tool;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.MagnetUtil;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -56,22 +56,12 @@ import net.neoforged.neoforge.common.IShearable;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import net.neoforged.neoforge.common.Tags;
-import org.jetbrains.annotations.Range;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 public class MultitoolItem extends Item {
-    public static final int ALL_MODE = 0;
-    public static final int SHEARS_MODE = 1;
-    public static final int FLINT_AND_STEEL_MODE = 2;
-    public static final int BRUSH_MODE = 3;
-    public static final int SPYGLASS_MODE = 4;
-    public static final int MAGNET_MODE = 5;
-    public static final int FISHING_ROD_MODE = 6;
-    public static final int CARROT_ON_A_STICK_MODE = 7;
-    public static final int WARPED_FUNGUS_ON_A_STICK_MODE = 8;
-
     public MultitoolItem(Properties properties) {
         super(properties.enchantable(1));
     }
@@ -216,7 +206,7 @@ public class MultitoolItem extends Item {
                 ItemStack original = itemstack.copy();
                 itemstack.hurtAndBreak(i, player, usedHand);
                 if (itemstack.isEmpty()) {
-                    net.neoforged.neoforge.event.EventHooks.onPlayerDestroyItem(player, original, usedHand);
+                    EventHooks.onPlayerDestroyItem(player, original, usedHand);
                 }
             }
 
@@ -251,7 +241,7 @@ public class MultitoolItem extends Item {
             player.awardStat(Stats.ITEM_USED.get(this));
             player.gameEvent(GameEvent.ITEM_INTERACT_START);
         }
-        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return Util.sidedSuccess(level);
     }
 
     private InteractionResult useAsCarrotOnAStick(Level level, Player player, InteractionHand usedHand) {
@@ -301,7 +291,7 @@ public class MultitoolItem extends Item {
                 itemstack.hurtAndBreak(1, player, context.getHand());
             }
 
-            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            return Util.sidedSuccess(level);
         }
         return super.useOn(context);
     }
@@ -332,7 +322,7 @@ public class MultitoolItem extends Item {
                     itemstack.hurtAndBreak(1, player, context.getHand());
                 }
 
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return Util.sidedSuccess(level);
             }
             return InteractionResult.FAIL;
         } else {
@@ -350,7 +340,7 @@ public class MultitoolItem extends Item {
                 context.getItemInHand().hurtAndBreak(1, player, context.getHand());
             }
 
-            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            return Util.sidedSuccess(level);
         }
     }
 
@@ -482,14 +472,14 @@ public class MultitoolItem extends Item {
         return InteractionResult.PASS;
     }
 
-    public static void setMode(Player player, InteractionHand hand, @Range(from = 0, to = 8) int mode) {
+    public static void setMode(Player player, InteractionHand hand, MultitoolMode mode) {
         ItemStack item = player.getItemInHand(hand);
         if (!item.is(ModItems.MULTITOOL_ITEM)) {
             return;
         }
         item.remove(DataComponents.TOOL);
-        item.set(ModComponents.MULTITOOL_MODE, MultitoolMode.values()[mode]);
-        if (mode == SHEARS_MODE) item.set(DataComponents.TOOL, ShearsItem.createToolProperties());
+        item.set(ModComponents.MULTITOOL_MODE, mode);
+        if (mode == MultitoolMode.SHEARS) item.set(DataComponents.TOOL, ShearsItem.createToolProperties());
     }
 
     private void stopUsing(LivingEntity entity) {
@@ -513,34 +503,14 @@ public class MultitoolItem extends Item {
             super(type, owner, key, value);
         }
 
-        public boolean is(int mode, TagKey<Item> tagKey) {
-            return switch (tagKey) {
-                case TagKey<Item> tag when tag.equals(Tags.Items.TOOLS_SHEAR) -> super.is(tag) && mode == SHEARS_MODE;
-                case TagKey<Item> tag when tag.equals(ItemTags.CREEPER_IGNITERS) -> super.is(tag) && mode == FLINT_AND_STEEL_MODE;
-                case TagKey<Item> tag when tag.equals(Tags.Items.TOOLS_IGNITER) -> super.is(tag) && mode == FLINT_AND_STEEL_MODE;
-                case TagKey<Item> tag when tag.equals(Tags.Items.TOOLS_BRUSH) -> super.is(tag) && mode == BRUSH_MODE;
-                case TagKey<Item> tag when tag.equals(Tags.Items.TOOLS_FISHING_ROD) -> super.is(tag) && mode == FISHING_ROD_MODE;
-                case TagKey<Item> tag when tag.equals(ItemTags.STRIDER_TEMPT_ITEMS) -> super.is(tag)
-                                                                                       && mode == WARPED_FUNGUS_ON_A_STICK_MODE;
-                default -> super.is(tagKey);
-            };
-        }
-
-        public boolean is(int mode, HolderSet<Item> holders) {
-            return switch (holders) {
-                case HolderSet.Named<Item> holderSet when holderSet.key().equals(Tags.Items.TOOLS_SHEAR) ->
-                holderSet.contains(this) && mode == SHEARS_MODE;
-                case HolderSet.Named<Item> holderSet when holderSet.key().equals(ItemTags.CREEPER_IGNITERS) ->
-                holderSet.contains(this) && mode == FLINT_AND_STEEL_MODE;
-                case HolderSet.Named<Item> holderSet when holderSet.key().equals(Tags.Items.TOOLS_IGNITER) ->
-                holderSet.contains(this) && mode == FLINT_AND_STEEL_MODE;
-                case HolderSet.Named<Item> holderSet when holderSet.key().equals(Tags.Items.TOOLS_BRUSH) ->
-                holderSet.contains(this) && mode == BRUSH_MODE;
-                case HolderSet.Named<Item> holderSet when holderSet.key().equals(Tags.Items.TOOLS_FISHING_ROD) ->
-                holderSet.contains(this) && mode == FISHING_ROD_MODE;
-                case HolderSet.Named<Item> holderSet when holderSet.key().equals(ItemTags.STRIDER_TEMPT_ITEMS) ->
-                holderSet.contains(this) && mode == WARPED_FUNGUS_ON_A_STICK_MODE;
-                default -> holders.contains(this);
+        public boolean is(MultitoolMode mode, TagKey<Item> tag) {
+            return switch (mode) {
+                case SHEARS -> tag.equals(Tags.Items.TOOLS_SHEAR) && super.is(tag);
+                case FLINT_AND_STEEL -> (tag.equals(ItemTags.CREEPER_IGNITERS) || tag.equals(Tags.Items.TOOLS_IGNITER)) && super.is(tag);
+                case BRUSH -> tag.equals(Tags.Items.TOOLS_BRUSH) && super.is(tag);
+                case FISHING_ROD -> tag.equals(Tags.Items.TOOLS_FISHING_ROD) && super.is(tag);
+                case WARPED_FUNGUS_ON_A_STICK -> tag.equals(ItemTags.STRIDER_TEMPT_ITEMS) && super.is(tag);
+                default -> super.is(tag);
             };
         }
     }

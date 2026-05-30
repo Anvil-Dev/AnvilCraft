@@ -66,7 +66,7 @@ public class TooltipEventListener {
         stack.addToTooltip(ModComponents.MULTIPHASE, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.STORED_ENERGY, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.FLIGHT_TIME, ctx, display, builder, flag);
-        stack.addToTooltip(ModComponents.SIGNED_PLAYERS, ctx, display, builder, flag);
+        stack.addToTooltip(ModComponents.AMULET, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.BOX_CONTENTS, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.OVER_LIMIT_CONTAINER, ctx, display, builder, flag);
         TooltipEventListener.addSpecialItemTooltips(stack, ctx, display, builder, flag);

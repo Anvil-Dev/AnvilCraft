@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "anvilcraft:block/heliostats"
+    "model": "anvilcraft:item/heliostats"
   }
 }

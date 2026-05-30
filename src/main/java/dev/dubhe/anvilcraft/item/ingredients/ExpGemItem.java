@@ -32,7 +32,7 @@ public class ExpGemItem extends Item {
         int count = player.isShiftKeyDown() ? itemStack.getCount() : 1;
         player.giveExperiencePoints(ExpFluidBlock.XP_POINTS * count);
         itemStack.consume(count, player);
-        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
     }
 
     /**
