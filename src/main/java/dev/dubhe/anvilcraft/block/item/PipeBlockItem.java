@@ -103,36 +103,36 @@ public class PipeBlockItem extends Item {
     }
 
     private static @Nullable BlockState modifyStraightToConnect(
-        Level level,
-        BlockPos pos,
-        BlockState state,
-        Direction toward,
-        boolean towardIsPipe
+        Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe
     ) {
         Direction.Axis axis = state.getValue(PipeBlock.AXIS);
         Direction startDir = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
         Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
 
         if (toward.getAxis() == axis) {
-            return getConnectedBlockState(level, pos, state, toward, towardIsPipe, startDir);
+            BlockState newState = state;
+            if (toward == startDir) newState = newState.setValue(PipeBlock.HAS_END_START, !towardIsPipe);
+            else newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
+            if (newState != state) { level.setBlockAndUpdate(pos, newState); return newState; }
+            return null;
         }
 
         return getConnectedBlockState(level, pos, state, toward, towardIsPipe, startDir, endDir);
     }
 
     private static @Nullable BlockState modifyCornerToConnect(
-        Level level,
-        BlockPos pos,
-        BlockState state,
-        Direction toward,
-        boolean towardIsPipe
+        Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe
     ) {
         PipeBlock.CornerEnded corner = state.getValue(PipeBlock.CORNER_ENDED);
         Direction first = corner.getFirstDirection();
         Direction second = corner.getSecondDirection();
 
         if (corner.containsDirection(toward)) {
-            return getConnectedBlockState(level, pos, state, toward, towardIsPipe, first);
+            BlockState newState = state;
+            if (toward == first) newState = newState.setValue(PipeBlock.HAS_END_START, !towardIsPipe);
+            else newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
+            if (newState != state) { level.setBlockAndUpdate(pos, newState); return newState; }
+            return null;
         }
 
         return getConnectedBlockState(level, pos, state, toward, towardIsPipe, first, second);
@@ -155,6 +155,18 @@ public class PipeBlockItem extends Item {
         } else {
             Direction occupiedEnd = startOccupied ? startDir : endDir;
             boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, pos, occupiedEnd);
+            if (occupiedEnd.getOpposite() == toward) {
+                Direction.Axis axis = occupiedEnd.getAxis();
+                Direction negDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+                boolean negIsOccupied = negDir == occupiedEnd;
+                BlockState straightState = ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
+                    .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED))
+                    .setValue(PipeBlock.AXIS, axis)
+                    .setValue(PipeBlock.HAS_END_START, negIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
+                    .setValue(PipeBlock.HAS_END_END, negIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
+                level.setBlockAndUpdate(pos, straightState);
+                return straightState;
+            }
             PipeBlock.CornerEnded corner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, toward);
             boolean firstIsOccupied = corner.getFirstDirection() == occupiedEnd;
 
@@ -167,27 +179,6 @@ public class PipeBlockItem extends Item {
             level.setBlockAndUpdate(pos, cornerState);
             return cornerState;
         }
-    }
-
-    private static @Nullable BlockState getConnectedBlockState(
-        Level level,
-        BlockPos pos,
-        BlockState state,
-        Direction toward,
-        boolean towardIsPipe,
-        Direction first
-    ) {
-        BlockState newState = state;
-        if (toward == first) {
-            newState = newState.setValue(PipeBlock.HAS_END_START, !towardIsPipe);
-        } else {
-            newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
-        }
-        if (newState != state) {
-            level.setBlockAndUpdate(pos, newState);
-            return newState;
-        }
-        return null;
     }
 
     private static BlockState convertToNode(
