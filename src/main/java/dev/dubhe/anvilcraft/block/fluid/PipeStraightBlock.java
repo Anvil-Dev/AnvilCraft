@@ -101,8 +101,7 @@ public class PipeStraightBlock extends PipeBlock {
             return;
         }
 
-        boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
-
-        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipeToward);
+        boolean neighborIsPipe = level.getBlockState(neighborPos).getBlock() instanceof PipeBlock;
+        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipe);
     }
 }
