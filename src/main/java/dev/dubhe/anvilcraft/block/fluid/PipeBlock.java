@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -117,6 +119,11 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock 
     public static boolean isNeighborOccupied(Level level, BlockPos pos, Direction dir) {
         if (isNeighborPipeToward(level, pos, dir)) return true;
         return isFluidHandler(level, pos.relative(dir));
+    }
+
+    @Override
+    public Item asItem() {
+        return ModItems.PIPE.get();
     }
 
     public enum CornerEnded implements StringRepresentable {

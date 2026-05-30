@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -39,7 +40,116 @@ public class PipeBlockItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        return this.place(new BlockPlaceContext(context));
+        BlockPlaceContext placeContext = new BlockPlaceContext(context);
+        Player player = context.getPlayer();
+        if (player != null && !player.isShiftKeyDown()) {
+            if (tryConnectAdjacent(placeContext)) {
+                context.getItemInHand().consume(1, player);
+                return InteractionResult.sidedSuccess(context.getLevel().isClientSide());
+            }
+        }
+        return this.place(placeContext);
+    }
+
+    private boolean tryConnectAdjacent(BlockPlaceContext context) {
+        Level level = context.getLevel();
+        BlockPos placePos = context.getClickedPos();
+        Direction clickedFace = context.getClickedFace();
+        BlockPos targetPos = placePos.relative(clickedFace.getOpposite());
+
+        BlockState targetState = level.getBlockState(targetPos);
+        BlockState placeState = level.getBlockState(placePos);
+
+        boolean targetIsPipe = targetState.getBlock() instanceof PipeBlock;
+        boolean targetIsFluid = PipeBlock.isFluidHandler(level, targetPos);
+        boolean placeIsPipe = placeState.getBlock() instanceof PipeBlock;
+        boolean placeIsFluid = PipeBlock.isFluidHandler(level, placePos);
+
+        if ((!targetIsPipe && !targetIsFluid) || (!placeIsPipe && !placeIsFluid)) return false;
+
+        if (targetIsPipe) {
+            modifyPipeToConnect(level, targetPos, targetState, clickedFace, placeIsPipe);
+        }
+        if (placeIsPipe) {
+            modifyPipeToConnect(level, placePos, placeState, clickedFace.getOpposite(), targetIsPipe);
+        }
+        return true;
+    }
+
+    private static void modifyPipeToConnect(Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe) {
+        if (level.isClientSide) return;
+        if (PipeBlock.hasConnectionToward(state, toward)) return;
+
+        if (state.getBlock() instanceof PipeStraightBlock) {
+            modifyStraightToConnect(level, pos, state, toward, towardIsPipe);
+        } else if (state.getBlock() instanceof PipeCornerBlock) {
+            modifyCornerToConnect(level, pos, state, toward, towardIsPipe);
+        } else if (state.getBlock() instanceof PipeNodeBlock) {
+            PipeBlock.NodePipe value = towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END;
+            level.setBlockAndUpdate(pos, state.setValue(PipeBlock.getPropertyForDirection(toward), value));
+        }
+    }
+
+    private static void modifyStraightToConnect(Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe) {
+        Direction.Axis axis = state.getValue(PipeBlock.AXIS);
+        Direction startDir = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
+        Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
+
+        boolean startOccupied = PipeBlock.isNeighborOccupied(level, pos, startDir);
+        boolean endOccupied = PipeBlock.isNeighborOccupied(level, pos, endDir);
+
+        if (startOccupied && endOccupied) {
+            convertToNode(level, pos, state, toward, towardIsPipe, startDir, endDir);
+        } else {
+            Direction occupiedEnd = startOccupied ? startDir : endDir;
+            boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, pos, occupiedEnd);
+            PipeBlock.CornerEnded corner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, toward);
+            boolean firstIsOccupied = corner.getFirstDirection() == occupiedEnd;
+
+            BlockState cornerState = ModBlocks.PIPE_CORNER.get().defaultBlockState()
+                .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED))
+                .setValue(PipeBlock.CORNER_ENDED, corner)
+                .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
+                .setValue(PipeBlock.HAS_END_END, firstIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
+            level.setBlockAndUpdate(pos, cornerState);
+        }
+    }
+
+    private static void modifyCornerToConnect(Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe) {
+        PipeBlock.CornerEnded corner = state.getValue(PipeBlock.CORNER_ENDED);
+        Direction first = corner.getFirstDirection();
+        Direction second = corner.getSecondDirection();
+
+        boolean firstOccupied = PipeBlock.isNeighborOccupied(level, pos, first);
+        boolean secondOccupied = PipeBlock.isNeighborOccupied(level, pos, second);
+
+        if (firstOccupied && secondOccupied) {
+            convertToNode(level, pos, state, toward, towardIsPipe, first, second);
+        } else {
+            Direction occupiedEnd = firstOccupied ? first : second;
+            boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, pos, occupiedEnd);
+            PipeBlock.CornerEnded newCorner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, toward);
+            boolean firstIsOccupied = newCorner.getFirstDirection() == occupiedEnd;
+
+            BlockState newCornerState = ModBlocks.PIPE_CORNER.get().defaultBlockState()
+                .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED))
+                .setValue(PipeBlock.CORNER_ENDED, newCorner)
+                .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
+                .setValue(PipeBlock.HAS_END_END, firstIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
+            level.setBlockAndUpdate(pos, newCornerState);
+        }
+    }
+
+    private static void convertToNode(Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe, Direction dir1, Direction dir2) {
+        BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+            .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
+        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(dir1),
+            PipeNodeBlock.evaluateNeighbor(level, pos, dir1));
+        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(dir2),
+            PipeNodeBlock.evaluateNeighbor(level, pos, dir2));
+        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(toward),
+            towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END);
+        level.setBlockAndUpdate(pos, nodeState);
     }
 
     public InteractionResult place(BlockPlaceContext context) {
@@ -96,13 +206,11 @@ public class PipeBlockItem extends Item {
         boolean clickedOnPipe = targetBlock instanceof PipeBlock;
         boolean clickedOnFluidHandler = PipeBlock.isFluidHandler(level, targetPos);
 
-        // Shift+click or not clicking on pipe/fluid handler: place along look direction
         if (shiftDown || (!clickedOnPipe && !clickedOnFluidHandler)) {
             Direction.Axis axis = getLookAxis(player);
             return makeStraightState(level, placePos, axis, true, true);
         }
 
-        // Connect mode: clicking on pipe or fluid handler
         if (targetBlock instanceof PipeCornerBlock) {
             return handleCornerPlacement(level, placePos, clickedFace, targetPos, targetState);
         }
@@ -170,14 +278,12 @@ public class PipeBlockItem extends Item {
             Direction.Axis axis = clickedFace.getAxis();
             Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
             Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+            Direction towardPlace = clickedFace;
 
             boolean startIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, startDir);
             boolean endIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, endDir);
-            if (clickedFace == startDir) {
-                startIsPipe = true;
-            } else if (clickedFace == endDir) {
-                endIsPipe = true;
-            }
+            if (towardPlace == startDir) startIsPipe = true;
+            else if (towardPlace == endDir) endIsPipe = true;
 
             BlockState straightState = ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
                 .setValue(PipeBlock.AXIS, axis)
@@ -194,8 +300,8 @@ public class PipeBlockItem extends Item {
             BlockState newCornerState = ModBlocks.PIPE_CORNER.get().defaultBlockState()
                 .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED))
                 .setValue(PipeBlock.CORNER_ENDED, newCorner)
-                .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
-                .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
+                .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : false)
+                .setValue(PipeBlock.HAS_END_END, firstIsOccupied ? false : !occupiedEndIsPipe);
             level.setBlockAndUpdate(cornerPos, newCornerState);
         }
 
@@ -215,7 +321,7 @@ public class PipeBlockItem extends Item {
         return makeStraightState(level, placePos, axis, !startIsPipe, !endIsPipe);
     }
 
-    private static Direction.Axis getLookAxis(@Nullable Player player) {
+    private static Direction.Axis getLookAxis(Player player) {
         if (player == null) return Direction.Axis.Y;
         Vec3 lookVec = player.getViewVector(1.0f);
         return Direction.getNearest(lookVec.x, lookVec.y, lookVec.z).getAxis();
@@ -240,7 +346,7 @@ public class PipeBlockItem extends Item {
         return context.getLevel().setBlock(context.getClickedPos(), state, 11);
     }
 
-    @SuppressWarnings({"UnusedReturnValue", "unused"})
+    @SuppressWarnings("UnusedReturnValue")
     protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state) {
         return PipeBlockItem.updateCustomBlockEntityTag(level, player, pos, stack);
     }
