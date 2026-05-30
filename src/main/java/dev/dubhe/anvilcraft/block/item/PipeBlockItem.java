@@ -67,22 +67,28 @@ public class PipeBlockItem extends Item {
 
         if ((!targetIsPipe && !targetIsFluid) || (!placeIsPipe && !placeIsFluid)) return false;
 
+        boolean modified = false;
         Player player = context.getPlayer();
         if (targetIsPipe) {
             BlockState newState = modifyPipeToConnect(level, targetPos, targetState, clickedFace, placeIsPipe);
-            if (newState != null) playPlaceSound(level, targetPos, newState, player);
+            if (newState != null) {
+                playPlaceSound(level, targetPos, newState, player);
+                modified = true;
+            }
         }
         if (placeIsPipe) {
             BlockState newState = modifyPipeToConnect(level, placePos, placeState, clickedFace.getOpposite(), targetIsPipe);
-            if (newState != null) playPlaceSound(level, placePos, newState, player);
+            if (newState != null) {
+                playPlaceSound(level, placePos, newState, player);
+                modified = true;
+            }
         }
-        return true;
+        return modified;
     }
 
     @Nullable
     private static BlockState modifyPipeToConnect(Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe) {
-        if (level.isClientSide) return null;
-        if (PipeBlock.hasConnectionToward(state, toward)) return null;
+        if (hasOpenConnectionToward(state, toward)) return null;
 
         if (state.getBlock() instanceof PipeStraightBlock) {
             return modifyStraightToConnect(level, pos, state, toward, towardIsPipe);
@@ -102,6 +108,18 @@ public class PipeBlockItem extends Item {
         Direction startDir = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
         Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
 
+        return getConnectedBlockState(level, pos, state, toward, towardIsPipe, startDir, endDir);
+    }
+
+    private static BlockState getConnectedBlockState(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        Direction toward,
+        boolean towardIsPipe,
+        Direction startDir,
+        Direction endDir
+    ) {
         boolean startOccupied = PipeBlock.isNeighborOccupied(level, pos, startDir);
         boolean endOccupied = PipeBlock.isNeighborOccupied(level, pos, endDir);
 
@@ -129,26 +147,7 @@ public class PipeBlockItem extends Item {
         Direction first = corner.getFirstDirection();
         Direction second = corner.getSecondDirection();
 
-        boolean firstOccupied = PipeBlock.isNeighborOccupied(level, pos, first);
-        boolean secondOccupied = PipeBlock.isNeighborOccupied(level, pos, second);
-
-        if (firstOccupied && secondOccupied) {
-            return convertToNode(level, pos, state, toward, towardIsPipe, first, second);
-        } else {
-            Direction occupiedEnd = firstOccupied ? first : second;
-            boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, pos, occupiedEnd);
-            PipeBlock.CornerEnded newCorner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, toward);
-            boolean firstIsOccupied = newCorner.getFirstDirection() == occupiedEnd;
-
-            BlockState newCornerState = ModBlocks.PIPE_CORNER.get()
-                .defaultBlockState()
-                .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED))
-                .setValue(PipeBlock.CORNER_ENDED, newCorner)
-                .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
-                .setValue(PipeBlock.HAS_END_END, firstIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
-            level.setBlockAndUpdate(pos, newCornerState);
-            return newCornerState;
-        }
+        return getConnectedBlockState(level, pos, state, toward, towardIsPipe, first, second);
     }
 
     private static BlockState convertToNode(
@@ -284,7 +283,7 @@ public class PipeBlockItem extends Item {
         boolean oppositeOccupied = (firstOccupied && clickedFace == first.getOpposite())
                                    || (secondOccupied && clickedFace == second.getOpposite());
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (bothOccupied) {
                 BlockState nodeState = ModBlocks.PIPE_NODE.get()
                     .defaultBlockState()
@@ -354,6 +353,26 @@ public class PipeBlockItem extends Item {
         return makeStraightState(level, placePos, axis, !startIsPipe, !endIsPipe);
     }
 
+    private static boolean hasOpenConnectionToward(BlockState state, Direction toward) {
+        if (state.getBlock() instanceof PipeStraightBlock) {
+            Direction.Axis axis = state.getValue(PipeBlock.AXIS);
+            if (toward.getAxis() != axis) return false;
+            Direction startDir = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
+            if (toward == startDir) return !state.getValue(PipeBlock.HAS_END_START);
+            return !state.getValue(PipeBlock.HAS_END_END);
+        }
+        if (state.getBlock() instanceof PipeCornerBlock) {
+            PipeBlock.CornerEnded corner = state.getValue(PipeBlock.CORNER_ENDED);
+            if (!corner.containsDirection(toward)) return false;
+            if (toward == corner.getFirstDirection()) return !state.getValue(PipeBlock.HAS_END_START);
+            return !state.getValue(PipeBlock.HAS_END_END);
+        }
+        if (state.getBlock() instanceof PipeNodeBlock) {
+            return state.getValue(PipeBlock.getPropertyForDirection(toward)) == PipeBlock.NodePipe.PIPE;
+        }
+        return false;
+    }
+
     private static void playPlaceSound(Level level, BlockPos pos, BlockState state, @Nullable Player player) {
         SoundType soundtype = state.getSoundType(level, pos, player);
         level.playSound(
@@ -410,7 +429,7 @@ public class PipeBlockItem extends Item {
         if (blockentity == null) {
             return false;
         }
-        if (level.isClientSide || !blockentity.onlyOpCanSetNbt() || player != null && player.canUseGameMasterBlocks()) {
+        if (level.isClientSide() || !blockentity.onlyOpCanSetNbt() || player != null && player.canUseGameMasterBlocks()) {
             return customdata.loadInto(blockentity, level.registryAccess());
         }
         return false;
