@@ -109,6 +109,16 @@ public class PipeStraightBlock extends PipeBlock {
                         .setValue(HAS_END_END, false);
                     level.setBlockAndUpdate(pos, c);
                 }
+            } else if (connections.size() == 1) {
+                Direction perpDir = connections.get(0);
+                CornerEnded corner = CornerEnded.fromDirections(startDir, perpDir);
+                boolean firstIsPerp = corner.getFirstDirection() == perpDir;
+                BlockState c = ModBlocks.PIPE_CORNER.get().defaultBlockState()
+                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED))
+                    .setValue(CORNER_ENDED, corner)
+                    .setValue(HAS_END_START, firstIsPerp ? false : true)
+                    .setValue(HAS_END_END, firstIsPerp ? true : false);
+                level.setBlockAndUpdate(pos, c);
             }
             return;
         }
