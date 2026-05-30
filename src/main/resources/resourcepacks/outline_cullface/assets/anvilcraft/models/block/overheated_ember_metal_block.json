@@ -1,13 +1,12 @@
 {
-	"format_version": "1.21.6",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"ambientocclusion": false,
 	"render_type": "minecraft:cutout",
 	"textures": {
-		"0": "anvilcraft:block/frost_metal_block",
-		"1": "anvilcraft:block/frost_metal_block_outline",
-		"particle": "anvilcraft:block/frost_metal_block"
+		"0": "anvilcraft:block/overheated_ember_metal_block",
+		"1": "anvilcraft:block/overheated_ember_metal_block_outline",
+		"particle": "anvilcraft:block/overheated_ember_metal_block"
 	},
 	"elements": [
 		{
@@ -29,12 +28,12 @@
 			"shade": false,
 			"light_emission": 15,
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
-				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
-				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
-				"west": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
-				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
-				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"}
+				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "south"},
+				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "west"},
+				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "north"},
+				"west": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "east"},
+				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "down"},
+				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "up"}
 			}
 		}
 	]

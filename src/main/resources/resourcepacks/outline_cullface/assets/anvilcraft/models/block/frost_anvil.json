@@ -1,16 +1,16 @@
 {
-	"format_version": "1.21.11",
+	"format_version": "1.21.6",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"ambientocclusion": false,
 	"render_type": "minecraft:cutout",
 	"textures": {
-		"particle": "anvilcraft:block/ember_anvil",
-		"body": "anvilcraft:block/ember_anvil",
-		"side": "anvilcraft:block/ember_anvil_side",
-		"top": "anvilcraft:block/ember_anvil_top",
-		"bottom": "anvilcraft:block/ember_anvil_bottom",
-		"outline": "anvilcraft:block/ember_metal_block_outline"
+		"particle": "anvilcraft:block/frost_anvil",
+		"body": "anvilcraft:block/frost_anvil",
+		"side": "anvilcraft:block/frost_anvil_side",
+		"top": "anvilcraft:block/frost_anvil_top",
+		"bottom": "anvilcraft:block/frost_anvil_bottom",
+		"outline": "anvilcraft:block/frost_metal_block_outline"
 	},
 	"elements": [
 		{
@@ -84,12 +84,12 @@
 			"shade": false,
 			"light_emission": 15,
 			"faces": {
-				"north": {"uv": [3, 0, 12, 5], "rotation": 180, "texture": "#outline"},
+				"north": {"uv": [3, 0, 12, 5], "rotation": 180, "texture": "#outline", "cullface": "south"},
 				"east": {"uv": [0, 0, 15, 5], "rotation": 180, "texture": "#outline"},
-				"south": {"uv": [3, 0, 12, 5], "rotation": 180, "texture": "#outline"},
+				"south": {"uv": [3, 0, 12, 5], "rotation": 180, "texture": "#outline", "cullface": "north"},
 				"west": {"uv": [0, 0, 15, 5], "rotation": 180, "texture": "#outline"},
 				"up": {"uv": [3, 0, 12, 15], "rotation": 180, "texture": "#outline"},
-				"down": {"uv": [3, 0, 12, 15], "rotation": 180, "texture": "#outline"}
+				"down": {"uv": [3, 0, 12, 15], "rotation": 180, "texture": "#outline", "cullface": "up"}
 			}
 		},
 		{
@@ -116,7 +116,7 @@
 				"east": {"uv": [2, 12, 13, 15], "rotation": 180, "texture": "#outline"},
 				"south": {"uv": [2, 12, 13, 15], "rotation": 180, "texture": "#outline"},
 				"west": {"uv": [2, 12, 13, 15], "rotation": 180, "texture": "#outline"},
-				"up": {"uv": [2, 2, 13, 13], "rotation": 180, "texture": "#outline"},
+				"up": {"uv": [2, 2, 13, 13], "rotation": 180, "texture": "#outline", "cullface": "down"},
 				"down": {"uv": [2, 2, 13, 13], "rotation": 180, "texture": "#outline"}
 			}
 		}

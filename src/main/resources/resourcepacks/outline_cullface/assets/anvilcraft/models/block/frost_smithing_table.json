@@ -1,16 +1,16 @@
 {
-	"format_version": "1.21.11",
+	"format_version": "1.21.6",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
 	"ambientocclusion": false,
 	"render_type": "minecraft:cutout",
 	"textures": {
-		"4": "anvilcraft:block/ember_metal_block_outline",
-		"down": "anvilcraft:block/ember_smithing_table_bottom",
-		"particle": "anvilcraft:block/ember_smithing_table_side",
-		"side": "anvilcraft:block/ember_smithing_table_side",
-		"inner": "anvilcraft:block/ember_smithing_table_inner",
-		"up": "anvilcraft:block/ember_smithing_table_top"
+		"4": "anvilcraft:block/frost_metal_block_outline",
+		"down": "anvilcraft:block/frost_smithing_table_bottom",
+		"particle": "anvilcraft:block/frost_smithing_table_side",
+		"side": "anvilcraft:block/frost_smithing_table_side",
+		"inner": "anvilcraft:block/frost_smithing_table_inner",
+		"up": "anvilcraft:block/frost_smithing_table_top"
 	},
 	"elements": [
 		{
@@ -96,12 +96,12 @@
 			"shade": false,
 			"light_emission": 15,
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4"},
-				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4"},
-				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4"},
-				"west": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4"},
-				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4"},
-				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4"}
+				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4", "cullface": "south"},
+				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4", "cullface": "west"},
+				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4", "cullface": "north"},
+				"west": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4", "cullface": "east"},
+				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4", "cullface": "down"},
+				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4", "cullface": "up"}
 			}
 		}
 	]
