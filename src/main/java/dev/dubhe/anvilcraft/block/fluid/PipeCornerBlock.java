@@ -62,7 +62,6 @@ public class PipeCornerBlock extends PipeBlock {
         boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
 
         Direction startDir = corner.getFirstDirection();
-        Direction ignore = corner.getSecondDirection();
         this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipeToward);
     }
 }
