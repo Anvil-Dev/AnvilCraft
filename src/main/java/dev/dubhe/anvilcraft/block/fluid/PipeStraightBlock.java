@@ -75,28 +75,40 @@ public class PipeStraightBlock extends PipeBlock {
             boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
             if (!neighborIsPipeToward) return;
 
-            boolean startOccupied = isNeighborOccupied(level, pos, startDir);
-            boolean endOccupied = isNeighborOccupied(level, pos, endDir);
+            java.util.List<Direction> connections = new java.util.ArrayList<>();
+            if (isNeighborPipeToward(level, pos, startDir)) connections.add(startDir);
+            if (isNeighborPipeToward(level, pos, endDir)) connections.add(endDir);
+            for (Direction dir : Direction.values()) {
+                if (dir.getAxis() == axis) continue;
+                if (isNeighborPipeToward(level, pos, dir)) connections.add(dir);
+            }
 
-            if (startOccupied && endOccupied) {
-                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
-                nodeState = nodeState.setValue(getPropertyForDirection(startDir), PipeNodeBlock.evaluateNeighbor(level, pos, startDir));
-                nodeState = nodeState.setValue(getPropertyForDirection(endDir), PipeNodeBlock.evaluateNeighbor(level, pos, endDir));
-                nodeState = nodeState.setValue(getPropertyForDirection(neighborDir), NodePipe.PIPE);
+            if (connections.size() >= 3) {
+                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+                for (Direction dir : connections) {
+                    nodeState = nodeState.setValue(getPropertyForDirection(dir), NodePipe.PIPE);
+                }
                 level.setBlockAndUpdate(pos, nodeState);
-            } else {
-                Direction pipeEnd = startOccupied ? startDir : endDir;
-                CornerEnded corner = CornerEnded.fromDirections(pipeEnd, neighborDir);
-                boolean pipeEndIsPipe = isNeighborPipeToward(level, pos, pipeEnd);
-                boolean firstIsPipeEnd = corner.getFirstDirection() == pipeEnd;
-                boolean hasEndPipeEnd = !pipeEndIsPipe;
-                BlockState cornerState = ModBlocks.PIPE_CORNER.get()
-                    .defaultBlockState()
-                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED))
-                    .setValue(CORNER_ENDED, corner)
-                    .setValue(HAS_END_START, firstIsPipeEnd && hasEndPipeEnd)
-                    .setValue(HAS_END_END, !firstIsPipeEnd && hasEndPipeEnd);
-                level.setBlockAndUpdate(pos, cornerState);
+            } else if (connections.size() == 2) {
+                Direction a = connections.get(0);
+                Direction b = connections.get(1);
+                if (a.getAxis() == b.getAxis()) {
+                    BlockState s = ModBlocks.PIPE_STRAIGHT.get().defaultBlockState()
+                        .setValue(WATERLOGGED, state.getValue(WATERLOGGED))
+                        .setValue(AXIS, a.getAxis())
+                        .setValue(HAS_END_START, false)
+                        .setValue(HAS_END_END, false);
+                    level.setBlockAndUpdate(pos, s);
+                } else {
+                    CornerEnded corner = CornerEnded.fromDirections(a, b);
+                    BlockState c = ModBlocks.PIPE_CORNER.get().defaultBlockState()
+                        .setValue(WATERLOGGED, state.getValue(WATERLOGGED))
+                        .setValue(CORNER_ENDED, corner)
+                        .setValue(HAS_END_START, false)
+                        .setValue(HAS_END_END, false);
+                    level.setBlockAndUpdate(pos, c);
+                }
             }
             return;
         }
