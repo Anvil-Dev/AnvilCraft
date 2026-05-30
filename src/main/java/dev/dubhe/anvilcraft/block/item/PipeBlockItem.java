@@ -44,7 +44,6 @@ public class PipeBlockItem extends Item {
         Player player = context.getPlayer();
         if (player != null && !player.isShiftKeyDown()) {
             if (tryConnectAdjacent(placeContext)) {
-                context.getItemInHand().consume(1, player);
                 return InteractionResult.sidedSuccess(context.getLevel().isClientSide());
             }
         }
