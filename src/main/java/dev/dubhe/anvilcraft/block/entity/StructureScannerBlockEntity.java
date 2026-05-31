@@ -435,11 +435,11 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         int localX = previewX - halfRangeX;
         
         return switch (scannerFacing) {
-            case NORTH -> scannerPos.offset(localX, previewY, previewZ + 1);
-            case SOUTH -> scannerPos.offset(-localX, previewY, -(previewZ + 1));
-            case WEST -> scannerPos.offset(previewZ + 1, previewY, -localX);
-            case EAST -> scannerPos.offset(-(previewZ + 1), previewY, localX);
-            case DOWN, UP -> scannerPos.offset(localX, previewY, previewZ);
+            case NORTH -> scannerPos.offset(localX, previewY, previewZ + 2);
+            case SOUTH -> scannerPos.offset(-localX, previewY, -(previewZ + 2));
+            case WEST -> scannerPos.offset(previewZ + 2, previewY, -localX);
+            case EAST -> scannerPos.offset(-(previewZ + 2), previewY, localX);
+            case DOWN, UP -> scannerPos.offset(localX, previewY, previewZ + 1);
         };
     }
 

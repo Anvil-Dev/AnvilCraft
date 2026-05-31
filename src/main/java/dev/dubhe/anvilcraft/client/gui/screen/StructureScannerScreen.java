@@ -764,11 +764,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 获取扫描范围
         int rangeX = this.cachedRangeX;
 
-        // Scanner在预览中的位置：X居中，Y=0，Z=0（选区前面）
-        int scannerX = rangeX / 2;
+        // Scanner在预览中的位置：X居中（偶数时偏左），Y=0，Z=0
+        int scannerX = rangeX / 2;  // 偶数时Scanner在左边
         int scannerY = 0;
-        int scannerZ = 0;  // 选区前面
-
+        int scannerZ = 0;
+        
         // 放置Scanner（始终渲染），在预览中统一朝北
         previewLevelLike.setBlockStateAlwaysRender(
             new BlockPos(scannerX, scannerY, scannerZ),
@@ -782,7 +782,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
                 // 根据 Scanner 朝向旋转方块状态
                 BlockState rotatedState = rotateBlockStateForPreview(data.state(), facing);
-                previewLevelLike.setBlockState(new BlockPos(data.x(), data.y(), data.z()), rotatedState);
+                // 扫描数据Z坐标+1，使扫描区域从Z=1开始（向前移动一格）
+                previewLevelLike.setBlockState(new BlockPos(data.x(), data.y(), data.z() + 1), rotatedState);
             }
         }
 
@@ -874,7 +875,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 使用缓存的扫描范围
         int rangeX = this.cachedRangeX;
         int rangeY = this.cachedRangeY;
-        int rangeZ = this.cachedRangeZ;
 
         // 使用选区范围作为缩放基准，忽略 Scanner
         int sizeX = Math.max(1, rangeX);
@@ -914,13 +914,21 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         // 6. 平移Z轴
         poseStack.translate(0, 0, -1);
+        
+        // 6.5. 偶数格时边框向右移动一格（匹配扫描区域右扩）
+        if (rangeX % 2 == 0) {
+            poseStack.translate(-1, 0, 0);
+        }
+        
+        // 获取rangeZ（在使用前声明）
+        final int rangeZ = this.cachedRangeZ;
 
         // 7. 创建边框形状 - 与世界中渲染的边框完全一致
         // 在预览坐标系中：
         // - Scanner 在 Z=0
-        // - 选区从 Z=1 到 Z=rangeZ
-        // 所以边框应该从 Z=1 到 Z=rangeZ+1
-        final VoxelShape borderShape = Shapes.create(0.0, 0.0, 1.0, rangeX, rangeY, rangeZ + 1);
+        // - 扫描数据Z范围：1到rangeZ（存储值），预览中+1后为2到rangeZ+1
+        // - 所以边框应该从 Z=2 到 Z=rangeZ+2，完整包裹扫描区域
+        final VoxelShape borderShape = Shapes.create(0.0, 0.0, 2.0, rangeX, rangeY, rangeZ + 2);
 
         // 8. 渲染边框（青色）
         TooltipRenderHelper.renderOutline(poseStack, consumer, 0, 0, 0, BlockPos.ZERO, borderShape, 0xFF00FFCC);
