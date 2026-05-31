@@ -110,8 +110,8 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
     }
 

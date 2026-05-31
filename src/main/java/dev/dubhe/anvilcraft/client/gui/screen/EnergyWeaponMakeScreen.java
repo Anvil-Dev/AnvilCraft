@@ -50,7 +50,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         }
     };
     private int head;
-    private ItemStack renderingTooltip;
+    private @Nullable ItemStack renderingTooltip;
     private long cantCraftBlinkMs = 0;
 
     public EnergyWeaponMakeScreen(EnergyWeaponMakeMenu menu, Inventory playerInventory, Component title) {
@@ -143,12 +143,12 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
             FilteredSlot slot = this.menu.getFilteredSlot(i);
             if (slot.isFilterEmpty()) return;
             if (!slot.canCraft()) {
-                this.renderSingleCantCraftBlink(graphics, i, red);
+                this.extractSingleCantCraftBlink(graphics, i, red);
             }
         }
     }
 
-    private void renderSingleCantCraftBlink(GuiGraphicsExtractor graphics, int index, float alpha) {
+    private void extractSingleCantCraftBlink(GuiGraphicsExtractor graphics, int index, float alpha) {
         int x = this.leftPos + 88 + (index % 3) * 18;
         int y = this.topPos + 24 + (index / 2) * 18;
         graphics.fill(
@@ -231,8 +231,8 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
 
         if (this.menu.canScroll()) {
@@ -240,6 +240,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
             int top = this.topPos + 24;
             int down = top + 36;
             graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
                 SharedTextures.SWITCH_TABLE_SLIDER,
                 left,
                 top + (int) ((down - top - 12) * this.scrollable.getScrollOffs()),

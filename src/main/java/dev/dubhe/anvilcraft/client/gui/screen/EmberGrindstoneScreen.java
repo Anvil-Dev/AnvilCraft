@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindstoneMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "ember_grindstone");
@@ -50,7 +51,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         }
     };
     private int head = 0;
-    private ItemStack renderingTooltipEnchantedBook;
+    private @Nullable ItemStack renderingTooltipEnchantedBook;
 
     public EmberGrindstoneScreen(EmberGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
         super(menu, playerInventory, Component.translatable("screen.anvilcraft.ember_grindstone.title"));
@@ -75,7 +76,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractContents(graphics, mouseX, mouseY, a);
-        this.renderEnchantmentSelectingArea(graphics, mouseX, mouseY, a);
+        this.extractEnchantmentSelectingArea(graphics, mouseX, mouseY, a);
     }
 
     @Override
@@ -103,7 +104,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         }
     }
 
-    protected void renderEnchantmentSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractEnchantmentSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
         if (this.menu.getEnchantments().isEmpty()) return;
         for (int i = this.head; i < this.head + Math.min(this.menu.getEnchantments().size() - this.head, 6); i++) {
@@ -165,8 +166,8 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
         ItemStack stack = Items.BOOK.getDefaultInstance();
         GuiRenderExtras.itemWithTransparency(graphics, stack, this.leftPos + 25, this.topPos + 42, 0.5F);
@@ -176,6 +177,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
             int top = this.topPos + 23;
             int down = top + 36;
             graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
                 SharedTextures.SWITCH_TABLE_SLIDER,
                 left,
                 top + (int) ((down - top - 12) * this.scrollable.getScrollOffs()),

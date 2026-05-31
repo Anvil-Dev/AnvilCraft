@@ -17,10 +17,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
-    private static final Identifier ANVIL_LOCATION = SharedTextures.bg("crafting", "frost_anvil");
-    private EditBox name;
+    private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "frost_anvil");
+    private @Nullable EditBox name;
     private final Player player;
 
     /**
@@ -31,7 +32,7 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
      * @param title           标题
      */
     public FrostAnvilScreen(FrostAnvilMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, ANVIL_LOCATION);
+        super(menu, playerInventory, title, BACKGROUND);
         this.player = playerInventory.player;
     }
 
@@ -127,7 +128,7 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
         Identifier texture = this.menu.getSlot(0).getItem().isEmpty()
                              ? SharedTextures.TEXT_FIELD_DISABLE
                              : SharedTextures.TEXT_FIELD;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 256, 256);
         this.name.extractWidgetRenderState(graphics, mouseX, mouseY, a);
     }
 

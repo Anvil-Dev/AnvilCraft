@@ -17,10 +17,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "ember_anvil");
-    private EditBox name;
+    private @Nullable EditBox name;
     private final Player player;
 
     /**
@@ -122,7 +123,7 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
         Identifier texture = this.menu.getSlot(0).getItem().isEmpty()
                              ? SharedTextures.TEXT_FIELD_DISABLE
                              : SharedTextures.TEXT_FIELD;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 110, 16);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, this.leftPos + 59, this.topPos + 20, 0, 0, 110, 16, 256, 256);
         this.name.extractWidgetRenderState(graphics, mouseX, mouseY, a);
     }
 
