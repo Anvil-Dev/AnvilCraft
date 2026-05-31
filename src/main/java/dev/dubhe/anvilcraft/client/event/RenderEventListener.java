@@ -199,24 +199,24 @@ public class RenderEventListener {
             case NORTH -> {
                 minX = hitPos.getX() - halfRangeX;
                 maxX = hitPos.getX() + rangeX - halfRangeX;
-                minZ = hitPos.getZ() + 2;
-                maxZ = hitPos.getZ() + rangeZ + 2;
+                minZ = hitPos.getZ() + 1;
+                maxZ = hitPos.getZ() + rangeZ + 1;
             }
             case SOUTH -> {
                 minX = hitPos.getX() - halfRangeX;
                 maxX = hitPos.getX() + rangeX - halfRangeX;
-                minZ = hitPos.getZ() - rangeZ - 1;
-                maxZ = hitPos.getZ() - 1;
+                minZ = hitPos.getZ() - rangeZ;
+                maxZ = hitPos.getZ();
             }
             case WEST -> {
-                minX = hitPos.getX() + 2;
-                maxX = hitPos.getX() + rangeZ + 2;
+                minX = hitPos.getX() + 1;
+                maxX = hitPos.getX() + rangeZ + 1;
                 minZ = hitPos.getZ() - halfRangeX;
                 maxZ = hitPos.getZ() + rangeX - halfRangeX;
             }
             case EAST -> {
-                minX = hitPos.getX() - rangeZ - 1;
-                maxX = hitPos.getX() - 1;
+                minX = hitPos.getX() - rangeZ;
+                maxX = hitPos.getX();
                 minZ = hitPos.getZ() - halfRangeX;
                 maxZ = hitPos.getZ() + rangeX - halfRangeX;
             }
