@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:plywood"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:plywood_stairs"
+  }
+}

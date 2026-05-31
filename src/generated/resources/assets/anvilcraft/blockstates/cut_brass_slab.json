@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "anvilcraft:block/cut_brass_slab"
+    },
+    "type=double": {
+      "model": "anvilcraft:block/cut_brass_block"
+    },
+    "type=top": {
+      "model": "anvilcraft:block/cut_brass_slab_top"
+    }
+  }
+}
