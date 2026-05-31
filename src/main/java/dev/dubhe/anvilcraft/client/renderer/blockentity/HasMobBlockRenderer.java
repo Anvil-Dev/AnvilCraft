@@ -28,7 +28,7 @@ public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntit
         if (entity == null) return;
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.0f, 0.5f);
-        float size = 0.73125f;
+        float size = 0.73125f * 0.5f;
         float max = Math.max(entity.getBbWidth(), entity.getBbHeight());
         if ((double) max > 1.0) {
             size /= max;

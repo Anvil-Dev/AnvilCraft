@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.api.item.IExtraItemDisplay;
+import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,6 +18,7 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
     private final Set<AbstractItemInHandRenderer> renderers = new HashSet<>();
     public final CrabClawItemInHandRenderer crabClawItemRenderer;
     public final IExtraItemDisplayRenderer extraItemRenderer;
+    public final HasMobBlockItemRenderer hasMobBlockItemRenderer;
 
     public ItemInHandRendererManager(ItemRenderer itemRenderer, IItemRenderer renderer) {
         super(itemRenderer, renderer);
@@ -24,6 +26,8 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
         this.renderers.add(this.crabClawItemRenderer);
         this.extraItemRenderer = new IExtraItemDisplayRenderer(itemRenderer, renderer);
         this.renderers.add(this.extraItemRenderer);
+        this.hasMobBlockItemRenderer = new HasMobBlockItemRenderer(itemRenderer, renderer);
+        this.renderers.add(this.hasMobBlockItemRenderer);
     }
 
     @Override
@@ -56,6 +60,21 @@ public class ItemInHandRendererManager extends AbstractItemInHandRenderer {
                 && !this.mainHandItem.is(ModItems.CRAB_CLAW.get())
         ) {
             this.crabClawItemRenderer.render(
+                player,
+                partialTicks,
+                pitch,
+                hand,
+                swingProgress,
+                stack,
+                equippedProgress,
+                poseStack,
+                buffer,
+                combinedLight,
+                ci
+            );
+        }
+        if (stack.getItem() instanceof HasMobBlockItem) {
+            this.hasMobBlockItemRenderer.render(
                 player,
                 partialTicks,
                 pitch,
