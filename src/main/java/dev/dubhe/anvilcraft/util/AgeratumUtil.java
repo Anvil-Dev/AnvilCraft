@@ -28,6 +28,7 @@ import java.util.Optional;
 public class AgeratumUtil {
     public static final int SLOT_SIZE = 19;
     public static final int BLOCK_SIZE = 16;
+    public static final int BLOCK_HEIGHT = 14;
     public static final int BLOCK_TOOLTIP_SIZE = 20;
     public static final ResourceLocation SLOT = Ageratum.location("textures/gui/component/slot.png");
     public static final ResourceLocation ARROW = Ageratum.location("textures/gui/component/arrow.png");
@@ -251,5 +252,12 @@ public class AgeratumUtil {
             if (count.p() instanceof ConstantValue(float value) && value == 1) itemStack.setCount(stack.getMaxCount());
         }
         return itemStack;
+    }
+
+    /**
+     * 在计算方块在垂直方向上的位置时使用
+     */
+    public static int getRenderY(int starY, int idx) {
+        return starY + idx * BLOCK_HEIGHT;
     }
 }
