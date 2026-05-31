@@ -37,7 +37,9 @@ public record HammerChangeFlexibleMultiPartBlockPacket(BlockPos pos, BlockState 
     @Override
     public void handleOnServer(Player player) {
         Level level = player.level();
-        if (!level.isLoaded(this.pos)) return;
+        if (!level.isLoaded(this.pos)) {
+            return;
+        }
         if (!(this.state.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> block)) return;
         if (this.direction == null) return;
         block.change(
