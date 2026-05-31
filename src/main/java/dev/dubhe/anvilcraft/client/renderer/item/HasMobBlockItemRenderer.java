@@ -36,12 +36,12 @@ public class HasMobBlockItemRenderer extends AbstractItemInHandRenderer {
         pose.scale(16.0f, -16.0f, 16.0f);
         pose.mulPose(Axis.XP.rotationDegrees(30));
         pose.mulPose(Axis.YP.rotationDegrees(-45));
-        float size = 0.73125f * 0.5f;
+        float size = 0.52943f * 0.8f;
         float max = Math.max(mobFromItem.getBbWidth(), mobFromItem.getBbHeight());
         if ((double) max > 1.0) {
             size /= max;
         }
-        pose.translate(0.0f, -0.14f, 0.0f);
+        pose.translate(0.0f, -0.19f, 0.0f);
         pose.scale(size, size, size);
         EntityRenderer<? super Entity> renderer = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(mobFromItem);
         renderer.render(
@@ -75,7 +75,7 @@ public class HasMobBlockItemRenderer extends AbstractItemInHandRenderer {
         }
         poseStack.translate(0.0f, 0.14f, 0.0f);
         poseStack.pushPose();
-        float size = 0.73125f * 0.4f * 0.5f;
+        float size = 0.52943f * 0.4f * 0.8f;
         float max = Math.max(mobFromItem.getBbWidth(), mobFromItem.getBbHeight());
         if ((double) max > 1.0) {
             size /= max;
