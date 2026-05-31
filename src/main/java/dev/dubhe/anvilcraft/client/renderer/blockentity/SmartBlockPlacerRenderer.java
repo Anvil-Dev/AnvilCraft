@@ -465,6 +465,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
             return false;
         }
+        if (state.is(net.minecraft.world.level.block.Blocks.PINK_PETALS)) {
+            if (state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.FLOWER_AMOUNT) < 4) {
+                return blockItem == null || state.getBlock() == blockItem.getBlock();
+            }
+            return false;
+        }
         return false;
     }
     
