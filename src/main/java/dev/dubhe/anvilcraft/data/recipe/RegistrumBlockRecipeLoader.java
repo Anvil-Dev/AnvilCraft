@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -1493,26 +1494,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Block> void bronzeBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItemTags.BRONZE_INGOTS)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS), AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS))
-            .save(provider);
-    }
-
-    public static <T extends Block> void brassBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItemTags.BRASS_INGOTS)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS), AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS))
-            .save(provider);
-    }
-
     public static <T extends Block> void topazBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
@@ -1980,6 +1961,14 @@ public class RegistrumBlockRecipeLoader {
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.CUT_FLINT_BLOCK.get()), RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.CUT_FLINT_BLOCK))
             .save(provider, of("stonecutting/cut_flint_pillar_from_cut_flint_block"));
+    }
+
+    public static <T extends Block> void plywood(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ItemCompressRecipe.builder()
+            .requires(ModItems.WOOD_FIBER, 4)
+            .requires(ModItems.RESIN)
+            .result(ctx.get(), 16)
+            .save(provider);
     }
 
     public static <T extends Block> void pulseGenerator(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
