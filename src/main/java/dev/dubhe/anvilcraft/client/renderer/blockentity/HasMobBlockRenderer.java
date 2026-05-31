@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.level.Level;
 
@@ -41,6 +42,9 @@ public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntit
         if (entity instanceof Guardian) {
             size *= 0.8f;
             poseStack.translate(0.0f, 0.0f, 0.25f);
+        }
+        if (entity instanceof Ghast) {
+            poseStack.translate(0.0f, 0.25f, 0.0f);
         }
         poseStack.scale(size, size, size);
         Minecraft minecraft = Minecraft.getInstance();
