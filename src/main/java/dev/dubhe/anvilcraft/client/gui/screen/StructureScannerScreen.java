@@ -763,16 +763,24 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         // 获取扫描范围
         int rangeX = this.cachedRangeX;
+        int rangeY = this.cachedRangeY;
+
+        boolean upsideDown = false;
+        if (this.cachedBlockEntity.getBlockState().hasProperty(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN)) {
+            upsideDown = this.cachedBlockEntity.getBlockState().getValue(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN);
+        }
 
         // Scanner在预览中的位置：X居中，Y=0，Z=0（选区前面）
         int scannerX = rangeX / 2;
-        int scannerY = 0;
+        int scannerY = upsideDown ? Math.max(1, rangeY) - 1 : 0;
         int scannerZ = 0;  // 选区前面
 
         // 放置Scanner（始终渲染），在预览中统一朝北
         previewLevelLike.setBlockStateAlwaysRender(
             new BlockPos(scannerX, scannerY, scannerZ),
-            ModBlocks.STRUCTURE_SCANNER.get().defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+            ModBlocks.STRUCTURE_SCANNER.get().defaultBlockState()
+                .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+                .setValue(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN, upsideDown)
         );
 
         // 使用缓存的扫描结果渲染方块
@@ -782,7 +790,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
                 // 根据 Scanner 朝向旋转方块状态
                 BlockState rotatedState = rotateBlockStateForPreview(data.state(), facing);
-                previewLevelLike.setBlockState(new BlockPos(data.x(), data.y(), data.z()), rotatedState);
+                int renderY = upsideDown ? (Math.max(1, rangeY) - 1 - data.y()) : data.y();
+                previewLevelLike.setBlockState(new BlockPos(data.x(), renderY, data.z() + 1), rotatedState);
             }
         }
 
@@ -918,9 +927,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 7. 创建边框形状 - 与世界中渲染的边框完全一致
         // 在预览坐标系中：
         // - Scanner 在 Z=0
-        // - 选区从 Z=1 到 Z=rangeZ
-        // 所以边框应该从 Z=1 到 Z=rangeZ+1
-        final VoxelShape borderShape = Shapes.create(0.0, 0.0, 1.0, rangeX, rangeY, rangeZ + 1);
+        // - 选区从 Z=2 到 Z=rangeZ+1
+        // (内部渲染已规整化为正数纵向区间，无需使用负Y向下延伸边框)
+        final VoxelShape borderShape = Shapes.create(0.0, 0.0, 2.0, rangeX, rangeY, rangeZ + 2);
 
         // 8. 渲染边框（青色）
         TooltipRenderHelper.renderOutline(poseStack, consumer, 0, 0, 0, BlockPos.ZERO, borderShape, 0xFF00FFCC);

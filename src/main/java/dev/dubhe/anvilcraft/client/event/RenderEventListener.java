@@ -187,9 +187,13 @@ public class RenderEventListener {
         
         // 获取 Structure Scanner 的朝向
         final Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = false;
+        if (blockState.hasProperty(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN)) {
+            upsideDown = blockState.getValue(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN);
+        }
         
-        final int minY = hitPos.getY();
-        final int maxY = hitPos.getY() + rangeY;
+        final int minY = upsideDown ? hitPos.getY() - rangeY + 1 : hitPos.getY();
+        final int maxY = upsideDown ? hitPos.getY() + 1 : hitPos.getY() + rangeY;
         final int minX;
         final int maxX;
         final int minZ;
@@ -199,24 +203,24 @@ public class RenderEventListener {
             case NORTH -> {
                 minX = hitPos.getX() - halfRangeX;
                 maxX = hitPos.getX() + rangeX - halfRangeX;
-                minZ = hitPos.getZ() + 1;
-                maxZ = hitPos.getZ() + rangeZ + 1;
+                minZ = hitPos.getZ() + 2;
+                maxZ = hitPos.getZ() + rangeZ + 2;
             }
             case SOUTH -> {
                 minX = hitPos.getX() - halfRangeX;
                 maxX = hitPos.getX() + rangeX - halfRangeX;
-                minZ = hitPos.getZ() - rangeZ;
-                maxZ = hitPos.getZ();
+                minZ = hitPos.getZ() - rangeZ - 1;
+                maxZ = hitPos.getZ() - 1;
             }
             case WEST -> {
-                minX = hitPos.getX() + 1;
-                maxX = hitPos.getX() + rangeZ + 1;
+                minX = hitPos.getX() + 2;
+                maxX = hitPos.getX() + rangeZ + 2;
                 minZ = hitPos.getZ() - halfRangeX;
                 maxZ = hitPos.getZ() + rangeX - halfRangeX;
             }
             case EAST -> {
-                minX = hitPos.getX() - rangeZ;
-                maxX = hitPos.getX();
+                minX = hitPos.getX() - rangeZ - 1;
+                maxX = hitPos.getX() - 1;
                 minZ = hitPos.getZ() - halfRangeX;
                 maxZ = hitPos.getZ() + rangeX - halfRangeX;
             }
