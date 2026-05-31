@@ -59,7 +59,7 @@ public class OverLimitItemHandler extends StacksResourceHandler<UnlimitedItemSta
 
     @Override
     protected int getCapacity(int index, ItemResource resource) {
-        return resource.isEmpty()
+        return !resource.isEmpty()
                ? this.getResource(index).getMaxStackSize() * this.baseLimit
                : Item.ABSOLUTE_MAX_STACK_SIZE * this.baseLimit;
     }

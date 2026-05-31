@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -48,7 +49,7 @@ abstract class TntBlockMixin extends Block {
             itemStack.hurtAndBreak(1, player, hand.asEquipmentSlot());
 
             player.awardStat(Stats.ITEM_USED.get(item));
-            cir.setReturnValue(level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER);
+            cir.setReturnValue(Util.sidedSuccess(level));
         }
     }
 }

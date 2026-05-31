@@ -189,13 +189,10 @@ public class ItemTagLoader {
             .addTag(ModItemTags.ANVIL_HAMMER.location());
 
         provider.rawBuilder(ModItemTags.CURIOS_HEAD)
-            .replace(false)
             .addTag(ModItemTags.ANVIL_HAMMER.location());
         provider.rawBuilder(ModItemTags.CURIOS_CHARM)
-            .replace(false)
             .addTag(ModItemTags.AMULET.location());
         provider.rawBuilder(ModItemTags.CURIOS_IONOCRAFT_BACKPACK)
-            .replace(false)
             .addElement(ModItems.IONOCRAFT_BACKPACK.getId());
 
         provider.rawBuilder(ModItemTags.TOTEM)

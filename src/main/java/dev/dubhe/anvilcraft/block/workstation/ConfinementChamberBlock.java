@@ -15,7 +15,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -43,11 +42,6 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         return new ConfinementChamberBlockEntity(blockPos, blockState);
     }
 
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
-    }
-
     // Unimplemented for current version
     /*@Override
     protected InteractionResult useItemOn(
@@ -67,7 +61,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         if (itemStack.is(handItemStack.getItem())) return ItemInteractionResult.FAIL;
         player.setItemInHand(hand, itemStack.copy());
         confinementChamberBlockEntity.getItemHandler().setStackInSlot(0, handItemStack.copy());
-        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
     }*/
 
     @Override

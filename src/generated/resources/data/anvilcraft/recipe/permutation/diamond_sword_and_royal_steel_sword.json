@@ -10,8 +10,5 @@
   ],
   "material": {
     "items": "anvilcraft:royal_steel_ingot"
-  },
-  "template": {
-    "items": "anvilcraft:permutation_smithing_template"
   }
 }

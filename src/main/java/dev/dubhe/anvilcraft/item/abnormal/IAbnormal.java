@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.item.abnormal;
 
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
-import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
@@ -24,7 +24,7 @@ public interface IAbnormal {
         if (level.isClientSide()) return;
         if (!(entity instanceof Player player)) return;
         if (player.getAbilities().instabuild || player.getAbilities().invulnerable) return;
-        if (AmuletManager.INSTANCE.hasAmuletInInventory(player, ModItems.ABNORMAL_AMULET)) return;
+        if (AmuletManager.get(level.registryAccess()).hasAmuletInInventory(player, ModAmulets.ABNORMAL)) return;
         this.addEffect(player);
     }
 

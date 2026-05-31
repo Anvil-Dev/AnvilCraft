@@ -1,16 +1,20 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.anvilcraft.lib.v2.util.DistExecutor;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.Services;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLLoader;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
@@ -48,8 +52,20 @@ public class Util {
         return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
-    public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {
-        return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
+    @SuppressWarnings("Convert2Lambda")
+    public static Services getServices(Level level) {
+        if (FMLLoader.getCurrent().getDist() == Dist.CLIENT) {
+            AtomicReference<@Nullable Services> ref = new AtomicReference<>();
+            DistExecutor.run(Dist.CLIENT, () -> new Runnable() {
+                @Override
+                public void run() {
+                    ref.set(Minecraft.getInstance().services());
+                }
+            });
+            return ref.get();
+        } else {
+            return level.getServer().services();
+        }
     }
 
     public static float getSunAngle(Level level, Vec3 pos) {

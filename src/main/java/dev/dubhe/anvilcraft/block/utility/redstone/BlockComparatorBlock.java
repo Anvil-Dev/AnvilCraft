@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.utility.redstone;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -112,7 +113,7 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
             BlockState newState = state.cycle(PRECISE);
             level.setBlock(pos, newState.setValue(POWERED, this.checkBlocks(level, pos, newState)), 2);
             this.updateNeighborsInFront(level, pos, state);
-            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            return Util.sidedSuccess(level);
         }
     }
 

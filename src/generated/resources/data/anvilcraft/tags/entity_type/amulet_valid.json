@@ -9,6 +9,10 @@
       "required": false
     },
     {
+      "id": "#anvilcraft:amulet_valid/anvil",
+      "required": false
+    },
+    {
       "id": "#anvilcraft:amulet_valid/cat",
       "required": false
     },

@@ -20,8 +20,5 @@
   ],
   "material": {
     "items": "anvilcraft:ember_metal_ingot"
-  },
-  "template": {
-    "items": "anvilcraft:permutation_smithing_template"
   }
 }

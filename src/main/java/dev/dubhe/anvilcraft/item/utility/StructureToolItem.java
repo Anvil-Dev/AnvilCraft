@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.network.StructureDataSyncPacket;
+import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
@@ -80,7 +81,7 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
             if (itemstack.has(ModComponents.STRUCTURE_DATA)) {
                 itemstack.remove(ModComponents.STRUCTURE_DATA);
                 player.sendOverlayMessage(Component.translatable("tooltip.anvilcraft.item.structure_tool.data_removed"));
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return Util.sidedSuccess(level);
             }
         } else {
             StructureData data = itemstack.get(ModComponents.STRUCTURE_DATA);
@@ -109,7 +110,7 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
                     );
                     PacketDistributor.sendToPlayer(serverPlayer, new StructureDataSyncPacket(data));
                 }
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return Util.sidedSuccess(level);
             }
         }
         return super.use(level, player, usedHand);

@@ -10,8 +10,5 @@
   ],
   "material": {
     "items": "anvilcraft:multiphase_matter_block"
-  },
-  "template": {
-    "items": "anvilcraft:permutation_smithing_template"
   }
 }

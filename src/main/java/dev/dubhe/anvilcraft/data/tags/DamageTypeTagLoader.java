@@ -53,5 +53,8 @@ public class DamageTypeTagLoader {
 
         provider.rawBuilder(ModDamageTypeTags.ABNORMAL_AMULET_VALID)
             .addElement(DamageTypes.WITHER.identifier());
+
+        provider.rawBuilder(ModDamageTypeTags.IS_FALLING_GIANT_ANVIL)
+            .addOptionalElement(ModDamageTypes.FALLING_GIANT_ANVIL.identifier());
     }
 }

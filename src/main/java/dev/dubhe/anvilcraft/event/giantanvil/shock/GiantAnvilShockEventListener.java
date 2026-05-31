@@ -6,9 +6,9 @@ import dev.dubhe.anvilcraft.api.behavior.TreeNode;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -145,12 +145,14 @@ public class GiantAnvilShockEventListener {
             for (LivingEntity l : e) {
                 if (it.has(HURT_TYPE)) {
                     HurtType hurtType = it.getAttachment(HURT_TYPE, HurtType.class);
-                    l.hurt(hurtType.damageSource(l.level()), it.unwrap().fallDistance() * 2 * 2);
+                    // noinspection deprecation
+                    l.hurtOrSimulate(hurtType.damageSource(l.level()), it.unwrap().fallDistance() * 2 * 2);
                     hurtType.postApply(l.level(), l, it.unwrap().fallDistance());
                 } else {
                     if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
-                        l.hurt(
-                            it.unwrap().level().damageSources().source(DamageTypes.FALL, it.unwrap().fallingGiantAnvil()),
+                        // noinspection deprecation
+                        l.hurtOrSimulate(
+                            ModDamageTypes.fallingGiantAnvil(it.unwrap().level(), it.unwrap().fallingGiantAnvil()),
                             it.unwrap().fallDistance() * 2
                         );
                     }

@@ -12,6 +12,8 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
 import dev.dubhe.anvilcraft.item.ingredients.ExpGemItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.component.amulet.ComradeAmulet;
+import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
@@ -167,15 +169,39 @@ public class PlayerEventListener {
         if (inHand.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems().isEmpty()) {
             event.setCanceled(true);
         }
-        AmuletManager.INSTANCE.startRaffle(player, event.getSource());
+        AmuletManager.get(player.registryAccess()).startRaffle(player, event.getSource());
     }
 
     @SubscribeEvent
     public static void onPlayerHurt(LivingIncomingDamageEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player
-            && AmuletManager.INSTANCE.shouldIgnoreDamage(player, event.getSource())
+        if (
+            event.getEntity() instanceof ServerPlayer player
+            && AmuletManager.get(player.registryAccess()).shouldIgnoreDamage(player, event.getSource())
         ) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerUse(PlayerInteractEvent.RightClickItem event) {
+        ItemStack stack = event.getItemStack();
+        if (stack.isEmpty() || !stack.has(ModComponents.AMULET)) {
+            return;
+        }
+        IAmulet amulet = stack.get(ModComponents.AMULET);
+        if (!(amulet instanceof ComradeAmulet comrade)) {
+            return;
+        }
+        ComradeAmulet signed = comrade.sign(event.getEntity());
+        if (comrade == signed) {
+            event.setCancellationResult(InteractionResult.FAIL);
+            return;
+        }
+        if (event.getLevel().isClientSide()) {
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        stack.set(ModComponents.AMULET, signed);
+        event.setCancellationResult(InteractionResult.SUCCESS_SERVER);
     }
 }

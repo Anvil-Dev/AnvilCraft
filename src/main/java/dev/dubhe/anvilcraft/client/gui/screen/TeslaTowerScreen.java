@@ -47,7 +47,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     private final TeslaTowerMenu menu;
     private final TeslaTowerButton[] allFilterButtons = new TeslaTowerButton[8];
     private final TeslaTowerButton[] mutedSoundButtons = new TeslaTowerButton[8];
-    private EditBox editBox;
+    private @Nullable EditBox editBox;
     private int leftScrollOff;
     private int rightScrollOff;
 
@@ -380,7 +380,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     /**
      * 处理同步包
      */
-    public void handleSync(List<Pair<dev.dubhe.anvilcraft.api.teslatower.TeslaFilter, String>> filters) {
+    public void handleSync(List<Pair<TeslaFilter, String>> filters) {
         this.rightScrollOff = 0;
         this.whiteFilters.clear();
         this.whiteFilters.addAll(filters);

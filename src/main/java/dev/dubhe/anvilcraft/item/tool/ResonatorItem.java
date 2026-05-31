@@ -67,11 +67,6 @@ import java.util.function.Consumer;
 
 @Getter
 public abstract class ResonatorItem extends Item {
-    public static final int AUTO_MODE = 0;
-    public static final int AXE_MODE = 1;
-    public static final int SHOVEL_MODE = 2;
-    public static final int HOE_MODE = 3;
-    public static final int PICKAXE_MODE = 4;
     private final ToolMaterial material;
     private final float attackDamage;
 
@@ -102,13 +97,13 @@ public abstract class ResonatorItem extends Item {
         super.appendHoverText(stack, context, display, builder, tooltipFlag);
         if (this.isTranscendence(stack)) {
             builder.accept(
-                Component.translatable("tooltip.anvilcraft.resonator.mining_desc", Component.keybind("key.anvilcraft.switch_resonate_mode"))
+                Component.translatable("tooltip.anvilcraft.resonator.mining_desc", "Shift")
                     .withStyle(ChatFormatting.GRAY)
             );
         } else {
             builder.accept(
-                Component.translatable("tooltip.anvilcraft.resonator.desc", Component.keybind("key.anvilcraft.switch_resonate_mode"))
-                    .withStyle(net.minecraft.ChatFormatting.GRAY)
+                Component.translatable("tooltip.anvilcraft.resonator.desc", "Shift")
+                    .withStyle(ChatFormatting.GRAY)
             );
         }
     }
@@ -471,17 +466,6 @@ public abstract class ResonatorItem extends Item {
                 case HOE -> tag.equals(ItemTags.HOES) && super.is(tag);
                 case PICKAXE -> tag.equals(ItemTags.PICKAXES) && super.is(tag);
                 default -> super.is(tag);
-            };
-        }
-
-        public boolean is(ResonateMode mode, HolderSet<Item> holders) {
-            if (mode == ResonateMode.AUTO) return holders.contains(this);
-            return switch (holders) {
-                case HolderSet.Named<Item> h when h.key().equals(ItemTags.AXES) -> h.contains(this) && mode == ResonateMode.AXE;
-                case HolderSet.Named<Item> h when h.key().equals(ItemTags.SHOVELS) -> h.contains(this) && mode == ResonateMode.SHOVEL;
-                case HolderSet.Named<Item> h when h.key().equals(ItemTags.HOES) -> h.contains(this) && mode == ResonateMode.HOE;
-                case HolderSet.Named<Item> h when h.key().equals(ItemTags.PICKAXES) -> h.contains(this) && mode == ResonateMode.PICKAXE;
-                default -> holders.contains(this);
             };
         }
     }

@@ -17,10 +17,10 @@ import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
-import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
+import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import net.minecraft.core.component.DataComponentType;
@@ -62,11 +62,6 @@ public class ModComponents {
     public static final DataComponentType<StoredItem> DISPLAY_ITEM = register(
         "display_item",
         b -> b.persistent(StoredItem.CODEC).networkSynchronized(StoredItem.STREAM_CODEC)
-    );
-
-    public static final DataComponentType<SignedPlayers> SIGNED_PLAYERS = register(
-        "signed_player",
-        b -> b.persistent(SignedPlayers.CODEC.codec()).networkSynchronized(SignedPlayers.STREAM_CODEC)
     );
 
     public static final DataComponentType<FlightTime> FLIGHT_TIME = register(
@@ -156,6 +151,11 @@ public class ModComponents {
     public static final DataComponentType<MultitoolMode> MULTITOOL_MODE = register(
         "multitool_mode",
         b -> b.persistent(MultitoolMode.CODEC).networkSynchronized(MultitoolMode.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<IAmulet> AMULET = register(
+        "amulet",
+        b -> b.persistent(IAmulet.CODEC).networkSynchronized(IAmulet.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {

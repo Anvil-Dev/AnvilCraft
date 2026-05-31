@@ -98,6 +98,9 @@
     "accessor.ScreenAccessor"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
+  "mixinextras": {
+    "minVersion": "0.5.4"
+  },
   "injectors": {
     "defaultRequire": 1
   }

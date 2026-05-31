@@ -229,7 +229,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         if (result != InteractionResult.TRY_WITH_EMPTY_HAND) return InteractionResult.TRY_WITH_EMPTY_HAND;
         if (level.getBlockEntity(pos) instanceof FishTankBlockEntity tank) {
             if (tank.tryInteractWithTank(player, hand, hitResult)) {
-                return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
             }
         }
         return InteractionResult.PASS;

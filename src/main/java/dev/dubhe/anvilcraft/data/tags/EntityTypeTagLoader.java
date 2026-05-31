@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.tags;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
+import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.EntityTypeTags;
@@ -21,6 +22,7 @@ public class EntityTypeTagLoader {
         provider.rawBuilder(ModEntityTypeTags.AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.EMERALD_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.SAPPHIRE_AMULET_VALID.location())
+            .addOptionalTag(ModEntityTypeTags.ANVIL_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.CAT_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.DOG_AMULET_VALID.location())
             .addOptionalTag(ModEntityTypeTags.SILENCE_AMULET_VALID.location());
@@ -33,6 +35,10 @@ public class EntityTypeTagLoader {
             .addElement(findId(EntityType.GUARDIAN))
             .addElement(findId(EntityType.ELDER_GUARDIAN));
 
+        provider.rawBuilder(ModEntityTypeTags.ANVIL_AMULET_VALID)
+            .addElement(findId(EntityType.FALLING_BLOCK))
+            .addElement(ModEntities.FALLING_GIANT_ANVIL.getId());
+
         provider.rawBuilder(ModEntityTypeTags.CAT_AMULET_VALID)
             .addElement(findId(EntityType.CREEPER))
             .addElement(findId(EntityType.PHANTOM));
@@ -42,5 +48,8 @@ public class EntityTypeTagLoader {
 
         provider.rawBuilder(ModEntityTypeTags.SILENCE_AMULET_VALID)
             .addElement(findId(EntityType.WARDEN));
+
+        provider.rawBuilder(ModEntityTypeTags.FALLING_GIANT_ANVIL_DAMAGE_IMMUNE)
+            .addTag(EntityTypeTags.FALL_DAMAGE_IMMUNE.location());
     }
 }

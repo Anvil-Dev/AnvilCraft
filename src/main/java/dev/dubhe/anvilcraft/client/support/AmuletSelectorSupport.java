@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.support;
 
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -10,6 +9,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,11 +21,10 @@ public class AmuletSelectorSupport {
 
     private static ItemStack currentHoveringItemStack = ItemStack.EMPTY;
     private static int maxSelection = -1;
-    private static Layout layout = null;
-    private static BoxContents contents = null;
+    private static @Nullable Layout layout = null;
+    private static @Nullable BoxContents contents = null;
 
     public static void render(GuiGraphicsExtractor graphics, int x, int y) {
-        if (currentHoveringItemStack == null) return;
         int left = x - BACKGROUND_WIDTH / 2;
         int top = y - BACKGROUND_HEIGHT - 5;
         graphics.blit(
@@ -321,8 +320,10 @@ public class AmuletSelectorSupport {
                 return NO_AMULET;
             }
             List<ItemStack> amulets = content.amulets();
-            boolean firstBigAmulet = amulets.getFirst().getItem() instanceof AmuletItem amuletItem && amuletItem.getWeight() > 6;
-            boolean firstSmallAmulet = amulets.getFirst().getItem() instanceof AmuletItem amuletItem && amuletItem.getWeight() <= 6;
+            boolean firstBigAmulet = amulets.getFirst().has(ModComponents.AMULET)
+                                     && amulets.getFirst().get(ModComponents.AMULET).getWeight() > 6;
+            boolean firstSmallAmulet = amulets.getFirst().has(ModComponents.AMULET)
+                                       && amulets.getFirst().get(ModComponents.AMULET).getWeight() <= 6;
             if (firstBigAmulet) {
                 return BIG_AMULET_1;
             }

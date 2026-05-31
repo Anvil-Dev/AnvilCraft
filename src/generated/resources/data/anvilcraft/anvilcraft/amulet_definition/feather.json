@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:normal",
+  "amulet": {
+    "id": "anvilcraft:feather_amulet"
+  },
+  "obtain": {
+    "tags": [
+      {
+        "expected": true,
+        "id": "anvilcraft:amulet_valid/feather"
+      }
+    ]
+  }
+}

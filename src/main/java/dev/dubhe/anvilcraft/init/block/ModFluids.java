@@ -37,6 +37,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
+@SuppressWarnings("Convert2MethodRef")
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ModFluids {
     public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(
@@ -73,7 +74,7 @@ public class ModFluids {
         EXP_FLUID,
         FLOWING_EXP_FLUID
     )
-        .bucket(ModItems.EXP_BUCKET)
+        .bucket(() -> ModItems.EXP_BUCKET.asItem())
         .block(ModBlocks.EXP_FLUID)
         .tickRate(60)
         .slopeFindDistance(2)
@@ -105,7 +106,7 @@ public class ModFluids {
         );
 
     public static final BaseFlowingFluid.Properties OIL_PROPERTIES = new BaseFlowingFluid.Properties(OIL_TYPE, OIL, FLOWING_OIL)
-        .bucket(ModItems.OIL_BUCKET)
+        .bucket(() -> ModItems.OIL_BUCKET.asItem())
         .block(ModBlocks.OIL)
         .tickRate(10)
         .slopeFindDistance(3)
@@ -179,7 +180,7 @@ public class ModFluids {
 
     private static BaseFlowingFluid.Properties createCementProperties(Color color) {
         return new BaseFlowingFluid.Properties(CEMENT_TYPES.get(color), SOURCE_CEMENTS.get(color), FLOWING_CEMENTS.get(color))
-            .bucket(ModItems.CEMENT_BUCKETS.get(color))
+            .bucket(() -> ModItems.CEMENT_BUCKETS.get(color).asItem())
             .block(ModBlocks.CEMENTS.get(color))
             .explosionResistance(100);
     }
@@ -214,7 +215,7 @@ public class ModFluids {
         FLOWING_MELT_GEM
     )
         .block(ModBlocks.MELT_GEM)
-        .bucket(ModItems.MELT_GEM_BUCKET)
+        .bucket(() -> ModItems.MELT_GEM_BUCKET.asItem())
         .tickRate(20)
         .explosionResistance(100);
     public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(

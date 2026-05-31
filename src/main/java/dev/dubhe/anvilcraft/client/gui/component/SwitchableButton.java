@@ -3,24 +3,22 @@ package dev.dubhe.anvilcraft.client.gui.component;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class SwitchableButton extends Button {
-    public static final Button.OnPress DO_NOTHING = btn -> {
-    };
-
     private final List<Identifier> textures = new ArrayList<>();
     private final List<Component> message;
     private final int texYDiff;
@@ -29,21 +27,23 @@ public class SwitchableButton extends Button {
     @Getter
     @Setter
     private int current = 0;
+    private final Consumer<List<ClientTooltipComponent>> tooltip;
 
     public SwitchableButton(
         int x, int y, int width, int height,
         List<Identifier> textures, int texYDiff, int textureWidth, int textureHeight,
-        OnPress onPress
+        OnPress onPress, Consumer<List<ClientTooltipComponent>> tooltip
     ) {
-        this(x, y, width, height, textures, texYDiff, textureWidth, textureHeight, onPress, List.of());
+        this(x, y, width, height, textures, texYDiff, textureWidth, textureHeight, onPress, List.of(), tooltip);
     }
 
     public SwitchableButton(
         int x, int y, int width, int height,
         List<Identifier> textures, int texYDiff, int textureWidth, int textureHeight,
-        OnPress onPress, List<Component> message
+        OnPress onPress, List<Component> message, Consumer<List<ClientTooltipComponent>> tooltip
     ) {
         super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
+        this.tooltip = tooltip;
         this.textures.addAll(textures);
         this.message = message;
         this.texYDiff = texYDiff;
@@ -73,19 +73,28 @@ public class SwitchableButton extends Button {
                 this.textureHeight
             );
         }
-        if (MathUtil.isInRange(mouseX, this.getX(), this.getX() + this.width)
+        if (
+            MathUtil.isInRange(mouseX, this.getX(), this.getX() + this.width)
             && MathUtil.isInRange(mouseY, this.getY(), this.getY() + this.height)
             && !this.message.isEmpty()
-            && this.textures.size() == this.message.size()) {
-            graphics.tooltip(
-                Minecraft.getInstance().font,
-                List.of(ClientTooltipComponent.create(this.getMessage().getVisualOrderText())),
-                mouseX,
-                mouseY,
-                DefaultTooltipPositioner.INSTANCE,
-                null
-            );
+            && this.textures.size() == this.message.size()
+        ) {
+            this.tooltip.accept(Collections.singletonList(ClientTooltipComponent.create(this.getMessage().getVisualOrderText())));
         }
+    }
+
+    @Override
+    public void onClick(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0) {
+            this.switchToNext();
+        } else if (event.button() == 1) {
+            this.switchToPrev();
+        }
+    }
+
+    @Override
+    protected boolean isValidClickButton(MouseButtonInfo buttonInfo) {
+        return buttonInfo.button() == 0 || buttonInfo.button() == 1;
     }
 
     @Override

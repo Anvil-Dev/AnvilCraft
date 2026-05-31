@@ -6,6 +6,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.trading.TradeSet;
+import net.minecraft.world.item.trading.VillagerTrade;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.Optional;
@@ -60,7 +61,7 @@ public class ModTradeSets {
     private static void register(
         BootstrapContext<TradeSet> context,
         ResourceKey<TradeSet> key,
-        HolderSet<net.minecraft.world.item.trading.VillagerTrade> trades
+        HolderSet<VillagerTrade> trades
     ) {
         context.register(key, new TradeSet(
             trades,

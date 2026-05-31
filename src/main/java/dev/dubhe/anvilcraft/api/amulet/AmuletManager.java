@@ -1,16 +1,15 @@
 package dev.dubhe.anvilcraft.api.amulet;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Sets;
 import dev.anvilcraft.lib.v2.util.CollectionUtil;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
-import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
+import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,51 +17,43 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class AmuletManager {
-    public static final AmuletManager INSTANCE = new AmuletManager();
-    private final Set<Supplier<AmuletItem>> amuletItems = Sets.newConcurrentHashSet();
-    private final List<BiConsumer<Player, List<ItemStack>>> amuletFinders = new ArrayList<>();
+    private static final List<BiConsumer<Player, List<ItemStack>>> AMULET_FINDERS = new ArrayList<>();
+    private final List<Holder<IAmuletDefinition>> definitions;
 
-    private AmuletManager() {
-        this.registerAmulets(
-            ModItems.EMERALD_AMULET::get,
-            ModItems.TOPAZ_AMULET::get,
-            ModItems.RUBY_AMULET::get,
-            ModItems.SAPPHIRE_AMULET::get,
-            ModItems.ANVIL_AMULET::get,
-            ModItems.COMRADE_AMULET::get,
-            ModItems.FEATHER_AMULET::get,
-            ModItems.CAT_AMULET::get,
-            ModItems.DOG_AMULET::get,
-            ModItems.SILENCE_AMULET::get,
-            ModItems.ABNORMAL_AMULET::get,
-            ModItems.GEM_AMULET::get,
-            ModItems.NATURE_AMULET::get
-        );
-        this.registerFinders(
-            (player, holders) -> processFoundStack(player.getWeaponItem(), holders),
-            (player, holders) -> processFoundStack(player.getOffhandItem(), holders)
+    static {
+        AmuletManager.registerFinders(
+            (player, holders) -> AmuletManager.processFoundStack(player.getWeaponItem(), holders),
+            (player, holders) -> AmuletManager.processFoundStack(player.getOffhandItem(), holders)
         );
     }
 
-    @SafeVarargs
-    public final void registerAmulets(Supplier<AmuletItem>... amuletItems) {
-        Collections.addAll(this.amuletItems, amuletItems);
+    private AmuletManager(List<Holder<IAmuletDefinition>> definitions) {
+        this.definitions = definitions;
+    }
+
+    public static AmuletManager get(HolderLookup.Provider registries) {
+        return new AmuletManager(AmuletManager.extractDefinitions(registries));
+    }
+
+    public static List<Holder<IAmuletDefinition>> extractDefinitions(HolderLookup.Provider registries) {
+        return registries.lookupOrThrow(ModRegistries.AMULET_DEF)
+            .listElements()
+            .<Holder<IAmuletDefinition>>map(Function.identity())
+            .toList();
     }
 
     @SafeVarargs
-    public final void registerFinders(BiConsumer<Player, List<ItemStack>>... typeFinders) {
-        Collections.addAll(this.amuletFinders, typeFinders);
+    public static void registerFinders(BiConsumer<Player, List<ItemStack>>... typeFinders) {
+        Collections.addAll(AmuletManager.AMULET_FINDERS, typeFinders);
     }
 
     public static void processFoundStack(ItemStack found, List<ItemStack> holders) {
@@ -70,41 +61,29 @@ public class AmuletManager {
             BoxContents contents = found.get(ModComponents.BOX_CONTENTS);
             if (contents == null) return;
             for (ItemStack stack : contents.amulets()) {
-                if (stack.getItem() instanceof AmuletItem) {
+                if (stack.has(ModComponents.AMULET)) {
                     holders.add(stack.copy());
                 }
             }
-        } else if (found.getItem() instanceof AmuletItem) {
+        } else if (found.has(ModComponents.AMULET)) {
             holders.add(found);
         }
     }
 
-    public HashMultimap<Holder<AmuletType>, ItemStack> getAmuletsFromInventory(Player player) {
-        List<ItemStack> amuletItems = new ArrayList<>();
-        for (BiConsumer<Player, List<ItemStack>> amuletFinder : this.amuletFinders) {
-            amuletFinder.accept(player, amuletItems);
+    public List<ItemStack> getAmuletsFromInventory(Player player) {
+        List<ItemStack> amulets = new ArrayList<>();
+        for (BiConsumer<Player, List<ItemStack>> finder : AmuletManager.AMULET_FINDERS) {
+            finder.accept(player, amulets);
         }
-        return CollectionUtil.newMultimap(
-            HashMultimap.create(), amuletItems, stack -> ((AmuletItem) stack.getItem()).getType()
-        );
-    }
-
-    public List<Holder<AmuletType>> getTypesFromInventory(Player player) {
-        return List.copyOf(this.getAmuletsFromInventory(player).keySet());
-    }
-
-    public Optional<Holder<AmuletType>> getTypeMatchedDamage(ServerPlayer player, DamageSource source, HolderLookup.Provider registries) {
-        Optional<? extends HolderLookup.RegistryLookup<AmuletType>> lookupOptional = registries.lookup(ModRegistries.AMULET_TYPE_KEY);
-        return lookupOptional.flatMap(lookup -> lookup.listElements()
-            .filter(reference -> reference.value().canObtain(player, source))
-            .findFirst());
+        amulets.removeIf(stack -> !stack.has(ModComponents.AMULET));
+        return amulets;
     }
 
     public void startRaffle(ServerPlayer player, DamageSource source) {
-        Optional<AmuletType> typeOp = this.getTypeMatchedDamage(player, source, player.registryAccess()).map(Holder::value);
-        if (typeOp.isEmpty()) return;
-        AmuletType type = typeOp.get();
-        ItemStack amulet = type.amulet().get();
+        Optional<IAmuletDefinition> defOp = this.getDefinitionMatchedDamage(player, source).map(Holder::value);
+        if (defOp.isEmpty()) return;
+        IAmuletDefinition def = defOp.get();
+        ItemStack amulet = def.create();
         if (!InventoryUtil.getFirstItem(player.getInventory(), amulet.getItem()).isEmpty()) return;
         if (!InventoryUtil.getItemInCompat(player, stack -> ItemStack.isSameItem(stack, amulet)).isEmpty()) return;
 
@@ -118,76 +97,82 @@ public class AmuletManager {
         }
     }
 
-    public static int getStoredRaffleProbability(Player player, AmuletType type) {
-        return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(type);
+    public Optional<Holder<IAmuletDefinition>> getDefinitionMatchedDamage(ServerPlayer victim, DamageSource source) {
+        for (Holder<IAmuletDefinition> def : this.definitions) {
+            if (def.value().mayObtain(victim, source)) {
+                return Optional.of(def);
+            }
+        }
+        return Optional.empty();
     }
 
     public int getRaffleProbability(Player player, DamageSource source) {
-        Optional<Holder<AmuletType>> type = Optional.empty();
-        if (player instanceof ServerPlayer serverPlayer) {
-            type = this.getTypeMatchedDamage(serverPlayer, source, serverPlayer.registryAccess());
-        }
-        return type.map(holder -> this.getRaffleProbability(player, holder)).orElse(0);
-    }
-
-    public int getRaffleProbability(Player player, Holder<AmuletType> type) {
-        if (!this.hasAmuletInInventory(player, type)) {
-            return getStoredRaffleProbability(player, type.value()) + 20;
-        } else {
+        if (!(player instanceof ServerPlayer victim)) {
             return 0;
         }
+        return this.getDefinitionMatchedDamage(victim, source)
+            .map(holder -> this.getRaffleProbability(player, holder))
+            .orElse(0);
+    }
+
+    public int getRaffleProbability(Player player, Holder<IAmuletDefinition> def) {
+        if (this.hasAmuletInInventory(player, def)) {
+            return 0;
+        }
+        return AmuletManager.getStoredRaffleProbability(player, def.value()) + 20;
+    }
+
+    public boolean hasAmuletInInventory(Player player, IAmulet amulet) {
+        List<ItemStack> amulets = this.getAmuletsFromInventory(player);
+        return CollectionUtil.anyMatch(amulets, stack -> stack.get(ModComponents.AMULET).canActAs(amulet));
+    }
+
+    public boolean hasAmuletInInventory(Player player, Holder<IAmuletDefinition> def) {
+        ItemStack target = def.value().create();
+        List<ItemStack> amulets = this.getAmuletsFromInventory(player);
+        return CollectionUtil.anyMatch(amulets, stack -> ItemStack.isSameItem(stack, target));
+    }
+
+    public static int getStoredRaffleProbability(Player player, IAmuletDefinition type) {
+        return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(type);
     }
 
     public void setRaffleProbability(ServerPlayer player, DamageSource source, int probability) {
-        Optional<Holder<AmuletType>> typeHolder = this.getTypeMatchedDamage(player, source, player.registryAccess());
-        typeHolder.ifPresent(holder -> this.setRaffleProbability(player, holder, probability));
+        Optional<Holder<IAmuletDefinition>> def = this.getDefinitionMatchedDamage(player, source);
+        def.ifPresent(holder -> this.setRaffleProbability(player, holder, probability));
     }
 
-    public void setRaffleProbability(ServerPlayer player, Holder<AmuletType> type, int probability) {
+    public void setRaffleProbability(ServerPlayer player, Holder<IAmuletDefinition> def, int probability) {
         AmuletRaffleProbability arp = player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY);
-        if (!this.hasAmuletInInventory(player, type)) {
-            arp.setProbability(type.value(), probability);
+        if (!this.hasAmuletInInventory(player, def)) {
+            arp.setProbability(def.value(), probability);
         } else {
-            arp.setProbability(type.value(), 0);
-        }
-    }
-
-    public boolean hasAmuletInInventory(Player player, ItemLike itemLike) {
-        List<Holder<AmuletType>> holders = this.getTypesFromInventory(player);
-        return !holders.isEmpty() && CollectionUtil.anyMatch(holders, holder -> holder.value().matches(itemLike));
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean hasAmuletInInventory(Player player, Holder<AmuletType> type) {
-        List<Holder<AmuletType>> holders = this.getTypesFromInventory(player);
-        return !holders.isEmpty() && CollectionUtil.anyMatch(holders, holder -> holder.equals(type));
-    }
-
-    public void resetState(ServerPlayer player) {
-        for (Supplier<AmuletItem> amuletGetter : this.amuletItems) {
-            AmuletType type = amuletGetter.get().getType().value();
-            type.inventoryTick(player, type.amulet().get(), false);
+            arp.setProbability(def.value(), 0);
         }
     }
 
     public void inventoryTick(ServerPlayer player) {
-        this.resetState(player);
-        HashMultimap<Holder<AmuletType>, ItemStack> amulets = this.getAmuletsFromInventory(player);
-        for (Supplier<AmuletItem> amuletGetter : this.amuletItems) {
-            AmuletItem amuletItem = amuletGetter.get();
-            Holder<AmuletType> type = amuletItem.getType();
-            if (amulets.containsKey(type)) {
-                for (ItemStack amulet : amulets.get(type)) {
-                    type.value().inventoryTick(player, amulet, true);
-                }
-            } else {
-                type.value().inventoryTick(player, type.value().amulet().get(), false);
-            }
+        List<ItemStack> all = new ArrayList<>();
+        for (Holder<IAmuletDefinition> def : this.definitions) {
+            all.add(def.value().create());
+        }
+        List<ItemStack> now = this.getAmuletsFromInventory(player);
+        for (ItemStack stack : now) {
+            IAmulet amulet = stack.get(ModComponents.AMULET);
+            all.removeIf(other -> amulet.canActAs(other.get(ModComponents.AMULET)));
+            stack.get(ModComponents.AMULET).inventoryTick(player, stack, true);
+        }
+        for (ItemStack stack : all) {
+            IAmulet amulet = stack.get(ModComponents.AMULET);
+            if (amulet instanceof WrappedOthersAmulet) return;
+            amulet.inventoryTick(player, stack, false);
         }
     }
 
     public boolean shouldIgnoreDamage(ServerPlayer player, DamageSource source) {
-        List<Holder<AmuletType>> holders = this.getTypesFromInventory(player);
-        return !holders.isEmpty() && CollectionUtil.anyMatch(holders, holder -> holder.value().shouldImmuneDamage(player, source));
+        return CollectionUtil.anyMatch(
+            this.getAmuletsFromInventory(player),
+            stack -> stack.get(ModComponents.AMULET).shouldImmune(player, source)
+        );
     }
 }

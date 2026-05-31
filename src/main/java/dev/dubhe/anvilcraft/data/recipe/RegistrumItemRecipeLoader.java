@@ -476,10 +476,10 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.VOID_MATTER), AnvilCraftDatagen.has(lookup, ModItems.VOID_MATTER))
             .save(provider);
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
-            .requires(ModItems.DEFORMATION_TEMPLATE_ITEM)
+            .requires(ModItems.DEFORMATION_TEMPLATE)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.DEFORMATION_TEMPLATE_ITEM),
-                AnvilCraftDatagen.has(lookup, ModItems.DEFORMATION_TEMPLATE_ITEM)
+                AnvilCraftDatagen.hasItem(ModItems.DEFORMATION_TEMPLATE),
+                AnvilCraftDatagen.has(lookup, ModItems.DEFORMATION_TEMPLATE)
             )
             .save(provider, AnvilCraft.recipe("shapeless/deform_to_permut"));
     }
@@ -501,10 +501,10 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.VOID_MATTER), AnvilCraftDatagen.has(lookup, ModItems.VOID_MATTER))
             .save(provider);
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
-            .requires(ModItems.PERMUTATION_TEMPLATE_ITEM)
+            .requires(ModItems.PERMUTATION_TEMPLATE)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.PERMUTATION_TEMPLATE_ITEM),
-                AnvilCraftDatagen.has(lookup, ModItems.PERMUTATION_TEMPLATE_ITEM)
+                AnvilCraftDatagen.hasItem(ModItems.PERMUTATION_TEMPLATE),
+                AnvilCraftDatagen.has(lookup, ModItems.PERMUTATION_TEMPLATE)
             )
             .save(provider, AnvilCraft.recipe("shapeless/permut_to_deform"));
     }

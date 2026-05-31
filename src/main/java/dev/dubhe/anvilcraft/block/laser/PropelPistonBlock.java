@@ -42,6 +42,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -182,7 +183,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
         Direction direction = state.getValue(PropelPistonBlock.FACING);
         if (id == 0) {
-            if (net.neoforged.neoforge.event.EventHooks.onPistonMovePre(level, pos, direction, true)) {
+            if (EventHooks.onPistonMovePre(level, pos, direction, true)) {
                 level.setBlockAndUpdate(pos, state.setValue(MOVING, false));
                 return false;
             }
@@ -192,7 +193,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
             }
             level.playSound(null, pos, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.5F, level.getRandom().nextFloat() * 0.25F + 0.6F);
         }
-        net.neoforged.neoforge.event.EventHooks.onPistonMovePost(level, pos, direction, (id == 0));
+        EventHooks.onPistonMovePost(level, pos, direction, (id == 0));
         level.scheduleTick(pos.relative(direction), this, 6);
         return true;
     }

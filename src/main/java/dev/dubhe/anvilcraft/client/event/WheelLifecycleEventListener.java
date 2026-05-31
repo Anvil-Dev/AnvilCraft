@@ -60,19 +60,19 @@ public class WheelLifecycleEventListener {
 
     private static long hammerKeyTime = -1L;
     private static boolean hammerKeyWasDown = false;
-    private static Optional<WheelMenuModel> hammerWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> hammerWheelCache = null;
 
     private static long multiphaseKeyTime = -1L;
     private static boolean multiphaseKeyWasDown = false;
-    private static Optional<WheelMenuModel> multiphaseWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> multiphaseWheelCache = null;
 
     private static long resonatorKeyTime = -1L;
     private static boolean resonatorKeyWasDown = false;
-    private static Optional<WheelMenuModel> resonatorWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> resonatorWheelCache = null;
 
     private static long multitoolKeyTime = -1L;
     private static boolean multitoolKeyWasDown = false;
-    private static Optional<WheelMenuModel> multitoolWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> multitoolWheelCache = null;
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -356,7 +356,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .action(
@@ -368,7 +368,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .action(
@@ -380,7 +380,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .action(
@@ -392,7 +392,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .action(
@@ -404,7 +404,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .action(
@@ -416,7 +416,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .action(
@@ -428,7 +428,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .action(
@@ -440,7 +440,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .action(
@@ -452,7 +452,7 @@ public class WheelLifecycleEventListener {
                     graphics.item(copied, 2, 2, 9910597);
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
-                    new SwitchMultitoolModePacket(hand, ctx.slotIndex())
+                    new SwitchMultitoolModePacket(hand, MultitoolMode.values()[ctx.slotIndex()])
                 )
             )
             .build();

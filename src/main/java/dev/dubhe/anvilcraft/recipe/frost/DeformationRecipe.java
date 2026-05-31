@@ -10,38 +10,38 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public record DeformationRecipe(
-    ItemIngredientPredicate template,
-    ItemIngredientPredicate material,
+    Optional<ItemIngredientPredicate> template,
+    Optional<ItemIngredientPredicate> material,
     List<RecipeResult> inputs
 ) implements IFrostSmithingRecipe {
     public static final RecipeSerializer<DeformationRecipe> SERIALIZER = new RecipeSerializer<>(
         RecordCodecBuilder.mapCodec(ins -> ins.group(
             ItemIngredientPredicate.CODEC
-                .optionalFieldOf("template", DeformationRecipe.DEFAULT_TEMPLATE)
+                .optionalFieldOf("template")
                 .forGetter(DeformationRecipe::template),
             ItemIngredientPredicate.CODEC
-                .optionalFieldOf("material", DeformationRecipe.DEFAULT_MATERIAL)
+                .optionalFieldOf("material")
                 .forGetter(DeformationRecipe::material),
             RecipeResult.LIST_CODEC
                 .fieldOf("inputs")
                 .forGetter(DeformationRecipe::inputs)
         ).apply(ins, DeformationRecipe::new)),
         StreamCodec.composite(
-            ItemIngredientPredicate.STREAM_CODEC,
+            ByteBufCodecs.optional(ItemIngredientPredicate.STREAM_CODEC),
             DeformationRecipe::template,
-            ItemIngredientPredicate.STREAM_CODEC,
+            ByteBufCodecs.optional(ItemIngredientPredicate.STREAM_CODEC),
             DeformationRecipe::material,
             RecipeResult.STREAM_CODEC.apply(ByteBufCodecs.list()),
             DeformationRecipe::inputs,
             DeformationRecipe::new
         )
     );
-    public static final ItemIngredientPredicate DEFAULT_TEMPLATE = ItemIngredientPredicate.of(ModItems.DEFORMATION_TEMPLATE_ITEM).build();
-    public static final ItemIngredientPredicate DEFAULT_MATERIAL = ItemIngredientPredicate.of(ModItems.FROST_METAL_INGOT).build();
 
     public static Builder builder() {
         return new Builder();
@@ -49,12 +49,12 @@ public record DeformationRecipe(
 
     @Override
     public boolean isTemplate(ItemStack template) {
-        return this.template.test(template);
+        return this.template.map(predicate -> predicate.test(template)).orElseGet(() -> template.is(ModItems.DEFORMATION_TEMPLATE));
     }
 
     @Override
     public boolean isMaterial(ItemStack material) {
-        return material.is(ModItems.FROST_METAL_INGOT);
+        return this.material.map(predicate -> predicate.test(material)).orElseGet(() -> material.is(ModItems.FROST_METAL_INGOT));
     }
 
     @Override
@@ -74,7 +74,6 @@ public record DeformationRecipe(
 
     public static class Builder extends BaseBuilder<Builder, DeformationRecipe> {
         public Builder() {
-            this.template(DeformationRecipe.DEFAULT_TEMPLATE).material(DeformationRecipe.DEFAULT_MATERIAL);
         }
 
         @Override
@@ -83,8 +82,12 @@ public record DeformationRecipe(
         }
 
         @Override
-        public DeformationRecipe build(ItemIngredientPredicate template, ItemIngredientPredicate material, List<RecipeResult> inputs) {
-            return new DeformationRecipe(template, material, inputs);
+        public DeformationRecipe build(
+            @Nullable ItemIngredientPredicate template,
+            @Nullable ItemIngredientPredicate material,
+            List<RecipeResult> inputs
+        ) {
+            return new DeformationRecipe(Optional.ofNullable(template), Optional.ofNullable(material), inputs);
         }
 
         @Override

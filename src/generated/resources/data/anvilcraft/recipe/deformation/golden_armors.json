@@ -13,11 +13,5 @@
     {
       "id": "minecraft:golden_boots"
     }
-  ],
-  "material": {
-    "items": "anvilcraft:frost_metal_ingot"
-  },
-  "template": {
-    "items": "anvilcraft:deformation_smithing_template"
-  }
+  ]
 }

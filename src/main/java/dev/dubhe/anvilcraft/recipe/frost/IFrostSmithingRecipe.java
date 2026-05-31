@@ -22,6 +22,7 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,9 +102,9 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
     }
 
     abstract class BaseBuilder<B extends BaseBuilder<B, R>, R extends IFrostSmithingRecipe> extends AbstractRecipeBuilder<R> {
-        private ItemIngredientPredicate template;
-        private ItemIngredientPredicate material;
-        private final List<RecipeResult> inputs = new ArrayList<>();
+        protected @Nullable ItemIngredientPredicate template;
+        protected @Nullable ItemIngredientPredicate material;
+        protected final List<RecipeResult> inputs = new ArrayList<>();
         
         protected abstract B getThis();
 
@@ -193,15 +194,16 @@ public interface IFrostSmithingRecipe extends Recipe<FrostSmithingRecipeInput> {
 
         @Override
         public void validate(Identifier id) {
-            if (this.material.items().isEmpty()) {
-                throw new IllegalArgumentException("The material of " + this.getType() + " recipe must not be empty, RecipeId: " + id);
-            }
             if (this.inputs.isEmpty()) {
                 throw new IllegalArgumentException("The inputs of " + this.getType() + " recipe must not be empty, RecipeId: " + id);
             }
         }
 
-        public abstract R build(ItemIngredientPredicate template, ItemIngredientPredicate material, List<RecipeResult> inputs);
+        public abstract R build(
+            @Nullable ItemIngredientPredicate template,
+            @Nullable ItemIngredientPredicate material,
+            List<RecipeResult> inputs
+        );
 
         @Override
         public R buildRecipe() {

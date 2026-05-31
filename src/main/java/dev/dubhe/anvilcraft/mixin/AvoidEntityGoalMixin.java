@@ -1,86 +1,147 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.util.dummy.DummyCat;
-import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.init.item.ModAmulets;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.animal.feline.Cat;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.Objects;
 
 @Mixin(AvoidEntityGoal.class)
 public abstract class AvoidEntityGoalMixin<T extends LivingEntity> {
     @Shadow
     @Final
-    protected Class<T> avoidClass;
-
+    protected PathfinderMob mob;
     @Shadow
     @Final
-    protected PathfinderMob mob;
-
+    protected Class<T> avoidClass;
+    @Shadow
+    @Final
+    protected float maxDist;
     @Shadow
     @Final
     private TargetingConditions avoidEntityTargeting;
-
-    @Shadow
+    @Unique
     @Nullable
-    protected Path path;
+    protected LivingEntity anvilcraft$toAvoid;
 
-    @Shadow
-    @Final
-    protected PathNavigation pathNav;
+    @Definition(
+        id = "toAvoid",
+        field = "Lnet/minecraft/world/entity/ai/goal/AvoidEntityGoal;toAvoid:Lnet/minecraft/world/entity/LivingEntity;"
+    )
+    @Definition(
+        id = "getServerLevel",
+        method = "Lnet/minecraft/world/entity/ai/goal/AvoidEntityGoal;"
+                 + "getServerLevel(Lnet/minecraft/world/entity/Entity;)"
+                 + "Lnet/minecraft/server/level/ServerLevel;"
+    )
+    // CHECKSTYLE.SUPPRESS: LineLength for +4 lines 因为 MC DEV 插件会在换行后报错
+    @Definition(
+        id = "getNearestEntity",
+        method = "Lnet/minecraft/server/level/ServerLevel;"
+                 + "getNearestEntity(Ljava/util/List;Lnet/minecraft/world/entity/ai/targeting/TargetingConditions;Lnet/minecraft/world/entity/LivingEntity;DDD)"
+                 + "Lnet/minecraft/world/entity/LivingEntity;"
+    )
+    @Expression("this.toAvoid = getServerLevel(?).getNearestEntity(?,?,?,?,?,?)")
+    @WrapOperation(method = "canUse", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private void addAvoidPlayerGoal(AvoidEntityGoal<T> instance, @Nullable T value, Operation<Void> original) {
+        this.anvilcraft$toAvoid = Util.<ServerLevel>cast(this.mob.level()).getNearestEntity(
+            this.mob.level().getEntitiesOfClass(
+                LivingEntity.class,
+                this.mob.getBoundingBox().inflate(this.maxDist, 3.0, this.maxDist),
+                entity -> anvilcraft$is(this.avoidClass, entity)
+            ),
+            this.avoidEntityTargeting,
+            this.mob,
+            this.mob.getX(),
+            this.mob.getY(),
+            this.mob.getZ()
+        );
+    }
 
-    @Shadow
-    @Nullable
-    protected T toAvoid;
+    @Definition(
+        id = "toAvoid",
+        field = "Lnet/minecraft/world/entity/ai/goal/AvoidEntityGoal;toAvoid:Lnet/minecraft/world/entity/LivingEntity;"
+    )
+    @Expression("this.toAvoid == null")
+    @WrapOperation(method = "canUse", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private boolean replaceVanillaToOurs(Object left, Object right, Operation<Boolean> original) {
+        return original.call(this.anvilcraft$toAvoid, right);
+    }
 
-    @Inject(method = "canUse", at = @At("HEAD"), cancellable = true)
-    private void addAvoidPlayerGoal(CallbackInfoReturnable<Boolean> cir) {
-        if (this.avoidClass.isAssignableFrom(Cat.class)) {
-            Player nearest = this.mob.level().getNearestPlayer(
-                this.mob.getX(),
-                this.mob.getY(),
-                this.mob.getZ(),
-                16,
-                player -> player.getData(ModDataAttachments.SCARE_CREEPERS)
-            );
-            if (nearest == null) return;
-            Vec3 posAway = DefaultRandomPos.getPosAway(this.mob, 16, 7, nearest.position());
-            if (posAway == null || nearest.distanceToSqr(posAway.x, posAway.y, posAway.z) < nearest.distanceToSqr(this.mob)) return;
-            this.path = this.pathNav.createPath(posAway.x, posAway.y, posAway.z, 0);
-            this.toAvoid = Util.cast(Objects.requireNonNull(DummyCat.fromPlayer(this.mob.level(), nearest)));
-            cir.setReturnValue(this.path != null);
-        } else if (this.avoidClass.isAssignableFrom(Wolf.class)) {
-            Player nearest = this.mob.level().getNearestPlayer(
-                this.mob.getX(),
-                this.mob.getY(),
-                this.mob.getZ(),
-                16,
-                player -> player.getData(ModDataAttachments.SCARE_SKELETONS)
-            );
-            if (nearest == null) return;
-            Vec3 posAway = DefaultRandomPos.getPosAway(this.mob, 16, 7, nearest.position());
-            if (posAway == null || nearest.distanceToSqr(posAway.x, posAway.y, posAway.z) < nearest.distanceToSqr(this.mob)) return;
-            this.path = this.pathNav.createPath(posAway.x, posAway.y, posAway.z, 0);
-            this.toAvoid = Util.cast(Objects.requireNonNull(DummyWolf.fromPlayer(this.mob.level(), nearest)));
-            cir.setReturnValue(this.path != null);
+    @WrapOperation(
+        method = "canUse",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;position()Lnet/minecraft/world/phys/Vec3;"
+        )
+    )
+    private Vec3 useOurs(LivingEntity instance, Operation<Vec3> original) {
+        return original.call(this.anvilcraft$toAvoid);
+    }
+
+    @WrapOperation(
+        method = "canUse",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;distanceToSqr(Lnet/minecraft/world/entity/Entity;)D"
+        )
+    )
+    private double useOurs(LivingEntity instance, Entity entity, Operation<Double> original) {
+        return original.call(this.anvilcraft$toAvoid, entity);
+    }
+
+    @WrapOperation(
+        method = "canUse",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;distanceToSqr(DDD)D"
+        )
+    )
+    private double useOurs(LivingEntity instance, double x2, double y2, double z2, Operation<Double> original) {
+        return original.call(this.anvilcraft$toAvoid, x2, y2, z2);
+    }
+
+    @WrapOperation(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/PathfinderMob;distanceToSqr(Lnet/minecraft/world/entity/Entity;)D"
+        )
+    )
+    private double useOurs(PathfinderMob instance, Entity entity, Operation<Double> original) {
+        return original.call(instance, this.anvilcraft$toAvoid);
+    }
+
+    @Unique
+    private static boolean anvilcraft$is(Class<? extends LivingEntity> avoiding, LivingEntity entity) {
+        if (Cat.class.isAssignableFrom(avoiding)) {
+            return entity instanceof Cat
+                   || entity instanceof Player player
+                      && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.CAT);
         }
+        if (Wolf.class.isAssignableFrom(avoiding)) {
+            return entity instanceof Wolf
+                   || entity instanceof Player player
+                      && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.DOG);
+        }
+        return Util.instanceOfAny(entity, avoiding);
     }
 }
