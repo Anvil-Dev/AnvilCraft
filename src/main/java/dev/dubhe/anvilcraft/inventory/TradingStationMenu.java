@@ -85,7 +85,7 @@ public class TradingStationMenu extends AbstractContainerMenu {
                 super.set(stack);
             }
         });
-        this.addSlot(new FilterOnlySlot(this.be.getFilters(), 2, 67, 25) {
+        this.addSlot(new FilterOnlySlot(this.be.getFilters(), 2, 69, 25) {
             @Override
             public void set(ItemStack stack) {
                 if (TradingStationMenu.this.level.isClientSide) {

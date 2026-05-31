@@ -112,7 +112,7 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
         ));
         this.villagerAllowed.setCurrent(this.menu.getBe().isVillagerAllowed() ? 1 : 0);
         this.inputAllowed = this.addRenderableWidget(new SwitchableButton(
-            this.leftPos + 58,
+            this.leftPos + 51,
             this.topPos + 50,
             16,
             16,
@@ -137,7 +137,7 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
         ));
         this.inputAllowed.setCurrent(this.menu.getBe().isInputAllowed() ? 1 : 0);
         this.outputAllowed = this.addRenderableWidget(new SwitchableButton(
-            this.leftPos + 76,
+            this.leftPos + 69,
             this.topPos + 50,
             16,
             16,
@@ -208,7 +208,7 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 58, this.topPos + 50, this.leftPos + 74, this.topPos + 66)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 51, this.topPos + 50, this.leftPos + 67, this.topPos + 66)) {
             guiGraphics.renderTooltip(
                 this.font,
                 this.inputAllowed.getCurrent() == 0
@@ -217,7 +217,7 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 76, this.topPos + 50, this.leftPos + 92, this.topPos + 66)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 69, this.topPos + 50, this.leftPos + 85, this.topPos + 66)) {
             guiGraphics.renderTooltip(
                 this.font,
                 this.outputAllowed.getCurrent() == 0
