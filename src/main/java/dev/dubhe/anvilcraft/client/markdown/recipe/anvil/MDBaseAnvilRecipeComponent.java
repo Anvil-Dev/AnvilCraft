@@ -58,6 +58,7 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
 
         for (int i = 0; i < getInputBlockStates().size(); i++) {
             BlockState inputBlock = getInputBlockStates().get(i);
+            if (inputBlock.isAir()) continue;
             int y = AgeratumUtil.getRenderY(BLOCK_Y, i);
             AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, INPUT_BLOCK_X, y, (getInputBlockStates().size() - i) * 10);
         }
