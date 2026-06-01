@@ -33,7 +33,7 @@ import java.util.TreeSet;
  * <ol>
  *   <li>END + UP 方向：向上方排液</li>
  *   <li>END + DOWN 方向：向下方排液</li>
- *   <li>所有 PIPE 方向：收集 PipeEnd，按高度降序排序后逐一分发</li>
+ *   <li>所有 PIPE 方向：收集 PipeEnd，按等效高度降序排序后逐一分发</li>
  * </ol>
  */
 @Getter
@@ -71,6 +71,8 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         return new PipeNodeBlockEntity(type, pos, blockState);
     }
 
+    // ---- NBT 持久化（FluidTank + heightBonus） ----
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -78,12 +80,16 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         if (!tankNbt.isEmpty()) {
             tag.put("Fluid", tankNbt);
         }
+        if (this.heightBonus != 0) {
+            tag.putInt("HeightBonus", this.heightBonus);
+        }
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.fluidHandler.readFromNBT(registries, tag.getCompound("Fluid"));
+        this.heightBonus = tag.getInt("HeightBonus");
     }
 
     @Override
@@ -93,6 +99,9 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         if (!tankNbt.isEmpty()) {
             tag.put("Fluid", tankNbt);
         }
+        if (this.heightBonus != 0) {
+            tag.putInt("HeightBonus", this.heightBonus);
+        }
         return tag;
     }
 
@@ -101,23 +110,19 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    // ---- Per-tick 流体分发 ----
+
     /**
-     * Per-tick 流体分发逻辑。
-     *
-     * <ol>
-     *   <li>END + UP：向上方排液</li>
-     *   <li>END + DOWN：向下方排液</li>
-     *   <li>收集所有 PIPE 方向的 PipeEnd，按高度降序排序（高处优先）</li>
-     *   <li>依次向每个 PipeEnd 排液</li>
-     * </ol>
+     * Per-tick 流体分发逻辑。使用等效高度排序 PipeEnd（高优先），
+     * 再依次向各终点排液。
      */
     public static void tick(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof PipeNodeBlock)) {
             return;
         }
 
-        // 按高度降序排列的终点集合
-        Set<EndAndDirection> pipeEnds = new TreeSet<>(Comparator.comparingInt(e -> -e.end().pos().getY()));
+        // 按等效高度降序排列 PipeEnd
+        Set<EndAndDirection> pipeEnds = new TreeSet<>(Comparator.comparingInt(e -> -e.end().effectiveHeight()));
 
         for (Direction direction : Direction.values()) {
             EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
@@ -125,18 +130,20 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
 
             // END + UP：向上方排液
             if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.UP)) {
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, Direction.UP, pos.relative(Direction.UP), Direction.DOWN);
+                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                    level, pos, Direction.UP, pos.relative(Direction.UP), Direction.DOWN);
             }
             // END + DOWN：向下方排液
             if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.DOWN)) {
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos.relative(Direction.DOWN), Direction.UP, pos, Direction.DOWN);
+                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                    level, pos.relative(Direction.DOWN), Direction.UP, pos, Direction.DOWN);
             }
 
             if (!value.equals(PipeBlock.NodePipe.PIPE)) {
                 continue;
             }
 
-            // PIPE 方向：追踪 PipeEnd
+            // PIPE 方向：追踪 PipeEnd（沿途累加各段的 heightBonus）
             PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos.relative(direction), direction.getOpposite());
             if (pipeEnd == null) {
                 continue;
@@ -148,7 +155,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             return;
         }
 
-        // 按高度降序分发流体
+        // 按等效高度降序分发流体
         for (EndAndDirection endAndDirection : pipeEnds) {
             AbstractPipeBlockEntity.moveFluidWithHeightCheck(
                 level,
@@ -161,7 +168,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
     }
 
     /**
-     * PipeEnd + 方向对的记录
+     * PipeEnd + 方向对
      */
     record EndAndDirection(PipeEnd end, Direction direction) {
     }

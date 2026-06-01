@@ -5,6 +5,11 @@ import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -51,6 +56,38 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
         return count;
     }
 
+    // ---- NBT 持久化 heightBonus ----
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        if (this.heightBonus != 0) {
+            tag.putInt("HeightBonus", this.heightBonus);
+        }
+    }
+
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        this.heightBonus = tag.getInt("HeightBonus");
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        if (this.heightBonus != 0) {
+            tag.putInt("HeightBonus", this.heightBonus);
+        }
+        return tag;
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    // ---- Per-tick 排液 ----
+
     /**
      * Per-tick 排液逻辑。
      *
@@ -71,9 +108,11 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
         }
 
         // 两端端头 + 水平弯管（不涉及 Y 轴）→ 跳过
-        if (endCount == 2 && !isStraight && !state.getValue(PipeCornerBlock.CORNER_ENDED)
-            .getFirstDirection()
-            .equals(Direction.DOWN) && !state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.UP)) {
+        if (
+            endCount == 2 && !isStraight
+            && !state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.DOWN)
+            && !state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.UP)
+        ) {
             return;
         }
 
