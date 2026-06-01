@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.fluid;
 
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -63,7 +64,18 @@ public class PipeCornerBlock extends PipeBlock {
         }
         if (neighborDir == null) return;
 
-        if (!corner.containsDirection(neighborDir)) return;
+        if (!corner.containsDirection(neighborDir)) {
+            if (isNeighborPipeToward(level, pos, neighborDir)) {
+                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+                for (Direction dir : Direction.values()) {
+                    nodeState = nodeState.setValue(getPropertyForDirection(dir),
+                        PipeNodeBlock.evaluateNeighbor(level, pos, dir));
+                }
+                level.setBlockAndUpdate(pos, nodeState);
+            }
+            return;
+        }
 
         boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
 
