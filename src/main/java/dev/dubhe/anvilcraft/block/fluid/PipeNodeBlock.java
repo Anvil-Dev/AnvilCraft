@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;

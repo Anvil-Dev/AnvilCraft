@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -17,15 +20,17 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
-public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable, EntityBlock {
+public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable, EntityBlock, IHammerChangeable {
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final EnumProperty<CornerEnded> CORNER_ENDED = EnumProperty.create("corner_ended", CornerEnded.class);
     public static final BooleanProperty HAS_END_START = BooleanProperty.create("has_end_start");
@@ -184,6 +189,21 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
             shape = Shapes.or(shape, makeNoEnd(endDir));
         }
         return shape;
+    }
+
+    @Override
+    public boolean checkBlockState(BlockState blockState) {
+        return false;
+    }
+
+    @Override
+    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
+        return false;
+    }
+
+    @Override
+    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+        return null;
     }
 
     public enum CornerEnded implements StringRepresentable {

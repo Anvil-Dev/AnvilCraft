@@ -122,11 +122,11 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     ) {
         IFluidHandler source = level.getCapability(Capabilities.FluidHandler.BLOCK, sourcePos, sourceDirection);
         IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, targetDirection);
-        int heightDiff = sourcePos.getY() - targetPos.getY();
-        int maxSpeed = heightDiff * 50;
-        if (source == null || target == null) {
+        if (source == null || target == null || target.equals(source)) {
             return;
         }
+        int heightDiff = sourcePos.getY() - targetPos.getY();
+        int maxSpeed = heightDiff * 50;
         for (int i = 0; i < target.getTanks(); i++) {
             int targetTankCapacity = target.getTankCapacity(i);
             int speed = Math.min(maxSpeed, targetTankCapacity);

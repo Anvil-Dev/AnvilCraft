@@ -18,9 +18,13 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
+
 @Getter
 public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFluidHandlerHolder {
-    public static final int CAPACITY = FluidType.BUCKET_VOLUME;
+    public static final int CAPACITY = FluidType.BUCKET_VOLUME * 4;
     private final FluidTank fluidHandler = new FluidTank(PipeNodeBlockEntity.CAPACITY) {
         @Override
         protected void onContentsChanged() {
@@ -83,6 +87,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         if (!(state.getBlock() instanceof PipeNodeBlock)) {
             return;
         }
+        Set<EndAndDirection> pipeEnds = new TreeSet<>(Comparator.comparingInt(e -> -e.end().pos().getY()));
         for (Direction direction : Direction.values()) {
             EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
             PipeBlock.NodePipe value = state.getValue(property);
@@ -109,13 +114,22 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             }
             PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos.relative(direction), direction.getOpposite());
             if (pipeEnd == null) continue;
+            pipeEnds.add(new EndAndDirection(pipeEnd, direction));
+        }
+        if (pipeEnds.isEmpty()) {
+            return;
+        }
+        for (EndAndDirection endAndDirection : pipeEnds) {
             AbstractPipeBlockEntity.moveFluidWithHeightCheck(
                 level,
-                pos.relative(direction),
-                direction.getOpposite(),
-                pipeEnd.pos(),
-                pipeEnd.direction()
+                pos.relative(endAndDirection.direction()),
+                endAndDirection.direction().getOpposite(),
+                endAndDirection.end().pos(),
+                endAndDirection.end().direction()
             );
         }
+    }
+
+    record EndAndDirection(PipeEnd end, Direction direction) {
     }
 }

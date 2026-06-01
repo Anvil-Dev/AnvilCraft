@@ -38,7 +38,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
             return;
         }
         boolean isStraight = state.getBlock() instanceof PipeStraightBlock;
-        if (endCount == 2 && isStraight && Direction.Axis.Y.equals(state.getValue(PipeStraightBlock.AXIS))) {
+        if (endCount == 2 && isStraight && !Direction.Axis.Y.equals(state.getValue(PipeStraightBlock.AXIS))) {
             return;
         }
         if (
