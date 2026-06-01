@@ -213,6 +213,9 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     /**
      * 流体传输（带高度差检查）：使用等效高度替代真实 Y 坐标。
      * 仅在源等效高度高于目标等效高度时执行传输。
+     *
+     * <p>高度差基于移位后的实际连接位置（sourcePos/targetPos），
+     * 而非管道自身位置，以正确处理同方块两端端头的情况。
      */
     public static void moveFluidWithHeightCheck(
         Level level,
@@ -221,25 +224,31 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         BlockPos targetCurPos,
         Direction targetCurDirection
     ) {
-        // 计算源的等效高度
-        int sourceEffectiveY = sourceCurPos.getY();
-        int targetEffectiveY = targetCurPos.getY();
-        if (level.getBlockEntity(sourceCurPos) instanceof AbstractPipeBlockEntity sourceBe) {
-            sourceEffectiveY = sourceBe.getEffectiveHeight();
-        }
-        if (level.getBlockEntity(targetCurPos) instanceof AbstractPipeBlockEntity targetBe) {
-            targetEffectiveY = targetBe.getEffectiveHeight();
-        }
-
-        if (sourceEffectiveY <= targetEffectiveY) {
-            return;
-        }
-
         BlockPos sourcePos = sourceCurPos.relative(sourceCurDirection);
         BlockPos targetPos = targetCurPos.relative(targetCurDirection);
+
+        // 用移位后的实际连接位置计算基础高度
+        int sourceEffectiveY = sourcePos.getY();
+        int targetEffectiveY = targetPos.getY();
+
+        // 叠加管道自身和目标位置 BlockEntity 的 heightBonus
+        if (level.getBlockEntity(sourceCurPos) instanceof AbstractPipeBlockEntity be) {
+            sourceEffectiveY += be.getHeightBonus();
+        }
+        if (level.getBlockEntity(targetCurPos) instanceof AbstractPipeBlockEntity be) {
+            targetEffectiveY += be.getHeightBonus();
+        }
+        if (level.getBlockEntity(sourcePos) instanceof AbstractPipeBlockEntity be) {
+            sourceEffectiveY += be.getHeightBonus();
+        }
+        if (level.getBlockEntity(targetPos) instanceof AbstractPipeBlockEntity be) {
+            targetEffectiveY += be.getHeightBonus();
+        }
+
+        if (sourceEffectiveY <= targetEffectiveY) return;
+
         Direction sourceDirection = sourceCurDirection.getOpposite();
         Direction targetDirection = targetCurDirection.getOpposite();
-        // 使用等效高度差计算流速
         moveFluid(level, sourcePos, sourceDirection, targetPos, targetDirection, sourceEffectiveY - targetEffectiveY);
     }
 
