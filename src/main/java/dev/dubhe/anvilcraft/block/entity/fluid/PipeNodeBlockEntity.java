@@ -22,9 +22,31 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * 管道节点的 BlockEntity，持有内部 {@link FluidTank} 并负责 per-tick 流体分发。
+ *
+ * <h3>流体存储</h3>
+ * 内部 FluidTank 容量为 {@value #CAPACITY}（4 Bucket）。内容变化时自动发送
+ * 客户端同步包和邻居更新。
+ *
+ * <h3>Per-tick 逻辑</h3>
+ * <ol>
+ *   <li>END + UP 方向：向上方排液</li>
+ *   <li>END + DOWN 方向：向下方排液</li>
+ *   <li>所有 PIPE 方向：收集 PipeEnd，按高度降序排序后逐一分发</li>
+ * </ol>
+ */
 @Getter
 public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFluidHandlerHolder {
+
+    /**
+     * 内部 FluidTank 容量：4 Bucket（4000 mB）
+     */
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 4;
+
+    /**
+     * 节点内部流体储罐。内容变化时自动发送客户端更新和邻居更新。
+     */
     private final FluidTank fluidHandler = new FluidTank(PipeNodeBlockEntity.CAPACITY) {
         @Override
         protected void onContentsChanged() {
@@ -41,11 +63,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         }
     };
 
-    protected PipeNodeBlockEntity(
-        BlockEntityType<PipeNodeBlockEntity> type,
-        BlockPos pos,
-        BlockState blockState
-    ) {
+    protected PipeNodeBlockEntity(BlockEntityType<PipeNodeBlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
@@ -83,42 +101,54 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    /**
+     * Per-tick 流体分发逻辑。
+     *
+     * <ol>
+     *   <li>END + UP：向上方排液</li>
+     *   <li>END + DOWN：向下方排液</li>
+     *   <li>收集所有 PIPE 方向的 PipeEnd，按高度降序排序（高处优先）</li>
+     *   <li>依次向每个 PipeEnd 排液</li>
+     * </ol>
+     */
     public static void tick(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof PipeNodeBlock)) {
             return;
         }
+
+        // 按高度降序排列的终点集合
         Set<EndAndDirection> pipeEnds = new TreeSet<>(Comparator.comparingInt(e -> -e.end().pos().getY()));
+
         for (Direction direction : Direction.values()) {
             EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
             PipeBlock.NodePipe value = state.getValue(property);
+
+            // END + UP：向上方排液
             if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.UP)) {
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                    level,
-                    pos,
-                    Direction.UP,
-                    pos.relative(Direction.UP),
-                    Direction.DOWN
-                );
+                AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, Direction.UP, pos.relative(Direction.UP), Direction.DOWN);
             }
+            // END + DOWN：向下方排液
             if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.DOWN)) {
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                    level,
-                    pos.relative(Direction.DOWN),
-                    Direction.UP,
-                    pos,
-                    Direction.DOWN
-                );
+                AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos.relative(Direction.DOWN), Direction.UP, pos, Direction.DOWN);
             }
+
             if (!value.equals(PipeBlock.NodePipe.PIPE)) {
                 continue;
             }
+
+            // PIPE 方向：追踪 PipeEnd
             PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos.relative(direction), direction.getOpposite());
-            if (pipeEnd == null) continue;
+            if (pipeEnd == null) {
+                continue;
+            }
             pipeEnds.add(new EndAndDirection(pipeEnd, direction));
         }
+
         if (pipeEnds.isEmpty()) {
             return;
         }
+
+        // 按高度降序分发流体
         for (EndAndDirection endAndDirection : pipeEnds) {
             AbstractPipeBlockEntity.moveFluidWithHeightCheck(
                 level,
@@ -130,6 +160,9 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         }
     }
 
+    /**
+     * PipeEnd + 方向对的记录
+     */
     record EndAndDirection(PipeEnd end, Direction direction) {
     }
 }
