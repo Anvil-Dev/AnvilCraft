@@ -1323,4 +1323,18 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy("hasitem", RegistrumRecipeProvider.has(ingredient))
             .save(provider);
     }
+
+    public static <T extends Item> void pipe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 16)
+            .pattern(" B ")
+            .pattern("B B")
+            .pattern(" B ")
+            .define('B', ModBlocks.BRASS_PRESSURE_PLATE.asItem())
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE),
+                RegistrumRecipeProvider.has(ModBlocks.BRASS_PRESSURE_PLATE)
+            )
+            .save(provider);
+    }
 }

@@ -1041,6 +1041,7 @@ public class ModItems {
         .model((ctx, provider) -> provider
             .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/pipe"))
         )
+        .recipe(RegistrumItemRecipeLoader::pipe)
         .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
         .register();
 
