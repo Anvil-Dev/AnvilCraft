@@ -110,11 +110,7 @@ public class PipeBlockItem extends Item {
         Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
 
         if (toward.getAxis() == axis) {
-            BlockState newState = state;
-            if (toward == startDir) newState = newState.setValue(PipeBlock.HAS_END_START, !towardIsPipe);
-            else newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
-            if (newState != state) { level.setBlockAndUpdate(pos, newState); return newState; }
-            return null;
+            return getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, startDir);
         }
 
         return getConnectedBlockState(level, pos, state, toward, towardIsPipe, startDir, endDir);
@@ -128,14 +124,31 @@ public class PipeBlockItem extends Item {
         Direction second = corner.getSecondDirection();
 
         if (corner.containsDirection(toward)) {
-            BlockState newState = state;
-            if (toward == first) newState = newState.setValue(PipeBlock.HAS_END_START, !towardIsPipe);
-            else newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
-            if (newState != state) { level.setBlockAndUpdate(pos, newState); return newState; }
-            return null;
+            return getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, first);
         }
 
         return getConnectedBlockState(level, pos, state, toward, towardIsPipe, first, second);
+    }
+
+    private static @Nullable BlockState getContainsDirectionBlockState(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        Direction toward,
+        boolean towardIsPipe,
+        Direction first
+    ) {
+        BlockState newState = state;
+        if (toward == first) {
+            newState = newState.setValue(PipeBlock.HAS_END_START, !towardIsPipe);
+        } else {
+            newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
+        }
+        if (newState != state) {
+            level.setBlockAndUpdate(pos, newState);
+            return newState;
+        }
+        return null;
     }
 
     private static BlockState getConnectedBlockState(
@@ -442,7 +455,12 @@ public class PipeBlockItem extends Item {
         return context.getLevel().setBlock(context.getClickedPos(), state, 11);
     }
 
-    @SuppressWarnings({"UnusedReturnValue", "unused"})
+    @SuppressWarnings(
+        {
+            "UnusedReturnValue",
+            "unused"
+        }
+    )
     protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state) {
         return PipeBlockItem.updateCustomBlockEntityTag(level, player, pos, stack);
     }
