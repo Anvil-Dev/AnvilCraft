@@ -191,7 +191,12 @@ public class ProceduralProcessStepManager {
                                     if (entry.getValue() != null && be != null) {
                                         be.loadWithComponents(entry.getValue(), sl.registryAccess());
                                         be.setChanged();
-                                        sl.sendBlockUpdated(pos, be.getBlockState(), be.getBlockState(), Block.UPDATE_ALL);
+                                        sl.sendBlockUpdated(
+                                            pos,
+                                            be.getBlockState(),
+                                            be.getBlockState(),
+                                            Block.UPDATE_ALL
+                                        );
                                     }
                                 }
 
@@ -203,7 +208,12 @@ public class ProceduralProcessStepManager {
                                     wip2.setRecipeId(recipeId);
                                     // 将当前执行的配方设置进去
                                     wip2.setChanged();
-                                    sl.sendBlockUpdated(wip2.getBlockPos(), wip2.getBlockState(), wip2.getBlockState(), Block.UPDATE_ALL);
+                                    sl.sendBlockUpdated(
+                                        wip2.getBlockPos(),
+                                        wip2.getBlockState(),
+                                        wip2.getBlockState(),
+                                        Block.UPDATE_ALL
+                                    );
                                 }
                                 // 如果新的wip方块存在，且不是最后一圈，则设置其中数据
                                 // 如果不存在，那么我们就假设它是最后一步吧。
@@ -268,7 +278,12 @@ public class ProceduralProcessStepManager {
                                             if (entry.getValue() != null && be != null) {
                                                 be.loadWithComponents(entry.getValue(), sl.registryAccess());
                                                 be.setChanged();
-                                                sl.sendBlockUpdated(pos1, be.getBlockState(), be.getBlockState(), Block.UPDATE_ALL);
+                                                sl.sendBlockUpdated(
+                                                    pos1,
+                                                    be.getBlockState(),
+                                                    be.getBlockState(),
+                                                    Block.UPDATE_ALL
+                                                );
                                             }
                                         }
                                     } else if (wip0 != null) {
@@ -278,7 +293,12 @@ public class ProceduralProcessStepManager {
                                         wip0.setRecipeId(step.getPpRecipeId());
                                         // 将当前执行的配方设置进去
                                         wip0.setChanged();
-                                        sl.sendBlockUpdated(wip0.getBlockPos(), wip0.getBlockState(), wip0.getBlockState(), Block.UPDATE_ALL);
+                                        sl.sendBlockUpdated(
+                                            wip0.getBlockPos(),
+                                            wip0.getBlockState(),
+                                            wip0.getBlockState(),
+                                            Block.UPDATE_ALL
+                                        );
                                     }
                                     return true;
                                 }
