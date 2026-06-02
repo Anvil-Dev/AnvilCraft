@@ -41,11 +41,9 @@ public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<
                     passed = true;
                 }
             }
-            if (!passed) {
-                return false;
-            }
+            return passed;
         }
-        return false;
+        return true;
     }
 
     @Override
