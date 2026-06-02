@@ -5,7 +5,6 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
-import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -38,7 +37,7 @@ public class ModAdvancementsHandler {
                 ModBlocks.ROYAL_ANVIL.asItem(),
                 Component.translatable("advancements.anvilcraft.root.title"),
                 Component.translatable("advancements.anvilcraft.root.description"),
-                SharedTextures.bg("misc", "advancement"),
+                AnvilCraft.of("gui/misc/background/advancement"),
                 AdvancementType.TASK,
                 false,
                 true,

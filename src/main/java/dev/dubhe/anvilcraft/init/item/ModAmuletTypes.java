@@ -8,7 +8,8 @@ import dev.dubhe.anvilcraft.item.property.component.amulet.DiscountAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.DoNothingAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.GiveEffectAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.ImmuneAmulet;
+import dev.dubhe.anvilcraft.item.property.component.amulet.ImmuneDamageAmulet;
+import dev.dubhe.anvilcraft.item.property.component.amulet.ImmuneEntityAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -24,9 +25,13 @@ public class ModAmuletTypes {
         "discount",
         DiscountAmulet.Type::new
     );
-    public static final DeferredHolder<IAmulet.Type<?>, ImmuneAmulet.Type> IMMUNE = REGISTER.register(
-        "immune",
-        ImmuneAmulet.Type::new
+    public static final DeferredHolder<IAmulet.Type<?>, ImmuneDamageAmulet.Type> IMMUNE_DAMAGE = REGISTER.register(
+        "immune_damage",
+        ImmuneDamageAmulet.Type::new
+    );
+    public static final DeferredHolder<IAmulet.Type<?>, ImmuneEntityAmulet.Type> IMMUNE_ENTITY = REGISTER.register(
+        "immune_entity",
+        ImmuneEntityAmulet.Type::new
     );
     public static final DeferredHolder<IAmulet.Type<?>, GiveEffectAmulet.Type> GIVE_EFFECT = REGISTER.register(
         "give_effect",

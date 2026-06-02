@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.amulet;
 
 import dev.anvilcraft.lib.v2.util.CollectionUtil;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
+import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
