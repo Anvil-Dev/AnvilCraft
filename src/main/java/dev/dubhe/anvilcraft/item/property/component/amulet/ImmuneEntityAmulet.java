@@ -38,7 +38,7 @@ public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<
             boolean passed = this.direct.isEmpty();
             for (TagPredicate<EntityType<?>> immune : this.direct) {
                 if (immune.matches(direct.typeHolder())) {
-                    return true;
+                    passed = true;
                 }
             }
             if (!passed) {
