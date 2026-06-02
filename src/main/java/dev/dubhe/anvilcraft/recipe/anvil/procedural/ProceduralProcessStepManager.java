@@ -45,7 +45,7 @@ public class ProceduralProcessStepManager {
      * @param byName Minecraft的RecipeManager的配方注册表
      */
     public static void initialize(Map<ResourceLocation, RecipeHolder<?>> byName) {
-        //由于有数据包热重载的reload存在，需要在每次重新加载数据包的时候清空两个表
+        // 由于有数据包热重载的reload存在，需要在每次重新加载数据包的时候清空两个表
         PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
         PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY = new HashSet<>();
         for (ResourceLocation rl : byName.keySet()) {
