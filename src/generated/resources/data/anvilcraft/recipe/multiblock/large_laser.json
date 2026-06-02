@@ -1,0 +1,82 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "layers": [
+      [
+        " A ",
+        "BCD",
+        " E "
+      ],
+      [
+        "BFD",
+        "BCD",
+        "BGD"
+      ],
+      [
+        "AAA",
+        "HCI",
+        "EEE"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:ruby_laser",
+        "properties": {
+          "facing": "south"
+        }
+      },
+      "B": {
+        "block": "anvilcraft:ruby_laser",
+        "properties": {
+          "facing": "east"
+        }
+      },
+      "C": {
+        "block": "anvilcraft:ruby_prism",
+        "properties": {
+          "facing": "down"
+        }
+      },
+      "D": {
+        "block": "anvilcraft:ruby_laser",
+        "properties": {
+          "facing": "west"
+        }
+      },
+      "E": {
+        "block": "anvilcraft:ruby_laser",
+        "properties": {
+          "facing": "north"
+        }
+      },
+      "F": {
+        "block": "anvilcraft:ruby_prism",
+        "properties": {
+          "facing": "south"
+        }
+      },
+      "G": {
+        "block": "anvilcraft:ruby_prism",
+        "properties": {
+          "facing": "north"
+        }
+      },
+      "H": {
+        "block": "anvilcraft:ruby_prism",
+        "properties": {
+          "facing": "east"
+        }
+      },
+      "I": {
+        "block": "anvilcraft:ruby_prism",
+        "properties": {
+          "facing": "west"
+        }
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:large_laser"
+  }
+}
