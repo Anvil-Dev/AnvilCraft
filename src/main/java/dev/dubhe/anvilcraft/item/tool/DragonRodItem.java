@@ -58,7 +58,10 @@ public class DragonRodItem extends Item {
     public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         ItemStack dragonRod = player.getItemInHand(usedHand);
         if (!dragonRod.is(this)) return super.use(level, player, usedHand);
-        dragonRod.set(ModComponents.DEVOUR_RANGE, dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getNext());
+        dragonRod.set(
+            ModComponents.DEVOUR_RANGE,
+            dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getNext()
+        );
         return super.use(level, player, usedHand);
     }
 
@@ -69,8 +72,12 @@ public class DragonRodItem extends Item {
 
     @SuppressWarnings("DataFlowIssue")
     public static void devourBlock(
-        ServerLevel level, Player player, InteractionHand hand,
-        BlockPos centerPos, BlockState centerState, Direction clickedSide
+        ServerLevel level,
+        Player player,
+        InteractionHand hand,
+        BlockPos centerPos,
+        BlockState centerState,
+        Direction clickedSide
     ) {
         if (centerState.is(ModBlockTags.DEVOUR_BLACKLIST)) return;
         if (centerState.getDestroySpeed(level, centerPos) < 0.0F) return;
@@ -113,7 +120,13 @@ public class DragonRodItem extends Item {
                 int expCount = EnchantmentHelper.processBlockExperience(
                     level,
                     dragonRod,
-                    devouringState.getExpDrop(level, devouringPos, level.getBlockEntity(devouringPos), player, dragonRod)
+                    devouringState.getExpDrop(
+                        level,
+                        devouringPos,
+                        level.getBlockEntity(devouringPos),
+                        player,
+                        dragonRod
+                    )
                 );
                 player.giveExperiencePoints(expCount);
                 List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devouringPos, dragonRod);
@@ -159,10 +172,12 @@ public class DragonRodItem extends Item {
         int cooldown = calculateCooldown(player, dragonRod);
         player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, cooldown);
 
-        dragonRod.hurtAndBreak(calculateDamage(dragonRod), level, player, item -> {
-            player.onEquippedItemBroken(item, hand.asEquipmentSlot());
-            EventHooks.onPlayerDestroyItem(player, dragonRod, hand);
-        });
+        dragonRod.hurtAndBreak(
+            calculateDamage(dragonRod), level, player, item -> {
+                player.onEquippedItemBroken(item, hand.asEquipmentSlot());
+                EventHooks.onPlayerDestroyItem(player, dragonRod, hand);
+            }
+        );
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")

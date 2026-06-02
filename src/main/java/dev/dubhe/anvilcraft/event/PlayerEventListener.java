@@ -19,7 +19,6 @@ import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
-import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -39,10 +38,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -151,17 +148,6 @@ public class PlayerEventListener {
     }
 
     @SubscribeEvent
-    public static void onJoinedServer(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            RecipesRecord.sync2C(
-                (packet, packets) -> PacketDistributor.sendToPlayer(serverPlayer, packet, packets),
-                serverPlayer.level().recipeAccess().getRecipes(),
-                serverPlayer.registryAccess()
-            );
-        }
-    }
-
-    @SubscribeEvent
     public static void onPlayerUsingTotem(LivingUseTotemEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ItemStack inHand = player.getItemInHand(event.getHandHolding());
@@ -169,14 +155,14 @@ public class PlayerEventListener {
         if (inHand.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems().isEmpty()) {
             event.setCanceled(true);
         }
-        AmuletManager.get(player.registryAccess()).startRaffle(player, event.getSource());
+        AmuletManager.get(player.registryAccess()).tryRaffle(player, event.getSource());
     }
 
     @SubscribeEvent
     public static void onPlayerHurt(LivingIncomingDamageEvent event) {
         if (
             event.getEntity() instanceof ServerPlayer player
-            && AmuletManager.get(player.registryAccess()).shouldIgnoreDamage(player, event.getSource())
+            && AmuletManager.get(player.registryAccess()).shouldImmune(player, event.getSource())
         ) {
             event.setCanceled(true);
         }

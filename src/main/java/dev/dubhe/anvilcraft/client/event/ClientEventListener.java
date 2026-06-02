@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -90,6 +91,7 @@ public class ClientEventListener {
     @SubscribeEvent
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
+        RecipesRecord.CLIENTSIDE = null;
     }
 
     @SubscribeEvent

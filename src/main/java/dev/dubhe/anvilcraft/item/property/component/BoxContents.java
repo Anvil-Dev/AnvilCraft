@@ -32,13 +32,13 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
     public static final int CAPACITY = 16;
     public static final BoxContents EMPTY = new BoxContents(List.of(), List.of(), 0);
     public static final Codec<BoxContents> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-        ItemStack.CODEC.listOf().fieldOf("amulets").forGetter(BoxContents::amulets),
-        ItemStack.CODEC.listOf().fieldOf("totems").forGetter(BoxContents::totems),
+        ItemStack.OPTIONAL_CODEC.listOf().fieldOf("amulets").forGetter(BoxContents::amulets),
+        ItemStack.OPTIONAL_CODEC.listOf().fieldOf("totems").forGetter(BoxContents::totems),
         Codec.INT.fieldOf("selection").forGetter(BoxContents::selection)
     ).apply(ins, BoxContents::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, BoxContents> STREAM_CODEC = StreamCodec.composite(
-        ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), BoxContents::amulets,
-        ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), BoxContents::totems,
+        ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()), BoxContents::amulets,
+        ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()), BoxContents::totems,
         ByteBufCodecs.INT, BoxContents::selection,
         BoxContents::new
     );
@@ -111,6 +111,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
         public void purge() {
             this.amulets.removeIf(ItemStack::isEmpty);
             this.totems.removeIf(ItemStack::isEmpty);
+            this.usage = BoxContents.computeUsage(this.amulets, this.totems);
         }
 
         public Optional<ItemStack> tryInsert(ItemStack stack) {

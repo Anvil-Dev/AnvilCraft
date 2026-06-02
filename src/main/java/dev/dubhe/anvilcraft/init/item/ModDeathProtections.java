@@ -37,7 +37,7 @@ public class ModDeathProtections {
     ));
 
     public static final DeathProtection AMULET_BOX = new DeathProtection(List.of(
-        PreventShrinkingConsumeEffect.INSTANCE,
-        TryTotemsInBoxConsumeEffect.INSTANCE
+        TryTotemsInBoxConsumeEffect.INSTANCE,
+        PreventShrinkingConsumeEffect.INSTANCE
     ));
 }

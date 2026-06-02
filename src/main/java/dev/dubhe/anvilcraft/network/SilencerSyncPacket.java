@@ -32,6 +32,9 @@ public record SilencerSyncPacket(BlockPos pos, List<Identifier> sounds) implemen
 
     @Override
     public void handleOnBothSide(Player player) {
+        if (player.level().isLoaded(this.pos)) {
+            return;
+        }
         BlockEntity entity = player.level().getBlockEntity(this.pos);
         if (entity instanceof ActiveSilencerBlockEntity silencer) {
             silencer.sync(player, this.sounds);

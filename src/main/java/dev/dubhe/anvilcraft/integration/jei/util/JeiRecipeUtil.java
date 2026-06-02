@@ -30,14 +30,14 @@ public class JeiRecipeUtil {
 
     public static <I extends RecipeInput, T extends Recipe<I>> List<T> getRecipesFromType(RecipeType<T> recipeType) {
         List<T> recipes = new ArrayList<>();
-        for (RecipeHolder<T> holder : RecipesRecord.get().byType(recipeType)) {
+        for (RecipeHolder<T> holder : RecipesRecord.CLIENTSIDE.byType(recipeType)) {
             recipes.add(holder.value());
         }
         return recipes;
     }
 
     public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipeHoldersFromType(RecipeType<T> recipeType) {
-        return new ArrayList<>(RecipesRecord.get().byType(recipeType));
+        return new ArrayList<>(RecipesRecord.CLIENTSIDE.byType(recipeType));
     }
 
     public static void addInvisibleInput(IRecipeLayoutBuilder builder, BlockStatePredicate predicate) {

@@ -72,8 +72,8 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
 
         SingleRecipeInput input = this.createDummyInput();
         List<RecipeHolder<StonecutterRecipe>> recipes = new ArrayList<>();
-        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.get().byType(RecipeType.STONECUTTING)) {
-            if (holder.value().matches(input, level)) {
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.getRecipes(this.level).byType(RecipeType.STONECUTTING)) {
+            if (holder.value().matches(input, this.level)) {
                 recipes.add(holder);
             }
         }
@@ -148,7 +148,7 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         }
         SingleRecipeInput input = this.createInput();
         List<RecipeHolder<StonecutterRecipe>> recipes = new ArrayList<>();
-        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.get().byType(RecipeType.STONECUTTING)) {
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.getRecipes(level).byType(RecipeType.STONECUTTING)) {
             if (holder.value().matches(input, level)) {
                 recipes.add(holder);
             }

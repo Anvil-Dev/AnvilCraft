@@ -60,15 +60,15 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
             access,
             FrostSmithingMenu.createInputSlotDefinitions(
                 ImmutableList.<RecipeHolder<? extends IFrostSmithingRecipe>>builder()
-                    .addAll(RecipesRecord.get().byType(ModRecipeTypes.PERMUTATION.get()))
-                    .addAll(RecipesRecord.get().byType(ModRecipeTypes.DEFORMATION.get()))
+                    .addAll(RecipesRecord.getRecipes(playerInventory.player.level()).byType(ModRecipeTypes.PERMUTATION.get()))
+                    .addAll(RecipesRecord.getRecipes(playerInventory.player.level()).byType(ModRecipeTypes.DEFORMATION.get()))
                     .build()
             )
         );
         this.level = playerInventory.player.level();
         this.recipes = ImmutableList.<RecipeHolder<? extends IFrostSmithingRecipe>>builder()
-            .addAll(RecipesRecord.get().byType(ModRecipeTypes.PERMUTATION.get()))
-            .addAll(RecipesRecord.get().byType(ModRecipeTypes.DEFORMATION.get()))
+            .addAll(RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.PERMUTATION.get()))
+            .addAll(RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.DEFORMATION.get()))
             .build();
     }
 
@@ -151,8 +151,9 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
     public void createResult() {
         FrostSmithingRecipeInput input = this.createRecipeInput();
 
-        List<RecipeHolder<PermutationRecipe>> permuts = RecipesRecord.get()
-            .getRecipesFor(ModRecipeTypes.PERMUTATION.get(), input, this.level).toList();
+        List<RecipeHolder<PermutationRecipe>> permuts = RecipesRecord.getRecipes(this.level)
+            .getRecipesFor(ModRecipeTypes.PERMUTATION.get(), input, this.level)
+            .toList();
         if (!permuts.isEmpty()) {
             RecipeHolder<PermutationRecipe> holder = permuts.getFirst();
             this.results = holder.value().inputs(input.input());
@@ -172,8 +173,9 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
             return;
         }
 
-        List<RecipeHolder<DeformationRecipe>> deforms = RecipesRecord.get()
-            .getRecipesFor(ModRecipeTypes.DEFORMATION.get(), input, this.level).toList();
+        List<RecipeHolder<DeformationRecipe>> deforms = RecipesRecord.getRecipes(this.level)
+            .getRecipesFor(ModRecipeTypes.DEFORMATION.get(), input, this.level)
+            .toList();
         if (!deforms.isEmpty()) {
             RecipeHolder<DeformationRecipe> holder = deforms.getFirst();
             this.results = holder.value().inputs(input.input());

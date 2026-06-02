@@ -1,56 +1,16 @@
 package dev.dubhe.anvilcraft.recipe.sync;
 
-import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.network.RecipesSyncPacket;
-import io.netty.buffer.Unpooled;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.network.connection.ConnectionType;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
+import net.minecraft.world.item.crafting.RecipeMap;
+import net.minecraft.world.level.Level;
 
 public class RecipesRecord {
-    public static final MutableRecipeMap CLIENTSIDE = MutableRecipeMap.create();
-    public static final MutableRecipeMap SERVERSIDE = MutableRecipeMap.create();
+    public static RecipeMap CLIENTSIDE;
 
-    public static MutableRecipeMap get() {
-        if (Util.isServer()) {
-            return RecipesRecord.SERVERSIDE;
-        } else {
+    public static RecipeMap getRecipes(Level level) {
+        if (level.isClientSide()) {
             return RecipesRecord.CLIENTSIDE;
+        } else {
+            return level.getServer().getRecipeManager().recipeMap();
         }
-    }
-
-    public static void sync2C(
-        BiConsumer<RecipesSyncPacket, RecipesSyncPacket[]> sender,
-        Iterable<RecipeHolder<?>> recipes,
-        RegistryAccess registries
-    ) {
-        List<RecipesSyncPacket> packets = new ArrayList<>();
-        RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(
-            Unpooled.buffer(RecipesSyncPacket.INITIAL_BUFFER_SIZE),
-            registries,
-            ConnectionType.NEOFORGE
-        );
-        RecipesSyncPacket packet = new RecipesSyncPacket(new ArrayList<>(), buf);
-        for (RecipeHolder<?> recipe : recipes) {
-            RecipeHolder.STREAM_CODEC.encode(buf, recipe);
-            if (buf.writerIndex() < RecipesSyncPacket.LIMIT) continue;
-            packets.add(packet);
-            buf = new RegistryFriendlyByteBuf(
-                Unpooled.buffer(RecipesSyncPacket.INITIAL_BUFFER_SIZE),
-                registries,
-                ConnectionType.NEOFORGE
-            );
-            packet = new RecipesSyncPacket(new ArrayList<>(), buf);
-        }
-        if (buf.writerIndex() > 0) packets.add(packet);
-        if (packets.isEmpty()) return;
-        RecipesSyncPacket[] dest = new RecipesSyncPacket[packets.size() - 1];
-        System.arraycopy(packets.toArray(RecipesSyncPacket[]::new), 1, dest, 0, packets.size() - 1);
-        sender.accept(packets.getFirst(), dest);
     }
 }

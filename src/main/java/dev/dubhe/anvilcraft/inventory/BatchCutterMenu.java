@@ -190,7 +190,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     public void onChanged() {
         SingleRecipeInput input = this.entity.createDummyInput();
         List<RecipeHolder<StonecutterRecipe>> list = new ArrayList<>();
-        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.get().byType(RecipeType.STONECUTTING)) {
+        for (RecipeHolder<StonecutterRecipe> holder : RecipesRecord.getRecipes(this.level).byType(RecipeType.STONECUTTING)) {
             if (holder.value().matches(input, this.level)) {
                 list.add(holder);
             }

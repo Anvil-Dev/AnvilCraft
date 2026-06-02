@@ -32,8 +32,13 @@ public record BatchCutterSelectPacket(int selecting, BlockPos pos) implements II
     @Override
     public void handleOnBothSide(Player player) {
         Level level = player.level();
+        if (!level.isLoaded(this.pos)) {
+            return;
+        }
         Optional<BatchCutterBlockEntity> be = level.getBlockEntity(this.pos, ModBlockEntities.BATCH_CUTTER.get());
-        if (be.isEmpty()) return;
+        if (be.isEmpty()) {
+            return;
+        }
         be.get().setSelecting(this.selecting);
     }
 }

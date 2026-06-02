@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.api.amulet;
 
 import dev.anvilcraft.lib.v2.util.CollectionUtil;
-import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.component.amulet.DoNothingAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import net.minecraft.core.Holder;
@@ -17,109 +15,130 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.NeoForge;
+import org.jspecify.annotations.Nullable;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class AmuletManager {
-    private static final List<BiConsumer<Player, List<ItemStack>>> AMULET_FINDERS = new ArrayList<>();
-    private final List<Holder<IAmuletDefinition>> definitions;
-
-    static {
-        AmuletManager.registerFinders(
-            (player, holders) -> AmuletManager.processFoundStack(player.getWeaponItem(), holders),
-            (player, holders) -> AmuletManager.processFoundStack(player.getOffhandItem(), holders)
-        );
-    }
-
-    private AmuletManager(List<Holder<IAmuletDefinition>> definitions) {
-        this.definitions = definitions;
-    }
+    private static @Nullable SoftReference<AmuletManager> INSTANCE;
 
     public static AmuletManager get(HolderLookup.Provider registries) {
-        return new AmuletManager(AmuletManager.extractDefinitions(registries));
+        if (AmuletManager.INSTANCE == null || AmuletManager.INSTANCE.get() == null) {
+            AmuletManager.INSTANCE = new SoftReference<>(new AmuletManager(AmuletManager.extractDefinitions(registries)));
+        }
+        return AmuletManager.INSTANCE.get();
     }
 
-    public static List<Holder<IAmuletDefinition>> extractDefinitions(HolderLookup.Provider registries) {
+    public static List<Holder.Reference<IAmuletDefinition>> extractDefinitions(HolderLookup.Provider registries) {
         return registries.lookupOrThrow(ModRegistries.AMULET_DEF)
             .listElements()
-            .<Holder<IAmuletDefinition>>map(Function.identity())
             .toList();
     }
 
-    @SafeVarargs
-    public static void registerFinders(BiConsumer<Player, List<ItemStack>>... typeFinders) {
-        Collections.addAll(AmuletManager.AMULET_FINDERS, typeFinders);
+    public static void clear() {
+        AmuletManager.INSTANCE = null;
     }
 
-    public static void processFoundStack(ItemStack found, List<ItemStack> holders) {
-        if (found.is(ModItems.AMULET_BOX)) {
-            BoxContents contents = found.get(ModComponents.BOX_CONTENTS);
-            if (contents == null) return;
-            for (ItemStack stack : contents.amulets()) {
-                if (stack.has(ModComponents.AMULET)) {
-                    holders.add(stack.copy());
-                }
-            }
-        } else if (found.has(ModComponents.AMULET)) {
-            holders.add(found);
-        }
+    private final List<Holder.Reference<IAmuletDefinition>> definitions;
+
+    private AmuletManager(List<Holder.Reference<IAmuletDefinition>> definitions) {
+        this.definitions = definitions;
     }
 
     public List<ItemStack> getAmuletsFromInventory(Player player) {
+        List<ItemStack> founds = new ArrayList<>();
+        NeoForge.EVENT_BUS.post(new AmuletEvent.Find(this, player, founds::add));
         List<ItemStack> amulets = new ArrayList<>();
-        for (BiConsumer<Player, List<ItemStack>> finder : AmuletManager.AMULET_FINDERS) {
-            finder.accept(player, amulets);
+        for (ItemStack found : founds) {
+            this.processFoundStack(found, amulets);
         }
-        amulets.removeIf(stack -> !stack.has(ModComponents.AMULET));
         return amulets;
     }
 
-    public void startRaffle(ServerPlayer player, DamageSource source) {
-        Optional<IAmuletDefinition> defOp = this.getDefinitionMatchedDamage(player, source).map(Holder::value);
-        if (defOp.isEmpty()) return;
-        IAmuletDefinition def = defOp.get();
-        ItemStack amulet = def.create();
-        if (!InventoryUtil.getFirstItem(player.getInventory(), amulet.getItem()).isEmpty()) return;
-        if (!InventoryUtil.getItemInCompat(player, stack -> ItemStack.isSameItem(stack, amulet)).isEmpty()) return;
+    private void processFoundStack(ItemStack found, List<ItemStack> amulets) {
+        AmuletEvent.ProcessFound event = new AmuletEvent.ProcessFound(this, found);
+        NeoForge.EVENT_BUS.post(event);
+        if (event.isCanceled()) {
+            return;
+        }
+        List<ItemStack> extracted = event.getExtracted();
+        if (extracted.isEmpty()) {
+            if (found.has(ModComponents.AMULET)) {
+                amulets.add(found);
+            }
+            return;
+        }
+        for (ItemStack amulet : extracted) {
+            if (!amulet.has(ModComponents.AMULET)) {
+                continue;
+            }
+            amulets.add(amulet);
+        }
+    }
+
+    public void tryRaffle(ServerPlayer player, DamageSource source) {
+        Holder.Reference<IAmuletDefinition> trying = null;
+        ItemStack amulet = null;
 
         RandomSource random = player.getRandom();
-        int probability = Math.min(this.getRaffleProbability(player, source), 100);
-        if (probability > random.nextIntBetweenInclusive(0, 100)) {
-            player.getInventory().placeItemBackInInventory(amulet.copy());
-            this.setRaffleProbability(player, source, 0);
-        } else {
-            this.setRaffleProbability(player, source, Math.min(probability + 10, 100));
+        List<Holder.Reference<IAmuletDefinition>> defs = this.getDefinitionMatchedDamage(player, source);
+        if (defs.isEmpty()) {
+            return;
         }
-    }
 
-    public Optional<Holder<IAmuletDefinition>> getDefinitionMatchedDamage(ServerPlayer victim, DamageSource source) {
-        for (Holder<IAmuletDefinition> def : this.definitions) {
-            if (def.value().mayObtain(victim, source)) {
-                return Optional.of(def);
+        List<Holder.Reference<IAmuletDefinition>> shuffled = new ArrayList<>(defs);
+        shuffled.sort(Comparator.comparingInt(_ -> random.nextInt()));
+        for (Holder.Reference<IAmuletDefinition> def : shuffled) {
+            amulet = def.value().create();
+            if (!this.hasAmuletInInventory(player, amulet.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE))) {
+                trying = def;
+                break;
             }
         }
-        return Optional.empty();
+
+        if (trying == null) {
+            return;
+        }
+
+        int probability = Math.min(this.getRaffleProbability(player, trying), 100);
+        if (random.nextInt(100) < probability) {
+            player.getInventory().placeItemBackInInventory(amulet.copy());
+            this.setRaffleProbability(player, trying, 0);
+        } else {
+            probability = NeoForge.EVENT_BUS.post(new AmuletEvent.ModifyRaffleProbability(
+                this,
+                player,
+                source,
+                trying,
+                probability + 10
+            )).getProbability();
+            this.setRaffleProbability(player, trying, Math.clamp(probability, 0, 100));
+        }
     }
 
-    public int getRaffleProbability(Player player, DamageSource source) {
-        if (!(player instanceof ServerPlayer victim)) {
-            return 0;
+    public List<Holder.Reference<IAmuletDefinition>> getDefinitionMatchedDamage(ServerPlayer victim, DamageSource source) {
+        List<Holder.Reference<IAmuletDefinition>> results = new ArrayList<>();
+        for (Holder.Reference<IAmuletDefinition> def : this.definitions) {
+            if (def.value().mayObtain(victim, source)) {
+                results.add(def);
+            }
         }
-        return this.getDefinitionMatchedDamage(victim, source)
-            .map(holder -> this.getRaffleProbability(player, holder))
-            .orElse(0);
+        return results;
     }
 
     public int getRaffleProbability(Player player, Holder<IAmuletDefinition> def) {
         if (this.hasAmuletInInventory(player, def)) {
             return 0;
         }
-        return AmuletManager.getStoredRaffleProbability(player, def.value()) + 20;
+        return AmuletManager.getStoredRaffleProbability(player, def);
+    }
+
+    public static int getStoredRaffleProbability(Player player, Holder<IAmuletDefinition> def) {
+        return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(def);
     }
 
     public boolean hasAmuletInInventory(Player player, IAmulet amulet) {
@@ -133,21 +152,12 @@ public class AmuletManager {
         return CollectionUtil.anyMatch(amulets, stack -> ItemStack.isSameItem(stack, target));
     }
 
-    public static int getStoredRaffleProbability(Player player, IAmuletDefinition type) {
-        return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(type);
-    }
-
-    public void setRaffleProbability(ServerPlayer player, DamageSource source, int probability) {
-        Optional<Holder<IAmuletDefinition>> def = this.getDefinitionMatchedDamage(player, source);
-        def.ifPresent(holder -> this.setRaffleProbability(player, holder, probability));
-    }
-
     public void setRaffleProbability(ServerPlayer player, Holder<IAmuletDefinition> def, int probability) {
         AmuletRaffleProbability arp = player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY);
         if (!this.hasAmuletInInventory(player, def)) {
-            arp.setProbability(def.value(), probability);
+            arp.setProbability(def, probability);
         } else {
-            arp.setProbability(def.value(), 0);
+            arp.setProbability(def, 0);
         }
     }
 
@@ -169,7 +179,7 @@ public class AmuletManager {
         }
     }
 
-    public boolean shouldIgnoreDamage(ServerPlayer player, DamageSource source) {
+    public boolean shouldImmune(ServerPlayer player, DamageSource source) {
         return CollectionUtil.anyMatch(
             this.getAmuletsFromInventory(player),
             stack -> stack.get(ModComponents.AMULET).shouldImmune(player, source)
