@@ -82,8 +82,8 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             List.of(SharedTextures.BUTTON_REVERSE_OFF, SharedTextures.BUTTON_REVERSE_ON),
             16, 16, 32,
             (button, index) -> this.menu.setOutputInvert(index == 1),
-            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
-                Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on"))
+            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on"),
+                Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"))
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> addTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
