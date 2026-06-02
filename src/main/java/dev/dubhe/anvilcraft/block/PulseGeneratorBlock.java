@@ -139,26 +139,14 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         boolean canStart = switch (generator.getStartMode()) {
             case RISING_EDGE -> !lastInputting && nowInputting;
             case FALLING_EDGE -> lastInputting && !nowInputting;
-            case LOOP -> !generator.isLocked();
+            case LOOP -> !generator.isDeadlock() && generator.getState() == PulseGeneratorBlockEntity.State.DEFAULT;
         } && !generator.isProcessing();
-
         if (canStart) {
             this.startWaiting(level, pos, stateGetter, generator);
-            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
         }
 
-        if (generator.getStartMode() == PulseGeneratorBlockEntity.Mode.LOOP) {
-            if (generator.isLocked() && !generator.isInputtingSignal()) {
-                this.startWaiting(level, pos, stateGetter, generator);
-                generator.setLocked(false);
-            } else {
-                generator.setLocked(generator.isInputtingSignal());
-            }
-        }
-        if (generator.isLocked()) {
-            generator.setState(PulseGeneratorBlockEntity.State.DEFAULT);
-            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
-        }
+        this.checkIsDeadlock(level, pos, stateGetter, generator);
+        this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
     }
 
     @Override
@@ -166,7 +154,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         Optional<PulseGeneratorBlockEntity> generatorOp = level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get());
         if (generatorOp.isEmpty()) return;
         PulseGeneratorBlockEntity generator = generatorOp.get();
-        if (!generator.isLocked()) {
+        if (!generator.isDeadlock()) {
             switch (generator.getState()) {
                 case WAITING -> this.startOutputting(level, pos, () -> state, generator);
                 case OUTPUTTING -> this.checkOnSignalEnd(level, pos, () -> state, generator);
@@ -177,15 +165,23 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         }
     }
 
+    protected void checkIsDeadlock(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
+        if (generator.getStartMode() == PulseGeneratorBlockEntity.Mode.LOOP) {
+            if (generator.isDeadlock() && !generator.isInputtingSignal()) {
+                this.startWaiting(level, pos, stateGetter, generator);
+                generator.setDeadlock(false);
+            } else {
+                generator.setDeadlock(generator.isInputtingSignal());
+            }
+        }
+        if (generator.isDeadlock()) {
+            generator.setState(PulseGeneratorBlockEntity.State.DEFAULT);
+            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
+        }
+    }
+
     public void startWaiting(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
         generator.setState(PulseGeneratorBlockEntity.State.WAITING);
-        if (generator.getWaitingTime() == 1
-            && generator.getSignalDuration() == 0) {
-            generator.setState(PulseGeneratorBlockEntity.State.OUTPUTTING);
-            level.scheduleTick(pos, this, 1, TickPriority.LOW);
-            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
-            return;
-        }
         if (generator.getWaitingTime() != 0) {
             level.scheduleTick(pos, this, generator.getWaitingTime(), TickPriority.LOW);
         } else {
@@ -196,7 +192,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     protected void startOutputting(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
         generator.setState(PulseGeneratorBlockEntity.State.OUTPUTTING);
         if (generator.getSignalDuration() != 0) {
-            level.scheduleTick(pos, this, generator.getSignalDuration(), TickPriority.LOW);
+            level.scheduleTick(pos, this, generator.getSignalDuration(), TickPriority.VERY_LOW);
             this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
         } else {
             this.updateBlockAndNeighbours(level, pos, stateGetter, generator);

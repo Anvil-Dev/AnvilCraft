@@ -431,15 +431,20 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
         var blockState = this.level.getBlockState(scannerPos);
         Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = false;
+        if (blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)) {
+            upsideDown = blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
+        }
         
         int localX = previewX - halfRangeX;
+        int localY = upsideDown ? -previewY : previewY;
         
         return switch (scannerFacing) {
-            case NORTH -> scannerPos.offset(localX, previewY, previewZ + 1);
-            case SOUTH -> scannerPos.offset(-localX, previewY, -(previewZ + 1));
-            case WEST -> scannerPos.offset(previewZ + 1, previewY, -localX);
-            case EAST -> scannerPos.offset(-(previewZ + 1), previewY, localX);
-            case DOWN, UP -> scannerPos.offset(localX, previewY, previewZ);
+            case NORTH -> scannerPos.offset(localX, localY, previewZ + 2);
+            case SOUTH -> scannerPos.offset(-localX, localY, -(previewZ + 2));
+            case WEST -> scannerPos.offset(previewZ + 2, localY, -localX);
+            case EAST -> scannerPos.offset(-(previewZ + 2), localY, localX);
+            case DOWN, UP -> scannerPos.offset(localX, localY, previewZ);
         };
     }
 

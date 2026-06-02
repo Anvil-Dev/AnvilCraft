@@ -37,6 +37,7 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     public static final MapCodec<StructureScannerBlock> CODEC = simpleCodec(StructureScannerBlock::new);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
 
     // 基础碰撞箱(朝北)- 参考原版讲台
     private static final VoxelShape SHAPE_NORTH = ShapeUtil.merge(
@@ -52,9 +53,17 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, SHAPE_NORTH);
     private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, SHAPE_NORTH);
 
+    // 倒挂状态：使用 Axis.X 旋转 180 度实现 Y 轴翻转
+    private static final VoxelShape SHAPE_NORTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_WEST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_WEST);
+    private static final VoxelShape SHAPE_SOUTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_SOUTH);
+    private static final VoxelShape SHAPE_EAST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_EAST);
+
     public StructureScannerBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
+        this.registerDefaultState(
+            this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false).setValue(UPSIDE_DOWN, false)
+        );
     }
 
     @Override
@@ -64,13 +73,20 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
-        builder.add(FACING, POWERED);
+        builder.add(FACING, POWERED, UPSIDE_DOWN);
     }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        Direction facing = context.getClickedFace();
+        boolean upsideDown = facing == Direction.DOWN;
+        Direction horizontalFacing = context.getHorizontalDirection().getOpposite();
+
+        return this.defaultBlockState()
+            .setValue(FACING, horizontalFacing)
+            .setValue(UPSIDE_DOWN, upsideDown)
+            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -81,12 +97,13 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
         CollisionContext context
     ) {
         Direction facing = state.getValue(FACING);
+        boolean upsideDown = state.getValue(UPSIDE_DOWN);
         
         return switch (facing) {
-            case SOUTH -> SHAPE_SOUTH;
-            case WEST -> SHAPE_WEST;
-            case EAST -> SHAPE_EAST;
-            default -> SHAPE_NORTH;
+            case SOUTH -> upsideDown ? SHAPE_SOUTH_UPSIDE : SHAPE_SOUTH;
+            case WEST -> upsideDown ? SHAPE_WEST_UPSIDE : SHAPE_WEST;
+            case EAST -> upsideDown ? SHAPE_EAST_UPSIDE : SHAPE_EAST;
+            default -> upsideDown ? SHAPE_NORTH_UPSIDE : SHAPE_NORTH;
         };
     }
 

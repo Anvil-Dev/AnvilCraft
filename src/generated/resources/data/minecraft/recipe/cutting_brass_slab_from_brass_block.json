@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:brass_block"
+  },
+  "result": {
+    "count": 8,
+    "id": "anvilcraft:cut_brass_slab"
+  }
+}

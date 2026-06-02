@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemCrushRecipeCompon
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemInjectRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDMeshRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDNeutronIrradiationRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDSqueezingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDStampingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDSuperHeatingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDTimeWarpRecipeComponent;
@@ -116,6 +117,14 @@ public class AnvilCraftRecipeComponentFactories {
         "unpack", () -> MDRecipeComponent.RecipeComponentFactory.create(
             ModRecipeTypes.UNPACK_TYPE.get(),
             MDUnpackRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        SQUEEZING = RECIPE_COMPONENT_FACTORIES.register(
+        "squeezing", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.SQUEEZING_TYPE.get(),
+            MDSqueezingRecipeComponent::new
         )
     );
 

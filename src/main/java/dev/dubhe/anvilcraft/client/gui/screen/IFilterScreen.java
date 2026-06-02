@@ -182,14 +182,10 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
     }
 
     default void renderSlotLimit(GuiGraphics guiGraphics, Slot slot) {
-        if (!(slot instanceof SlotItemHandlerWithFilter filterSlot) || !filterSlot.isFilter()) {
-            return;
-        }
+        if (!(slot instanceof SlotItemHandlerWithFilter filterSlot) || !filterSlot.isFilter()) return;
         int slotIndex = slot.getContainerSlot();
         int limit = this.getSlotLimit(slotIndex);
-        if (limit == 64) {
-            return;
-        }
+        if (limit == 64) return;
         String text = String.valueOf(limit);
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0, 0, 300);

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:cut_bronze_block"
+  },
+  "result": {
+    "count": 2,
+    "id": "anvilcraft:cut_bronze_slab"
+  }
+}

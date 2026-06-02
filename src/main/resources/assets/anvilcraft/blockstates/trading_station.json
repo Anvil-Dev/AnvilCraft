@@ -1,0 +1,33 @@
+{
+  "variants": {
+    "half=bottom,facing=north": {
+      "model": "anvilcraft:block/trading_station_base"
+    },
+    "half=bottom,facing=east": {
+      "model": "anvilcraft:block/trading_station_base",
+      "y": 90
+    },
+    "half=bottom,facing=south": {
+      "model": "anvilcraft:block/trading_station_base"
+    },
+    "half=bottom,facing=west": {
+      "model": "anvilcraft:block/trading_station_base",
+      "y": 90
+    },
+    "half=top,facing=north": {
+      "model": "anvilcraft:block/trading_station_banner"
+    },
+    "half=top,facing=east": {
+      "model": "anvilcraft:block/trading_station_banner",
+      "y": 90
+    },
+    "half=top,facing=south": {
+      "model": "anvilcraft:block/trading_station_banner",
+      "y": 180
+    },
+    "half=top,facing=west": {
+      "model": "anvilcraft:block/trading_station_banner",
+      "y": 270
+    }
+  }
+}

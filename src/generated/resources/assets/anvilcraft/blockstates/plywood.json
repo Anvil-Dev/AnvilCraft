@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "anvilcraft:block/plywood_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "anvilcraft:block/plywood"
+    },
+    "axis=z": {
+      "model": "anvilcraft:block/plywood_horizontal",
+      "x": 90
+    }
+  }
+}

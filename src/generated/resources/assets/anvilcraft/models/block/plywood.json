@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "anvilcraft:block/plywood",
+    "side": "anvilcraft:block/plywood_side"
+  }
+}

@@ -28,6 +28,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.SmartBlockPlacerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.TradingStationScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
@@ -56,6 +57,7 @@ import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
+import dev.dubhe.anvilcraft.inventory.TradingStationMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -171,7 +173,11 @@ public class ModMenuTypes {
             () -> FrostSmithingScreen::new)
         .register();
     public static final MenuEntry<EnergyWeaponMakeMenu> ENERGY_WEAPON_MAKE = REGISTRUM
-        .menu("energy_weapon_make", EnergyWeaponMakeMenu::new, () -> EnergyWeaponMakeScreen::new).register();
+        .menu("energy_weapon_make", EnergyWeaponMakeMenu::new, () -> EnergyWeaponMakeScreen::new)
+        .register();
+    public static final MenuEntry<TradingStationMenu> TRADING_STATION = REGISTRUM
+        .menu("trading_station", TradingStationMenu::new, () -> TradingStationScreen::new)
+        .register();
 
     public static final MenuEntry<StructureScannerMenu> STRUCTURE_SCANNER = REGISTRUM
         .menu("structure_scanner", (type, id, inv, buf) -> new StructureScannerMenu(type, id, inv, buf), () -> StructureScannerScreen::new)

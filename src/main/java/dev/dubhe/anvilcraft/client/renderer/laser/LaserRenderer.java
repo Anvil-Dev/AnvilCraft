@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 
 public class LaserRenderer implements CacheableBlockEntityRenderer<BaseLaserBlockEntity> {
-
     @Override
     public void render(
         BaseLaserBlockEntity blockEntity,

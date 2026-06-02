@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -1493,26 +1494,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Block> void bronzeBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItemTags.BRONZE_INGOTS)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS), AnvilCraftDatagen.has(ModItemTags.BRONZE_INGOTS))
-            .save(provider);
-    }
-
-    public static <T extends Block> void brassBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItemTags.BRASS_INGOTS)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS), AnvilCraftDatagen.has(ModItemTags.BRASS_INGOTS))
-            .save(provider);
-    }
-
     public static <T extends Block> void topazBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .pattern("AAA")
@@ -1571,9 +1552,6 @@ public class RegistrumBlockRecipeLoader {
             .define('A', ModItems.AMBER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.AMBER), AnvilCraftDatagen.has(ModItems.AMBER))
             .save(provider);
-    }
-
-    public static <T extends Item> void mobAmberBlock(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
     }
 
     public static <T extends Item> void levitationPowderBlock(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -1797,15 +1775,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Block> void nestingShulkerBox(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-    }
-
-    public static <T extends Block> void overNestingShulkerBox(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-    }
-
-    public static <T extends Block> void supercriticalNestingShulkerBox(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-    }
-
     public static <T extends Block> void confinedNeutroniumIngotBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ItemInjectRecipe.builder()
             .inputBlock(ModBlocks.CONFINEMENT_CHAMBER)
@@ -1982,6 +1951,14 @@ public class RegistrumBlockRecipeLoader {
             .save(provider, of("stonecutting/cut_flint_pillar_from_cut_flint_block"));
     }
 
+    public static <T extends Block> void plywood(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ItemCompressRecipe.builder()
+            .requires(ModItems.WOOD_FIBER, 4)
+            .requires(ModItems.RESIN)
+            .result(ctx.get(), 16)
+            .save(provider);
+    }
+
     public static <T extends Block> void pulseGenerator(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
             .pattern("BCR")
@@ -2014,5 +1991,21 @@ public class RegistrumBlockRecipeLoader {
             .define('A', Items.COPPER_INGOT)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
             .save(provider, AnvilCraft.of("copper_pressure_plate_from_" + location1.getPath().replace('/', '_')));
+    }
+
+    public static <T extends Block> void tradingStation(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("WWW")
+            .pattern("S S")
+            .pattern("PBP")
+            .define('B', Blocks.BARREL)
+            .define('P', ItemTags.PLANKS)
+            .define('S', Items.STICK)
+            .define('W', ItemTags.WOOL)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.BARREL), AnvilCraftDatagen.has(Blocks.BARREL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.PLANKS), AnvilCraftDatagen.has(ItemTags.PLANKS))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.STICK), AnvilCraftDatagen.has(Items.STICK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.WOOL), AnvilCraftDatagen.has(ItemTags.WOOL))
+            .save(provider);
     }
 }

@@ -26,5 +26,6 @@ public class CacheableBlockEntityRenderers {
         LaserRenderer laserRenderer = new LaserRenderer();
         RENDERERS.put(ModBlockEntities.RUBY_LASER.get(), laserRenderer);
         RENDERERS.put(ModBlockEntities.RUBY_PRISM.get(), laserRenderer);
+        RENDERERS.put(ModBlockEntities.LARGE_LASER.get(), laserRenderer);
     }
 }

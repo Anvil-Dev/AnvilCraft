@@ -9,6 +9,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.Ghast;
+import net.minecraft.world.entity.monster.Guardian;
+import net.minecraft.world.level.Level;
 
 public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntity> {
     @SuppressWarnings("unused")
@@ -24,16 +27,25 @@ public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntit
         int packedLight,
         int packedOverlay
     ) {
-        Entity entity = blockEntity.getOrCreateDisplayEntity(blockEntity.getLevel());
+        Level level = blockEntity.getLevel();
+        if (level == null) return;
+        Entity entity = blockEntity.getOrCreateDisplayEntity(level);
         if (entity == null) return;
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.0f, 0.5f);
-        float size = 0.73125f;
+        float size = 0.52943f * 0.8f;
         float max = Math.max(entity.getBbWidth(), entity.getBbHeight());
         if ((double) max > 1.0) {
             size /= max;
         }
         poseStack.translate(0.0f, 0.14f, 0.0f);
+        if (entity instanceof Guardian) {
+            size *= 0.8f;
+            poseStack.translate(0.0f, 0.0f, 0.25f);
+        }
+        if (entity instanceof Ghast) {
+            poseStack.translate(0.0f, 0.25f, 0.0f);
+        }
         poseStack.scale(size, size, size);
         Minecraft minecraft = Minecraft.getInstance();
         EntityRenderDispatcher dispatcher = minecraft.getEntityRenderDispatcher();

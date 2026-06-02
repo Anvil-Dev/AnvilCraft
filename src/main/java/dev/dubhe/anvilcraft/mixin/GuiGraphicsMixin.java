@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.client.renderer.item.HasMobBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.IExtraItemDisplayRenderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,7 +30,13 @@ public abstract class GuiGraphicsMixin {
 
     @Shadow
     protected abstract void renderItem(
-        @Nullable LivingEntity entity, @Nullable Level level, ItemStack stack, int x, int y, int seed, int guiOffset
+        @Nullable LivingEntity entity,
+        @Nullable Level level,
+        ItemStack stack,
+        int x,
+        int y,
+        int seed,
+        int guiOffset
     );
 
     @Inject(
@@ -57,5 +64,6 @@ public abstract class GuiGraphicsMixin {
             ANVILCRAFT$MAX_RECURSION,
             i -> ANVILCRAFT$RECURSION = i
         );
+        HasMobBlockItemRenderer.renderGuiItem(this.pose, stack, x, y);
     }
 }
