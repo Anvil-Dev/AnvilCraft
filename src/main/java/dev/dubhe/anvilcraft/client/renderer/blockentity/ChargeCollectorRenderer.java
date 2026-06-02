@@ -7,7 +7,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 
 public class ChargeCollectorRenderer extends PowerProducerRenderer<ChargeCollectorBlockEntity> {
     public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(
-        AnvilCraft.of("block/charge_collector_cube")
+        AnvilCraft.of("block/charge_collector_head")
     );
 
     public ChargeCollectorRenderer(BlockEntityRendererProvider.Context context) {
