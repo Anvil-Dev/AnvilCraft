@@ -175,7 +175,7 @@ public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmea
             return this;
         }
 
-        // TODO: 砧子辐照还没人写，有人写了记得调整这里
+        // TODO: 在有人实现砧子辐照之后，这里还会需要再做相应修改；但是由于没有人实现该配方类型，所以暂时先不处理
 
         /**
          * 构建一个（用于序列装配配方的）伪中子辐照配方

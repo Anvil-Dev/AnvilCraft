@@ -88,15 +88,13 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     public static WipBlockEntity getWipBlockFromContext(InWorldRecipeContext ctx) {
         Level l = ctx.getLevel();
         if (l instanceof ServerLevel sl) {
-            BlockPos pos = BlockPos.containing(ctx.getPos());
-            // 暂时写成只检测下面两个方块（被铁砧砸的方块和其下方的方块）是否是WIP方块，如果不够再加
-            pos = pos.below();
-            if (sl.getBlockEntity(pos) instanceof WipBlockEntity wip) {
-                return wip;
-            }
-            pos = pos.below();
-            if (sl.getBlockEntity(pos) instanceof WipBlockEntity wip) {
-                return wip;
+            // 检测下方一定深度的方块是否是WIP方块，默认为检查两个
+            BlockPos potentialPos = BlockPos.containing(ctx.getPos());
+            for  (int i = 0; i < ProceduralProcessStepManager.WIP_BLOCK_DETECTION_DEPTH; i++) {
+                potentialPos = potentialPos.below();
+                if (sl.getBlockEntity(potentialPos) instanceof WipBlockEntity wip) {
+                    return wip;
+                }
             }
         }
         return null;

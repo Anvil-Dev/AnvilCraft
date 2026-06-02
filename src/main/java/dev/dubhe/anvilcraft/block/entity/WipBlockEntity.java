@@ -23,7 +23,7 @@ public class WipBlockEntity extends BlockEntity {
 
     protected int stepCount = 0;
     protected BlockState initialBlock = Blocks.AIR.defaultBlockState();
-    protected ResourceLocation recipeId = null;
+    protected @Nullable ResourceLocation recipeId = null;
 
     public WipBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
