@@ -1,0 +1,29 @@
+name: Code Review
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  issue_comment:
+    types:
+      - created # Triggers when a comment is created on a PR
+
+permissions:
+  pull-requests: write
+
+jobs:
+  setup-deepseek-review:
+    runs-on: ubuntu-latest
+    name: Code Review
+    steps:
+      - name: DeepSeek Code Review
+        uses: hustcer/deepseek-review@v1.20
+        with:
+          model: "deepseek-v4-flash"
+          base-url: "https://api.siliconflow.cn/v1"
+          watch-mention: "@github-actions"
+          chat-token: ${{ secrets.CHAT_TOKEN }}
+          allowed-associations: "OWNER,MEMBER,COLLABORATOR"
+          sys-prompt: '你是一名专业的代码审查助理，负责分析 GitHub 提交请求（Pull Requests）中的代码变更。需要识别潜在的问题，如代码风格违规、逻辑错误、安全漏洞等，并提供改进建议。请以简洁明了的方式列出这些问题及相应的改进建议。'
+          user-prompt: '请 review 以下代码更改。'
