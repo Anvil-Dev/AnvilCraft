@@ -22,7 +22,7 @@ jobs:
         with:
           ref: refs/pull/${{ github.event.number }}/merge
       - name: DeepSeek Code Review
-        uses: hustcer/deepseek-review@v1.20
+        uses: hustcer/deepseek-review@main
         with:
           model: "deepseek-v4-flash"
           watch-mention: "@github-actions"
