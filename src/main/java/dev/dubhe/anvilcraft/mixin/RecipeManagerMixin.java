@@ -2,23 +2,17 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
-import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeMap;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -48,17 +42,5 @@ abstract class RecipeManagerMixin {
         new JewelCraftingRecipeGeneratingCache(this.registries)
             .buildRecipes()
             .ifPresent(recipeHolders::addAll);
-    }
-
-    @Inject(method = "finalizeRecipeLoading", at = @At("RETURN"))
-    private void sendRecipes2C(FeatureFlagSet enabledFlags, CallbackInfo ci) {
-        RecipesRecord.SERVERSIDE.syncFrom(this.recipes);
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        if (server == null) return;
-        RecipesRecord.sync2C(
-            PacketDistributor::sendToAllPlayers,
-            this.recipes.values(),
-            server.registryAccess()
-        );
     }
 }

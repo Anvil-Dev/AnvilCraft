@@ -5,9 +5,12 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftBlockPlacerFakePlaye
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftDestroyerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftKillerFakePlayer;
+import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -32,8 +35,12 @@ public class LevelEventListener {
      */
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
-        if (event.getLevel() instanceof ServerLevel serverLevel) {
-            LevelLoadManager.removeAll(serverLevel);
+        LevelAccessor accessor = event.getLevel();
+        if (accessor instanceof Level level) {
+            if (accessor instanceof ServerLevel serverLevel) {
+                LevelLoadManager.removeAll(serverLevel);
+            }
+            HeatCollectorManager.remove(level);
         }
         DeflectionRingBlockEntity.clear();
     }

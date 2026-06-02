@@ -58,10 +58,12 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
             containerId,
             playerInventory,
             access,
-            EmberSmithingMenu.createInputSlotDefinitions(RecipesRecord.get().byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()))
+            EmberSmithingMenu.createInputSlotDefinitions(
+                RecipesRecord.getRecipes(playerInventory.player.level()).byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get())
+            )
         );
         this.level = playerInventory.player.level();
-        this.recipes = List.copyOf(RecipesRecord.get().byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()));
+        this.recipes = List.copyOf(RecipesRecord.getRecipes(this.level).byType(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get()));
     }
 
     protected static ItemCombinerMenuSlotDefinition createInputSlotDefinitions(
@@ -191,8 +193,9 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
             return;
         }
         MultipleToOneSmithingRecipeInput input = this.createRecipeInput();
-        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> list =
-            RecipesRecord.get().getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get(), input, this.level).toList();
+        List<RecipeHolder<BaseMultipleToOneSmithingRecipe>> list = RecipesRecord.getRecipes(this.level)
+            .getRecipesFor(ModRecipeTypes.MULTIPLE_TO_ONE_SMITHING.get(), input, this.level)
+            .toList();
         if (list.isEmpty()) {
             this.resultSlots.setItem(0, ItemStack.EMPTY);
         } else {

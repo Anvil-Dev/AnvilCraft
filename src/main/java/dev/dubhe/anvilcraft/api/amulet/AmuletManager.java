@@ -27,7 +27,7 @@ public class AmuletManager {
     private static @Nullable SoftReference<AmuletManager> INSTANCE;
 
     public static AmuletManager get(HolderLookup.Provider registries) {
-        if (AmuletManager.INSTANCE != null || AmuletManager.INSTANCE.get() == null) {
+        if (AmuletManager.INSTANCE == null || AmuletManager.INSTANCE.get() == null) {
             AmuletManager.INSTANCE = new SoftReference<>(new AmuletManager(AmuletManager.extractDefinitions(registries)));
         }
         return AmuletManager.INSTANCE.get();
@@ -37,6 +37,10 @@ public class AmuletManager {
         return registries.lookupOrThrow(ModRegistries.AMULET_DEF)
             .listElements()
             .toList();
+    }
+
+    public static void clear() {
+        AmuletManager.INSTANCE = null;
     }
 
     private final List<Holder.Reference<IAmuletDefinition>> definitions;

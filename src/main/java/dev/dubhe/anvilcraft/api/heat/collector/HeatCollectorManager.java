@@ -31,9 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 public class HeatCollectorManager {
-    private static final Map<Level, HeatCollectorManager> INSTANCES = new HashMap<>();
+    private static final Map<Level, HeatCollectorManager> INSTANCES = new WeakHashMap<>();
     private static final List<HeatSourceEntry> SOURCE_ENTRIES = new ArrayList<>();
 
     static {
@@ -64,10 +65,6 @@ public class HeatCollectorManager {
     private final Level level;
     private final Set<BlockPos> heatCollectors = Collections.synchronizedSet(new HashSet<>());
 
-    public static void clear() {
-        INSTANCES.clear();
-    }
-
     /**
      * 获取当前维度的HeatCollectorManager
      */
@@ -78,6 +75,10 @@ public class HeatCollectorManager {
             }
             return HeatCollectorManager.INSTANCES.get(level);
         }
+    }
+
+    public static void remove(Level level) {
+        INSTANCES.remove(level);
     }
 
     public static void registerEntry(HeatSourceEntry entry) {

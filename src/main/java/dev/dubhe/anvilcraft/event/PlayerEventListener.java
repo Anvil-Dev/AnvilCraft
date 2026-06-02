@@ -19,7 +19,6 @@ import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
-import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -39,10 +38,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -147,17 +144,6 @@ public class PlayerEventListener {
     public static void onJoinedLevel(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof ServerPlayer sp) {
             PowerGrid.MANAGER.onPlayerJoined(event.getLevel(), sp);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onJoinedServer(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            RecipesRecord.sync2C(
-                (packet, packets) -> PacketDistributor.sendToPlayer(serverPlayer, packet, packets),
-                serverPlayer.level().recipeAccess().getRecipes(),
-                serverPlayer.registryAccess()
-            );
         }
     }
 
