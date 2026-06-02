@@ -13,8 +13,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.phys.AABB;
 
 public class LaserBlockRenderer implements BlockEntityRenderer<BaseLaserBlockEntity> {
-    @SuppressWarnings("unused")
-    public LaserBlockRenderer(BlockEntityRendererProvider.Context context) {
+    public LaserBlockRenderer(BlockEntityRendererProvider.Context ignore) {
     }
 
     @Override

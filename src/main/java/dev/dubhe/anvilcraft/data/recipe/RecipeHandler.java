@@ -4,6 +4,9 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 
 public class RecipeHandler {
     public static void init(RegistrumRecipeProvider provider) {
+        new CutterRecipeLoader(provider);
+        new ShapedRecipeLoader(provider);
+
         BlockCrushRecipeLoader.init(provider);
         ItemCrushRecipeLoader.init(provider);
         UnpackRecipeLoader.init(provider);

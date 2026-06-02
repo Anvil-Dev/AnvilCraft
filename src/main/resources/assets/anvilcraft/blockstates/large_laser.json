@@ -1,0 +1,186 @@
+{
+  "variants": {
+    "half=bottom_center": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=bottom_w": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=bottom_e": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=bottom_n": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=bottom_s": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=bottom_wn": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=bottom_ws": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=bottom_en": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=bottom_es": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=mid_w": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=mid_e": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=mid_n": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=mid_s": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=mid_wn": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=mid_ws": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=mid_en": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=mid_es": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_center": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_w": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_e": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_n": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_s": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_wn": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_ws": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_en": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+    "half=top_es": {
+      "model": "anvilcraft:block/large_laser_part"
+    },
+
+    "half=mid_center,facing=down,switch=on,overload=false": {
+      "model": "anvilcraft:block/large_laser"
+    },
+    "half=mid_center,facing=up,switch=on,overload=false": {
+      "model": "anvilcraft:block/large_laser",
+      "x": 180
+    },
+    "half=mid_center,facing=south,switch=on,overload=false": {
+      "model": "anvilcraft:block/large_laser",
+      "x": 90
+    },
+    "half=mid_center,facing=north,switch=on,overload=false": {
+      "model": "anvilcraft:block/large_laser",
+      "x": 270
+    },
+    "half=mid_center,facing=west,switch=on,overload=false": {
+      "model": "anvilcraft:block/large_laser",
+      "x": 90,
+      "y": 90
+    },
+    "half=mid_center,facing=east,switch=on,overload=false": {
+      "model": "anvilcraft:block/large_laser",
+      "x": 270,
+      "y": 90
+    },
+
+    "half=mid_center,facing=down,switch=on,overload=true": {
+      "model": "anvilcraft:block/large_laser_overload"
+    },
+    "half=mid_center,facing=up,switch=on,overload=true": {
+      "model": "anvilcraft:block/large_laser_overload",
+      "x": 180
+    },
+    "half=mid_center,facing=south,switch=on,overload=true": {
+      "model": "anvilcraft:block/large_laser_overload",
+      "x": 90
+    },
+    "half=mid_center,facing=north,switch=on,overload=true": {
+      "model": "anvilcraft:block/large_laser_overload",
+      "x": 270
+    },
+    "half=mid_center,facing=west,switch=on,overload=true": {
+      "model": "anvilcraft:block/large_laser_overload",
+      "x": 90,
+      "y": 90
+    },
+    "half=mid_center,facing=east,switch=on,overload=true": {
+      "model": "anvilcraft:block/large_laser_overload",
+      "x": 270,
+      "y": 90
+    },
+
+    "half=mid_center,facing=down,switch=off,overload=false": {
+      "model": "anvilcraft:block/large_laser_off"
+    },
+    "half=mid_center,facing=up,switch=off,overload=false": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 180
+    },
+    "half=mid_center,facing=south,switch=off,overload=false": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 90
+    },
+    "half=mid_center,facing=north,switch=off,overload=false": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 270
+    },
+    "half=mid_center,facing=west,switch=off,overload=false": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 90,
+      "y": 90
+    },
+    "half=mid_center,facing=east,switch=off,overload=false": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 270,
+      "y": 90
+    },
+
+    "half=mid_center,facing=down,switch=off,overload=true": {
+      "model": "anvilcraft:block/large_laser_off"
+    },
+    "half=mid_center,facing=up,switch=off,overload=true": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 180
+    },
+    "half=mid_center,facing=south,switch=off,overload=true": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 90
+    },
+    "half=mid_center,facing=north,switch=off,overload=true": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 270
+    },
+    "half=mid_center,facing=west,switch=off,overload=true": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 90,
+      "y": 90
+    },
+    "half=mid_center,facing=east,switch=off,overload=true": {
+      "model": "anvilcraft:block/large_laser_off",
+      "x": 270,
+      "y": 90
+    }
+  }
+}

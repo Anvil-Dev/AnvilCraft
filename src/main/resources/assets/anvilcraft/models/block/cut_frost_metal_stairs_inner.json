@@ -1,4 +1,5 @@
 {
+	"format_version": "1.21.11",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/inner_stairs",
 	"ambientocclusion": false,
@@ -58,11 +59,11 @@
 			"to": [0.025, 0.025, 0.025],
 			"shade": false,
 			"faces": {
-				"north": {"uv": [16, 16, 0, 8], "rotation": 180, "texture": "#1", "cullface": "south"},
-				"east": {"uv": [16, 16, 0, 8], "rotation": 180, "texture": "#1", "cullface": "west"},
-				"south": {"uv": [16, 16, 0, 8], "rotation": 180, "texture": "#1", "cullface": "north"},
-				"west": {"uv": [16, 16, 0, 8], "texture": "#1", "cullface": "east"},
-				"up": {"uv": [16, 16, 0, 0], "rotation": 180, "texture": "#1", "cullface": "down"}
+				"north": {"uv": [16, 16, 0, 8], "rotation": 180, "texture": "#1"},
+				"east": {"uv": [16, 16, 0, 8], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [16, 16, 0, 8], "rotation": 180, "texture": "#1"},
+				"west": {"uv": [16, 16, 0, 8], "texture": "#1"},
+				"up": {"uv": [16, 16, 0, 0], "rotation": 180, "texture": "#1"}
 			}
 		},
 		{
@@ -72,10 +73,10 @@
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 0]},
 			"faces": {
-				"north": {"uv": [8, 8, 0, 0], "rotation": 180, "texture": "#1", "cullface": "south"},
-				"south": {"uv": [16, 8, 8, 0], "rotation": 180, "texture": "#1", "cullface": "north"},
-				"west": {"uv": [16, 8, 0, 0], "texture": "#1", "cullface": "east"},
-				"down": {"uv": [16, 16, 8, 0], "rotation": 180, "texture": "#1", "cullface": "up"}
+				"north": {"uv": [8, 8, 0, 0], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [16, 8, 8, 0], "rotation": 180, "texture": "#1"},
+				"west": {"uv": [16, 8, 0, 0], "texture": "#1"},
+				"down": {"uv": [16, 16, 8, 0], "rotation": 180, "texture": "#1"}
 			}
 		},
 		{
@@ -85,9 +86,9 @@
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [0, 8, 8]},
 			"faces": {
-				"north": {"uv": [16, 8, 8, 0], "rotation": 180, "texture": "#1", "cullface": "south"},
-				"east": {"uv": [8, 8, 0, 0], "rotation": 180, "texture": "#1", "cullface": "west"},
-				"down": {"uv": [8, 8, 0, 0], "rotation": 180, "texture": "#1", "cullface": "up"}
+				"north": {"uv": [16, 8, 8, 0], "rotation": 180, "texture": "#1"},
+				"east": {"uv": [8, 8, 0, 0], "rotation": 180, "texture": "#1"},
+				"down": {"uv": [8, 8, 0, 0], "rotation": 180, "texture": "#1"}
 			}
 		},
 		{

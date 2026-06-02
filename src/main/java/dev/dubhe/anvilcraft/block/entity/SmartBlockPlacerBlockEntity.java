@@ -67,6 +67,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -234,6 +235,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private long clientRetractStartTime = 0;
     private float[] clientRetractStartAngles = new float[4];
     private float clientRetractStartProgress = 0f;
+
+    // 比较器信号状态
+    private int lastComparatorSignal = 0;
 
 
     @SuppressWarnings("checkstyle:EmptyLineSeparator")
@@ -569,6 +573,25 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return 0;
         }
 
+        int newSignal = calculateComparatorSignal();
+        
+        // 如果信号强度发生变化，立即发送更新通知比较器
+        if (newSignal != this.lastComparatorSignal) {
+            this.lastComparatorSignal = newSignal;
+            this.notifyComparatorUpdate();
+        }
+        
+        return newSignal;
+    }
+    
+    /**
+     * 计算比较器信号强度（内部方法）
+     */
+    private int calculateComparatorSignal() {
+        if (this.level == null || this.level.isClientSide) {
+            return 0;
+        }
+
         // 蓝图模式：基于结构数据计算进度
         if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
             // 获取旋转后的结构数据
@@ -647,6 +670,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
 
         return 0;
+    }
+    
+    /**
+     * 通知比较器更新
+     */
+    private void notifyComparatorUpdate() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        
+        // 发送方块更新，让比较器重新查询信号强度
+        BlockState currentState = this.level.getBlockState(this.getBlockPos());
+        this.level.updateNeighbourForOutputSignal(this.getBlockPos(), currentState.getBlock());
     }
 
     /**
@@ -867,6 +903,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.onChanged();
             }
         }
+        
+        // 无论是否工作，都要更新比较器信号（红石锁定时放置进度可能因外部因素变化）
+        this.getComparatorOutput();
     }
 
     public void tickClient() {
@@ -1314,8 +1353,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     .calculateTargetPosition(basePos, facing, position / 5, position % 5, layer, upsideDown);
                 BlockState targetState = level.getBlockState(targetPos);
 
-                if (targetState.isAir() || this.canBePlaced(level, targetState, null)) {
+                // 空位可以放置
+                if (targetState.isAir()) {
                     return true;
+                }
+                
+                // 流体可以放置
+                if (!targetState.getFluidState().isEmpty()) {
+                    return true;
+                }
+                
+                // 可堆叠方块：检查是否还可以继续堆叠（不检查具体方块类型）
+                int currentStack = getStackCountFromState(targetState);
+                int maxStack = getMaxStackCountForState(targetState);
+                if (currentStack < maxStack) {
+                    return true;  // 还可以堆叠
                 }
             }
         }
@@ -1422,6 +1474,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
                 return blockItem != null && blockState.getBlock() == blockItem.getBlock();
             }
+            if (blockState.is(Blocks.PINK_PETALS)) {
+                if (blockState.getValue(BlockStateProperties.FLOWER_AMOUNT) >= 4) {
+                    return false;
+                }
+                return blockItem != null && blockState.getBlock() == blockItem.getBlock();
+            }
         }
         return false;
     }
@@ -1439,6 +1497,31 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (targetState.isAir()) {
             return true;
         }
+        
+        // 如果传入 null，只检查流体和可堆叠方块（不检查具体方块类型）
+        if (blockItem == null) {
+            // 流体可以放置
+            if (!targetState.getFluidState().isEmpty()) {
+                return true;
+            }
+            // 可堆叠方块：允许通过，具体匹配检查在预提取后进行
+            if (targetState.is(Blocks.TURTLE_EGG)
+                && targetState.getValue(TurtleEggBlock.EGGS) < 4) {
+                return true;  // 还可以堆叠，允许通过
+            }
+            if (targetState.is(Blocks.SEA_PICKLE)
+                && targetState.getValue(SeaPickleBlock.PICKLES) < 4) {
+                return true;  // 还可以堆叠，允许通过
+            }
+            if (targetState.getBlock() instanceof CandleBlock
+                && targetState.getValue(CandleBlock.CANDLES) < 4) {
+                return true;  // 还可以堆叠，允许通过
+            }
+            return targetState.is(Blocks.PINK_PETALS)
+                   && targetState.getValue(BlockStateProperties.FLOWER_AMOUNT) < 4;  // 还可以堆叠，允许通过
+        }
+        
+        // 传入具体物品时，检查方块匹配
         return this.canBePlaced(level, targetState, blockItem);
     }
 
@@ -1486,12 +1569,49 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         executeUnifiedBlockOperationWithExtraction(
             level, facing, upsideDown,
             () -> buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
-            (index) -> this.preExtractBlockItemFromContainer(level, placerPos),  // 预提取
-            () -> this.peekBlockItemFromContainer(level, placerPos),
+            (index) -> {
+                // 获取当前位置的方块状态
+                List<BlockPos> allPositions = buildOrderedPositionsFromLayers(placerPos, facing, upsideDown);
+                if (index >= 0 && index < allPositions.size()) {
+                    BlockPos targetPos = allPositions.get(index);
+                    BlockState currentState = level.getBlockState(targetPos);
+                    
+                    // 如果是可堆叠方块，必须提取匹配的方块物品
+                    int currentStack = getStackCountFromState(currentState);
+                    int maxStack = getMaxStackCountForState(currentState);
+                    if (currentStack < maxStack) {
+                        // 可堆叠方块：提取与当前位置匹配的方块物品
+                        Block requiredBlock = currentState.getBlock();
+                        return this.preExtractSpecificBlockItemFromContainer(level, placerPos, requiredBlock);  // 找到了匹配的方块
+                        // 没找到匹配的方块，返回 null 阻止放置
+                    }
+                }
+                
+                // 空位或其他情况：提取容器中的第一个方块物品
+                return this.preExtractBlockItemFromContainer(level, placerPos);
+            },
             (blockItem, blockItemObj, targetPos, extractionResult) -> {
-                this.currentHeldBlock = ItemStack.EMPTY;
                 BlockState newState = level.getBlockState(targetPos);
-                return !newState.isAir() && this.canBePlaced(level, newState, blockItemObj);
+                
+                // 关键修复：基于放置后的方块状态判断是否可堆叠，而不是基于预提取的物品
+                if (!newState.isAir()) {
+                    // 检查是否是可堆叠方块
+                    int currentStack = getStackCountFromState(newState);
+                    int maxStack = getMaxStackCountForState(newState);
+                    
+                    // 如果当前数量小于最大数量，说明还可以继续堆叠
+                    if (currentStack < maxStack) {
+                        // 可堆叠方块且未达到上限，设置 heldBlock 用于动画显示
+                        this.currentHeldBlock = blockItem.copy();
+                        // 返回 true 保持当前索引，下次 tick 继续放置
+                        return true;
+                    }
+                }
+                
+                // 不可堆叠或已达上限，清空 heldBlock
+                this.currentHeldBlock = ItemStack.EMPTY;
+                // 返回 false 移动到下一个位置
+                return false;
             }
         );
     }
@@ -1956,7 +2076,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean upsideDown,
         Supplier<List<BlockPos>> positionProvider,
         IntFunction<ExtractionResult> itemExtractor,
-        @Nullable Supplier<ItemStack> itemPeeker,
         BlockOperationSuccessHandlerWithExtraction onSuccess
     ) {
 
@@ -1976,25 +2095,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             int index = (this.currentPlacementIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
 
-            // 检查目标位置是否可以放置
+            // 使用 null 检查位置（只检查空位和流体，不检查具体方块类型）
             if (this.isPositionOccupied(level, targetPos, null)) {
                 continue;
-            }
-
-            // 如果有预览器，先预览检查（pickup/move 模式）
-            if (itemPeeker != null) {
-                ItemStack peekedBlockItem = itemPeeker.get();
-                if (peekedBlockItem.isEmpty() || !(peekedBlockItem.getItem() instanceof BlockItem peekedBlockItemObj)) {
-                    this.currentPlacementIndex = (index + 1) % allPositions.size();
-                    this.onChanged();
-                    return;
-                }
-
-                if (this.isPositionOccupied(level, targetPos, peekedBlockItemObj)) {
-                    this.currentPlacementIndex = (index + 1) % allPositions.size();
-                    this.onChanged();
-                    return;
-                }
             }
 
             // 预提取物品（不真正删除ItemEntity）
@@ -2173,7 +2276,83 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return state.setValue(halfProperty, flippedHalf);
         }
 
-        // 如果没有 half 属性，返回原状态
+        // 处理台阶方块的 SlabType 属性(BOTTOM, TOP, DOUBLE)
+        if (state.hasProperty(BlockStateProperties.SLAB_TYPE)) {
+            SlabType currentType = state.getValue(BlockStateProperties.SLAB_TYPE);
+            SlabType flippedType = switch (currentType) {
+                case BOTTOM -> SlabType.TOP;
+                case TOP -> SlabType.BOTTOM;
+                case DOUBLE -> SlabType.DOUBLE; // DOUBLE 不需要翻转
+            };
+            return state.setValue(BlockStateProperties.SLAB_TYPE, flippedType);
+        }
+
+        // 处理六向方块的 VERTICAL_DIRECTION 属性(UP, DOWN)
+        if (state.hasProperty(BlockStateProperties.VERTICAL_DIRECTION)) {
+            Direction currentDir = state.getValue(BlockStateProperties.VERTICAL_DIRECTION);
+            Direction flippedDir = switch (currentDir) {
+                case UP -> Direction.DOWN;
+                case DOWN -> Direction.UP;
+                default -> currentDir; // 水平方向不需要翻转
+            };
+            return state.setValue(BlockStateProperties.VERTICAL_DIRECTION, flippedDir);
+        }
+
+        // 处理六向方块的 ORIENTATION 属性(Minecraft 原生的 FrontAndTop,用于钟等方块)
+        if (state.hasProperty(BlockStateProperties.ORIENTATION)) {
+            net.minecraft.core.FrontAndTop currentOrientation =
+                state.getValue(BlockStateProperties.ORIENTATION);
+            // 倒挂时,翻转垂直方向:UP <-> DOWN,水平方向旋转180度
+            net.minecraft.core.FrontAndTop flippedOrientation = switch (currentOrientation) {
+                case DOWN_EAST -> net.minecraft.core.FrontAndTop.UP_EAST;
+                case DOWN_NORTH -> net.minecraft.core.FrontAndTop.UP_NORTH;
+                case DOWN_SOUTH -> net.minecraft.core.FrontAndTop.UP_SOUTH;
+                case DOWN_WEST -> net.minecraft.core.FrontAndTop.UP_WEST;
+                case UP_EAST -> net.minecraft.core.FrontAndTop.DOWN_EAST;
+                case UP_NORTH -> net.minecraft.core.FrontAndTop.DOWN_NORTH;
+                case UP_SOUTH -> net.minecraft.core.FrontAndTop.DOWN_SOUTH;
+                case UP_WEST -> net.minecraft.core.FrontAndTop.DOWN_WEST;
+                // 侧向附着不需要垂直翻转
+                case WEST_UP, EAST_UP, NORTH_UP, SOUTH_UP -> currentOrientation;
+            };
+            return state.setValue(BlockStateProperties.ORIENTATION, flippedOrientation);
+        }
+
+        // 处理 FACING 属性(6个方向:UP, DOWN, NORTH, SOUTH, EAST, WEST)
+        if (state.hasProperty(BlockStateProperties.FACING)) {
+            Direction currentFacing = state.getValue(BlockStateProperties.FACING);
+            Direction flippedFacing = switch (currentFacing) {
+                case UP -> Direction.DOWN;
+                case DOWN -> Direction.UP;
+                case NORTH -> Direction.SOUTH;
+                case SOUTH -> Direction.NORTH;
+                case EAST -> Direction.WEST;
+                case WEST -> Direction.EAST;
+            };
+            return state.setValue(BlockStateProperties.FACING, flippedFacing);
+        }
+
+        // 处理 ATTACH_FACE 属性(墙面附着方块,如按钮、压力板等)
+        if (state.hasProperty(BlockStateProperties.ATTACH_FACE)) {
+            net.minecraft.world.level.block.state.properties.AttachFace currentFace =
+                state.getValue(BlockStateProperties.ATTACH_FACE);
+            net.minecraft.world.level.block.state.properties.AttachFace flippedFace =
+            switch (currentFace) {
+                case CEILING -> net.minecraft.world.level.block.state.properties.AttachFace.FLOOR;
+                case FLOOR -> net.minecraft.world.level.block.state.properties.AttachFace.CEILING;
+                case WALL -> net.minecraft.world.level.block.state.properties.AttachFace.WALL;
+            };
+            return state.setValue(BlockStateProperties.ATTACH_FACE, flippedFace);
+        }
+
+        // 处理 HANGING 属性(悬挂方块,如灯笼、锁链等)
+        if (state.hasProperty(BlockStateProperties.HANGING)) {
+            Boolean currentHanging = state.getValue(BlockStateProperties.HANGING);
+            // 倒挂时翻转悬挂状态
+            return state.setValue(BlockStateProperties.HANGING, !currentHanging);
+        }
+
+        // 如果没有需要翻转的属性，返回原状态
         return state;
     }
 
@@ -2305,11 +2484,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return state.getValue(SeaPickleBlock.PICKLES);
         } else if (state.getBlock() instanceof CandleBlock) {
             return state.getValue(CandleBlock.CANDLES);
+        } else if (state.is(Blocks.PINK_PETALS)) {
+            // 花簇：获取花朵数量（1-4）
+            return state.getValue(BlockStateProperties.FLOWER_AMOUNT);
         } else if (state.is(Blocks.SNOW)) {
-            // 雪片：获取层数（1-8）
-            return state.getValue(BlockStateProperties.LAYERS);
+            return 1;  // 雪片不作为可堆叠方块
         } else if (state.is(Blocks.GLOW_LICHEN)) {
-            // 发光地衣：统计启用的方向面数量
             int count = 0;
             if (state.getValue(BlockStateProperties.NORTH)) count++;
             if (state.getValue(BlockStateProperties.SOUTH)) count++;
@@ -2328,6 +2508,31 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return Math.max(count, 1);  // 至少为1
         }
         return 1;
+    }
+
+    /**
+     * 获取方块的最大堆叠数量
+     *
+     * @param state 方块状态
+     * @return 最大堆叠数量，1表示不可堆叠
+     */
+    private int getMaxStackCountForState(BlockState state) {
+        if (state.is(Blocks.TURTLE_EGG)) {
+            return 4;  // 海龟蛋最大4个
+        } else if (state.is(Blocks.SEA_PICKLE)) {
+            return 4;  // 海泡菜最大4个
+        } else if (state.getBlock() instanceof CandleBlock) {
+            return 4;  // 蜡烛最夑4个
+        } else if (state.is(Blocks.PINK_PETALS)) {
+            return 4;  // 花簇最多4个
+        } else if (state.is(Blocks.SNOW)) {
+            return 1;  // 雪片不作为可堆叠方块
+        } else if (state.is(Blocks.GLOW_LICHEN)) {
+            return 6;  // 发光地衣最夑6个面
+        } else if (state.is(Blocks.VINE)) {
+            return 4;  // 藤蔓最大4个面
+        }
+        return 1;  // 其他方块不可堆叠
     }
 
     /**
@@ -2675,6 +2880,109 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (entity.getItem().getItem() instanceof BlockItem) {
                 itemEntity = entity;
                 break;
+            }
+        }
+
+        if (itemEntity == null) {
+            return null;
+        }
+
+        // 返回物品信息和ItemEntity引用，但不真正删除
+        ItemStack extracted = itemEntity.getItem().copyWithCount(1);
+
+        // 细雪桶特殊处理：预提取时就生成空桶掉落物
+        if (extracted.is(Items.POWDER_SNOW_BUCKET)) {
+            // 生成空桶掉落物
+            ItemEntity bucketEntity = new ItemEntity(
+                level,
+                itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(),
+                new ItemStack(Items.BUCKET)
+            );
+            bucketEntity.setDeltaMovement(0, 0, 0);
+            level.addFreshEntity(bucketEntity);
+        }
+
+        return new ExtractionResult(extracted, itemEntity, true);
+    }
+
+    /**
+     * 预提取容器中特定方块物品（不真正删除）
+     *
+     * @param level       世界
+     * @param placerPos   放置器位置
+     * @param targetBlock 目标方块
+     * @return 预提取结果，如果没有找到则返回 null
+     */
+    @Nullable
+    private ExtractionResult preExtractSpecificBlockItemFromContainer(
+        Level level, BlockPos placerPos, Block targetBlock) {
+        Direction facing = this.getFacing(placerPos, level);
+        BlockPos inputPos = placerPos.relative(facing.getOpposite());
+
+        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        int slot;
+        for (slot = 0; itemHandler != null && slot < itemHandler.getSlots(); slot++) {
+            ItemStack blockItemStack = itemHandler.extractItem(slot, 1, true);
+            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
+                // 检查是否是需要的方块
+                if (blockItem.getBlock() == targetBlock) {
+                    // 细雪桶特殊处理：预提取时就返还桶
+                    if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
+                        itemHandler.insertItem(slot, new ItemStack(Items.BUCKET), false);
+                    }
+                    return new ContainerExtractionResult(blockItemStack.copy(), itemHandler, slot);
+                }
+            }
+        }
+
+        if (itemHandler == null) {
+            AABB aabb = new AABB(inputPos);
+            List<Entity> rawEntities = level.getEntitiesOfClass(
+                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty()
+            );
+
+            for (Entity rawEntity : rawEntities) {
+                if (rawEntity instanceof ContainerEntity containerEntity) {
+                    IItemHandler entityHandler = ((Entity) containerEntity).getCapability(
+                        Capabilities.ItemHandler.ENTITY, null
+                    );
+                    if (entityHandler != null) {
+                        for (slot = 0; slot < entityHandler.getSlots(); slot++) {
+                            ItemStack blockItemStack = entityHandler.extractItem(slot, 1, true);
+                            if (!blockItemStack.isEmpty() && blockItemStack.getItem() instanceof BlockItem blockItem) {
+                                if (blockItem.getBlock() == targetBlock) {
+                                    // 细雪桶特殊处理
+                                    if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
+                                        entityHandler.insertItem(slot, new ItemStack(Items.BUCKET), false);
+                                    }
+                                    return new ContainerExtractionResult(blockItemStack.copy(), entityHandler, slot);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 从 ItemEntity 预提取
+        AABB aabb = new AABB(inputPos);
+        List<ItemEntity> entities = level.getEntities(
+            EntityTypeTest.forClass(ItemEntity.class),
+            aabb,
+            Entity::isAlive
+        );
+        if (entities.isEmpty()) {
+            return null;
+        }
+
+        ItemEntity itemEntity = null;
+        for (ItemEntity entity : entities) {
+            if (entity.getItem().getItem() instanceof BlockItem blockItem) {
+                if (blockItem.getBlock() == targetBlock) {
+                    itemEntity = entity;
+                    break;
+                }
             }
         }
 

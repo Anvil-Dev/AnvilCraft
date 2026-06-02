@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "anvilcraft:block/cut_bronze_slab"
+    },
+    "type=double": {
+      "model": "anvilcraft:block/cut_bronze_block"
+    },
+    "type=top": {
+      "model": "anvilcraft:block/cut_bronze_slab_top"
+    }
+  }
+}

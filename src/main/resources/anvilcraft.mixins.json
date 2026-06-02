@@ -75,7 +75,9 @@
     "poachfixers.JeiServerCommandUtilMixin",
     "providence.ApplyBonusCountMixin",
     "providence.DamageEntityMixin",
-    "providence.EnchantedCountIncreaseFunctionMixin"
+    "providence.EnchantedCountIncreaseFunctionMixin",
+    "tsmm.FillCommandMixin",
+    "tsmm.SetBlockCommandMixin"
   ],
   "client": [
     "ClientLevelMixin",

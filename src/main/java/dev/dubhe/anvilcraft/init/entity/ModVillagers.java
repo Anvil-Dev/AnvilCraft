@@ -39,6 +39,15 @@ public class ModVillagers {
             ImmutableSet.of(),
             SoundEvents.VILLAGER_WORK_TOOLSMITH));
 
+    public static final DeferredHolder<PoiType, PoiType> TRADING_STATION_POI = POI_TYPES.register(
+        "trading_station_poi",
+        () -> new PoiType(
+            ImmutableSet.copyOf(ModBlocks.TRADING_STATION.get().getBottomStates()),
+            1,
+            1
+        )
+    );
+
     public static void register(IEventBus eventBus) {
         POI_TYPES.register(eventBus);
         VILLAGER_PROFESSIONS.register(eventBus);

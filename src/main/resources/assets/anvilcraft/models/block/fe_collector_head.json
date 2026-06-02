@@ -1,0 +1,37 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "anvilcraft:block/charge_collector_side",
+		"fe": "anvilcraft:block/fe_collector"
+	},
+	"elements": [
+		{
+			"from": [-3, -3, -3],
+			"to": [3, 3, 3],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [0, 0, 6, 6], "texture": "#fe"},
+				"east": {"uv": [0, 0, 6, 6], "texture": "#fe"},
+				"south": {"uv": [0, 0, 6, 6], "texture": "#fe"},
+				"west": {"uv": [0, 0, 6, 6], "texture": "#fe"},
+				"up": {"uv": [0, 0, 6, 6], "texture": "#fe"},
+				"down": {"uv": [0, 0, 6, 6], "texture": "#fe"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [3.5, 3.5, 3.5],
+			"to": [-3.5, -3.5, -3.5],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [2.5, 2.5, 3.5, 3.5], "rotation": 180, "texture": "#fe"},
+				"east": {"uv": [2.5, 2.5, 3.5, 3.5], "rotation": 180, "texture": "#fe"},
+				"south": {"uv": [2.5, 2.5, 3.5, 3.5], "rotation": 180, "texture": "#fe"},
+				"west": {"uv": [2.5, 2.5, 3.5, 3.5], "rotation": 180, "texture": "#fe"},
+				"up": {"uv": [2.5, 2.5, 3.5, 3.5], "rotation": 180, "texture": "#fe"},
+				"down": {"uv": [2.5, 2.5, 3.5, 3.5], "rotation": 180, "texture": "#fe"}
+			}
+		}
+	]
+}
