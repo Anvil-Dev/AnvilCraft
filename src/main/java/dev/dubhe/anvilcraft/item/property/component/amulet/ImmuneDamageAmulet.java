@@ -69,17 +69,16 @@ public record ImmuneDamageAmulet(List<TagPredicate<DamageType>> immune) implemen
             return this;
         }
 
+        public Builder immune(TagKey<DamageType> types, boolean expected) {
+            return this.immune(new TagPredicate<>(types, expected));
+        }
+
         public Builder immune(TagKey<DamageType> types) {
             return this.immune(TagPredicate.is(types));
         }
 
         public Builder immuneNot(TagKey<DamageType> types) {
             return this.immune(TagPredicate.isNot(types));
-        }
-
-        // CHECKSTYLE.SUPPRESS: OverloadMethodsDeclarationOrder
-        public Builder immune(TagKey<DamageType> types, boolean expected) {
-            return this.immune(new TagPredicate<>(types, expected));
         }
 
         public ImmuneDamageAmulet build() {

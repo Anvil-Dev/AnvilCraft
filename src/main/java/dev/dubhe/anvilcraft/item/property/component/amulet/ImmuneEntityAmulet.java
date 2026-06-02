@@ -13,6 +13,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.List;
@@ -20,14 +21,28 @@ import java.util.List;
 public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<TagPredicate<EntityType<?>>> direct) implements IAmulet {
     @Override
     public boolean shouldImmune(ServerPlayer player, DamageSource source) {
-        for (TagPredicate<EntityType<?>> immune : this.source) {
-            if (immune.matches(source.getEntity().typeHolder())) {
-                return true;
+        Entity entity = source.getEntity();
+        if (entity != null) {
+            boolean passed = this.source.isEmpty();
+            for (TagPredicate<EntityType<?>> immune : this.source) {
+                if (immune.matches(entity.typeHolder())) {
+                    passed = true;
+                }
+            }
+            if (!passed) {
+                return false;
             }
         }
-        for (TagPredicate<EntityType<?>> immune : this.direct) {
-            if (immune.matches(source.getDirectEntity().typeHolder())) {
-                return true;
+        Entity direct = source.getDirectEntity();
+        if (direct != null) {
+            boolean passed = this.direct.isEmpty();
+            for (TagPredicate<EntityType<?>> immune : this.direct) {
+                if (immune.matches(direct.typeHolder())) {
+                    return true;
+                }
+            }
+            if (!passed) {
+                return false;
             }
         }
         return false;
@@ -77,6 +92,10 @@ public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<
             return this;
         }
 
+        public Builder immune(TagKey<EntityType<?>> types, boolean expected) {
+            return this.immune(new TagPredicate<>(types, expected));
+        }
+
         public Builder immune(TagKey<EntityType<?>> types) {
             return this.immune(TagPredicate.is(types));
         }
@@ -85,14 +104,13 @@ public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<
             return this.immune(TagPredicate.isNot(types));
         }
 
-        // CHECKSTYLE.SUPPRESS: OverloadMethodsDeclarationOrder
-        public Builder immune(TagKey<EntityType<?>> types, boolean expected) {
-            return this.immune(new TagPredicate<>(types, expected));
-        }
-
         public Builder immuneDirect(TagPredicate<EntityType<?>> types) {
             this.direct.add(types);
             return this;
+        }
+
+        public Builder immuneDirect(TagKey<EntityType<?>> types, boolean expected) {
+            return this.immuneDirect(new TagPredicate<>(types, expected));
         }
 
         public Builder immuneDirect(TagKey<EntityType<?>> types) {
@@ -101,11 +119,6 @@ public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<
 
         public Builder immuneDirectNot(TagKey<EntityType<?>> types) {
             return this.immuneDirect(TagPredicate.isNot(types));
-        }
-
-        // CHECKSTYLE.SUPPRESS: OverloadMethodsDeclarationOrder
-        public Builder immuneDirect(TagKey<EntityType<?>> types, boolean expected) {
-            return this.immuneDirect(new TagPredicate<>(types, expected));
         }
 
         public ImmuneEntityAmulet build() {
