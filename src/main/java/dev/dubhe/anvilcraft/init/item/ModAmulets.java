@@ -6,16 +6,17 @@ import dev.dubhe.anvilcraft.item.property.component.amulet.ComradeAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.DiscountAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.DoNothingAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.GiveEffectAmulet;
-import dev.dubhe.anvilcraft.item.property.component.amulet.ImmuneAmulet;
+import dev.dubhe.anvilcraft.item.property.component.amulet.ImmuneDamageAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import net.minecraft.advancements.criterion.MinMaxBounds;
-import net.minecraft.advancements.criterion.TagPredicate;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 public class ModAmulets {
     public static final DiscountAmulet EMERALD = new DiscountAmulet(0.3F);
-    public static final ImmuneAmulet TOPAZ = ImmuneAmulet.of(builder -> builder.tag(TagPredicate.is(ModDamageTypeTags.TOPAZ_AMULET_VALID)));
+    public static final ImmuneDamageAmulet TOPAZ = ImmuneDamageAmulet.builder()
+        .immune(ModDamageTypeTags.TOPAZ_AMULET_VALID)
+        .build();
     public static final GiveEffectAmulet RUBY = GiveEffectAmulet.inLava(
         new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 3, 0, false, false),
         MinMaxBounds.Ints.atMost(3600)
@@ -26,7 +27,7 @@ public class ModAmulets {
     );
     public static final AnvilAmulet ANVIL = new AnvilAmulet();
     public static final ComradeAmulet COMRADE = ComradeAmulet.empty();
-    public static final ImmuneAmulet FEATHER = ImmuneAmulet.builder()
+    public static final ImmuneDamageAmulet FEATHER = ImmuneDamageAmulet.builder()
         .immune(ModDamageTypeTags.FEATHER_AMULET_VALID)
         .build();
     public static final DoNothingAmulet CAT = new DoNothingAmulet();
