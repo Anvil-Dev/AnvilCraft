@@ -17,11 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     name: Code Review
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
       - name: DeepSeek Code Review
         uses: hustcer/deepseek-review@v1.20
         with:
           model: "deepseek-v4-flash"
-          base-url: "https://api.siliconflow.cn/v1"
           watch-mention: "@github-actions"
           chat-token: ${{ secrets.CHAT_TOKEN }}
           allowed-associations: "OWNER,MEMBER,COLLABORATOR"
