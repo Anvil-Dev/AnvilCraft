@@ -1,5 +1,6 @@
-package dev.dubhe.anvilcraft.api.amulet;
+package dev.dubhe.anvilcraft.api.event;
 
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import lombok.Getter;
 import lombok.Setter;
