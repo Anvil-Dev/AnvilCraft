@@ -1,0 +1,6 @@
+{
+	"parent": "anvilcraft:block/auto_enchanting_table",
+	"textures": {
+		"1": "anvilcraft:block/auto_enchanting_table_side_overload",
+	}
+}
