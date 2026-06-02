@@ -16,6 +16,8 @@ import dev.dubhe.anvilcraft.block.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
+import dev.dubhe.anvilcraft.block.PumpBlock;
+import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.block.CakeBaseBlock;
 import dev.dubhe.anvilcraft.block.CakeBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
@@ -4198,6 +4200,37 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeNodeBlock)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PumpBlock> PUMP = REGISTRUM.block("pump", PumpBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate((ctx, provider) -> {
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                boolean powered = state.getValue(PumpBlock.POWERED);
+                boolean overload = state.getValue(PumpBlock.OVERLOAD);
+                Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
+
+                String modelName;
+                if (overload) {
+                    modelName = "block/pump_overload";
+                } else if (powered) {
+                    modelName = "block/pump_off";
+                } else {
+                    modelName = "block/pump_base";
+                }
+
+                var model = provider.models().getExistingFile(AnvilCraft.of(modelName));
+
+                return net.neoforged.neoforge.client.model.generators.ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX((int) orientation.getXRotation())
+                    .rotationY((int) orientation.getYRotation())
+                    .build();
+            });
+        })
+        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
