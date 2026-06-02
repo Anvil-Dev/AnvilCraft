@@ -169,14 +169,14 @@ public class PlayerEventListener {
         if (inHand.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems().isEmpty()) {
             event.setCanceled(true);
         }
-        AmuletManager.get(player.registryAccess()).startRaffle(player, event.getSource());
+        AmuletManager.get(player.registryAccess()).tryRaffle(player, event.getSource());
     }
 
     @SubscribeEvent
     public static void onPlayerHurt(LivingIncomingDamageEvent event) {
         if (
             event.getEntity() instanceof ServerPlayer player
-            && AmuletManager.get(player.registryAccess()).shouldIgnoreDamage(player, event.getSource())
+            && AmuletManager.get(player.registryAccess()).shouldImmune(player, event.getSource())
         ) {
             event.setCanceled(true);
         }
