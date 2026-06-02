@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.api.amulet;
 
+import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
@@ -83,13 +85,21 @@ public abstract sealed class AmuletEvent extends Event
     public static final class ModifyRaffleProbability extends AmuletEvent {
         private final ServerPlayer player;
         private final DamageSource source;
+        private final Holder.Reference<IAmuletDefinition> def;
         @Setter
         private int probability;
 
-        public ModifyRaffleProbability(AmuletManager manager, ServerPlayer player, DamageSource source, int probability) {
+        public ModifyRaffleProbability(
+            AmuletManager manager,
+            ServerPlayer player,
+            DamageSource source,
+            Holder.Reference<IAmuletDefinition> def,
+            int probability
+        ) {
             super(manager);
             this.player = player;
             this.source = source;
+            this.def = def;
             this.probability = probability;
         }
     }

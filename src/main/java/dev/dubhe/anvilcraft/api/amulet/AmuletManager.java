@@ -20,8 +20,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 public class AmuletManager {
     private static @Nullable SoftReference<AmuletManager> INSTANCE;
@@ -77,48 +77,64 @@ public class AmuletManager {
     }
 
     public void tryRaffle(ServerPlayer player, DamageSource source) {
-        Optional<IAmuletDefinition> defOp = this.getDefinitionMatchedDamage(player, source).map(Holder::value);
-        if (defOp.isEmpty()) return;
-        IAmuletDefinition def = defOp.get();
-        ItemStack amulet = def.create();
-        if (this.hasAmuletInInventory(player, amulet.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE))) return;
+        Holder.Reference<IAmuletDefinition> trying = null;
+        ItemStack amulet = null;
 
         RandomSource random = player.getRandom();
-        int probability = Math.min(this.getRaffleProbability(player, source), 100);
-        if (probability > random.nextIntBetweenInclusive(0, 100)) {
-            player.getInventory().placeItemBackInInventory(amulet.copy());
-            this.setRaffleProbability(player, source, 0);
-        } else {
-            AmuletEvent.ModifyRaffleProbability event = new AmuletEvent.ModifyRaffleProbability(this, player, source, probability + 10);
-            NeoForge.EVENT_BUS.post(event);
-            probability = event.getProbability();
-            this.setRaffleProbability(player, source, Math.clamp(probability, 0, 100));
+        List<Holder.Reference<IAmuletDefinition>> defs = this.getDefinitionMatchedDamage(player, source);
+        if (defs.isEmpty()) {
+            return;
         }
-    }
 
-    public Optional<Holder<IAmuletDefinition>> getDefinitionMatchedDamage(ServerPlayer victim, DamageSource source) {
-        for (Holder<IAmuletDefinition> def : this.definitions) {
-            if (def.value().mayObtain(victim, source)) {
-                return Optional.of(def);
+        List<Holder.Reference<IAmuletDefinition>> shuffled = new ArrayList<>(defs);
+        shuffled.sort(Comparator.comparingInt(_ -> random.nextInt()));
+        for (Holder.Reference<IAmuletDefinition> def : shuffled) {
+            amulet = def.value().create();
+            if (!this.hasAmuletInInventory(player, amulet.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE))) {
+                trying = def;
+                break;
             }
         }
-        return Optional.empty();
+
+        if (trying == null) {
+            return;
+        }
+
+        int probability = Math.min(this.getRaffleProbability(player, trying), 100);
+        if (random.nextInt(100) < probability) {
+            player.getInventory().placeItemBackInInventory(amulet.copy());
+            this.setRaffleProbability(player, trying, 0);
+        } else {
+            probability = NeoForge.EVENT_BUS.post(new AmuletEvent.ModifyRaffleProbability(
+                this,
+                player,
+                source,
+                trying,
+                probability + 10
+            )).getProbability();
+            this.setRaffleProbability(player, trying, Math.clamp(probability, 0, 100));
+        }
     }
 
-    public int getRaffleProbability(Player player, DamageSource source) {
-        if (!(player instanceof ServerPlayer victim)) {
-            return 0;
+    public List<Holder.Reference<IAmuletDefinition>> getDefinitionMatchedDamage(ServerPlayer victim, DamageSource source) {
+        List<Holder.Reference<IAmuletDefinition>> results = new ArrayList<>();
+        for (Holder.Reference<IAmuletDefinition> def : this.definitions) {
+            if (def.value().mayObtain(victim, source)) {
+                results.add(def);
+            }
         }
-        return this.getDefinitionMatchedDamage(victim, source)
-            .map(holder -> this.getRaffleProbability(player, holder))
-            .orElse(0);
+        return results;
     }
 
     public int getRaffleProbability(Player player, Holder<IAmuletDefinition> def) {
         if (this.hasAmuletInInventory(player, def)) {
             return 0;
         }
-        return AmuletManager.getStoredRaffleProbability(player, def.value()) + 20;
+        return AmuletManager.getStoredRaffleProbability(player, def);
+    }
+
+    public static int getStoredRaffleProbability(Player player, Holder<IAmuletDefinition> def) {
+        return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(def);
     }
 
     public boolean hasAmuletInInventory(Player player, IAmulet amulet) {
@@ -132,21 +148,12 @@ public class AmuletManager {
         return CollectionUtil.anyMatch(amulets, stack -> ItemStack.isSameItem(stack, target));
     }
 
-    public static int getStoredRaffleProbability(Player player, IAmuletDefinition type) {
-        return player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY).getProbability(type);
-    }
-
-    public void setRaffleProbability(ServerPlayer player, DamageSource source, int probability) {
-        Optional<Holder<IAmuletDefinition>> def = this.getDefinitionMatchedDamage(player, source);
-        def.ifPresent(holder -> this.setRaffleProbability(player, holder, probability));
-    }
-
     public void setRaffleProbability(ServerPlayer player, Holder<IAmuletDefinition> def, int probability) {
         AmuletRaffleProbability arp = player.getData(ModDataAttachments.AMULET_RAFFLE_PROBABILITY);
         if (!this.hasAmuletInInventory(player, def)) {
-            arp.setProbability(def.value(), probability);
+            arp.setProbability(def, probability);
         } else {
-            arp.setProbability(def.value(), 0);
+            arp.setProbability(def, 0);
         }
     }
 
