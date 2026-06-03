@@ -83,7 +83,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     private static final int SLOT_ID_RESULT = 36;
 
     @Setter
-    private StructureData structureData;
+    private @Nullable StructureData structureData;
 
     public StructureToolScreen(StructureToolMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -287,8 +287,8 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
     }
 

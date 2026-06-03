@@ -134,8 +134,8 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
     }
 

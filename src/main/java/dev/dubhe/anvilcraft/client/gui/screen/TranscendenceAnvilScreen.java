@@ -17,10 +17,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAnvilMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "transcendence_anvil");
-    private EditBox name;
+    private @Nullable EditBox name;
     private final Player player;
 
     /**

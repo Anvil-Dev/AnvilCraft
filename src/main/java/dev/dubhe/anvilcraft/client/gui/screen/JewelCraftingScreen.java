@@ -51,8 +51,8 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
     }
 

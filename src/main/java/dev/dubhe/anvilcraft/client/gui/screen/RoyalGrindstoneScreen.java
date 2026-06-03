@@ -91,8 +91,8 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
         ItemStack repairToolItem = this.menu.getSlot(0).getItem();
         ItemStack repairItem = this.menu.getSlot(1).getItem();

@@ -404,8 +404,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
     }
 }
