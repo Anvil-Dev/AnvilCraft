@@ -95,33 +95,21 @@ public class TextWidget extends StringWidget {
         }
     }
 
-    /**
-     * 获取Widget文字
-     */
+    /// 获取Widget文字
     @FunctionalInterface
     public interface TextProvider {
         Component get();
     }
 
-    /**
-     * 文字渲染模式
-     */
+    /// 文字渲染模式
     public enum RenderMode {
-        /**
-         * 默认模式
-         */
+        /// 默认模式
         DEFAULT,
-        /**
-         * 默认，不对文本进行操作
-         */
+        /// 默认，不对文本进行操作
         CLIP,
-        /**
-         * 滚动模式，使文本左右移动
-         */
+        /// 滚动模式，使文本左右移动
         SCROLLING,
-        /**
-         * 缩放模式，若文本某方向超出设定范围，则将文本在该方向上缩放
-         */
+        /// 缩放模式，若文本某方向超出设定范围，则将文本在该方向上缩放
         SCALED,
     }
 }

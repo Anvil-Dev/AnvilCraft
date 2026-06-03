@@ -12,18 +12,16 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * 简单的炼药锅条件
- *
- * <p>该类用于定义配方中对炼药锅的要求，包括所需流体、消耗量和转换后的流体</p>
- *
- * @param fluid     流体ID
- * @param consume   消耗量
- * @param transform 转换后的流体ID
- * @param produce   产生量
- * @param chance    转换成功的概率
- * @param ignited   是否需要点燃
- */
+/// 简单的炼药锅条件
+///
+/// <p>该类用于定义配方中对炼药锅的要求，包括所需流体、消耗量和转换后的流体</p>
+///
+/// @param fluid     流体ID
+/// @param consume   消耗量
+/// @param transform 转换后的流体ID
+/// @param produce   产生量
+/// @param chance    转换成功的概率
+/// @param ignited   是否需要点燃
 public record HasCauldronSimple(
     Identifier fluid,
     int consume,
@@ -32,22 +30,18 @@ public record HasCauldronSimple(
     float chance,
     boolean ignited
 ) {
-    /**
-     * 构造一个简单的炼药锅条件
-     *
-     * @param fluid     流体ID
-     * @param consume   消耗量
-     * @param transform 转换后的流体ID
-     * @param produce   产生量
-     * @param chance    转换成功的概率
-     * @param ignited   是否需要点燃
-     */
+    /// 构造一个简单的炼药锅条件
+    ///
+    /// @param fluid     流体ID
+    /// @param consume   消耗量
+    /// @param transform 转换后的流体ID
+    /// @param produce   产生量
+    /// @param chance    转换成功的概率
+    /// @param ignited   是否需要点燃
     public HasCauldronSimple {
     }
 
-    /**
-     * HasCauldronSimple的编解码器
-     */
+    /// HasCauldronSimple的编解码器
     public static final MapCodec<HasCauldronSimple> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
             Identifier.CODEC
@@ -71,37 +65,29 @@ public record HasCauldronSimple(
         ).apply(instance, HasCauldronSimple::new)
     );
 
-    /**
-     * 将此条件转换为HasCauldron谓词
-     *
-     * @param offset 偏移量
-     * @return HasCauldron谓词
-     */
+    /// 将此条件转换为HasCauldron谓词
+    ///
+    /// @param offset 偏移量
+    /// @return HasCauldron谓词
     public HasCauldron toHasCauldron(Vec3 offset) {
         return new HasCauldron(offset, this.fluid, this.consume, this.transform, this.produce, this.chance, this.ignited);
     }
 
-    /**
-     * 获取流体对应的炼药锅方块
-     *
-     * @return 炼药锅方块
-     */
+    /// 获取流体对应的炼药锅方块
+    ///
+    /// @return 炼药锅方块
     public Block getFluidCauldron() {
         return HasCauldron.getDefaultCauldron(this.fluid);
     }
 
-    /**
-     * 获取转换后的炼药锅方块
-     *
-     * @return 炼药锅方块
-     */
+    /// 获取转换后的炼药锅方块
+    ///
+    /// @return 炼药锅方块
     public Block getTransformCauldron() {
         return HasCauldron.getDefaultCauldron(this.transform);
     }
 
-    /**
-     * HasCauldronSimple的网络流编解码器
-     */
+    /// HasCauldronSimple的网络流编解码器
     public static final StreamCodec<RegistryFriendlyByteBuf, HasCauldronSimple> STREAM_CODEC = StreamCodec.composite(
         Identifier.STREAM_CODEC,
         HasCauldronSimple::fluid,
@@ -118,28 +104,22 @@ public record HasCauldronSimple(
         HasCauldronSimple::new
     );
 
-    /**
-     * 创建一个空的构建器
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个空的构建器
+    ///
+    /// @return 构建器实例
     public static Builder empty() {
         return Builder.empty();
     }
 
-    /**
-     * 创建一个指定流体的构建器
-     *
-     * @param fluid 流体ID
-     * @return 构建器实例
-     */
+    /// 创建一个指定流体的构建器
+    ///
+    /// @param fluid 流体ID
+    /// @return 构建器实例
     public static Builder fluid(Identifier fluid) {
         return Builder.of(fluid);
     }
 
-    /**
-     * 构建器类，用于构建HasCauldronSimple实例
-     */
+    /// 构建器类，用于构建HasCauldronSimple实例
     public static class Builder {
         private Identifier fluid = HasCauldron.EMPTY;
         private int consume = 0;
@@ -148,98 +128,81 @@ public record HasCauldronSimple(
         private float chance = 1F;
         private boolean ignited = false;
 
-        /**
-         * 创建一个空的构建器
-         *
-         * @return 构建器实例
-         */
+        /// 创建一个空的构建器
+        ///
+        /// @return 构建器实例
         public static Builder empty() {
             return new Builder();
         }
 
-        /**
-         * 创建一个指定流体的构建器
-         *
-         * @param fluid 流体ID
-         * @return 构建器实例
-         */
+        /// 创建一个指定流体的构建器
+        ///
+        /// @param fluid 流体ID
+        /// @return 构建器实例
         public static Builder of(Identifier fluid) {
             Builder builder = new Builder();
             builder.fluid = fluid;
             return builder;
         }
 
-        /**
-         * 设置流体ID
-         *
-         * @param fluid 流体ID
-         * @return 构建器实例
-         */
+        /// 设置流体ID
+        ///
+        /// @param fluid 流体ID
+        /// @return 构建器实例
         public Builder fluid(Identifier fluid) {
             this.fluid = fluid;
             return this;
         }
 
-        /**
-         * 设置转换后的流体ID
-         *
-         * @param transform 转换后的流体ID
-         * @return 构建器实例
-         */
+        /// 设置转换后的流体ID
+        ///
+        /// @param transform 转换后的流体ID
+        /// @return 构建器实例
         public Builder transform(Identifier transform) {
             this.transform = transform;
             if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
             return this;
         }
 
-        /**
-         * 设置消耗量
-         *
-         * @param consume 消耗量
-         * @return 构建器实例
-         */
+        /// 设置消耗量
+        ///
+        /// @param consume 消耗量
+        /// @return 构建器实例
         public Builder consume(int consume) {
             this.consume = consume;
             return this;
         }
 
-        /**
-         * 设置产生量
-         *
-         * @param produce 产生量
-         * @return 构建器实例
-         */
+        /// 设置产生量
+        ///
+        /// @param produce 产生量
+        /// @return 构建器实例
         public Builder produce(int produce) {
             this.produce = produce;
             return this;
         }
 
-        /**
-         * 设置转换成功的概率
-         *
-         * @param chance 转换成功的概率
-         * @return 构建器实例
-         */
+        /// 设置转换成功的概率
+        ///
+        /// @param chance 转换成功的概率
+        /// @return 构建器实例
         public Builder chance(float chance) {
             this.chance = MathUtil.clampWithProportion(chance, 0, 1);
             return this;
         }
 
-        /**
-         * 设置需要点燃锅
-         *
-         * @return 构建器实例
-         */
+        /// 设置需要点燃锅
+        ///
+        /// @return 构建器实例
+        @SuppressWarnings("UnusedReturnValue")
         public Builder ignite() {
             this.ignited = true;
             return this;
         }
 
-        /**
-         * 构建HasCauldronSimple实例
-         *
-         * @return HasCauldronSimple实例
-         */
+        /// 构建HasCauldronSimple实例
+        ///
+        /// @return HasCauldronSimple实例
         public HasCauldronSimple build() {
             return new HasCauldronSimple(this.fluid, this.consume, this.transform, this.produce, this.chance, this.ignited);
         }

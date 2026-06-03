@@ -42,9 +42,7 @@ public class EnableFilterButton extends Button {
         this.renderTexture(graphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
-    /**
-     * 刷新
-     */
+    /// 刷新
     public void flush() {
         this.setMessage(Component.translatable(
             "screen.anvilcraft.button.record",

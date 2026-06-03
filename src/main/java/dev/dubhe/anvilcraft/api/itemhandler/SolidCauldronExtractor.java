@@ -17,20 +17,16 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public class SolidCauldronExtractor extends SnapshotJournal<BlockState> implements ResourceHandler<ItemResource> {
-    /**
-     * To make sure multiple accesses to the same cauldron return the same wrapper,
-     * we maintain a {@code (Level, BlockPos) -> Wrapper} cache.
-     */
+    /// To make sure multiple accesses to the same cauldron return the same wrapper,
+    /// we maintain a {@code (Level, BlockPos) -> Wrapper} cache.
     private record WrapperLocation(Level level, BlockPos pos) {
         public BlockState getBlockState() {
             return this.level.getBlockState(this.pos);
         }
     }
 
-    /**
-     * Wrapper map, similar to {@link VanillaContainerWrapper#wrappers}.
-     * We need the cauldron wrapper to hold a strong reference to the wrapper location to avoid the weak keys being cleared too early.
-     */
+    /// Wrapper map, similar to {@link VanillaContainerWrapper#wrappers}.
+    /// We need the cauldron wrapper to hold a strong reference to the wrapper location to avoid the weak keys being cleared too early.
     private static final Map<SolidCauldronExtractor.WrapperLocation, SolidCauldronExtractor> WRAPPERS = new MapMaker()
         .concurrencyLevel(1)
         .weakKeys()

@@ -33,14 +33,12 @@ public class LoadChuckData {
         this.serverLevel = serverLevel;
     }
 
-    /**
-     * 创建强加载区块区域数据
-     *
-     * @param level            加载区域等级, 既边长为(level*2+1)区块的加载区域
-     * @param centerPos        加载区中心
-     * @param isNeedRandomTick 是否需要随机刻加载
-     * @return 强加载区块区域数据
-     */
+    /// 创建强加载区块区域数据
+    ///
+    /// @param level            加载区域等级, 既边长为(level*2+1)区块的加载区域
+    /// @param centerPos        加载区中心
+    /// @param isNeedRandomTick 是否需要随机刻加载
+    /// @return 强加载区块区域数据
     public static LoadChuckData createLoadChuckData(
         int level,
         BlockPos centerPos,
@@ -57,9 +55,7 @@ public class LoadChuckData {
         return new LoadChuckData(centerPos, chunkPosList, isNeedRandomTick, level, serverLevel);
     }
 
-    /**
-     * 加载区块
-     */
+    /// 加载区块
     public void apply(ServerLevel level) {
         LevelLoadManager.lazy(() -> {
             if (this.isNeedRandomTick) {
@@ -75,9 +71,7 @@ public class LoadChuckData {
         this.removed = true;
     }
 
-    /**
-     * 取消加载区块
-     */
+    /// 取消加载区块
     public void discard(ServerLevel level) {
         LevelLoadManager.lazy(() -> {
             if (this.isNeedRandomTick) {

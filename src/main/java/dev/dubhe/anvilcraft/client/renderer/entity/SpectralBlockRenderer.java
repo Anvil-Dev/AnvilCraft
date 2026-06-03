@@ -13,9 +13,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class SpectralBlockRenderer extends EntityRenderer<FallingSpectralBlockEntity, FallingBlockRenderState> {
-    /**
-     * 方块渲染器
-     */
+    /// 方块渲染器
     public SpectralBlockRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.shadowRadius = 0.5F;

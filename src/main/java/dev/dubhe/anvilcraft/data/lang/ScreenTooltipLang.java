@@ -2,9 +2,7 @@ package dev.dubhe.anvilcraft.data.lang;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
-/**
- * 物品栏上方的提示的翻译键
- */
+/// 物品栏上方的提示的翻译键
 public class ScreenTooltipLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {

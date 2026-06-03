@@ -11,11 +11,9 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
-/**
- * 自定义数据组件。通常为必需其它数据组件才能正常构建的数据组件。
- *
- * @param <T> 该数据组件的类型
- */
+/// 自定义数据组件。通常为必需其它数据组件才能正常构建的数据组件。
+///
+/// @param <T> 该数据组件的类型
 public interface ICustomDataComponent<T> {
     Codec<ICustomDataComponent<?>> CODEC = Codec.lazyInitialized(() -> ModRegistries.CUSTOM_DATA_TYPE_REGISTRY
         .byNameCodec().dispatch(ICustomDataComponent::getType, ICustomDataComponent.Type::codec));
@@ -23,26 +21,20 @@ public interface ICustomDataComponent<T> {
         streamCodec -> ByteBufCodecs.registry(ModRegistries.CUSTOM_DATA_TYPE_KEY)
             .dispatch(ICustomDataComponent::getType, ICustomDataComponent.Type::streamCodec));
 
-    /**
-     * 获取该数据组件的类型。
-     *
-     * @return 该数据组件的类型
-     */
+    /// 获取该数据组件的类型。
+    ///
+    /// @return 该数据组件的类型
     DataComponentType<T> getDataComponentType();
 
-    /**
-     * 获取该自定义数据组件的类型。
-     *
-     * @return 该自定义数据组件的类型
-     */
+    /// 获取该自定义数据组件的类型。
+    ///
+    /// @return 该自定义数据组件的类型
     Type<? extends ICustomDataComponent<?>> getType();
 
-    /**
-     * 根据上下文构建数据组件。
-     *
-     * @param ctx 上下文
-     * @return 一个全新的数据组件
-     */
+    /// 根据上下文构建数据组件。
+    ///
+    /// @param ctx 上下文
+    /// @return 一个全新的数据组件
     @Nullable
     T make(ResultContext ctx);
 
@@ -51,13 +43,11 @@ public interface ICustomDataComponent<T> {
         stack.set(this.getDataComponentType(), value);
     }
 
-    /**
-     * 将两个数据合并为一个新的组件。
-     *
-     * @param oldData 旧数据
-     * @param newData 新数据
-     * @return 合并后的数据
-     */
+    /// 将两个数据合并为一个新的组件。
+    ///
+    /// @param oldData 旧数据
+    /// @param newData 新数据
+    /// @return 合并后的数据
     T merge(T oldData, T newData);
 
     interface Type<T extends ICustomDataComponent<?>> extends ISerializer<T> {

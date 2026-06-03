@@ -102,7 +102,7 @@ public class ChargerBlockEntity extends BlockEntity
     
     @Getter
     @Setter
-    private PowerGrid grid;
+    private @Nullable PowerGrid grid;
 
     public ChargerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -287,9 +287,7 @@ public class ChargerBlockEntity extends BlockEntity
         this.powerValue = 0;
     }
 
-    /**
-     * 充放电器逻辑
-     */
+    /// 充放电器逻辑
     public void tick(Level level, BlockPos blockPos) {
         this.flushState(level, blockPos);
         BlockState state = level.getBlockState(blockPos);

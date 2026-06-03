@@ -10,11 +10,9 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.neoforged.neoforge.common.Tags;
 
 public class DamageTypeTagLoader {
-    /**
-     * 初始化伤害类型标签
-     *
-     * @param provider 提供器
-     */
+    /// 初始化伤害类型标签
+    ///
+    /// @param provider 提供器
     public static void init(RegistrumTagsProvider<DamageType> provider) {
         provider.rawBuilder(DamageTypeTags.BYPASSES_ARMOR)
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());

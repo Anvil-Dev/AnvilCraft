@@ -144,9 +144,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         this.tickCount++;
     }
 
-    /**
-     * 发射激光
-     */
+    /// 发射激光
     public void emitLaser(Direction direction) {
         if (this.level == null) return;
         BlockPos tempIrradiateBlockPos = this.getIrradiateBlockPos(this.maxTransmissionDistance, direction, this.getBlockPos());
@@ -271,9 +269,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         }*/
     }
 
-    /**
-     * 检测光学原件是否在链接表中
-     */
+    /// 检测光学原件是否在链接表中
     public boolean isInIrradiateSelfLaserBlockSet(BaseLaserBlockEntity baseLaserBlockEntity) {
         return baseLaserBlockEntity == this
             || this.irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)
@@ -286,9 +282,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         this.irradiateSelfLaserBlockSet.add(baseLaserBlockEntity);
     }
 
-    /**
-     * 当方块被取消激光照射时调用
-     */
+    /// 当方块被取消激光照射时调用
     public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
         this.irradiateSelfLaserBlockSet.remove(baseLaserBlockEntity);
         BlockPos tempIrradiateBlockPos = this.irradiateBlockPos;

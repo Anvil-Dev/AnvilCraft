@@ -27,9 +27,7 @@ public abstract class HeatableBlockEntity extends BlockEntity {
         super(type, pos, blockState);
     }
 
-    /**
-     * 增加1秒
-     */
+    /// 增加1秒
     public void addDuration(int second) {
         this.addDurationInTick(second * 20);
     }

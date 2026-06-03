@@ -8,19 +8,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jspecify.annotations.Nullable;
 
-/**
- * 可被锤子改变的
- */
+/// 可被锤子改变的
 public interface IHammerChangeable {
-    /**
-     * 改变状态
-     *
-     * @param player      玩家
-     * @param blockPos    坐标
-     * @param level       世界
-     * @param anvilHammer 铁砧锤物品
-     * @return 是否改变成功
-     */
+    /// 改变状态
+    ///
+    /// @param player      玩家
+    /// @param blockPos    坐标
+    /// @param level       世界
+    /// @param anvilHammer 铁砧锤物品
+    /// @return 是否改变成功
     boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer);
 
     default boolean checkBlockState(BlockState blockState) {

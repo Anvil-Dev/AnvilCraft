@@ -68,9 +68,7 @@ public class HasMobBlockItem extends BlockItem {
         return stack.has(ModComponents.SAVED_ENTITY);
     }
 
-    /**
-     * 获取物品中的实体
-     */
+    /// 获取物品中的实体
     public static @Nullable Entity getMobFromItem(Level level, ItemStack stack) {
         if (!hasMob(stack)) return null;
         SavedEntity savedEntity = stack.get(ModComponents.SAVED_ENTITY);

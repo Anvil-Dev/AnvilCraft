@@ -14,11 +14,9 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 import java.util.List;
 
-/**
- * 删除指定输入物品的数据。
- *
- * @param attrs 包含指定的输入物品和将要删除的数据组件类型。
- */
+/// 删除指定输入物品的数据。
+///
+/// @param attrs 包含指定的输入物品和将要删除的数据组件类型。
 public record RemoveAttribute(List<Identifier> attrs) implements IResultModifier {
     public static final MapCodec<RemoveAttribute> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Identifier.CODEC
@@ -69,6 +67,7 @@ public record RemoveAttribute(List<Identifier> attrs) implements IResultModifier
     public static class Builder {
         private final ImmutableList.Builder<Identifier> attrs = ImmutableList.builder();
 
+        @SuppressWarnings("UnusedReturnValue")
         public Builder withAttr(Identifier attr) {
             this.attrs.add(attr);
             return this;

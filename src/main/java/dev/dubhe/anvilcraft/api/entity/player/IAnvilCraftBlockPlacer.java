@@ -19,21 +19,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * 假人方块放置器
- */
+/// 假人方块放置器
 public interface IAnvilCraftBlockPlacer {
     ServerPlayer getPlayer();
 
-    /**
-     * 放置方块
-     *
-     * @param level       放置世界
-     * @param pos         放置位置
-     * @param orientation 放置方向
-     * @param blockItem   放置方块物品
-     * @return 放置结果
-     */
+    /// 放置方块
+    ///
+    /// @param level       放置世界
+    /// @param pos         放置位置
+    /// @param orientation 放置方向
+    /// @param blockItem   放置方块物品
+    /// @return 放置结果
     default InteractionResult placeBlock(
         Level level, BlockPos pos, Orientation orientation, BlockItem blockItem, ItemStack itemStack) {
         if (AnvilCraftFakePlayers.BLOCK_PLACER_BLACKLIST.contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString())) {
@@ -43,10 +39,8 @@ public interface IAnvilCraftBlockPlacer {
         // 获取fakePlayer的方向 与放置器的方向不太一样
         Orientation fakePlayerOrientation = orientation.flipHorizontalIfVertical();
         this.getPlayer().setYRot(fakePlayerOrientation.getYRotation());
-        /*
-         * net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
-         * 该字段一并设置，以使得部分方块的方向检测正确
-         */
+        // net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
+        // 该字段一并设置，以使得部分方块的方向检测正确
         this.getPlayer().setYHeadRot(fakePlayerOrientation.getYRotation());
         this.getPlayer().setXRot(fakePlayerOrientation.getXRotation());
         Vec3 clickClickLocation = this.getPosFromOrientation(orientation);

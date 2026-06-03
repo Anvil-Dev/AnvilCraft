@@ -17,11 +17,9 @@ public class SlotItemHandlerWithFilter extends ResourceHandlerSlot {
         super(handler, modifier, index, posX, posY);
     }
 
-    /**
-     * 判断槽位是否支持过滤
-     *
-     * @return 是否支持过滤
-     */
+    /// 判断槽位是否支持过滤
+    ///
+    /// @return 是否支持过滤
     public boolean isFilter() {
         return this.getResourceHandler() instanceof FilteredItemStackHandler;
     }
@@ -30,12 +28,10 @@ public class SlotItemHandlerWithFilter extends ResourceHandlerSlot {
         return true;
     }
 
-    /**
-     * 获取指定槽位上的过滤器要过滤的物品
-     *
-     * @param slotIndex 槽位的索引
-     * @return 如果指定槽位是过滤器，返回过滤器要过滤的物品，否则返回空物品
-     */
+    /// 获取指定槽位上的过滤器要过滤的物品
+    ///
+    /// @param slotIndex 槽位的索引
+    /// @return 如果指定槽位是过滤器，返回过滤器要过滤的物品，否则返回空物品
     public ItemStack getFilterItem(int slotIndex) {
         if (this.getResourceHandler() instanceof FilteredItemStackHandler filtered) {
             return filtered.getFilter(slotIndex);
@@ -43,12 +39,10 @@ public class SlotItemHandlerWithFilter extends ResourceHandlerSlot {
         return ItemStack.EMPTY;
     }
 
-    /**
-     * 判断指定槽位是否被禁用
-     *
-     * @param slot 槽位
-     * @return 指定槽位是否被禁用
-     */
+    /// 判断指定槽位是否被禁用
+    ///
+    /// @param slot 槽位
+    /// @return 指定槽位是否被禁用
     public boolean isSlotDisabled(int slot) {
         if (this.getResourceHandler() instanceof FilteredItemStackHandler filtered) {
             return filtered.isSlotDisabled(slot);

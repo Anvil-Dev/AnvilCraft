@@ -35,16 +35,14 @@ public class SliderWidget extends AbstractWidget {
     private boolean scroll = false;
     public static boolean scrolling = false;
 
-    /**
-     * 构建一个Slider
-     *
-     * @param x        X
-     * @param y        Y
-     * @param min      最小值
-     * @param max      最大值
-     * @param length   长度
-     * @param callback 更新回调
-     */
+    /// 构建一个Slider
+    ///
+    /// @param x        X
+    /// @param y        Y
+    /// @param min      最小值
+    /// @param max      最大值
+    /// @param length   长度
+    /// @param callback 更新回调
     public SliderWidget(
         int x,
         int y,
@@ -119,16 +117,14 @@ public class SliderWidget extends AbstractWidget {
         return (int) Math.pow(2, Math.floor(Math.log(Math.abs(value)) / Math.log(2)) - 2);
     }
 
-    /**
-     * 设置 Value 并更新
-     */
+    /// 设置 Value 并更新
     public void setValueWithUpdate(int value) {
         this.setValue(value);
         this.update();
     }
 
     private void update() {
-        if (this.callback != null) this.callback.onValueChange(this.getValue());
+        this.callback.onValueChange(this.getValue());
     }
 
     @Override

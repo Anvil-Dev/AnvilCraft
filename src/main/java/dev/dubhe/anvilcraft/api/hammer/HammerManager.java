@@ -16,12 +16,10 @@ public class HammerManager {
         HammerManager.INIT_CHANGE.put(block, changeable);
     }
 
-    /**
-     * 获取方块修改方法实现
-     *
-     * @param block 方块
-     * @return 方块修改方法实现
-     */
+    /// 获取方块修改方法实现
+    ///
+    /// @param block 方块
+    /// @return 方块修改方法实现
     public static IHammerChangeable getChange(Block block) {
         if (block instanceof IHammerChangeable changeable) return changeable;
         return HammerManager.CHANGE.getOrDefault(
@@ -31,9 +29,7 @@ public class HammerManager {
         );
     }
 
-    /**
-     * 注册铁砧锤处理器
-     */
+    /// 注册铁砧锤处理器
     public static void register() {
         for (Map.Entry<Supplier<Block>, IHammerChangeable> entry : INIT_CHANGE.entrySet()) {
             HammerManager.CHANGE.put(entry.getKey().get(), entry.getValue());

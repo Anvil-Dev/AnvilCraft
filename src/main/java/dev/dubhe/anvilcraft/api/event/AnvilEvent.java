@@ -29,14 +29,12 @@ public class AnvilEvent extends EntityEvent {
         @Setter
         private boolean isAnvilDamage = false;
 
-        /**
-         * 铁砧落地事件
-         *
-         * @param level        世界
-         * @param pos          位置
-         * @param entity       铁砧
-         * @param fallDistance 下落距离
-         */
+        /// 铁砧落地事件
+        ///
+        /// @param level        世界
+        /// @param pos          位置
+        /// @param entity       铁砧
+        /// @param fallDistance 下落距离
         public OnLand(ServerLevel level, BlockPos pos, FallingBlockEntity entity, double fallDistance) {
             super(entity);
             this.level = level;
@@ -54,14 +52,12 @@ public class AnvilEvent extends EntityEvent {
         @Setter
         private boolean isAnvilDamage = false;
 
-        /**
-         * 铁砧落地事件
-         *
-         * @param level  世界
-         * @param pos    位置
-         * @param entity 铁砧
-         * @param speed  撞击速度
-         */
+        /// 铁砧落地事件
+        ///
+        /// @param level  世界
+        /// @param pos    位置
+        /// @param entity 铁砧
+        /// @param speed  撞击速度
         public CollisionBlock(Level level, BlockPos pos, FallingBlockEntity entity, double speed) {
             super(entity);
             this.level = level;
@@ -80,14 +76,12 @@ public class AnvilEvent extends EntityEvent {
         @Setter
         private boolean isAnvilDamage = false;
 
-        /**
-         * 铁砧落地事件
-         *
-         * @param level        世界
-         * @param pos          位置
-         * @param entity       铁砧
-         * @param fallDistance 下落距离
-         */
+        /// 铁砧落地事件
+        ///
+        /// @param level        世界
+        /// @param pos          位置
+        /// @param entity       铁砧
+        /// @param fallDistance 下落距离
         public GiantOnLand(ServerLevel level, BlockPos pos, FallingGiantAnvilEntity entity, float fallDistance) {
             super(entity);
             this.level = level;
@@ -104,15 +98,13 @@ public class AnvilEvent extends EntityEvent {
         private final Entity hurtedEntity;
         private final float damage;
 
-        /**
-         * 铁砧伤害实体
-         *
-         * @param entity       铁砧
-         * @param pos          位置
-         * @param level        世界
-         * @param hurtedEntity 被伤害的实体
-         * @param damage       伤害
-         */
+        /// 铁砧伤害实体
+        ///
+        /// @param entity       铁砧
+        /// @param pos          位置
+        /// @param level        世界
+        /// @param hurtedEntity 被伤害的实体
+        /// @param damage       伤害
         public HurtEntity(
             FallingBlockEntity entity,
             BlockPos pos,

@@ -29,9 +29,7 @@ public class SilencerButton extends Button {
     private final ActiveSilencerScreen parent;
     private final int variant;
 
-    /**
-     * 主动静音器 screen 的按钮
-     */
+    /// 主动静音器 screen 的按钮
     public SilencerButton(
         int x,
         int y,

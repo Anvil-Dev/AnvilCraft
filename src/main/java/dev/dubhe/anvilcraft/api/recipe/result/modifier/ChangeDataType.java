@@ -15,9 +15,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
-/**
- * 复制指定输入物品的数据，并将其粘贴到另一个数据组件类型下。
- */
+/// 复制指定输入物品的数据，并将其粘贴到另一个数据组件类型下。
 public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig, ICustomDataComponent<T> dest) implements IResultModifier {
     public static final MapCodec<ChangeDataType<?>> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Identifier.CODEC

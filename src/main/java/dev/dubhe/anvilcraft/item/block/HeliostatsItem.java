@@ -35,16 +35,12 @@ public class HeliostatsItem extends BlockItem {
         super(block, properties);
     }
 
-    /**
-     * 磁盘中是否存储有数据
-     */
+    /// 磁盘中是否存储有数据
     public static boolean hasDataStored(ItemStack stack) {
         return stack.has(ModComponents.HELIOSTATS_DATA);
     }
 
-    /**
-     * 获取存储的数据
-     */
+    /// 获取存储的数据
     @SuppressWarnings("DataFlowIssue")
     public static BlockPos getData(ItemStack stack) {
         HeliostatsData heliostatsData = stack.get(ModComponents.HELIOSTATS_DATA);

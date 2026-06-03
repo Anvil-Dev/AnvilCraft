@@ -27,15 +27,13 @@ import java.util.function.Supplier;
 @Slf4j
 public abstract class HasMobBlockEntity extends BlockEntity {
     private @Nullable SavedEntity entity = null;
-    private Entity displayEntity = null;
+    private @Nullable Entity displayEntity = null;
 
     protected HasMobBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
-    /**
-     * 设置实体
-     */
+    /// 设置实体
     public void setEntity(@Nullable Entity entity) {
         if (entity == null) return;
         this.entity = SavedEntity.fromEntity(entity);

@@ -61,14 +61,12 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
         this(ModMenuTypes.FROST_GRINDSTONE.get(), containerId, playerInventory, access);
     }
 
-    /**
-     * 浮霜砂轮菜单
-     *
-     * @param type            菜单类型
-     * @param containerId     容器id
-     * @param playerInventory 背包
-     * @param access          检查
-     */
+    /// 浮霜砂轮菜单
+    ///
+    /// @param type            菜单类型
+    /// @param containerId     容器id
+    /// @param playerInventory 背包
+    /// @param access          检查
     public FrostGrindstoneMenu(
         MenuType<FrostGrindstoneMenu> type,
         int containerId,
@@ -117,18 +115,14 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
                 FrostGrindstoneMenu.this.result.setItem(0, ItemStack.EMPTY);
             }
 
-            /**
-             * Returns the total amount of XP stored in all the input slots of this container.
-             * The return value is randomized, so that it returns between 100% and 200% of the total XP.
-             */
+            /// Returns the total amount of XP stored in all the input slots of this container.
+            /// The return value is randomized, so that it returns between 100% and 200% of the total XP.
             private int getExperienceAmount(Level level) {
                 int xp = this.getExperience();
                 return xp > 0 ? xp + level.getRandom().nextInt(xp) : 0;
             }
 
-            /**
-             * Returns the total amount of XP stored in the enchantments of this stack.
-             */
+            /// Returns the total amount of XP stored in the enchantments of this stack.
             private int getExperience() {
                 int xp = 0;
                 for (int selected : FrostGrindstoneMenu.this.selectedIndexes) {
@@ -273,11 +267,9 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
         return stillValid(this.access, player, ModBlocks.FROST_GRINDSTONE.get());
     }
 
-    /**
-     * 移除
-     *
-     * @param player 玩家
-     */
+    /// 移除
+    ///
+    /// @param player 玩家
     public void removed(Player player) {
         super.removed(player);
         this.access.execute((_, _) -> this.clearContainer(player, this.input));

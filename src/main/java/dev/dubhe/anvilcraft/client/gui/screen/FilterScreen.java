@@ -101,6 +101,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             BACKGROUND,

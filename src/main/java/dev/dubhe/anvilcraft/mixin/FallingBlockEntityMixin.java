@@ -83,10 +83,8 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         return instance.relative(Direction.getApproximateNearest(netGravityVector.x, netGravityVector.y, netGravityVector.z));
     }
 
-    /**
-     * 拦截原版的 onGround() 检查，接管实体是否应该变成方块的逻辑。
-     * 主逻辑 ↓
-     */
+    /// 拦截原版的 onGround() 检查，接管实体是否应该变成方块的逻辑。
+    /// 主逻辑 ↓
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @WrapOperation(
         method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;onGround()Z")
@@ -162,9 +160,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         return true;
     }
 
-    /**
-     * 辅助方法：检查某方向是否发生了碰撞
-     */
+    /// 辅助方法：检查某方向是否发生了碰撞
     @Unique
     private boolean anvilcraft$checkCollision(FallingBlockEntity entity, Direction gravityDir, Operation<Boolean> original) {
         if (gravityDir == Direction.DOWN) {
@@ -176,9 +172,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         }
     }
 
-    /**
-     * 辅助方法：计算切向力与摩擦力，判断是否能稳住
-     */
+    /// 辅助方法：计算切向力与摩擦力，判断是否能稳住
     @Unique
     private boolean anvilcraft$isHeldByFriction(Vec3 gravity, Direction gravityDir, float friction) {
         double totalGravitySq = gravity.lengthSqr();
@@ -191,9 +185,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         return tangentialForce < normalForce * grip * 2.0;
     }
 
-    /**
-     * 辅助方法：检查三个轴向上是否存在可以滑行的空位
-     */
+    /// 辅助方法：检查三个轴向上是否存在可以滑行的空位
     @Unique
     private boolean anvilcraft$hasSlidingPath(Level level, BlockPos currentPos, Vec3 gravity, Direction primaryDir) {
         if (this.anvilcraft$checkAxisSlide(level, currentPos, gravity.x, Direction.EAST, Direction.WEST, primaryDir)) return true;
@@ -201,9 +193,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         return this.anvilcraft$checkAxisSlide(level, currentPos, gravity.z, Direction.SOUTH, Direction.NORTH, primaryDir);
     }
 
-    /**
-     * 单轴滑行检查
-     */
+    /// 单轴滑行检查
     @Unique
     private boolean anvilcraft$checkAxisSlide(
         Level level, BlockPos pos, double component, Direction posDir, Direction negDir, Direction forbiddenDir
@@ -214,11 +204,9 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         return FallingBlock.isFree(level.getBlockState(pos.relative(targetDir)));
     }
 
-    /**
-     * 辅助方法：预测变成方块后的稳定性
-     *
-     * @return true 表示稳定（可以着陆），false 表示不稳定（应该保持实体）
-     */
+    /// 辅助方法：预测变成方块后的稳定性
+    ///
+    /// @return true 表示稳定（可以着陆），false 表示不稳定（应该保持实体）
     @Unique
     private boolean anvilcraft$predictStability(FallingBlockEntity instance, BlockPos pos) {
         // 如果在方块里直接稳定
@@ -245,9 +233,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         return heldByFriction || !this.anvilcraft$hasSlidingPath(instance.level(), pos, blockGravity, dir);
     }
 
-    /**
-     * 辅助方法：碎裂掉落逻辑
-     */
+    /// 辅助方法：碎裂掉落逻辑
     @Unique
     private void anvilcraft$breakEntity(FallingBlockEntity instance) {
         if (this.level() instanceof ServerLevel serverLevel && this.dropItem && serverLevel.getGameRules().get(GameRules.ENTITY_DROPS)) {

@@ -14,11 +14,9 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.List;
 
-/**
- * 复制并合并指定输入物品的数据。
- *
- * @param types 包含指定的输入物品和将要复制的数据组件类型的自定义数据组件。
- */
+/// 复制并合并指定输入物品的数据。
+///
+/// @param types 包含指定的输入物品和将要复制的数据组件类型的自定义数据组件。
 public record MergeData(List<ICustomDataComponent<?>> types) implements IResultModifier {
     public static final MapCodec<MergeData> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         ICustomDataComponent.CODEC.listOf()

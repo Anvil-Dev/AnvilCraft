@@ -23,9 +23,7 @@ public class ActiveSilencerMenu extends AbstractContainerMenu {
 
     private final Level level;
 
-    /**
-     * 主动消音器的ScreenHandler
-     */
+    /// 主动消音器的ScreenHandler
     public ActiveSilencerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);

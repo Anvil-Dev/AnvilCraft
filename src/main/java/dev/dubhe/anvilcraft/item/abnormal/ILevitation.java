@@ -3,9 +3,7 @@ package dev.dubhe.anvilcraft.item.abnormal;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
-/**
- * 飘浮物品
- */
+/// 飘浮物品
 public interface ILevitation extends IAbnormal {
     @Override
     default void addEffect(Player player) {

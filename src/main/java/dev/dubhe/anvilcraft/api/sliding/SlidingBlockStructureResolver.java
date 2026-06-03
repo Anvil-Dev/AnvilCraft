@@ -11,9 +11,7 @@ import net.minecraft.world.level.material.PushReaction;
 
 import java.util.List;
 
-/**
- * No-pistonPos-Check PistonStructureResolver
- */
+/// No-pistonPos-Check PistonStructureResolver
 public class SlidingBlockStructureResolver {
     public static int MAX_PUSH_DEPTH = 12;
     private final Level level;
@@ -21,14 +19,10 @@ public class SlidingBlockStructureResolver {
     private final BlockPos startPos;
     @Getter
     private final Direction pushDirection;
-    /**
-     * All block positions to be moved by the piston
-     */
+    /// All block positions to be moved by the piston
     @Getter
     private final List<BlockPos> toPush = Lists.newArrayList();
-    /**
-     * All blocks to be destroyed by the piston
-     */
+    /// All blocks to be destroyed by the piston
     @Getter
     private final List<BlockPos> toDestroy = Lists.newArrayList();
     private final Direction pistonDirection;
@@ -45,6 +39,7 @@ public class SlidingBlockStructureResolver {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean resolve() {
         this.toPush.clear();
         this.toDestroy.clear();

@@ -30,46 +30,40 @@ import java.util.Optional;
 public interface ISlidingRail extends IBlockExtension {
     Map<BlockPos, PistonPushInfo> MOVING_PISTON_MAP = new HashMap<>();
 
-    /**
-     * 当滑动方块经过时每tick调用该方法。
-     *
-     * @param level  滑轨所处的世界
-     * @param pos    滑轨方块位置
-     * @param state  滑轨方块状态
-     * @param entity 滑动方块实体
-     */
+    /// 当滑动方块经过时每tick调用该方法。
+    ///
+    /// @param level  滑轨所处的世界
+    /// @param pos    滑轨方块位置
+    /// @param state  滑轨方块状态
+    /// @param entity 滑动方块实体
     void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity);
 
     Block self();
 
-    /**
-     * 当滑轨站尝试移动顶部方块到该滑轨顶部时调用该方法。<br>
-     * 将在{@link Block#neighborChanged(BlockState, Level, BlockPos, Block, BlockPos, boolean) neighbourChanged()}调用。
-     *
-     * @param level 滑轨站所处的世界
-     * @param pos   滑轨方块位置
-     * @param state 滑轨方块状态
-     * @param top   滑轨站顶部的方块状态
-     * @param side  滑轨站相对于滑轨的方向
-     *
-     * @return 将要滑动的方向。若为空，则不滑动。
-     */
+    /// 当滑轨站尝试移动顶部方块到该滑轨顶部时调用该方法。<br>
+    /// 将在{@link Block#neighborChanged(BlockState, Level, BlockPos, Block, BlockPos, boolean) neighbourChanged()}调用。
+    ///
+    /// @param level 滑轨站所处的世界
+    /// @param pos   滑轨方块位置
+    /// @param state 滑轨方块状态
+    /// @param top   滑轨站顶部的方块状态
+    /// @param side  滑轨站相对于滑轨的方向
+    ///
+    /// @return 将要滑动的方向。若为空，则不滑动。
     @SuppressWarnings("JavadocReference")
     default boolean canMoveBlockToTop(LevelReader level, BlockPos pos, BlockState state, BlockState top, Direction side) {
         return false;
     }
 
-    /**
-     * 当滑轨站尝试移动顶部滑动方块到该滑轨顶部时调用该方法。<br>
-     * 将在{@link ISlidingRail#onSlidingAbove(Level, BlockPos, BlockState, SlidingBlockEntity) onSlidingAbove()}调用。
-     *
-     * @param level 滑轨站所处的世界
-     * @param pos   滑轨方块位置
-     * @param state 滑轨方块状态
-     * @param side  滑轨站相对于滑轨的方向
-     *
-     * @return 将要滑动的方向。若为空，则不滑动。
-     */
+    /// 当滑轨站尝试移动顶部滑动方块到该滑轨顶部时调用该方法。<br>
+    /// 将在{@link ISlidingRail#onSlidingAbove(Level, BlockPos, BlockState, SlidingBlockEntity) onSlidingAbove()}调用。
+    ///
+    /// @param level 滑轨站所处的世界
+    /// @param pos   滑轨方块位置
+    /// @param state 滑轨方块状态
+    /// @param side  滑轨站相对于滑轨的方向
+    ///
+    /// @return 将要滑动的方向。若为空，则不滑动。
     default boolean canMoveSlidingToTop(LevelReader level, BlockPos pos, BlockState state, Direction side) {
         return false;
     }

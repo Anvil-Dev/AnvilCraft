@@ -8,9 +8,7 @@ import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 public class EnergyHelper {
-    /**
-     * 塞能量
-     */
+    /// 塞能量
     public static void insertEnergy(Level level, BlockPos pos, Direction direction, int amount) {
         EnergyHandler energyStorage = level.getCapability(Capabilities.Energy.BLOCK, pos, direction);
         if (energyStorage == null) return;

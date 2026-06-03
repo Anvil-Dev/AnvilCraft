@@ -58,15 +58,13 @@ public class InspectionSupport {
         });
     }
 
-    /**
-     * 注册检查项
-     *
-     * <p>检查项需同时在 {@link ModInspections} 和 {@link InspectionSupport} 中注册</p>
-     *
-     * <p>对于 {@link ModInspections}，使用 {@link ModInspections#registerActionServer(Identifier)} 注册检查项</p>
-     *
-     * @see ModInspections
-     */
+    /// 注册检查项
+    ///
+    /// <p>检查项需同时在 {@link ModInspections} 和 {@link InspectionSupport} 中注册</p>
+    ///
+    /// <p>对于 {@link ModInspections}，使用 {@link ModInspections#registerActionServer(Identifier)} 注册检查项</p>
+    ///
+    /// @see ModInspections
     public void registerActionClient(Identifier id, InspectionAction action) {
         synchronized (this.inspectionActionMap) {
             if (this.inspectionActionMap.containsKey(id)) {
@@ -102,9 +100,7 @@ public class InspectionSupport {
 
     @FunctionalInterface
     public interface InspectionAction {
-        /**
-         * 当检查项启用时 将调用此方法渲染
-         */
+        /// 当检查项启用时 将调用此方法渲染
         void onRenderInspection(
             PoseStack poseStack,
             SubmitNodeCollector renderer,

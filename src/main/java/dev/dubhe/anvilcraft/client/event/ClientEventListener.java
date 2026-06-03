@@ -50,7 +50,6 @@ public class ClientEventListener {
         BlockHighlightUtil.render(
             level,
             event.getSubmitNodeCollector(),
-            Minecraft.getInstance().renderBuffers().bufferSource(),
             event.getPoseStack(),
             event.getLevelRenderState().cameraRenderState
         );

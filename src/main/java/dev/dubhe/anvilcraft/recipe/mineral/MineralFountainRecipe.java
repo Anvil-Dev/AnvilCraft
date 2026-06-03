@@ -25,6 +25,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import org.jspecify.annotations.Nullable;
 
 public record MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePredicate fromBlock, ChanceBlockState toBlock) implements
     Recipe<MineralFountainRecipe.Input> {
@@ -127,9 +128,9 @@ public record MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePre
     @Setter
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<MineralFountainRecipe> {
-        private BlockStatePredicate needBlock;
-        private BlockStatePredicate fromBlock;
-        private ChanceBlockState toBlock;
+        private @Nullable BlockStatePredicate needBlock;
+        private @Nullable BlockStatePredicate fromBlock;
+        private @Nullable ChanceBlockState toBlock;
 
         public Builder needBlock(Block needBlock) {
             this.needBlock = BlockStatePredicate.builder().of(needBlock).build();
@@ -151,25 +152,21 @@ public record MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePre
             return this;
         }
 
-        /**
-         * 添加结果方块
-         *
-         * @param result 结果方块
-         *
-         * @return 构建器实例
-         */
+        /// 添加结果方块
+        ///
+        /// @param result 结果方块
+        ///
+        /// @return 构建器实例
         public Builder toBlock(ChanceBlockState result) {
             this.toBlock = result;
             return this;
         }
 
-        /**
-         * 添加结果方块（默认概率为1.0F）
-         *
-         * @param result 结果方块
-         *
-         * @return 构建器实例
-         */
+        /// 添加结果方块（默认概率为1.0F）
+        ///
+        /// @param result 结果方块
+        ///
+        /// @return 构建器实例
         public Builder toBlock(Block result) {
             return this.toBlock(new ChanceBlockState(result.defaultBlockState(), 1.0F));
         }

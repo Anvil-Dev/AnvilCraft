@@ -30,9 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
-    /**
-     * 储存的能量 单位：kJ
-     */
+    /// 储存的能量 单位：kJ
     @Getter
     private int storedEnergy = 0;
     private int delay = 0;

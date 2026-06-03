@@ -14,13 +14,11 @@ public class LevelLoadManager {
     private static final Deque<Runnable> lazyCalls = new ArrayDeque<>();
     private static boolean serverStarted = false;
 
-    /**
-     * 注册区块区域
-     *
-     * @param centerPos     中心坐标
-     * @param loadChuckData 区块区域数据
-     * @param level         世界
-     */
+    /// 注册区块区域
+    ///
+    /// @param centerPos     中心坐标
+    /// @param loadChuckData 区块区域数据
+    /// @param level         世界
     public static void register(BlockPos centerPos, LoadChuckData loadChuckData, ServerLevel level) {
         if (LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
         LEVEL_LOAD_CHUCK_AREA_MAP.put(centerPos, loadChuckData);
@@ -46,12 +44,10 @@ public class LevelLoadManager {
         }
     }
 
-    /**
-     * 取消注册
-     *
-     * @param centerPos 中心坐标
-     * @param level     世界
-     */
+    /// 取消注册
+    ///
+    /// @param centerPos 中心坐标
+    /// @param level     世界
     public static void unregister(BlockPos centerPos, Level level) {
         if (!LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
         LEVEL_LOAD_CHUCK_AREA_MAP.get(centerPos).markRemoved();

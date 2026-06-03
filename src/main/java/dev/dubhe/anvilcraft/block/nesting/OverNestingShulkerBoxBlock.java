@@ -159,9 +159,7 @@ public class OverNestingShulkerBoxBlock extends BetterBlock implements EntityBlo
         return true;
     }
 
-    /**
-     * Returns the analog signal this block emits. This is the signal a comparator can read from it.
-     */
+    /// Returns the analog signal this block emits. This is the signal a comparator can read from it.
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         if (!(level.getBlockEntity(pos) instanceof OverNestingShulkerBoxBlockEntity be)) return 0;

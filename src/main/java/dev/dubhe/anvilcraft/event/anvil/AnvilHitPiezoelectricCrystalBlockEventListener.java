@@ -12,12 +12,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilHitPiezoelectricCrystalBlockEventListener {
-    /**
-     * 侦听铁砧落地事件
-     * 用于检测压电晶体
-     *
-     * @param event 铁砧落地事件
-     */
+    /// 侦听铁砧落地事件
+    /// 用于检测压电晶体
+    ///
+    /// @param event 铁砧落地事件
     @SubscribeEvent
     public static void onLand(AnvilEvent.OnLand event) {
         BlockPos anvilPos = event.getPos();
@@ -29,12 +27,10 @@ public class AnvilHitPiezoelectricCrystalBlockEventListener {
         }
     }
 
-    /**
-     * 侦听大铁砧落地事件
-     * 用于检测大铁砧底下3*3的范围内有没有压电晶体
-     *
-     * @param event 大铁砧落地事件
-     */
+    /// 侦听大铁砧落地事件
+    /// 用于检测大铁砧底下3*3的范围内有没有压电晶体
+    ///
+    /// @param event 大铁砧落地事件
     @SubscribeEvent
     public static void onLand(AnvilEvent.GiantOnLand event) {
         Level level = event.getLevel();

@@ -30,6 +30,7 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,18 +69,16 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     private final CyclingSlotBackground materialIcon = new CyclingSlotBackground(1);
     private final CyclingSlotBackground inputIcon = new CyclingSlotBackground(2);
 
-    private TexturedButton left;
-    private TexturedButton right;
+    private @Nullable TexturedButton left;
+    private @Nullable TexturedButton right;
 
     private final ArmorStandRenderState armorStandPreview = new ArmorStandRenderState();
 
-    /**
-     * 皇家锻造台 GUI
-     *
-     * @param menu            菜单
-     * @param playerInventory 背包
-     * @param title           标题
-     */
+    /// 皇家锻造台 GUI
+    ///
+    /// @param menu            菜单
+    /// @param playerInventory 背包
+    /// @param title           标题
     public FrostSmithingScreen(FrostSmithingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, BACKGROUND);
     }

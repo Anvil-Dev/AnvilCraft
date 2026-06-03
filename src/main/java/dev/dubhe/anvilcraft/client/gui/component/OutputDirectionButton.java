@@ -26,12 +26,10 @@ public class OutputDirectionButton extends Button {
         this.direction = direction;
     }
 
-    /**
-     * 跳过某个方向
-     *
-     * @param direction 方向
-     * @return 方向按钮
-     */
+    /// 跳过某个方向
+    ///
+    /// @param direction 方向
+    /// @return 方向按钮
     @SuppressWarnings("UnusedReturnValue")
     public OutputDirectionButton skip(Direction direction) {
         this.skip.add(direction);
@@ -59,11 +57,9 @@ public class OutputDirectionButton extends Button {
         this.renderTexture(graphics, location, this.getX(), this.getY(), 0, 0, 16, this.width, this.height, 16, 32);
     }
 
-    /**
-     * 设置方向
-     *
-     * @param direction 方向
-     */
+    /// 设置方向
+    ///
+    /// @param direction 方向
     public void setDirection(Direction direction) {
         this.direction = direction;
         this.setMessage(Component.translatable(
@@ -95,12 +91,10 @@ public class OutputDirectionButton extends Button {
         return this.next(this.direction);
     }
 
-    /**
-     * 下一个方向
-     *
-     * @param direction 方向
-     * @return 方向
-     */
+    /// 下一个方向
+    ///
+    /// @param direction 方向
+    /// @return 方向
     public Direction next(Direction direction) {
         Direction direction1 = switch (direction) {
             case UP -> Direction.DOWN;

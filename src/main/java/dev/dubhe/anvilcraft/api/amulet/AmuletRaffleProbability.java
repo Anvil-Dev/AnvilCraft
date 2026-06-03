@@ -11,11 +11,9 @@ import net.minecraft.core.Holder;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * 存储了玩家目前护符抽取的额外概率
- *
- * @param map 存储概率，键为类型，值为该类型目前的概率
- */
+/// 存储了玩家目前护符抽取的额外概率
+///
+/// @param map 存储概率，键为类型，值为该类型目前的概率
 public record AmuletRaffleProbability(Object2IntMap<Holder<IAmuletDefinition>> map) {
     public static final AmuletRaffleProbability EMPTY = new AmuletRaffleProbability(new Object2IntOpenHashMap<>());
     public static final MapCodec<AmuletRaffleProbability> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(

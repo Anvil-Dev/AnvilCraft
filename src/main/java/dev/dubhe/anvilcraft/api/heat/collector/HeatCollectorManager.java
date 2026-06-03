@@ -65,9 +65,7 @@ public class HeatCollectorManager {
     private final Level level;
     private final Set<BlockPos> heatCollectors = Collections.synchronizedSet(new HashSet<>());
 
-    /**
-     * 获取当前维度的HeatCollectorManager
-     */
+    /// 获取当前维度的HeatCollectorManager
     public static HeatCollectorManager getInstance(Level level) {
         synchronized (INSTANCES) {
             if (INSTANCES.get(level) == null) {
@@ -185,9 +183,7 @@ public class HeatCollectorManager {
         }
     }
 
-    /**
-     * 获取集热器的List集合(以从西北到东南排序)
-     */
+    /// 获取集热器的List集合(以从西北到东南排序)
     private List<HeatCollectorBlockEntity> getCollectorsFromNWToSE() {
         List<HeatCollectorBlockEntity> collectors = new ArrayList<>();
         for (Iterator<BlockPos> iterator = this.heatCollectors.iterator(); iterator.hasNext(); ) {

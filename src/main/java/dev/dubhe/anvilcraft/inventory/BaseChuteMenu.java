@@ -29,14 +29,12 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
         this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
     }
 
-    /**
-     * 溜槽菜单
-     *
-     * @param menuType    菜单类型
-     * @param containerId 容器id
-     * @param inventory   背包
-     * @param blockEntity 方块实体
-     */
+    /// 溜槽菜单
+    ///
+    /// @param menuType    菜单类型
+    /// @param containerId 容器id
+    /// @param inventory   背包
+    /// @param blockEntity 方块实体
     @SuppressWarnings("unchecked")
     public BaseChuteMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(menuType, containerId, blockEntity);

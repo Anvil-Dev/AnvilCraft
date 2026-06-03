@@ -45,12 +45,10 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
         return pos.subtract(this.getOffset(state)).offset(this.getMainPartOffset());
     }
 
-    /**
-     * 获取多方块战利品表
-     *
-     * @param provider 提供器
-     * @param block    方块
-     */
+    /// 获取多方块战利品表
+    ///
+    /// @param provider 提供器
+    /// @param block    方块
     public static <T extends Enum<T> & ISimpleMultiPartBlockState<T>> void loot(
         BlockLootSubProvider provider, SimpleMultiPartBlock<T> block
     ) {
@@ -75,9 +73,7 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
         return super.getStateForPlacement(context);
     }
 
-    /**
-     * 是否有足够的空间放下方块
-     */
+    /// 是否有足够的空间放下方块
     public boolean hasEnoughSpace(BlockPos pos, LevelReader level) {
         for (P part : getParts()) {
             BlockPos pos1 = pos.offset(part.getOffset());

@@ -11,17 +11,13 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-/**
- * 格式化工具
- */
+/// 格式化工具
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FormattingUtil {
-    /**
-     * 与 .to(LOWER_UNDERSCORE, string) 几乎相同，但它也会在单词和数字之间插入下划线。
-     *
-     * @param string 任何带有 ASCII 字符的字符串。
-     * @return 全小写的字符串，在单词/数字边界前插入下划线：“maragingSteel300” -> “maraging_steel_300”
-     */
+    /// 与 .to(LOWER_UNDERSCORE, string) 几乎相同，但它也会在单词和数字之间插入下划线。
+    ///
+    /// @param string 任何带有 ASCII 字符的字符串。
+    /// @return 全小写的字符串，在单词/数字边界前插入下划线：“maragingSteel300” -> “maraging_steel_300”
     public static String toLowerCaseUnderscore(String string) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < string.length(); i++) {
@@ -37,42 +33,36 @@ public class FormattingUtil {
         return result.toString();
     }
 
-    /**
-     * 与 .to(LOWER_UNDERSCORE, string) 几乎相同，但它也会在单词和数字之间插入下划线。
-     *
-     * @param string 任何带有 ASCII 字符的字符串。
-     * @return 全小写的字符串，在单词/数字边界前插入下划线：“maragingSteel300” -> “maraging_steel_300”
-     */
+    /// 与 .to(LOWER_UNDERSCORE, string) 几乎相同，但它也会在单词和数字之间插入下划线。
+    ///
+    /// @param string 任何带有 ASCII 字符的字符串。
+    /// @return 全小写的字符串，在单词/数字边界前插入下划线：“maragingSteel300” -> “maraging_steel_300”
     public static String toLowerCaseUnder(String string) {
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, string);
     }
 
-    /**
-     * apple_orange.juice => Apple Orange (Juice)
-     */
+    /// apple_orange.juice => Apple Orange (Juice)
     public static String toEnglishName(Object internalName) {
         return Arrays.stream(internalName.toString().toLowerCase(Locale.ROOT).split("_"))
             .map(StringUtils::capitalize)
             .collect(Collectors.joining(" "));
     }
 
-    /**
-     * 对应表：
-     * <table>
-     *     <tr><th>tick数</th><th>阈值</th><th>显示效果</th></tr>
-     *     <tr><td>30gt</td><td>1</td><td>1"50</td></tr>
-     *     <tr><td>30gt</td><td>5</td><td>30gt</td></tr>
-     *     <tr><td>100gt</td><td>5</td><td>5"</td></tr>
-     *     <tr><td>150gt</td><td>5</td><td>7"50</td></tr>
-     *     <tr><td>1200gt</td><td>5</td><td>1'</td></tr>
-     *     <tr><td>1220gt</td><td>5</td><td>1'01</td></tr>
-     *     <tr><td>1635gt</td><td>5</td><td>1'21"75</td></tr>
-     * </table>
-     *
-     * @param total          总tick数
-     * @param thresholdInSec 切换显示格式的阈值（秒），小于该值时显示gt格式，否则显示分秒格式
-     * @return 格式化后的时间字符串
-     */
+    /// 对应表：
+    /// <table>
+    ///     <tr><th>tick数</th><th>阈值</th><th>显示效果</th></tr>
+    ///     <tr><td>30gt</td><td>1</td><td>1"50</td></tr>
+    ///     <tr><td>30gt</td><td>5</td><td>30gt</td></tr>
+    ///     <tr><td>100gt</td><td>5</td><td>5"</td></tr>
+    ///     <tr><td>150gt</td><td>5</td><td>7"50</td></tr>
+    ///     <tr><td>1200gt</td><td>5</td><td>1'</td></tr>
+    ///     <tr><td>1220gt</td><td>5</td><td>1'01</td></tr>
+    ///     <tr><td>1635gt</td><td>5</td><td>1'21"75</td></tr>
+    /// </table>
+    ///
+    /// @param total          总tick数
+    /// @param thresholdInSec 切换显示格式的阈值（秒），小于该值时显示gt格式，否则显示分秒格式
+    /// @return 格式化后的时间字符串
     public static String toFormattedTime(int total, int thresholdInSec) {
         int thresholdTicks = thresholdInSec * 20;
 
@@ -108,12 +98,10 @@ public class FormattingUtil {
         return result.toString();
     }
 
-    /**
-     * 根据进度生成一个给定长度的进度条
-     *
-     * @param progress 进度，0-1
-     * @return 进度条文本
-     */
+    /// 根据进度生成一个给定长度的进度条
+    ///
+    /// @param progress 进度，0-1
+    /// @return 进度条文本
     public static Component toShadeProgress(double progress, int length, ChatFormatting... format) {
         double eachShade = 1.0 / length;
         double alreadyUsed = 0;

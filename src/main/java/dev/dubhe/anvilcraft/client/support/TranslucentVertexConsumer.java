@@ -2,12 +2,10 @@ package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-/**
- * 透明顶点消费者
- *
- * @param delegate 原始顶点消费者（委托对象）
- * @param alpha    目标半透明度（0-255，50% 对应 128）
- */
+/// 透明顶点消费者
+///
+/// @param delegate 原始顶点消费者（委托对象）
+/// @param alpha    目标半透明度（0-255，50% 对应 128）
 public record TranslucentVertexConsumer(VertexConsumer delegate, int alpha) implements VertexConsumer {
     @Override
     public VertexConsumer addVertex(float v, float v1, float v2) {

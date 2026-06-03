@@ -169,30 +169,24 @@ public class OverLimitItemContainerContents implements TooltipProvider {
         return this.items.hashCode();
     }
 
-    /**
-     * Neo:
-     * {@return the number of slots in this container}
-     */
+    /// Neo:
+    /// {@return the number of slots in this container}
     public int getSlots() {
         return this.items.size();
     }
 
-    /**
-     * Neo: Gets a copy of the stack at a particular slot.
-     *
-     * @param slot The slot to check. Must be within [0, {@link #getSlots()}]
-     *
-     * @return A copy of the stack in that slot
-     * @throws UnsupportedOperationException if the provided slot index is out-of-bounds.
-     */
+    /// Neo: Gets a copy of the stack at a particular slot.
+    ///
+    /// @param slot The slot to check. Must be within [0, {@link #getSlots()}]
+    ///
+    /// @return A copy of the stack in that slot
+    /// @throws UnsupportedOperationException if the provided slot index is out-of-bounds.
     public UnlimitedItemStack getStackInSlot(int slot) {
         this.validateSlotIndex(slot);
         return this.items.get(slot).copy();
     }
 
-    /**
-     * Neo: Throws {@link UnsupportedOperationException} if the provided slot index is invalid.
-     */
+    /// Neo: Throws {@link UnsupportedOperationException} if the provided slot index is invalid.
     private void validateSlotIndex(int slot) {
         if (slot >= 0 && slot < this.getSlots()) return;
         throw new UnsupportedOperationException("Slot " + slot + " not in valid range - [0," + this.getSlots() + ")");

@@ -49,9 +49,7 @@ public class MineralFountainBlockEntity extends BlockEntity {
         output.putInt("tickCount", this.tickCount);
     }
 
-    /**
-     * 矿物涌泉tick
-     */
+    /// 矿物涌泉tick
     public void tick() {
         if (this.level == null) return;
         if (this.tickCount > -1) this.tickCount--;

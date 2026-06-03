@@ -31,11 +31,9 @@ public interface IUuidProvider extends Supplier<UUID> {
         return this.canGet() ? Optional.of(this.get()) : Optional.empty();
     }
 
-    /**
-     * 获取该UUID提供器的类型。
-     *
-     * @return 该UUID提供器的类型
-     */
+    /// 获取该UUID提供器的类型。
+    ///
+    /// @return 该UUID提供器的类型
     IUuidProvider.Type<? extends IUuidProvider> getType();
 
     interface Type<T extends IUuidProvider> extends ISerializer<T> {

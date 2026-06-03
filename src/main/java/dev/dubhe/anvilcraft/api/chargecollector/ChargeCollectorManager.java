@@ -25,9 +25,7 @@ public class ChargeCollectorManager {
         this.level = level;
     }
 
-    /**
-     * 获取当前维度的ChargeCollectorManager
-     */
+    /// 获取当前维度的ChargeCollectorManager
     public static ChargeCollectorManager getInstance(Level level) {
         if (!INSTANCES.containsKey(level)) {
             INSTANCES.put(level, new ChargeCollectorManager(level));
@@ -35,24 +33,20 @@ public class ChargeCollectorManager {
         return INSTANCES.get(level);
     }
 
-    /**
-     * 充电
-     *
-     * @param chargeNum 充电量
-     * @param level     维度
-     * @param blockPos  充电的位置
-     */
+    /// 充电
+    ///
+    /// @param chargeNum 充电量
+    /// @param level     维度
+    /// @param blockPos  充电的位置
     public static void charge(double chargeNum, Level level, BlockPos blockPos) {
         ChargeCollectorManager instance = ChargeCollectorManager.getInstance(level);
         instance.charge(chargeNum, blockPos);
     }
 
-    /**
-     * 充电
-     *
-     * @param chargeNum 充电量
-     * @param blockPos  充电的位置
-     */
+    /// 充电
+    ///
+    /// @param chargeNum 充电量
+    /// @param blockPos  充电的位置
     public void charge(double chargeNum, BlockPos blockPos) {
         Collection<Entry> chargeCollectorCollection = this.getNearestChargeCollect(blockPos);
         double surplus = chargeNum;
@@ -64,23 +58,17 @@ public class ChargeCollectorManager {
         }
     }
 
-    /**
-     * 添加新的集电器
-     */
+    /// 添加新的集电器
     public void addChargeCollector(ChargeCollectorBlockEntity blockEntity) {
         this.chargeCollectors.put(blockEntity.getBlockPos(), blockEntity);
     }
 
-    /**
-     * 删除集电器
-     */
+    /// 删除集电器
     public void removeChargeCollector(ChargeCollectorBlockEntity blockEntity) {
         this.chargeCollectors.remove(blockEntity.getBlockPos());
     }
 
-    /**
-     * 获取最近的集电器的List集合(以从近至远排序)
-     */
+    /// 获取最近的集电器的List集合(以从近至远排序)
     public List<Entry> getNearestChargeCollect(BlockPos blockPos) {
         List<Entry> distanceList = new ArrayList<>();
         for (Map.Entry<BlockPos, ChargeCollectorBlockEntity> entry : this.chargeCollectors.entrySet()) {
@@ -99,13 +87,11 @@ public class ChargeCollectorManager {
             .collect(Collectors.toList());
     }
 
-    /**
-     * 判断是否能被集电器收集
-     *
-     * @param blockEntity 集电器方块实体
-     * @param blockPos    电荷的位置
-     * @return 是否能被集点器收集
-     */
+    /// 判断是否能被集电器收集
+    ///
+    /// @param blockEntity 集电器方块实体
+    /// @param blockPos    电荷的位置
+    /// @return 是否能被集点器收集
     public boolean canCollect(ChargeCollectorBlockEntity blockEntity, BlockPos blockPos) {
         return blockEntity.getPos().getX() - 2 <= blockPos.getX()
             && blockEntity.getPos().getY() - 2 <= blockPos.getY()

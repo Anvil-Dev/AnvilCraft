@@ -12,11 +12,9 @@ import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 
 public class ItemTagLoader {
-    /**
-     * 物品标签生成器初始化
-     *
-     * @param provider 提供器
-     */
+    /// 物品标签生成器初始化
+    ///
+    /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Item> provider) {
         provider.rawBuilder(ModItemTags.PLATES)
             .addElement(ItemTagLoader.findId(Items.HEAVY_WEIGHTED_PRESSURE_PLATE))

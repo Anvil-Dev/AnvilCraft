@@ -33,6 +33,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -116,9 +117,7 @@ public abstract class BaseChuteBlockEntity
         this.itemHandler.deserialize(input.childOrEmpty("Inventory"));
     }
 
-    /**
-     * 溜槽 tick
-     */
+    /// 溜槽 tick
     public void tick() {
         if (this.level == null) return;
         if (this.cooldown > 0) this.cooldown--;
@@ -212,15 +211,20 @@ public abstract class BaseChuteBlockEntity
                 new AABB(this.getBlockPos().relative(this.getInputDirection())),
                 itemEntity -> !itemEntity.getItem().isEmpty()
             );
-            for (ItemEntity itemEntity : itemEntities) {
-                ItemStack itemStack = itemEntity.getItem();
-                ItemStack inserted = ItemHandlerUtil.insertItem(this.itemHandler, itemStack, true);
-                if (inserted.isEmpty()) continue;
-                ItemHandlerUtil.insertItem(this.itemHandler, itemEntity.getItem(), false);
-                if (inserted.count() == itemStack.count()) {
-                    itemEntity.discard();
-                } else {
-                    itemEntity.setItem(inserted.copyWithCount(itemStack.count() - inserted.count()));
+            for (ItemEntity item : itemEntities) {
+                ItemStack stack = item.getItem();
+                int inserted;
+                try (Transaction transaction = Transaction.openRoot()) {
+                    inserted = this.getItemHandler().insert(ItemResource.of(stack), stack.count(), transaction);
+                    if (inserted <= 0) {
+                        continue;
+                    }
+                    transaction.commit();
+                    if (inserted == stack.count()) {
+                        item.discard();
+                    } else {
+                        item.setItem(stack.copyWithCount(stack.count() - inserted));
+                    }
                 }
                 resetCD = true;
             }
@@ -252,11 +256,9 @@ public abstract class BaseChuteBlockEntity
         }
     }
 
-    /**
-     * 获取红石信号强度
-     *
-     * @return 红石信号强度
-     */
+    /// 获取红石信号强度
+    ///
+    /// @return 红石信号强度
     public int getRedstoneSignal() {
         int strength = 0;
         for (int index = 0; index < this.itemHandler.size(); index++) {
@@ -306,9 +308,7 @@ public abstract class BaseChuteBlockEntity
         return true;
     }
 
-    /**
-     * 获取更新标签 (由服务端调用，决定发给客户端什么数据)
-     */
+    /// 获取更新标签 (由服务端调用，决定发给客户端什么数据)
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.Collector(this.problemPath()), registries);
@@ -316,9 +316,7 @@ public abstract class BaseChuteBlockEntity
         return output.buildResult();
     }
 
-    /**
-     * 获取更新数据包 (区块加载时调用)
-     */
+    /// 获取更新数据包 (区块加载时调用)
     @Nullable
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
@@ -332,6 +330,6 @@ public abstract class BaseChuteBlockEntity
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.level, this.getBlockPos().getCenter());
+        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.level, pos.getCenter());
     }
 }

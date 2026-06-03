@@ -22,11 +22,9 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientBlockEventListener {
-    /**
-     * 侦听右键方块事件
-     *
-     * @param event 右键方块事件
-     */
+    /// 侦听右键方块事件
+    ///
+    /// @param event 右键方块事件
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void anvilHammerUse(PlayerInteractEvent.RightClickBlock event) {
         InteractionHand hand = event.getHand();

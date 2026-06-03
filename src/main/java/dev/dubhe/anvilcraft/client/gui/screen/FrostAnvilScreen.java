@@ -24,13 +24,11 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
     private @Nullable EditBox name;
     private final Player player;
 
-    /**
-     * 皇家铁砧 GUI
-     *
-     * @param menu            菜单
-     * @param playerInventory 背包
-     * @param title           标题
-     */
+    /// 皇家铁砧 GUI
+    ///
+    /// @param menu            菜单
+    /// @param playerInventory 背包
+    /// @param title           标题
     public FrostAnvilScreen(FrostAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, BACKGROUND);
         this.player = playerInventory.player;

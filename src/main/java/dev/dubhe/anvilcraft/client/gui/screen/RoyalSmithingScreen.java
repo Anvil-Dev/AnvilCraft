@@ -47,13 +47,11 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
 
     private final ArmorStandRenderState armorStandPreview = new ArmorStandRenderState();
 
-    /**
-     * 皇家锻造台 GUI
-     *
-     * @param menu            菜单
-     * @param playerInventory 背包
-     * @param title           标题
-     */
+    /// 皇家锻造台 GUI
+    ///
+    /// @param menu            菜单
+    /// @param playerInventory 背包
+    /// @param title           标题
     public RoyalSmithingScreen(RoyalSmithingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, SMITHING_LOCATION);
     }

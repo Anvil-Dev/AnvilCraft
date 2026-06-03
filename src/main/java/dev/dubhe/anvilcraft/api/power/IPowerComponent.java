@@ -16,9 +16,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
-/**
- * 电力元件
- */
+/// 电力元件
 @SuppressWarnings("unused")
 public interface IPowerComponent extends Comparable<IPowerComponent> {
     BooleanProperty OVERLOAD = BooleanProperty.create("overload");
@@ -40,18 +38,14 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
         return 0;
     }
 
-    /**
-     * 设置电网
-     *
-     * @param grid 电网
-     */
+    /// 设置电网
+    ///
+    /// @param grid 电网
     void setGrid(@Nullable PowerGrid grid);
 
-    /**
-     * 获取电网
-     *
-     * @return 电网
-     */
+    /// 获取电网
+    ///
+    /// @return 电网
     @Nullable PowerGrid getGrid();
 
     PowerComponentType getComponentType();
@@ -102,9 +96,7 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
         return Optional.ofNullable(this.getGrid()).map(PowerGrid::isWorking).orElse(false);
     }
 
-    /**
-     * 转换为电网元件信息
-     */
+    /// 转换为电网元件信息
     default PowerComponentInfo toPowerComponentInfo() {
         return new PowerComponentInfo(
             this.getPos(),

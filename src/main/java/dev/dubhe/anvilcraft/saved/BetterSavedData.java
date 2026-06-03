@@ -68,12 +68,10 @@ public abstract class BetterSavedData extends SavedData {
         }
     }
 
-    /**
-     * 生成一个随机的UUID
-     *
-     * @param containedChecker 判断随机的UUID是否已被使用（尽管概率极低）
-     * @return 随机生成的UUID
-     */
+    /// 生成一个随机的UUID
+    ///
+    /// @param containedChecker 判断随机的UUID是否已被使用（尽管概率极低）
+    /// @return 随机生成的UUID
     protected static UUID generate(Predicate<UUID> containedChecker) {
         var id = UUID.randomUUID();
         while (containedChecker.test(id)) {

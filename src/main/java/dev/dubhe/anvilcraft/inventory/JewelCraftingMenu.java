@@ -215,10 +215,8 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         ));
     }
 
-    /**
-     * 自动填充配方所需物品
-     * 当玩家按下空格键时调用此方法
-     */
+    /// 自动填充配方所需物品
+    /// 当玩家按下空格键时调用此方法
     public void autoFill() {
         if (this.player.level().isClientSide()) {
             ClientPacketDistributor.sendToServer(new JewelCraftingAutoFillPacket());

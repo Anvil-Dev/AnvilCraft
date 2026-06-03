@@ -16,6 +16,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -79,8 +80,8 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
     }
 
     public static class Builder {
-        private String tagKeyPath;
-        private ValueFunction requirement;
+        private @Nullable String tagKeyPath;
+        private @Nullable ValueFunction requirement;
         private long expected;
 
         Builder() {
@@ -101,17 +102,13 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
             return this;
         }
 
-        /**
-         * 左操作数
-         */
+        /// 左操作数
         public Builder lhs(String tagKeyPath) {
             this.tagKeyPath = tagKeyPath;
             return this;
         }
 
-        /**
-         * 右操作数
-         */
+        /// 右操作数
         public Builder rhs(long value) {
             this.expected = value;
             return this;

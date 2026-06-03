@@ -36,13 +36,11 @@ public class OverseerBlockEntity extends BlockEntity {
         return new OverseerBlockEntity(type, pos, blockState);
     }
 
-    /**
-     * tick 逻辑
-     *
-     * @param level 世界
-     * @param pos   坐标
-     * @param state 方块状态
-     */
+    /// tick 逻辑
+    ///
+    /// @param level 世界
+    /// @param pos   坐标
+    /// @param state 方块状态
     @SuppressWarnings("unused")
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (level instanceof ServerLevel serverLevel) {

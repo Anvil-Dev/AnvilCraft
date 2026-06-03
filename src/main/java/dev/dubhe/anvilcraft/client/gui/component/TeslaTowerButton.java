@@ -31,9 +31,7 @@ public class TeslaTowerButton extends Button {
     private final TeslaTowerScreen parent;
     private final int variant;
 
-    /**
-     * 主动静音器 screen 的按钮
-     */
+    /// 主动静音器 screen 的按钮
     public TeslaTowerButton(
         int x,
         int y,

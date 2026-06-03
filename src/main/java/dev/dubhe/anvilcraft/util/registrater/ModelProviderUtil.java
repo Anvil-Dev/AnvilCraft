@@ -20,9 +20,7 @@ import java.util.Optional;
 @SuppressWarnings("Convert2Lambda")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelProviderUtil {
-    /**
-     * 用于流体的BlockState生成器
-     */
+    /// 用于流体的BlockState生成器
     public static <L extends LiquidBlock> NonNullBiConsumer<DataGenContext<Block, L>, RegistrumBlockModelGenerator> liquid() {
         return new NonNullBiConsumer<>() {
             @Override
@@ -40,9 +38,7 @@ public class ModelProviderUtil {
         };
     }
 
-    /**
-     * 用于流体的ItemModel生成器
-     */
+    /// 用于流体的ItemModel生成器
     public static NonNullBiConsumer<DataGenContext<Item, BucketItem>, RegistrumItemModelGenerator> bucket() {
         return new NonNullBiConsumer<>() {
             @Override

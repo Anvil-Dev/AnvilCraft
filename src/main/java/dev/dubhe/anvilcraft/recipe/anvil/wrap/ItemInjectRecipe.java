@@ -21,11 +21,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.function.Supplier;
 
-/**
- * 物品注入配方类
- *
- * <p>该配方用于在铁砧下落时将物品注入到方块中，需要在铁砧下方放置特定方块作为注入目标</p>
- */
+/// 物品注入配方类
+///
+/// <p>该配方用于在铁砧下落时将物品注入到方块中，需要在铁砧下方放置特定方块作为注入目标</p>
 @Getter
 public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
     public static final RecipeSerializer<ItemInjectRecipe> SERIALIZER = new RecipeSerializer<>(
@@ -58,14 +56,12 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
         )
     );
 
-    /**
-     * 构造一个物品注入配方
-     *
-     * @param itemIngredients 物品原料列表
-     * @param results         结果物品列表
-     * @param blockIngredient 方块原料谓词
-     * @param blockResult     方块结果
-     */
+    /// 构造一个物品注入配方
+    ///
+    /// @param itemIngredients 物品原料列表
+    /// @param results         结果物品列表
+    /// @param blockIngredient 方块原料谓词
+    /// @param blockResult     方块结果
     public ItemInjectRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results,
@@ -95,71 +91,55 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
         return ItemInjectRecipe.SERIALIZER;
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * 物品注入配方构建器
-     */
+    /// 物品注入配方构建器
     public static class Builder extends SimpleAbstractBuilder<ItemInjectRecipe, Builder> {
-        /**
-         * 方块原料谓词构建器
-         */
+        /// 方块原料谓词构建器
         BlockStatePredicate.Builder blockIngredient = BlockStatePredicate.builder();
 
-        /**
-         * 方块结果
-         */
+        /// 方块结果
         ChanceBlockState blockResult = null;
 
-        /**
-         * 设置输入方块
-         *
-         * @param block 输入方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置输入方块
+        ///
+        /// @param block 输入方块
+        ///
+        /// @return 构建器实例
         public Builder inputBlock(Block block) {
             this.blockIngredient.of(block);
             return this;
         }
 
-        /**
-         * 设置输入方块（供应器形式）
-         *
-         * @param block 输入方块供应器
-         *
-         * @return 构建器实例
-         */
+        /// 设置输入方块（供应器形式）
+        ///
+        /// @param block 输入方块供应器
+        ///
+        /// @return 构建器实例
         public Builder inputBlock(Supplier<? extends Block> block) {
             return this.inputBlock(block.get());
         }
 
-        /**
-         * 设置结果方块
-         *
-         * @param block 结果方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置结果方块
+        ///
+        /// @param block 结果方块
+        ///
+        /// @return 构建器实例
         public Builder resultBlock(Block block) {
             this.blockResult = new ChanceBlockState(block.defaultBlockState(), 1.0F);
             return this;
         }
 
-        /**
-         * 设置结果方块（供应器形式）
-         *
-         * @param block 结果方块供应器
-         *
-         * @return 构建器实例
-         */
+        /// 设置结果方块（供应器形式）
+        ///
+        /// @param block 结果方块供应器
+        ///
+        /// @return 构建器实例
         public Builder resultBlock(Supplier<? extends Block> block) {
             return this.resultBlock(block.get());
         }

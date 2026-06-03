@@ -287,9 +287,7 @@ public class AnvilMenuResult {
             }
 
             price += Math.clamp(
-                (long) anvilCost
-                * enchantmentsOnRightLevel
-                * inputLeft.getCount() * inputLeft.getCount(),
+                (long) anvilCost * enchantmentsOnRightLevel * inputLeft.getCount() * inputLeft.getCount(),
                 0,
                 Integer.MAX_VALUE
             );

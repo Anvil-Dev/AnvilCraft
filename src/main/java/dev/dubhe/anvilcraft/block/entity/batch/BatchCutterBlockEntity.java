@@ -209,12 +209,10 @@ public class BatchCutterBlockEntity extends BaseBatchCraftingBlockEntity {
         private final Container container;
         private final List<RecipeHolder<StonecutterRecipe>> recipes;
 
-        /**
-         * 合成器缓存
-         *
-         * @param container 容器
-         * @param recipes   配方
-         */
+        /// 合成器缓存
+        ///
+        /// @param container 容器
+        /// @param recipes   配方
         public BatchCutterCache(
             PollableFilteredItemStackHandler container,
             List<RecipeHolder<StonecutterRecipe>> recipes

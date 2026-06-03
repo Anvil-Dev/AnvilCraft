@@ -27,14 +27,12 @@ public class PlayerUtil {
         return result.get();
     }
 
-    /**
-     * 搜索切比雪夫距离内的玩家们
-     *
-     * @param level 世界
-     * @param pos 搜索起点
-     * @param radius 距离
-     * @return 玩家列表
-     */
+    /// 搜索切比雪夫距离内的玩家们
+    ///
+    /// @param level 世界
+    /// @param pos 搜索起点
+    /// @param radius 距离
+    /// @return 玩家列表
     public static List<ServerPlayer> searchPlayerByPos(Level level, BlockPos pos, int radius) {
         if (!level.isClientSide()) {
             AABB aabb = new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ()).inflate(radius);

@@ -23,14 +23,12 @@ public class CommandUtil {
         )
     );
 
-    /**
-     * 用于未找到内容时，抛出 {@link CommandSyntaxException}
-     *
-     * @param contentId 内容id
-     * @return 一个 {@link CommandSyntaxException}
-     * @apiNote 例如错误信息为 {@code command.anvilcraft.multiphase.not_found}，<br>
-     *          则需传入的内容id为 {@code anvilcraft:multiphase}
-     */
+    /// 用于未找到内容时，抛出 {@link CommandSyntaxException}
+    ///
+    /// @param contentId 内容id
+    /// @return 一个 {@link CommandSyntaxException}
+    /// @apiNote 例如错误信息为 {@code command.anvilcraft.multiphase.not_found}，<br>
+    ///          则需传入的内容id为 {@code anvilcraft:multiphase}
     public static CommandSyntaxException notFound(Identifier contentId, UUID id) {
         return ERROR_NOT_FOUND.create(contentId, id);
     }

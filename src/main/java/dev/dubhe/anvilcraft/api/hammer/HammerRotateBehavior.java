@@ -10,9 +10,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 
-/**
- * 可被锤子改变的方块
- */
+/// 可被锤子改变的方块
 @SuppressWarnings("unused")
 public interface HammerRotateBehavior extends IHammerChangeable {
     EnumProperty<Direction> FACING_HOPPER = BlockStateProperties.FACING_HOPPER;

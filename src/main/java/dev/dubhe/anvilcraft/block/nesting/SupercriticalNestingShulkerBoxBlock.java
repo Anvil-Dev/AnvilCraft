@@ -170,9 +170,7 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
         return true;
     }
 
-    /**
-     * Returns the analog signal this block emits. This is the signal a comparator can read from it.
-     */
+    /// Returns the analog signal this block emits. This is the signal a comparator can read from it.
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         if (!(level.getBlockEntity(pos) instanceof SupercriticalNestingShulkerBoxBlockEntity be)) return 0;

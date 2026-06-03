@@ -49,9 +49,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    /**
-     * 物品收集器
-     */
+    /// 物品收集器
     public ItemCollectorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(

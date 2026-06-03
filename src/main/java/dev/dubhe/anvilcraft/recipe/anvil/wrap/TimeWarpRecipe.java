@@ -25,11 +25,9 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-/**
- * 时移配方类
- *
- * <p>该配方用于在铁砧下落时产生时移效果，需要在铁砧下方放置腐化信标作为触发条件</p>
- */
+/// 时移配方类
+///
+/// <p>该配方用于在铁砧下落时产生时移效果，需要在铁砧下方放置腐化信标作为触发条件</p>
 @Getter
 public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
     public static final RecipeSerializer<TimeWarpRecipe> SERIALIZER = new RecipeSerializer<>(
@@ -58,14 +56,12 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
         )
     );
 
-    /**
-     * 构造一个时移配方
-     *
-     * @param itemIngredients 物品原料列表
-     * @param results         结果物品列表
-     * @param hasCauldron     炼药锅条件
-     * @param produceHeat     产热信息
-     */
+    /// 构造一个时移配方
+    ///
+    /// @param itemIngredients 物品原料列表
+    /// @param results         结果物品列表
+    /// @param hasCauldron     炼药锅条件
+    /// @param produceHeat     产热信息
     public TimeWarpRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results,
@@ -102,306 +98,250 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
         return SERIALIZER;
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * 是否消耗流体
-     *
-     * @return 如果消耗流体返回true，否则返回false
-     */
+    /// 是否消耗流体
+    ///
+    /// @return 如果消耗流体返回true，否则返回false
     public boolean isConsumeFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
         return HasCauldron.isNotEmpty(hasCauldron.fluid()) && this.getHasCauldron().consume() > 0;
     }
 
-    /**
-     * 是否产生流体
-     *
-     * @return 如果产生流体返回true，否则返回false
-     */
+    /// 是否产生流体
+    ///
+    /// @return 如果产生流体返回true，否则返回false
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
         return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
     }
 
-    /**
-     * 时移配方构建器
-     */
+    /// 时移配方构建器
     public static class Builder extends SimpleAbstractBuilder<TimeWarpRecipe, Builder> {
-        /**
-         * 炼药锅条件构建器
-         */
+        /// 炼药锅条件构建器
         HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
-        /**
-         * 产热信息构建器
-         */
+        /// 产热信息构建器
         ProduceHeat.Builder produceHeat = ProduceHeat.builder();
 
-        /**
-         * 添加热量
-         *
-         * @param tier     热量等级
-         * @param duration 持续时间
-         *
-         * @return 构建器实例
-         */
+        /// 添加热量
+        ///
+        /// @param tier     热量等级
+        /// @param duration 持续时间
+        ///
+        /// @return 构建器实例
         public Builder heat(HeatTier tier, int duration) {
             this.produceHeat.heat(tier, duration);
             return this;
         }
 
-        /**
-         * 设置距离
-         *
-         * @param distance 距离
-         *
-         * @return 构建器实例
-         */
+        /// 设置距离
+        ///
+        /// @param distance 距离
+        ///
+        /// @return 构建器实例
         public Builder distance(Distance distance) {
             this.produceHeat.distance(distance);
             return this;
         }
 
-        /**
-         * 设置距离（指定类型、距离和方向）
-         *
-         * @param type         距离类型
-         * @param distance     距离
-         * @param isHorizontal 是否水平方向
-         *
-         * @return 构建器实例
-         */
+        /// 设置距离（指定类型、距离和方向）
+        ///
+        /// @param type         距离类型
+        /// @param distance     距离
+        /// @param isHorizontal 是否水平方向
+        ///
+        /// @return 构建器实例
         public Builder distance(Distance.Type type, int distance, boolean isHorizontal) {
             this.produceHeat.distance(type, distance, isHorizontal);
             return this;
         }
 
-        /**
-         * 设置欧几里得距离（指定距离和方向）
-         *
-         * @param distance     距离
-         * @param isHorizontal 是否水平方向
-         *
-         * @return 构建器实例
-         */
+        /// 设置欧几里得距离（指定距离和方向）
+        ///
+        /// @param distance     距离
+        /// @param isHorizontal 是否水平方向
+        ///
+        /// @return 构建器实例
         public Builder distanceEuclidean(int distance, boolean isHorizontal) {
             this.produceHeat.distanceEuclidean(distance, isHorizontal);
             return this;
         }
 
-        /**
-         * 设置欧几里得距离（默认距离为1）
-         *
-         * @param isHorizontal 是否水平方向
-         *
-         * @return 构建器实例
-         */
+        /// 设置欧几里得距离（默认距离为1）
+        ///
+        /// @param isHorizontal 是否水平方向
+        ///
+        /// @return 构建器实例
         public Builder distanceEuclidean(boolean isHorizontal) {
             this.produceHeat.distanceEuclidean(1, isHorizontal);
             return this;
         }
 
-        /**
-         * 设置欧几里得距离（指定距离，默认为水平方向）
-         *
-         * @param distance 距离
-         *
-         * @return 构建器实例
-         */
+        /// 设置欧几里得距离（指定距离，默认为水平方向）
+        ///
+        /// @param distance 距离
+        ///
+        /// @return 构建器实例
         public Builder distanceEuclidean(int distance) {
             this.produceHeat.distanceEuclidean(distance);
             return this;
         }
 
-        /**
-         * 设置欧几里得距离（默认距离为1，默认为水平方向）
-         *
-         * @return 构建器实例
-         */
+        /// 设置欧几里得距离（默认距离为1，默认为水平方向）
+        ///
+        /// @return 构建器实例
         public Builder distanceEuclidean() {
             this.produceHeat.distanceEuclidean();
             return this;
         }
 
-        /**
-         * 设置曼哈顿距离（指定距离和方向）
-         *
-         * @param distance     距离
-         * @param isHorizontal 是否水平方向
-         *
-         * @return 构建器实例
-         */
+        /// 设置曼哈顿距离（指定距离和方向）
+        ///
+        /// @param distance     距离
+        /// @param isHorizontal 是否水平方向
+        ///
+        /// @return 构建器实例
         public Builder distanceManhattan(int distance, boolean isHorizontal) {
             this.produceHeat.distanceManhattan(distance, isHorizontal);
             return this;
         }
 
-        /**
-         * 设置曼哈顿距离（默认距离为1）
-         *
-         * @param isHorizontal 是否水平方向
-         *
-         * @return 构建器实例
-         */
+        /// 设置曼哈顿距离（默认距离为1）
+        ///
+        /// @param isHorizontal 是否水平方向
+        ///
+        /// @return 构建器实例
         public Builder distanceManhattan(boolean isHorizontal) {
             this.produceHeat.distanceManhattan(1, isHorizontal);
             return this;
         }
 
-        /**
-         * 设置曼哈顿距离（指定距离，默认为水平方向）
-         *
-         * @param distance 距离
-         *
-         * @return 构建器实例
-         */
+        /// 设置曼哈顿距离（指定距离，默认为水平方向）
+        ///
+        /// @param distance 距离
+        ///
+        /// @return 构建器实例
         public Builder distanceManhattan(int distance) {
             this.produceHeat.distanceManhattan(distance);
             return this;
         }
 
-        /**
-         * 设置曼哈顿距离（默认距离为1，默认为水平方向）
-         *
-         * @return 构建器实例
-         */
+        /// 设置曼哈顿距离（默认距离为1，默认为水平方向）
+        ///
+        /// @return 构建器实例
         public Builder distanceManhattan() {
             this.produceHeat.distanceManhattan();
             return this;
         }
 
-        /**
-         * 设置切比雪夫距离（指定距离和方向）
-         *
-         * @param distance     距离
-         * @param isHorizontal 是否水平方向
-         *
-         * @return 构建器实例
-         */
+        /// 设置切比雪夫距离（指定距离和方向）
+        ///
+        /// @param distance     距离
+        /// @param isHorizontal 是否水平方向
+        ///
+        /// @return 构建器实例
         public Builder distanceChebyshev(int distance, boolean isHorizontal) {
             this.produceHeat.distanceChebyshev(distance, isHorizontal);
             return this;
         }
 
-        /**
-         * 设置切比雪夫距离（默认距离为1）
-         *
-         * @param isHorizontal 是否水平方向
-         *
-         * @return 构建器实例
-         */
+        /// 设置切比雪夫距离（默认距离为1）
+        ///
+        /// @param isHorizontal 是否水平方向
+        ///
+        /// @return 构建器实例
         public Builder distanceChebyshev(boolean isHorizontal) {
             this.produceHeat.distanceChebyshev(isHorizontal);
             return this;
         }
 
-        /**
-         * 设置切比雪夫距离（指定距离，默认为水平方向）
-         *
-         * @param distance 距离
-         *
-         * @return 构建器实例
-         */
+        /// 设置切比雪夫距离（指定距离，默认为水平方向）
+        ///
+        /// @param distance 距离
+        ///
+        /// @return 构建器实例
         public Builder distanceChebyshev(int distance) {
             this.produceHeat.distanceChebyshev(distance);
             return this;
         }
 
-        /**
-         * 设置切比雪夫距离（默认距离为1，默认为水平方向）
-         *
-         * @return 构建器实例
-         */
+        /// 设置切比雪夫距离（默认距离为1，默认为水平方向）
+        ///
+        /// @return 构建器实例
         public Builder distanceChebyshev() {
             this.produceHeat.distanceChebyshev();
             return this;
         }
 
-        /**
-         * 设置流体
-         *
-         * @param fluid 流体ID
-         *
-         * @return 构建器实例
-         */
+        /// 设置流体
+        ///
+        /// @param fluid 流体ID
+        ///
+        /// @return 构建器实例
         public Builder fluid(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
 
-        /**
-         * 设置炼药锅方块
-         *
-         * @param cauldron 炼药锅方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置炼药锅方块
+        ///
+        /// @param cauldron 炼药锅方块
+        ///
+        /// @return 构建器实例
         public Builder fluid(Block cauldron) {
             this.fluid(WrapUtils.cauldron2Fluid(cauldron));
             return this;
         }
 
-        /**
-         * 设置转换后的流体
-         *
-         * @param transform 转换后的流体ID
-         *
-         * @return 构建器实例
-         */
+        /// 设置转换后的流体
+        ///
+        /// @param transform 转换后的流体ID
+        ///
+        /// @return 构建器实例
         public Builder transform(Identifier transform) {
             this.hasCauldron.transform(transform);
             return this;
         }
 
-        /**
-         * 设置转换后的炼药锅方块
-         *
-         * @param cauldron 转换后的炼药锅方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置转换后的炼药锅方块
+        ///
+        /// @param cauldron 转换后的炼药锅方块
+        ///
+        /// @return 构建器实例
         public Builder transform(Block cauldron) {
             this.transform(WrapUtils.cauldron2Fluid(cauldron));
             return this;
         }
 
-        /**
-         * 设置消耗量
-         *
-         * @param consume 消耗量
-         *
-         * @return 构建器实例
-         */
+        /// 设置消耗量
+        ///
+        /// @param consume 消耗量
+        ///
+        /// @return 构建器实例
         public Builder consume(int consume) {
             this.hasCauldron.consume(consume);
             return this;
         }
 
-        /**
-         * 设置产生量
-         *
-         * @param produce 产量
-         *
-         * @return 构建器实例
-         */
+        /// 设置产生量
+        ///
+        /// @param produce 产量
+        ///
+        /// @return 构建器实例
         public Builder produce(int produce) {
             this.hasCauldron.produce(produce);
             return this;
         }
 
-        /**
-         * 设置需要点燃锅
-         *
-         * @return 构建器实例
-         */
+        /// 设置需要点燃锅
+        ///
+        /// @return 构建器实例
         public Builder ignite() {
             this.hasCauldron.ignite();
             return this;

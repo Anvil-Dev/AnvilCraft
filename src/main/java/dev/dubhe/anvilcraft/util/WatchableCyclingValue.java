@@ -14,9 +14,7 @@ public class WatchableCyclingValue<T> {
     @Getter
     private final String name;
 
-    /**
-     * 可监听的循环值选择器
-     */
+    /// 可监听的循环值选择器
     @SafeVarargs
     public WatchableCyclingValue(String name, Consumer<WatchableCyclingValue<T>> onChangedCallback, T... values) {
         this.onChangedCallback = onChangedCallback;
@@ -32,11 +30,10 @@ public class WatchableCyclingValue<T> {
         return this.values.length;
     }
 
-    /**
-     * 设置当前index
-     *
-     * @return this
-     */
+    /// 设置当前index
+    ///
+    /// @return this
+    @SuppressWarnings("UnusedReturnValue")
     public WatchableCyclingValue<T> fromIndex(int index) {
         if (index >= this.values.length) {
             throw new IndexOutOfBoundsException(index);
@@ -54,9 +51,7 @@ public class WatchableCyclingValue<T> {
         return this.values[this.index];
     }
 
-    /**
-     * 下一个
-     */
+    /// 下一个
     public T next() {
         if (this.index + 1 >= this.values.length) {
             this.index = 0;
@@ -66,9 +61,8 @@ public class WatchableCyclingValue<T> {
         return this.values[this.index++];
     }
 
-    /**
-     * 上一个
-     */
+    /// 上一个
+    @SuppressWarnings("UnusedReturnValue")
     public T previous() {
         if (this.index - 1 < 0) {
             this.index = this.values.length - 1;

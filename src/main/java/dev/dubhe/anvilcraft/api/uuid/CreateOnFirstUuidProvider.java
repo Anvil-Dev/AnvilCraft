@@ -19,12 +19,10 @@ public class CreateOnFirstUuidProvider implements IUuidProvider {
         this.id = new Lazy<>(UUID::randomUUID);
     }
 
-    /**
-     * 构建一个首次调用时创建UUID提供器
-     *
-     * @param id 自定义UUID提供器
-     * @apiNote 不建议使用任何非常量组成提供器
-     */
+    /// 构建一个首次调用时创建UUID提供器
+    ///
+    /// @param id 自定义UUID提供器
+    /// @apiNote 不建议使用任何非常量组成提供器
     public CreateOnFirstUuidProvider(Supplier<UUID> id) {
         this.id = new Lazy<>(id);
     }

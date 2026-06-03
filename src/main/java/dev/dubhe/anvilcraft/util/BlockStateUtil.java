@@ -42,15 +42,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-/**
- * 方块状态注入
- */
+/// 方块状态注入
 public class BlockStateUtil {
-    /**
-     * 硬编码一些通过Block#asItem方法获取不到的物品。。。。
-     * 这些物品通常可以通过Block#getCloneItemStack方法获取到，但是需要LevelReader实例
-     * 为了让获取物品在没有level上下文的情况下也能运作，此处硬编码部分特殊方块
-     */
+    /// 硬编码一些通过Block#asItem方法获取不到的物品。。。。
+    /// 这些物品通常可以通过Block#getCloneItemStack方法获取到，但是需要LevelReader实例
+    /// 为了让获取物品在没有level上下文的情况下也能运作，此处硬编码部分特殊方块
     public static final Map<Block, ItemStack> HARDCODED_SPECIAL_AS_ITEM = ImmutableMap.<Block, ItemStack>builder()
         .put(Blocks.ATTACHED_MELON_STEM, Items.MELON_SEEDS.getDefaultInstance())
         .put(Blocks.ATTACHED_PUMPKIN_STEM, Items.PUMPKIN_SEEDS.getDefaultInstance())
@@ -69,30 +65,26 @@ public class BlockStateUtil {
         BlockStateProperties.FLOWER_AMOUNT
     );
 
-    /**
-     * 判定一个方块是否像苔藓、发光地衣、幽匿脉络一样，可以在一个方块内放置多个面，
-     * 每个面消耗一个物品。
-     *
-     * @param block 需要判定的方块
-     * @return 该方块是否是“多面类”方块
-     * @apiNote 注：通过这个方法判定的方块不一定每个面都能放，
-     *     本方法只表明放置该方块所需的物品数量是否与 {@link PipeBlock#PROPERTY_BY_DIRECTION}
-     *     中的方块状态有关。
-     */
+    /// 判定一个方块是否像苔藓、发光地衣、幽匿脉络一样，可以在一个方块内放置多个面，
+    /// 每个面消耗一个物品。
+    ///
+    /// @param block 需要判定的方块
+    /// @return 该方块是否是“多面类”方块
+    /// @apiNote 注：通过这个方法判定的方块不一定每个面都能放，
+    ///     本方法只表明放置该方块所需的物品数量是否与 {@link PipeBlock#PROPERTY_BY_DIRECTION}
+    ///     中的方块状态有关。
     public static boolean isMultifaceLike(Block block) {
         return block instanceof MultifaceBlock || block instanceof VineBlock;
     }
 
-    /**
-     * 对一个炼药锅方块，尝试获取其对应的流体桶。
-     *
-     * @param cauldron 被判定的炼药锅方块
-     * @param state    被判定的方块状态
-     * @return 炼药锅方块对应的流体桶
-     * @apiNote 暂时只判定满的炼药锅，因为不满的炼药锅不一定有对应物品。<br>
-     *     由于目前的 {@link BlockStateUtil#ingredientsForPlacement(BlockState)} 只打算返回物品列表
-     *     （同时返回物品列表和流体列表还是太麻烦了，以后再想办法吧）
-     */
+    /// 对一个炼药锅方块，尝试获取其对应的流体桶。
+    ///
+    /// @param cauldron 被判定的炼药锅方块
+    /// @param state    被判定的方块状态
+    /// @return 炼药锅方块对应的流体桶
+    /// @apiNote 暂时只判定满的炼药锅，因为不满的炼药锅不一定有对应物品。<br>
+    ///     由于目前的 {@link BlockStateUtil#ingredientsForPlacement(BlockState)} 只打算返回物品列表
+    ///     （同时返回物品列表和流体列表还是太麻烦了，以后再想办法吧）
     private static ItemStack getBucketFromCauldron(AbstractCauldronBlock cauldron, BlockState state) {
         if (cauldron == Blocks.POWDER_SNOW_CAULDRON) {
             return cauldron.isFull(state) ? Items.POWDER_SNOW_BUCKET.getDefaultInstance() : ItemStack.EMPTY;
@@ -106,14 +98,12 @@ public class BlockStateUtil {
             .orElse(ItemStack.EMPTY);
     }
 
-    /**
-     * 对某个方块状态，获取用于摆放它的物品列表。供多方快合成的JEI显示使用。<br/>
-     * <b>不考虑</b>方块实体。<s>要是考虑的话那我真得累死</s><br/>
-     * 硬编码了原版和本模组的各种各样的特殊情形。
-     *
-     * @param state 要摆放的方块状态
-     * @return 用于摆放的物品列表
-     */
+    /// 对某个方块状态，获取用于摆放它的物品列表。供多方快合成的JEI显示使用。<br/>
+    /// <b>不考虑</b>方块实体。<s>要是考虑的话那我真得累死</s><br/>
+    /// 硬编码了原版和本模组的各种各样的特殊情形。
+    ///
+    /// @param state 要摆放的方块状态
+    /// @return 用于摆放的物品列表
     public static List<ItemStack> ingredientsForPlacement(BlockState state) {
         Block block = state.getBlock();
         ItemStack baseItem = switch (block) {

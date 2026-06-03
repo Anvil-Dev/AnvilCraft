@@ -238,13 +238,11 @@ public class ItemTooltipManager {
 
     public static final Map<Item, String> NEED_TOOLTIP_ITEMS;
 
-    /**
-     * 为模组物品添加工具提示
-     *
-     * @param stack   需要添加工具提示的物品堆叠
-     * @param builder 工具提示添加器
-     * @param flags   工具提示标识
-     */
+    /// 为模组物品添加工具提示
+    ///
+    /// @param stack   需要添加工具提示的物品堆叠
+    /// @param builder 工具提示添加器
+    /// @param flags   工具提示标识
     public static void addTooltip(ItemStack stack, Consumer<Component> builder, TooltipFlag flags) {
         final Item item = stack.getItem();
         if (NORMAL.containsKey(item)) {

@@ -24,6 +24,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,8 +46,8 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
     public int totalCurseCount = 0;
     public int removedRepairCost = 0;
     public int removedCurseCount = 0;
-    public Item repairMaterial = null;
-    public RepairCostRecipeEntry currentRecipe = null;
+    public @Nullable Item repairMaterial = null;
+    public @Nullable RepairCostRecipeEntry currentRecipe = null;
 
     static {
         REPAIR_COST_RECIPES.put(Items.GOLD_INGOT, new RepairCostRecipeEntry(1, ModItems.CURSED_GOLD_INGOT.get()));
@@ -61,14 +62,12 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         this(ModMenuTypes.ROYAL_GRINDSTONE.get(), containerId, playerInventory, access);
     }
 
-    /**
-     * 皇家砂轮菜单
-     *
-     * @param type            菜单类型
-     * @param containerId     容器id
-     * @param playerInventory 背包
-     * @param access          检查
-     */
+    /// 皇家砂轮菜单
+    ///
+    /// @param type            菜单类型
+    /// @param containerId     容器id
+    /// @param playerInventory 背包
+    /// @param access          检查
     public RoyalGrindstoneMenu(
         MenuType<RoyalGrindstoneMenu> type,
         int containerId,
@@ -292,11 +291,9 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         }
     }
 
-    /**
-     * 移除
-     *
-     * @param player 玩家
-     */
+    /// 移除
+    ///
+    /// @param player 玩家
     public void removed(Player player) {
         super.removed(player);
         this.access.execute((_, _) -> {

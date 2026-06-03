@@ -20,25 +20,21 @@ public class BlockTagUtil {
 
     private static final HashMap<TagKey<Block>, Ingredient> CACHE = new HashMap<>();
 
-    /**
-     * 根据方块标签，获取对应的原版配方原料（{@link Ingredient}）。
-     *
-     * @param tag 方块标签
-     * @return 与方块标签相对应的 {@link Ingredient}对象。
-     * @implNote {@link BlockTagIngredient}对象在每次初始化时都会新建一个{@link ItemStack}数组，
-     *     为了防止某些内容特别多的标签被特别多的配方引用造成的内存空间浪费，本方法的实现将每个{@link TagKey}
-     *     对应的原料缓存在{@link HashMap}中。
-     */
+    /// 根据方块标签，获取对应的原版配方原料（{@link Ingredient}）。
+    ///
+    /// @param tag 方块标签
+    /// @return 与方块标签相对应的 {@link Ingredient}对象。
+    /// @implNote {@link BlockTagIngredient}对象在每次初始化时都会新建一个{@link ItemStack}数组，
+    ///     为了防止某些内容特别多的标签被特别多的配方引用造成的内存空间浪费，本方法的实现将每个{@link TagKey}
+    ///     对应的原料缓存在{@link HashMap}中。
     public static Ingredient toIngredient(TagKey<Block> tag) {
         return CACHE.computeIfAbsent(tag, t -> new BlockTagIngredient(t).toVanilla());
     }
 
-    /**
-     * 根据方块标签，获取当前的用于循环展示的方块。
-     *
-     * @param tag 需要显示的方块标签
-     * @return 用于展示的方块（当<code>tag</code>为空标签或无效标签时，返回值也为空）
-     */
+    /// 根据方块标签，获取当前的用于循环展示的方块。
+    ///
+    /// @param tag 需要显示的方块标签
+    /// @return 用于展示的方块（当<code>tag</code>为空标签或无效标签时，返回值也为空）
     public static Optional<Block> getDisplay(TagKey<Block> tag) {
         return RegistryUtil.getRegistry(Registries.BLOCK)
             .get(tag)
@@ -49,12 +45,10 @@ public class BlockTagUtil {
             .map(list -> list.get((int) ((System.currentTimeMillis() / 1000) % list.size())));
     }
 
-    /**
-     * 根据方块配方输入，获取需要展示的工具提示
-     *
-     * @param input 方块标签或方块的配方输入
-     * @return 展示方块对应的工具提示。
-     */
+    /// 根据方块配方输入，获取需要展示的工具提示
+    ///
+    /// @param input 方块标签或方块的配方输入
+    /// @return 展示方块对应的工具提示。
     public static List<Component> getTooltipsForInput(BlockStatePredicate input) {
         Block block = input
             .constructStatesForRender()

@@ -20,13 +20,11 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
-/**
- * 铁砧条件谓词
- *
- * <p>用于检查铁砧是否符合条件</p>
- *
- * @param anvil 铁砧方块条件谓词
- */
+/// 铁砧条件谓词
+///
+/// <p>用于检查铁砧是否符合条件</p>
+///
+/// @param anvil 铁砧方块条件谓词
 public record HasAnvil(Optional<BlockStatePredicate> anvil, boolean inverted) implements IRecipePredicate<HasAnvil> {
     public static HasAnvil DEFAULT = new HasAnvil(Optional.empty(), false);
     public static HasAnvil DEFAULT_INVERTED = new HasAnvil(Optional.empty(), true);

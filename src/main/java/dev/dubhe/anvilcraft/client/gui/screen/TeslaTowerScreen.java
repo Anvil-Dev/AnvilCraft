@@ -175,9 +175,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         }
     }
 
-    /**
-     * 主动消音器gui
-     */
+    /// 主动消音器gui
     public TeslaTowerScreen(TeslaTowerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 256, 166);
         this.menu = menu;
@@ -300,9 +298,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         return true;
     }
 
-    /**
-     * 鼠标拖动事件
-     */
+    /// 鼠标拖动事件
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         int leftPos = (this.width - this.getImageWidth()) / 2;
@@ -339,9 +335,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         return super.mouseDragged(event, dragX, dragY);
     }
 
-    /**
-     * 鼠标点击
-     */
+    /// 鼠标点击
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         this.isDraggingLeft = false;
@@ -377,9 +371,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         this.extractScroller(graphics, this.leftPos + 245, this.topPos + 35, this.whiteFilters.size(), this.rightScrollOff);
     }
 
-    /**
-     * 处理同步包
-     */
+    /// 处理同步包
     public void handleSync(List<Pair<TeslaFilter, String>> filters) {
         this.rightScrollOff = 0;
         this.whiteFilters.clear();
@@ -395,6 +387,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             BACKGROUND,

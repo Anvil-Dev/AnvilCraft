@@ -13,9 +13,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class AscendingBlockRenderer extends EntityRenderer<AnimateAscendingBlockEntity, FallingBlockRenderState> {
-    /**
-     * 上升方块渲染器
-     */
+    /// 上升方块渲染器
     public AscendingBlockRenderer(EntityRendererProvider.Context context) {
         super(context);
         this.shadowRadius = 0.5F;

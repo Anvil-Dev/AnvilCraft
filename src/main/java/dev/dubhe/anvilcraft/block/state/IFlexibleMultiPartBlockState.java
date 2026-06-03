@@ -3,9 +3,7 @@ package dev.dubhe.anvilcraft.block.state;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.StringRepresentable;
 
-/**
- * 多方块方块状态
- */
+/// 多方块方块状态
 public interface IFlexibleMultiPartBlockState<E, T extends Comparable<T>> extends StringRepresentable, Comparable<E> {
     int getOffsetX(T value);
 

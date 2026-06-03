@@ -39,12 +39,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class ModDispenserBehavior {
-    /*
-    "anvilcraft".hashcode() == 976850d4
-    "dispenser".hashcode() == e652ab5
-    "representing".hashcode() == 83d24bba
-    "all_players".hashcode() == 75a6b114
-     */
+    // "anvilcraft".hashcode() == 976850d4
+    // "dispenser".hashcode() == e652ab5
+    // "representing".hashcode() == 83d24bba
+    // "all_players".hashcode() == 75a6b114
     public static final UUID ANVILCRAFT_DISPENSER = new UUID(0x976850D40E652AB5L, 0x83D24BBA75A6B114L);
     private static final DefaultDispenseItemBehavior DEFAULT_BEHAVIOUR = new DefaultDispenseItemBehavior();
     private static final DefaultDispenseItemBehavior BUCKET = new DefaultDispenseItemBehavior() {

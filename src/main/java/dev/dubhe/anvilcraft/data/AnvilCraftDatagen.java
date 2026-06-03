@@ -67,9 +67,7 @@ public class AnvilCraftDatagen {
         AnvilCraft.getINTEGRATION_MANAGER().loadAllServerDataIntegrations();
     }
 
-    /**
-     * 初始化生成器
-     */
+    /// 初始化生成器
     public static void init() {
         var genInit = REGISTRUM.getDataGenInitializer();
         genInit.add(Registries.ENCHANTMENT, ModEnchantments::bootstrap);

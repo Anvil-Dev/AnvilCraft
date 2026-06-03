@@ -44,9 +44,7 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
         Shapes.or(Block.box(0, 0, 0, 4, 16, 16), Block.box(4, 2, 2, 14, 14, 14), Block.box(14, 4, 4, 16, 12, 12));
     public static final EnumProperty<Direction> FACING = DirectionalBlock.FACING;
 
-    /**
-     * 方块状态注册
-     */
+    /// 方块状态注册
     public RubyPrismBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.DOWN));

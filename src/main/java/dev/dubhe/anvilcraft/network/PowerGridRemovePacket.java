@@ -19,9 +19,7 @@ public record PowerGridRemovePacket(int grid) implements IClientboundPacket {
         PowerGridRemovePacket::new
     );
 
-    /**
-     * 电网移除
-     */
+    /// 电网移除
     public PowerGridRemovePacket(PowerGrid grid) {
         this(grid.hashCode());
     }

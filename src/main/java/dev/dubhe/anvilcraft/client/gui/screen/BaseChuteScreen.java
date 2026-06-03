@@ -26,9 +26,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import java.util.List;
 import java.util.function.BiFunction;
 
-/**
- * 溜槽屏幕基类
- */
+/// 溜槽屏幕基类
 public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends BaseChuteMenu<T>> extends BaseMachineScreen<M>
     implements IFilterScreen<M> {
     private static final Identifier BACKGROUND = SharedTextures.bg("machine", "chute");
@@ -61,6 +59,7 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             BACKGROUND,

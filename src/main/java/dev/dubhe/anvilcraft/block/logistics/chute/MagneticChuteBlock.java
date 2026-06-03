@@ -76,11 +76,9 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
         Block.box(0, 0, 8, 16, 16, 16)
     );
 
-    /**
-     * 溜槽方块
-     *
-     * @param properties 方块属性
-     */
+    /// 溜槽方块
+    ///
+    /// @param properties 方块属性
     public MagneticChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(

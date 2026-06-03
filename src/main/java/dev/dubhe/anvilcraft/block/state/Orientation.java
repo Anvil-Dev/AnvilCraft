@@ -33,9 +33,7 @@ public enum Orientation implements StringRepresentable {
         return this.name;
     }
 
-    /**
-     * 获取相反的方向
-     */
+    /// 获取相反的方向
     public Orientation opposite() {
         return switch (this) {
             case SOUTH_UP -> Orientation.NORTH_UP;
@@ -53,9 +51,7 @@ public enum Orientation implements StringRepresentable {
         };
     }
 
-    /**
-     * 获取下一个的方向
-     */
+    /// 获取下一个的方向
     public Orientation next() {
         return switch (this) {
             case SOUTH_UP -> Orientation.WEST_UP;
@@ -130,10 +126,8 @@ public enum Orientation implements StringRepresentable {
         }
     }
 
-    /**
-     * 朝向上下时翻转水平方向
-     * 用于获取放置器假玩家的Orientation
-     */
+    /// 朝向上下时翻转水平方向
+    /// 用于获取放置器假玩家的Orientation
     public Orientation flipHorizontalIfVertical() {
         return switch (this) {
             case UP_NORTH, UP_SOUTH, UP_WEST, UP_EAST, DOWN_NORTH, DOWN_SOUTH, DOWN_WEST, DOWN_EAST -> this.rotate(Rotation.CLOCKWISE_180);
@@ -172,9 +166,7 @@ public enum Orientation implements StringRepresentable {
         }
     }
 
-    /**
-     * 获取对应的方向
-     */
+    /// 获取对应的方向
     public Direction getDirection() {
         return switch (this) {
             case SOUTH_UP -> Direction.SOUTH;
@@ -186,9 +178,7 @@ public enum Orientation implements StringRepresentable {
         };
     }
 
-    /**
-     * 获取水平旋转
-     */
+    /// 获取水平旋转
     public float getYRotation() {
         return switch (this) {
             case WEST_UP, UP_WEST, DOWN_WEST -> 90;
@@ -198,9 +188,7 @@ public enum Orientation implements StringRepresentable {
         };
     }
 
-    /**
-     * 获取垂直旋转
-     */
+    /// 获取垂直旋转
     public float getXRotation() {
         return switch (this) {
             case NORTH_UP, SOUTH_UP, WEST_UP, EAST_UP -> 0;

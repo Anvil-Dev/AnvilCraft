@@ -9,11 +9,9 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.level.block.Block;
 
 public class TranscendenceAnvilHammerItem extends AnvilHammerItem {
-    /**
-     * 初始化铁砧锤
-     *
-     * @param properties 物品属性
-     */
+    /// 初始化铁砧锤
+    ///
+    /// @param properties 物品属性
     public TranscendenceAnvilHammerItem(Properties properties) {
         super(
             properties.fireResistant()

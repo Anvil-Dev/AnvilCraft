@@ -16,21 +16,17 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-/**
- * 煮沸配方类
- *
- * <p>该配方用于在铁砧下落时煮沸物品，需要在铁砧下方放置炼药锅和点燃的营火作为触发条件</p>
- */
+/// 煮沸配方类
+///
+/// <p>该配方用于在铁砧下落时煮沸物品，需要在铁砧下方放置炼药锅和点燃的营火作为触发条件</p>
 @Getter
 public class BoilingRecipe extends AbstractProcessRecipe<BoilingRecipe> {
     public static final RecipeSerializer<BoilingRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(BoilingRecipe::new);
 
-    /**
-     * 构造一个煮沸配方
-     *
-     * @param itemIngredients 物品原料列表
-     * @param results         结果物品列表
-     */
+    /// 构造一个煮沸配方
+    ///
+    /// @param itemIngredients 物品原料列表
+    /// @param results         结果物品列表
     public BoilingRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results
@@ -68,18 +64,14 @@ public class BoilingRecipe extends AbstractProcessRecipe<BoilingRecipe> {
         return ModRecipeTypes.BOILING.get();
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * 煮沸配方构建器
-     */
+    /// 煮沸配方构建器
     public static class Builder extends SimpleAbstractBuilder<BoilingRecipe, Builder> {
         @Override
         public String getType() {

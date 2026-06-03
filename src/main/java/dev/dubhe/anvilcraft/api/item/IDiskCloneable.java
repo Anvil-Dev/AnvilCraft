@@ -11,25 +11,21 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 
-/**
- * 可用磁盘复制的方块
- */
+/// 可用磁盘复制的方块
 public interface IDiskCloneable {
 
     void storeDiskData(ValueOutput output);
 
     void applyDiskData(ValueInput input);
 
-    /**
-     * 使用磁盘物品与方块进行交互
-     *
-     * @param level 当前游戏世界
-     * @param player 执行交互的玩家
-     * @param hand 玩家使用的手（主手或副手）
-     * @param itemStack 玩家手中的物品堆
-     * @param hitResult 方块点击结果信息
-     * @return 交互结果，PASS表示不处理，SUCCESS表示处理成功
-     */
+    /// 使用磁盘物品与方块进行交互
+    ///
+    /// @param level 当前游戏世界
+    /// @param player 执行交互的玩家
+    /// @param hand 玩家使用的手（主手或副手）
+    /// @param itemStack 玩家手中的物品堆
+    /// @param hitResult 方块点击结果信息
+    /// @return 交互结果，PASS表示不处理，SUCCESS表示处理成功
     default InteractionResult useDisk(
         Level level,
         Player player,
