@@ -196,7 +196,6 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
             this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
         } else {
             this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
-            this.checkOnSignalEnd(level, pos, stateGetter, generator);
         }
     }
 
@@ -235,7 +234,10 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     @Override
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
-        this.update(level, pos, () -> level.getBlockState(pos));
+        if (level.getBlockEntity(pos) instanceof PulseGeneratorBlockEntity generator
+            && generator.getState() == PulseGeneratorBlockEntity.State.OUTPUTTING) {
+            this.checkOnSignalEnd(level, pos, () -> level.getBlockState(pos), generator);
+        }
         return true;
     }
 
