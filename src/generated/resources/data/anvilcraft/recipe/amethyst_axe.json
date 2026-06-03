@@ -11,6 +11,11 @@
     " B"
   ],
   "result": {
+    "components": {
+      "minecraft:enchantments": {
+        "anvilcraft:felling": 1
+      }
+    },
     "id": "anvilcraft:amethyst_axe"
   }
 }

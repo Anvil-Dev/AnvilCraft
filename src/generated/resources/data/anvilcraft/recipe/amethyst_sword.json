@@ -11,6 +11,11 @@
     "B"
   ],
   "result": {
+    "components": {
+      "minecraft:enchantments": {
+        "anvilcraft:beheading": 1
+      }
+    },
     "id": "anvilcraft:amethyst_sword"
   }
 }

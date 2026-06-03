@@ -2,13 +2,11 @@ package dev.dubhe.anvilcraft.data.provider.loot;
 
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
-import net.minecraft.core.Holder;
+import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderOwner;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -21,11 +19,11 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerC
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import org.jspecify.annotations.Nullable;
 
 import java.util.function.BiConsumer;
 
 public class BeheadingLootSubProvider implements LootTableSubProvider {
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private final HolderLookup.Provider provider;
 
     public BeheadingLootSubProvider(HolderLookup.Provider provider) {
@@ -129,7 +127,7 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
             .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
                 0.0F,
                 LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
-                new DummyHolder(ModEnchantments.BEHEADING_KEY)
+                new DummyHolder<>(ModEnchantments.BEHEADING_KEY)
             ))
             .when(LootItemKilledByPlayerCondition.killedByPlayer());
     }
@@ -142,21 +140,8 @@ public class BeheadingLootSubProvider implements LootTableSubProvider {
             .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
                 0.0F,
                 LevelBasedValue.perLevel(baseChance, bonusChancePerLevel),
-                new DummyHolder(ModEnchantments.BEHEADING_KEY)
+                new DummyHolder<>(ModEnchantments.BEHEADING_KEY)
             ))
             .when(LootItemKilledByPlayerCondition.killedByPlayer());
-    }
-
-    private static class DummyHolder extends Holder.Reference<Enchantment> {
-
-        @SuppressWarnings("DataFlowIssue")
-        protected DummyHolder(@Nullable ResourceKey<Enchantment> key) {
-            super(Type.STAND_ALONE, null, key, null);
-        }
-
-        @Override
-        public boolean canSerializeIn(HolderOwner<Enchantment> owner) {
-            return true;
-        }
     }
 }
