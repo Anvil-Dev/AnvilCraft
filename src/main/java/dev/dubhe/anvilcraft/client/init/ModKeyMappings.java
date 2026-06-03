@@ -13,7 +13,7 @@ import org.lwjgl.glfw.GLFW;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ModKeyMappings {
-    public static final KeyMapping.Category ANVILCRAFT_CATEGORY = KeyMapping.Category.register(AnvilCraft.of("anvilcraft"));
+    public static final KeyMapping.Category ANVILCRAFT_CATEGORY = new KeyMapping.Category(AnvilCraft.of("all"));
 
     public static final Lazy<KeyMapping> SWITCH_PHASE = register(
         "switch_phase",
@@ -53,6 +53,7 @@ public class ModKeyMappings {
 
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
+        event.registerCategory(ModKeyMappings.ANVILCRAFT_CATEGORY);
         event.register(SWITCH_PHASE.get());
         event.register(TOGGLE_GOGGLE.get());
         event.register(SWITCH_TOOL_MODE.get());
