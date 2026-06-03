@@ -8,13 +8,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class TeslaTowerButton extends Button {
             10,
             Component.literal(""),
             onPress,
-            var -> parent.getFilterTitle(index, variant).copy()
+            _ -> parent.getFilterTitle(index, variant).copy()
         );
         this.height = 15;
         this.width = 112;
@@ -81,13 +80,15 @@ public class TeslaTowerButton extends Button {
         if (this.isHovered()) {
             Component filterText = highlighted(
                 id, searchText.replaceFirst("#", ""), ChatFormatting.GRAY);
-            List<ClientTooltipComponent> tooltipComponents = filterText.getString().isEmpty()
-                ? List.of(ClientTooltipComponent.create(message.getVisualOrderText()))
-                : List.of(
-                    ClientTooltipComponent.create(message.getVisualOrderText()),
-                    ClientTooltipComponent.create(filterText.getVisualOrderText())
-                );
-            graphics.tooltip(font, tooltipComponents, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
+            List<FormattedCharSequence> tooltipComponents = filterText.getString().isEmpty()
+                ? List.of(message.getVisualOrderText())
+                : List.of(message.getVisualOrderText(), filterText.getVisualOrderText());
+            graphics.setTooltipForNextFrame(
+                font,
+                tooltipComponents,
+                mouseX,
+                mouseY
+            );
         }
     }
 

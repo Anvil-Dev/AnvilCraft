@@ -1,11 +1,8 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
 import dev.dubhe.anvilcraft.constant.SharedTextures;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -13,6 +10,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class OutputDirectionButton extends Button {
@@ -22,7 +20,7 @@ public class OutputDirectionButton extends Button {
         "screen.anvilcraft.button.direction", Component.translatable("screen.anvilcraft.button.direction.up"));
 
     public OutputDirectionButton(int x, int y, OnPress onPress, Direction direction) {
-        super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, var -> DEFAULT_MESSAGE);
+        super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, _ -> DEFAULT_MESSAGE);
         this.direction = direction;
     }
 
@@ -39,12 +37,11 @@ public class OutputDirectionButton extends Button {
     @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (this.isHovered()) {
-            List<ClientTooltipComponent> components = new ArrayList<>() {
-                {
-                    this.add(ClientTooltipComponent.create(getMessage().getVisualOrderText()));
-                }
-            };
-            graphics.tooltip(Minecraft.getInstance().font, components, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
+            graphics.setTooltipForNextFrame(
+                Collections.singletonList(this.getMessage().getVisualOrderText()),
+                mouseX,
+                mouseY
+            );
         }
         Identifier location = switch (this.direction) {
             case UP -> SharedTextures.BUTTON_U;

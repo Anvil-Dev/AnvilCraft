@@ -9,13 +9,10 @@ import dev.dubhe.anvilcraft.network.SilencerAddMutedPacket;
 import dev.dubhe.anvilcraft.network.SilencerRemoveMutedPacket;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -56,9 +53,6 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Getter
     private String filterText = "";
-
-    @Setter
-    private @Nullable List<ClientTooltipComponent> tooltipComponents;
 
     private boolean isDraggingLeft;
     private boolean isDraggingRight;
@@ -376,7 +370,6 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        this.tooltipComponents = null;
         super.extractContents(graphics, mouseX, mouseY, a);
         this.extractScroller(graphics, this.leftPos + 119, this.topPos + 35, this.filteredSounds.size(), this.leftScrollOff);
         this.extractScroller(graphics, this.leftPos + 245, this.topPos + 35, this.mutedSounds.size(), this.rightScrollOff);
@@ -416,12 +409,5 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             256,
             256
         );
-    }
-
-    @Override
-    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        super.extractTooltip(graphics, mouseX, mouseY);
-        if (this.tooltipComponents == null) return;
-        graphics.tooltip(this.font, this.tooltipComponents, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
     }
 }

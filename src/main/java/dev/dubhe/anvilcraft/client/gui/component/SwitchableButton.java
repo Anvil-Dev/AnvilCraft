@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -27,23 +26,34 @@ public class SwitchableButton extends Button {
     @Getter
     @Setter
     private int current = 0;
-    private final Consumer<List<ClientTooltipComponent>> tooltip;
 
     public SwitchableButton(
-        int x, int y, int width, int height,
-        List<Identifier> textures, int texYDiff, int textureWidth, int textureHeight,
-        OnPress onPress, Consumer<List<ClientTooltipComponent>> tooltip
+        int x,
+        int y,
+        int width,
+        int height,
+        List<Identifier> textures,
+        int texYDiff,
+        int textureWidth,
+        int textureHeight,
+        OnPress onPress
     ) {
-        this(x, y, width, height, textures, texYDiff, textureWidth, textureHeight, onPress, List.of(), tooltip);
+        this(x, y, width, height, textures, texYDiff, textureWidth, textureHeight, onPress, List.of());
     }
 
     public SwitchableButton(
-        int x, int y, int width, int height,
-        List<Identifier> textures, int texYDiff, int textureWidth, int textureHeight,
-        OnPress onPress, List<Component> message, Consumer<List<ClientTooltipComponent>> tooltip
+        int x,
+        int y,
+        int width,
+        int height,
+        List<Identifier> textures,
+        int texYDiff,
+        int textureWidth,
+        int textureHeight,
+        OnPress onPress,
+        List<Component> message
     ) {
         super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
-        this.tooltip = tooltip;
         this.textures.addAll(textures);
         this.message = message;
         this.texYDiff = texYDiff;
@@ -79,7 +89,7 @@ public class SwitchableButton extends Button {
             && !this.message.isEmpty()
             && this.textures.size() == this.message.size()
         ) {
-            this.tooltip.accept(Collections.singletonList(ClientTooltipComponent.create(this.getMessage().getVisualOrderText())));
+            graphics.setTooltipForNextFrame(Collections.singletonList(this.getMessage().getVisualOrderText()), mouseX, mouseY);
         }
     }
 

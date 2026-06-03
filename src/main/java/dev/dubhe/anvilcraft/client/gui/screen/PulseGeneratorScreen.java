@@ -12,8 +12,6 @@ import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -44,7 +42,6 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     private final Minecraft minecraft;
     private @Nullable TextWidget waitingTime;
     private @Nullable TextWidget signalDuration;
-    private @Nullable List<ClientTooltipComponent> tooltip;
 
     public PulseGeneratorScreen(PulseGeneratorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 176, 77);
@@ -71,29 +68,33 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
         final SwitchableButton startMode = new SwitchableButton(
             this.leftPos + 28,
             this.topPos + 25,
-            16, 16,
+            16,
+            16,
             List.of(SharedTextures.BUTTON_RISING_EDGE, SharedTextures.BUTTON_FALLING_EDGE, SharedTextures.BUTTON_LOOP),
-            16, 16, 32,
+            16,
+            16,
+            32,
             (_, index) -> this.menu.setStartMode((byte) index),
             List.of(
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop")
-            ),
-            tooltip -> this.tooltip = tooltip
+            )
         );
         final SwitchableButton outputMode = new SwitchableButton(
             this.leftPos + 28,
             this.topPos + 43,
-            16, 16,
+            16,
+            16,
             List.of(SharedTextures.BUTTON_REVERSE_OFF, SharedTextures.BUTTON_REVERSE_ON),
-            16, 16, 32,
+            16,
+            16,
+            32,
             (_, index) -> this.menu.setOutputInvert(index == 1),
             List.of(
                 Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on")
-            ),
-            tooltip -> this.tooltip = tooltip
+            )
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> addTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -178,12 +179,6 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
     }
 
     @Override
-    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        this.tooltip = null;
-        super.extractContents(graphics, mouseX, mouseY, a);
-    }
-
-    @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
         graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
@@ -203,14 +198,6 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             256,
             128
         );
-    }
-
-    @Override
-    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        super.extractTooltip(graphics, mouseX, mouseY);
-        if (this.tooltip != null) {
-            graphics.tooltip(this.font, this.tooltip, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
-        }
     }
 
     @Override
