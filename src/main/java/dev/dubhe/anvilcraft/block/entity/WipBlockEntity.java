@@ -56,6 +56,7 @@ public class WipBlockEntity extends BlockEntity {
             tag.getCompound("InitialBlock")
         );
         recipeId = ResourceLocation.parse(tag.getString("Recipe"));
+        // ResourceLocation.parse()自带空值处理，bySeparator会在切不出两片的时候返回withDefaultNamespace
     }
 
     @Override

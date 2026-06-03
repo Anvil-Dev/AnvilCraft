@@ -102,9 +102,10 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
 
     @Override
     public boolean matches(@NotNull InWorldRecipeContext ctx, @NotNull Level level) {
-        WipBlockEntity wip = getWipBlockFromContext(ctx);
-        if (wip == null) return false;
-        return wip.getStepCount() >= steps.size();
+        return false;
+        // 这个方法实际上不应该被调用（也没有情况会调用），
+        // 实际上ProceduralProcessRecipe也确实需要把每一步依次执行完才能完成，
+        // 因此它在静态的上下文中是不会“匹配”的，能够“匹配”的只能是它的每个步骤比如第一步或者最后一步
     }
 
     @Override
@@ -122,9 +123,8 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     @Override
     public @NotNull ItemStack getResultItem(HolderLookup.@NotNull Provider provider) {
         BlockState state = resultBlock.state();
-        if (state.isEmpty() || state.isAir()) return Items.ANVIL.getDefaultInstance();
+        if (state.isEmpty() || state.isAir()) return Items.AIR.getDefaultInstance();
         Item item = state.getBlock().asItem();
-        if (item == Items.AIR) item = Items.ANVIL;
         return item.getDefaultInstance();
     }
 

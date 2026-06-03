@@ -13,7 +13,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
-import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntity> {
@@ -46,7 +45,7 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
         for (RenderType renderType : types.asList()) {
             blockRenderDispatcher.getModelRenderer().renderModel(
                 poseStack.last(),
-                buffer.getBuffer(RenderTypeHelper.getMovingBlockRenderType(renderType)),
+                buffer.getBuffer(renderType),
                 state,
                 bakedModel,
                 0,

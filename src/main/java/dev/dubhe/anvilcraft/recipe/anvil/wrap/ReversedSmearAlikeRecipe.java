@@ -76,6 +76,9 @@ public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmea
                 .forGetter(ReversedSmearAlikeRecipe::getFirstResultBlock)
         ).apply(instance, ReversedSmearAlikeRecipe::new));
         // 实际上它的输入输出和涂抹都是一模一样的，只是位置不一样……
+        // 关于CODEC.codec()，ChanceBlockState.CODEC是MapCodec类型，
+        // 虽然实际上MapCodec确实也有fieldOf()，
+        // 不过这里还是保持和BlockSmearRecipe统一，转化成Codec类型了
 
         /**
          * 流编解码器

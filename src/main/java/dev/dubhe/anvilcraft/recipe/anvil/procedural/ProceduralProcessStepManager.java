@@ -191,6 +191,7 @@ public class ProceduralProcessStepManager {
                                     if (entry.getValue() != null && be != null) {
                                         be.loadWithComponents(entry.getValue(), sl.registryAccess());
                                         be.setChanged();
+                                        // 手动设置方块实体信息之后要再同步一次
                                         sl.sendBlockUpdated(
                                             pos,
                                             be.getBlockState(),
@@ -208,6 +209,8 @@ public class ProceduralProcessStepManager {
                                     wip2.setRecipeId(recipeId);
                                     // 将当前执行的配方设置进去
                                     wip2.setChanged();
+                                    // 对于wip方块来说也是一样的，手动设置方块实体信息之后要再同步一次
+                                    // 不然的话客户端虽然能看到那个方块，但是无法根据内部的方块实体信息变化渲染
                                     sl.sendBlockUpdated(
                                         wip2.getBlockPos(),
                                         wip2.getBlockState(),
@@ -228,8 +231,8 @@ public class ProceduralProcessStepManager {
                     if (possibleSteps == null || possibleSteps.isEmpty()) return false;
                     // 获取所有可能的第一步
                     for (ProceduralProcessStep step : possibleSteps) {
-                        // 这个context需要在每次判定之后从level信息重建，重新读取方块和物品信息，
-                        // 不然的话哪怕物品没有消耗，数量也会被临时扣掉导致下一次apr.matches的时候无法检测到
+                        // 这个context需要在每次判定之后从level信息重建，因为它【必须】重新读取方块和物品信息，
+                        // 不然的话哪怕物品没有消耗，数量也会被临时扣掉导致下一次apr.matches的时候无法匹配
                         InWorldRecipeContext contextOfStep = new InWorldRecipeContext(
                             sl,
                             event.getPos().getCenter().subtract(0.0, 0.5, 0.0),
