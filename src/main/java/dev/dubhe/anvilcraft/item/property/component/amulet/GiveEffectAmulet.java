@@ -130,7 +130,7 @@ public record GiveEffectAmulet(
 
     @Override
     public void inventoryTick(ServerPlayer player, ItemStack amulet, boolean isEnabled) {
-        if (this.predicate.isPresent() && !this.predicate.get().matches(player, player)) {
+        if (this.predicate.isPresent() && this.predicate.get().matches(player, player)) {
             return;
         }
         for (MobEffectInstance effect : this.effects) {
