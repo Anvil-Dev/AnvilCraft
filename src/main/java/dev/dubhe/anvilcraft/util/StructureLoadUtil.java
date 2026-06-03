@@ -20,6 +20,10 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.api.distmarker.Dist;
 import org.jetbrains.annotations.Nullable;
@@ -66,7 +70,8 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDisk(Level level, ItemStack diskStack) {
-        return loadStructureFromDisk(level, diskStack, true);
+        // 不过滤多方块方块，保留所有部件以便智能放置器正确应用蓝图状态
+        return loadStructureFromDisk(level, diskStack, false);
     }
 
     /**
@@ -175,7 +180,9 @@ public class StructureLoadUtil {
                     BlockState state = palette.get(stateIndex);
 
                     // 根据参数决定是否过滤多方块方块
-                    if (!filterMultiblock || !isMultiblockBlock(state)) {
+                    // 只过滤次要部件(secondary parts)，保留主体部件(main/anchor parts)
+                    // 主体部件通过 BlockItem.place() 可以自动创建所有次要部件
+                    if (!filterMultiblock || !isMultiblockBlock(state) || !isMultiblockSecondaryPart(state)) {
                         data.blocks.add(new BlockPosition(x, y, z, state));
                     }
                 }
@@ -300,15 +307,17 @@ public class StructureLoadUtil {
     public record BlockPosition(int x, int y, int z, BlockState state) {
     }
 
+    public static boolean isMultiblockBlock(BlockState state) {
+        return isMultiblockBlock(state.getBlock());
+    }
+
     /**
      * 检查一个方块是否为多方块方块
      *
-     * @param state 方块状态
+     * @param block 方块
      * @return 如果是多方块方块返回true
      */
-    private static boolean isMultiblockBlock(BlockState state) {
-        Block block = state.getBlock();
-
+    public static boolean isMultiblockBlock(Block block) {
         // 使用switch表达式检查是否实现了多方块方块相关接口
         if (
             switch (block) {
@@ -329,5 +338,48 @@ public class StructureLoadUtil {
 
         // 门（DOOR）：由上下两个方块组成
         return block instanceof DoorBlock;
+    }
+
+    /**
+     * 检查一个方块状态是否为多方块方块的次要部件（非主体/锚点部件）
+     * 次要部件在智能放置器加载结构时会被过滤掉，因为主体部件通过 BlockItem.place()
+     * 可以自动创建所有次要部件
+     *
+     * @param state 方块状态
+     * @return 如果是次要部件返回true
+     */
+    public static boolean isMultiblockSecondaryPart(BlockState state) {
+        Block block = state.getBlock();
+
+        // 检查原版床：FOOT是主体部件，HEAD是次要部件
+        if (block instanceof BedBlock) {
+            return state.hasProperty(BlockStateProperties.BED_PART)
+                && state.getValue(BlockStateProperties.BED_PART) == BedPart.HEAD;
+        }
+
+        // 检查原版门：LOWER是主体部件，UPPER是次要部件
+        if (block instanceof DoorBlock) {
+            return state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
+                && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER;
+        }
+
+        // 检查模组多方块方块：
+        // 主体部件 = 方块默认状态中的部件（即 BlockItem.place() 时放置在点击位置的部件）
+        // 次要部件 = 所有其他部件
+        if (block instanceof AbstractMultiPartBlock<?> multiPartBlock) {
+            try {
+                BlockState defaultState = block.defaultBlockState();
+                Property<?> partProperty = multiPartBlock.getPart();
+                if (defaultState.hasProperty(partProperty) && state.hasProperty(partProperty)) {
+                    Comparable<?> defaultPart = defaultState.getValue(partProperty);
+                    Comparable<?> statePart = state.getValue(partProperty);
+                    return !statePart.equals(defaultPart);
+                }
+            } catch (Exception e) {
+                LOGGER.debug("Failed to determine multi-block part type for {}: {}", block, e.getMessage());
+            }
+        }
+
+        return false;
     }
 }

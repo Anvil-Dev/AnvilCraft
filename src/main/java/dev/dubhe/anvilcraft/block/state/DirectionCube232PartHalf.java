@@ -96,17 +96,17 @@ public enum DirectionCube232PartHalf
     public DirectionCube232PartHalf rotate(Rotation rotation) {
         return switch (rotation) {
             case NONE -> this;
-            case CLOCKWISE_90 -> this.clockwise90;
-            case CLOCKWISE_180 -> this.clockwise180;
-            case COUNTERCLOCKWISE_90 -> this.clockwise270;
+            case CLOCKWISE_90 -> this.clockwise90 != null ? this.clockwise90 : this;
+            case CLOCKWISE_180 -> this.clockwise180 != null ? this.clockwise180 : this;
+            case COUNTERCLOCKWISE_90 -> this.clockwise270 != null ? this.clockwise270 : this;
         };
     }
 
     public DirectionCube232PartHalf mirror(Mirror mirror) {
         return switch (mirror) {
             case NONE -> this;
-            case LEFT_RIGHT -> this.mirrorZ;
-            case FRONT_BACK -> this.mirrorX;
+            case LEFT_RIGHT -> this.mirrorZ != null ? this.mirrorZ : this;
+            case FRONT_BACK -> this.mirrorX != null ? this.mirrorX : this;
         };
     }
 }

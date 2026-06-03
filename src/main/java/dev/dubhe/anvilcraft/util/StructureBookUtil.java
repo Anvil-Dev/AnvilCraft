@@ -38,8 +38,13 @@ public class StructureBookUtil {
         }
 
         // 第一步: 统计蓝图中需要的方块数量
+        // 过滤掉多方块方块的次要部件，只统计主体部件（每个多方块结构只需1个方块物品）
         Map<Block, Integer> requiredBlocks = new LinkedHashMap<>();
         for (var blockPosition : loadedStructure.blocks) {
+            // 跳过多方块方块的次要部件
+            if (StructureLoadUtil.isMultiblockSecondaryPart(blockPosition.state())) {
+                continue;
+            }
             Block block = blockPosition.state().getBlock();
             // 检查是否是可堆叠方块，如果是则累加堆叠数量
             int stackCount = getStackCountFromState(blockPosition.state());
@@ -185,9 +190,15 @@ public class StructureBookUtil {
 
         // 遍历所有位置，检查世界中是否已经放置了正确的方块
         for (int i = 0; i < loadedStructure.blocks.size() && i < allPositions.size(); i++) {
+            BlockState expectedState = loadedStructure.blocks.get(i).state();
+
+            // 跳过多方块方块的次要部件，与需求统计保持一致
+            if (StructureLoadUtil.isMultiblockSecondaryPart(expectedState)) {
+                continue;
+            }
+
             BlockPos targetPos = allPositions.get(i);
             BlockState worldState = level.getBlockState(targetPos);
-            BlockState expectedState = loadedStructure.blocks.get(i).state();
 
             totalChecked++;
 
