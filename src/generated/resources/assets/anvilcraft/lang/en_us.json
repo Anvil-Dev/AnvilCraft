@@ -1378,6 +1378,8 @@
   "tooltip.anvilcraft.resonator.mining_desc": "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click",
   "tooltip.anvilcraft.space_overcompressor.stored_mass": "Stored Mass: %s",
   "tooltip.anvilcraft.thought": "Press [%s] for more info",
+  "tooltip.anvilcraft.wip.recipe": "Procedural Recipe: %s",
+  "tooltip.anvilcraft.wip.step_count": "Steps Executed: %d",
   "tooltip.anvilcraft.working_progress.progress": "  %1$s %2$s%%",
   "tooltip.anvilcraft.working_progress.title": "Working progress:"
 }

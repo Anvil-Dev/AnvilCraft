@@ -59,7 +59,7 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
      */
     public final Optional<ProceduralProcessStep> multiLoopFirstStep;
 
-    // TODO: JEI（查看配方）和Jade（查看方块实体内容：哪个配方第几步）支持
+    // TODO: 由于JEI支持会需要比较复杂的显示方式和UI，而目前还没有说要写成什么样子的，所以暂时没有JEI支持
 
     public ProceduralProcessRecipe(
         BlockStatePredicate initialBlock,
