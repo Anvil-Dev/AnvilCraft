@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -75,7 +74,7 @@ public class BurningHeaterBlock extends BaseEntityBlock {
         ItemStack held = player.getMainHandItem();
         ItemStack current = handler.getStackInSlot(0);
 
-        if (!held.isEmpty() && FurnaceBlockEntity.isFuel(held)) {
+        if (!held.isEmpty() && BurningHeaterBlockEntity.getItemBurnTime(held) > 0) {
             ItemStack remaining = handler.insertItem(0, held, false);
             if (remaining.getCount() != held.getCount()) {
                 player.setItemInHand(player.getUsedItemHand(), remaining);

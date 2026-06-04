@@ -2,26 +2,36 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
+import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
+import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeOutcomeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -66,8 +76,13 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
                 BlockStatePredicate.builder()
                     .of(ModBlocks.HEATER.get())
                     .with(HeaterBlock.OVERLOAD, false)
+                    .or()
+                    .of(ModBlocks.BURNING_HEATER.get())
+                    .with(BurningHeaterBlock.LEVEL, 2)
                     .build()
             );
+
+        property.addOutcome(new ConsumeFuel());
 
         for (ChanceItemStack result : results) {
             if (result.stack().is(ModItems.ROYAL_STEEL_INGOT.get()) || result.stack().is(ModBlocks.ROYAL_STEEL_BLOCK.get().asItem())) {
@@ -253,6 +268,57 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         @Override
         protected Builder getThis() {
             return this;
+        }
+    }
+
+    /**
+     * 消耗燃烧加热器燃料的配方结果
+     *
+     * <p>当铁砧合成成功时，检查下方是否存在点燃状态的燃烧加热器，
+     * 如果存在则消耗300秒（6000tick）的燃烧时间</p>
+     */
+    public record ConsumeFuel() implements IRecipeOutcome<ConsumeFuel> {
+        /**
+         * 每次合成消耗的燃烧时间（tick），240秒 = 4800tick
+         */
+        public static final int FUEL_COST_TICKS = 240 * 20;
+
+        /**
+         * 标记一次铁砧落地事件中是否已消耗过燃料，防止多个物品匹配时重复消耗
+         */
+        public static final InWorldRecipeData<Boolean> FUEL_CONSUMED =
+            InWorldRecipeData.of(AnvilCraft.of("super_heating_fuel_consumed"), false);
+
+        @Override
+        public IRecipeOutcome.Type<ConsumeFuel> getType() {
+            return ModRecipeOutcomeTypes.CONSUME_BURNING_HEATER_FUEL.get();
+        }
+
+        @Override
+        public void accept(InWorldRecipeContext context) {
+            if (context.get(FUEL_CONSUMED)) return;
+            context.put(FUEL_CONSUMED, true);
+            ServerLevel level = context.getLevel();
+            Vec3 pos = context.getPos();
+            BlockPos anvilBlockPos = BlockPos.containing(pos.x(), pos.y() + 0.5, pos.z());
+            BlockPos heaterPos = anvilBlockPos.below(2);
+            BlockState state = level.getBlockState(heaterPos);
+            if (!(state.getBlock() instanceof BurningHeaterBlock)) return;
+            if (state.getValue(BurningHeaterBlock.LEVEL) != 2) return;
+            if (!(level.getBlockEntity(heaterPos) instanceof BurningHeaterBlockEntity be)) return;
+            be.consumeBurnTime(FUEL_COST_TICKS);
+        }
+
+        public static class Type implements IRecipeOutcome.Type<ConsumeFuel> {
+            @Override
+            public MapCodec<ConsumeFuel> codec() {
+                return MapCodec.unit(new ConsumeFuel());
+            }
+
+            @Override
+            public StreamCodec<RegistryFriendlyByteBuf, ConsumeFuel> streamCodec() {
+                return StreamCodec.unit(new ConsumeFuel());
+            }
         }
     }
 }

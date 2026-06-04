@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
+import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -11,7 +13,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -35,7 +36,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return FurnaceBlockEntity.isFuel(stack) || stack.is(Items.BUCKET);
+            return getItemBurnTime(stack) > 0 || stack.is(Items.BUCKET);
         }
     };
 
@@ -49,7 +50,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     }
 
     /**
-     * 服务端tick：倒计时燃烧时间并自动消耗燃料，更新方块状态
+     * 服务端tick：倒计时燃烧时间并自动补充燃料，更新方块状态
      */
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (this.burnTime > 0) {
@@ -58,10 +59,19 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
                 setChanged();
             }
         }
-        if (this.burnTime <= 0) {
-            tryConsumeFuel();
-        }
+        tryConsumeFuel();
         updateBurningState(level, pos, state);
+        HeaterManager.addProducer(pos, level, ModHeaterInfos.BURNING_HEATER);
+    }
+
+    /**
+     * 消耗燃烧时间（用于铁砧合成）
+     *
+     * @param ticks 消耗的tick数
+     */
+    public void consumeBurnTime(int ticks) {
+        this.burnTime = Math.max(0, this.burnTime - ticks);
+        setChanged();
     }
 
     /**
@@ -82,44 +92,32 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     }
 
     /**
-     * 尝试消耗燃料槽中的燃料来补充燃烧时间
+     * 尝试消耗燃料槽中的燃料来补充燃烧时间。
+     * 仅当剩余空间足以完整消耗一个燃料时才消耗，不浪费燃料的燃烧时间。
      */
     private void tryConsumeFuel() {
-        ItemStack fuel = this.itemHandler.getStackInSlot(0);
-        if (fuel.isEmpty()) return;
         if (this.burnTime >= MAX_BURN_TIME) return;
 
+        ItemStack fuel = this.itemHandler.getStackInSlot(0);
         int burnTimePerItem = getItemBurnTime(fuel);
         if (burnTimePerItem <= 0) return;
 
-        int remaining = MAX_BURN_TIME - this.burnTime;
-        int maxConsumable = Math.max(1, remaining / burnTimePerItem);
-        int itemsToConsume = Math.min(fuel.getCount(), maxConsumable);
+        int itemsToConsume = Math.min(fuel.getCount(), (MAX_BURN_TIME - this.burnTime) / burnTimePerItem);
+        if (itemsToConsume <= 0) return;
 
         this.burnTime += itemsToConsume * burnTimePerItem;
-        if (this.burnTime > MAX_BURN_TIME) {
-            this.burnTime = MAX_BURN_TIME;
-        }
 
-        // 熔岩桶特殊处理：消耗后留下空桶
-        if (fuel.is(Items.LAVA_BUCKET)) {
-            int newCount = fuel.getCount() - itemsToConsume;
-            if (newCount <= 0) {
-                this.itemHandler.setStackInSlot(0, new ItemStack(Items.BUCKET));
-            } else {
-                fuel.shrink(itemsToConsume);
-                // 尝试将空桶放入槽中（与剩余熔岩桶共存时无法堆叠，空桶直接丢弃）
-            }
-        } else {
-            fuel.shrink(itemsToConsume);
+        this.itemHandler.extractItem(0, itemsToConsume, false);
+        // 熔岩桶等容器物品：消耗后槽位空时留下空桶
+        if (fuel.hasCraftingRemainingItem() && this.itemHandler.getStackInSlot(0).isEmpty()) {
+            this.itemHandler.setStackInSlot(0, fuel.getCraftingRemainingItem());
         }
-        setChanged();
     }
 
     /**
      * 获取单个物品的燃烧时间（tick）
      */
-    private static int getItemBurnTime(ItemStack stack) {
+    public static int getItemBurnTime(ItemStack stack) {
         if (stack.isEmpty()) return 0;
         FurnaceFuel fuel = stack.getItem().builtInRegistryHolder()
             .getData(NeoForgeDataMaps.FURNACE_FUELS);

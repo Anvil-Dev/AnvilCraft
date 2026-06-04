@@ -9,9 +9,15 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.item_detector", "Item Detector");
         provider.add("config.jade.plugin_anvilcraft.space_overcompressor", "Space Overcompressor");
         provider.add("config.jade.plugin_anvilcraft.heatable_block_provider", "Heatable Block");
+        provider.add("config.jade.plugin_anvilcraft.burning_heater_provider", "Burning Heater");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");
         provider.add("tooltip.anvilcraft.jade.item_detector", "Detection Range: %d");
+
+        provider.add("tooltip.anvilcraft.burning_heater.state.off", "\u00a77State: Off");
+        provider.add("tooltip.anvilcraft.burning_heater.state.smoldering", "\u00a7cState: Smoldering");
+        provider.add("tooltip.anvilcraft.burning_heater.state.lit", "\u00a76State: Lit");
+        provider.add("tooltip.anvilcraft.burning_heater.burn_time", "Remaining Burn Time: %s");
     }
 }
