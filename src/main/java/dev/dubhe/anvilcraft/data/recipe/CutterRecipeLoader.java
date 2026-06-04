@@ -158,7 +158,7 @@ public class CutterRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
             .save(provider, "cutting_brass_pillar_from_brass_block");
 
-        // 黄制青铜块 -> 切制黄铜楼梯x1
+        // 切制黄铜块 -> 切制黄铜楼梯x1
         SingleItemRecipeBuilder
             .stonecutting(
                 Ingredient.of(ModBlocks.CUT_BRASS_BLOCK),
@@ -166,7 +166,7 @@ public class CutterRecipeLoader {
                 ModBlocks.CUT_BRASS_STAIRS,
                 1
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.CUT_BRASS_BLOCK))
             .save(provider, "cutting_brass_stairs_from_cut_brass_block");
 
         // 切制黄铜块 -> 切制黄铜台阶x2
