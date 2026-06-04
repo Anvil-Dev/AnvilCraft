@@ -32,7 +32,8 @@ public class CapabilitiesEventListener {
             ModBlockEntities.FISH_TANK.get(),
             ModBlockEntities.STRUCTURE_SCANNER.get(),
             ModBlockEntities.SMART_BLOCK_PLACER.get(),
-            ModBlockEntities.TRADING_STATION.get()
+            ModBlockEntities.TRADING_STATION.get(),
+            ModBlockEntities.BURNING_HEATER.get()
         ).forEach(type -> event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
                 type,

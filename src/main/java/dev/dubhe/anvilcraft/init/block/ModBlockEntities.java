@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
@@ -140,6 +141,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<HeaterBlockEntity> HEATER = REGISTRUM.blockEntity("heater", HeaterBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.HEATER)
         .register();
+
+    public static final BlockEntityEntry<BurningHeaterBlockEntity> BURNING_HEATER = REGISTRUM.blockEntity(
+        "burning_heater",
+        BurningHeaterBlockEntity::new
+    ).validBlock(ModBlocks.BURNING_HEATER).register();
 
     public static final BlockEntityEntry<TransmissionPoleBlockEntity> TRANSMISSION_POLE = REGISTRUM.blockEntity(
         "transmission_pole",
