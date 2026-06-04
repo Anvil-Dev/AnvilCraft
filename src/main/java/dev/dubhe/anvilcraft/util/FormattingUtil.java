@@ -72,7 +72,7 @@ public class FormattingUtil {
         int seconds = (total / 20) % 60;
 
         if (minutes > 0) {
-            String sec = seconds > 0 ? seconds + "s" : "";
+            String sec = seconds > 0 ? " " + seconds + "s" : "";
             return minutes + "m" + sec;
         }
 
