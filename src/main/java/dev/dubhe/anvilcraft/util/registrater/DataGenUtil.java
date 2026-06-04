@@ -578,6 +578,19 @@ public class DataGenUtil {
     }
 
     public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> horizontalFacingBlockInverted(
+    ) {
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Block, T> ctx, RegistrumBlockModelGenerator generator) {
+                generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                    ctx.get(),
+                    BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
+                ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING_ALT));
+            }
+        };
+    }
+
+    public static <T extends Block> NonNullBiConsumer<DataGenContext<Block, T>, RegistrumBlockModelGenerator> horizontalFacingBlockInverted(
         BooleanProperty extra,
         NonNullFunction<DataGenContext<Block, T>, Identifier> onTrueFac,
         NonNullFunction<DataGenContext<Block, T>, Identifier> onFalseFac
