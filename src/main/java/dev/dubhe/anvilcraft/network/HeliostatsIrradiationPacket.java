@@ -47,6 +47,9 @@ public record HeliostatsIrradiationPacket(BlockPos pos, @Nullable BlockPos irrit
 
     @Override
     public void handleOnServer(Player player) {
+        if (!player.level().isLoaded(this.pos)) {
+            return;
+        }
         if (!(player.level().getBlockEntity(this.pos) instanceof HeliostatsBlockEntity heliostats)) return;
         PacketDistributor.sendToPlayer(
             Util.cast(player),
