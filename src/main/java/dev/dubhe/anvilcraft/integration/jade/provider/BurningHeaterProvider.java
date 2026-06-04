@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,6 +40,15 @@ public enum BurningHeaterProvider implements IBlockComponentProvider, IServerDat
                     "tooltip.anvilcraft.burning_heater.burn_time",
                     FormattingUtil.toFormattedTime(displayBurnTime, 1)));
             }
+
+            // Can smelt indicator
+            boolean canSmelt = level == 2;
+            tooltip.add(Component.translatable(
+                "tooltip.anvilcraft.burning_heater.jade.can_smelt",
+                Component.translatable(canSmelt
+                    ? "tooltip.anvilcraft.burning_heater.jade.can_smelt.yes"
+                    : "tooltip.anvilcraft.burning_heater.jade.can_smelt.no")
+                    .withStyle(canSmelt ? ChatFormatting.GREEN : ChatFormatting.RED)));
         }
     }
 

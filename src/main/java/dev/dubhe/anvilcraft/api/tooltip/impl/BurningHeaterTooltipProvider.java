@@ -34,7 +34,7 @@ public class BurningHeaterTooltipProvider extends ITooltipProvider.BlockEntityTo
         } else {
             // fallback: infer from burnTime
             int burnTime = be.getBurnTime();
-            if (burnTime >= 300 * 20) {
+            if (burnTime >= BurningHeaterBlockEntity.LIT_THRESHOLD) {
                 level = 2;
             } else if (burnTime > 0) {
                 level = 1;
@@ -63,6 +63,17 @@ public class BurningHeaterTooltipProvider extends ITooltipProvider.BlockEntityTo
             lines.add(Component.literal(
                 "  " + FormattingUtil.toFormattedTime(burnTime, 1)
             ).withStyle(ChatFormatting.GRAY));
+        }
+
+        // Can smelt indicator (BLUE + GRAY)
+        lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.can_smelt")
+            .withStyle(ChatFormatting.BLUE));
+        if (level == 2) {
+            lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.can_smelt.yes")
+                .withStyle(ChatFormatting.GRAY));
+        } else {
+            lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.can_smelt.no")
+                .withStyle(ChatFormatting.DARK_GRAY));
         }
 
         return lines;

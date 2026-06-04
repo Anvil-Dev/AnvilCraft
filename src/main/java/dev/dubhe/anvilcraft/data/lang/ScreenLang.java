@@ -105,6 +105,15 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.burning_heater.state_name.smoldering", "  Smoldering");
         provider.add("tooltip.anvilcraft.burning_heater.state_name.lit", "  Lit");
         provider.add("tooltip.anvilcraft.burning_heater.burn_time_label", "Remaining Burn Time:");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt", "Can Smelt:");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt.yes", "  Yes");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt.no", "  No");
+
+        // Jade provider also uses these — no .jade. infix needed as they share the tooltip.anvilcraft.burning_heater namespace
+        provider.add("tooltip.anvilcraft.burning_heater.state.off", "State: Off");
+        provider.add("tooltip.anvilcraft.burning_heater.state.smoldering", "State: Smoldering");
+        provider.add("tooltip.anvilcraft.burning_heater.state.lit", "State: Lit");
+        provider.add("tooltip.anvilcraft.burning_heater.burn_time", "Remaining Burn Time: %s");
 
         provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");

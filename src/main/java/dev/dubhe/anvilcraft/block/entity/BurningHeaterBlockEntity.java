@@ -7,11 +7,15 @@ import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -29,6 +33,11 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
      * 最大燃烧时间：1200秒 = 24000tick
      */
     public static final int MAX_BURN_TIME = 1200 * 20;
+
+    /**
+     * 点燃 (level=2) 的燃烧时间阈值：300秒 = 6000tick
+     */
+    public static final int LIT_THRESHOLD = 300 * 20;
 
     @Getter
     private int burnTime = 0;
@@ -109,6 +118,29 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
         }
         tryConsumeFuel();
         updateBurningState(level, pos, state);
+
+        // Client: 燃烧时播放熔炉的火焰噼啪音效并在顶部渲染粒子
+        if (level.isClientSide() && state.getValue(BurningHeaterBlock.LEVEL) == 2) {
+            RandomSource random = level.random;
+            if (random.nextInt(40) == 0) {
+                level.playLocalSound(pos, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0f, 1.0f, true);
+            }
+            // 火焰粒子
+            if (random.nextInt(3) == 0) {
+                double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
+                double y = pos.getY() + 1.0;
+                double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
+                level.addParticle(ParticleTypes.FLAME, x, y, z, 0.0, 0.05, 0.0);
+            }
+            // 烟雾粒子
+            if (random.nextInt(5) == 0) {
+                double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
+                double y = pos.getY() + 1.0;
+                double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
+                level.addParticle(ParticleTypes.SMOKE, x, y, z, 0.0, 0.1, 0.0);
+            }
+        }
+
         HeaterManager.addProducer(pos, level, ModHeaterInfos.BURNING_HEATER);
     }
 
@@ -127,7 +159,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
      */
     private void updateBurningState(Level level, BlockPos pos, BlockState state) {
         int targetLevel;
-        if (this.burnTime >= 300 * 20) {
+        if (this.burnTime >= LIT_THRESHOLD) {
             targetLevel = 2; // 点燃
         } else if (this.burnTime > 0) {
             targetLevel = 1; // 阴燃
