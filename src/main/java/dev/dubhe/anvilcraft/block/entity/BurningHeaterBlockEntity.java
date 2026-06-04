@@ -8,6 +8,10 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -18,6 +22,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import org.jetbrains.annotations.Nullable;
 
 public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandlerHolder {
     /**
@@ -27,6 +32,11 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
 
     @Getter
     private int burnTime = 0;
+
+    /**
+     * 客户端上次同步到 burnTime 时的游戏时间（用于本地倒计时估算）
+     */
+    private long lastSyncGameTime = 0;
 
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
@@ -47,6 +57,44 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     @Override
     public IItemHandler getItemHandler() {
         return this.itemHandler;
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        return saveWithoutMetadata(provider);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
+        super.onDataPacket(net, pkt, provider);
+        if (level != null) {
+            this.lastSyncGameTime = level.getGameTime();
+        }
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null) {
+            this.lastSyncGameTime = level.getGameTime();
+        }
+    }
+
+    /**
+     * 获取用于显示的燃烧时间。
+     * 在客户端上，根据上次同步时间进行本地倒计时估算，实现平滑刷新。
+     */
+    public int getDisplayBurnTime() {
+        if (level == null || !level.isClientSide()) return burnTime;
+        if (lastSyncGameTime <= 0) return burnTime;
+        int elapsed = (int) (level.getGameTime() - this.lastSyncGameTime);
+        return Math.max(0, this.burnTime - elapsed);
     }
 
     /**

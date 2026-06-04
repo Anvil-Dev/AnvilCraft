@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.tooltip;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.impl.AffectRangeProviderImpl;
+import dev.dubhe.anvilcraft.api.tooltip.impl.BurningHeaterTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.ChargerTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.DeflectionRingTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeatCollectorTooltipProvider;
@@ -30,10 +31,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import javax.annotation.Nullable;
 
 import static dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper.renderOutline;
 import static dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper.renderTooltipWithItemIcon;
@@ -57,6 +58,7 @@ public class HudTooltipManager {
         INSTANCE.registerHandHeldItemTooltip(new HeliostatsTooltip());
         INSTANCE.registerBlockEntityTooltip(new HeliostatsTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new SpaceOvercompressorTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new BurningHeaterTooltipProvider());
         INSTANCE.registerHandHeldItemTooltip(ModItems.STRUCTURE_TOOL.get());
         INSTANCE.registerBlockTooltip(new InjectedBlockTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new InjectedBlockEntityTooltipProvider());
