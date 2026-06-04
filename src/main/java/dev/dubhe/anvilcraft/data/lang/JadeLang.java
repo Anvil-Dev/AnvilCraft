@@ -15,9 +15,9 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");
         provider.add("tooltip.anvilcraft.jade.item_detector", "Detection Range: %d");
 
-        provider.add("tooltip.anvilcraft.burning_heater.state.off", "\u00a77State: Off");
-        provider.add("tooltip.anvilcraft.burning_heater.state.smoldering", "\u00a7cState: Smoldering");
-        provider.add("tooltip.anvilcraft.burning_heater.state.lit", "\u00a76State: Lit");
+        provider.add("tooltip.anvilcraft.burning_heater.state.off", "State: Off");
+        provider.add("tooltip.anvilcraft.burning_heater.state.smoldering", "cState: Smoldering");
+        provider.add("tooltip.anvilcraft.burning_heater.state.lit", "State: Lit");
         provider.add("tooltip.anvilcraft.burning_heater.burn_time", "Remaining Burn Time: %s");
     }
 }
