@@ -2034,14 +2034,14 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_BRONZE_BLOCK = REGISTRUM
         .block("cut_bronze_block", Block::new)
         .lang("Cut Bronze")
-        .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .initialProperties(BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 
     public static final BlockEntry<? extends StairBlock> CUT_BRONZE_STAIRS = REGISTRUM
         .block("cut_bronze_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRONZE_BLOCK.getDefaultState(), properties))
-        .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .initialProperties(BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_bronze_block")))
         .simpleItem()
@@ -2049,7 +2049,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends SlabBlock> CUT_BRONZE_SLAB = REGISTRUM
         .block("cut_bronze_slab", SlabBlock::new)
-        .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .initialProperties(BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/cut_bronze_block"), AnvilCraft.of("block/cut_bronze_block"));
@@ -2059,11 +2059,18 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends RotatedPillarBlock> CUT_BRONZE_PILLAR = REGISTRUM
         .block("cut_bronze_pillar", RotatedPillarBlock::new)
-        .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .initialProperties(BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> {
             provider.axisBlock(ctx.get(), of("block/cut_bronze_pillar"), of("block/cut_bronze_pillar_top"));
         })
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends Block> CHISELED_BRONZE_BLOCK = REGISTRUM
+        .block("chiseled_bronze_block", Block::new)
+        .initialProperties(BRONZE_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 
@@ -2079,14 +2086,14 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_BRASS_BLOCK = REGISTRUM
         .block("cut_brass_block", Block::new)
         .lang("Cut Brass")
-        .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .initialProperties(BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 
     public static final BlockEntry<? extends StairBlock> CUT_BRASS_STAIRS = REGISTRUM
         .block("cut_brass_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRONZE_BLOCK.getDefaultState(), properties))
-        .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .initialProperties(BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_brass_block")))
         .simpleItem()
@@ -2094,7 +2101,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends SlabBlock> CUT_BRASS_SLAB = REGISTRUM
         .block("cut_brass_slab", SlabBlock::new)
-        .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .initialProperties(BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/cut_brass_block"), AnvilCraft.of("block/cut_brass_block"));
@@ -2104,11 +2111,18 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends RotatedPillarBlock> CUT_BRASS_PILLAR = REGISTRUM
         .block("cut_brass_pillar", RotatedPillarBlock::new)
-        .initialProperties(() -> Blocks.COPPER_BLOCK)
+        .initialProperties(BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> {
             provider.axisBlock(ctx.get(), of("block/cut_brass_pillar"), of("block/cut_brass_pillar_top"));
         })
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends Block> CHISELED_BRASS_BLOCK = REGISTRUM
+        .block("chiseled_brass_block", Block::new)
+        .initialProperties(BRASS_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 

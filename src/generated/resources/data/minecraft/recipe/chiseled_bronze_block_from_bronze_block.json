@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:bronze_block"
+  },
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:chiseled_bronze_block"
+  }
+}
