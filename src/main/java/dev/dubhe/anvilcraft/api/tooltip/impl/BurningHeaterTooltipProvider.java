@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.util.CompatUtil;
+import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -43,25 +44,25 @@ public class BurningHeaterTooltipProvider extends ITooltipProvider.BlockEntityTo
         }
 
         // State header (BLUE)
-        lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.state")
+        lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.state_name")
             .withStyle(ChatFormatting.BLUE));
 
         // State value (GRAY)
         String stateKey = switch (level) {
-            case 1 -> "tooltip.anvilcraft.burning_heater.state.smoldering";
-            case 2 -> "tooltip.anvilcraft.burning_heater.state.lit";
-            default -> "tooltip.anvilcraft.burning_heater.state.off";
+            case 1 -> "tooltip.anvilcraft.burning_heater.state_name.smoldering";
+            case 2 -> "tooltip.anvilcraft.burning_heater.state_name.lit";
+            default -> "tooltip.anvilcraft.burning_heater.state_name.off";
         };
         lines.add(Component.translatable(stateKey).withStyle(ChatFormatting.GRAY));
 
         // Burn time header (BLUE) + value (GRAY)
         int burnTime = be.getDisplayBurnTime();
         if (burnTime > 0) {
-            lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.burn_time")
+            lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.burn_time_label")
                 .withStyle(ChatFormatting.BLUE));
-            int totalSec = burnTime / 20;
-            String timeStr = (totalSec / 60) + "m " + (totalSec % 60) + "s";
-            lines.add(Component.literal("  " + timeStr).withStyle(ChatFormatting.GRAY));
+            lines.add(Component.literal(
+                "  " + FormattingUtil.toFormattedTime(burnTime, 1)
+            ).withStyle(ChatFormatting.GRAY));
         }
 
         return lines;

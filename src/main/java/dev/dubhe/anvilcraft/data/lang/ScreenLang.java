@@ -100,6 +100,12 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.propel_piston.remaining_energy", "  Remaining Energy: %s");
         provider.add("tooltip.anvilcraft.propel_piston.remaining_push", "  Remaining Push: %s block-time");
 
+        provider.add("tooltip.anvilcraft.burning_heater.state_name", "State:");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.off", "  Off");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.smoldering", "  Smoldering");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.lit", "  Lit");
+        provider.add("tooltip.anvilcraft.burning_heater.burn_time_label", "Remaining Burn Time:");
+
         provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");
 

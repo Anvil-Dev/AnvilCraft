@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
+import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -29,14 +30,14 @@ public enum BurningHeaterProvider implements IBlockComponentProvider, IServerDat
         };
         tooltip.add(Component.translatable(stateKey));
 
-        CompoundTag serverData = accessor.getServerData();
-        if (serverData.contains("burnTime")) {
-            int burnTime = serverData.getInt("burnTime");
-            if (burnTime > 0) {
-                int totalSec = burnTime / 20;
+        // Use getDisplayBurnTime() for client-side live countdown,
+        // matching the HUD tooltip display
+        if (accessor.getBlockEntity() instanceof BurningHeaterBlockEntity be) {
+            int displayBurnTime = be.getDisplayBurnTime();
+            if (displayBurnTime > 0) {
                 tooltip.add(Component.translatable(
                     "tooltip.anvilcraft.burning_heater.burn_time",
-                    totalSec / 60 + "m " + totalSec % 60 + "s"));
+                    FormattingUtil.toFormattedTime(displayBurnTime, 1)));
             }
         }
     }
