@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -23,6 +24,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
      */
     public static final int MAX_BURN_TIME = 1200 * 20;
 
+    @Getter
     private int burnTime = 0;
 
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
@@ -44,10 +46,6 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     @Override
     public IItemHandler getItemHandler() {
         return this.itemHandler;
-    }
-
-    public int getBurnTime() {
-        return this.burnTime;
     }
 
     /**
