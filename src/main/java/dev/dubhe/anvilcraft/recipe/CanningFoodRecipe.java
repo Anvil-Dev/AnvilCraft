@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.recipe.display.recipe.CanningFoodRecipeDisplay;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -13,9 +14,11 @@ import net.minecraft.world.item.component.UseRemainder;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +33,7 @@ public class CanningFoodRecipe extends CustomRecipe {
         return foodStack.has(DataComponents.FOOD) && !foodStack.is(ModFoodItems.CANNED_FOOD);
     }
 
+    @Override
     public boolean matches(CraftingInput input, Level level) {
         List<ItemStack> items = new ArrayList<>();
         for (ItemStack item : input.items()) {
@@ -98,5 +102,10 @@ public class CanningFoodRecipe extends CustomRecipe {
     @Override
     public RecipeSerializer<CanningFoodRecipe> getSerializer() {
         return SERIALIZER;
+    }
+
+    @Override
+    public List<RecipeDisplay> display() {
+        return Collections.singletonList(CanningFoodRecipeDisplay.INSTANCE.get());
     }
 }

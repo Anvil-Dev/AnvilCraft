@@ -105,6 +105,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -1241,7 +1242,7 @@ public class ModItems {
         HolderLookup.Provider registries
     ) {
         ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-        mutable.set(new DummyHolder<>(enchKey), level);
+        mutable.set(new DummyHolder<>(registries.lookupOrThrow(Registries.ENCHANTMENT), enchKey), level);
         return new ItemStackTemplate(
             item.asItem(),
             DataComponentPatch.builder().set(DataComponents.ENCHANTMENTS, mutable.toImmutable()).build()

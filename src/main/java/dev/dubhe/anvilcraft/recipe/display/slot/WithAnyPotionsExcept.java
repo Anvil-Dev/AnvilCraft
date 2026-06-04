@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.recipe.display;
+package dev.dubhe.anvilcraft.recipe.display.slot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
