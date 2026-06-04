@@ -8,11 +8,9 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.common.Tags;
 
 public class EnchantmentTagLoader {
-    /**
-     * 魔咒标签生成器初始化
-     *
-     * @param provider 提供器
-     */
+    /// 魔咒标签生成器初始化
+    ///
+    /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Enchantment> provider) {
         provider.rawBuilder(Tags.Enchantments.INCREASE_BLOCK_DROPS)
             .addOptionalElement(ModEnchantments.HARVEST_KEY.identifier());

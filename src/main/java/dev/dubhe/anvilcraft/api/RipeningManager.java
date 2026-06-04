@@ -24,9 +24,7 @@ public class RipeningManager {
     private final HashSet<BlockPos> ripened = new HashSet<>();
     private long lastTickRipen = -1;
 
-    /**
-     * 获取或新建一个当前维度催熟实例。
-     */
+    /// 获取或新建一个当前维度催熟实例。
     public static RipeningManager from(Level level) {
         return INSTANCES.computeIfAbsent(level, RipeningManager::new);
     }
@@ -35,12 +33,10 @@ public class RipeningManager {
         this.level = level;
     }
 
-    /**
-     * 进行催熟
-     *
-     * @param pos     灯的位置
-     * @param ripened 在本轮催熟中，已经被催熟过的位置
-     */
+    /// 进行催熟
+    ///
+    /// @param pos     灯的位置
+    /// @param ripened 在本轮催熟中，已经被催熟过的位置
     private void doRipen(BlockPos pos, HashSet<BlockPos> ripened) {
         int radius = AnvilCraft.CONFIG.inductionLightBlockRipeningRange / 2;
         for (BlockPos plantPos : BlockPos.betweenClosed(pos.offset(radius, radius, radius), pos.offset(-radius, -radius, -radius))) {
@@ -85,14 +81,12 @@ public class RipeningManager {
         if (this.isRipenReady()) this.doRipen(blockPos, this.ripened);
     }
 
-    /**
-     * 如果当前时间距离上次催熟不小于催熟冷却则清空重复催熟过滤器 ripened 并重新计时，返回 true
-     * 如果时间差在 (0, 冷却) 之间则返回 false 无事发生
-     * 如果为 0 则返回 true 无事发生（因为意味着其他灯已经调用过这个函数了）
-     * 如果为负数说明有时间旅行（time set xxx），重置上次催熟时间。
-     *
-     * @return if already cooldown for ripen
-     */
+    /// 如果当前时间距离上次催熟不小于催熟冷却则清空重复催熟过滤器 ripened 并重新计时，返回 true
+    /// 如果时间差在 (0, 冷却) 之间则返回 false 无事发生
+    /// 如果为 0 则返回 true 无事发生（因为意味着其他灯已经调用过这个函数了）
+    /// 如果为负数说明有时间旅行（time set xxx），重置上次催熟时间。
+    ///
+    /// @return if already cooldown for ripen
     private boolean isRipenReady() {
         if (this.level.getServer() == null) return false;
         long curTime = this.level.getGameTime();

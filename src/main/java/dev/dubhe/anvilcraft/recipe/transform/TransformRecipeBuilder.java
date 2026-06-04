@@ -59,9 +59,7 @@ public class TransformRecipeBuilder {
         return this;
     }
 
-    /**
-     * 修改生物nbt
-     */
+    /// 修改生物nbt
     public TransformRecipeBuilder tagModification(Consumer<TagModification.Builder> predicateBuilder) {
         TagModification.Builder builder = TagModification.builder();
         predicateBuilder.accept(builder);
@@ -69,9 +67,7 @@ public class TransformRecipeBuilder {
         return this;
     }
 
-    /**
-     * 生物转化额外选项
-     */
+    /// 生物转化额外选项
     public TransformRecipeBuilder option(TransformOptions option) {
         this.options.add(option);
         return this;

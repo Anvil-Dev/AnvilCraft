@@ -78,9 +78,7 @@ public class HudTooltipManager {
         this.handItemProviders.add(provider);
     }
 
-    /**
-     * 渲染方块的tooltip
-     */
+    /// 渲染方块的tooltip
     public void renderTooltip(
         GuiGraphicsExtractor graphics,
         Level level,
@@ -110,9 +108,7 @@ public class HudTooltipManager {
         );
     }
 
-    /**
-     * 渲染方块实体的tooltip
-     */
+    /// 渲染方块实体的tooltip
     public void renderTooltip(
         GuiGraphicsExtractor graphics,
         BlockEntity entity,
@@ -140,9 +136,7 @@ public class HudTooltipManager {
         );
     }
 
-    /**
-     * 渲染手持物品Tooltip
-     */
+    /// 渲染手持物品Tooltip
     public void submitHandItemInWorldTooltip(
         ItemStack itemStack,
         PoseStack poseStack,
@@ -156,9 +150,7 @@ public class HudTooltipManager {
         pv.render(poseStack, consumer, itemStack, camX, camY, camZ);
     }
 
-    /**
-     * 渲染手持物品Hud Tooltip
-     */
+    /// 渲染手持物品Hud Tooltip
     public void renderHandItemHudTooltip(
         GuiGraphicsExtractor graphics,
         ItemStack itemStack,
@@ -171,9 +163,7 @@ public class HudTooltipManager {
         pv.renderTooltip(graphics, screenWidth, screenHeight);
     }
 
-    /**
-     * 渲染作用范围
-     */
+    /// 渲染作用范围
     public void renderAffectRange(
         BlockEntity entity,
         PoseStack poseStack,

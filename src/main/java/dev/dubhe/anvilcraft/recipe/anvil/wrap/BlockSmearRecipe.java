@@ -16,15 +16,14 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 方块涂抹配方类
- *
- * <p>该配方用于在铁砧下落时将多个方块涂抹成一个方块</p>
- */
+/// 方块涂抹配方类
+///
+/// <p>该配方用于在铁砧下落时将多个方块涂抹成一个方块</p>
 public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
     public static final RecipeSerializer<BlockSmearRecipe> SERIALIZER = new RecipeSerializer<>(
         RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -45,12 +44,10 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
         )
     );
 
-    /**
-     * 构造一个方块涂抹配方
-     *
-     * @param inputs 输入方块列表
-     * @param result 结果方块
-     */
+    /// 构造一个方块涂抹配方
+    ///
+    /// @param inputs 输入方块列表
+    /// @param result 结果方块
     public BlockSmearRecipe(
         List<BlockStatePredicate> inputs,
         ChanceBlockState result
@@ -74,84 +71,66 @@ public class BlockSmearRecipe extends AbstractProcessRecipe<BlockSmearRecipe> {
         return ModRecipeTypes.BLOCK_SMEAR.get();
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * 方块涂抹配方构建器
-     */
+    /// 方块涂抹配方构建器
     public static class Builder extends AbstractRecipeBuilder<BlockSmearRecipe> {
-        /**
-         * 输入方块列表
-         */
+        /// 输入方块列表
         private final List<BlockStatePredicate> inputs = new ArrayList<>();
 
-        /**
-         * 结果方块
-         */
-        private ChanceBlockState result = null;
+        /// 结果方块
+        private @Nullable ChanceBlockState result = null;
 
-        /**
-         * 添加输入方块
-         *
-         * @param input 输入方块谓词
-         *
-         * @return 构建器实例
-         */
+        /// 添加输入方块
+        ///
+        /// @param input 输入方块谓词
+        ///
+        /// @return 构建器实例
         public Builder input(BlockStatePredicate input) {
             this.inputs.add(input);
             return this;
         }
 
-        /**
-         * 添加输入方块（标签形式）
-         *
-         * @param input 输入方块标签
-         *
-         * @return 构建器实例
-         */
+        /// 添加输入方块（标签形式）
+        ///
+        /// @param input 输入方块标签
+        ///
+        /// @return 构建器实例
         public Builder input(HolderGetter<Block> blocks, TagKey<Block> input) {
             this.inputs.add(BlockStatePredicate.builder().of(blocks, input).build());
             return this;
         }
 
-        /**
-         * 添加输入方块
-         *
-         * @param input 输入方块
-         *
-         * @return 构建器实例
-         */
+        /// 添加输入方块
+        ///
+        /// @param input 输入方块
+        ///
+        /// @return 构建器实例
         public Builder input(Block input) {
             this.inputs.add(BlockStatePredicate.builder().of(input).build());
             return this;
         }
 
-        /**
-         * 设置结果方块
-         *
-         * @param result 结果方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置结果方块
+        ///
+        /// @param result 结果方块
+        ///
+        /// @return 构建器实例
         public Builder result(ChanceBlockState result) {
             this.result = result;
             return this;
         }
 
-        /**
-         * 设置结果方块（默认概率为1.0F）
-         *
-         * @param result 结果方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置结果方块（默认概率为1.0F）
+        ///
+        /// @param result 结果方块
+        ///
+        /// @return 构建器实例
         public Builder result(Block result) {
             this.result = new ChanceBlockState(result.defaultBlockState(), 1.0F);
             return this;

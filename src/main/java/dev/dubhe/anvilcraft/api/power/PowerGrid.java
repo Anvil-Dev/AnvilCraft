@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,9 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * 电网
- */
+/// 电网
 @SuppressWarnings("unused")
 public class PowerGrid {
     public static boolean isServerClosing = false;
@@ -50,10 +49,10 @@ public class PowerGrid {
     final Set<DynamicPowerComponent> dynamicComponents = Collections.synchronizedSet(new HashSet<>());
 
     @Getter
-    private FastShape shape = null;
+    private @Nullable FastShape shape = null;
 
     @Getter
-    private BlockPos pos = null;
+    private @Nullable BlockPos pos = null;
 
     @Getter
     private final Level level;
@@ -84,11 +83,9 @@ public class PowerGrid {
         return this.getComponentCount() <= 0;
     }
 
-    /**
-     * 获取电网中的剩余电量
-     *
-     * @return 剩余电量，可为负值
-     */
+    /// 获取电网中的剩余电量
+    ///
+    /// @return 剩余电量，可为负值
     public int getRemaining() {
         return this.generate - this.consume;
     }
@@ -97,16 +94,12 @@ public class PowerGrid {
         this.changed = true;
     }
 
-    /**
-     * 总电力刻
-     */
+    /// 总电力刻
     public static void tickGrid() {
         MANAGER.tick();
     }
 
-    /**
-     * 电力刻
-     */
+    /// 电力刻
     protected void tick() {
         if (this.level.getGameTime() % GRID_TICK != 0) return;
         if (this.markedRemoval) return;
@@ -195,18 +188,14 @@ public class PowerGrid {
         return this.shape.intersects(box);
     }
 
-    /**
-     * 是否正常工作（未过载）
-     */
+    /// 是否正常工作（未过载）
     public boolean isWorking() {
         return this.generate >= this.consume;
     }
 
-    /**
-     * 增加电力元件
-     *
-     * @param components 元件
-     */
+    /// 增加电力元件
+    ///
+    /// @param components 元件
     public void add(IPowerComponent... components) {
         for (IPowerComponent component : components) {
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
@@ -248,11 +237,9 @@ public class PowerGrid {
         this.dynamicComponents.add(component);
     }
 
-    /**
-     * 移除电网元件
-     *
-     * @param components 元件
-     */
+    /// 移除电网元件
+    ///
+    /// @param components 元件
     public static void removeComponent(IPowerComponent... components) {
         try {
             if (PowerGrid.isServerClosing) return;
@@ -266,11 +253,9 @@ public class PowerGrid {
         }
     }
 
-    /**
-     * 移除电力元件
-     *
-     * @param components 电力元件
-     */
+    /// 移除电力元件
+    ///
+    /// @param components 电力元件
     public void remove(IPowerComponent... components) {
         this.markedRemoval = true;
         for (IPowerComponent component : this.components) {
@@ -294,11 +279,9 @@ public class PowerGrid {
         return true;
     }
 
-    /**
-     * 将另一个电网合并至当前电网
-     *
-     * @param grid 电网
-     */
+    /// 将另一个电网合并至当前电网
+    ///
+    /// @param grid 电网
     public void merge(PowerGrid grid) {
         grid.producers.forEach(this::add);
         grid.consumers.forEach(this::add);
@@ -307,21 +290,17 @@ public class PowerGrid {
         this.changed = true;
     }
 
-    /**
-     * 判断元件是否在电网范围内
-     *
-     * @param component 元件
-     * @return 元件是否在电网范围内
-     */
+    /// 判断元件是否在电网范围内
+    ///
+    /// @param component 元件
+    /// @return 元件是否在电网范围内
     public boolean isInRange(IPowerComponent component) {
         return ConnectivityChecker.check(this, component);
     }
 
-    /**
-     * 增加电力元件
-     *
-     * @param components 元件
-     */
+    /// 增加电力元件
+    ///
+    /// @param components 元件
     public static void addComponent(IPowerComponent... components) {
         for (IPowerComponent component : components) {
             MANAGER.addComponent(component);
@@ -352,9 +331,7 @@ public class PowerGrid {
         return Optional.empty();
     }
 
-    /**
-     * 清空电网
-     */
+    /// 清空电网
     public static void clear() {
         MANAGER.clear();
     }

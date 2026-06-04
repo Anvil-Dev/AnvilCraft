@@ -26,8 +26,7 @@ public class GeodeItem extends Item {
     }
 
     @Override
-    public InteractionResult use(
-        Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         super.use(level, player, usedHand);
         ItemStack itemStack = player.getItemInHand(usedHand);
         BlockPos pos = player.getOnPos().below();

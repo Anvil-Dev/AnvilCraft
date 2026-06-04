@@ -15,21 +15,17 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-/**
- * 烹饪配方类
- *
- * <p>该配方用于在铁砧下落时烹饪物品，需要在铁砧下方放置点燃的营火作为加热源</p>
- */
+/// 烹饪配方类
+///
+/// <p>该配方用于在铁砧下落时烹饪物品，需要在铁砧下方放置点燃的营火作为加热源</p>
 @Getter
 public class CookingRecipe extends AbstractProcessRecipe<CookingRecipe> {
     public static final RecipeSerializer<CookingRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(CookingRecipe::new);
 
-    /**
-     * 构造一个烹饪配方
-     *
-     * @param itemIngredients 物品原料列表
-     * @param results         结果物品列表
-     */
+    /// 构造一个烹饪配方
+    ///
+    /// @param itemIngredients 物品原料列表
+    /// @param results         结果物品列表
     public CookingRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results
@@ -63,18 +59,14 @@ public class CookingRecipe extends AbstractProcessRecipe<CookingRecipe> {
         return SERIALIZER;
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * 烹饪配方构建器
-     */
+    /// 烹饪配方构建器
     public static class Builder extends SimpleAbstractBuilder<CookingRecipe, Builder> {
         @Override
         public String getType() {

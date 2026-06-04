@@ -12,29 +12,21 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-/**
- * 距离定义类
- *
- * <p>用于定义不同类型的距離计算方式和范围检查</p>
- */
+/// 距离定义类
+///
+/// <p>用于定义不同类型的距離计算方式和范围检查</p>
 public record Distance(Type type, int distance, boolean isHorizontal) {
-    /**
-     * 默认距离（曼哈顿距离，距离1，水平方向）
-     */
+    /// 默认距离（曼哈顿距离，距离1，水平方向）
     public static final Distance DEFAULT = new Distance(Type.MANHATTAN, 1, true);
 
-    /**
-     * Distance编解码器
-     */
+    /// Distance编解码器
     public static final Codec<Distance> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         Type.LOWER_NAME_CODEC.fieldOf("type").forGetter(Distance::type),
         Codec.INT.fieldOf("distance").forGetter(Distance::distance),
         Codec.BOOL.fieldOf("isHorizontal").forGetter(Distance::isHorizontal)
     ).apply(ins, Distance::new));
 
-    /**
-     * Distance流编解码器
-     */
+    /// Distance流编解码器
     public static final StreamCodec<ByteBuf, Distance> STREAM_CODEC = StreamCodec.composite(
         Type.STREAM_CODEC, Distance::type,
         ByteBufCodecs.VAR_INT, Distance::distance,
@@ -42,13 +34,11 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
         Distance::new
     );
 
-    /**
-     * 检查点是否在范围内
-     *
-     * @param original 原点
-     * @param other    其他点
-     * @return 是否在范围内
-     */
+    /// 检查点是否在范围内
+    ///
+    /// @param original 原点
+    /// @param other    其他点
+    /// @return 是否在范围内
     public boolean isInRange(Vec3 original, Vec3 other) {
         Vec3 deltaV = original.subtract(other);
         return switch (this.type) {
@@ -64,12 +54,10 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
         };
     }
 
-    /**
-     * 获取范围内所有位置
-     *
-     * @param centerPos 中心位置
-     * @return 位置迭代器
-     */
+    /// 获取范围内所有位置
+    ///
+    /// @param centerPos 中心位置
+    /// @return 位置迭代器
     public Iterable<BlockPos> getAllPosesInRange(Vec3 centerPos) {
         final BlockPos center = BlockPos.containing(centerPos.x, centerPos.y, centerPos.z);
         return switch (this.type) {
@@ -111,33 +99,21 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
         };
     }
 
-    /**
-     * 距离类型枚举
-     */
+    /// 距离类型枚举
     public enum Type {
-        /**
-         * 欧几里得距离
-         */
+        /// 欧几里得距离
         EUCLIDEAN,
 
-        /**
-         * 曼哈顿距离
-         */
+        /// 曼哈顿距离
         MANHATTAN,
 
-        /**
-         * 切比雪夫距离
-         */
+        /// 切比雪夫距离
         CHEBYSHEV;
 
-        /**
-         * 小写名称编解码器
-         */
+        /// 小写名称编解码器
         public static final Codec<Type> LOWER_NAME_CODEC = CodecUtil.enumCodecInLowerName(Type.class);
 
-        /**
-         * Type流编解码器
-         */
+        /// Type流编解码器
         public static final StreamCodec<ByteBuf, Type> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(Type.class);
     }
 }

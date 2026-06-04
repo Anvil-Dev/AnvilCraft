@@ -55,9 +55,7 @@ public class ActiveSilencerBlockEntity
 
     private final AABB range;
 
-    /**
-     * 主动消音器
-     */
+    /// 主动消音器
     public ActiveSilencerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         this.range = AABB.ofSize(Vec3.atCenterOf(pos), 31, 31, 31);
@@ -119,9 +117,7 @@ public class ActiveSilencerBlockEntity
         return new ActiveSilencerMenu(ModMenuTypes.ACTIVE_SILENCER.get(), i, inventory, this);
     }
 
-    /**
-     * 添加声音
-     */
+    /// 添加声音
     public void addSound(Identifier soundId) {
         this.muting.add(soundId);
         this.setChanged();

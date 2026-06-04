@@ -22,11 +22,9 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.function.Consumer;
 
-/**
- * 压榨配方类
- *
- * <p>该配方用于在铁砧下落时压榨方块，需要在铁砧下方放置炼药锅作为收集容器</p>
- */
+/// 压榨配方类
+///
+/// <p>该配方用于在铁砧下落时压榨方块，需要在铁砧下方放置炼药锅作为收集容器</p>
 @Getter
 public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
     public static final RecipeSerializer<SqueezingRecipe> SERIALIZER = new RecipeSerializer<>(
@@ -57,13 +55,11 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
         )
     );
 
-    /**
-     * 构造一个压榨配方
-     *
-     * @param ingredient  原料方块列表
-     * @param result      结果方块列表
-     * @param hasCauldron 炼药锅条件
-     */
+    /// 构造一个压榨配方
+    ///
+    /// @param ingredient  原料方块列表
+    /// @param result      结果方块列表
+    /// @param hasCauldron 炼药锅条件
     public SqueezingRecipe(
         BlockStatePredicate ingredient,
         ChanceBlockState result,
@@ -93,246 +89,198 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
         return SERIALIZER;
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * 是否产生流体
-     *
-     * @return 如果产生流体返回true，否则返回false
-     */
+    /// 是否产生流体
+    ///
+    /// @return 如果产生流体返回true，否则返回false
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
         return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
     }
 
-    /**
-     * 压榨配方构建器
-     */
+    /// 压榨配方构建器
     public static class Builder extends AbstractRecipeBuilder<SqueezingRecipe> {
-        /**
-         * 原料列表
-         */
+        /// 原料列表
         private BlockStatePredicate ingredient = null;
 
-        /**
-         * 结果列表
-         */
+        /// 结果列表
         private ChanceBlockState result = null;
 
-        /**
-         * 炼药锅条件构建器
-         */
+        /// 炼药锅条件构建器
         private final HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
-        /**
-         * 铁砧条件
-         */
+        /// 铁砧条件
         private HasAnvil hasAnvil = HasAnvil.DEFAULT;
 
-        /**
-         * 添加原料方块
-         *
-         * @param ingredient 原料方块谓词
-         *
-         * @return 构建器实例
-         */
+        /// 添加原料方块
+        ///
+        /// @param ingredient 原料方块谓词
+        ///
+        /// @return 构建器实例
         public Builder requires(BlockStatePredicate ingredient) {
             this.ingredient = ingredient;
             return this;
         }
 
-        /**
-         * 添加原料方块
-         *
-         * @param ingredient 原料方块
-         *
-         * @return 构建器实例
-         */
+        /// 添加原料方块
+        ///
+        /// @param ingredient 原料方块
+        ///
+        /// @return 构建器实例
         public Builder requires(Block ingredient) {
             return this.requires(BlockStatePredicate.builder().of(ingredient).build());
         }
 
-        /**
-         * 添加原料方块（标签形式）
-         *
-         * @param ingredient 原料方块标签
-         *
-         * @return 构建器实例
-         */
+        /// 添加原料方块（标签形式）
+        ///
+        /// @param ingredient 原料方块标签
+        ///
+        /// @return 构建器实例
         public Builder requires(HolderGetter<Block> blocks, TagKey<Block> ingredient) {
             return this.requires(BlockStatePredicate.builder().of(blocks, ingredient).build());
         }
 
-        /**
-         * 添加结果方块
-         *
-         * @param result 结果方块
-         *
-         * @return 构建器实例
-         */
+        /// 添加结果方块
+        ///
+        /// @param result 结果方块
+        ///
+        /// @return 构建器实例
         public Builder result(ChanceBlockState result) {
             this.result = result;
             return this;
         }
 
-        /**
-         * 添加结果方块（指定概率）
-         *
-         * @param result 结果方块
-         * @param chance 概率
-         *
-         * @return 构建器实例
-         */
+        /// 添加结果方块（指定概率）
+        ///
+        /// @param result 结果方块
+        /// @param chance 概率
+        ///
+        /// @return 构建器实例
         public Builder result(Block result, float chance) {
             return this.result(new ChanceBlockState(result.defaultBlockState(), chance));
         }
 
-        /**
-         * 添加结果方块（默认概率为1.0F）
-         *
-         * @param result 结果方块
-         *
-         * @return 构建器实例
-         */
+        /// 添加结果方块（默认概率为1.0F）
+        ///
+        /// @param result 结果方块
+        ///
+        /// @return 构建器实例
         public Builder result(Block result) {
             return this.result(result, 1.0F);
         }
 
-        /**
-         * 设置炼药锅流体
-         *
-         * @param fluid 流体ID
-         *
-         * @return 构建器实例
-         */
+        /// 设置炼药锅流体
+        ///
+        /// @param fluid 流体ID
+        ///
+        /// @return 构建器实例
         public Builder cauldron(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
 
-        /**
-         * 设置炼药锅方块
-         *
-         * @param cauldron 炼药锅方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置炼药锅方块
+        ///
+        /// @param cauldron 炼药锅方块
+        ///
+        /// @return 构建器实例
         public Builder cauldron(Block cauldron) {
             this.cauldron(WrapUtils.cauldron2Fluid(cauldron));
             return this;
         }
 
-        /**
-         * 设置转换后的流体
-         *
-         * @param transform 转换后的流体ID
-         *
-         * @return 构建器实例
-         */
+        /// 设置转换后的流体
+        ///
+        /// @param transform 转换后的流体ID
+        ///
+        /// @return 构建器实例
         public Builder transform(Identifier transform) {
             this.hasCauldron.transform(transform);
             return this;
         }
 
-        /**
-         * 设置转换后的炼药锅方块
-         *
-         * @param transform 转换后的炼药锅方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置转换后的炼药锅方块
+        ///
+        /// @param transform 转换后的炼药锅方块
+        ///
+        /// @return 构建器实例
         public Builder transform(Block transform) {
             this.hasCauldron.transform(WrapUtils.cauldron2Fluid(transform));
             return this;
         }
 
-        /**
-         * 设置是否产生流体
-         *
-         * @param produce 是否产生流体
-         *
-         * @return 构建器实例
-         */
+        /// 设置是否产生流体
+        ///
+        /// @param produce 是否产生流体
+        ///
+        /// @return 构建器实例
         public Builder produce(int produce) {
             if (produce <= 0) return this;
             this.hasCauldron.produce(produce);
             return this;
         }
 
-        /**
-         * 设置是否消耗流体
-         *
-         * @param consume 是否消耗流体
-         *
-         * @return 构建器实例
-         */
+        /// 设置是否消耗流体
+        ///
+        /// @param consume 是否消耗流体
+        ///
+        /// @return 构建器实例
         public Builder consume(int consume) {
             if (consume <= 0) return this;
             this.hasCauldron.consume(consume);
             return this;
         }
 
-        /**
-         * 设置转换成功的概率
-         *
-         * @param chance 转换成功的概率
-         *
-         * @return 构建器实例
-         */
+        /// 设置转换成功的概率
+        ///
+        /// @param chance 转换成功的概率
+        ///
+        /// @return 构建器实例
         public Builder chance(float chance) {
             if (chance <= 0) return this;
             this.hasCauldron.chance(chance);
             return this;
         }
 
-        /**
-         * 设置需要点燃锅
-         *
-         * @return 构建器实例
-         */
+        /// 设置需要点燃锅
+        ///
+        /// @return 构建器实例
         public Builder ignite() {
             this.hasCauldron.ignite();
             return this;
         }
 
-        /**
-         * 设置铁砧条件
-         *
-         * @param anvil 铁砧方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置铁砧条件
+        ///
+        /// @param anvil 铁砧方块
+        ///
+        /// @return 构建器实例
         public Builder anvil(Block anvil) {
             this.hasAnvil = new HasAnvil(BlockStatePredicate.builder().of(anvil));
             return this;
         }
 
-        /**
-         * 设置铁砧条件
-         *
-         * @param anvil 铁砧方块标签
-         *
-         * @return 构建器实例
-         */
+        /// 设置铁砧条件
+        ///
+        /// @param anvil 铁砧方块标签
+        ///
+        /// @return 构建器实例
         public Builder anvil(HolderGetter<Block> blocks, TagKey<Block> anvil) {
             this.hasAnvil = new HasAnvil(BlockStatePredicate.builder().of(blocks, anvil));
             return this;
         }
 
-        /**
-         * 设置铁砧条件
-         *
-         * @param consumer 铁砧条件谓词消费者
-         *
-         * @return 构建器实例
-         */
+        /// 设置铁砧条件
+        ///
+        /// @param consumer 铁砧条件谓词消费者
+        ///
+        /// @return 构建器实例
         public Builder anvil(Consumer<BlockStatePredicate.Builder> consumer) {
             BlockStatePredicate.Builder builder = BlockStatePredicate.builder();
             consumer.accept(builder);
@@ -340,21 +288,17 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
             return this;
         }
 
-        /**
-         * 设置浮霜铁砧条件
-         *
-         * @return 构建器实例
-         */
+        /// 设置浮霜铁砧条件
+        ///
+        /// @return 构建器实例
         public Builder frostAnvil() {
             this.hasAnvil = HasAnvil.frostOnly();
             return this;
         }
 
-        /**
-         * 设置非浮霜铁砧条件
-         *
-         * @return 构建器实例
-         */
+        /// 设置非浮霜铁砧条件
+        ///
+        /// @return 构建器实例
         public Builder noFrostAnvil() {
             this.hasAnvil = HasAnvil.noFrost();
             return this;

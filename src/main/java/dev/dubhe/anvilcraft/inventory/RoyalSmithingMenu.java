@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,7 +20,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmithingRecipe;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
@@ -74,7 +74,7 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
 
     @Override
     protected boolean isValidBlock(BlockState state) {
-        return state.is(Blocks.SMITHING_TABLE);
+        return state.is(ModBlocks.ROYAL_SMITHING_TABLE);
     }
 
     @Override

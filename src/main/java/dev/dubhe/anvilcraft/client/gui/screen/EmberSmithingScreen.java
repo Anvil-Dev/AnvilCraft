@@ -58,13 +58,11 @@ public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
         new CyclingSlotBackground(9)
     );
 
-    /**
-     * 余烬锻造台 GUI
-     *
-     * @param menu      菜单
-     * @param inventory 背包
-     * @param title     标题
-     */
+    /// 余烬锻造台 GUI
+    ///
+    /// @param menu      菜单
+    /// @param inventory 背包
+    /// @param title     标题
     public EmberSmithingScreen(EmberSmithingMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, BACKGROUND);
     }

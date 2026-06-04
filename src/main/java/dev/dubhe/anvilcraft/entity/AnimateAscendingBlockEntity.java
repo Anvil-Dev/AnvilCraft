@@ -124,9 +124,7 @@ public class AnimateAscendingBlockEntity extends Entity {
     protected void addAdditionalSaveData(ValueOutput output) {
     }
 
-    /**
-     * 动画
-     */
+    /// 动画
     public static void animate(Level level, BlockPos startPos, BlockState blockState, BlockPos endPos) {
         if (!AnvilCraft.CONFIG.displayAnvilAnimation) return;
         AnimateAscendingBlockEntity entity = new AnimateAscendingBlockEntity(

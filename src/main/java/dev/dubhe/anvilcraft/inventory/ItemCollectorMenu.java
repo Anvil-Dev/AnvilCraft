@@ -27,9 +27,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu implements IFilterM
     private final ItemCollectorBlockEntity blockEntity;
     private final Level level;
 
-    /**
-     * 物品收集器 ScreenHandler
-     */
+    /// 物品收集器 ScreenHandler
     public ItemCollectorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
         ItemCollectorMenu.checkContainerSize(inventory, 9);

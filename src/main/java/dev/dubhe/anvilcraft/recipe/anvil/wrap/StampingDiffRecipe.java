@@ -34,12 +34,10 @@ public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
         )
     );
 
-    /**
-     * 构造一个差异冲压配方
-     *
-     * @param diffItemIngredients 差异物品原料列表
-     * @param results             结果物品列表
-     */
+    /// 构造一个差异冲压配方
+    ///
+    /// @param diffItemIngredients 差异物品原料列表
+    /// @param results             结果物品列表
     public StampingDiffRecipe(
         List<ItemIngredientPredicate> diffItemIngredients,
         List<ChanceItemStack> results
@@ -70,11 +68,9 @@ public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
         return SERIALIZER;
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }

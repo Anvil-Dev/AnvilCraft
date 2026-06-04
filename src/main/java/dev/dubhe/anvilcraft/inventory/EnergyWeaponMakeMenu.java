@@ -37,9 +37,7 @@ public class EnergyWeaponMakeMenu extends AbstractContainerMenu {
     private final List<RecipeHolder<EnergyWeaponMakeRecipe>> recipes;
     private final Container inputContainer = new SimpleContainer(6);
     private int selectedIndex = -1;
-    /**
-     * 供客户端展示错误槽位用
-     */
+    /// 供客户端展示错误槽位用
     @Setter
     private boolean cantCraft;
 
@@ -47,13 +45,11 @@ public class EnergyWeaponMakeMenu extends AbstractContainerMenu {
         this(ModMenuTypes.ENERGY_WEAPON_MAKE.get(), containerId, playerInventory);
     }
 
-    /**
-     * 能量武器平台菜单
-     *
-     * @param type            类型
-     * @param containerId     容器id
-     * @param playerInventory 背包
-     */
+    /// 能量武器平台菜单
+    ///
+    /// @param type            类型
+    /// @param containerId     容器id
+    /// @param playerInventory 背包
     public EnergyWeaponMakeMenu(
         MenuType<EnergyWeaponMakeMenu> type,
         int containerId,

@@ -37,9 +37,7 @@ public class ResinBlockItem extends HasMobBlockItem {
         return InteractionResult.SUCCESS;
     }
 
-    /**
-     * 右键实体
-     */
+    /// 右键实体
     public static InteractionResult useEntity(Player player, Entity target, ItemStack stack) {
         if (!(target instanceof Mob mob && HasMobBlockItem.canMobBeSaved(mob, player, stack))) {
             return InteractionResult.PASS;

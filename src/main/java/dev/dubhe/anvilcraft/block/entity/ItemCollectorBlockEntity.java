@@ -264,9 +264,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         this.flushState(level, blockPos);
     }
 
-    /**
-     * 获取红石信号
-     */
+    /// 获取红石信号
     public int getRedstoneSignal() {
         int i = 0;
         for (int j = 0; j < this.itemHandler.size(); ++j) {

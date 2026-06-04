@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.api.power;
 
-/**
- * 用电
- */
+/// 用电
 public interface IPowerConsumer extends IPowerComponent {
     default int getInputPower() {
         return 0;

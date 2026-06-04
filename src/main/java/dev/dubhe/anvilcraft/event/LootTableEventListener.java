@@ -31,11 +31,9 @@ import java.util.List;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LootTableEventListener {
-    /**
-     * 战利品表加载事件侦听器
-     *
-     * @param event 战利品表加载事件
-     */
+    /// 战利品表加载事件侦听器
+    ///
+    /// @param event 战利品表加载事件
     @SubscribeEvent
     public static void lootTable(LootTableLoadEvent event) {
         Identifier id = event.getName();

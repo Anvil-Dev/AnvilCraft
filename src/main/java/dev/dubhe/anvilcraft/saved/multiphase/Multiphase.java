@@ -23,11 +23,9 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * 多相
- *
- * @param phases 所有相
- */
+/// 多相
+///
+/// @param phases 所有相
 public record Multiphase(LinkedList<Phase> phases) {
     public static final Multiphase EMPTY = make(Component.literal("Empty"));
 
@@ -69,24 +67,20 @@ public record Multiphase(LinkedList<Phase> phases) {
         return name.copy().append(makeSuffix(0));
     }
 
-    /**
-     * 构建一个全新的多相<br>
-     * 该方法用于工具初始化
-     *
-     * @param name 原始名称，不含后缀
-     * @return 一个全新的多相
-     */
+    /// 构建一个全新的多相<br>
+    /// 该方法用于工具初始化
+    ///
+    /// @param name 原始名称，不含后缀
+    /// @return 一个全新的多相
     public static Multiphase make(Component name) {
         return make(name, 2);
     }
 
-    /**
-     * 构建一个全新的多相<br>
-     * 该方法用于工具初始化
-     *
-     * @param name 原始名称，不含后缀
-     * @return 一个全新的多相
-     */
+    /// 构建一个全新的多相<br>
+    /// 该方法用于工具初始化
+    ///
+    /// @param name 原始名称，不含后缀
+    /// @return 一个全新的多相
     @SuppressWarnings("SameParameterValue")
     private static Multiphase make(Component name, int phaseCount) {
         LinkedList<Phase> phases = new LinkedList<>();
@@ -96,24 +90,20 @@ public record Multiphase(LinkedList<Phase> phases) {
         return new Multiphase(phases);
     }
 
-    /**
-     * 构建一个全新的多相<br>
-     *
-     * @param name         原始名称，不含后缀
-     * @param enchantments 初始附魔，用于α相
-     * @return 一个全新的多相
-     */
+    /// 构建一个全新的多相<br>
+    ///
+    /// @param name         原始名称，不含后缀
+    /// @param enchantments 初始附魔，用于α相
+    /// @return 一个全新的多相
     public static Multiphase make(Component name, @Nullable ItemEnchantments enchantments) {
         return make(name, enchantments, 2);
     }
 
-    /**
-     * 构建一个全新的多相<br>
-     *
-     * @param name         原始名称，不含后缀
-     * @param enchantments 初始附魔，用于α相
-     * @return 一个全新的多相
-     */
+    /// 构建一个全新的多相<br>
+    ///
+    /// @param name         原始名称，不含后缀
+    /// @param enchantments 初始附魔，用于α相
+    /// @return 一个全新的多相
     @SuppressWarnings("SameParameterValue")
     private static Multiphase make(Component name, @Nullable ItemEnchantments enchantments, int phaseCount) {
         LinkedList<Phase> phases = new LinkedList<>();
@@ -127,14 +117,12 @@ public record Multiphase(LinkedList<Phase> phases) {
         return new Multiphase(phases);
     }
 
-    /**
-     * 使用输入的数据构建一个全新的多相，并传入物品
-     *
-     * @param original 原始物品
-     * @param dataS    数据组，只取前两个非null数据作α相和β相
-     * @return 一个全新的多相
-     */
-    public static Multiphase make(Item original, PhaseData... dataS) {
+    /// 使用输入的数据构建一个全新的多相，并传入物品
+    ///
+    /// @param original 原始物品
+    /// @param dataS    数据组，只取前两个非null数据作α相和β相
+    /// @return 一个全新的多相
+    public static Multiphase make(Item original, @Nullable PhaseData... dataS) {
         if (dataS.length == 0) throw new IllegalArgumentException("Unexpect length 0 phase data");
 
         LinkedList<Phase> phases = new LinkedList<>();

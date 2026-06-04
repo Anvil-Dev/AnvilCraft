@@ -81,14 +81,12 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         return maxLevel + 1;
     }
 
-    /**
-     * 过滤物品堆栈是否匹配指定条件
-     *
-     * @param filterStack       过滤器物品堆栈，用于定义过滤条件
-     * @param stack             待检查的物品堆栈
-     * @param includeComponents 是否考虑组件信息进行匹配
-     * @return 如果物品堆栈匹配过滤条件则返回true，否则返回false
-     */
+    /// 过滤物品堆栈是否匹配指定条件
+    ///
+    /// @param filterStack       过滤器物品堆栈，用于定义过滤条件
+    /// @param stack             待检查的物品堆栈
+    /// @param includeComponents 是否考虑组件信息进行匹配
+    /// @return 如果物品堆栈匹配过滤条件则返回true，否则返回false
     public static boolean filter(ItemStack filterStack, ItemStack stack, boolean includeComponents) {
         // 如果过滤器为空，则所有物品都匹配
         if (filterStack.isEmpty()) return true;

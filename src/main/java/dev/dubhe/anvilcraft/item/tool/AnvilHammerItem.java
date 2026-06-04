@@ -70,11 +70,9 @@ public class AnvilHammerItem extends Item {
 
     private final ItemAttributeModifiers modifiers;
 
-    /**
-     * 初始化铁砧锤
-     *
-     * @param properties 物品属性
-     */
+    /// 初始化铁砧锤
+    ///
+    /// @param properties 物品属性
     public AnvilHammerItem(Item.Properties properties) {
         super(properties
             .equippableUnswappable(EquipmentSlot.HEAD)
@@ -115,9 +113,7 @@ public class AnvilHammerItem extends Item {
         state.spawnAfterBreak(level, posToRemove, tool, true);
     }
 
-    /**
-     * 检查是否可以使用铁砧锤
-     */
+    /// 检查是否可以使用铁砧锤
     public static boolean ableToUseAnvilHammer(Level level, BlockPos blockPos, Player player) {
         if (player.isShiftKeyDown()) return true;
         BlockState state = level.getBlockState(blockPos);
@@ -164,9 +160,7 @@ public class AnvilHammerItem extends Item {
         return true;
     }
 
-    /**
-     * 右键方块
-     */
+    /// 右键方块
     public static void useBlock(
         ServerPlayer player, BlockPos blockPos, ServerLevel level, ItemStack anvilHammer, InteractionHand hand,
         BlockHitResult result

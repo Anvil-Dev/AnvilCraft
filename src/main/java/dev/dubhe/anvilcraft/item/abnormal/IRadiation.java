@@ -3,9 +3,7 @@ package dev.dubhe.anvilcraft.item.abnormal;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
-/**
- * 辐射物品
- */
+/// 辐射物品
 public interface IRadiation extends IAbnormal {
     @Override
     default void addEffect(Player player) {

@@ -213,11 +213,9 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
         level.setBlockAndUpdate(pos, state.setValue(BaseBatchCraftingBlock.FACING, direction));
     }
 
-    /**
-     * 获取红石信号强度
-     *
-     * @return 红石信号强度
-     */
+    /// 获取红石信号强度
+    ///
+    /// @return 红石信号强度
     public int getRedstoneSignal() {
         int strength = 0;
         List<Integer> itemIdxList = new IntArrayList();

@@ -2,9 +2,7 @@ package dev.dubhe.anvilcraft.api.power;
 
 import java.util.Optional;
 
-/**
- * 发电
- */
+/// 发电
 public interface IPowerProducer extends IPowerComponent {
     default int getOutputPower() {
         return 0;
@@ -33,9 +31,7 @@ public interface IPowerProducer extends IPowerComponent {
         );
     }
 
-    /**
-     * 实际电量
-     */
+    /// 实际电量
     // @OnlyIn(Dist.CLIENT)
     default int getServerPower() {
         Optional<SimplePowerGrid> s = SimplePowerGrid.findPowerGrid(getPos());

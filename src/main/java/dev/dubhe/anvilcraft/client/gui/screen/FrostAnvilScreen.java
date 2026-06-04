@@ -24,13 +24,11 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
     private @Nullable EditBox name;
     private final Player player;
 
-    /**
-     * 皇家铁砧 GUI
-     *
-     * @param menu            菜单
-     * @param playerInventory 背包
-     * @param title           标题
-     */
+    /// 皇家铁砧 GUI
+    ///
+    /// @param menu            菜单
+    /// @param playerInventory 背包
+    /// @param title           标题
     public FrostAnvilScreen(FrostAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, BACKGROUND);
         this.player = playerInventory.player;
@@ -125,6 +123,7 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         Identifier texture = this.menu.getSlot(0).getItem().isEmpty()
                              ? SharedTextures.TEXT_FIELD_DISABLE
                              : SharedTextures.TEXT_FIELD;

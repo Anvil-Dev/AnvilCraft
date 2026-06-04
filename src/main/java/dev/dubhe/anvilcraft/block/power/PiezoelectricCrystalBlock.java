@@ -62,9 +62,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         return false;
     }
 
-    /**
-     * 被铁砧砸事件
-     */
+    /// 被铁砧砸事件
     public void onHitByAnvil(FallingBlockEntity entity, float fallDistance, Level level, BlockPos blockPos) {
         if (level.getBlockTicks().hasScheduledTick(blockPos, this)) return;
         List<Integer> chargeNums = ANVIL_TYPES.get(entity.blockState.getBlock());

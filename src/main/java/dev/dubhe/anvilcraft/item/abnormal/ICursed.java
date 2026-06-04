@@ -5,9 +5,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.extensions.IItemExtension;
 
-/**
- * 诅咒物品
- */
+/// 诅咒物品
 public interface ICursed extends IItemExtension, IAbnormal {
     @Override
     default void addEffect(Player player) {

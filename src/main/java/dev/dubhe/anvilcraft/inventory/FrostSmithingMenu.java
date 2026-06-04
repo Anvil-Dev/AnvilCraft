@@ -44,14 +44,12 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
         this(ModMenuTypes.FROST_SMITHING.get(), containerId, playerInventory, access);
     }
 
-    /**
-     * 浮霜锻造台菜单
-     *
-     * @param type            类型
-     * @param containerId     容器id
-     * @param playerInventory 背包
-     * @param access          检查
-     */
+    /// 浮霜锻造台菜单
+    ///
+    /// @param type            类型
+    /// @param containerId     容器id
+    /// @param playerInventory 背包
+    /// @param access          检查
     public FrostSmithingMenu(MenuType<FrostSmithingMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access) {
         super(
             type,

@@ -166,13 +166,11 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         @Getter
         private final NonNullList<ItemStack> remaining;
 
-        /**
-         * 合成器缓存
-         *
-         * @param container 容器
-         * @param recipe    配方
-         * @param remaining 返还物品
-         */
+        /// 合成器缓存
+        ///
+        /// @param container 容器
+        /// @param recipe    配方
+        /// @param remaining 返还物品
         public BatchCrafterCache(
             Container container,
             Optional<RecipeHolder<CraftingRecipe>> recipe,

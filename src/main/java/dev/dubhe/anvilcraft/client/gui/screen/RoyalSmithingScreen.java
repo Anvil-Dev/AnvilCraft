@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -47,15 +48,18 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
 
     private final ArmorStandRenderState armorStandPreview = new ArmorStandRenderState();
 
-    /**
-     * 皇家锻造台 GUI
-     *
-     * @param menu            菜单
-     * @param playerInventory 背包
-     * @param title           标题
-     */
+    /// 皇家锻造台 GUI
+    ///
+    /// @param menu            菜单
+    /// @param playerInventory 背包
+    /// @param title           标题
     public RoyalSmithingScreen(RoyalSmithingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, SMITHING_LOCATION);
+        this.armorStandPreview.entityType = EntityType.ARMOR_STAND;
+        this.armorStandPreview.showBasePlate = false;
+        this.armorStandPreview.showArms = true;
+        this.armorStandPreview.xRot = 25.0F;
+        this.armorStandPreview.bodyRot = 210.0F;
     }
 
     @Override
@@ -109,10 +113,10 @@ public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
         this.baseIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
         this.additionalIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
 
-        int x0 = this.leftPos + 149;
-        int y0 = this.topPos + 75;
-        int x1 = this.leftPos + 189;
-        int y1 = this.topPos + 135;
+        int x0 = this.leftPos + 131;
+        int y0 = this.topPos + 20;
+        int x1 = this.leftPos + 171;
+        int y1 = this.topPos + 60;
         graphics.entity(
             this.armorStandPreview,
             25,

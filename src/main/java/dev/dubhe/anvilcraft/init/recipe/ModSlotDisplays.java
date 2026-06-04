@@ -1,20 +1,25 @@
 package dev.dubhe.anvilcraft.init.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.recipe.display.WithAnyPotionsExcept;
+import dev.dubhe.anvilcraft.recipe.display.slot.CannedFoodSlotDemo;
+import dev.dubhe.anvilcraft.recipe.display.slot.PillSlotDemo;
+import dev.dubhe.anvilcraft.recipe.display.slot.WithAnyPotionsExcept;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
+@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModSlotDisplays {
-    private static final DeferredRegister<SlotDisplay.Type<?>> DF = DeferredRegister.create(Registries.SLOT_DISPLAY, AnvilCraft.MOD_ID);
+    @SubscribeEvent
+    public static void on(RegisterEvent event) {
+        ModSlotDisplays.register(event, "canned_food", CannedFoodSlotDemo.TYPE);
+        ModSlotDisplays.register(event, "with_any_potion_except", WithAnyPotionsExcept.TYPE);
+        ModSlotDisplays.register(event, "pill", PillSlotDemo.TYPE);
+    }
 
-    public static final DeferredHolder<SlotDisplay.Type<?>, SlotDisplay.Type<WithAnyPotionsExcept>> WITH_ANY_POTION_EXCEPT = DF
-        .register("with_any_potion_except", () -> WithAnyPotionsExcept.TYPE);
-
-    public static void register(IEventBus modEventBus) {
-        DF.register(modEventBus);
+    private static void register(RegisterEvent event, String name, SlotDisplay.Type<?> type) {
+        event.register(Registries.SLOT_DISPLAY, AnvilCraft.of(name), () -> type);
     }
 }

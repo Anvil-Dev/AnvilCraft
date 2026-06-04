@@ -24,11 +24,9 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-/**
- * 超级加热配方类
- *
- * <p>该配方用于在铁砧下落时超级加热物品，需要在铁砧下方放置加热器作为热源</p>
- */
+/// 超级加热配方类
+///
+/// <p>该配方用于在铁砧下落时超级加热物品，需要在铁砧下方放置加热器作为热源</p>
 @Getter
 public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe> {
     public static final RecipeSerializer<SuperHeatingRecipe> SERIALIZER = new RecipeSerializer<>(
@@ -53,13 +51,11 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         )
     );
 
-    /**
-     * 构造一个超级加热配方
-     *
-     * @param itemIngredients 物品原料列表
-     * @param results         结果物品列表
-     * @param hasCauldron     炼药锅条件
-     */
+    /// 构造一个超级加热配方
+    ///
+    /// @param itemIngredients 物品原料列表
+    /// @param results         结果物品列表
+    /// @param hasCauldron     炼药锅条件
     public SuperHeatingRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results,
@@ -107,111 +103,89 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         return SERIALIZER;
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * 是否消耗流体
-     *
-     * @return 如果消耗流体返回true，否则返回false
-     */
+    /// 是否消耗流体
+    ///
+    /// @return 如果消耗流体返回true，否则返回false
     public boolean isConsumeFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
         return HasCauldron.isNotEmpty(hasCauldron.fluid()) && this.getHasCauldron().consume() > 0;
     }
 
-    /**
-     * 是否产生流体
-     *
-     * @return 如果产生流体返回true，否则返回false
-     */
+    /// 是否产生流体
+    ///
+    /// @return 如果产生流体返回true，否则返回false
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
         return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
     }
 
-    /**
-     * 超级加热配方构建器
-     */
+    /// 超级加热配方构建器
     public static class Builder extends SimpleAbstractBuilder<SuperHeatingRecipe, Builder> {
-        /**
-         * 炼药锅条件构建器
-         */
+        /// 炼药锅条件构建器
         HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
-        /**
-         * 设置流体
-         *
-         * @param fluid 流体ID
-         *
-         * @return 构建器实例
-         */
+        /// 设置流体
+        ///
+        /// @param fluid 流体ID
+        ///
+        /// @return 构建器实例
         public Builder fluid(Identifier fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
 
-        /**
-         * 设置炼药锅方块
-         *
-         * @param cauldron 炼药锅方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置炼药锅方块
+        ///
+        /// @param cauldron 炼药锅方块
+        ///
+        /// @return 构建器实例
         public Builder fluid(Block cauldron) {
             this.fluid(WrapUtils.cauldron2Fluid(cauldron));
             return this;
         }
 
-        /**
-         * 设置转换后的流体
-         *
-         * @param transform 转换后的流体ID
-         *
-         * @return 构建器实例
-         */
+        /// 设置转换后的流体
+        ///
+        /// @param transform 转换后的流体ID
+        ///
+        /// @return 构建器实例
         public Builder transform(Identifier transform) {
             this.hasCauldron.transform(transform);
             return this;
         }
 
-        /**
-         * 设置转换后的炼药锅方块
-         *
-         * @param cauldron 转换后的炼药锅方块
-         *
-         * @return 构建器实例
-         */
+        /// 设置转换后的炼药锅方块
+        ///
+        /// @param cauldron 转换后的炼药锅方块
+        ///
+        /// @return 构建器实例
         public Builder transform(Block cauldron) {
             this.transform(WrapUtils.cauldron2Fluid(cauldron));
             return this;
         }
 
-        /**
-         * 设置消耗量
-         *
-         * @param consume 消耗量
-         *
-         * @return 构建器实例
-         */
+        /// 设置消耗量
+        ///
+        /// @param consume 消耗量
+        ///
+        /// @return 构建器实例
         public Builder consume(int consume) {
             this.hasCauldron.consume(consume);
             return this;
         }
 
-        /**
-         * 设置产生量
-         *
-         * @param produce 产量
-         *
-         * @return 构建器实例
-         */
+        /// 设置产生量
+        ///
+        /// @param produce 产量
+        ///
+        /// @return 构建器实例
         public Builder produce(int produce) {
             this.hasCauldron.produce(produce);
             return this;

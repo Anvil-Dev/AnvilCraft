@@ -22,9 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 
-/**
- * 有过滤的 GUI
- */
+/// 有过滤的 GUI
 public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> extends IGhostIngredientScreen {
     Component SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP = Component.translatable(
         "screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit")
@@ -34,95 +32,75 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
 
     T getFilterMenu();
 
-    /**
-     * 获取是否开启过滤
-     *
-     * @return 是否开启过滤
-     */
+    /// 获取是否开启过滤
+    ///
+    /// @return 是否开启过滤
     default boolean isFilterEnabled() {
         return this.getFilterMenu().isFilterEnabled();
     }
 
-    /**
-     * 设置是否开启过滤
-     *
-     * @param enable 是否开启过滤
-     */
+    /// 设置是否开启过滤
+    ///
+    /// @param enable 是否开启过滤
     default void setFilterEnabled(boolean enable) {
         this.getFilterMenu().setFilterEnabled(enable);
     }
 
-    /**
-     * 设置指定槽位是否禁用
-     *
-     * @param slot    槽位
-     * @param disable 是否禁用
-     */
+    /// 设置指定槽位是否禁用
+    ///
+    /// @param slot    槽位
+    /// @param disable 是否禁用
     default void setSlotDisabled(int slot, boolean disable) {
         this.getFilterMenu().setSlotDisabled(slot, disable);
     }
 
-    /**
-     * 获取指定槽位是否禁用
-     *
-     * @param slot 槽位
-     */
+    /// 获取指定槽位是否禁用
+    ///
+    /// @param slot 槽位
     default boolean isSlotDisabled(int slot) {
         return this.getFilterMenu().isSlotDisabled(slot);
     }
 
-    /**
-     * 设置指定槽位的过滤
-     *
-     * @param slot   槽位
-     * @param filter 过滤
-     */
+    /// 设置指定槽位的过滤
+    ///
+    /// @param slot   槽位
+    /// @param filter 过滤
     @SuppressWarnings("UnusedReturnValue")
     default boolean setFilter(int slot, ItemStack filter) {
         return this.getFilterMenu().setFilter(slot, filter);
     }
 
-    /**
-     * 获取指定槽位的过滤
-     *
-     * @param slot 槽位
-     */
+    /// 获取指定槽位的过滤
+    ///
+    /// @param slot 槽位
     default ItemStack getFilter(int slot) {
         return this.getFilterMenu().getFilter(slot);
     }
 
-    /**
-     * 获取指定槽位的物品上限
-     *
-     * @param slot 槽位
-     */
+    /// 获取指定槽位的物品上限
+    ///
+    /// @param slot 槽位
     default int getSlotLimit(int slot) {
         return this.getFilterMenu().getSlotLimit(slot);
     }
 
-    /**
-     * 设置指定槽位的物品上限
-     *
-     * @param slot  槽位
-     * @param limit 物品上限
-     */
+    /// 设置指定槽位的物品上限
+    ///
+    /// @param slot  槽位
+    /// @param limit 物品上限
     default void setSlotLimit(int slot, int limit) {
         this.getFilterMenu().setSlotLimit(slot, limit);
     }
 
-    /**
-     * 刷新
-     */
+    /// 刷新
     default void flush() {
     }
 
-    /**
-     * 获取一个生成启用过滤按钮的生成器
-     *
-     * @param x 按钮 X 坐标
-     * @param y 按钮 Y 坐标
-     * @return 生成启用过滤按钮的生成器
-     */
+    /// 获取一个生成启用过滤按钮的生成器
+    ///
+    /// @param x 按钮 X 坐标
+    /// @param y 按钮 Y 坐标
+    /// @return 生成启用过滤按钮的生成器
     default BiFunction<Integer, Integer, EnableFilterButton> getEnableFilterButtonSupplier(int x, int y) {
         return (i, j) -> new EnableFilterButton(
             i + x,
@@ -136,12 +114,10 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
             this::isFilterEnabled);
     }
 
-    /**
-     * 渲染槽位
-     *
-     * @param graphics 画布
-     * @param slot        槽位
-     */
+    /// 渲染槽位
+    ///
+    /// @param graphics 画布
+    /// @param slot        槽位
     default void extractSlot(GuiGraphicsExtractor graphics, Slot slot) {
         if (!(slot instanceof SlotItemHandlerWithFilter crafterSlot)) return;
         if (!crafterSlot.isFilter()) return;
@@ -156,12 +132,10 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
         this.renderSlotLimit(graphics, slot);
     }
 
-    /**
-     * 渲染禁用的槽位
-     *
-     * @param graphics 画布
-     * @param crafterSlot 槽位
-     */
+    /// 渲染禁用的槽位
+    ///
+    /// @param graphics 画布
+    /// @param crafterSlot 槽位
     default void extractDisabledSlot(GuiGraphicsExtractor graphics, Slot crafterSlot) {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
@@ -177,13 +151,11 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
         );
     }
 
-    /**
-     * 渲染过滤物品
-     *
-     * @param graphics 画布
-     * @param slot        槽位
-     * @param stack       物品堆叠
-     */
+    /// 渲染过滤物品
+    ///
+    /// @param graphics 画布
+    /// @param slot        槽位
+    /// @param stack       物品堆叠
     default void extractFilterItem(GuiGraphicsExtractor graphics, Slot slot, ItemStack stack) {
         int i = slot.x;
         int j = slot.y;

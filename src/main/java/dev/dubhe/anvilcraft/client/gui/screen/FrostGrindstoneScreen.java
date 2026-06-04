@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindstoneMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "frost_grindstone");
@@ -45,7 +46,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
         }
     };
     private int head = 0;
-    private ItemStack renderingTooltipEnchantedBook;
+    private @Nullable ItemStack renderingTooltipEnchantedBook;
 
     public FrostGrindstoneScreen(FrostGrindstoneMenu menu, Inventory playerInventory, @SuppressWarnings("unused") Component title) {
         super(menu, playerInventory, Component.translatable("screen.anvilcraft.frost_grindstone.title"));
@@ -132,6 +133,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
@@ -141,8 +143,8 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
 
         if (this.scrollable.canScroll()) {
@@ -150,6 +152,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
             int top = this.topPos + 23;
             int down = top + 36;
             graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
                 SharedTextures.SWITCH_TABLE_SLIDER,
                 left,
                 top + (int) ((down - top - 12) * this.scrollable.getScrollOffs()),

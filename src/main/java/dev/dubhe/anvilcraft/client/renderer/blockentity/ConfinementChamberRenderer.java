@@ -27,7 +27,8 @@ public class ConfinementChamberRenderer extends BaseShowItemRenderer<Confinement
     @Override
     public void submit(BaseShowItemRenderState state, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
         pose.pushPose();
-        pose.translate(0.5, 0.4, 0.5);
+        pose.translate(0.5, 0.325, 0.5);
+        pose.scale(1.15F, 1.15F, 1.15F);
         super.submit(state, pose, collector, camera);
         pose.popPose();
     }

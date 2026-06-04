@@ -14,12 +14,10 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 public interface IAbnormal {
-    /**
-     * 执行效果
-     *
-     * @param level  世界
-     * @param entity 实体
-     */
+    /// 执行效果
+    ///
+    /// @param level  世界
+    /// @param entity 实体
     default void inventoryTick(ItemStack ignored, ServerLevel level, Entity entity, @Nullable EquipmentSlot ignored1) {
         if (level.isClientSide()) return;
         if (!(entity instanceof Player player)) return;
@@ -34,12 +32,10 @@ public interface IAbnormal {
         return new MobEffectInstance(effect, 200, amplifier, false, true);
     }
 
-    /**
-     * 统计异常物品数量
-     *
-     * @param player 玩家
-     * @return 异常物品数量
-     */
+    /// 统计异常物品数量
+    ///
+    /// @param player 玩家
+    /// @return 异常物品数量
     default int getItemCount(Player player) {
         Inventory inventory = player.getInventory();
         int i = 0;
@@ -51,12 +47,10 @@ public interface IAbnormal {
         return i;
     }
 
-    /**
-     * 统计异常物品数量
-     *
-     * @param player 玩家
-     * @return 异常物品数量
-     */
+    /// 统计异常物品数量
+    ///
+    /// @param player 玩家
+    /// @return 异常物品数量
     static <T extends IAbnormal> int getAbnormalCount(Player player, Class<T> clazz) {
         Inventory inventory = player.getInventory();
         int i = 0;

@@ -183,15 +183,13 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         this.devourBlock(level, devourerPos, devourerDirection, range, null);
     }
 
-    /**
-     * 破坏方块
-     *
-     * @param level             世界
-     * @param devourerPos       破坏器坐标
-     * @param devourerDirection 破坏方向
-     * @param range             破坏半径(正方形)
-     * @param anvil             砸到方块吞噬器的铁砧
-     */
+    /// 破坏方块
+    ///
+    /// @param level             世界
+    /// @param devourerPos       破坏器坐标
+    /// @param devourerDirection 破坏方向
+    /// @param range             破坏半径(正方形)
+    /// @param anvil             砸到方块吞噬器的铁砧
     @SuppressWarnings({"unreachable", "unused"})
     public void devourBlock(
         ServerLevel level,
@@ -260,11 +258,10 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         }
     }
 
-    /**
-     * 检查目标位置是否可以破坏
-     *
-     * @param devourBlockState       目标方块
-     * */
+    /// 检查目标位置是否可以破坏
+    ///
+    /// @param devourBlockState       目标方块
+    /// */
     public static boolean canDevour(BlockState devourBlockState) {
         return !devourBlockState.is(ModBlockTags.DEVOUR_BLACKLIST) && devourBlockState.getBlock().defaultDestroyTime() >= 0;
     }
@@ -352,11 +349,9 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         TriggerUtil.devourerDevourBlock(level, devourBlockPos, devourBlockState.getBlock());
     }
 
-    /**
-     * 转移讲台内容
-     *
-     * <p>虽然溜槽/漏斗无法与讲台交互，但吞噬器这类直接破坏的应该转移走才正常点</p>
-     */
+    /// 转移讲台内容
+    ///
+    /// <p>虽然溜槽/漏斗无法与讲台交互，但吞噬器这类直接破坏的应该转移走才正常点</p>
     private static void transferLecternContents(
         ServerLevel level,
         @Nullable List<ResourceHandler<ItemResource>> itemHandlerList,

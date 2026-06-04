@@ -35,9 +35,7 @@ public class ExpGemItem extends Item {
         return dev.dubhe.anvilcraft.util.Util.sidedSuccess(level);
     }
 
-    /**
-     * 右键实体
-     */
+    /// 右键实体
     public static InteractionResult useEntity(Player player, Entity target, ItemStack stack) {
         if (!(target instanceof Villager villager)) return InteractionResult.PASS;
         if (villager.level().isClientSide()) return InteractionResult.PASS;

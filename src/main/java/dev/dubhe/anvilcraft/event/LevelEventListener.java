@@ -18,9 +18,7 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class LevelEventListener {
 
-    /**
-     * 世界加载事件
-     */
+    /// 世界加载事件
     @SubscribeEvent
     public static void onLevelLoad(LevelEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
@@ -30,9 +28,7 @@ public class LevelEventListener {
         }
     }
 
-    /**
-     * 世界卸载事件
-     */
+    /// 世界卸载事件
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
         LevelAccessor accessor = event.getLevel();

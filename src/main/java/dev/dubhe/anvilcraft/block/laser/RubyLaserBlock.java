@@ -48,9 +48,7 @@ public class RubyLaserBlock extends BaseLaserBlock implements IHammerRemovable, 
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
 
-    /**
-     * 方块状态注册
-     */
+    /// 方块状态注册
     public RubyLaserBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition

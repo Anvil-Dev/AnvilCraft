@@ -15,11 +15,9 @@ public class FluidTagLoader {
         return BuiltInRegistries.FLUID.getKey(item);
     }
 
-    /**
-     * 物品标签生成器初始化
-     *
-     * @param provider 提供器
-     */
+    /// 物品标签生成器初始化
+    ///
+    /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Fluid> provider) {
         provider.rawBuilder(ModFluidTags.MENGER_SPONGE_CAN_ABSORB)
             .addElement(findId(Fluids.WATER))

@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -19,7 +18,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -38,7 +36,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.EventHooks;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -63,28 +60,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     public abstract ItemStack getItem();
 
     @Shadow
-    public abstract void setItem(ItemStack stack);
-
-    @Shadow
-    protected abstract boolean isMergable();
-
-    @Shadow
-    protected abstract void mergeWithNeighbours();
-
-    @Shadow
-    private int pickupDelay;
-
-    @Shadow
-    private int age;
-
-    @Shadow
-    public int lifespan;
-
-    @Shadow
-    protected abstract void setUnderwaterMovement();
-
-    @Shadow
-    protected abstract void setUnderLavaMovement();
+    public abstract void setItem(ItemStack itemStack);
 
     @Unique
     public int anvilcraft$mergeCooldown = 0;
@@ -93,7 +69,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     public boolean anvilcraft$isAdsorbable = true;
 
     @Unique
-    private BlockPos anvilcraft$blockPos;
+    private @Nullable BlockPos anvilcraft$blockPos;
 
     @Inject(method = "tick", at = @At("RETURN"))
     private void tickReturn(CallbackInfo ci) {
@@ -176,96 +152,21 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     }
 
     // 以下是中子锭运动相关mixin
-    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
-    private void anvilcraft$neutroniumTick(CallbackInfo ci) {
-        ItemEntity thiz = Util.cast(this);
+    @WrapOperation(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/item/ItemEntity;"
+                     + "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V"
+        )
+    )
+    private void replaceTickWhenNeutronium(ItemEntity instance, MoverType moverType, Vec3 vec3, Operation<Void> original) {
         ItemStack item = this.getItem();
-        if (!item.is(ModItems.NEUTRONIUM_INGOT)) return;
-        if (item.onEntityItemUpdate(thiz)) {
-            ci.cancel();
-            return;
-        }
-        if (this.getItem().isEmpty()) {
-            this.discard();
-            return;
-        }
-        super.tick();
-        if (this.pickupDelay > 0 && this.pickupDelay != 32767) {
-            this.pickupDelay--;
-        }
-
-        this.xo = this.getX();
-        this.yo = this.getY();
-        this.zo = this.getZ();
-        final Vec3 oldMovement = this.getDeltaMovement();
-        if (this.isInWater() && this.getFluidHeight(FluidTags.WATER) > 0.1F) {
-            this.setUnderwaterMovement();
-        } else if (this.isInLava() && this.getFluidHeight(FluidTags.LAVA) > 0.1F) {
-            this.setUnderLavaMovement();
+        if (!item.is(ModItems.NEUTRONIUM_INGOT)) {
+            original.call(instance, moverType, vec3);
         } else {
-            this.applyGravity();
+            this.anvilcraft$neutroniumMove(moverType, vec3);
         }
-
-        if (this.level().isClientSide()) {
-            this.noPhysics = false;
-        } else {
-            this.noPhysics = !this.level().noCollision(this, this.getBoundingBox().deflate(1.0E-7));
-            if (this.noPhysics) {
-                this.moveTowardsClosestSpace(this.getX(), (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0, this.getZ());
-            }
-        }
-
-        if (this.onGround() && !(this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-5F) && (this.tickCount + this.getId()) % 4 != 0) {
-            this.applyEffectsFromBlocksForLastMovements();
-        } else {
-            this.anvilcraft$neutroniumMove(MoverType.SELF, this.getDeltaMovement());
-            this.applyEffectsFromBlocks();
-            float friction = 0.98F;
-            if (this.onGround()) {
-                BlockPos groundPos = getBlockPosBelowThatAffectsMyMovement();
-                friction = this.level().getBlockState(groundPos).getFriction(level(), groundPos, this) * 0.98F;
-            }
-
-            this.setDeltaMovement(this.getDeltaMovement().multiply(friction, 0.98, friction));
-            // if (this.onGround()) {
-            //     Vec3 movement = this.getDeltaMovement();
-            //     if (movement.y < 0.0) {
-            //         this.setDeltaMovement(movement.multiply(1.0, -0.5, 1.0));
-            //     }
-            // }
-        }
-
-        boolean moved = Mth.floor(this.xo) != Mth.floor(this.getX())
-            || Mth.floor(this.yo) != Mth.floor(this.getY())
-            || Mth.floor(this.zo) != Mth.floor(this.getZ());
-        int rate = moved ? 2 : 40;
-        if (this.tickCount % rate == 0 && !this.level().isClientSide() && this.isMergable()) {
-            this.mergeWithNeighbours();
-        }
-
-        if (this.age != -32768) {
-            this.age++;
-        }
-
-        this.needsSync = this.needsSync | this.updateFluidInteraction();
-        if (!this.level().isClientSide()) {
-            double value = this.getDeltaMovement().subtract(oldMovement).lengthSqr();
-            if (value > 0.01) {
-                this.needsSync = true;
-            }
-        }
-
-        if (!this.level().isClientSide() && this.age >= this.lifespan) {
-            // Clamping to MAX_VALUE -1 as age is a Short and going above that would produce an infinite lifespan implicitly (accidentally)
-            this.lifespan = Mth.clamp(this.lifespan + EventHooks.onItemExpire((ItemEntity) (Object) this), 0, Short.MAX_VALUE - 1);
-            if (this.age >= this.lifespan) {
-                this.discard();
-            }
-        }
-        if (item.isEmpty() && !this.isRemoved()) {
-            this.discard();
-        }
-        ci.cancel();
     }
 
     @Override
@@ -315,7 +216,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         this.horizontalCollision = collisionX || collisionZ;
 
         this.verticalCollision = motion2.y != motion.y;
-        this.verticalCollisionBelow = this.verticalCollision && motion.y < (double) 0.0F;
+        this.verticalCollisionBelow = this.verticalCollision && motion.y < 0.0;
         this.minorHorizontalCollision = false;
         this.setOnGroundWithMovement(this.verticalCollisionBelow, motion2);
         BlockPos blockpos = this.getOnPosLegacy();
@@ -444,19 +345,12 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     }
 
     @Unique
-    private boolean anvilcraft$isMagnetBlock(BlockState state) {
-        return state.is(ModBlocks.MAGNET_BLOCK.get())
-               || state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get())
-               || state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get());
-    }
-
-    @Unique
     private boolean anvilcraft$isTouchingMagnet() {
         AABB box = this.getBoundingBox().inflate(0.01);
         return BlockPos.betweenClosedStream(box).anyMatch(p -> {
             BlockState s = this.level().getBlockState(p);
-            return this.anvilcraft$isMagnetBlock(s)
-                   && !s.getValue(MagnetBlock.LIT)
+            return s.is(ModBlockTags.MAGNET)
+                   && !s.getOptionalValue(MagnetBlock.LIT).orElse(false)
                    && !s.getCollisionShape(this.level(), p).isEmpty()
                    && s.getCollisionShape(this.level(), p).toAabbs().stream().anyMatch(b -> b.move(p).intersects(box));
         });
@@ -469,7 +363,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         Object[] result = {null, Double.MAX_VALUE};
         BlockPos.betweenClosedStream(area).forEach(pos -> {
             BlockState state = this.level().getBlockState(pos);
-            if (!this.anvilcraft$isMagnetBlock(state)) return;
+            if (!state.is(ModBlockTags.MAGNET)) return;
             for (AABB box : state.getCollisionShape(this.level(), pos).toAabbs()) {
                 AABB wb = box.move(pos);
                 Vec3 p = new Vec3(

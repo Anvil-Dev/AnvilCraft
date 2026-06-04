@@ -3,11 +3,9 @@ package dev.dubhe.anvilcraft.data.lang;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class WthitLang {
-    /**
-     * WTHIT 配置文件本地化
-     *
-     * @param provider 提供器
-     */
+    /// WTHIT 配置文件本地化
+    ///
+    /// @param provider 提供器
     public static void init(RegistrumLangProvider provider) {
         provider.add("config.waila.plugin_anvilcraft", "Anvil Craft");
         provider.add("config.waila.plugin_anvilcraft.power_provider", "Anvil Craft Power");

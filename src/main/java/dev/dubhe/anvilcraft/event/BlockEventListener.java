@@ -32,11 +32,9 @@ import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
-    /**
-     * 侦听左键方块事件
-     *
-     * @param event 左键方块事件
-     */
+    /// 侦听左键方块事件
+    ///
+    /// @param event 左键方块事件
     @SubscribeEvent
     public static void anvilHammerAttack(PlayerInteractEvent.LeftClickBlock event) {
         InteractionHand hand = event.getHand();
@@ -47,11 +45,9 @@ public class BlockEventListener {
         }
     }
 
-    /**
-     * 侦听右键方块事件
-     *
-     * @param event 右键方块事件
-     */
+    /// 侦听右键方块事件
+    ///
+    /// @param event 右键方块事件
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();

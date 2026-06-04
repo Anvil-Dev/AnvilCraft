@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.util.Timer;
-import dev.anvilcraft.lib.v2.util.ClientTickRecorder;
 import dev.dubhe.anvilcraft.block.entity.batch.BaseBatchCraftingBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.BaseShowItemRenderState;
 import net.minecraft.client.Minecraft;
@@ -45,7 +44,7 @@ public class BatchCraftingRenderer extends BaseShowItemRenderer<BaseBatchCraftin
         float rotation = (Minecraft.getInstance().level.getGameTime() + Timer.getPartialTick());
         AABB boundingBox = displayState.item.getModelBoundingBox();
         float minOffsetY = -((float) boundingBox.minY) + 0.0625F;
-        poseStack.translate(0.5F, minOffsetY + 0.15f, 0.5F);
+        poseStack.translate(0.5F, minOffsetY + 0.325f, 0.5F);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         super.submit(state, poseStack, submitNodeCollector, camera);
         poseStack.popPose();

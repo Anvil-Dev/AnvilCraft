@@ -18,9 +18,7 @@ import java.util.List;
 
 public class TooltipRenderHelper {
 
-    /**
-     * 渲染外框
-     */
+    /// 渲染外框
     public static void renderOutline(
         PoseStack poseStack,
         VertexConsumer consumer,
@@ -89,16 +87,14 @@ public class TooltipRenderHelper {
         });
     }
 
-    /**
-     * 渲染带图标的Tooltip
-     *
-     * @param graphics      GuiGraphicsExtractor
-     * @param font      字体
-     * @param itemStack 图标物品
-     * @param lines     Tooltip内容
-     * @param x         x坐标
-     * @param y         y坐标
-     */
+    /// 渲染带图标的Tooltip
+    ///
+    /// @param graphics      GuiGraphicsExtractor
+    /// @param font      字体
+    /// @param itemStack 图标物品
+    /// @param lines     Tooltip内容
+    /// @param x         x坐标
+    /// @param y         y坐标
     public static void renderTooltipWithItemIcon(
         GuiGraphicsExtractor graphics,
         Font font,

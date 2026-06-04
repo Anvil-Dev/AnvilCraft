@@ -8,13 +8,12 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.block.entity.IExtensibleBlockEntity;
+import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
-import dev.dubhe.anvilcraft.util.mixin.ExtensibleBlockEntityEntry;
+import dev.dubhe.anvilcraft.util.mixin.ConvertableBlockEntityEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -71,7 +70,7 @@ public abstract class LevelChunkMixin {
             ordinal = 1
         )
     )
-    private @Nullable <K, V> V onRemoveBlockEntity(Map<K, V> instance, Object key, Operation<V> original) {
+    private @Nullable <K, V> V onRemoveBlockEntity(Map<K, V> instance, Object key, Operation<@Nullable V> original) {
         final V removed = original.call(instance, key);
         if (!this.getLevel().isClientSide() && removed != null) {
             if (removed instanceof BlockEntity entity) {
@@ -120,40 +119,39 @@ public abstract class LevelChunkMixin {
         BlockPos pos,
         BlockState state,
         Operation<Void> original,
-        @Share(namespace = AnvilCraft.MOD_ID, value = "extensible") LocalRef<ExtensibleBlockEntityEntry<?>> entry
+        @Share(namespace = AnvilCraft.MOD_ID, value = "convertable") LocalRef<@Nullable ConvertableBlockEntityEntry<?>> entry
     ) {
-        if (!(instance instanceof IExtensibleBlockEntity<?> extensible)) {
+        if (!(instance instanceof IConvertableBlockEntity<?> convertable)) {
             original.call(instance, pos, state);
             return;
         }
-        entry.set(new ExtensibleBlockEntityEntry<>(extensible, state, original));
+        entry.set(new ConvertableBlockEntityEntry<>(convertable, pos, state, original));
     }
 
     @WrapOperation(
         method = "setBlockState",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/EntityBlock;"
-                     + "newBlockEntity("
-                     + "Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)"
-                     + "Lnet/minecraft/world/level/block/entity/BlockEntity;"
+            target = "Lnet/minecraft/world/level/chunk/LevelChunk;"
+                     + "addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"
         )
     )
-    private BlockEntity extendEntityIfValid(
-        EntityBlock instance,
-        BlockPos pos,
-        BlockState state,
-        Operation<BlockEntity> original,
-        @Share(namespace = AnvilCraft.MOD_ID, value = "extensible") LocalRef<ExtensibleBlockEntityEntry<?>> entry
+    private void extendEntityIfValid(
+        LevelChunk instance,
+        BlockEntity blockEntity,
+        Operation<Void> original,
+        @Share(namespace = AnvilCraft.MOD_ID, value = "convertable") LocalRef<@Nullable ConvertableBlockEntityEntry<?>> entry
     ) {
-        BlockEntity newBe = original.call(instance, pos, state);
-        ExtensibleBlockEntityEntry<?> extensibleEntry = entry.get();
-        if (extensibleEntry == null) return newBe;
-        if (extensibleEntry.extensible().getThatType() != newBe.getType()) {
-            extensibleEntry.remove();
-            return newBe;
+        original.call(instance, blockEntity);
+
+        ConvertableBlockEntityEntry<?> convertable = entry.get();
+        if (convertable == null) {
+            return;
         }
-        extensibleEntry.apply(Util.cast(newBe));
-        return newBe;
+        if (convertable.convertable().targetTypeHolder().is(blockEntity.typeHolder().getKey())) {
+            convertable.apply(Util.cast(blockEntity));
+        } else {
+            convertable.remove();
+        }
     }
 }

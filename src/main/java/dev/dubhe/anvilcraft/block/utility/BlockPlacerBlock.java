@@ -217,14 +217,12 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         return defaultBlockState().setValue(ORIENTATION, orientation);
     }
 
-    /**
-     * 放置方块
-     *
-     * @param distance    放置距离
-     * @param level       放置世界
-     * @param blockPos    放置位置
-     * @param orientation 放置方向
-     */
+    /// 放置方块
+    ///
+    /// @param distance    放置距离
+    /// @param level       放置世界
+    /// @param blockPos    放置位置
+    /// @param orientation 放置方向
     public void placeBlock(int distance, Level level, BlockPos blockPos, Orientation orientation) {
         // 判断是放置位置是否不能放置方块
         Direction direction = orientation.getDirection();
@@ -322,13 +320,11 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
     }
 
-    /**
-     * 判断当前位置是否不能放置方块
-     *
-     * @param level      放置世界
-     * @param blockState 方块放置器前面方块的方块状态
-     * @return 当前位置是否不能放置方块
-     */
+    /// 判断当前位置是否不能放置方块
+    ///
+    /// @param level      放置世界
+    /// @param blockState 方块放置器前面方块的方块状态
+    /// @return 当前位置是否不能放置方块
     private boolean canNotBePlaced(Level level, BlockState blockState) {
         if (level instanceof ServerLevel) {
             // 可替换方块

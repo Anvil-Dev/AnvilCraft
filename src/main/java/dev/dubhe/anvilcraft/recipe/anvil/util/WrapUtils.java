@@ -21,18 +21,14 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 包装工具类
- *
- * <p>提供各种配方相关对象的创建和转换工具方法</p>
- */
+/// 包装工具类
+///
+/// <p>提供各种配方相关对象的创建和转换工具方法</p>
 public class WrapUtils {
-    /**
-     * 根据方块状态谓词列表创建HasBlock谓词列表
-     *
-     * @param results 方块状态谓词列表
-     * @return HasBlock谓词列表
-     */
+    /// 根据方块状态谓词列表创建HasBlock谓词列表
+    ///
+    /// @param results 方块状态谓词列表
+    /// @return HasBlock谓词列表
     public static List<IRecipePredicate<?>> getPredicates(
         List<BlockStatePredicate> results
     ) {
@@ -44,36 +40,30 @@ public class WrapUtils {
         return predicates;
     }
 
-    /**
-     * 根据方块状态谓词创建HasBlockIngredient谓词
-     *
-     * @param block 方块状态谓词
-     * @return HasBlockIngredient谓词
-     */
+    /// 根据方块状态谓词创建HasBlockIngredient谓词
+    ///
+    /// @param block 方块状态谓词
+    /// @return HasBlockIngredient谓词
     public static IRecipePredicate<?> getIngredientPredicate(
         BlockStatePredicate block
     ) {
         return new HasBlockIngredient(new Vec3(0, -1, 0), block);
     }
 
-    /**
-     * 根据方块状态谓词创建HasBlockIngredient谓词列表（不可变）
-     *
-     * @param block 方块状态谓词
-     * @return HasBlockIngredient谓词列表
-     */
+    /// 根据方块状态谓词创建HasBlockIngredient谓词列表（不可变）
+    ///
+    /// @param block 方块状态谓词
+    /// @return HasBlockIngredient谓词列表
     public static @Unmodifiable List<IRecipePredicate<?>> getIngredientPredicates(
         BlockStatePredicate block
     ) {
         return List.of(getIngredientPredicate(block));
     }
 
-    /**
-     * 根据方块状态谓词列表创建HasBlockIngredient谓词列表
-     *
-     * @param results 方块状态谓词列表
-     * @return HasBlockIngredient谓词列表
-     */
+    /// 根据方块状态谓词列表创建HasBlockIngredient谓词列表
+    ///
+    /// @param results 方块状态谓词列表
+    /// @return HasBlockIngredient谓词列表
     public static List<IRecipePredicate<?>> getIngredientPredicates(
         List<BlockStatePredicate> results
     ) {
@@ -85,35 +75,29 @@ public class WrapUtils {
         return predicates;
     }
 
-    /**
-     * 根据ChanceBlockState和Y轴偏移创建结果列表（不可变）
-     *
-     * @param result  ChanceBlockState
-     * @param offsetY Y轴偏移
-     * @return 结果列表
-     */
+    /// 根据ChanceBlockState和Y轴偏移创建结果列表（不可变）
+    ///
+    /// @param result  ChanceBlockState
+    /// @param offsetY Y轴偏移
+    /// @return 结果列表
     public static @Unmodifiable List<IRecipeOutcome<?>> getOutcomes(ChanceBlockState result, int offsetY) {
         return List.of(SetBlock.fromState(result, new Vec3(0, offsetY, 0)));
     }
 
-    /**
-     * 根据ChanceBlockState创建结果列表（不可变）
-     *
-     * @param result ChanceBlockState
-     * @return 结果列表
-     */
+    /// 根据ChanceBlockState创建结果列表（不可变）
+    ///
+    /// @param result ChanceBlockState
+    /// @return 结果列表
     public static @Unmodifiable List<IRecipeOutcome<?>> getOutcomes(
         ChanceBlockState result
     ) {
         return WrapUtils.getOutcomes(result, -1);
     }
 
-    /**
-     * 根据ChanceBlockState列表创建结果列表
-     *
-     * @param results ChanceBlockState列表
-     * @return 结果列表
-     */
+    /// 根据ChanceBlockState列表创建结果列表
+    ///
+    /// @param results ChanceBlockState列表
+    /// @return 结果列表
     public static List<IRecipeOutcome<?>> getOutcomes(
         List<ChanceBlockState> results
     ) {
@@ -125,12 +109,10 @@ public class WrapUtils {
         return outcomes;
     }
 
-    /**
-     * 根据ChanceBlockState获取物品
-     *
-     * @param result ChanceBlockState
-     * @return 物品
-     */
+    /// 根据ChanceBlockState获取物品
+    ///
+    /// @param result ChanceBlockState
+    /// @return 物品
     public static ItemStackTemplate getItem(ChanceBlockState result) {
         BlockState state = result.state();
         if (state.isEmpty() || state.isAir()) return new ItemStackTemplate(Items.ANVIL);
@@ -139,23 +121,19 @@ public class WrapUtils {
         return new ItemStackTemplate(item);
     }
 
-    /**
-     * 根据ChanceBlockState列表获取物品
-     *
-     * @param results ChanceBlockState列表
-     * @return 物品
-     */
+    /// 根据ChanceBlockState列表获取物品
+    ///
+    /// @param results ChanceBlockState列表
+    /// @return 物品
     public static Item getItem(List<ChanceBlockState> results) {
         if (results.isEmpty()) return Items.ANVIL;
         return WrapUtils.getItem(results.getFirst()).item().value();
     }
 
-    /**
-     * 将炼药锅方块转换为流体ID
-     *
-     * @param cauldron 炼药锅方块
-     * @return 流体ID
-     */
+    /// 将炼药锅方块转换为流体ID
+    ///
+    /// @param cauldron 炼药锅方块
+    /// @return 流体ID
     public static Identifier cauldron2Fluid(Block cauldron) {
         Identifier fluid = CompatUtil.getFluidFromCauldron(cauldron);
         if (fluid != null) return fluid;

@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,7 +38,7 @@ import java.util.concurrent.Future;
 
 @Getter
 public class SimplePowerGrid {
-    private static ExecutorService EXECUTOR;
+    private static @Nullable ExecutorService EXECUTOR;
     public static final Codec<SimplePowerGrid> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         Codec.INT.fieldOf("hash").forGetter(o -> o.id),
         Codec.STRING.fieldOf("level").forGetter(o -> o.level),
@@ -66,11 +67,9 @@ public class SimplePowerGrid {
     private final int consume; // 耗电功率
     private final int color;
     private List<Line> powerGridBoundLines = new ArrayList<>();
-    private Future<?> shapeFuture;
+    private @Nullable Future<?> shapeFuture;
 
-    /**
-     * 简单电网
-     */
+    /// 简单电网
     public SimplePowerGrid(int id, String level, BlockPos pos, List<PowerComponentInfo> powerComponentInfoList, int generate, int consume) {
         this.pos = pos;
         this.level = level;
@@ -103,9 +102,7 @@ public class SimplePowerGrid {
         this.generate = grid.getGenerate();
     }
 
-    /**
-     * 寻找电网
-     */
+    /// 寻找电网
     public static Optional<SimplePowerGrid> findPowerGrid(BlockPos pos) {
         for (SimplePowerGrid value : PowerGridSupport.getGridMap().values()) {
             for (BlockPos block : value.blocks) {
@@ -142,9 +139,7 @@ public class SimplePowerGrid {
         return false;
     }
 
-    /**
-     * 获得指定坐标的电网元件信息
-     */
+    /// 获得指定坐标的电网元件信息
     public Optional<PowerComponentInfo> getInfoForPos(BlockPos pos) {
         return this.powerComponentInfoList.stream().filter(it -> it.pos().equals(pos)).findFirst();
     }

@@ -4,11 +4,9 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class PatchouliLang {
 
-    /**
-     * 初始化 Patchouli 语言
-     *
-     * @param provider 提供器
-     */
+    /// 初始化 Patchouli 语言
+    ///
+    /// @param provider 提供器
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
         provider.add("gui.anvilcraft.category.anvil_collision_craft_speed", "Speed: %d m/tick");

@@ -56,7 +56,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         super(filteredItems.size());
         this.filteredItems = NonNullList.create();
         this.filteredItems.addAll(filteredItems.stream()
-            .map(it -> it.orElse(ItemStack.EMPTY)).toList()
+                                      .map(it -> it.orElse(ItemStack.EMPTY)).toList()
         );
         this.disabled = NonNullList.create();
         this.disabled.addAll(disabled);
@@ -64,11 +64,9 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         this.slotLimits.addAll(slotLimits);
     }
 
-    /**
-     * 有过滤的容器
-     *
-     * @param size 大小
-     */
+    /// 有过滤的容器
+    ///
+    /// @param size 大小
     public FilteredItemStackHandler(int size) {
         super(size);
         this.filteredItems = NonNullList.withSize(size, ItemStack.EMPTY);
@@ -76,11 +74,9 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         this.slotLimits = NonNullList.withSize(size, IFilterBlockEntity.DEFAULT_SLOT_LIMIT);
     }
 
-    /**
-     * 设置是否启用过滤
-     *
-     * @param filterEnabled 是否启用过滤
-     */
+    /// 设置是否启用过滤
+    ///
+    /// @param filterEnabled 是否启用过滤
     public void setFilterEnabled(boolean filterEnabled) {
         this.filteredItems.clear();
         this.filterEnabled = filterEnabled;
@@ -95,8 +91,10 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
 
     @Override
     public boolean isValid(int index, ItemResource resource) {
-        if (!this.filterEnabled) return !this.isSlotDisabled(index);
-        return !this.isSlotDisabled(index) && this.isFiltered(index, resource.toStack());
+        if (this.isSlotDisabled(index)) {
+            return false;
+        }
+        return !this.filterEnabled || this.isFiltered(index, resource.toStack());
     }
 
     @Override
@@ -107,58 +105,50 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         super.set(index, resource, amount);
     }
 
-    /**
-     * 判断指定槽位是否被禁用
-     *
-     * @param slot 槽位
-     * @return 指定槽位是否被禁用
-     */
-    public boolean isSlotDisabled(int slot) {
-        if (!this.filterEnabled) return this.disabled.get(slot);
-        return this.disabled.get(slot)
-            || (this.getResource(slot).isEmpty() && this.filteredItems.get(slot).isEmpty());
+    /// 判断指定槽位是否被禁用
+    ///
+    /// @param index 槽位
+    /// @return 指定槽位是否被禁用
+    public boolean isSlotDisabled(int index) {
+        if (!this.filterEnabled) return this.disabled.get(index);
+        return this.disabled.get(index)
+               || (this.getResource(index).isEmpty() && this.filteredItems.get(index).isEmpty());
     }
 
-    /**
-     * 为指定槽位设定禁用情况
-     *
-     * @param slot    槽位
-     * @param disable 禁用情况
-     */
+    /// 为指定槽位设定禁用情况
+    ///
+    /// @param slot    槽位
+    /// @param disable 禁用情况
     public void setSlotDisabled(int slot, boolean disable) {
         this.filteredItems.set(slot, ItemStack.EMPTY);
         this.disabled.set(slot, disable);
     }
 
-    /**
-     * 使指定槽位禁用情况翻转
-     *
-     * @param slot 槽位
-     * @return 指定槽位的禁用情况
-     */
+    /// 使指定槽位禁用情况翻转
+    ///
+    /// @param slot 槽位
+    ///
+    /// @return 指定槽位的禁用情况
     public boolean cycleDisabled(int slot) {
         boolean disable = !this.disabled.get(slot);
         this.setSlotDisabled(slot, disable);
         return disable;
     }
 
-    /**
-     * 判断指定槽位是否允许放入指定物品堆叠
-     *
-     * @param slot  槽位
-     * @param stack 物品堆叠
-     * @return 指定槽位是否允许放入指定物品堆叠
-     */
+    /// 判断指定槽位是否允许放入指定物品堆叠
+    ///
+    /// @param slot  槽位
+    /// @param stack 物品堆叠
+    ///
+    /// @return 指定槽位是否允许放入指定物品堆叠
     public boolean isFiltered(int slot, ItemStack stack) {
         return FilterItem.filter(this.filteredItems.get(slot), stack);
     }
 
-    /**
-     * 设置指定槽位的过滤
-     *
-     * @param slot  槽位
-     * @param stack 过滤物品堆叠（不检查NBT）
-     */
+    /// 设置指定槽位的过滤
+    ///
+    /// @param slot  槽位
+    /// @param stack 过滤物品堆叠（不检查NBT）
     public boolean setFilter(int slot, ItemStack stack) {
         if (slot < 0 || slot >= this.filteredItems.size()) return false;
         if (stack.isEmpty()) return false;
@@ -167,12 +157,11 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         return true;
     }
 
-    /**
-     * 获取指定槽位上的过滤
-     *
-     * @param slot 槽位
-     * @return 指定槽位上的过滤
-     */
+    /// 获取指定槽位上的过滤
+    ///
+    /// @param slot 槽位
+    ///
+    /// @return 指定槽位上的过滤
     public ItemStack getFilter(int slot) {
         return this.filteredItems.get(slot);
     }
@@ -190,23 +179,20 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         return true;
     }
 
-    /**
-     * 获取指定槽位的物品数量上限
-     *
-     * @param slot 槽位
-     * @return 物品数量上限
-     */
+    /// 获取指定槽位的物品数量上限
+    ///
+    /// @param slot 槽位
+    ///
+    /// @return 物品数量上限
     public int getSlotLimit(int slot) {
         if (slot < 0 || slot >= this.slotLimits.size()) return IFilterBlockEntity.DEFAULT_SLOT_LIMIT;
         return this.slotLimits.get(slot);
     }
 
-    /**
-     * 设置指定槽位的物品数量上限
-     *
-     * @param slot  槽位
-     * @param limit 物品数量上限
-     */
+    /// 设置指定槽位的物品数量上限
+    ///
+    /// @param slot  槽位
+    /// @param limit 物品数量上限
     public void setSlotLimit(int slot, int limit) {
         if (slot < 0 || slot >= this.slotLimits.size()) return;
         this.slotLimits.set(slot, limit);

@@ -149,13 +149,11 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         return false;
     }
 
-    /**
-     * Counts the number of blocks in 5x5x5 area.
-     * Also detects whether there is another void energy collector in 9x9x9;
-     * if there does be another void energy collector, this function returns 125 to disable power generation.
-     *
-     * @return count(normal) - count(negative) IF active ELSE 125
-     */
+    /// Counts the number of blocks in 5x5x5 area.
+    /// Also detects whether there is another void energy collector in 9x9x9;
+    /// if there does be another void energy collector, this function returns 125 to disable power generation.
+    ///
+    /// @return count(normal) - count(negative) IF active ELSE 125
     private int countBlocksInRange() {
         if (level == null || level.isClientSide()) return 125;
         int count = 0;

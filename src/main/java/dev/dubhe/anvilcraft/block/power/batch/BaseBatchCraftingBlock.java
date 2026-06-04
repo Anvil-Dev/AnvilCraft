@@ -85,18 +85,16 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
         return this.playerUse(level, pos, state, be, player, hand, hit);
     }
 
-    /**
-     * 当玩家交互此方块时调用
-     *
-     * @param level  方块所在的世界
-     * @param pos    方块所在的位置
-     * @param state  方块的状态
-     * @param be     方块的方块实体
-     * @param player 交互该方块的玩家
-     * @param hand   玩家交互该方块的手
-     * @param hit    玩家视线与方块的碰撞计算结果
-     * @return 此次交互的结果
-     */
+    /// 当玩家交互此方块时调用
+    ///
+    /// @param level  方块所在的世界
+    /// @param pos    方块所在的位置
+    /// @param state  方块的状态
+    /// @param be     方块的方块实体
+    /// @param player 交互该方块的玩家
+    /// @param hand   玩家交互该方块的手
+    /// @param hit    玩家视线与方块的碰撞计算结果
+    /// @return 此次交互的结果
     protected abstract InteractionResult playerUse(
         Level level,
         BlockPos pos,

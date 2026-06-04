@@ -43,11 +43,9 @@ public class UtusanItem extends Item {
         return itemStack;
     }
 
-    /**
-     * 移除负面效果
-     *
-     * @param livingEntity 生物
-     */
+    /// 移除负面效果
+    ///
+    /// @param livingEntity 生物
     public static void removeHarmfulEffects(LivingEntity livingEntity) {
         if (livingEntity.level().isClientSide()) return;
         boolean bl = false;

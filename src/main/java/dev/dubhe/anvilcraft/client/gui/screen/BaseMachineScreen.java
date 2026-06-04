@@ -28,26 +28,22 @@ public abstract class BaseMachineScreen<T extends AbstractContainerMenu> extends
     @Getter
     private final Player player;
 
-    /**
-     * 基本机器 GUI
-     *
-     * @param menu      菜单
-     * @param inventory 玩家背包
-     * @param title     标题
-     */
+    /// 基本机器 GUI
+    ///
+    /// @param menu      菜单
+    /// @param inventory 玩家背包
+    /// @param title     标题
     public BaseMachineScreen(T menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.directionButtonSupplier = BaseMachineScreen.getDirectionButtonSupplier(134, 18);
         this.player = inventory.player;
     }
 
-    /**
-     * 基本机器 GUI
-     *
-     * @param menu      菜单
-     * @param inventory 玩家背包
-     * @param title     标题
-     */
+    /// 基本机器 GUI
+    ///
+    /// @param menu      菜单
+    /// @param inventory 玩家背包
+    /// @param title     标题
     public BaseMachineScreen(T menu, Inventory inventory, Component title, int outputDirBtnX, int outputDirBtnY) {
         super(menu, inventory, title);
         this.directionButtonSupplier = BaseMachineScreen.getDirectionButtonSupplier(outputDirBtnX, outputDirBtnY);

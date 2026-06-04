@@ -31,13 +31,13 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.UnknownNullability;
+import org.jspecify.annotations.Nullable;
 
-/**
- * 充放电器配方
- *
- * @param power units: kW, positive for discharge and negative for charge
- * @param time  units: tick
- */
+/// 充放电器配方
+///
+/// @param power units: kW, positive for discharge and negative for charge
+/// @param time  units: tick
 public record ChargerChargingRecipe(Ingredient ingredient, ItemStackTemplate result, int power, int time) implements
     Recipe<SingleRecipeInput> {
     private static final MapCodec<ChargerChargingRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
@@ -127,8 +127,8 @@ public record ChargerChargingRecipe(Ingredient ingredient, ItemStackTemplate res
     @Accessors(fluent = true, chain = true)
     public static class Builder extends AbstractRecipeBuilder<ChargerChargingRecipe> {
         private final HolderGetter<Item> items;
-        private Ingredient ingredient = null;
-        private ItemStackTemplate result = null;
+        private @Nullable Ingredient ingredient = null;
+        private @UnknownNullability ItemStackTemplate result = null;
         private int power = 0;
         private int time = 0;
 

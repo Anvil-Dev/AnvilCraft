@@ -44,13 +44,9 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public class SpectralSlingshotItem extends ProjectileWeaponItem {
-    /**
-     * Set to {@code true} when the crossbow is 20% charged.
-     */
+    /// Set to {@code true} when the crossbow is 20% charged.
     private boolean startSoundPlayed = false;
-    /**
-     * Set to {@code true} when the crossbow is 50% charged.
-     */
+    /// Set to {@code true} when the crossbow is 50% charged.
     private boolean midLoadSoundPlayed = false;
 
     // 证明自己，比起弹弓，更像弩（指这里的音效从弩抄的）
@@ -69,13 +65,11 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         return _ -> true;
     }
 
-    /**
-     * 检查物品是否可以被装载（用于判断箭矢或具有攻击伤害的物品）
-     *
-     * @param weapon 将要装载的武器物品堆
-     * @param stack 要检查的物品堆
-     * @return 如果物品是箭矢或具有正攻击伤害属性则返回true，否则返回false
-     */
+    /// 检查物品是否可以被装载（用于判断箭矢或具有攻击伤害的物品）
+    ///
+    /// @param weapon 将要装载的武器物品堆
+    /// @param stack 要检查的物品堆
+    /// @return 如果物品是箭矢或具有正攻击伤害属性则返回true，否则返回false
     public boolean checkLoadable(ItemStack weapon, ItemStack stack) {
         // 装载箭矢的设定取消了：if (stack.is(ItemTags.ARROWS)) return true;
         if (this.unableToUse(weapon)) return false;
@@ -91,13 +85,11 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         return dmg > 0;
     }
 
-    /**
-     * 获取幻灵弹弓的弹药，即从另一只手获取物品
-     *
-     * @param player 玩家实体
-     * @return 弹药的物品堆
-     * @apiNote 对此方法返回的物品堆的修改会影响原物品
-     */
+    /// 获取幻灵弹弓的弹药，即从另一只手获取物品
+    ///
+    /// @param player 玩家实体
+    /// @return 弹药的物品堆
+    /// @apiNote 对此方法返回的物品堆的修改会影响原物品
     private static ItemStack getSlingShotAmmo(Player player) {
         ItemStack stack = player.getMainHandItem();
         ItemStack stack2 = player.getOffhandItem();
@@ -308,9 +300,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         return 1.0F / (random.nextFloat() * 0.5F + 1.8F) + f;
     }
 
-    /**
-     * Called as the item is being used by an entity.
-     */
+    /// Called as the item is being used by an entity.
     @Override
     public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int ticksRemaining) {
         // 这个应该只用来播放音效了，所以应该不用改
@@ -377,9 +367,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         return Mth.floor(f * 20.0F);
     }
 
-    /**
-     * Returns the action that specifies what animation to play when the item is being used.
-     */
+    /// Returns the action that specifies what animation to play when the item is being used.
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return ItemUseAnimation.BOW;

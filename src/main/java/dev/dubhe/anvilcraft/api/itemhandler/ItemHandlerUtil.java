@@ -103,8 +103,10 @@ public class ItemHandlerUtil {
                 try (Transaction transaction = Transaction.open(root)) {
                     int extracted = source.extract(srcIndex, resource, Integer.MAX_VALUE, transaction);
                     if (extracted != 0) items.add(resource.toStack(extracted));
+                    transaction.commit();
                 }
             }
+            root.commit();
         }
         AnvilUtil.dropItems(items, level, pos);
     }
@@ -138,7 +140,7 @@ public class ItemHandlerUtil {
 
     public static @Nullable List<ResourceHandler<ItemResource>> getTargetItemHandlerList(
         BlockPos inputBlockPos,
-        Direction context,
+        @Nullable Direction context,
         @Nullable Level level
     ) {
         if (level == null) return null;

@@ -5,9 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * 手持物品的tooltip
- */
+/// 手持物品的tooltip
 public interface IHandHeldItemTooltipProvider {
     boolean accepts(ItemStack itemStack);
 

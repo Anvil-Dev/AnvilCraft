@@ -138,10 +138,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         }
     };
 
-    /**
-     * 0-7 为输出产物，<br>
-     * 8-15 为输入原料
-     */
+    /// 0-7 为输出产物，<br>
+    /// 8-15 为输入原料
     private final ItemStacksResourceHandler proxy = new ItemStacksResourceHandler(16) {
         @Override
         public ItemResource getResource(int index) {
@@ -544,12 +542,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         return false;
     }
 
-    /**
-     * 向鱼缸中放入物品
-     *
-     * @param handler 鱼缸物品处理器
-     * @param entity  要放入的物品实体
-     */
+    /// 向鱼缸中放入物品
+    ///
+    /// @param handler 鱼缸物品处理器
+    /// @param entity  要放入的物品实体
     public static void insertItemToTank(@Nullable ResourceHandler<ItemResource> handler, ItemEntity entity) {
         if (!entity.anvilcraft$isAdsorbable()) {
             return;
@@ -563,13 +559,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         }
     }
 
-    /**
-     * 向鱼缸中放入物品
-     *
-     * @param handler 鱼缸物品处理器
-     * @param stack   要放入的物品
-     * @return 插入的物品
-     */
+    /// 向鱼缸中放入物品
+    ///
+    /// @param handler 鱼缸物品处理器
+    /// @param stack   要放入的物品
+    /// @return 插入的物品
     public static ItemStack insertItemToTank(@Nullable ResourceHandler<ItemResource> handler, ItemStack stack) {
         if (handler == null) {
             return stack;
@@ -621,16 +615,14 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.sendUpdate();
     }
 
-    /**
-     * 从鱼缸中提取出所有物品
-     *
-     * @param handler            鱼缸物品处理器
-     * @param containsIngredient 是否同时提取原料；<br>
-     *                           {@link TriState#DEFAULT DEFAULT}为始终提取，<br>
-     *                           {@link TriState#TRUE TRUE}为仅在产物为空时提取，<br>
-     *                           {@link TriState#FALSE FALSE}为不提取
-     * @return 提取出的所有物品
-     */
+    /// 从鱼缸中提取出所有物品
+    ///
+    /// @param handler            鱼缸物品处理器
+    /// @param containsIngredient 是否同时提取原料；<br>
+    ///                           {@link TriState#DEFAULT DEFAULT}为始终提取，<br>
+    ///                           {@link TriState#TRUE TRUE}为仅在产物为空时提取，<br>
+    ///                           {@link TriState#FALSE FALSE}为不提取
+    /// @return 提取出的所有物品
     public static @Unmodifiable List<ItemStack> extractAllFromTank(ResourceHandler<ItemResource> handler, TriState containsIngredient) {
         List<ItemStack> result = new ArrayList<>();
         for (int i = 0; i < 8; i++) {

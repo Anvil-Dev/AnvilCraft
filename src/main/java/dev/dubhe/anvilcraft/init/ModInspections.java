@@ -26,15 +26,13 @@ public class ModInspections {
         INSTANCE.registerActionServer(AnvilCraft.of("silencer"));
     }
 
-    /**
-     * 注册检查项
-     *
-     * <p>检查项需同时在{@link ModInspections}和{@link InspectionSupport}中注册</p>
-     *
-     * <p>对于{@link InspectionSupport}，使用{@link InspectionSupport#registerActionClient} 注册检查项</p>
-     *
-     * @see InspectionSupport
-     */
+    /// 注册检查项
+    ///
+    /// <p>检查项需同时在{@link ModInspections}和{@link InspectionSupport}中注册</p>
+    ///
+    /// <p>对于{@link InspectionSupport}，使用{@link InspectionSupport#registerActionClient} 注册检查项</p>
+    ///
+    /// @see InspectionSupport
     public void registerActionServer(Identifier id) {
         INSTANCE.inspectionOptions.add(id);
     }

@@ -5,11 +5,9 @@ import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.world.level.block.Block;
 
 public class RoyalAnvilHammerItem extends AnvilHammerItem {
-    /**
-     * 初始化铁砧锤
-     *
-     * @param properties 物品属性
-     */
+    /// 初始化铁砧锤
+    ///
+    /// @param properties 物品属性
     public RoyalAnvilHammerItem(Properties properties) {
         super(properties);
     }

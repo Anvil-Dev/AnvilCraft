@@ -37,9 +37,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
 
     private final ItemCollectorMenu menu;
 
-    /**
-     * 物品收集器 Screen
-     */
+    /// 物品收集器 Screen
     public ItemCollectorScreen(ItemCollectorMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.menu = menu;
@@ -125,6 +123,7 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
@@ -134,8 +133,8 @@ public class ItemCollectorScreen extends AbstractContainerScreen<ItemCollectorMe
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
     }
 

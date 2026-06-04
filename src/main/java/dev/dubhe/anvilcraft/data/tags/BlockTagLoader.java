@@ -16,11 +16,9 @@ public class BlockTagLoader {
         return BuiltInRegistries.BLOCK.getKey(item);
     }
 
-    /**
-     * 初始化方块标签
-     *
-     * @param provider 提供器
-     */
+    /// 初始化方块标签
+    ///
+    /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Block> provider) {
         provider.rawBuilder(ModBlockTags.REDSTONE_TORCH)
             .addElement(findId(Blocks.REDSTONE_WALL_TORCH))
@@ -285,28 +283,24 @@ public class BlockTagLoader {
             .addElement(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getId())
             .addElement(ModBlocks.EMBER_METAL_BLOCK.getId());
 
-        /*
-        tier 0：原版三种铁砧以及下列所有;
-        tier 1：皇家铁砧以及下列所有;
-        tier 2：余烬铁砧以及下列所有;
-        tier 3：超限铁砧
-         */
+        // tier 0：原版三种铁砧以及下列所有;
+        // tier 1：皇家铁砧以及下列所有;
+        // tier 2：余烬铁砧以及下列所有;
+        // tier 3：超限铁砧
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_0)
             .addElement(findId(Blocks.ANVIL))
             .addElement(findId(Blocks.CHIPPED_ANVIL))
             .addElement(findId(Blocks.DAMAGED_ANVIL))
-            .addElement(ModBlocks.ROYAL_ANVIL.getId())
-            .addElement(ModBlocks.EMBER_ANVIL.getId())
-            .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());
+            .addTag(ModBlockTags.ANVIL_TIER_1.location());
 
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_1)
             .addElement(ModBlocks.ROYAL_ANVIL.getId())
-            .addElement(ModBlocks.EMBER_ANVIL.getId())
-            .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());
+            .addTag(ModBlockTags.ANVIL_TIER_2.location());
 
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_2)
+            .addElement(ModBlocks.FROST_ANVIL.getId())
             .addElement(ModBlocks.EMBER_ANVIL.getId())
-            .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());
+            .addTag(ModBlockTags.ANVIL_TIER_3.location());
 
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_3)
             .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.power.generator.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
@@ -44,7 +45,9 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     };
     private int outputCooldownCount = 10;
     private double chargeCount = 0;
-    private PowerGrid grid = null;
+    @Getter
+    @Setter
+    private @Nullable PowerGrid grid = null;
     private int power = 0;
     @Getter
     private int time = 0;
@@ -80,16 +83,6 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     @Override
     public BlockPos getPos() {
         return this.getBlockPos();
-    }
-
-    @Override
-    public void setGrid(@Nullable PowerGrid grid) {
-        this.grid = grid;
-    }
-
-    @Override
-    public @Nullable PowerGrid getGrid() {
-        return this.grid;
     }
 
     @Override
@@ -144,12 +137,10 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
         }
     }
 
-    /**
-     * 向集电器添加电荷
-     *
-     * @param num 添加至收集器的电荷数
-     * @return 溢出的电荷数(即未被添加至收集器的电荷数)
-     */
+    /// 向集电器添加电荷
+    ///
+    /// @param num 添加至收集器的电荷数
+    /// @return 溢出的电荷数(即未被添加至收集器的电荷数)
     public double incomingCharge(double num, BlockPos srcPos) {
         double overflow = num - (MAX_POWER_PER_INCOMING - this.chargeCount);
         if (overflow < 0) {

@@ -11,8 +11,6 @@ import dev.dubhe.anvilcraft.network.AdvancedComparatorUpdatePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -21,7 +19,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Matrix3x2fStack;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -41,7 +38,6 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     private int slider2Pos = 0;
     private boolean scrolling1;
     private boolean scrolling2;
-    private @Nullable List<ClientTooltipComponent> tooltip;
 
     public AdvancedComparatorScreen(AdvancedComparatorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -82,8 +78,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             List.of(
                 Component.translatable("screen.anvilcraft.button.compare_mode_hysteresis"),
                 Component.translatable("screen.anvilcraft.button.compare_mode_window")
-            ),
-            tooltip -> this.tooltip = tooltip
+            )
         );
         SwitchableButton outputMode = new SwitchableButton(
             this.leftPos + 8,
@@ -95,8 +90,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             List.of(
                 Component.translatable("screen.anvilcraft.button.reverse_off"),
                 Component.translatable("screen.anvilcraft.button.reverse")
-            ),
-            tooltip -> this.tooltip = tooltip
+            )
         );
         SwitchableButton redstoneControl = new SwitchableButton(
             this.leftPos + 8,
@@ -108,8 +102,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             List.of(
                 Component.translatable("screen.anvilcraft.button.redstone_control_off"),
                 Component.translatable("screen.anvilcraft.button.redstone_control")
-            ),
-            tooltip -> this.tooltip = tooltip
+            )
         );
         compareMode.setCurrent(this.menu.getBlockEntity().getCompareMode().index());
         outputMode.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
@@ -132,18 +125,13 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     }
 
     @Override
-    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        this.tooltip = null;
-        super.extractContents(graphics, mouseX, mouseY, a);
-    }
-
-    @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
         graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             BACKGROUND,
@@ -192,14 +180,6 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         graphics.fill(max + 3, this.sliderY, max + 4, this.sliderY - 90, 0xFF990000);
         graphics.fill(this.sliderMin - 4, this.sliderY, max + 4, this.sliderY - 1, 0xFF990000);
         graphics.fill(this.sliderMax + 5, this.sliderY - 90, min + 3, this.sliderY - 91, 0xFFFF0000);
-    }
-
-    @Override
-    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        super.extractTooltip(graphics, mouseX, mouseY);
-        if (this.tooltip != null) {
-            graphics.tooltip(this.font, this.tooltip, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
-        }
     }
 
     @Override

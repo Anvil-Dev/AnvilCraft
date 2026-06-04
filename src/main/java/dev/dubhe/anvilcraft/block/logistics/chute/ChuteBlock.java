@@ -87,11 +87,9 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
         .get();
 
-    /**
-     * 溜槽方块
-     *
-     * @param properties 方块属性
-     */
+    /// 溜槽方块
+    ///
+    /// @param properties 方块属性
     public ChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(

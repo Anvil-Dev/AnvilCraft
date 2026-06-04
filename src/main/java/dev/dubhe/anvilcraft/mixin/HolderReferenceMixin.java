@@ -15,6 +15,7 @@ import net.minecraft.core.HolderOwner;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -50,10 +51,9 @@ abstract class HolderReferenceMixin<T> {
     private boolean useOverride(
         TagKey<T> tag,
         Operation<Boolean> original,
-        @Share(namespace = AnvilCraft.MOD_ID, value = "stack") LocalRef<ItemStack> stack
+        @Share(namespace = AnvilCraft.MOD_ID, value = "stack") LocalRef<@Nullable ItemStack> stack
     ) {
         ItemStack stored = stack.get();
-        // noinspection ConstantValue
         if (stored == null) {
             return original.call(tag);
         }

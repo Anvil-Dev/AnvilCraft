@@ -62,14 +62,12 @@ public class CorruptedBeaconBlockEntity extends BlockEntity implements BeaconBea
         super(type, pos, blockState);
     }
 
-    /**
-     * 腐化信标方块实体的tick逻辑，用于处理信标光柱的渲染和效果应用
-     *
-     * @param level       方块所在的世界
-     * @param pos         方块的位置
-     * @param state       方块的状态
-     * @param blockEntity 被tick的方块实体
-     */
+    /// 腐化信标方块实体的tick逻辑，用于处理信标光柱的渲染和效果应用
+    ///
+    /// @param level       方块所在的世界
+    /// @param pos         方块的位置
+    /// @param state       方块的状态
+    /// @param blockEntity 被tick的方块实体
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state, CorruptedBeaconBlockEntity blockEntity) {
         int posX = pos.getX();

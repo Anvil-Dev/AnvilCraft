@@ -24,9 +24,7 @@ public class PowerGridSupport {
         return PowerGridSupport.GRID_MAP;
     }
 
-    /**
-     * 渲染
-     */
+    /// 渲染
     public static void submitPowerGridBounds(PoseStack poseStack, SubmitNodeCollector nodeCollector, Vec3 camera) {
         if (Minecraft.getInstance().level == null) return;
         String level = Minecraft.getInstance().level.dimension().identifier().toString();

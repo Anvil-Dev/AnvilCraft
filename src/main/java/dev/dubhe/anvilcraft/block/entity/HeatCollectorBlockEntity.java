@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.power.generator.HeatCollectorBlock;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -18,19 +19,16 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
 
+@Getter
 public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
     public static final int MAX_OUTPUT_POWER = 4096;
-    @Getter
     private int time = 0;
-    @Getter
     @Setter
-    private PowerGrid grid = null;
-    @Getter
+    private @Nullable PowerGrid grid = null;
     private int outputPower = 0;
+    @Getter(AccessLevel.NONE)
     private int inputtingPower = 0;
-    @Getter
     private float rotation = 0;
-    @Getter
     @Setter
     private WorkResult result = WorkResult.SUCCESS;
 
@@ -103,12 +101,10 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
         return this.result.isWorking();
     }
 
-    /**
-     * 向集热器添加热能
-     *
-     * @param num 添加至收集器的热能
-     * @return 溢出的热能(即未被添加至该收集器的热能)
-     */
+    /// 向集热器添加热能
+    ///
+    /// @param num 添加至收集器的热能
+    /// @return 溢出的热能(即未被添加至该收集器的热能)
     public int inputtingHeat(int num) {
         if (!this.isWorking()) return num;
         int overflow = num - (MAX_OUTPUT_POWER - this.inputtingPower);

@@ -130,14 +130,12 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         return state;
     }
 
-    /**
-     * 以某个方块为起始点，尝试构建一个有透明工作台组成的矩阵。
-     * 若与该方块相连的所有透明工作台不构成一个长方形，构建失败。
-     *
-     * @param level 尝试构建矩阵的维度
-     * @param pos   尝试构建矩阵的方块位置
-     * @return 是否成功构建透明工作台矩阵
-     */
+    /// 以某个方块为起始点，尝试构建一个有透明工作台组成的矩阵。
+    /// 若与该方块相连的所有透明工作台不构成一个长方形，构建失败。
+    ///
+    /// @param level 尝试构建矩阵的维度
+    /// @param pos   尝试构建矩阵的方块位置
+    /// @return 是否成功构建透明工作台矩阵
     private boolean tryFormMatrix(Level level, BlockPos pos) {
         if (!this.isValidMatrixBlock(level.getBlockState(pos), false)) return false;
         int maxSize = AnvilCraft.CONFIG.transparentCraftingTableMaxMatrixSize;
@@ -196,12 +194,10 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         return true;
     }
 
-    /**
-     * 以某个方块为起始点，尝试移除该方块所属的透明工作台组成的矩阵。
-     *
-     * @param level 尝试移除矩阵的维度
-     * @param pos   尝试移除矩阵的方块位置
-     */
+    /// 以某个方块为起始点，尝试移除该方块所属的透明工作台组成的矩阵。
+    ///
+    /// @param level 尝试移除矩阵的维度
+    /// @param pos   尝试移除矩阵的方块位置
     private void deformMatrix(Level level, BlockPos pos) {
         int x0 = pos.getX();
         int y0 = pos.getY();
@@ -234,13 +230,11 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         }
     }
 
-    /**
-     * 判断是否是通透工作台或其它允许参与形成矩阵的方块（目前仅包含空间超压器）。
-     *
-     * @param block      需要进行判断的方块
-     * @param isSelfOnly 是否只匹配通透工作台
-     * @return 判断结果
-     */
+    /// 判断是否是通透工作台或其它允许参与形成矩阵的方块（目前仅包含空间超压器）。
+    ///
+    /// @param block      需要进行判断的方块
+    /// @param isSelfOnly 是否只匹配通透工作台
+    /// @return 判断结果
     public boolean isValidMatrixBlock(BlockState block, Boolean isSelfOnly) {
         return block.is(this) || (!isSelfOnly && block.is(ModBlockTags.CRAFTING_MATRIX_ELEMENT));
     }

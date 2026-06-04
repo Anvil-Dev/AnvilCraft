@@ -33,9 +33,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    /**
-     * 基本电源转换器模块
-     */
+    /// 基本电源转换器模块
     public BasePowerConverterBlock(Properties properties, int inputPower) {
         super(properties);
         registerDefaultState(

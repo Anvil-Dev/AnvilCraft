@@ -22,9 +22,7 @@ import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneMod
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class RegisterAdditionalEventListener {
 
-    /**
-     * 注册模型
-     */
+    /// 注册模型
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterStandalone event) {
         event.register(

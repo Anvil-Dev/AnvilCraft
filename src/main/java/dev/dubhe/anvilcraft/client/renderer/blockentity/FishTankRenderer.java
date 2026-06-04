@@ -246,9 +246,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         }
     }
 
-    /**
-     * Creates TropicalFish entities from fish data NBT tags
-     */
+    /// Creates TropicalFish entities from fish data NBT tags
     private static List<TropicalFish> createTropicalFishEntities(Level level, List<CompoundTag> fishData) {
         List<TropicalFish> fishes = new ArrayList<>();
         for (CompoundTag fishDatum : fishData) {
@@ -268,9 +266,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         return fishes;
     }
 
-    /**
-     * Computes a hash of the fish data to detect changes
-     */
+    /// Computes a hash of the fish data to detect changes
     private static int computeFishDataHash(List<CompoundTag> fishData) {
         if (fishData.isEmpty()) return 0;
         int hash = fishData.size();

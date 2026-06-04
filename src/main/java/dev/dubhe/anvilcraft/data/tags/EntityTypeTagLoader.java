@@ -13,11 +13,9 @@ public class EntityTypeTagLoader {
         return entityType.builtInRegistryHolder().key().identifier();
     }
 
-    /**
-     * 初始化实体类型标签
-     *
-     * @param provider 提供器
-     */
+    /// 初始化实体类型标签
+    ///
+    /// @param provider 提供器
     public static void init(RegistrumTagsProvider<EntityType<?>> provider) {
         provider.rawBuilder(ModEntityTypeTags.AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.EMERALD_AMULET_VALID.location())

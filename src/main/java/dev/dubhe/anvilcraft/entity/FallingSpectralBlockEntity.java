@@ -292,9 +292,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                || state.getBlock() instanceof SpectralAnvilBlock;
     }
 
-    /**
-     * 落下幻灵实体
-     */
+    /// 落下幻灵实体
     public static FallingSpectralBlockEntity fall(
         Level level, BlockPos pos, BlockState blockState, boolean updateBlock, boolean isGhostEntity
     ) {

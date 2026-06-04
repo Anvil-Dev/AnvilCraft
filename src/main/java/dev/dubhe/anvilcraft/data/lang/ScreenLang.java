@@ -3,11 +3,9 @@ package dev.dubhe.anvilcraft.data.lang;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class ScreenLang {
-    /**
-     * 初始化 GUI 文本生成器
-     *
-     * @param provider 提供器
-     */
+    /// 初始化 GUI 文本生成器
+    ///
+    /// @param provider 提供器
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
         provider.add("screen.anvilcraft.button.direction", "Output Direction: %s");
@@ -26,7 +24,7 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.button.compare_mode_hysteresis", "Mode: Hysteresis");
         provider.add("screen.anvilcraft.button.compare_mode_window", "Mode: Window");
-        provider.add("screen.anvilcraft.button.redstone_control", "Redstone control on\nUse alternate signal to determine thresholds");
+        provider.add("screen.anvilcraft.button.redstone_control", "Redstone control on");
         provider.add("screen.anvilcraft.button.redstone_control_off", "Redstone control off");
         provider.add("screen.anvilcraft.button.reverse_off", "Output normal");
         provider.add("screen.anvilcraft.button.reverse", "Output reverse");

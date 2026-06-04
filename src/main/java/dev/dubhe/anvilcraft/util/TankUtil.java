@@ -7,16 +7,14 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 public class TankUtil {
-    /**
-     * 递归检测当前位置的结构是否符合门格海绵结构
-     * 门格海绵结构规则：将结构分为3x3x3的块后，
-     * 角块和边块应该是门格海绵方块，面块和中心块应该是空气
-     *
-     * @param level 世界对象
-     * @param centerPos   检测起始位置
-     * @param size  结构大小（必须是3的倍数）
-     * @return 是否符合门格海绵结构
-     */
+    /// 递归检测当前位置的结构是否符合门格海绵结构
+    /// 门格海绵结构规则：将结构分为3x3x3的块后，
+    /// 角块和边块应该是门格海绵方块，面块和中心块应该是空气
+    ///
+    /// @param level 世界对象
+    /// @param centerPos   检测起始位置
+    /// @param size  结构大小（必须是3的倍数）
+    /// @return 是否符合门格海绵结构
     public static boolean isMengerStructure(Level level, BlockPos centerPos, int size) {
         if (size <= 0) return false;
 
@@ -74,9 +72,7 @@ public class TankUtil {
         return true;
     }
 
-    /**
-     * 判断在3x3x3结构中的位置是否为角块或边块
-     */
+    /// 判断在3x3x3结构中的位置是否为角块或边块
     public static boolean isMengerPos(int x, int y, int z) {
         int sideCount = 0;
         if (x != 0) sideCount++;

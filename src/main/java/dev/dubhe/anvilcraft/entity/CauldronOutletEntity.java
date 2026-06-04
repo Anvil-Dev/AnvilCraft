@@ -26,6 +26,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public class CauldronOutletEntity extends Entity {
     // 标记是否处于活塞推动状态
     private boolean wasMoving = false;
     // 目标位置
-    private BlockPos targetPos = null;
+    private @Nullable BlockPos targetPos = null;
 
     public CauldronOutletEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -228,11 +229,9 @@ public class CauldronOutletEntity extends Entity {
         this.targetPos = destPos;
     }
 
-    /**
-     * 获取活塞移动方块的真实移动方向。
-     * 推出时(Extending)：方向为活塞朝向。
-     * 拉回时(!Extending)：方向为活塞朝向的反方向。
-     */
+    /// 获取活塞移动方块的真实移动方向。
+    /// 推出时(Extending)：方向为活塞朝向。
+    /// 拉回时(!Extending)：方向为活塞朝向的反方向。
     private Direction getMovementDirection(PistonMovingBlockEntity be) {
         return be.isExtending() ? be.getDirection() : be.getDirection().getOpposite();
     }

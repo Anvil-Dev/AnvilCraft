@@ -19,6 +19,10 @@ import net.minecraft.world.entity.EntityType;
 import java.util.List;
 
 public record ImmuneEntityAmulet(List<TagPredicate<EntityType<?>>> source, List<TagPredicate<EntityType<?>>> direct) implements IAmulet {
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Override
     public boolean shouldImmune(ServerPlayer player, DamageSource source) {
         Entity entity = source.getEntity();

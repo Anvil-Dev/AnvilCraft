@@ -6,7 +6,6 @@ import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
@@ -93,6 +92,7 @@ import dev.dubhe.anvilcraft.item.utility.StructureToolItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -105,6 +105,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -125,7 +126,6 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -1241,13 +1241,8 @@ public class ModItems {
         int level,
         HolderLookup.Provider registries
     ) {
-        var holder = registries.holder(enchKey);
-        if (holder.isEmpty()) {
-            AnvilCraft.LOGGER.error("", new NoSuchElementException(enchKey.identifier().toString()));
-            return new ItemStackTemplate(item.asItem());
-        }
         ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-        mutable.set(holder.get(), level);
+        mutable.set(new DummyHolder<>(registries.lookupOrThrow(Registries.ENCHANTMENT), enchKey), level);
         return new ItemStackTemplate(
             item.asItem(),
             DataComponentPatch.builder().set(DataComponents.ENCHANTMENTS, mutable.toImmutable()).build()

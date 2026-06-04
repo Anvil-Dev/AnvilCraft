@@ -18,22 +18,18 @@ import net.minecraft.world.entity.npc.villager.VillagerType;
 import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class AnvilHurtVillagerEventListener {
-    /**
-     * 侦听铁砧击中村民事件
-     *
-     * @param event 铁砧伤害实体事件
-     */
+    /// 侦听铁砧击中村民事件
+    ///
+    /// @param event 铁砧伤害实体事件
     @SubscribeEvent
     public static void onAnvilHurtEntity(AnvilEvent.HurtEntity event) {
         Entity entity = event.getHurtedEntity();
-        Level level = event.getLevel();
+        ServerLevel level = event.getLevel();
         if (level.isClientSide()) return;
         if (entity instanceof Villager villager) {
             final RandomSource random = level.getRandom();
@@ -91,13 +87,13 @@ public class AnvilHurtVillagerEventListener {
             villager.setOffers(offers);
             trader.remove(Entity.RemovalReason.DISCARDED);
             villager.finalizeSpawn(
-                (ServerLevelAccessor) level,
-                ((ServerLevel) level).getCurrentDifficultyAt(villager.blockPosition()),
+                level,
+                level.getCurrentDifficultyAt(villager.blockPosition()),
                 EntitySpawnReason.CONVERSION,
                 null
             );
-            ((ServerLevel) level).tryAddFreshEntityWithPassengers(villager);
-            villager.refreshBrain((ServerLevel) level);
+            level.tryAddFreshEntityWithPassengers(villager);
+            villager.refreshBrain(level);
         }
     }
 }

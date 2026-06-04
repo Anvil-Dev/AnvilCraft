@@ -24,12 +24,10 @@ public record SlotFilterChangePacket(int index, ItemStack filter) implements ISe
         SlotFilterChangePacket::new
     );
 
-    /**
-     * 更改过滤
-     *
-     * @param index  槽位
-     * @param filter 过滤
-     */
+    /// 更改过滤
+    ///
+    /// @param index  槽位
+    /// @param filter 过滤
     public SlotFilterChangePacket(int index, ItemStack filter, boolean forceCount) {
         this(index, forceCount ? filter.copyWithCount(1) : filter.copy());
     }

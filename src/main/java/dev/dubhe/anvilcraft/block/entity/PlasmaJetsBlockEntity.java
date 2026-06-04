@@ -317,13 +317,11 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
                    || !level.getBlockState(this.first.getSecond()).isFaceSturdy(level, this.first.getSecond(), Direction.NORTH);
         }
 
-        /**
-         * 判断该层是否是磁铁层
-         *
-         * @return {@link TriState#DEFAULT default} 说明该层不是磁铁层
-         *      {@link TriState#TRUE true} 说明 {@link TubeWallLayer#first() 第一对} 是可加热方块
-         *      {@link TriState#FALSE false} 说明 {@link TubeWallLayer#second() 第二对} 是可加热方块
-         */
+        /// 判断该层是否是磁铁层
+        ///
+        /// @return {@link TriState#DEFAULT default} 说明该层不是磁铁层
+        ///      {@link TriState#TRUE true} 说明 {@link TubeWallLayer#first() 第一对} 是可加热方块
+        ///      {@link TriState#FALSE false} 说明 {@link TubeWallLayer#second() 第二对} 是可加热方块
         public TriState isMagnet(Level level) {
             if (
                 level.getBlockState(this.second.getFirst()).is(ModBlockTags.MAGNET)

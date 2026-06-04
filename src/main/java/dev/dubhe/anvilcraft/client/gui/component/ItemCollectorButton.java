@@ -11,9 +11,7 @@ public class ItemCollectorButton extends Button {
 
     private final Identifier texture;
 
-    /**
-     * 物品收集器 screen 的加减按钮
-     */
+    /// 物品收集器 screen 的加减按钮
     public ItemCollectorButton(int x, int y, String variant, OnPress onPress) {
         super(x, y, 10, 10, Component.literal(""), onPress, var -> Component.literal(variant));
         this.texture = SharedTextures.textureGui("machine/item_collector/button_%s".formatted(variant));

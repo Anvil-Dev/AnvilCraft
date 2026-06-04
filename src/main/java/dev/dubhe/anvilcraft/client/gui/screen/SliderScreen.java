@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     public static final Identifier BACKGROUND = SharedTextures.bg("misc", "slider_like");
@@ -22,8 +23,8 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
     public static final Identifier BUTTON_ADD = SharedTextures.textureGui("misc/slider_like/button_add");
     public static final Identifier BUTTON_MINUS = SharedTextures.textureGui("misc/slider_like/button_minus");
     public static final Identifier BUTTON_MIN = SharedTextures.textureGui("misc/slider_like/button_min");
-    private SliderWidget sliderWidget = null;
-    private EditBox value;
+    private @Nullable SliderWidget sliderWidget = null;
+    private @Nullable EditBox value;
 
     public SliderScreen(SliderMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 176, 77);
@@ -173,6 +174,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             BACKGROUND,

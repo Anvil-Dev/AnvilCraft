@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.client.gui.component.SilencerButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -8,13 +9,10 @@ import dev.dubhe.anvilcraft.network.SilencerAddMutedPacket;
 import dev.dubhe.anvilcraft.network.SilencerRemoveMutedPacket;
 import it.unimi.dsi.fastutil.Pair;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -55,9 +53,6 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Getter
     private String filterText = "";
-
-    @Setter
-    private List<ClientTooltipComponent> tooltipComponents;
 
     private boolean isDraggingLeft;
     private boolean isDraggingRight;
@@ -105,8 +100,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (this.minecraft.options.keyInventory.matches(event)) {
-            return this.getFocused() != null && this.getFocused().keyPressed(event);
+        if (this.getFocused() instanceof EditBox) {
+            return this.getFocused().keyPressed(event);
         } else {
             return super.keyPressed(event);
         }
@@ -141,7 +136,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         SoundManager manager = Minecraft.getInstance().getSoundManager();
         WeighedSoundEvents event = manager.getSoundEvent(sound);
         if (event == null) return;
-        this.mutedSounds.add(Pair.of(sound, event.getSubtitle() == null ? Component.empty() : event.getSubtitle()));
+        Component subtitle = event.getSubtitle();
+        this.mutedSounds.add(Pair.of(sound, Objects.requireNonNullElseGet(subtitle, Component::empty)));
     }
 
     void removeMutedSound(Identifier sound) {
@@ -149,9 +145,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         this.mutedSounds.removeIf(it -> it.left().equals(sound));
     }
 
-    /**
-     * 获取屏幕上某一项的声音字幕
-     */
+    /// 获取屏幕上某一项的声音字幕
     public Component getSoundTextAt(int index, int variant) {
         int actualIndex = index;
         if (variant == SOUND_FILTERED) {
@@ -165,9 +159,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         }
     }
 
-    /**
-     * 获取屏幕上某一项的声音id
-     */
+    /// 获取屏幕上某一项的声音id
     public @Nullable Identifier getSoundIdAt(int index, int variant) {
         int actualIndex = index;
         if (variant == SOUND_FILTERED) {
@@ -181,9 +173,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         }
     }
 
-    /**
-     * 主动消音器gui
-     */
+    /// 主动消音器gui
     public ActiveSilencerScreen(ActiveSilencerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 256, 166);
         this.menu = menu;
@@ -240,6 +230,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         )).setResponder(this::onSearchTextChange);
 
         SoundManager manager = Minecraft.getInstance().getSoundManager();
+        // noinspection NullableProblems
         BuiltInRegistries.SOUND_EVENT.stream()
             .map(it -> Pair.of(it.location(), manager.getSoundEvent(it.location())))
             .filter(it -> it.second() != null)
@@ -249,31 +240,58 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
-        return mouseX >= leftPos + START_LEFT_X
-               && mouseX <= leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH
-               && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-               && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+        return MathUtil.isInRange(
+            mouseX,
+            mouseY,
+            leftPos + START_LEFT_X,
+            topPos + SCROLL_BAR_TOP_POS_Y,
+            leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH,
+            topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT
+        );
     }
 
     private boolean mouseInRight(double mouseX, double mouseY, int leftPos, int topPos) {
-        return mouseX >= leftPos + START_RIGHT_X
-               && mouseX <= leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH
-               && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-               && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+        return MathUtil.isInRange(
+            mouseX,
+            mouseY,
+            leftPos + START_RIGHT_X,
+            topPos + SCROLL_BAR_TOP_POS_Y,
+            leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH,
+            topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT
+        );
     }
 
     private boolean mouseInLeftSlider(double mouseX, double mouseY, int leftPos, int topPos) {
-        return mouseX >= leftPos + SCROLL_BAR_START_LEFT_X
-               && mouseX <= leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH
-               && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-               && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+        return MathUtil.isInRange(
+            mouseX,
+            mouseY,
+            leftPos + SCROLL_BAR_START_LEFT_X,
+            topPos + SCROLL_BAR_TOP_POS_Y,
+            leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH,
+            topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT
+        );
     }
 
     private boolean mouseInRightSlider(double mouseX, double mouseY, int leftPos, int topPos) {
-        return mouseX >= leftPos + SCROLL_BAR_START_RIGHT_X
-               && mouseX <= leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH
-               && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-               && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+        return MathUtil.isInRange(
+            mouseX,
+            mouseY,
+            leftPos + SCROLL_BAR_START_RIGHT_X,
+            topPos + SCROLL_BAR_TOP_POS_Y,
+            leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH,
+            topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT
+        );
+    }
+
+    private boolean mouseInEditBox(double mouseX, double mouseY, int leftPos, int topPos) {
+        return MathUtil.isInRange(
+            mouseX,
+            mouseY,
+            leftPos + 78,
+            topPos + 19,
+            leftPos + 78 + 100,
+            topPos + 19 + 12
+        );
     }
 
     @Override
@@ -293,9 +311,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         return true;
     }
 
-    /**
-     * 鼠标拖动事件
-     */
+    /// 鼠标拖动事件
+    @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.isDraggingLeft) {
             int i = this.filteredSounds.size();
@@ -319,9 +336,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         return super.mouseDragged(event, dragX, dragY);
     }
 
-    /**
-     * 鼠标点击
-     */
+    /// 鼠标点击
+    @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         this.isDraggingLeft = false;
         this.isDraggingRight = false;
@@ -332,6 +348,9 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         }
         if (this.mouseInRightSlider(event.x(), event.y(), leftPos, topPos) && this.mutedSounds.size() > 8) {
             this.isDraggingRight = true;
+        }
+        if (!this.mouseInEditBox(event.x(), event.y(), leftPos, topPos)) {
+            this.setFocused(false);
         }
         return super.mouseClicked(event, handled);
     }
@@ -351,7 +370,6 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        this.tooltipComponents = null;
         super.extractContents(graphics, mouseX, mouseY, a);
         this.extractScroller(graphics, this.leftPos + 119, this.topPos + 35, this.filteredSounds.size(), this.leftScrollOff);
         this.extractScroller(graphics, this.leftPos + 245, this.topPos + 35, this.mutedSounds.size(), this.rightScrollOff);
@@ -364,6 +382,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         for (Identifier sound : sounds) {
             WeighedSoundEvents events = manager.getSoundEvent(sound);
             if (events == null || events.getSubtitle() == null) return;
+            // noinspection NullableProblems
             this.mutedSounds.add(Pair.of(sound, events.getSubtitle()));
         }
         this.onSearchTextChange("");
@@ -377,6 +396,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             ActiveSilencerScreen.BACKGROUND,
@@ -389,12 +409,5 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             256,
             256
         );
-    }
-
-    @Override
-    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        super.extractTooltip(graphics, mouseX, mouseY);
-        if (this.tooltipComponents == null) return;
-        graphics.tooltip(this.font, this.tooltipComponents, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
     }
 }

@@ -92,12 +92,10 @@ public abstract class FlexibleMultiPartBlock<
         return level.getBlockState(this.getMainPartPos(blockPos, original));
     }
 
-    /**
-     * 获取多方块战利品表
-     *
-     * @param provider 提供器
-     * @param block    方块
-     */
+    /// 获取多方块战利品表
+    ///
+    /// @param provider 提供器
+    /// @param block    方块
     public static <P extends Enum<P> & IFlexibleMultiPartBlockState<P, E>, T extends Property<E>, E extends Comparable<E>> void loot(
             BlockLootSubProvider provider, FlexibleMultiPartBlock<P, T, E> block
     ) {
@@ -114,9 +112,7 @@ public abstract class FlexibleMultiPartBlock<
         return super.getStateForPlacement(context);
     }
 
-    /**
-     * 是否有足够的空间放下方块
-     */
+    /// 是否有足够的空间放下方块
     public boolean hasEnoughSpace(BlockState originState, BlockPos pos, LevelReader level) {
         for (P part : this.getParts()) {
             BlockPos pos1 = pos.offset(this.offsetFrom(originState, part));

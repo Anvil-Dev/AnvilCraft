@@ -9,11 +9,9 @@ import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * 可过滤槽位，允许设置自定义过滤器
- *
- * <p>PS: 与{@link FilterItem 过滤器（物品）}无关</p>
- */
+/// 可过滤槽位，允许设置自定义过滤器
+///
+/// <p>PS: 与{@link FilterItem 过滤器（物品）}无关</p>
 @Getter
 @Setter
 public class FilteredSlot extends Slot {

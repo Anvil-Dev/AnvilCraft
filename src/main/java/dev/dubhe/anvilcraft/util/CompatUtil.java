@@ -24,10 +24,8 @@ import java.util.function.Supplier;
 
 public class CompatUtil {
     public static final Lazy<Boolean> HAS_JADE = new Lazy<>(() -> Util.isLoaded("jade") || Util.isLoaded("wthit"));
-    /**
-     * 用于余烬砂轮和浮霜砂轮。
-     * 将会使用列表内的数据组件类型从输入的物品中获取魔咒并加入魔咒备选列表。
-     */
+    /// 用于余烬砂轮和浮霜砂轮。
+    /// 将会使用列表内的数据组件类型从输入的物品中获取魔咒并加入魔咒备选列表。
     public static final List<DataComponentType<ItemEnchantments>> ENCHANTMENTS_TYPES = new ArrayList<>();
     public static final Map<Portal, Map.Entry<BlockState, CompoundTag>> PORTAL_DEFAULT_CONVERSION = new HashMap<>(Map.of(
         Util.cast(Blocks.END_PORTAL), Map.entry(ModBlocks.END_DUST.getDefaultState(), new CompoundTag()),

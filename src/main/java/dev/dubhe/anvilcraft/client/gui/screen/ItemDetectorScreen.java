@@ -24,6 +24,7 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
         Component.translatable("screen.anvilcraft.filter.shift_to_scroll_faster")
             .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
 
-    protected CycleFilterModeButton cycleFilterModeButton;
+    protected @Nullable CycleFilterModeButton cycleFilterModeButton;
 
     public ItemDetectorScreen(ItemDetectorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -62,8 +63,8 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             0,
             this.getImageWidth(),
             this.getImageHeight(),
-            this.getImageWidth(),
-            this.getImageHeight()
+            256,
+            256
         );
     }
 

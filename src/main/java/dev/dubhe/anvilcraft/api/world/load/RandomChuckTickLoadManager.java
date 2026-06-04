@@ -22,9 +22,7 @@ public class RandomChuckTickLoadManager {
         RANDOM_TICK_LOAD_CHUCK_AREA_MAP.remove(centerPos);
     }
 
-    /**
-     * tick
-     */
+    /// tick
     public static void tick() {
         for (LoadChuckData loadChuckData : RANDOM_TICK_LOAD_CHUCK_AREA_MAP.values()) {
             for (ChunkPos chunkPos : loadChuckData.getChunkPosList()) {

@@ -49,13 +49,11 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
         return CODEC;
     }
 
-    /**
-     * 连锁破坏
-     *
-     * @param level       世界
-     * @param sourceBlock 源方块坐标
-     * @param max         最大采集数量
-     */
+    /// 连锁破坏
+    ///
+    /// @param level       世界
+    /// @param sourceBlock 源方块坐标
+    /// @param max         最大采集数量
     private static void chainMine(ServerLevel level, Player player, BlockPos sourceBlock, int max, ItemStack tool, Consumer<Item> onBreak) {
         BlockPos.breadthFirstTraversal(
             sourceBlock,

@@ -119,18 +119,14 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         return this.entityData.get(ID_FOIL);
     }
 
-    /**
-     * Gets the EntityHitResult representing the entity hit
-     */
+    /// Gets the EntityHitResult representing the entity hit
     @Nullable
     @Override
     protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
         return this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
     }
 
-    /**
-     * Called when the arrow hits an entity
-     */
+    /// Called when the arrow hits an entity
     @Override
     protected void onHitEntity(EntityHitResult result) {
         Entity victim = result.getEntity();
@@ -196,9 +192,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         return SoundEvents.TRIDENT_HIT_GROUND;
     }
 
-    /**
-     * Called by a player entity when they collide with an entity
-     */
+    /// Called by a player entity when they collide with an entity
     @Override
     public void playerTouch(Player entity) {
         if (this.ownedBy(entity) || this.getOwner() == null) {
@@ -206,9 +200,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         }
     }
 
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
+    /// (abstract) Protected helper method to read subclass entity data from NBT.
     @Override
     public void readAdditionalSaveData(ValueInput compound) {
         super.readAdditionalSaveData(compound);

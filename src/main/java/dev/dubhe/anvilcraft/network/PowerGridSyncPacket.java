@@ -17,9 +17,7 @@ public record PowerGridSyncPacket(SimplePowerGrid grid) implements IClientboundP
         PowerGridSyncPacket::new
     );
 
-    /**
-     * 电网同步
-     */
+    /// 电网同步
     public PowerGridSyncPacket(PowerGrid grid) {
         this(new SimplePowerGrid(grid));
     }

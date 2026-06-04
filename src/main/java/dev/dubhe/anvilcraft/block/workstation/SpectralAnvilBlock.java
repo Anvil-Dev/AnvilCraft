@@ -49,9 +49,7 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
     private static final VoxelShape X_AXIS_AABB = Shapes.or(BASE, X_LEG1, X_TOP);
     private static final VoxelShape Z_AXIS_AABB = Shapes.or(BASE, Z_LEG1, Z_TOP);
 
-    /**
-     * 幻灵铁砧
-     */
+    /// 幻灵铁砧
     public SpectralAnvilBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(

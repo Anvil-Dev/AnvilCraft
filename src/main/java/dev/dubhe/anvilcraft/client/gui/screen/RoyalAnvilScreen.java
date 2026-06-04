@@ -17,19 +17,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 
 public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "royal_anvil");
-    private EditBox name;
+    private @Nullable EditBox name;
     private final Player player;
 
-    /**
-     * 皇家铁砧 GUI
-     *
-     * @param menu            菜单
-     * @param playerInventory 背包
-     * @param title           标题
-     */
+    /// 皇家铁砧 GUI
+    ///
+    /// @param menu            菜单
+    /// @param playerInventory 背包
+    /// @param title           标题
     public RoyalAnvilScreen(RoyalAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, BACKGROUND);
         this.player = playerInventory.player;

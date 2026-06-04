@@ -48,11 +48,9 @@ public class AnvilEventListener {
 
     private static boolean behaviorRegistered = false;
 
-    /**
-     * 侦听铁砧落地事件
-     *
-     * @param event 铁砧落地事件
-     */
+    /// 侦听铁砧落地事件
+    ///
+    /// @param event 铁砧落地事件
     @SubscribeEvent
     public static void onLand(AnvilEvent.OnLand event) {
         if (!behaviorRegistered) {
@@ -171,11 +169,9 @@ public class AnvilEventListener {
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }
 
-    /**
-     * 侦听铁砧伤害实体事件
-     *
-     * @param event 铁砧伤害实体事件
-     */
+    /// 侦听铁砧伤害实体事件
+    ///
+    /// @param event 铁砧伤害实体事件
     @SubscribeEvent
     public static void onAnvilHurtEntity(AnvilEvent.HurtEntity event) {
         Entity hurtedEntity = event.getHurtedEntity();

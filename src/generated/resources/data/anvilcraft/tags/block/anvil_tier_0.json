@@ -3,8 +3,6 @@
     "minecraft:anvil",
     "minecraft:chipped_anvil",
     "minecraft:damaged_anvil",
-    "anvilcraft:royal_anvil",
-    "anvilcraft:ember_anvil",
-    "anvilcraft:transcendence_anvil"
+    "#anvilcraft:anvil_tier_1"
   ]
 }

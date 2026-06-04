@@ -1,16 +1,18 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.block.entity.IExtensibleBlockEntity;
+import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.SingleStackResourceHandler;
 import dev.dubhe.anvilcraft.block.logistics.chute.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -24,12 +26,14 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class SimpleChuteBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IExtensibleBlockEntity<ChuteBlockEntity> {
+public class SimpleChuteBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, IConvertableBlockEntity<ChuteBlockEntity> {
     private final SingleStackResourceHandler itemHandler = new SingleStackResourceHandler() {
         @Override
         protected void onContentChanged(ItemStack stack) {
@@ -66,9 +70,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
         this.itemHandler.deserialize(input.childOrEmpty("Inventory"));
     }
 
-    /**
-     * tick
-     */
+    /// tick
     public void tick() {
         if (this.level == null) return;
         if (this.cooldown > 0) this.cooldown--;
@@ -182,17 +184,33 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
     }
 
     @Override
-    public BlockEntityType<ChuteBlockEntity> getThatType() {
-        return ModBlockEntities.CHUTE.get();
+    public Holder<BlockEntityType<?>> targetTypeHolder() {
+        return ModBlockEntities.CHUTE;
     }
 
     @Override
-    public void extend(ChuteBlockEntity newBe) {
-        ItemHandlerUtil.exportToTarget(
-            this.itemHandler,
-            this.itemHandler.getStack().getMaxStackSize(),
-            (_, _) -> true,
-            newBe.getItemHandler()
-        );
+    public void convertTo(ChuteBlockEntity newBe) {
+        SingleStackResourceHandler handler = this.getItemHandler();
+        ItemStack stack = handler.getStack();
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        int count = stack.getCount();
+        try (Transaction transaction = Transaction.openRoot()) {
+            stack.setCount(count - newBe.getItemHandler().insert(ItemResource.of(stack), count, transaction));
+            transaction.commit();
+        }
+
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        AnvilUtil.dropItems(Collections.singletonList(stack), this.level, newBe.getBlockPos().getCenter());
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.getLevel(), pos.getCenter());
     }
 }

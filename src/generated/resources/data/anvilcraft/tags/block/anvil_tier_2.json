@@ -1,6 +1,7 @@
 {
   "values": [
+    "anvilcraft:frost_anvil",
     "anvilcraft:ember_anvil",
-    "anvilcraft:transcendence_anvil"
+    "#anvilcraft:anvil_tier_3"
   ]
 }

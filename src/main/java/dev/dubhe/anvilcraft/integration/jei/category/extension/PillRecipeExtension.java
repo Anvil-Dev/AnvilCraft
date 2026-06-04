@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.extension;
 
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
-import dev.dubhe.anvilcraft.recipe.display.WithAnyPotionsExcept;
+import dev.dubhe.anvilcraft.recipe.display.slot.WithAnyPotionsExcept;
 import mezz.jei.api.gui.ingredient.IRecipeSlotDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.recipe.IFocusGroup;

@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -18,32 +17,28 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * 方块高亮
- */
+/// 方块高亮
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BlockHighlightUtil {
     public static final Map<Vector3ic, Long> SUBCHUNKS = new HashMap<>();
 
-    private static final AtomicReference<Level> LEVEL_REF = new AtomicReference<>();
+    private static final AtomicReference<@Nullable Level> LEVEL_REF = new AtomicReference<>();
 
-    /**
-     * 高亮方块
-     *
-     * @param level 维度
-     * @param pos   位置
-     */
+    /// 高亮方块
+    ///
+    /// @param level 维度
+    /// @param pos   位置
     public static void highlightBlock(Level level, BlockPos pos) {
         if (BlockHighlightUtil.getLevel() != level) {
             BlockHighlightUtil.setLevel(level);
             SUBCHUNKS.clear();
         }
-        if (level == null) return;
         SUBCHUNKS.put(
             new Vector3i(
                 Math.floorDiv(pos.getX(), 16),
@@ -57,7 +52,6 @@ public class BlockHighlightUtil {
     public static void render(
         ClientLevel level,
         SubmitNodeCollector submitNodeCollector,
-        MultiBufferSource.BufferSource bufferSource,
         PoseStack poseStack,
         CameraRenderState cameraRenderState
     ) {

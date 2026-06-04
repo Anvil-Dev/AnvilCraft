@@ -12,11 +12,9 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.List;
 
-/**
- * 删除指定输入物品的数据。
- *
- * @param types 包含指定的输入物品和将要删除的数据组件类型。
- */
+/// 删除指定输入物品的数据。
+///
+/// @param types 包含指定的输入物品和将要删除的数据组件类型。
 public record RemoveData(List<DataComponentType<?>> types) implements IResultModifier {
     public static final MapCodec<RemoveData> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         DataComponentType.CODEC
@@ -65,6 +63,7 @@ public record RemoveData(List<DataComponentType<?>> types) implements IResultMod
     public static class Builder {
         private final ImmutableList.Builder<DataComponentType<?>> types = ImmutableList.builder();
 
+        @SuppressWarnings("UnusedReturnValue")
         public Builder withType(DataComponentType<?> type) {
             this.types.add(type);
             return this;

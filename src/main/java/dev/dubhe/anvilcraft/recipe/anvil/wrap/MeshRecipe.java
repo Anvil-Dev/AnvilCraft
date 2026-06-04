@@ -13,21 +13,17 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-/**
- * 筛网配方类
- *
- * <p>该配方用于在铁砧下落时通过筛网过滤物品，需要在铁砧下方放置脚手架作为筛网</p>
- */
+/// 筛网配方类
+///
+/// <p>该配方用于在铁砧下落时通过筛网过滤物品，需要在铁砧下方放置脚手架作为筛网</p>
 @Getter
 public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
     public static final RecipeSerializer<MeshRecipe> SERIALIZER = AbstractProcessRecipe.makeSerializer(MeshRecipe::new);
 
-    /**
-     * 构造一个筛网配方
-     *
-     * @param itemIngredients 物品原料列表
-     * @param results         结果物品列表
-     */
+    /// 构造一个筛网配方
+    ///
+    /// @param itemIngredients 物品原料列表
+    /// @param results         结果物品列表
     public MeshRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results
@@ -57,18 +53,14 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
         return SERIALIZER;
     }
 
-    /**
-     * 创建一个构建器实例
-     *
-     * @return 构建器实例
-     */
+    /// 创建一个构建器实例
+    ///
+    /// @return 构建器实例
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * 筛网配方构建器
-     */
+    /// 筛网配方构建器
     public static class Builder extends SimpleAbstractBuilder<MeshRecipe, Builder> {
         @Override
         public String getType() {

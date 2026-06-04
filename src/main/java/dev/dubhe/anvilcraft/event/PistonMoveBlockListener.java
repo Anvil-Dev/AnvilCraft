@@ -25,9 +25,7 @@ public class PistonMoveBlockListener {
         CHARGE_NUMS.put(Blocks.WEATHERED_COPPER, 1d / 16);
     }
 
-    /**
-     * 活塞移动方块
-     */
+    /// 活塞移动方块
     public static void onPistonMoveBlocks(Level level, List<BlockPos> blocks) {
         for (BlockPos pos : blocks) {
             BlockState blockState = level.getBlockState(pos);

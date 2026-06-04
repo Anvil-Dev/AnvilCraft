@@ -45,12 +45,10 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
         return RenderShape.MODEL;
     }
 
-    /**
-     * 冲击
-     *
-     * @param level    世界
-     * @param blockPos 位置
-     */
+    /// 冲击
+    ///
+    /// @param level    世界
+    /// @param blockPos 位置
     public static void impact(Level level, BlockPos blockPos) {
         int minY = level.getMinY();
 

@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.api.energy.EnergyHelper;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.power.converter.BasePowerConverterBlock;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -16,7 +18,10 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 public class PowerConverterBlockEntity extends BlockEntity implements IPowerConsumer {
-    private PowerGrid grid = null;
+    @Getter
+    @Setter
+    private @Nullable PowerGrid grid = null;
+    @Getter
     private int inputPower;
     private int cooldown = 0;
 
@@ -48,9 +53,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         this.cooldown = input.getIntOr("Cooldown", 0);
     }
 
-    /**
-     * tick
-     */
+    /// tick
     public void tick() {
         if (this.level != null) {
             flushState(this.level, getBlockPos());
@@ -58,9 +61,10 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         if (this.cooldown == 0) {
             this.cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
             if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
-            int amountTick = (int) (this.inputPower
-                                    * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
-                                    * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
+            int amountTick = (int) (
+                this.inputPower
+                * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
+                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
             );
             int amount = amountTick * AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
             Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
@@ -71,11 +75,6 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     }
 
     @Override
-    public int getInputPower() {
-        return this.inputPower;
-    }
-
-    @Override
     public Level getCurrentLevel() {
         return getLevel();
     }
@@ -83,15 +82,5 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     @Override
     public BlockPos getPos() {
         return getBlockPos();
-    }
-
-    @Override
-    public void setGrid(@Nullable PowerGrid grid) {
-        this.grid = grid;
-    }
-
-    @Override
-    public @Nullable PowerGrid getGrid() {
-        return this.grid;
     }
 }

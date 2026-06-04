@@ -1,18 +1,21 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.dubhe.anvilcraft.api.injection.tooltip.ITooltipProviderExtension;
-import dev.dubhe.anvilcraft.network.ComparatorSyncPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ComparatorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ComparatorBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -50,16 +53,24 @@ public abstract class ComparatorBlockEntityMixin extends BlockEntity implements 
         return lines;
     }
 
-    @Inject(method = "loadAdditional", at = @At("TAIL"))
-    private void sendOutputToClient(ValueInput input, CallbackInfo ci) {
-        if (!(this.level instanceof ServerLevel)) return;
-        PacketDistributor.sendToAllPlayers(new ComparatorSyncPacket(this.worldPosition, this.output));
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("signal", this.getOutputSignal());
+        return tag;
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Inject(method = "setOutputSignal", at = @At("HEAD"))
     private void sendChangesWhenChanged(int value, CallbackInfo ci) {
         if (this.output == value) return;
-        if (!(this.level instanceof ServerLevel level1)) return;
-        PacketDistributor.sendToPlayersInDimension(level1, new ComparatorSyncPacket(this.worldPosition, value));
+        this.setChanged();
+        if (this.level == null) return;
+        BlockState state = this.getBlockState();
+        this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_CLIENTS);
     }
 }

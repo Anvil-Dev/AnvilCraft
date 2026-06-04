@@ -17,14 +17,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/**
- * 对生成出来的生物进行nbt修改
- */
+/// 对生成出来的生物进行nbt修改
 public record TagModification(String path, ModifyOperation op, int index, Tag tag) implements Consumer<Tag> {
     public static final Codec<TagModification> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.fieldOf("path").forGetter(o -> o.path),
@@ -49,11 +48,9 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
         TagModification::new
     );
 
-    /**
-     * 初始化 TagModification
-     *
-     * @param tag snbt表示的nbt标签
-     */
+    /// 初始化 TagModification
+    ///
+    /// @param tag snbt表示的nbt标签
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static TagModification create(String path, ModifyOperation op, Optional<Integer> index, String tag) {
         try {
@@ -64,9 +61,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
         }
     }
 
-    /**
-     * 初始化 TagModification
-     */
+    /// 初始化 TagModification
     public TagModification {
     }
 
@@ -182,9 +177,9 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
 
     public static class Builder {
         private String path = "";
-        private ModifyOperation op;
+        private @Nullable ModifyOperation op;
         private int index = -1;
-        private Tag tag;
+        private @Nullable Tag tag;
 
         Builder() {
         }

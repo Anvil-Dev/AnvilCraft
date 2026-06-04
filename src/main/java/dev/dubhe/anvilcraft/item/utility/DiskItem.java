@@ -42,9 +42,7 @@ public class DiskItem extends Item {
         super(properties);
     }
 
-    /**
-     * 磁盘中是否存储有数据
-     */
+    /// 磁盘中是否存储有数据
     public static boolean hasDataStored(ItemStack stack) {
         return stack.has(ModComponents.DISK_DATA);
     }

@@ -191,9 +191,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
         if (!stack.has(DataComponents.UNBREAKABLE)) HeavyHalberdItem.checkTooDamaged(this.material, stack);
     }
 
-    /**
-     * Returns the action that specifies what animation to play when the item is being used.
-     */
+    /// Returns the action that specifies what animation to play when the item is being used.
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return ItemUseAnimation.SPEAR;

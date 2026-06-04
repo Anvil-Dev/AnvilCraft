@@ -14,9 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
-/**
- * 余烬金属系方块
- */
+/// 余烬金属系方块
 public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
     BlockState getCheckBlockState();
 
@@ -27,9 +25,7 @@ public interface IEmberBlock extends INegativeShapeBlock<IEmberBlock> {
         return IEmberBlock.class;
     }
 
-    /**
-     * 尝试吸水
-     */
+    /// 尝试吸水
     default void tryAbsorbWater(Level level, BlockPos pos) {
         if (this.removeFluidBreadthFirstSearch(level, pos)) {
             level.levelEvent(2001, pos, Block.getId(this.getCheckBlockState()));

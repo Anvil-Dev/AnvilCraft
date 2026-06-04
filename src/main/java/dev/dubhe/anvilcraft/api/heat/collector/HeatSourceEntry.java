@@ -41,9 +41,7 @@ public abstract class HeatSourceEntry {
         return new Simple(charge, input, output);
     }
 
-    /**
-     * not really forever
-     */
+    /// not really forever
     public static HeatSourceEntry forever(int charge, Block block) {
         return new Always(charge, block);
     }

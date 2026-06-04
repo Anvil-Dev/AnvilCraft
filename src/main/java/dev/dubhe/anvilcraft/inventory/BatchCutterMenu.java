@@ -43,14 +43,12 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
         this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
     }
 
-    /**
-     * 合成器菜单
-     *
-     * @param menuType    菜单类型
-     * @param containerId 容器id
-     * @param inventory   背包
-     * @param entity 方块实体
-     */
+    /// 合成器菜单
+    ///
+    /// @param menuType    菜单类型
+    /// @param containerId 容器id
+    /// @param inventory   背包
+    /// @param entity 方块实体
     public BatchCutterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity entity) {
         super(menuType, containerId, entity);
         BatchCutterMenu.checkContainerSize(inventory, 9);

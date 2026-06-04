@@ -251,9 +251,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         return true;
     }
 
-    /**
-     * 落地
-     */
+    /// 落地
     public void onLand(
         Level level,
         BlockPos pos,

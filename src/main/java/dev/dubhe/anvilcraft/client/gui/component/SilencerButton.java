@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -29,9 +28,7 @@ public class SilencerButton extends Button {
     private final ActiveSilencerScreen parent;
     private final int variant;
 
-    /**
-     * 主动静音器 screen 的按钮
-     */
+    /// 主动静音器 screen 的按钮
     public SilencerButton(
         int x,
         int y,
@@ -48,7 +45,7 @@ public class SilencerButton extends Button {
             10,
             Component.literal(""),
             onPress,
-            var -> parent.getSoundTextAt(index, variant).copy()
+            _ -> parent.getSoundTextAt(index, variant).copy()
         );
         this.height = 15;
         this.width = 112;
@@ -80,11 +77,20 @@ public class SilencerButton extends Button {
         graphics.centeredText(font, message, this.getX() + this.width / 2, this.getY() + 3, color);
         if (this.isHovered()) {
             Component soundIdText = highlighted(
-                soundId.toString(), searchText.replaceFirst("#", ""), ChatFormatting.GRAY, ChatFormatting.YELLOW);
-            this.parent.setTooltipComponents(List.of(
-                ClientTooltipComponent.create(message.getVisualOrderText()),
-                ClientTooltipComponent.create(soundIdText.getVisualOrderText())
-            ));
+                soundId.toString(),
+                searchText.replaceFirst("#", ""),
+                ChatFormatting.GRAY,
+                ChatFormatting.YELLOW
+            );
+            graphics.setTooltipForNextFrame(
+                this.parent.getFont(),
+                List.of(
+                    message.getVisualOrderText(),
+                    soundIdText.getVisualOrderText()
+                ),
+                mouseX,
+                mouseY
+            );
         }
     }
 

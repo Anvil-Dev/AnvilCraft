@@ -14,9 +14,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 
-/**
- * 头戴铁砧锤时显示的tooltip
- */
+/// 头戴铁砧锤时显示的tooltip
 public interface ITooltipProvider<T> {
     MutableComponent INDENTATION = Component.literal("  ");
 

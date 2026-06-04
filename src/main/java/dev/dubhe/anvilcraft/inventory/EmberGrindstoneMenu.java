@@ -53,14 +53,12 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
         this(ModMenuTypes.EMBER_GRINDSTONE.get(), containerId, playerInventory, access);
     }
 
-    /**
-     * 皇家砂轮菜单
-     *
-     * @param type            菜单类型
-     * @param containerId     容器id
-     * @param playerInventory 背包
-     * @param access          检查
-     */
+    /// 皇家砂轮菜单
+    ///
+    /// @param type            菜单类型
+    /// @param containerId     容器id
+    /// @param playerInventory 背包
+    /// @param access          检查
     public EmberGrindstoneMenu(
         MenuType<EmberGrindstoneMenu> type, int containerId, Inventory playerInventory, ContainerLevelAccess access
     ) {
@@ -278,11 +276,9 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
         return stillValid(this.access, player, ModBlocks.EMBER_GRINDSTONE.get());
     }
 
-    /**
-     * 移除
-     *
-     * @param player 玩家
-     */
+    /// 移除
+    ///
+    /// @param player 玩家
     public void removed(Player player) {
         super.removed(player);
         this.access.execute((_, _) -> {

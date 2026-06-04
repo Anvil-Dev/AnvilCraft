@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,6 +31,7 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,20 +70,23 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
     private final CyclingSlotBackground materialIcon = new CyclingSlotBackground(1);
     private final CyclingSlotBackground inputIcon = new CyclingSlotBackground(2);
 
-    private TexturedButton left;
-    private TexturedButton right;
+    private @Nullable TexturedButton left;
+    private @Nullable TexturedButton right;
 
     private final ArmorStandRenderState armorStandPreview = new ArmorStandRenderState();
 
-    /**
-     * 皇家锻造台 GUI
-     *
-     * @param menu            菜单
-     * @param playerInventory 背包
-     * @param title           标题
-     */
+    /// 皇家锻造台 GUI
+    ///
+    /// @param menu            菜单
+    /// @param playerInventory 背包
+    /// @param title           标题
     public FrostSmithingScreen(FrostSmithingMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, BACKGROUND);
+        this.armorStandPreview.entityType = EntityType.ARMOR_STAND;
+        this.armorStandPreview.showBasePlate = false;
+        this.armorStandPreview.showArms = true;
+        this.armorStandPreview.xRot = 25.0F;
+        this.armorStandPreview.bodyRot = 210.0F;
     }
 
     @Override
@@ -190,10 +195,10 @@ public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
             this.modifyButtons(false);
         }
 
-        int x0 = this.leftPos + 149;
-        int y0 = this.topPos + 75;
-        int x1 = this.leftPos + 189;
-        int y1 = this.topPos + 135;
+        int x0 = this.leftPos + 131;
+        int y0 = this.topPos + 20;
+        int x1 = this.leftPos + 171;
+        int y1 = this.topPos + 60;
         graphics.entity(
             this.armorStandPreview,
             25,
