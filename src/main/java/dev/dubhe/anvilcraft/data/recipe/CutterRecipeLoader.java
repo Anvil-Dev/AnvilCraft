@@ -177,7 +177,7 @@ public class CutterRecipeLoader {
                 ModBlocks.CUT_BRASS_SLAB,
                 2
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.CUT_BRASS_BLOCK))
             .save(provider, "cutting_brass_slab_from_cut_brass_block");
 
         // 切制黄铜块 -> 切制黄铜柱
@@ -187,7 +187,7 @@ public class CutterRecipeLoader {
                 RecipeCategory.BUILDING_BLOCKS,
                 ModBlocks.CUT_BRASS_PILLAR
             )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.BRASS_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_BRASS_BLOCK), AnvilCraftDatagen.has(ModBlocks.CUT_BRASS_BLOCK))
             .save(provider, "cutting_brass_pillar_from_cut_brass_block");
 
         // 黄铜块 -> 雕文黄铜块x4
