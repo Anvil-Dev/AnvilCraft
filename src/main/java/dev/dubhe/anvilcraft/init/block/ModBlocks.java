@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.CakeBaseBlock;
 import dev.dubhe.anvilcraft.block.CakeBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
@@ -582,6 +583,18 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::heater)
+        .register();
+
+    public static final BlockEntry<? extends Block> BURNING_HEATER = REGISTRUM.block("burning_heater", BurningHeaterBlock::new)
+        .lang("Burning Heater")
+        .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(properties -> properties.isValidSpawn(Blocks::never)
+            .lightLevel(state -> 15))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .tag(ModItemTags.HEATERS, ModItemTags.HEATERS_C)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<TransmissionPoleBlock> TRANSMISSION_POLE = REGISTRUM.block(

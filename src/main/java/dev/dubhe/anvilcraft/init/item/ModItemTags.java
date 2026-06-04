@@ -165,6 +165,8 @@ public class ModItemTags {
     public static final TagKey<Item> RESONATOR = bind("tools/resonator");
     public static final TagKey<Item> UNCHARGED_NEUTRONIUM_INGOTS = bind("uncharged_neutronium_ingots");
     public static final TagKey<Item> HEATABLE_BLOCKS = bind("heatable_blocks");
+    public static final TagKey<Item> HEATERS = bind("heaters");
+    public static final TagKey<Item> HEATERS_C = bindC("heaters");
     public static final TagKey<Item> LEVITATIONALS = bind("levitationals");
     public static final TagKey<Item> RADIATIONS = bind("radiations");
     public static final TagKey<Item> DISALLOW_HAND_INSERT_INTO_TANK = bind("disallow_hand_insert_into_tank");

@@ -6,8 +6,7 @@
     },
     "facing=east,powered=false,upside_down=true": {
       "model": "anvilcraft:block/structure_scanner",
-      "x": 180,
-      "y": 270
+      "y": 90
     },
     "facing=east,powered=true,upside_down=false": {
       "model": "anvilcraft:block/structure_scanner",
@@ -15,24 +14,19 @@
     },
     "facing=east,powered=true,upside_down=true": {
       "model": "anvilcraft:block/structure_scanner",
-      "x": 180,
-      "y": 270
+      "y": 90
     },
     "facing=north,powered=false,upside_down=false": {
       "model": "anvilcraft:block/structure_scanner"
     },
     "facing=north,powered=false,upside_down=true": {
-      "model": "anvilcraft:block/structure_scanner",
-      "x": 180,
-      "y": 180
+      "model": "anvilcraft:block/structure_scanner"
     },
     "facing=north,powered=true,upside_down=false": {
       "model": "anvilcraft:block/structure_scanner"
     },
     "facing=north,powered=true,upside_down=true": {
-      "model": "anvilcraft:block/structure_scanner",
-      "x": 180,
-      "y": 180
+      "model": "anvilcraft:block/structure_scanner"
     },
     "facing=south,powered=false,upside_down=false": {
       "model": "anvilcraft:block/structure_scanner",
@@ -40,7 +34,7 @@
     },
     "facing=south,powered=false,upside_down=true": {
       "model": "anvilcraft:block/structure_scanner",
-      "x": 180
+      "y": 180
     },
     "facing=south,powered=true,upside_down=false": {
       "model": "anvilcraft:block/structure_scanner",
@@ -48,7 +42,7 @@
     },
     "facing=south,powered=true,upside_down=true": {
       "model": "anvilcraft:block/structure_scanner",
-      "x": 180
+      "y": 180
     },
     "facing=west,powered=false,upside_down=false": {
       "model": "anvilcraft:block/structure_scanner",
@@ -56,8 +50,7 @@
     },
     "facing=west,powered=false,upside_down=true": {
       "model": "anvilcraft:block/structure_scanner",
-      "x": 180,
-      "y": 90
+      "y": 270
     },
     "facing=west,powered=true,upside_down=false": {
       "model": "anvilcraft:block/structure_scanner",
@@ -65,8 +58,7 @@
     },
     "facing=west,powered=true,upside_down=true": {
       "model": "anvilcraft:block/structure_scanner",
-      "x": 180,
-      "y": 90
+      "y": 270
     }
   }
 }
