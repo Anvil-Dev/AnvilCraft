@@ -18,6 +18,7 @@ public class FeCollectorRenderer implements BlockEntityRenderer<FeCollectorBlock
         AnvilCraft.of("block/fe_collector_head")
     );
 
+    @SuppressWarnings("unused")
     public FeCollectorRenderer(BlockEntityRendererProvider.Context context) {
     }
 
@@ -31,8 +32,8 @@ public class FeCollectorRenderer implements BlockEntityRenderer<FeCollectorBlock
         int packedOverlay
     ) {
         poseStack.pushPose();
+        final VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutout());
         float rotation = blockEntity.getRotation() + (float) (Math.log(blockEntity.getServerPower() + 1) * 2.5f * partialTick);
-        VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutout());
         poseStack.translate(0.5F, 0.68F, 0.5F);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));

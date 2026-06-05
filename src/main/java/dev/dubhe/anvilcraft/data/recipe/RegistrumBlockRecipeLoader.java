@@ -38,6 +38,17 @@ public class RegistrumBlockRecipeLoader {
     public static <T extends Block> void recipe(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
     }
 
+    public static <T extends Block> void feCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)
+            .pattern("ABA")
+            .pattern("AAA")
+            .define('A', Items.COPPER_INGOT)
+            .define('B', ModBlocks.CHARGE_COLLECTOR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FE_COLLECTOR), AnvilCraftDatagen.has(ModBlocks.FE_COLLECTOR))
+            .save(provider);
+    }
+
     public static <T extends Block> void expCollectorBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ABA")

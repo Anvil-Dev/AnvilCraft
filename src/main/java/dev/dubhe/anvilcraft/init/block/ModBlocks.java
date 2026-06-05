@@ -684,6 +684,7 @@ public class ModBlocks {
     public static final BlockEntry<FeCollectorBlock> FE_COLLECTOR = REGISTRUM.block("fe_collector", FeCollectorBlock::new)
         .simpleItem()
         .properties(BlockBehaviour.Properties::noOcclusion)
+        .lang("FE Collector")
         .blockstate((ctx, provider) -> {
             var model = provider.models().getExistingFile(of("block/fe_collector_base"));
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
@@ -693,6 +694,7 @@ public class ModBlocks {
         })
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::feCollector)
         .register();
 
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)
