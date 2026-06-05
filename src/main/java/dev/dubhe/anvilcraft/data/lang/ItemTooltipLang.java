@@ -40,6 +40,9 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.fe_collector.title", "Forge Energy");
         provider.add("tooltip.anvilcraft.fe_collector.energy", "  %dK/%dK");
 
+        provider.add("tooltip.anvilcraft.power_converter.fe_stored", "Forge Energy");
+        provider.add("tooltip.anvilcraft.power_converter.fe_stored.value", "  %dK/%dK");
+
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %ds");
 
         provider.add(

@@ -110,8 +110,7 @@ public class BurningHeaterBlock extends BaseEntityBlock {
     @Override
     public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof BurningHeaterBlockEntity be) {
-            ItemStack stack = be.getItemHandler().getStackInSlot(0);
-            return stack.isEmpty() ? 0 : 1;
+            return (be.getBurnTime() * 15) / BurningHeaterBlockEntity.MAX_BURN_TIME;
         }
         return 0;
     }

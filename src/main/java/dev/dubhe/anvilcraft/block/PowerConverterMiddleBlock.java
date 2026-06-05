@@ -19,7 +19,7 @@ public class PowerConverterMiddleBlock extends BasePowerConverterBlock implement
     public static final VoxelShape SHAPE_WEST = Block.box(0, 6, 6, 8, 10, 10);
 
     public PowerConverterMiddleBlock(Properties properties) {
-        super(properties, 6);
+        super(properties, 16);
     }
 
     @Override

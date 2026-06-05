@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
+import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.world.item.Items;
@@ -67,7 +69,13 @@ public class CapabilitiesEventListener {
         event.registerBlockEntity(
             Capabilities.EnergyStorage.BLOCK,
             ModBlockEntities.FE_COLLECTOR.get(),
-            (be, side) -> be.getEnergyStorage(side)
+            FeCollectorBlockEntity::getEnergyStorage
+        );
+
+        event.registerBlockEntity(
+            Capabilities.EnergyStorage.BLOCK,
+            ModBlockEntities.POWER_CONVERTER.get(),
+            PowerConverterBlockEntity::getEnergyStorage
         );
     }
 }

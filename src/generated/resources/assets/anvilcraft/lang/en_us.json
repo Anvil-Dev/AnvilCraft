@@ -1372,6 +1372,8 @@
   "tooltip.anvilcraft.jade.power_information": "Power Grid: %s",
   "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d",
   "tooltip.anvilcraft.pill_box": "Store pills, right-click to take one pill each, and press [%s] to use them in the inventory",
+  "tooltip.anvilcraft.power_converter.fe_stored": "Forge Energy",
+  "tooltip.anvilcraft.power_converter.fe_stored.value": "  %dK/%dK",
   "tooltip.anvilcraft.press_key": "Hold [%s] for information",
   "tooltip.anvilcraft.propel_piston.remaining_energy": "  Remaining Energy: %s",
   "tooltip.anvilcraft.propel_piston.remaining_push": "  Remaining Push: %s block-time",

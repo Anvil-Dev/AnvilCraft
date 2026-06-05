@@ -117,6 +117,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
                 this.burnTime--;
                 if (this.burnTime % 20 == 0) {
                     setChanged();
+                    level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
                 }
             }
             tryConsumeFuel();
@@ -197,6 +198,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
         // 强制向客户端同步，确保 tooltip/Jade 显示最新值
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }
     }
 
