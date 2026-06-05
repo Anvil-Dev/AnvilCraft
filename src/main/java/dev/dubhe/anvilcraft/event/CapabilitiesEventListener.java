@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
-import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.world.item.Items;

@@ -104,6 +104,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         return null;
     }
 
+    @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state, FeCollectorBlockEntity be) {
         if (level.isClientSide()) {
             be.clientTick();
@@ -113,6 +114,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     }
 
     void serverTick() {
+        if (level == null) return;
         BlockState state = getBlockState();
         if (state.getValue(FeCollectorBlock.POWERED) != this.producing) {
             level.setBlockAndUpdate(worldPosition, state.setValue(FeCollectorBlock.POWERED, this.producing));
@@ -129,6 +131,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     }
 
     void pushExcess() {
+        if (level == null) return;
         int excess = this.energy - TRANSFER_THRESHOLD;
         if (excess <= 0) return;
         Direction side = getOutputSide();
@@ -149,68 +152,104 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     }
 
     @Override
-    public int getOutputPower() { return this.outputPower; }
+    public int getOutputPower() {
+        return this.outputPower;
+    }
 
     @Override
-    public int getRange() { return 2; }
+    public int getRange() {
+        return 2;
+    }
 
     @Override
-    public @Nullable Level getCurrentLevel() { return this.level; }
+    public @Nullable Level getCurrentLevel() {
+        return this.level;
+    }
 
     @Override
-    public BlockPos getPos() { return this.getBlockPos(); }
+    public BlockPos getPos() {
+        return this.getBlockPos();
+    }
 
     @Override
-    public void setGrid(@Nullable PowerGrid grid) { this.grid = grid; }
+    public void setGrid(@Nullable PowerGrid grid) {
+        this.grid = grid;
+    }
 
     @Override
-    public @Nullable PowerGrid getGrid() { return this.grid; }
+    public @Nullable PowerGrid getGrid() {
+        return this.grid;
+    }
 
     @Override
-    public AABB shape() { return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5); }
+    public AABB shape() {
+        return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5);
+    }
 
     @Override
     public void gridTick() {
         if (level == null || level.isClientSide()) return;
 
-        if (this.energy >= PRODUCE_THRESHOLD) this.producing = true;
-        else if (this.energy < STOP_THRESHOLD) this.producing = false;
+        if (this.energy >= PRODUCE_THRESHOLD) {
+            this.producing = true;
+        } else if (this.energy < STOP_THRESHOLD) {
+            this.producing = false;
+        }
 
-        if (this.producing && this.energy >= FE_PER_TICK) {
+        if (this.producing) {
+            final int prev = this.outputPower;
             this.energy -= FE_PER_TICK;
-            int prev = this.outputPower;
             this.outputPower = (int) (FE_PER_TICK
                 * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
                 / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
             this.time++;
             setChanged();
             if (this.outputPower != prev && this.grid != null) this.grid.markChanged();
-        } else if (!this.producing && this.outputPower > 0) {
+        } else if (this.outputPower > 0) {
             this.outputPower = 0;
             if (this.grid != null) this.grid.markChanged();
         }
     }
 
-    public int getEnergyStored() { return this.energy; }
-
-    public boolean isLowEnergy() { return this.energy < STOP_THRESHOLD && !this.producing; }
+    public int getEnergyStored() {
+        return this.energy;
+    }
 
     class FeEnergyStore implements IEnergyStorage {
         public int receiveEnergy(int maxReceive, boolean simulate) {
             if (!canReceive()) return 0;
             int r = Math.min(MAX_ENERGY - energy, maxReceive);
-            if (!simulate) { energy += r; setChanged(); }
+            if (!simulate) {
+                energy += r;
+                setChanged();
+            }
             return r;
         }
+
         public int extractEnergy(int maxExtract, boolean simulate) {
             if (!canExtract()) return 0;
             int r = Math.min(energy, maxExtract);
-            if (!simulate) { energy -= r; setChanged(); }
+            if (!simulate) {
+                energy -= r;
+                setChanged();
+            }
             return r;
         }
-        public int getEnergyStored() { return energy; }
-        public int getMaxEnergyStored() { return MAX_ENERGY; }
-        public boolean canExtract() { return true; }
-        public boolean canReceive() { return energy < MAX_ENERGY; }
+
+        public int getEnergyStored() {
+            return energy;
+        }
+
+        public int getMaxEnergyStored() {
+            return MAX_ENERGY;
+        }
+
+        public boolean canExtract() {
+            return true;
+        }
+
+        public boolean canReceive() {
+            return energy < MAX_ENERGY;
+        }
     }
 }
