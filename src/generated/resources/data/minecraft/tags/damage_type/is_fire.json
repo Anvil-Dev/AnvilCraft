@@ -1,10 +1,6 @@
 {
   "values": [
     {
-      "id": "anvilcraft:lost_in_time",
-      "required": false
-    },
-    {
       "id": "anvilcraft:heater_burn",
       "required": false
     }

@@ -108,50 +108,96 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
 
     /**
      * 服务端tick：倒计时燃烧时间并自动补充燃料，更新方块状态
+     * 客户端tick：播放燃烧音效和粒子
      */
     public void tick(Level level, BlockPos pos, BlockState state) {
-        if (this.burnTime > 0) {
-            this.burnTime--;
-            if (this.burnTime % 20 == 0) {
-                setChanged();
+        // 服务器逻辑
+        if (!level.isClientSide()) {
+            if (this.burnTime > 0) {
+                this.burnTime--;
+                if (this.burnTime % 20 == 0) {
+                    setChanged();
+                }
             }
+            tryConsumeFuel();
+            updateBurningState(level, pos, state);
+            HeaterManager.addProducer(pos, level, ModHeaterInfos.BURNING_HEATER);
+            return;
         }
-        tryConsumeFuel();
-        updateBurningState(level, pos, state);
 
-        // Client: 燃烧时播放熔炉的火焰噼啪音效并在顶部渲染粒子
-        if (level.isClientSide() && state.getValue(BurningHeaterBlock.LEVEL) == 2) {
+        // 客户端逻辑：播放音效和粒子
+        int burningLevel = state.getValue(BurningHeaterBlock.LEVEL);
+        if (burningLevel >= 1) {
             RandomSource random = level.random;
-            if (random.nextInt(40) == 0) {
+            // 音效：仅点燃时播放
+            if (burningLevel == 2 && random.nextInt(40) == 0) {
                 level.playLocalSound(pos, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0f, 1.0f, true);
             }
-            // 火焰粒子
-            if (random.nextInt(3) == 0) {
+            // 火焰粒子：仅点燃时
+            if (burningLevel == 2 && random.nextInt(3) == 0) {
                 double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
                 double y = pos.getY() + 1.0;
                 double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
                 level.addParticle(ParticleTypes.FLAME, x, y, z, 0.0, 0.05, 0.0);
             }
-            // 烟雾粒子
-            if (random.nextInt(5) == 0) {
-                double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
-                double y = pos.getY() + 1.0;
-                double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
-                level.addParticle(ParticleTypes.SMOKE, x, y, z, 0.0, 0.1, 0.0);
+            // 烟雾粒子：点燃时浓烟，阴燃时营火烟
+            if (burningLevel == 2) {
+                if (random.nextInt(5) == 0) {
+                    double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
+                    double y = pos.getY() + 1.0;
+                    double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.6;
+                    level.addParticle(ParticleTypes.SMOKE, x, y, z, 0.0, 0.1, 0.0);
+                }
+            } else {
+                // 阴燃：营火风格的袅袅烟
+                if (random.nextInt(10) == 0) {
+                    double x = pos.getX() + 0.5 + (random.nextDouble() - 0.5) * 0.4;
+                    double y = pos.getY() + 0.8 + random.nextDouble() * 0.4;
+                    double z = pos.getZ() + 0.5 + (random.nextDouble() - 0.5) * 0.4;
+                    level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, x, y, z, 0.0, 0.05, 0.0);
+                }
             }
         }
-
-        HeaterManager.addProducer(pos, level, ModHeaterInfos.BURNING_HEATER);
     }
 
     /**
      * 消耗燃烧时间（用于铁砧合成）
      *
+     * <p>直接从燃料槽扣除物品来抵消耗，避免 tryConsumeFuel 下个 tick 立刻补满导致消耗不可见。
+     * 同时强制向客户端同步，让 tooltip/Jade 显示最新值。</p>
+     *
      * @param ticks 消耗的tick数
      */
     public void consumeBurnTime(int ticks) {
-        this.burnTime = Math.max(0, this.burnTime - ticks);
+        int remaining = ticks;
+
+        // 1. 优先从燃料槽中直接扣除物品
+        while (remaining > 0) {
+            ItemStack fuel = this.itemHandler.getStackInSlot(0);
+            int burnTimePerItem = getItemBurnTime(fuel);
+            if (burnTimePerItem <= 0) break;
+
+            int itemsToConsume = (remaining + burnTimePerItem - 1) / burnTimePerItem;
+            itemsToConsume = Math.min(itemsToConsume, fuel.getCount());
+            if (itemsToConsume <= 0) break;
+
+            remaining -= itemsToConsume * burnTimePerItem;
+            this.itemHandler.extractItem(0, itemsToConsume, false);
+            if (fuel.hasCraftingRemainingItem() && this.itemHandler.getStackInSlot(0).isEmpty()) {
+                this.itemHandler.setStackInSlot(0, fuel.getCraftingRemainingItem());
+            }
+        }
+
+        // 2. 物品不够的部分从 burnTime 缓冲区扣除
+        if (remaining > 0) {
+            this.burnTime = Math.max(0, this.burnTime - remaining);
+        }
+
         setChanged();
+        // 强制向客户端同步，确保 tooltip/Jade 显示最新值
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
     }
 
     /**

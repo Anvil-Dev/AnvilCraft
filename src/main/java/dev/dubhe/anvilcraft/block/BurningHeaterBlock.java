@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
@@ -60,7 +61,6 @@ public class BurningHeaterBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) return null;
         return createTickerHelper(type, ModBlockEntities.BURNING_HEATER.get(),
             (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
     }
@@ -118,8 +118,10 @@ public class BurningHeaterBlock extends BaseEntityBlock {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (!entity.isSteppingCarefully() && entity instanceof LivingEntity) {
-            entity.hurt(level.damageSources().hotFloor(), 4.0F);
+        if (state.getValue(LEVEL) > 0
+            && !entity.isSteppingCarefully()
+            && entity instanceof LivingEntity) {
+            entity.hurt(ModDamageTypes.heaterBurn(level), 4.0F);
         }
         super.stepOn(level, pos, state, entity);
     }

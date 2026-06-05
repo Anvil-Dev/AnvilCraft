@@ -49,6 +49,9 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Explosion proof, Eliminating Curses and Punishing");
         NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Explosion proof, Saving your Smithing Template");
         NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
+        NORMAL.put(ModBlocks.BURNING_HEATER.asItem(), """
+            Consume fuel to heat the block above.
+            Each crafting consumes 240 seconds of burn time.""");
         NORMAL.put(ModBlocks.TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission length of 8");
         NORMAL.put(ModBlocks.CHARGE_COLLECTOR.asItem(), "Collecting charges to generate power");
         NORMAL.put(ModBlocks.POWER_CONVERTER_SMALL.asItem(), "Convert power into FE, consumes 1 kW");
@@ -65,11 +68,6 @@ public class ItemTooltipManager {
                    "Received a redstone signal and crafted all internal items at once, with a power consumption of 4 kW");
         NORMAL.put(ModBlocks.BATCH_CUTTER.asItem(),
                    "Received a redstone signal and cut all internal items at once, with a power consumption of 4 kW");
-        NORMAL.put(ModBlocks.FISH_TANK.asItem(), """
-            It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis.
-            Wearing it on your head provides a temporary underwater breathing effect.
-            Right-click the top with an item in hand to place the item inside.
-            Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish.""");
         NORMAL.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
         NORMAL.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
         NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
@@ -196,12 +194,21 @@ public class ItemTooltipManager {
             When powered by redstone, this block places a block in front of it.
             If struck by a falling anvil, the placement distance increases — the farther the anvil falls, the farther the block is placed.
             No internal inventory and must obtain blocks from dropped items or container inventories behind it""");
+        SHIFT.put(ModBlocks.STRUCTURE_SCANNER.asItem(), """
+            Can store structures in Structure Disk and be used in the blueprint mode of Smart Block Placer.
+            Maximum can store 15×15×15 structure.
+            When powered by redstone, it will automatically scans and stores structures.""");
         SHIFT.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), """
             Advanced block placer with 5x5x5 placement area, configurable via GUI.
             Supports pickup mode (from containers) and move mode (direct block movement).
             Requires power supply, consumes 8 kW.
             Put Structure Disk to enable Blue Print Mode,
             consumes 64 kW""");
+        SHIFT.put(ModBlocks.FISH_TANK.asItem(), """
+            It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis.
+            Wearing it on your head provides a temporary underwater breathing effect.
+            Right-click the top with an item in hand to place the item inside.
+            Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish.""");
         SHIFT.put(ModBlocks.BLOCK_DEVOURER.asItem(), """
             When powered by redstone, this block instantly breaks a 3×3 area of blocks in front of it.
             If struck by a falling anvil, the breaking range increases — the farther the anvil falls, the larger the area it destroys.

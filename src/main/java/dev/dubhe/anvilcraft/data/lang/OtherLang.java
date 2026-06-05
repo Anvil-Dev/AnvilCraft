@@ -44,6 +44,7 @@ public class OtherLang {
         provider.add("enchantment.anvilcraft.disintegration", "Disintegration");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
+        provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
 
         provider.add("effect.anvilcraft.rage", "Rage");
 

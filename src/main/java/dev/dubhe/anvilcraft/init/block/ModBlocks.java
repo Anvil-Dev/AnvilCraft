@@ -576,6 +576,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEATER = REGISTRUM.block("heater", HeaterBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .lang("Electric Heater")
         .properties(properties -> properties.isValidSpawn(Blocks::never)
             .noOcclusion()
             .lightLevel(state -> state.getValue(OVERLOAD) ? 0 : 15))
