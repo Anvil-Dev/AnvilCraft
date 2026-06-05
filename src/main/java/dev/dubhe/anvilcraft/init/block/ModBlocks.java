@@ -895,7 +895,28 @@ public class ModBlocks {
         .lang("Structure Scanner")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .blockstate((ctx, provider) -> {
+            var model = provider.models().getExistingFile(AnvilCraft.of("block/structure_scanner"));
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+                boolean upsideDown = state.getValue(StructureScannerBlock.UPSIDE_DOWN);
+
+                int rotation = switch (facing) {
+                    case EAST -> 90;
+                    case SOUTH -> 180;
+                    case WEST -> 270;
+                    default -> 0;
+                };
+
+                if (upsideDown) rotation = (rotation + 180) % 360;
+
+                return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX(upsideDown ? 180 : 0)
+                    .rotationY(rotation)
+                    .build();
+            });
+        })
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::structureScanner)
