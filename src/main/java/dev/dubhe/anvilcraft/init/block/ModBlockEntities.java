@@ -75,6 +75,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ExpCollectorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
@@ -161,7 +162,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<FeCollectorBlockEntity> FE_COLLECTOR = REGISTRUM.blockEntity(
         "fe_collector",
         FeCollectorBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.FE_COLLECTOR).register();
+    ).validBlock(ModBlocks.FE_COLLECTOR).renderer(() -> FeCollectorRenderer::new).register();
 
     public static final BlockEntityEntry<MobAmberBlockEntity> MOB_AMBER_BLOCK = REGISTRUM.blockEntity(
         "mob_amber_block",

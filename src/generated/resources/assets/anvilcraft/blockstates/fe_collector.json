@@ -1,34 +1,18 @@
 {
   "variants": {
-    "facing=east,powered=false": {
-      "model": "anvilcraft:block/fe_collector",
+    "axis=x,powered=false": {
+      "model": "anvilcraft:block/fe_collector_base"
+    },
+    "axis=x,powered=true": {
+      "model": "anvilcraft:block/fe_collector_base"
+    },
+    "axis=z,powered=false": {
+      "model": "anvilcraft:block/fe_collector_base",
       "y": 90
     },
-    "facing=east,powered=true": {
-      "model": "anvilcraft:block/fe_collector",
+    "axis=z,powered=true": {
+      "model": "anvilcraft:block/fe_collector_base",
       "y": 90
-    },
-    "facing=north,powered=false": {
-      "model": "anvilcraft:block/fe_collector"
-    },
-    "facing=north,powered=true": {
-      "model": "anvilcraft:block/fe_collector"
-    },
-    "facing=south,powered=false": {
-      "model": "anvilcraft:block/fe_collector",
-      "y": 180
-    },
-    "facing=south,powered=true": {
-      "model": "anvilcraft:block/fe_collector",
-      "y": 180
-    },
-    "facing=west,powered=false": {
-      "model": "anvilcraft:block/fe_collector",
-      "y": 270
-    },
-    "facing=west,powered=true": {
-      "model": "anvilcraft:block/fe_collector",
-      "y": 270
     }
   }
 }

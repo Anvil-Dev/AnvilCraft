@@ -1,56 +1,29 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.power.IPowerProducer;
-import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
-import java.util.List;
+public class FeCollectorBlockEntity extends BlockEntity {
+    private static final int MAX_ENERGY = 1_000_000; // 1 MFE
 
-public class FeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
-    private static final double MAX_POWER_PER_INCOMING = 128;
-    public static final int INPUT_COOLDOWN = 2;
-    public static final int OUTPUT_COOLDOWN = 10;
-
-    private int inputCooldownCount = 2;
-    private final List<Integer> charges = new LinkedList<>() {
-        {
-            for (int i = 0; i < 10; i++) {
-                this.add(0);
-            }
-        }
-
-        @Override
-        public boolean add(Integer integer) {
-            if (this.size() > 10) this.removeFirst();
-            return super.add(integer);
-        }
-    };
-    private int outputCooldownCount = 10;
-    private double chargeCount = 0;
-    private PowerGrid grid = null;
-    private int power = 0;
-    @Getter
-    private int time = 0;
+    private int energy = 0;
     @Getter
     private float rotation = 0;
 
     public static FeCollectorBlockEntity createBlockEntity(
-        BlockEntityType<?> type,
-        BlockPos pos,
-        BlockState blockState
+        BlockEntityType<?> type, BlockPos pos, BlockState blockState
     ) {
         return new FeCollectorBlockEntity(type, pos, blockState);
     }
@@ -64,104 +37,110 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     }
 
     @Override
-    public int getRange() {
-        return 2;
-    }
-
-    @Override
-    public @Nullable Level getCurrentLevel() {
-        return this.level;
-    }
-
-    @Override
-    public BlockPos getPos() {
-        return this.getBlockPos();
-    }
-
-    @Override
-    public void setGrid(@Nullable PowerGrid grid) {
-        this.grid = grid;
-    }
-
-    @Override
-    public @Nullable PowerGrid getGrid() {
-        return this.grid;
-    }
-
-    @Override
-    public int getOutputPower() {
-        return this.power;
-    }
-
-    @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.inputCooldownCount = tag.getInt("InputCooldownCount");
-        this.outputCooldownCount = tag.getInt("OutputCooldownCount");
-        this.chargeCount = tag.getDouble("ChargeCount");
-        this.power = tag.getInt("Power");
-        int[] charges = tag.getIntArray("Charges");
-        for (int i : charges) {
-            this.charges.add(i);
-        }
+        this.energy = tag.getInt("Energy");
     }
 
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("InputCooldownCount", this.inputCooldownCount);
-        tag.putInt("OutputCooldownCount", this.outputCooldownCount);
-        tag.putDouble("ChargeCount", this.chargeCount);
-        tag.putInt("Power", this.power);
-        tag.putIntArray("Charges", this.charges);
+        tag.putInt("Energy", this.energy);
     }
 
-    @Override
-    public void gridTick() {
-        if (level == null || level.isClientSide()) return;
-        if (this.inputCooldownCount-- <= 1) {
-            this.inputCooldownCount = INPUT_COOLDOWN;
-            this.charges.add((int) Math.floor(this.chargeCount));
-            this.chargeCount = 0;
-            this.time++;
+    /**
+     * 检查是否是左右两侧接口（可输入输出FE的面）
+     */
+    private boolean isSideConnected(@Nullable Direction side) {
+        if (side == null) return false;
+        Direction.Axis axis = getBlockState().getValue(BlockStateProperties.HORIZONTAL_AXIS);
+        // axis=x (rotation=0°): 模型支柱在 EAST/WEST 面
+        // axis=z (rotation=90°): 模型支柱旋转到 NORTH/SOUTH 面
+        return axis == Direction.Axis.X
+            ? side == Direction.EAST || side == Direction.WEST
+            : side == Direction.NORTH || side == Direction.SOUTH;
+    }
+
+    /**
+     * 获取指定面的FE能量存储
+     */
+    @Nullable
+    public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
+        if (side != null && !isSideConnected(side)) {
+            return null;
         }
-        if (this.outputCooldownCount-- <= 1) {
-            this.outputCooldownCount = OUTPUT_COOLDOWN;
-            final int oldPower = this.power;
-            this.power = 0;
-            for (Integer charge : this.charges) {
-                this.power += charge;
-            }
-            this.power = this.power / this.charges.size();
-            if (this.power > 0 && this.getBlockState().getBlock() instanceof FeCollectorBlock feCollector) {
-                feCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
-            }
-            if (this.power != oldPower && this.grid != null) this.grid.markChanged();
+        return new FeEnergyStorage();
+    }
+
+    public static void tick(Level level, BlockPos pos, BlockState state, FeCollectorBlockEntity be) {
+        if (level == null) return;
+        if (level.isClientSide()) {
+            be.clientTick();
+            return;
+        }
+        // 根据能量更新POWERED状态
+        boolean powered = state.getValue(FeCollectorBlock.POWERED);
+        boolean hasEnergy = be.energy > 0;
+        if (powered != hasEnergy) {
+            level.setBlockAndUpdate(pos, state.setValue(FeCollectorBlock.POWERED, hasEnergy));
         }
     }
 
     /**
-     * 向FE收集器添加能量
-     *
-     * @param num 添加至收集器的能量数
-     * @return 溢出的能量数(即未被添加至收集器的能量数)
+     * 获取当前存储的能量（用于渲染）
      */
-    public double incomingCharge(double num, BlockPos srcPos) {
-        double overflow = num - (MAX_POWER_PER_INCOMING - this.chargeCount);
-        if (overflow < 0) {
-            overflow = 0;
-        }
-        double acceptableChargeCount = num - overflow;
-        this.chargeCount += acceptableChargeCount;
-        return overflow;
-    }
-
-    @Override
-    public AABB shape() {
-        return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5);
+    public int getEnergyStored() {
+        return this.energy;
     }
 
     public void clientTick() {
-        this.rotation += (float) (Math.log(this.getServerPower() + 1) * 2.5);
+        this.rotation += (float) (Math.log(Math.max(this.energy, 0) + 1) * 2.5);
+    }
+
+    /**
+     * 内部FE能量存储实现
+     */
+    private class FeEnergyStorage implements IEnergyStorage {
+        @Override
+        public int receiveEnergy(int maxReceive, boolean simulate) {
+            if (!canReceive()) return 0;
+            int energyReceived = Math.min(MAX_ENERGY - energy, maxReceive);
+            if (!simulate) {
+                energy += energyReceived;
+                setChanged();
+            }
+            return energyReceived;
+        }
+
+        @Override
+        public int extractEnergy(int maxExtract, boolean simulate) {
+            if (!canExtract()) return 0;
+            int energyExtracted = Math.min(energy, maxExtract);
+            if (!simulate) {
+                energy -= energyExtracted;
+                setChanged();
+            }
+            return energyExtracted;
+        }
+
+        @Override
+        public int getEnergyStored() {
+            return energy;
+        }
+
+        @Override
+        public int getMaxEnergyStored() {
+            return MAX_ENERGY;
+        }
+
+        @Override
+        public boolean canExtract() {
+            return true;
+        }
+
+        @Override
+        public boolean canReceive() {
+            return energy < MAX_ENERGY;
+        }
     }
 }

@@ -685,9 +685,9 @@ public class ModBlocks {
         .simpleItem()
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((ctx, provider) -> {
-            var model = provider.models().getExistingFile(of("block/fe_collector"));
+            var model = provider.models().getExistingFile(of("block/fe_collector_base"));
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
-                int y = state.getValue(BlockStateProperties.HORIZONTAL_AXIS) == Direction.Axis.X ? 90 : 0;
+                int y = state.getValue(BlockStateProperties.HORIZONTAL_AXIS) == Direction.Axis.X ? 0 : 90;
                 return ConfiguredModel.builder().modelFile(model).rotationY(y).build();
             });
         })

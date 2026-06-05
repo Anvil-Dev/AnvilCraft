@@ -59,8 +59,13 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState()
-            .setValue(AXIS, context.getHorizontalDirection().getOpposite().getAxis());
+        Direction dir = context.getHorizontalDirection();
+        Direction.Axis axis = switch (dir) {
+            case NORTH, SOUTH -> Direction.Axis.X;
+            case WEST, EAST -> Direction.Axis.Z;
+            default -> Direction.Axis.X;
+        };
+        return this.defaultBlockState().setValue(AXIS, axis);
     }
 
     @Override
@@ -133,13 +138,10 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide()) {
-            return createTickerHelper(
-                type,
-                ModBlockEntities.FE_COLLECTOR.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.clientTick()
-            );
-        }
-        return super.getTicker(level, state, type);
+        return createTickerHelper(
+            type,
+            ModBlockEntities.FE_COLLECTOR.get(),
+            FeCollectorBlockEntity::tick
+        );
     }
 }
