@@ -31,7 +31,7 @@ public class FeCollectorRenderer implements BlockEntityRenderer<FeCollectorBlock
         int packedOverlay
     ) {
         poseStack.pushPose();
-        float rotation = blockEntity.getRotation() + (float) (Math.log(Math.max(blockEntity.getEnergyStored(), 0) + 1) * 2.5 * partialTick);
+        float rotation = blockEntity.getRotation() + (float) (Math.log(blockEntity.getServerPower() + 1) * 2.5f * partialTick);
         VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutout());
         poseStack.translate(0.5F, 0.68F, 0.5F);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));

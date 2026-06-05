@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
@@ -26,14 +27,16 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
-    public static VoxelShape SHAPE = Shapes.or(
-        Block.box(0, 0, 0, 16, 4, 16)
+    private static final VoxelShape SHAPE_X = ShapeUtil.merge(
+        Block.box(0, 0, 0, 16, 4, 16),
+        Block.box(0, 4, 4, 2, 12, 12),
+        Block.box(14, 4, 4, 16, 12, 12)
     );
+    private static final VoxelShape SHAPE_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_X);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
     public static BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -85,13 +88,14 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
         return RenderShape.MODEL;
     }
 
+    @Override
     public VoxelShape getShape(
         BlockState state,
         BlockGetter level,
         BlockPos pos,
         CollisionContext context
     ) {
-        return SHAPE;
+        return state.getValue(AXIS) == Direction.Axis.X ? SHAPE_X : SHAPE_Z;
     }
 
     @Nullable

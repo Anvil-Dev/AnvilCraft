@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.util.CompatUtil;
@@ -19,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +76,20 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
         if (overloaded) {
             for (int i = 1; i <= 3; i++) {
                 lines.add(Component.translatable("tooltip.anvilcraft.grid_information.overloaded" + i));
+            }
+        }
+        if (e instanceof FeCollectorBlockEntity fe) {
+            lines.add(Component.translatable("tooltip.anvilcraft.fe_collector.title")
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
+            lines.add(Component.translatable(
+                    "tooltip.anvilcraft.fe_collector.energy",
+                    fe.getEnergyStored() / 1000,
+                    FeCollectorBlockEntity.MAX_ENERGY / 1000
+                )
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+            if (!e.getBlockState().getValue(BlockStateProperties.POWERED)) {
+                lines.add(Component.translatable("tooltip.anvilcraft.fe_collector.low_energy")
+                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.RED)));
             }
         }
         if (type == PowerComponentType.PRODUCER) {

@@ -36,6 +36,10 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.item.disk.clear", "Shift + Right click to clear data stored");
         provider.add("tooltip.anvilcraft.heliostats.adjacent_heliostats", "Adjacent heliostats detected.");
 
+        provider.add("tooltip.anvilcraft.fe_collector.low_energy", "Insufficient FE");
+        provider.add("tooltip.anvilcraft.fe_collector.title", "Forge Energy");
+        provider.add("tooltip.anvilcraft.fe_collector.energy", "  %dK/%dK");
+
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %ds");
 
         provider.add(

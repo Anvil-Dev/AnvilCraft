@@ -1,5 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.power.IPowerProducer;
+import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
@@ -8,24 +12,34 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
-public class FeCollectorBlockEntity extends BlockEntity {
-    private static final int MAX_ENERGY = 1_000_000; // 1 MFE
+public class FeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
+    public static final int MAX_ENERGY = 1_000_000;
+    static final int FE_PER_TICK = 10_000;
+    public static final int PRODUCE_THRESHOLD = 400_000;
+    public static final int STOP_THRESHOLD = 20_000;
+    static final int TRANSFER_THRESHOLD = 500_000;
 
-    private int energy = 0;
+    int energy;
     @Getter
-    private float rotation = 0;
+    float rotation;
+    @Getter
+    int time;
+    boolean producing;
+    int outputPower;
+    PowerGrid grid;
 
-    public static FeCollectorBlockEntity createBlockEntity(
-        BlockEntityType<?> type, BlockPos pos, BlockState blockState
-    ) {
-        return new FeCollectorBlockEntity(type, pos, blockState);
+    public static FeCollectorBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        return new FeCollectorBlockEntity(type, pos, state);
     }
 
     public FeCollectorBlockEntity(BlockPos pos, BlockState blockState) {
@@ -40,107 +54,163 @@ public class FeCollectorBlockEntity extends BlockEntity {
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.energy = tag.getInt("Energy");
+        this.producing = tag.getBoolean("Producing");
+        this.time = tag.getInt("Time");
     }
 
     @Override
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("Energy", this.energy);
+        tag.putBoolean("Producing", this.producing);
+        tag.putInt("Time", this.time);
     }
 
-    /**
-     * 检查是否是左右两侧接口（可输入输出FE的面）
-     */
-    private boolean isSideConnected(@Nullable Direction side) {
-        if (side == null) return false;
-        Direction.Axis axis = getBlockState().getValue(BlockStateProperties.HORIZONTAL_AXIS);
-        // axis=x (rotation=0°): 模型支柱在 EAST/WEST 面
-        // axis=z (rotation=90°): 模型支柱旋转到 NORTH/SOUTH 面
-        return axis == Direction.Axis.X
-            ? side == Direction.EAST || side == Direction.WEST
-            : side == Direction.NORTH || side == Direction.SOUTH;
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        tag.putInt("Energy", this.energy);
+        tag.putBoolean("Producing", this.producing);
+        tag.putInt("Time", this.time);
+        return tag;
     }
 
-    /**
-     * 获取指定面的FE能量存储
-     */
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        super.handleUpdateTag(tag, registries);
+        this.energy = tag.getInt("Energy");
+        this.producing = tag.getBoolean("Producing");
+        this.time = tag.getInt("Time");
+    }
+
+    Direction[] getConnectedSides() {
+        Direction.Axis a = getBlockState().getValue(BlockStateProperties.HORIZONTAL_AXIS);
+        return a == Direction.Axis.X
+            ? new Direction[]{Direction.EAST, Direction.WEST}
+            : new Direction[]{Direction.NORTH, Direction.SOUTH};
+    }
+
+    Direction getOutputSide() {
+        Direction.Axis a = getBlockState().getValue(BlockStateProperties.HORIZONTAL_AXIS);
+        return a == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
+    }
+
     @Nullable
     public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
-        if (side != null && !isSideConnected(side)) {
-            return null;
+        if (side == null) return new FeEnergyStore();
+        for (Direction d : getConnectedSides()) {
+            if (d == side) return new FeEnergyStore();
         }
-        return new FeEnergyStorage();
+        return null;
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, FeCollectorBlockEntity be) {
-        if (level == null) return;
         if (level.isClientSide()) {
             be.clientTick();
             return;
         }
-        // 根据能量更新POWERED状态
-        boolean powered = state.getValue(FeCollectorBlock.POWERED);
-        boolean hasEnergy = be.energy > 0;
-        if (powered != hasEnergy) {
-            level.setBlockAndUpdate(pos, state.setValue(FeCollectorBlock.POWERED, hasEnergy));
+        be.serverTick();
+    }
+
+    void serverTick() {
+        BlockState state = getBlockState();
+        if (state.getValue(FeCollectorBlock.POWERED) != this.producing) {
+            level.setBlockAndUpdate(worldPosition, state.setValue(FeCollectorBlock.POWERED, this.producing));
+        }
+        if (this.energy > TRANSFER_THRESHOLD) {
+            pushExcess();
+        }
+        if (level.getGameTime() % 20 == 0) {
+            BlockState s = getBlockState();
+            level.sendBlockUpdated(worldPosition,
+                s.setValue(FeCollectorBlock.POWERED, !s.getValue(FeCollectorBlock.POWERED)),
+                s, Block.UPDATE_CLIENTS);
         }
     }
 
-    /**
-     * 获取当前存储的能量（用于渲染）
-     */
-    public int getEnergyStored() {
-        return this.energy;
+    void pushExcess() {
+        int excess = this.energy - TRANSFER_THRESHOLD;
+        if (excess <= 0) return;
+        Direction side = getOutputSide();
+        IEnergyStorage target = level.getCapability(
+            Capabilities.EnergyStorage.BLOCK, worldPosition.relative(side), side.getOpposite()
+        );
+        if (target != null && target.canReceive()) {
+            int accepted = target.receiveEnergy(excess, false);
+            if (accepted > 0) {
+                this.energy -= accepted;
+                setChanged();
+            }
+        }
     }
 
     public void clientTick() {
-        this.rotation += (float) (Math.log(Math.max(this.energy, 0) + 1) * 2.5);
+        this.rotation += (float) (Math.log(this.getServerPower() + 1) * 2.5);
     }
 
-    /**
-     * 内部FE能量存储实现
-     */
-    private class FeEnergyStorage implements IEnergyStorage {
-        @Override
+    @Override
+    public int getOutputPower() { return this.outputPower; }
+
+    @Override
+    public int getRange() { return 2; }
+
+    @Override
+    public @Nullable Level getCurrentLevel() { return this.level; }
+
+    @Override
+    public BlockPos getPos() { return this.getBlockPos(); }
+
+    @Override
+    public void setGrid(@Nullable PowerGrid grid) { this.grid = grid; }
+
+    @Override
+    public @Nullable PowerGrid getGrid() { return this.grid; }
+
+    @Override
+    public AABB shape() { return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5); }
+
+    @Override
+    public void gridTick() {
+        if (level == null || level.isClientSide()) return;
+
+        if (this.energy >= PRODUCE_THRESHOLD) this.producing = true;
+        else if (this.energy < STOP_THRESHOLD) this.producing = false;
+
+        if (this.producing && this.energy >= FE_PER_TICK) {
+            this.energy -= FE_PER_TICK;
+            int prev = this.outputPower;
+            this.outputPower = (int) (FE_PER_TICK
+                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
+                / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+            this.time++;
+            setChanged();
+            if (this.outputPower != prev && this.grid != null) this.grid.markChanged();
+        } else if (!this.producing && this.outputPower > 0) {
+            this.outputPower = 0;
+            if (this.grid != null) this.grid.markChanged();
+        }
+    }
+
+    public int getEnergyStored() { return this.energy; }
+
+    public boolean isLowEnergy() { return this.energy < STOP_THRESHOLD && !this.producing; }
+
+    class FeEnergyStore implements IEnergyStorage {
         public int receiveEnergy(int maxReceive, boolean simulate) {
             if (!canReceive()) return 0;
-            int energyReceived = Math.min(MAX_ENERGY - energy, maxReceive);
-            if (!simulate) {
-                energy += energyReceived;
-                setChanged();
-            }
-            return energyReceived;
+            int r = Math.min(MAX_ENERGY - energy, maxReceive);
+            if (!simulate) { energy += r; setChanged(); }
+            return r;
         }
-
-        @Override
         public int extractEnergy(int maxExtract, boolean simulate) {
             if (!canExtract()) return 0;
-            int energyExtracted = Math.min(energy, maxExtract);
-            if (!simulate) {
-                energy -= energyExtracted;
-                setChanged();
-            }
-            return energyExtracted;
+            int r = Math.min(energy, maxExtract);
+            if (!simulate) { energy -= r; setChanged(); }
+            return r;
         }
-
-        @Override
-        public int getEnergyStored() {
-            return energy;
-        }
-
-        @Override
-        public int getMaxEnergyStored() {
-            return MAX_ENERGY;
-        }
-
-        @Override
-        public boolean canExtract() {
-            return true;
-        }
-
-        @Override
-        public boolean canReceive() {
-            return energy < MAX_ENERGY;
-        }
+        public int getEnergyStored() { return energy; }
+        public int getMaxEnergyStored() { return MAX_ENERGY; }
+        public boolean canExtract() { return true; }
+        public boolean canReceive() { return energy < MAX_ENERGY; }
     }
 }
