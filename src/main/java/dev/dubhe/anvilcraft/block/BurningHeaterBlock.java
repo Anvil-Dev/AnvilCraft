@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
@@ -25,7 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
-public class BurningHeaterBlock extends BaseEntityBlock {
+public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     /**
      * 燃烧等级：0=熄灭，1=阴燃(0-300s)，2=点燃(≥300s)
      */

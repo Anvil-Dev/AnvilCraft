@@ -30,6 +30,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     public static final int MAX_ENERGY = 1_000_000;
     static final int FE_PER_TICK = 10_000;
     public static final int PRODUCE_THRESHOLD = 400_000;
+    public static final int STOP_THRESHOLD = 20_000;
     static final int TRANSFER_THRESHOLD = 500_000;
 
     int energy;
@@ -207,15 +208,14 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
 
         if (this.energy >= PRODUCE_THRESHOLD) {
             this.producing = true;
-        } else if (this.energy <= 0) {
+        } else if (this.energy < STOP_THRESHOLD) {
             this.producing = false;
         }
 
         if (this.producing) {
             final int prev = this.outputPower;
-            int consumed = Math.min(this.energy, FE_PER_TICK);
-            this.energy -= consumed;
-            this.outputPower = (int) (consumed
+            this.energy -= FE_PER_TICK;
+            this.outputPower = (int) (FE_PER_TICK
                 * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
                 / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
             this.time++;
