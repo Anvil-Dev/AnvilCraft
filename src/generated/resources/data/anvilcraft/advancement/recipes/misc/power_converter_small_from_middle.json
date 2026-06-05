@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_big": {
+    "has_middle": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:power_converter_big"
+            "items": "anvilcraft:power_converter_middle"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:stonecutting/power_converter_middle"
+        "recipe": "anvilcraft:power_converter_small_from_middle"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_big"
+      "has_middle"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:stonecutting/power_converter_middle"
+      "anvilcraft:power_converter_small_from_middle"
     ]
   }
 }

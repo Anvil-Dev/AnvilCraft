@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:stonecutting/power_converter_middle"
+        "recipe": "anvilcraft:power_converter_middle_from_big"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:stonecutting/power_converter_middle"
+      "anvilcraft:power_converter_middle_from_big"
     ]
   }
 }

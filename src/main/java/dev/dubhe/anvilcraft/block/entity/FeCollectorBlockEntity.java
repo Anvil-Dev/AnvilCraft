@@ -41,6 +41,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     boolean producing;
     int outputPower;
     PowerGrid grid;
+    private boolean clientSyncDirty;
 
     public static FeCollectorBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         return new FeCollectorBlockEntity(type, pos, state);
@@ -138,11 +139,9 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         if (this.energy > TRANSFER_THRESHOLD) {
             pushExcess();
         }
-        if (level.getGameTime() % 20 == 0) {
-            BlockState s = getBlockState();
-            level.sendBlockUpdated(worldPosition,
-                s.setValue(FeCollectorBlock.POWERED, !s.getValue(FeCollectorBlock.POWERED)),
-                s, Block.UPDATE_CLIENTS);
+        if (clientSyncDirty && level.getGameTime() % 20 == 0) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            clientSyncDirty = false;
         }
     }
 
@@ -159,6 +158,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             if (accepted > 0) {
                 this.energy -= accepted;
                 setChanged();
+                clientSyncDirty = true;
             }
         }
     }
@@ -220,6 +220,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
                 / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
             this.time++;
             setChanged();
+            clientSyncDirty = true;
             if (this.outputPower != prev && this.grid != null) this.grid.markChanged();
         } else if (this.outputPower > 0) {
             this.outputPower = 0;
@@ -238,6 +239,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             if (!simulate) {
                 energy += r;
                 setChanged();
+                clientSyncDirty = true;
             }
             return r;
         }
@@ -248,6 +250,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             if (!simulate) {
                 energy -= r;
                 setChanged();
+                clientSyncDirty = true;
             }
             return r;
         }
