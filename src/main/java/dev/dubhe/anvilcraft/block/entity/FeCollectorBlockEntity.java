@@ -96,9 +96,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
         super.onDataPacket(connection, packet, registries);
         CompoundTag tag = packet.getTag();
-        if (tag != null) {
-            handleUpdateTag(tag, registries);
-        }
+        handleUpdateTag(tag, registries);
     }
 
     Direction[] getConnectedSides() {
