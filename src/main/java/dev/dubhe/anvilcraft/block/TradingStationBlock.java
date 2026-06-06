@@ -58,10 +58,10 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
     }
 
     @Override
-    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction dir = context.getHorizontalDirection().getOpposite();
         if (dir.getAxis().isVertical()) dir = Direction.NORTH;
-        return super.getStateForPlacement(context).setValue(FACING, dir);
+        return this.defaultBlockState().setValue(FACING, dir);
     }
 
     @Override
