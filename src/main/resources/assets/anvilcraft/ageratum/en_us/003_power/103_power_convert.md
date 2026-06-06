@@ -30,10 +30,10 @@ AnvilCraft's electrical power is fundamentally different from other mods' energy
 - Conversion has loss
 - Different sizes convert different amounts of energy, see the table below for details
 
-|                       Energy Converter                      | Consumption (kW) | Equivalent Energy (FE/t) | Converted Energy After Loss (FE/t) |
-|:-----------------------------------------------------------:|:----------------:|:------------------------:|:----------------------------------:|
+|                Energy Converter                 | Consumption (kW) | Equivalent Energy (FE/t) | Converted Energy After Loss (FE/t) |
+|:-----------------------------------------------:|:----------------:|:------------------------:|:----------------------------------:|
 | <ref item="anvilcraft:power_converter_small"/>  |        1         |           100            |                 90                 |
-| <ref item="anvilcraft:power_converter_middle"/> |       16         |          1600            |                1440                |
+| <ref item="anvilcraft:power_converter_middle"/> |        16        |           1600           |                1440                |
 |  <ref item="anvilcraft:power_converter_big"/>   |       256        |          25600           |               23040                |
 
 <info>
@@ -48,9 +48,9 @@ Under default configuration: 1kW = 100FE/t, conversion loss rate 10%; configurab
 - When stored FE reaches 40% of the capacity, starts converting; stops when below 2%
 - When stored FE reaches 50% of the capacity, starts outputting FE to adjacent blocks where possible
 
-|                     FE Collector                     | Consumption (FE/t) | Equivalent Energy (kW) | Converted Energy After Loss (kW) |
-|:---------------------------------------------------:|:------------------:|:----------------------:|:-------------------------------:|
-| <ref item="anvilcraft:power_converter_small"/> |      10,000        |          100           |               90                |
+|             FE Collector              | Consumption (FE/t) | Equivalent Energy (kW) | Converted Energy After Loss (kW) |
+|:-------------------------------------:|:------------------:|:----------------------:|:--------------------------------:|
+| <ref item="anvilcraft:fe_collector"/> |       10,000       |          100           |                90                |
 
 <tip>
 Can be placed in series to work together

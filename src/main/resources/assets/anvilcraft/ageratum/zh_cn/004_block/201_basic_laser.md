@@ -31,7 +31,7 @@ items:
 - 提取矿石，留下石头；矿产会从射出该激光的<ref item="anvilcraft:ruby_prism"/>的背部弹出或存入容器
 
 <info>
-如果<ref item="anvilcraft:ruby_prism"/>背部是也是**同方向**的<ref item="anvilcraft:ruby_prism"/>，则从最后一个<ref item="anvilcraft:ruby_prism"/>的背部输出
+如果<ref item="anvilcraft:ruby_prism"/>背部也是**同方向**的<ref item="anvilcraft:ruby_prism"/>，则从最后一个<ref item="anvilcraft:ruby_prism"/>的背部输出
 </info>
 
 |    等级    | 提取冷却(s) |

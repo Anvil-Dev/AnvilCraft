@@ -20,7 +20,7 @@ items:
 # Safety
 
 - Only the owner can open the GUI
-- When broken or when a block is placed nearby, the owner receives an alert message
+- When broken or when a block is placed nearby by another player, the owner receives an alert message
 - If destroyed by a non-player, the message also includes the IDs of players online at the time and the nearest player
 
 # Villager Trading (Incomplete)

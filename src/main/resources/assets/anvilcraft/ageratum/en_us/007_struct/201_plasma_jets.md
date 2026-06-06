@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "Plasma Jets"
+  title: "§6Plasma Jets"
   icon: "anvilcraft:oil_bucket"
 ---
 
