@@ -297,8 +297,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             entity.setClientIsRetracting(false);
         }
         
-        if (entity.isClientIsRetracting() && entity.getLevel() != null) {
-            long currentTime = entity.getLevel().getGameTime();
+        net.minecraft.world.level.Level retractAnimLevel = entity.getLevel();
+        if (entity.isClientIsRetracting() && retractAnimLevel != null) {
+            long currentTime = retractAnimLevel.getGameTime();
             long elapsedRetractTicks = currentTime - entity.getClientRetractStartTime();
             
             float startProgress = entity.getClientRetractStartProgress();
@@ -327,8 +328,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     entity.setClientLastTargetPos(null);
                 }
             }
-        } else if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && entity.getLevel() != null) {
-            long currentTime = entity.getLevel().getGameTime();
+        } else if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && retractAnimLevel != null) {
+            long currentTime = retractAnimLevel.getGameTime();
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
@@ -375,13 +376,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                                 1.3f,
                                 false
                             );
-                            if (entity.getLevel().random.nextFloat() < 0.3f) {
+                            if (entity.getLevel().random.nextFloat() < 0.6f) {
                                 entity.getLevel().playLocalSound(
                                     entity.getBlockPos(),
                                     ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
                                     SoundSource.BLOCKS,
                                     0.4f,
-                                    1.8f,
+                                    1.5f,
                                     false
                                 );
                             }
@@ -406,13 +407,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                         1.3f,
                         false
                     );
-                    if (entity.getLevel().random.nextFloat() < 0.3f) {
+                    if (entity.getLevel().random.nextFloat() < 0.6f) {
                         entity.getLevel().playLocalSound(
                             entity.getBlockPos(),
                             ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
                             SoundSource.BLOCKS,
                             0.4f,
-                            1.8f,
+                            1.5f,
                             false
                         );
                     }
