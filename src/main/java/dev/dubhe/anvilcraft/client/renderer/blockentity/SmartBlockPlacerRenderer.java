@@ -381,7 +381,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                                     ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
                                     SoundSource.BLOCKS,
                                     0.4f,
-                                    1.3f,
+                                    1.8f,
                                     false
                                 );
                             }
@@ -412,7 +412,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                             ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
                             SoundSource.BLOCKS,
                             0.4f,
-                            1.3f,
+                            1.8f,
                             false
                         );
                     }
