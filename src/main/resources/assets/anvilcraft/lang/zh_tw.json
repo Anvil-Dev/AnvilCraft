@@ -1318,5 +1318,8 @@
   "tooltip.anvilcraft.item.menger_sponge": "可無限吸收液體的海綿",
   "tooltip.anvilcraft.item.multitool": "按 [Alt] 鍵可切換多種內建工具模式",
   "tooltip.anvilcraft.item.nature_amulet": "同時具有寂靜、貓、狗、羽毛護符的效果",
-  "tooltip.anvilcraft.item.overseer": "當基座為 3×3 皇家鋼系列方塊時可保持區塊載入。基座層數越多，載入範圍越大，最高 3 層，範圍為 5×5 個區塊"
+  "tooltip.anvilcraft.item.overseer": "當基座為 3×3 皇家鋼系列方塊時可保持區塊載入。基座層數越多，載入範圍越大，最高 3 層，範圍為 5×5 個區塊",
+  "tooltip.anvilcraft.item.powered_sliding_rail": "充能後，可加速上方的物品、生物或方塊",
+  "tooltip.anvilcraft.item.propel_piston": "整合式活塞蟲，需使用電容器或雷射供電",
+  "tooltip.anvilcraft.item.pulse_generator": "可自訂脈衝的啟動方式、延遲時間與持續時間"
 }
