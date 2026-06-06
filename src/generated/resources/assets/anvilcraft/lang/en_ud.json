@@ -967,7 +967,7 @@
   "message.anvilcraft.trading_station.break.breaker": "%s :ɹǝʞɐǝɹᗺ",
   "message.anvilcraft.trading_station.break.closest": "%s :ɹǝʎɐꞁԀ ʇsǝsoꞁƆ",
   "message.anvilcraft.trading_station.break.non_player.title": "===|| ¡uǝʞoɹq sɐʍ uoᴉʇɐʇs ᵷuᴉpɐɹʇ Ɐ ||===",
-  "message.anvilcraft.trading_station.break.onliners": "%s :sɹǝʎɐꞁԀ ǝuᴉꞁuO",
+  "message.anvilcraft.trading_station.break.onliners": " :sɹǝʎɐꞁԀ ǝuᴉꞁuO",
   "message.anvilcraft.trading_station.break.owner": "%s :ɹǝuʍO",
   "message.anvilcraft.trading_station.break.player.title": "===|| ¡uoᴉʇɐʇs ᵷuᴉpɐɹʇ ɐ ǝʞoɹq ǝuoǝɯoS ||===",
   "message.anvilcraft.trading_station.break.pos": "%4$s uᴉ %3$d %2$d %1$d :uoᴉʇᴉsoԀ",

@@ -967,7 +967,7 @@
   "message.anvilcraft.trading_station.break.breaker": "Breaker: %s",
   "message.anvilcraft.trading_station.break.closest": "Closest Player: %s",
   "message.anvilcraft.trading_station.break.non_player.title": "===|| A trading station was broken! ||===",
-  "message.anvilcraft.trading_station.break.onliners": "Online Players: %s",
+  "message.anvilcraft.trading_station.break.onliners": "Online Players: ",
   "message.anvilcraft.trading_station.break.owner": "Owner: %s",
   "message.anvilcraft.trading_station.break.player.title": "===|| Someone broke a trading station! ||===",
   "message.anvilcraft.trading_station.break.pos": "Position: %1$d %2$d %3$d in %4$s",
