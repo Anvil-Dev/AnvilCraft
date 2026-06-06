@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.SmartBlockPlacerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvider;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,6 +28,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerItemStorage(CrabTrapStorageProvider.INSTANCE, CrabTrapBlockEntity.class);
         registration.registerBlockDataProvider(HeatableBlockProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(BurningHeaterProvider.INSTANCE, Block.class);
+        registration.registerBlockDataProvider(SmartBlockPlacerProvider.INSTANCE, Block.class);
     }
 
     @Override
@@ -38,5 +40,6 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerItemStorageClient(CrabTrapStorageProvider.INSTANCE);
         registration.registerBlockComponent(HeatableBlockProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(BurningHeaterProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(SmartBlockPlacerProvider.INSTANCE, Block.class);
     }
 }

@@ -317,6 +317,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         loadLayerPositions(tag);
         // 加载Disk物品栏
         this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
+        // 同步 lastDiskItem 缓存以匹配实际库存状态，防止后续取出蓝图时检测不到变化
+        this.lastDiskItem = this.diskInventory.getItem(0).copy();
         // 加载书物品栏
         this.bookInventory.fromTag(tag.getList("bookInventory", Tag.TAG_COMPOUND), provider);
         // 加载输出书物品栏

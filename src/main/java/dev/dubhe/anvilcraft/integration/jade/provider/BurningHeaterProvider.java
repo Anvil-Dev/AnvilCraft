@@ -24,12 +24,19 @@ public enum BurningHeaterProvider implements IBlockComponentProvider, IServerDat
         if (!(state.getBlock() instanceof BurningHeaterBlock)) return;
 
         int level = state.getValue(BurningHeaterBlock.LEVEL);
-        String stateKey = switch (level) {
-            case 1 -> "tooltip.anvilcraft.burning_heater.state.smoldering";
-            case 2 -> "tooltip.anvilcraft.burning_heater.state.lit";
-            default -> "tooltip.anvilcraft.burning_heater.state.off";
+        ChatFormatting stateColor = switch (level) {
+            case 1 -> ChatFormatting.RED;
+            case 2 -> ChatFormatting.GOLD;
+            default -> ChatFormatting.DARK_GRAY;
         };
-        tooltip.add(Component.translatable(stateKey));
+        String stateValueKey = switch (level) {
+            case 1 -> "tooltip.anvilcraft.burning_heater.jade.state.smoldering";
+            case 2 -> "tooltip.anvilcraft.burning_heater.jade.state.lit";
+            default -> "tooltip.anvilcraft.burning_heater.jade.state.off";
+        };
+        tooltip.add(Component.translatable(
+            "tooltip.anvilcraft.burning_heater.jade.state",
+            Component.translatable(stateValueKey).withStyle(stateColor)));
 
         // Use getDisplayBurnTime() for client-side live countdown,
         // matching the HUD tooltip display
