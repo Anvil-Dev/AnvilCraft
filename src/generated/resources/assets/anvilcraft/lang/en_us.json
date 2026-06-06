@@ -1422,5 +1422,8 @@
   "tooltip.anvilcraft.space_overcompressor.stored_mass": "Stored Mass: %s",
   "tooltip.anvilcraft.thought": "Press [%s] for more info",
   "tooltip.anvilcraft.working_progress.progress": "  %1$s %2$s%%",
-  "tooltip.anvilcraft.working_progress.title": "Working progress:"
+  "tooltip.anvilcraft.working_progress.title": "Working progress:",
+  "subtitles.anvilcraft.plasma_jet": "Plasma jet roaring",
+  "subtitles.anvilcraft.burning_heater": "Burning heater rackling",
+  "subtitles.anvilcraft.plasma_jet_lava": "Plasma jet burst"
 }

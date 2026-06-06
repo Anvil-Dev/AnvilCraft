@@ -1,0 +1,30 @@
+{
+  "plasma_jet": {
+    "subtitle": "subtitles.anvilcraft.plasma_jet",
+    "sounds": [
+      {
+        "name": "entity.blaze.burn",
+        "type": "event"
+      }
+    ]
+  },
+  "burning_heater": {
+    "subtitle": "subtitles.anvilcraft.burning_heater",
+    "sounds": [
+      "minecraft:block/furnace/fire_crackle1",
+      "minecraft:block/furnace/fire_crackle2",
+      "minecraft:block/furnace/fire_crackle3",
+      "minecraft:block/furnace/fire_crackle4",
+      "minecraft:block/furnace/fire_crackle5"
+    ]
+  },
+  "plasma_jet_lava": {
+    "subtitle": "subtitles.anvilcraft.plasma_jet_lava",
+    "sounds": [
+      {
+        "name": "block.lava.extinguish",
+        "type": "event"
+      }
+    ]
+  }
+}

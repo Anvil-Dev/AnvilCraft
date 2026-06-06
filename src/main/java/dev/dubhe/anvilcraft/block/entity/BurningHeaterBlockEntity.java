@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -13,7 +14,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
@@ -147,9 +147,9 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
         int burningLevel = state.getValue(BurningHeaterBlock.LEVEL);
         if (burningLevel >= 1) {
             RandomSource random = level.random;
-            // 音效：仅点燃时播放
+            // 音效：使用自定义声音事件
             if (burningLevel == 2 && random.nextInt(40) == 0) {
-                level.playLocalSound(pos, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 1.0f, 1.0f, true);
+                level.playLocalSound(pos, ModSoundEvents.BURNING_HEATER.get(), SoundSource.BLOCKS, 1.0f, 1.0f, true);
             }
             // 火焰粒子：仅点燃时
             if (burningLevel == 2 && random.nextInt(3) == 0) {
