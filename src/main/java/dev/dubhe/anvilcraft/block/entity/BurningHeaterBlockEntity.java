@@ -113,11 +113,12 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     public void tick(Level level, BlockPos pos, BlockState state) {
         // 服务器逻辑
         if (!level.isClientSide()) {
+            boolean needsUpdate = false;
+
             if (this.burnTime > 0) {
                 this.burnTime--;
                 if (this.burnTime % 20 == 0) {
-                    setChanged();
-                    level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+                    needsUpdate = true;
                 }
             }
 
@@ -128,8 +129,12 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
 
             // 燃料消耗导致燃烧时间大幅度变化时同步到客户端
             if (fuelConsumed) {
-                setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                needsUpdate = true;
+            }
+
+            if (needsUpdate) {
+                setChanged();
                 level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
             }
 
