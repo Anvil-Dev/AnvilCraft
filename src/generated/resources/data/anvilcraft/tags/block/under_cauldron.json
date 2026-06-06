@@ -3,6 +3,7 @@
     "#minecraft:campfires",
     "minecraft:magma_block",
     "anvilcraft:heater",
+    "anvilcraft:burning_heater",
     "anvilcraft:corrupted_beacon"
   ]
 }

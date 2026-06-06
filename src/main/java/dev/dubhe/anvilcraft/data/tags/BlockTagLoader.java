@@ -114,6 +114,7 @@ public class BlockTagLoader {
             .addTag(BlockTags.CAMPFIRES)
             .add(findResourceKey(Blocks.MAGMA_BLOCK))
             .add(ModBlocks.HEATER.getKey())
+            .add(ModBlocks.BURNING_HEATER.getKey())
             .add(ModBlocks.CORRUPTED_BEACON.getKey());
 
         provider.addTag(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)

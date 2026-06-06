@@ -583,7 +583,8 @@ public class ModBlocks {
             .noOcclusion()
             .lightLevel(state -> state.getValue(OVERLOAD) ? 0 : 15))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item()
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::heater)
         .register();
@@ -595,7 +596,6 @@ public class ModBlocks {
             .lightLevel(state -> 15))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .tag(ModItemTags.HEATERS, ModItemTags.HEATERS_C)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();

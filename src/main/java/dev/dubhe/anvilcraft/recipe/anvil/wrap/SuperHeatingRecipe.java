@@ -74,10 +74,9 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
             .setBlockInputOffset(new Vec3i(0, -2, 0))
             .setInputBlocks(
                 BlockStatePredicate.builder()
-                    .of(ModBlocks.HEATER.get())
+                    .of(ModBlocks.HEATER.get(), ModBlocks.BURNING_HEATER.get())
                     .with(HeaterBlock.OVERLOAD, false)
                     .or()
-                    .of(ModBlocks.BURNING_HEATER.get())
                     .with(BurningHeaterBlock.LEVEL, 2)
                     .build()
             );
