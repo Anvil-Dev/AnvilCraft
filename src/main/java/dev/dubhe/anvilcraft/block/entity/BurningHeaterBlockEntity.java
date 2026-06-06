@@ -39,12 +39,6 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
      */
     public static final int LIT_THRESHOLD = 300 * 20;
 
-    /**
-     * 同步到客户端的燃烧时间最小变化阈值（tick）
-     * 低于此值的变化不触发网络同步，由客户端本地倒计时估算
-     */
-    public static final int CLIENT_SYNC_THRESHOLD = 20;
-
     @Getter
     private int burnTime = 0;
 
@@ -119,29 +113,28 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     public void tick(Level level, BlockPos pos, BlockState state) {
         // 服务器逻辑
         if (!level.isClientSide()) {
-            final int prevComparatorValue = (this.burnTime * 15) / MAX_BURN_TIME;
-
-            // 先补充燃料，再消耗燃烧时间
-            int burnTimeBeforeFuel = this.burnTime;
-            tryConsumeFuel();
-            int fuelDelta = this.burnTime - burnTimeBeforeFuel;
+            boolean needsUpdate = false;
 
             if (this.burnTime > 0) {
                 this.burnTime--;
+                if (this.burnTime % 20 == 0) {
+                    needsUpdate = true;
+                }
             }
 
-            // 燃料消耗超过阈值时同步到客户端，避免微小变化频繁触发网络包
-            if (fuelDelta >= CLIENT_SYNC_THRESHOLD) {
+            // 记录燃料消耗前的燃烧时间，检测是否有大幅度变化
+            int burnTimeBeforeFuel = this.burnTime;
+            tryConsumeFuel();
+            boolean fuelConsumed = this.burnTime != burnTimeBeforeFuel;
+
+            // 燃料消耗导致燃烧时间大幅度变化时同步到客户端
+            if (fuelConsumed) {
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                needsUpdate = true;
             }
 
-            // 标记保存
-            if (fuelDelta > 0 || (this.burnTime > 0 && this.burnTime % 20 == 0)) {
+            if (needsUpdate) {
                 setChanged();
-            }
-
-            // 比较器信号有变化时立即更新（不与其他行为耦合）
-            if (prevComparatorValue != (this.burnTime * 15) / MAX_BURN_TIME) {
                 level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
             }
 
@@ -194,7 +187,6 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
      * @param ticks 消耗的tick数
      */
     public void consumeBurnTime(int ticks) {
-        final int burnTimeBefore = this.burnTime;
         int remaining = ticks;
 
         // 1. 优先从燃料槽中直接扣除物品
@@ -220,11 +212,9 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
         }
 
         setChanged();
+        // 强制向客户端同步，确保 tooltip/Jade 显示最新值
         if (level != null && !level.isClientSide()) {
-            // 燃烧时间变化超过阈值时才同步到客户端
-            if (Math.abs(this.burnTime - burnTimeBefore) >= CLIENT_SYNC_THRESHOLD) {
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            }
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }
     }
