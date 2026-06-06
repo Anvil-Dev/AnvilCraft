@@ -1155,5 +1155,8 @@
   "item.anvilcraft.ionocraft_backpack.flight_time_energy": "剩余能量：%s MJ，飞行时间：%s 秒",
   "item.anvilcraft.pill": "对身体好的苦丸子",
   "item.anvilcraft.pill.tooltip": "与洗地板用溶液一同制成的对身体好的苦丸子，可快速拿起以使身体倍儿棒",
-  "item.anvilcraft.pill_box": "装有对身体好的苦丸子的盒子"
+  "item.anvilcraft.pill_box": "装有对身体好的苦丸子的盒子",
+  "item.anvilcraft.spectral_slingshot": "滚木打鸟器",
+  "item.anvilcraft.spectral_slingshot.unload_return": "卸载返回",
+  "item.anvilcraft.spectral_slingshot.unload_vanish": "卸载拜拜了你嘞"
 }
