@@ -531,7 +531,7 @@
   "config.waila.plugin_anvilcraft.power_provider": "鐵砧工藝電網資訊",
   "config.waila.plugin_anvilcraft.warning_percent": "電力警示閾值",
   "curios.identifier.ionocraft_backpack": "飄升機背包",
-  "death.attack.anvilcraft.laser": "%1$s被鐳射射穿了",
+  "death.attack.anvilcraft.laser": "%1$s被雷射射穿了",
   "death.attack.anvilcraft.lost_in_time": "%1$s迷失在了時間的長河中",
   "effect.anvilcraft.rage": "狂暴",
   "enchantment.anvilcraft.beheading": "斬首",
@@ -1109,5 +1109,17 @@
   "anvilcraft.configuration.multiphase_recover_max_size.tooltip": "多相回收站的最大項目數量",
   "anvilcraft.configuration.show_multiphase_stored_id": "顯示多相儲存 ID",
   "anvilcraft.configuration.show_multiphase_stored_id.tooltip": "在提示文字中新增一行，顯示多相儲存 ID",
-  "block.anvilcraft.black_hole": "黑洞"
+  "block.anvilcraft.black_hole": "黑洞",
+  "block.anvilcraft.neutron_irradiator": "中子輻照器",
+  "block.anvilcraft.white_hole": "白洞",
+  "command.anvilcraft.multiphase.apply.not_player": "命令執行來源不是玩家",
+  "command.anvilcraft.multiphase.info.custom_name": "自訂名稱： ",
+  "command.anvilcraft.multiphase.info.enchantments": "附魔： ",
+  "command.anvilcraft.multiphase.info.item_name": "物品名稱： ",
+  "command.anvilcraft.multiphase.info.merciless_enchantments": "無情附魔： ",
+  "command.anvilcraft.multiphase.info.multiphase_id": "多相 ID：%s",
+  "command.anvilcraft.multiphase.info.name.empty": "空",
+  "command.anvilcraft.multiphase.info.phases": "相： ",
+  "command.anvilcraft.multiphase.info.repair_cost": "累積懲罰： ",
+  "command.anvilcraft.multiphase.not_found": "此 ID %s 沒有對應的多相"
 }
