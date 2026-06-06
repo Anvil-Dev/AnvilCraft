@@ -1033,7 +1033,7 @@
   "tooltip.anvilcraft.item.polished_heavy_iron_stairs": "防爆",
   "tooltip.anvilcraft.item.power_converter_big": "将能量转换为 FE，耗能 36 kW",
   "tooltip.anvilcraft.item.power_converter_middle": "将能量转换为 FE，耗能 6 kW",
-  "tooltip.anvilcraft.item.power_converter_small": "将电能转化为 FE，耗电功率为 1 kW",
+  "tooltip.anvilcraft.item.power_converter_small": "将能量转化为 FE，耗电功率为 1 kW",
   "tooltip.anvilcraft.item.recipe.processing.chance": "%1$s%% 几率",
   "tooltip.anvilcraft.item.reinforced_concrete": "防苦力怕",
   "tooltip.anvilcraft.item.remote_transmission_pole": "组建电网，传输距离为 16 个方块",
