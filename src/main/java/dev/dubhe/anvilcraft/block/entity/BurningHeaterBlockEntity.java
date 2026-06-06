@@ -120,7 +120,19 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
                     level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
                 }
             }
+
+            // 记录燃料消耗前的燃烧时间，检测是否有大幅度变化
+            int burnTimeBeforeFuel = this.burnTime;
             tryConsumeFuel();
+            boolean fuelConsumed = this.burnTime != burnTimeBeforeFuel;
+
+            // 燃料消耗导致燃烧时间大幅度变化时同步到客户端
+            if (fuelConsumed) {
+                setChanged();
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+            }
+
             updateBurningState(level, pos, state);
             HeaterManager.addProducer(pos, level, ModHeaterInfos.BURNING_HEATER);
             return;
