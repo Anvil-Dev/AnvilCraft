@@ -113,14 +113,31 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     public void tick(Level level, BlockPos pos, BlockState state) {
         // 服务器逻辑
         if (!level.isClientSide()) {
+            boolean needsUpdate = false;
+
             if (this.burnTime > 0) {
                 this.burnTime--;
                 if (this.burnTime % 20 == 0) {
-                    setChanged();
-                    level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+                    needsUpdate = true;
                 }
             }
+
+            // 记录燃料消耗前的燃烧时间，检测是否有大幅度变化
+            int burnTimeBeforeFuel = this.burnTime;
             tryConsumeFuel();
+            boolean fuelConsumed = this.burnTime != burnTimeBeforeFuel;
+
+            // 燃料消耗导致燃烧时间大幅度变化时同步到客户端
+            if (fuelConsumed) {
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                needsUpdate = true;
+            }
+
+            if (needsUpdate) {
+                setChanged();
+                level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+            }
+
             updateBurningState(level, pos, state);
             HeaterManager.addProducer(pos, level, ModHeaterInfos.BURNING_HEATER);
             return;
