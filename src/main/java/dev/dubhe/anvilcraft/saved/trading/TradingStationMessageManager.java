@@ -66,6 +66,7 @@ public class TradingStationMessageManager extends BetterSavedData {
             Objects.requireNonNull(server.getProfileCache()),
             id
         ));
+        server.sendSystemMessage(realTime);
         PlayerList players = server.getPlayerList();
         for (ServerPlayer player : players.getPlayers()) {
             player.sendSystemMessage(realTime);
@@ -102,6 +103,7 @@ public class TradingStationMessageManager extends BetterSavedData {
             Objects.requireNonNull(server.getProfileCache()),
             id
         ));
+        server.sendSystemMessage(realTime);
         for (ServerPlayer player : players.getPlayers()) {
             player.sendSystemMessage(realTime);
         }
