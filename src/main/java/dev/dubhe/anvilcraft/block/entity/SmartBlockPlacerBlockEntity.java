@@ -243,6 +243,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private float[] clientRetractStartAngles = new float[4];
     private float clientRetractStartProgress = 0f;
 
+    // 客户端收回音效播放标记（防止同一动画周期内重复播放）
+    private boolean retractSoundPlayed = false;
+
     // 比较器信号状态
     private int lastComparatorSignal = 0;
 
@@ -929,6 +932,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.clientAnimationStartTime = 0;
             this.clientLastTargetPos = null;
             this.clientIsRetracting = false;
+            this.retractSoundPlayed = false;
         }
 
         this.lastPlaceCooldown = this.placeCooldown;

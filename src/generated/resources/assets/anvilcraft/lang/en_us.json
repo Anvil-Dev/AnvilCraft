@@ -613,6 +613,7 @@
   "death.attack.anvilcraft.heater_burn": "%1$s was well done by the heater",
   "death.attack.anvilcraft.laser": "%1$s was pierced by laser",
   "death.attack.anvilcraft.lost_in_time": "%1$s was lost in the river of time",
+  "death.attack.anvilcraft.plasma_jets": "%1$s tried to high-five the plasma jets. They did not high-five back.",
   "effect.anvilcraft.rage": "Rage",
   "enchantment.anvilcraft.beheading": "Beheading",
   "enchantment.anvilcraft.beheading.desc": "Increase drop chance of Wither Skeleton Skull and make other mobs drop their head.",
@@ -1148,6 +1149,13 @@
   "screen.anvilcraft.trading_station.villager_allow": "Allow trading with villager",
   "screen.anvilcraft.trading_station.villager_not_allow": "Disallow trading with villager",
   "screen.anvilcraft.transcendium_upgrade_smithing_template": "Transcendium Upgrade",
+  "subtitles.anvilcraft.burning_heater": "Burning heater: crackling",
+  "subtitles.anvilcraft.giant_anvil_land": "Giant anvil: landing",
+  "subtitles.anvilcraft.plasma_jet": "Plasma jet: roaring",
+  "subtitles.anvilcraft.plasma_jet_lava": "Plasma jet: burst",
+  "subtitles.anvilcraft.smart_block_placer_extend": "Smart block placer extended",
+  "subtitles.anvilcraft.smart_block_placer_retract": "Smart block placer retracted",
+  "subtitles.anvilcraft.smart_block_placer_shulker_open": "Smart block placer whirs",
   "tooltip.anvilcraft.burning_heater.burn_time": "Remaining Burn Time: %s",
   "tooltip.anvilcraft.burning_heater.burn_time_label": "Remaining Burn Time:",
   "tooltip.anvilcraft.burning_heater.can_smelt": "Can Smelt:",
@@ -1422,8 +1430,5 @@
   "tooltip.anvilcraft.space_overcompressor.stored_mass": "Stored Mass: %s",
   "tooltip.anvilcraft.thought": "Press [%s] for more info",
   "tooltip.anvilcraft.working_progress.progress": "  %1$s %2$s%%",
-  "tooltip.anvilcraft.working_progress.title": "Working progress:",
-  "subtitles.anvilcraft.plasma_jet": "Plasma jet roaring",
-  "subtitles.anvilcraft.burning_heater": "Burning heater rackling",
-  "subtitles.anvilcraft.plasma_jet_lava": "Plasma jet burst"
+  "tooltip.anvilcraft.working_progress.title": "Working progress:"
 }

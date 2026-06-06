@@ -26,5 +26,41 @@
         "type": "event"
       }
     ]
+  },
+  "giant_anvil_land": {
+    "subtitle": "subtitles.anvilcraft.giant_anvil_land",
+    "sounds": [
+      {
+        "name": "block.anvil.land",
+        "type": "event"
+      }
+    ]
+  },
+  "smart_block_placer_extend": {
+    "subtitle": "subtitles.anvilcraft.smart_block_placer_extend",
+    "sounds": [
+      {
+        "name": "block.piston.extend",
+        "type": "event"
+      }
+    ]
+  },
+  "smart_block_placer_retract": {
+    "subtitle": "subtitles.anvilcraft.smart_block_placer_retract",
+    "sounds": [
+      {
+        "name": "block.piston.contract",
+        "type": "event"
+      }
+    ]
+  },
+  "smart_block_placer_shulker_open": {
+    "subtitle": "subtitles.anvilcraft.smart_block_placer_shulker_open",
+    "sounds": [
+      {
+        "name": "block.shulker_box.open",
+        "type": "event"
+      }
+    ]
   }
 }

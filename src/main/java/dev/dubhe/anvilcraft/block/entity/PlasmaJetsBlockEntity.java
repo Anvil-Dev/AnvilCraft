@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -204,7 +205,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         );
         for (Entity entity : entities) {
             entity.igniteForSeconds(15.0f);
-            if (entity.hurt(entity.damageSources().inFire(), 16.0f)) {
+            if (entity.hurt(ModDamageTypes.plasmaJets(level), 16.0f)) {
                 entity.playSound(SoundEvents.GENERIC_BURN, 0.4f, 2.0f + RandomSource.create().nextFloat() * 0.4f);
             }
         }

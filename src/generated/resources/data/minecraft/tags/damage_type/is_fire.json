@@ -3,6 +3,10 @@
     {
       "id": "anvilcraft:heater_burn",
       "required": false
+    },
+    {
+      "id": "anvilcraft:plasma_jets",
+      "required": false
     }
   ]
 }
