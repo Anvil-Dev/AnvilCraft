@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
@@ -90,6 +91,20 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
     public void onUnformed(Level level, MultiblockState state) {
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.FLUID_TANK.get())
             .ifPresent(FluidTankBlockEntity::onUnformed);
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (blockEntity instanceof FluidTankBlockEntity be) {
+            return be.getRedstoneSignal();
+        }
+        return 0;
     }
 
     @Override

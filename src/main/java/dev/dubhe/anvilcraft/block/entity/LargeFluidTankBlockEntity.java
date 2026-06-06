@@ -11,12 +11,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Redstone;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -140,6 +142,14 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         this.checkInfinity();
         return FluidUtil.interactWithFluidHandler(player, hand, this.getFluidHandler());
+    }
+
+    public int getRedstoneSignal() {
+        int amount = this.getTank().getFluid().getAmount();
+        int capacity = this.getTank().getCapacity();
+        int strength = amount == 0 ? 0 : amount * (Redstone.SIGNAL_MAX - 1) / capacity + 1;
+        strength = Mth.clamp(Redstone.SIGNAL_MIN, Redstone.SIGNAL_MAX, strength);
+        return strength;
     }
 
     public IFluidTank getTank() {
