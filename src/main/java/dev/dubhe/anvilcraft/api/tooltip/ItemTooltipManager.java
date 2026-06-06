@@ -54,6 +54,7 @@ public class ItemTooltipManager {
             Each crafting consumes 240 seconds of burn time.""");
         NORMAL.put(ModBlocks.TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission length of 8");
         NORMAL.put(ModBlocks.CHARGE_COLLECTOR.asItem(), "Collecting charges to generate power");
+        NORMAL.put(ModBlocks.FE_COLLECTOR.asItem(), "Collecting FE to generate power");
         NORMAL.put(ModBlocks.POWER_CONVERTER_SMALL.asItem(), "Convert power into FE, consumes 1 kW");
         NORMAL.put(ModBlocks.POWER_CONVERTER_MIDDLE.asItem(), "Convert power into FE, consumes 6 kW");
         NORMAL.put(ModBlocks.POWER_CONVERTER_BIG.asItem(), "Convert power into FE, consumes 36 kW");
@@ -178,14 +179,14 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CHARGER.asItem(), "Charges items. Supports manual or automated input");
         NORMAL.put(ModBlocks.DISCHARGER.asItem(), "Discharges capacitors. Supports manual or automated input");
         NORMAL.put(ModBlocks.LASER_RECEIVER.asItem(), "Generates power and output signal from received lasers");
-        NORMAL.put(ModBlocks.FROST_ANVIL.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.CUT_FROST_METAL_BLOCK.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Wither proof");
+        NORMAL.put(ModBlocks.FROST_ANVIL.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_BLOCK.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Explosion proof");
 
         SHIFT.put(ModBlocks.SPECTRAL_ANVIL.asItem(),
             "When the upper magnet is demagnetized, a phantom shadow is created and falls downward. "
