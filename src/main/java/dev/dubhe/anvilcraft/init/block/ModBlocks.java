@@ -3681,7 +3681,9 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.axisBlock(ctx.get(), of("block/plywood_side"), of("block/plywood"));
         })
-        .simpleItem()
+        .item()
+        .tag(ItemTags.PLANKS)
+        .build()
         .recipe(RegistrumBlockRecipeLoader::plywood)
         .register();
 

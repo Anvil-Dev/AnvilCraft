@@ -176,5 +176,6 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
         registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SUPER_HEATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FISH_TANK), AnvilCraftJeiPlugin.SUPER_HEATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.HEATER), AnvilCraftJeiPlugin.SUPER_HEATING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.BURNING_HEATER), AnvilCraftJeiPlugin.SUPER_HEATING);
     }
 }
