@@ -106,7 +106,7 @@
   "anvilcraft.configuration.amulet_box_take_out_all_totem": "护肤盒可取出所有图腾",
   "anvilcraft.configuration.amulet_box_take_out_all_totem.tooltip": "Shift + 右键取出手持护肤盒内的所有图腾",
   "anvilcraft.configuration.anvil_collision_craft_speed": "哐当碰撞合成速度要求",
-  "anvilcraft.configuration.anvil_collision_craft_speed.tooltip": "完成哐当碰撞合成所需的最低速度 （单位：方块/tick）",
+  "anvilcraft.configuration.anvil_collision_craft_speed.tooltip": "完成哐当碰撞合成所需的最低速度（单位：方块/tick）",
   "anvilcraft.configuration.batch_crafter_cooldown": "赛博牛爷爷冷却",
   "anvilcraft.configuration.batch_crafter_cooldown.tooltip": "赛博牛爷爷合成物品的时间间隔（单位：ticks）",
   "anvilcraft.configuration.block_devourer_upward_chain_devouring": "末影龙模拟器向上连锁吞噬",
