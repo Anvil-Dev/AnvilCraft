@@ -26,7 +26,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.burning_heater.jade.can_smelt.no", "No");
 
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.operation_mode", "Operation Mode: %s");
-        provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.normal", "Normal");
+        provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.normal", "Point");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.blueprint", "Blueprint");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement_mode", "Placement Mode: %s");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement.pickup", "Pickup");

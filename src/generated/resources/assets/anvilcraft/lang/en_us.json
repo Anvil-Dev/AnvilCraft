@@ -1414,7 +1414,7 @@
   "tooltip.anvilcraft.smart_block_placer.jade.missing.stop": "Stop",
   "tooltip.anvilcraft.smart_block_placer.jade.missing_mode": "Missing Mode: %s",
   "tooltip.anvilcraft.smart_block_placer.jade.mode.blueprint": "Blueprint",
-  "tooltip.anvilcraft.smart_block_placer.jade.mode.normal": "Normal",
+  "tooltip.anvilcraft.smart_block_placer.jade.mode.normal": "Point",
   "tooltip.anvilcraft.smart_block_placer.jade.operation_mode": "Operation Mode: %s",
   "tooltip.anvilcraft.smart_block_placer.jade.placement.move": "Move",
   "tooltip.anvilcraft.smart_block_placer.jade.placement.pickup": "Pickup",
