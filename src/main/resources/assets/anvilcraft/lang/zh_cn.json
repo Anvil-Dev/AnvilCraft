@@ -1295,7 +1295,7 @@
   "fluid.anvilcraft.fire": "燃烧的原油（燃烧的炼药锅的内容物）",
   "screen.anvilcraft.filter.scroll_wheel_to_change_stack_limit": "滚动滚轮调整堆叠上限",
   "tooltip.anvilcraft.property.multiphase.id": "多相存储 ID：%s",
-  "tooltip.anvilcraft.item.abnormal_amulet": "生效时免疫携带铀、钚、漂浮粉、诅咒金类物品造成的伤害",
+  "tooltip.anvilcraft.item.abnormal_amulet": "生效时免疫携带铀、钚、飘浮粉、诅咒金类物品造成的伤害",
   "tooltip.anvilcraft.item.acceleration_ring": "在两个环之间生成加速场。可加速铁砧、投掷物或佩戴铁砧锤的玩家",
   "tooltip.anvilcraft.item.activator_sliding_rail": "滑过的方块会被激活一次",
   "tooltip.anvilcraft.item.advanced_comparator": "支持迟滞比较模式与窗口比较模式",
