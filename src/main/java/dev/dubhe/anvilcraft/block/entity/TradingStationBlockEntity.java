@@ -361,6 +361,11 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         TradingStationBlockEntity.updateAndSend(this);
     }
 
+    @Override
+    public void setRemoved() {
+        this.owner = null;
+    }
+
     public boolean isPlayerAllowed() {
         if (TradingStationBlockEntity.isProvideMultiple(this.filters)) return false;
         return this.playerAllowed;
