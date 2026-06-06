@@ -749,9 +749,11 @@ public class ModBlocks {
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
         .recipe(RegistrumBlockRecipeLoader::powerConverterSmall)
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
+        .tag(ModItemTags.POWER_CONVERTER)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -769,9 +771,11 @@ public class ModBlocks {
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
         .recipe(RegistrumBlockRecipeLoader::powerConverterMiddle)
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
+        .tag(ModItemTags.POWER_CONVERTER)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -789,9 +793,11 @@ public class ModBlocks {
             }
         }))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
         .recipe(RegistrumBlockRecipeLoader::powerConverterBig)
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
+        .tag(ModItemTags.POWER_CONVERTER)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();

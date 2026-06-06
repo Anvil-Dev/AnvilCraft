@@ -9,6 +9,7 @@ public class ItemTooltipLang {
         ItemTooltipManager.NEED_TOOLTIP_ITEMS.forEach(
             (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
+        provider.add("tooltip.anvilcraft.item.power_converter", "Convert power into FE, consumes %d kW");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
 
         provider.add("tooltip.anvilcraft.item.structure_tool.line_1", "Developer tool");
@@ -65,11 +66,14 @@ public class ItemTooltipLang {
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time_energy", "Remaining Energy: %sMJ, Flight Time: %ss");
 
         provider.add("tooltip.anvilcraft.resonator.desc", "Press [%s] to switch modes. Auto mode supports all tools");
-        provider.add("tooltip.anvilcraft.resonator.mining_desc", "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click");
+        provider.add(
+            "tooltip.anvilcraft.resonator.mining_desc",
+            "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click"
+        );
 
         provider.add("tooltip.anvilcraft.thought", "Press [%s] for more info");
         provider.add("tooltip.anvilcraft.item.amulet_box.desc", "Stores multiple active amulets or totems");
-        
+
         // Structure Disk
         provider.add("item.anvilcraft.structure_disk.structure", "Structure: %s");
         provider.add("item.anvilcraft.structure_disk.size", "Size: %s");

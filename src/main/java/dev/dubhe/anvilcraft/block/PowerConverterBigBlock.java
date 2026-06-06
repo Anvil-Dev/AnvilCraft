@@ -18,8 +18,10 @@ public class PowerConverterBigBlock extends BasePowerConverterBlock implements I
     public static final VoxelShape SHAPE_SOUTH = Block.box(5, 5, 8, 11, 11, 16);
     public static final VoxelShape SHAPE_WEST = Block.box(0, 5, 5, 8, 11, 11);
 
+    public static final int INPUT_TIME = 256;
+
     public PowerConverterBigBlock(Properties properties) {
-        super(properties, 256);
+        super(properties, INPUT_TIME);
     }
 
     @Override
