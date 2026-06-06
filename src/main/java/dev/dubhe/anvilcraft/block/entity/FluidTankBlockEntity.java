@@ -127,7 +127,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
         int amount = this.getTank().getFluid().getAmount();
         int capacity = this.getTank().getCapacity();
         int strength = amount == 0 ? 0 : amount * (Redstone.SIGNAL_MAX - 1) / capacity + 1;
-        strength = Mth.clamp(Redstone.SIGNAL_MIN, Redstone.SIGNAL_MAX, strength);
+        strength = Mth.clamp(strength, Redstone.SIGNAL_MIN, Redstone.SIGNAL_MAX);
         return strength;
     }
 

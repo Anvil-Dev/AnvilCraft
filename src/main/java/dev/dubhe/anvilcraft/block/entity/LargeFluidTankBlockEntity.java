@@ -148,7 +148,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         int amount = this.getTank().getFluid().getAmount();
         int capacity = this.getTank().getCapacity();
         int strength = amount == 0 ? 0 : amount * (Redstone.SIGNAL_MAX - 1) / capacity + 1;
-        strength = Mth.clamp(Redstone.SIGNAL_MIN, Redstone.SIGNAL_MAX, strength);
+        strength = Mth.clamp(strength, Redstone.SIGNAL_MIN, Redstone.SIGNAL_MAX);
         return strength;
     }
 
@@ -171,5 +171,9 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         if (this.getLevel() == null) return this;
         BlockEntity mainPart = this.getLevel().getBlockEntity(mainPartPos);
         return mainPart instanceof LargeFluidTankBlockEntity mainPart1 ? mainPart1 : this;
+    }
+
+    public boolean isInfinity() {
+        return tank.isInfinity();
     }
 }

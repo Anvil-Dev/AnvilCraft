@@ -79,6 +79,10 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.grid_information.overloaded2", "Add more sources or remove the components");
         provider.add("tooltip.anvilcraft.grid_information.overloaded3", "with a high stress impact.");
 
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity", "Capacity");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity.value", "  %dmB / %dmB");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", "  %dmB / ∞");
+
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
         provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");
         provider.add("tooltip.anvilcraft.redstone.output_power", "  Output Power: %d");

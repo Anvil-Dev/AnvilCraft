@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -54,6 +55,7 @@ public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<La
          */
         float fill = (float) tank.getTank().getFluid().getAmount() / tank.getTank().getCapacity();
         if (fill <= 0.025) fill = 0.025f;
+        fill = Mth.clamp(fill, 0, 1);
 
         drawFluidInTank(ms, vertexConsumers, light, tank.getTank().getFluid(), fill);
 
