@@ -45,6 +45,7 @@ items:
 
 - Inherits shulker box properties; will be destroyed by pistons
 - Right-clicking the three types of nesting shulker boxes emits 1, 2, and 3 opening/closing sounds respectively, each recognized by <ref item="minecraft:observer"/>
+- Has a capacity of 27/54/108 item groups; cannot be manually stored, can only be interacted with by logistics blocks
 - Can be unpacked back into <ref item="minecraft:shulker_box"/>
 
 <row halign="center">
