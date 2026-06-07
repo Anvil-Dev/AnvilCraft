@@ -56,15 +56,24 @@ public class CelestialBodyRenderer {
         faceDown(ps, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay);
     }
 
+    /**
+     * Renders the celestial ring as a standalone flat disc model.
+     * The ring is positioned at y=0.5 (equator) and extends from -0.5 to 1.5 in x/z,
+     * making it a 2x2 disc centered on the body.
+     */
     public static void renderRing(
         PoseStack ps, VertexConsumer vc, int light, int overlay
     ) {
         float y = 0.5f, rMin = -0.5f, rMax = 1.5f, eps = 0.001f;
         PoseStack.Pose pose = ps.last();
+
+        // Top face (upward normal)
         vc.addVertex(pose, rMin, y + eps, rMax).setColor(-1).setUv(0, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
         vc.addVertex(pose, rMax, y + eps, rMax).setColor(-1).setUv(1, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
         vc.addVertex(pose, rMax, y + eps, rMin).setColor(-1).setUv(1, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
         vc.addVertex(pose, rMin, y + eps, rMin).setColor(-1).setUv(0, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+
+        // Bottom face (downward normal)
         vc.addVertex(pose, rMin, y - eps, rMin).setColor(-1).setUv(0, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
         vc.addVertex(pose, rMax, y - eps, rMin).setColor(-1).setUv(1, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
         vc.addVertex(pose, rMax, y - eps, rMax).setColor(-1).setUv(1, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);

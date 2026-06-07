@@ -229,22 +229,21 @@ public class CelestialBodyTextureBakery {
         NativeImage ringImg = loadImage(ringFile);
         if (ringImg == null) return null;
 
-        NativeImage ringPalette = loadImage("planet_giant_ring_color.png");
-        if (ringPalette == null) {
-            NativeImage cropped = cropTopLeftSquare(ringImg);
-            ringImg.close();
-            return registerTexture(key, cropped);
+        NativeImage cropped = cropTopLeftSquare(ringImg);
+        ringImg.close();
+
+        NativeImage paletteImg = loadImage("planet_giant_ring_color.png");
+        if (paletteImg != null) {
+            int ringPaletteRow = data instanceof RockyPlanetData rp ? rp.paletteBaseRow()
+                : data instanceof GiantPlanetData gp ? gp.paletteBaseRow() : 0;
+            NativeImage colored = PaletteColorMapper.colorTexture(cropped, paletteImg, ringPaletteRow, true);
+            paletteImg.close();
+            cropped.close();
+            return registerTexture(key, colored);
         }
 
-        int row = data instanceof GiantPlanetData gp ? gp.paletteBaseRow()
-            : data instanceof RockyPlanetData rp ? rp.paletteBaseRow() : 0;
-        NativeImage colored = PaletteColorMapper.colorTexture(ringImg, ringPalette, row, true);
-        ringImg.close();
-        ringPalette.close();
-
-        NativeImage cropped = cropTopLeftSquare(colored);
-        colored.close();
-        return registerTexture(key, cropped);
+        cropped.close();
+        return null;
     }
 
     private static String cacheKey(CelestialBodyData data) {

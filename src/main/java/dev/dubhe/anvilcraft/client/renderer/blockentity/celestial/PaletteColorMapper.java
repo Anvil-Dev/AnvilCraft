@@ -96,7 +96,7 @@ public class PaletteColorMapper {
         for (int i = 0; i < mapCount; i++) grayToIndex.put(refGrays[i], i);
 
         int w = source.getWidth(), h = source.getHeight();
-        NativeImage result = new NativeImage(w, h, false);
+        NativeImage result = new NativeImage(w, h, true);
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int src = source.getPixelRGBA(x, y);
@@ -129,10 +129,12 @@ public class PaletteColorMapper {
 
     public static int[] extractReferenceGrays(NativeImage source) {
         Set<Integer> graySet = new LinkedHashSet<>();
-        boolean fullImage = source.getWidth() <= 32 && source.getWidth() == source.getHeight();
-        int bw = fullImage ? source.getWidth() : Math.min(16, source.getWidth());
-        int bh = fullImage ? source.getHeight() : Math.min(16, source.getHeight());
-        for (int y = 0; y < bh; y++) {
+        int w = source.getWidth(), h = source.getHeight();
+        boolean fullImage = w <= 32 && w == h;
+        int bw = fullImage ? w : Math.min(16, w);
+        int bh = fullImage ? h : Math.min(16, h);
+        int y0 = fullImage ? 0 : h - bh;
+        for (int y = y0; y < y0 + bh; y++) {
             for (int x = 0; x < bw; x++) {
                 int c = source.getPixelRGBA(x, y);
                 if (((c >> 24) & 0xFF) == 0) continue;
