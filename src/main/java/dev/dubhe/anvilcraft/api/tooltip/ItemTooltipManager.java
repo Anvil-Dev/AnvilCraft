@@ -54,8 +54,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
         NORMAL.put(
             ModBlocks.BURNING_HEATER.asItem(), """
-                Consume fuel to heat the block above.
-                Each crafting consumes 240 seconds of burn time."""
+                Consume fuel to heat the block above
+                Each crafting consumes 240 seconds of burn time"""
         );
         NORMAL.put(ModBlocks.TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission length of 8");
         NORMAL.put(ModBlocks.CHARGE_COLLECTOR.asItem(), "Collecting charges to generate power");
@@ -144,8 +144,7 @@ public class ItemTooltipManager {
         );
         NORMAL.put(
             ModBlocks.LEAD_PRESSURE_PLATE.asItem(),
-            "Output redstone signal based on the number of biological species above, "
-            + "also a lead plateOutput redstone signal based on the number of mob species above, also a lead plate"
+            "Output redstone signal based on the number of mob species above, also a lead plate"
         );
         NORMAL.put(
             ModBlocks.SILVER_PRESSURE_PLATE.asItem(),
@@ -189,7 +188,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.DETECTOR_SLIDING_RAIL.asItem(), "Output signal when objects or blocks slide over");
         NORMAL.put(ModBlocks.ACTIVATOR_SLIDING_RAIL.asItem(), "Activates blocks sliding over it");
         NORMAL.put(ModBlocks.SLIDING_RAIL_STOP.asItem(), "Stops sliding items, entities, or blocks");
-        NORMAL.put(ModBlocks.PROPEL_PISTON.asItem(), "Integrated piston worm. Requires Capacitor or Laser power");
+        NORMAL.put(ModBlocks.PROPEL_PISTON.asItem(), "Integrated piston worm, requires Capacitor or Laser power");
         NORMAL.put(ModBlocks.PULSE_GENERATOR.asItem(), "Customizes pulse delay and duration");
         NORMAL.put(ModBlocks.ADVANCED_COMPARATOR.asItem(), "Supports Hysteresis and Window comparison modes");
         NORMAL.put(ModItems.EMERALD_AMULET.get(), "Grants Hero of the Village");
@@ -214,8 +213,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "320MJ stored, but will only inherit the result of Energy Weapon Making");
         NORMAL.put(ModBlocks.BLACK_HOLE.asItem(), "Dev Block with intense gravitational attraction");
         NORMAL.put(ModBlocks.WHITE_HOLE.asItem(), "Dev Block with intense gravitational repulsion");
-        NORMAL.put(ModBlocks.CHARGER.asItem(), "Charges items. Supports manual or automated input");
-        NORMAL.put(ModBlocks.DISCHARGER.asItem(), "Discharges capacitors. Supports manual or automated input");
+        NORMAL.put(ModBlocks.CHARGER.asItem(), "Charges items, supports manual or automated input");
+        NORMAL.put(ModBlocks.DISCHARGER.asItem(), "Discharges capacitors, supports manual or automated input");
         NORMAL.put(ModBlocks.LASER_RECEIVER.asItem(), "Generates power and output signal from received lasers");
         NORMAL.put(ModBlocks.FROST_ANVIL.asItem(), "Explosion proof");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Explosion proof");
@@ -225,44 +224,64 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Explosion proof");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Explosion proof");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.SPECTRAL_ANVIL.asItem(), "Creates phantom shadows when the upper magnet is demagnetized");
+        NORMAL.put(ModBlocks.BLOCK_PLACER.asItem(), "Places blocks in front when powered by redstone");
+        NORMAL.put(ModBlocks.STRUCTURE_SCANNER.asItem(), "Scans and stores structures in Structure Disk");
+        NORMAL.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), "Advanced block placer with 5x5x5 configurable placement area");
+        NORMAL.put(ModBlocks.FISH_TANK.asItem(), "Used for anvil synthesis and provides underwater breathing when worn");
+        NORMAL.put(ModBlocks.BLOCK_DEVOURER.asItem(), "Breaks 3×3 area of blocks in front when powered by redstone");
+        NORMAL.put(ModBlocks.INDUCTION_LIGHT.asItem(), "Provides lighting and configurable special modes");
+        NORMAL.put(ModBlocks.HELIOSTATS.asItem(), "Heats targeted blocks during the day");
+        NORMAL.put(ModItems.IONOCRAFT_BACKPACK.asItem(), "Allows creative flight while equipped, requires power from the energy grid or capacitors");
+        NORMAL.put(ModBlocks.BLOCK_COMPARATOR.asItem(), "Outputs signal when side blocks are the same, right-click to switch to precise state detection mode");
+        NORMAL.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output redstone signal");
+        NORMAL.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock and strike with falling anvil to create Moneral Fountain");
+        NORMAL.put(ModBlocks.OVERSEER_BLOCK.asItem(), "Chunk loader that works on Royal Steel base");
+        NORMAL.put(ModBlocks.SPACE_OVERCOMPRESSOR.asItem(), "Compresses items into Neutronium Ingots, compresses multiblock outputs into drops");
+        NORMAL.put(ModBlocks.ACCELERATION_RING.asItem(), "Creates acceleration field for anvils, projectiles, or players with Anvil Hammer");
+        NORMAL.put(ModBlocks.DEFLECTION_RING.asItem(), "Deflects passing objects 90°, detect speed with Comparator");
+        NORMAL.put(ModItems.DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
+        NORMAL.put(ModItems.FILTER.asItem(), "Matches items based on configuration, usable in any filter slot");
+        NORMAL.put(ModItems.TOTEM_OF_RECOVERY.asItem(), "Teleports to spawn on death");
+        NORMAL.put(ModItems.TOTEM_OF_RAGE.asItem(), "Grants invulnerability and berserk on fatal damage");
+        NORMAL.put(ModItems.COMRADE_AMULET.asItem(), "Signable by players via right-click, prevents damage from signed players");
 
         SHIFT.put(
             ModBlocks.SPECTRAL_ANVIL.asItem(),
-            "When the upper magnet is demagnetized, a phantom shadow is created and falls downward. "
-            + "It can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall"
+            "When the upper magnet is demagnetized, a phantom shadow is created and falls downward, "
+            + "it can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall"
         );
         SHIFT.put(
             ModBlocks.BLOCK_PLACER.asItem(), """
-                When powered by redstone, this block places a block in front of it.
-                If struck by a falling anvil, the placement distance increases — the farther the anvil falls, the farther the block is placed.
+                When powered by redstone, this block places a block in front of it
+                If struck by a falling anvil, the placement distance increases — the farther the anvil falls, the farther the block is placed
                 No internal inventory and must obtain blocks from dropped items or container inventories behind it"""
         );
         SHIFT.put(
             ModBlocks.STRUCTURE_SCANNER.asItem(), """
-                Can store structures in Structure Disk and be used in the blueprint mode of Smart Block Placer.
-                Maximum can store 15×15×15 structure.
-                When powered by redstone, it will automatically scans and stores structures."""
+                Can store structures in Structure Disk and be used in the blueprint mode of Smart Block Placer
+                Maximum can store 15×15×15 structure
+                When powered by redstone, it will automatically scans and stores structures"""
         );
         SHIFT.put(
             ModBlocks.SMART_BLOCK_PLACER.asItem(), """
-                Advanced block placer with 5x5x5 placement area, configurable via GUI.
-                Supports pickup mode (from containers) and move mode (direct block movement).
-                Requires power supply, consumes 8 kW.
-                Put Structure Disk to enable Blue Print Mode,
-                consumes 64 kW"""
+                Advanced block placer with 5x5x5 placement area, configurable via GUI
+                Supports pickup mode (from containers) and move mode (direct block movement)
+                Requires power supply, consumes 8 kW
+                Put Structure Disk to enable Blue Print Mode, consumes 64 kW"""
         );
         SHIFT.put(
             ModBlocks.FISH_TANK.asItem(), """
-                It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis.
-                Wearing it on your head provides a temporary underwater breathing effect.
-                Right-click the top with an item in hand to place the item inside.
-                Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish."""
+                It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis
+                Wearing it on your head provides a temporary underwater breathing effect
+                Right-click the top with an item in hand to place the item inside
+                Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish"""
         );
         SHIFT.put(
             ModBlocks.BLOCK_DEVOURER.asItem(), """
-                When powered by redstone, this block instantly breaks a 3×3 area of blocks in front of it.
-                If struck by a falling anvil, the breaking range increases — the farther the anvil falls, the larger the area it destroys.
-                No internal inventory. Outputs items behind it — into containers, as dropped items, or at the break location if blocked.
+                When powered by redstone, this block instantly breaks a 3×3 area of blocks in front of it
+                If struck by a falling anvil, the breaking range increases — the farther the anvil falls, the larger the area it destroys
+                No internal inventory, outputs items behind it — into containers, as dropped items, or at the break location if blocked
                 Base world blocks such as stone, dirt, and deepslate drop only small amounts"""
         );
         SHIFT.put(
@@ -275,43 +294,22 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.HELIOSTATS.asItem(), """
-                Right‑click a Netherite Block or Tungsten Block with the handheld heliostat to set target block.
+                Right‑click a Netherite Block or Tungsten Block with the handheld heliostat to set target block
                 After placing the heliostat, it will heat the targeted block during the day, as well as the blocks above it"""
         );
         SHIFT.put(
-            ModItems.IONOCRAFT_BACKPACK.asItem(),
-            "Allows creative flight while equipped. Requires power supplied from the energy grid or from capacitors in the inventory"
-        );
-        SHIFT.put(
-            ModBlocks.BLOCK_COMPARATOR.asItem(),
-            "Output signal when side blocks are the same. Right-click to switch to precise state detection mode"
-        );
-        SHIFT.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output signal");
-        SHIFT.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock. Strike with falling anvil to create a Moneral Fountain");
-        SHIFT.put(
             ModBlocks.OVERSEER_BLOCK.asItem(),
-            "Chunk loader on 3x3 Royal Steel base. Higher base layers increase chunk load range (max 3 layers, 5x5 range)"
+            "Chunk loader on 3x3 Royal Steel base, higher base layers increase chunk load range (max 3 layers, 5x5 range)"
         );
-        SHIFT.put(
-            ModBlocks.SPACE_OVERCOMPRESSOR.asItem(),
-            "Compresses items into Neutronium Ingots. Compresses multiblock outputs into drops"
-        );
-        SHIFT.put(
-            ModBlocks.ACCELERATION_RING.asItem(),
-            "Creates acceleration field. Accelerates anvils, projectiles, or players with Anvil Hammer"
-        );
-        SHIFT.put(ModBlocks.DEFLECTION_RING.asItem(), "Deflects passing objects 90°. Detect speed with Comparator");
         SHIFT.put(
             ModItems.DRAGON_ROD.asItem(),
-            "Portable block devourer. Left-click to mine, right-click to adjust range. Larger range costs more durability"
+            "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
         );
-        SHIFT.put(ModItems.FILTER.asItem(), "Matches items based on config or filters. Usable in any filter slot");
-        SHIFT.put(ModItems.TOTEM_OF_RECOVERY.asItem(), "Teleports to spawn on death. Grants a Recall Pearl to return to death point");
+        SHIFT.put(ModItems.TOTEM_OF_RECOVERY.asItem(), "Teleports to spawn on death, grants a Recall Pearl to return to death point");
         SHIFT.put(
             ModItems.TOTEM_OF_RAGE.asItem(),
-            "Grants invulnerability and berserk on fatal damage. Death is inevitable after 1 minute"
+            "Grants invulnerability and berserk on fatal damage, death is inevitable after 1 minute"
         );
-        SHIFT.put(ModItems.COMRADE_AMULET.asItem(), "Signable by players via right-click. Prevents damage from signed players");
 
         Map<Item, String> allTooltips = Maps.newHashMap();
         allTooltips.putAll(NORMAL);
@@ -385,15 +383,17 @@ public class ItemTooltipManager {
         if (stack.has(ModComponents.FIRE_REFORGING)) {
             propertyTooltip("fire_reforging", tooltip, ChatFormatting.GOLD);
         }
-        if (NORMAL.containsKey(item)) {
-            tooltip.add(1, getItemTooltip(item));
-        }
         if (SHIFT.containsKey(item)) {
             if (Screen.hasShiftDown()) {
-                tooltip.add(1, getItemTooltip(item));
+                tooltip.add(1, getItemTooltipShift(item));
             } else {
-                tooltip.add(1, Component.translatable("tooltip.anvilcraft.press_key", "Shift").withStyle(ChatFormatting.GRAY));
+                if (NORMAL.containsKey(item)) {
+                    tooltip.add(1, getItemTooltip(item));
+                }
+                tooltip.add(1, Component.translatable("tooltip.anvilcraft.press_key", Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.DARK_GRAY));
             }
+        } else if (NORMAL.containsKey(item)) {
+            tooltip.add(1, getItemTooltip(item));
         }
         if (stack.is(ModBlocks.POWER_CONVERTER_SMALL.asItem())) {
             tooltip.add(
@@ -429,9 +429,25 @@ public class ItemTooltipManager {
         return Component.translatable(getTranslationKey(item)).withStyle(ChatFormatting.GRAY);
     }
 
+    private static Component getItemTooltipShift(Item item) {
+        return Component.translatable(getTranslationKeyShift(item)).withStyle(ChatFormatting.GRAY);
+    }
+
     public static String getTranslationKey(Item item) {
         ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
         return "tooltip.%s.item.%s".formatted(key.getNamespace(), key.getPath());
+    }
+
+    public static String getTranslationKeyShift(Item item) {
+        return getTranslationKey(item) + ".shift";
+    }
+
+    public static Map<Item, String> getNormalMap() {
+        return Collections.unmodifiableMap(NORMAL);
+    }
+
+    public static Map<Item, String> getShiftMap() {
+        return Collections.unmodifiableMap(SHIFT);
     }
 
     private static void propertyTooltip(String propertyName, List<Component> tooltip, ChatFormatting color, Object... args) {

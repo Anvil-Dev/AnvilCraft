@@ -6,8 +6,10 @@ import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 public class ItemTooltipLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
-        ItemTooltipManager.NEED_TOOLTIP_ITEMS.forEach(
+        ItemTooltipManager.getNormalMap().forEach(
             (item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
+        ItemTooltipManager.getShiftMap().forEach(
+            (item, s) -> provider.add(ItemTooltipManager.getTranslationKeyShift(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
         provider.add("tooltip.anvilcraft.item.power_converter", "Convert power into FE, consumes %d kW");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
@@ -39,10 +41,10 @@ public class ItemTooltipLang {
 
         provider.add("tooltip.anvilcraft.fe_collector.low_energy", "Insufficient FE");
         provider.add("tooltip.anvilcraft.fe_collector.title", "Forge Energy");
-        provider.add("tooltip.anvilcraft.fe_collector.energy", "  %dK/%dK");
+        provider.add("tooltip.anvilcraft.fe_collector.energy", "  %dk/%dk");
 
         provider.add("tooltip.anvilcraft.power_converter.fe_stored", "Forge Energy");
-        provider.add("tooltip.anvilcraft.power_converter.fe_stored.value", "  %dK/%dK");
+        provider.add("tooltip.anvilcraft.power_converter.fe_stored.value", "  %dk/%dk");
 
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %ds");
 
@@ -56,7 +58,7 @@ public class ItemTooltipLang {
         );
         provider.add("tooltip.anvilcraft.item.amulet_box.fullness", "Fullness: %1$d / %2$d");
 
-        provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for information");
+        provider.add("tooltip.anvilcraft.press_key", "Hold %s for more information");
 
         provider.add(
             "tooltip.anvilcraft.pill_box",
