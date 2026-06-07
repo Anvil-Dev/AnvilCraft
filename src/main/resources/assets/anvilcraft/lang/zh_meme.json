@@ -617,8 +617,8 @@
   "gui.anvilcraft.category.time_warp.need_activated": "需要激活的",
   "gui.anvilcraft.category.time_warp.produce_fluid": "Produce: %d mB of %s",
   "gui.anvilcraft.category.unpack": "物品解包",
-  "gui.anvilcraft.category.void_decay": "虚空衰变",
-  "gui.anvilcraft.category.void_decay.around": "将此方块放在中心",
+  "gui.anvilcraft.category.void_decay": "虚无世界腐坏",
+  "gui.anvilcraft.category.void_decay.around": "将此方块放在中心方块旁边",
   "gui.anvilcraft.category.void_decay.center": "将此方块放在中心",
   "gui.anvilcraft.category.void_decay.not_consumed": "在转化过程中不消耗",
   "gui.anvilcraft.category.void_decay.random_tick": "接收到随机刻时，中心方块将被转化",
@@ -1240,5 +1240,7 @@
   "tooltip.anvilcraft.item.ruby_amulet": "生效时赴汤蹈火",
   "tooltip.anvilcraft.item.ruby_laser": "通电后发射镭射束",
   "tooltip.anvilcraft.item.ruby_prism": "用于偏转或汇聚镭射束",
-  "tooltip.anvilcraft.item.sapphire_amulet": "生效时获得超勇能量"
+  "tooltip.anvilcraft.item.sapphire_amulet": "生效时获得超勇能量",
+  "screen.anvilcraft.integration_screen.note": "要查看说明书，第一步选择并下崽儿第三派对说明书模块，再下崽儿对应的加上抢兼模块。总共需要 %d 个加上的的模组。已提供下崽儿纽带，点击巴顿即可查看。",
+  "tooltip.anvilcraft.heliostats.no_rotation_angle": "  角度太阴间了，没法对焦"
 }
