@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
 import net.minecraft.client.Minecraft;
@@ -145,7 +146,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         ResourceLocation starTexture = CelestialBodyTextureBakery.getOrBakeBody(star);
         if (starTexture == null) return;
-        VertexConsumer starConsumer = bufferSource.getBuffer(RenderType.entityCutout(starTexture));
+        VertexConsumer starConsumer = bufferSource.getBuffer(ModRenderTypes.STAR_CUTOUT.apply(starTexture));
         CelestialBodyRenderer.renderStarBody(poseStack, starConsumer, LightTexture.FULL_BRIGHT, packedOverlay);
 
         float[] rgb = CelestialBodyTextureBakery.starColor(star.size());
@@ -163,7 +164,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         ResourceLocation bodyTexture = CelestialBodyTextureBakery.getOrBakeBody(bodyData);
         if (bodyTexture != null) {
-            VertexConsumer bodyConsumer = bufferSource.getBuffer(RenderType.entityCutout(bodyTexture));
+            VertexConsumer bodyConsumer = bufferSource.getBuffer(ModRenderTypes.STAR_CUTOUT.apply(bodyTexture));
             CelestialBodyRenderer.renderPlanetBody(poseStack, bodyConsumer, LightTexture.FULL_BRIGHT, packedOverlay);
         }
 

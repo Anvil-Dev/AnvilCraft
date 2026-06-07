@@ -4,13 +4,16 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 
 import java.util.OptionalDouble;
+import java.util.function.Function;
 
 import static dev.dubhe.anvilcraft.client.init.ModRenderTargets.LASER_TARGET;
 import static dev.dubhe.anvilcraft.client.init.ModRenderTargets.LINE_BLOOM_TARGET;
@@ -21,7 +24,9 @@ import static net.minecraft.client.renderer.RenderStateShard.COLOR_WRITE;
 import static net.minecraft.client.renderer.RenderStateShard.CULL;
 import static net.minecraft.client.renderer.RenderStateShard.LIGHTMAP;
 import static net.minecraft.client.renderer.RenderStateShard.NO_CULL;
+import static net.minecraft.client.renderer.RenderStateShard.NO_TRANSPARENCY;
 import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
+import static net.minecraft.client.renderer.RenderStateShard.RENDERTYPE_CUTOUT_SHADER;
 import static net.minecraft.client.renderer.RenderStateShard.RENDERTYPE_LINES_SHADER;
 import static net.minecraft.client.renderer.RenderStateShard.RENDERTYPE_TRANSLUCENT_SHADER;
 import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TARGET;
@@ -173,6 +178,27 @@ public class ModRenderTypes {
             .setOutputState(TRANSLUCENT_TARGET)
             .setWriteMaskState(COLOR_WRITE)
             .createCompositeState(true)
+    );
+
+    public static final Function<ResourceLocation, RenderType> STAR_CUTOUT = Util.memoize(
+        (resourceLocation) -> {
+            RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
+                .setShaderState(RENDERTYPE_CUTOUT_SHADER)
+                .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
+                .setTransparencyState(NO_TRANSPARENCY)
+                .setLightmapState(LIGHTMAP)
+                .setOverlayState(OVERLAY)
+                .createCompositeState(true);
+            return RenderType.create(
+                "entity_cutout",
+                DefaultVertexFormat.BLOCK,
+                VertexFormat.Mode.QUADS,
+                1536,
+                true,
+                false,
+                compositeState
+            );
+        }
     );
 
     private static <T> T supplyNothing() {
