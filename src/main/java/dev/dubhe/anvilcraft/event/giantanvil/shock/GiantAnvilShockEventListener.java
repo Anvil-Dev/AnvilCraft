@@ -7,6 +7,8 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -164,5 +166,48 @@ public class GiantAnvilShockEventListener {
     public static void onLand(AnvilEvent.GiantOnLand event) {
         ShockContext context = ShockContext.inflate(event);
         behaviorTree.run(context);
+        spawnGroundHeave(event);
+    }
+
+    private static void spawnGroundHeave(AnvilEvent.GiantOnLand event) {
+        Level level = event.getLevel();
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        float fallDistance = event.getFallDistance();
+        int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+        BlockPos centerPos = event.getPos();
+        var server = serverLevel.getServer();
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                if (Math.abs(dx) <= 1 && Math.abs(dz) <= 1) continue;
+
+                BlockPos pos = centerPos.below(2).offset(dx, 0, dz);
+                if (level.getBlockState(pos).isAir()) continue;
+
+                int ring = Math.max(Math.abs(dx), Math.abs(dz));
+                double ratio = (double) ring / radius;
+                double jumpHeight = 0.3 + (1.0 - ratio) * 1.0;
+                int particleCount = 1;
+                double speed = 0.15 + jumpHeight * 0.2;
+
+                // 方形圈延迟，同一圈同时发射
+                long delayMs = (long) (ring * 60);
+                Thread.startVirtualThread(() -> {
+                    try {
+                        Thread.sleep(delayMs);
+                    } catch (InterruptedException ignored) {
+                        return;
+                    }
+                    server.execute(() -> serverLevel.sendParticles(
+                        ParticleTypes.POOF,
+                        pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                        particleCount,
+                        0.15, jumpHeight * 0.2, 0.15,
+                        speed
+                    ));
+                });
+            }
+        }
     }
 }
