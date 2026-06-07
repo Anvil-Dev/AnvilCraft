@@ -150,12 +150,19 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         CelestialBodyRenderer.renderStarBody(poseStack, starConsumer, LightTexture.FULL_BRIGHT, packedOverlay);
 
         float[] rgb = CelestialBodyTextureBakery.starColor(star.size());
-        poseStack.pushPose();
-        poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.scale(1.4f, 1.4f, 1.4f);
-        poseStack.translate(-0.5, -0.5, -0.5);
-        renderTranslucentCube(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], 0.12f, LightTexture.FULL_BRIGHT, packedOverlay, seed);
-        poseStack.popPose();
+        int haloIterations = 10;
+
+        for (int i = 0; i < haloIterations; i++) {
+            float progress = (float) i / haloIterations;
+            float haloScale = 2.0f + progress * 1.2f;
+            float alpha = (2.4f - 2.25f * progress) / haloIterations;
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            poseStack.scale(haloScale, haloScale, haloScale);
+            poseStack.translate(-0.5, -0.5, -0.5);
+            renderTranslucentCube(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], alpha, LightTexture.FULL_BRIGHT, packedOverlay, seed);
+            poseStack.popPose();
+        }
     }
 
     private void renderPlanetBody(
