@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.StructureBookUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -248,6 +249,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     // 比较器信号状态
     private int lastComparatorSignal = 0;
+
+    // 穿梭进度：记录预期邻居放置到的目标位置，邻居完成放置后触发进度
+    @Nullable
+    private BlockPos expectedShuttleTarget = null;
 
 
     @SuppressWarnings("checkstyle:EmptyLineSeparator")
@@ -905,6 +910,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (shutdownIndexReset) {
                 this.currentPlacementIndex = 0;
             }
+
+            // 停止工作时清除穿梭预期标记
+            this.expectedShuttleTarget = null;
 
             // 断电时也更新缺失方块信息（清空显示）
             if (!level.isClientSide) {
@@ -1728,10 +1736,87 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的红石信号更新状态
                 level.neighborChanged(targetPos, stateToPlace.getBlock(), targetPos);
 
+                // 检查是否是穿梭进度的回程：放置到了预期的穿梭目标位置
+                if (targetPos.equals(this.expectedShuttleTarget)) {
+                    TriggerUtil.placerShuttle(level, targetPos);
+                    this.expectedShuttleTarget = null;
+                }
+
+                // 检测穿梭行为：当前放置器的目标位置是否是另一个放置器的源位置
+                checkAndTriggerShuttle(level, targetPos);
+
                 this.currentHeldBlock = ItemStack.EMPTY;
                 return false;
             }
         );
+    }
+
+    /**
+     * 检测并触发穿梭进度：双向判定两个放置器是否在来回移动同一个方块
+     * 条件1：邻居放置器的源位置 == 当前放置器的目标位置
+     * 条件2：当前放置器的源位置在邻居放置器的目标点位中
+     */
+    private void checkAndTriggerShuttle(Level level, BlockPos targetPos) {
+        // 计算当前放置器的源位置
+        BlockPos myPos = this.getBlockPos();
+        BlockState myState = level.getBlockState(myPos);
+        Direction myFacing = myState.getValue(HorizontalDirectionalBlock.FACING);
+        BlockPos mySource = myPos.relative(myFacing.getOpposite());
+
+        for (Direction dir : Direction.values()) {
+            BlockPos neighborPos = targetPos.relative(dir);
+            BlockEntity neighborEntity = level.getBlockEntity(neighborPos);
+            if (neighborEntity instanceof SmartBlockPlacerBlockEntity neighborPlacer) {
+                // 邻居放置器必须处于MOVE模式（非蓝图、非pickup）且已设置点位
+                boolean isBlueprint = neighborPlacer.loadedStructure != null
+                    && !neighborPlacer.loadedStructure.isEmpty();
+                if (isBlueprint || neighborPlacer.isPickupMode
+                    || neighborPlacer.layerPositions.isEmpty()) {
+                    continue;
+                }
+                BlockState neighborState = level.getBlockState(neighborPos);
+                Direction neighborFacing = neighborState.getValue(HorizontalDirectionalBlock.FACING);
+                BlockPos neighborSource = neighborPos.relative(neighborFacing.getOpposite());
+
+                // 条件1：邻居的源位置 == 当前的目标位置
+                if (!neighborSource.equals(targetPos)) {
+                    continue;
+                }
+
+                // 条件2：当前放置器的源位置在邻居的目标点位中
+                if (!isMySourceInNeighborTargets(level, neighborPlacer,
+                    neighborPos, neighborFacing, mySource)) {
+                    continue;
+                }
+
+                // 双向匹配，在邻居放置器上设置预期目标，等邻居完成放置时触发
+                neighborPlacer.expectedShuttleTarget = mySource;
+                return;
+            }
+        }
+    }
+
+    /**
+     * 检查指定位置是否在邻居放置器的目标点位中
+     */
+    private boolean isMySourceInNeighborTargets(Level level,
+                                                 SmartBlockPlacerBlockEntity neighborPlacer,
+                                                 BlockPos neighborPos, Direction neighborFacing,
+                                                 BlockPos mySource) {
+        BlockPos basePos = neighborPos.relative(neighborFacing.getOpposite(), -4);
+        boolean upsideDown = level.getBlockState(neighborPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+
+        for (var entry : neighborPlacer.layerPositions.entrySet()) {
+            int layer = entry.getKey();
+            for (int position : entry.getValue()) {
+                BlockPos neighborTarget = calculateTargetPosition(
+                    basePos, neighborFacing, position / 5, position % 5, layer, upsideDown);
+                if (neighborTarget.equals(mySource)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -3563,6 +3648,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     public void setPickupMode(boolean pickupMode) {
         this.isPickupMode = pickupMode;
+        this.expectedShuttleTarget = null;
         this.onChanged();
     }
 
@@ -3572,6 +3658,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     public void togglePosition(int layer, int position, boolean selected) {
+        this.expectedShuttleTarget = null;
         Set<Integer> positions = layerPositions.computeIfAbsent(layer, k -> new HashSet<>());
         if (selected) {
             positions.add(position);
@@ -3672,6 +3759,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
         this.isPickupMode = tag.getBoolean("isPickupMode");
         this.loadLayerPositions(tag);
+        this.expectedShuttleTarget = null;
         this.onChanged();
     }
 

@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
@@ -358,6 +359,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper mineralFountainCreate(String key) {
             return this.addCriterion(key, MineralFountainCreateTrigger.TriggerInstance.create());
+        }
+
+        public AdvancementHelper placerShuttle(String key) {
+            return this.addCriterion(key, PlacerShuttleTrigger.TriggerInstance.shuttle());
         }
 
         public AdvancementHolder build(String id) {
