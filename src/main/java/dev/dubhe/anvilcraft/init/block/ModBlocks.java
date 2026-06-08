@@ -395,17 +395,6 @@ public class ModBlocks {
         .tag(BlockTags.ANVIL, ModBlockTags.NON_MAGNETIC, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
-    public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
-        .recipe(RegistrumBlockRecipeLoader::royalAnvil)
-        .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .item()
-        .tag(ItemTags.ANVIL)
-        .build()
-        .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .register();
-
     public static final BlockEntry<NeoforgeBlock> NEOFORGE = REGISTRUM
         .block("neoforge", NeoforgeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
@@ -415,6 +404,17 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.ANVIL, ModBlockTags.NON_MAGNETIC, ModBlockTags.CANT_BROKEN_ANVIL)
         .recipe(RegistrumBlockRecipeLoader::neoforge)
+        .register();
+
+    public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::royalAnvil)
+        .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .tag(ItemTags.ANVIL)
+        .build()
+        .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .register();
 
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRUM.block("royal_grindstone", RoyalGrindstoneBlock::new)
