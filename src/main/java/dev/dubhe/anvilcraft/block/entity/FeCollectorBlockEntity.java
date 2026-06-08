@@ -133,9 +133,32 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     void serverTick() {
         if (level == null) return;
         BlockState state = getBlockState();
+
+        if (this.energy >= PRODUCE_THRESHOLD) {
+            this.producing = true;
+        } else if (this.energy < STOP_THRESHOLD) {
+            this.producing = false;
+        }
+
         if (state.getValue(FeCollectorBlock.POWERED) != this.producing) {
             level.setBlockAndUpdate(worldPosition, state.setValue(FeCollectorBlock.POWERED, this.producing));
         }
+
+        if (this.producing) {
+            final int prev = this.outputPower;
+            this.energy -= FE_PER_TICK;
+            this.outputPower = (int) (FE_PER_TICK
+                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
+                / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+            this.time++;
+            setChanged();
+            clientSyncDirty = true;
+            if (this.outputPower != prev && this.grid != null) this.grid.markChanged();
+        } else if (this.outputPower > 0) {
+            this.outputPower = 0;
+            if (this.grid != null) this.grid.markChanged();
+        }
+
         if (this.energy > TRANSFER_THRESHOLD) {
             pushExcess();
         }
@@ -200,32 +223,6 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     @Override
     public AABB shape() {
         return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5);
-    }
-
-    @Override
-    public void gridTick() {
-        if (level == null || level.isClientSide()) return;
-
-        if (this.energy >= PRODUCE_THRESHOLD) {
-            this.producing = true;
-        } else if (this.energy < STOP_THRESHOLD) {
-            this.producing = false;
-        }
-
-        if (this.producing) {
-            final int prev = this.outputPower;
-            this.energy -= FE_PER_TICK;
-            this.outputPower = (int) (FE_PER_TICK
-                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
-            this.time++;
-            setChanged();
-            clientSyncDirty = true;
-            if (this.outputPower != prev && this.grid != null) this.grid.markChanged();
-        } else if (this.outputPower > 0) {
-            this.outputPower = 0;
-            if (this.grid != null) this.grid.markChanged();
-        }
     }
 
     public int getEnergyStored() {

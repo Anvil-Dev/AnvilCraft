@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "Plasma Jets"
+  title: "§6Plasma Jets"
   icon: "anvilcraft:oil_bucket"
 ---
 
@@ -23,18 +23,22 @@ navigation:
 - A 1x8x1 space directly above the cauldron with no blocks
 - The pipe walls can be up to four blocks high
 
+<warning>
+The bottom cannot use <ref item="anvilcraft:burning_heater"/>
+</warning>
+
 # Function
 
 - Heats the [regular heatable blocks](../001_feature/101_heated_block.md) used as pipe walls to <color=#cc5533>scorching-hot</color> and adds 0.1 seconds of duration
 - If a layer of pipe walls has <ref item="anvilcraft:magnet_block"/> on one pair of opposite sides and [regular heatable blocks](../001_feature/101_heated_block.md) on the other pair:
-    - Heats the [regular heatable blocks](../001_feature/101_heated_block.md) in that layer to <color=#cc5533>scorching-hot</color> and adds 1 second of duration
-    - Generates 256 charge on the [regular heatable blocks](../001_feature/101_heated_block.md)
+  - Heats the [regular heatable blocks](../001_feature/101_heated_block.md) in that layer to <color=#cc5533>scorching-hot</color> and adds 1 second of duration
+  - Generates 256 charge on the [regular heatable blocks](../001_feature/101_heated_block.md)
 
 # Properties
 
 - The jet stream consumes crude oil from the cauldron to sustain itself
-    - Each layer (250mb) of crude oil adds +5min to sustain time
-    - Maximum sustain time is 10min
+  - Each layer (250mb) of crude oil adds +5min to sustain time
+  - Maximum sustain time is 10min
 - Entities in the jet stream take 4 times the fire-type damage compared to lava
 
 ---

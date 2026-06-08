@@ -6,6 +6,7 @@ items:
   - anvilcraft:ruby_laser
   - anvilcraft:ruby_prism
   - anvilcraft:laser_receiver
+  - anvilcraft:large_laser
 ---
 
 # 激光
@@ -16,20 +17,22 @@ items:
 <item id="anvilcraft:laser_receiver"/>
 </row>
 
-# 激光
-
 <tip>
 要建立本模组的激光系统，需准备大量的<ref item="anvilcraft:ruby"/>，[点我](../008_recipe/204_gem.md)查看方法
 </tip>
 
-- 定义：可被**不透明方块**阻挡的、笔直的光束
-- 能力强度随**等级**决定
+- 激光是可被**不透明方块**阻挡的、笔直的光束
+- 激光拥有**等级**，决定了它的效果
+
+## 功能
+
 - 造成伤害 伤害[max:16] = 激光等级 - 4
 - 加热[可加热方块](../001_feature/101_heated_block.md)
-- 提取矿石，留下石头。矿产会从射出该激光的<ref item="anvilcraft:ruby_prism"/>的背部弹出或存入容器
+- 提取矿石，留下石头；矿产会从射出该激光的<ref item="anvilcraft:ruby_prism"/>的背部弹出或存入容器
 
-> 如果<ref item="anvilcraft:ruby_prism"/>背部是也是**同方向**的<ref item="anvilcraft:ruby_prism"/>，
-> 则从最后一个<ref item="anvilcraft:ruby_prism"/>的背部输出
+<info>
+如果<ref item="anvilcraft:ruby_prism"/>背部也是**同方向**的<ref item="anvilcraft:ruby_prism"/>，则从最后一个<ref item="anvilcraft:ruby_prism"/>的背部输出
+</info>
 
 |    等级    | 提取冷却(s) |
 |:--------:|:-------:|
@@ -44,7 +47,6 @@ items:
 | [4, 15]  | <color=#aa2222>红热</color> | 
 | [16, 63] | <color=#cc5533>炽热</color> | 
 | [64,+∞)  | <color=#ee7744>白炽</color> | 
-
 
 # <ref item="anvilcraft:ruby_laser"/>
 
@@ -68,3 +70,9 @@ items:
 - 除底面外，可以接受激光并发电，同时根据激光等级发出红石信号
 - 发电上限 = 激光等级 * 15kW
 - 持续接收10s后，达到发电上限
+
+# <ref item="anvilcraft:large_laser"/>
+
+- 耗电量256kW
+- 受到红石信号停用
+- 启用时发射激光[等级: 16, 射程: 128格]

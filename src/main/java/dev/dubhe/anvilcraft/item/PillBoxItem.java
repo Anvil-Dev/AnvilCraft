@@ -123,7 +123,9 @@ public class PillBoxItem extends Item {
                     .withStyle(ChatFormatting.GRAY)
             );
         } else {
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.press_key", "Shift").withStyle(ChatFormatting.GRAY));
+            tooltipComponents.add(Component.translatable(
+                "tooltip.anvilcraft.press_key",
+                Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 }

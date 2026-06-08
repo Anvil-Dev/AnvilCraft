@@ -23,18 +23,22 @@ navigation:
 - 炼药锅正上方 1x8x1 的空间没有方块
 - 管壁最高可为四格
 
+<warning> 
+底部不可以使用<ref item="anvilcraft:burning_heater"/>
+</warning>
+
 # 功能
 
 - 将作为管壁的[常规可加热方块](../001_feature/101_heated_block.md)加热至<color=#cc5533>炽热</color>并增加0.1秒持续时间
 - 若某层管壁符合对侧为<ref item="anvilcraft:magnet_block"/>、另一对侧为[常规可加热方块](../001_feature/101_heated_block.md)时：
-    - 将该层的[常规可加热方块](../001_feature/101_heated_block.md)加热至<color=#cc5533>炽热</color>并增加1秒持续时间
-    - 在[常规可加热方块](../001_feature/101_heated_block.md)上产生256电荷
+  - 将该层的[常规可加热方块](../001_feature/101_heated_block.md)加热至<color=#cc5533>炽热</color>并增加1秒持续时间
+  - 在[常规可加热方块](../001_feature/101_heated_block.md)上产生256电荷
 
 # 特性
 
 - 喷流需要消耗锅中原油维持
-    - 每层(250mb)原油为维持时间 +5min
-    - 维持时间最多为 10min
+  - 每层(250mb)原油为维持时间 +5min
+  - 维持时间最多为 10min
 - 在喷流中的实体会受到等同于熔岩中 4 倍的火焰类型伤害
 
 ---

@@ -156,7 +156,9 @@ public class AmuletBoxItem extends Item {
             tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.line_1").withStyle(ChatFormatting.GRAY));
             tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.line_2").withStyle(ChatFormatting.GRAY));
         } else {
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.press_key", "Shift").withStyle(ChatFormatting.GRAY));
+            tooltipComponents.add(Component.translatable(
+                "tooltip.anvilcraft.press_key",
+                Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.DARK_GRAY));
         }
         tooltipComponents.add(Component.empty());
         tooltipComponents.add(Component.translatable(

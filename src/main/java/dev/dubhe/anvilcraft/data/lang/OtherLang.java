@@ -56,6 +56,7 @@ public class OtherLang {
         provider.add("subtitles.anvilcraft.plasma_jet_lava", "Plasma Jet burst");
         provider.add("subtitles.anvilcraft.burning_heater", "Burning Heater crackled");
         provider.add("subtitles.anvilcraft.giant_anvil_land", "Giant Anvil landed");
+        provider.add("subtitles.anvilcraft.giant_anvil_shock", "Giant Anvil shockwave");
 
         provider.add("subtitles.anvilcraft.smart_block_placer_extend", "Smart Block Placer extended");
         provider.add("subtitles.anvilcraft.smart_block_placer_retract", "Smart Block Placer retracted");

@@ -19,7 +19,7 @@ items:
 
 # 其他功能
 
-<item id="minecraft:water_bucket"/>
+<item id="minecraft:tropical_fish_bucket"/>
 
 - 特殊的，持热带鱼桶/水桶右击鱼缸的下半部分，放入/取出热带鱼
 - 可以戴在头上获得临时水下呼吸效果

@@ -170,6 +170,7 @@ public class ModItemTags {
     public static final TagKey<Item> LEVITATIONALS = bind("levitationals");
     public static final TagKey<Item> RADIATIONS = bind("radiations");
     public static final TagKey<Item> DISALLOW_HAND_INSERT_INTO_TANK = bind("disallow_hand_insert_into_tank");
+    public static final TagKey<Item> POWER_CONVERTER = bind("power_converter");
 
     public static final TagKey<Item> COMPRESS_ITEM = bind("compress_item");
     public static final TagKey<Item> SUPER_HEATING_BOOST_PRODUCTION = bind("super_heating_boost_production");

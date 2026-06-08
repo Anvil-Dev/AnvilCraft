@@ -28,6 +28,10 @@ public class ModSoundEvents {
         "giant_anvil_land", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("giant_anvil_land"))
     );
 
+    public static final Supplier<SoundEvent> GIANT_ANVIL_SHOCK = REGISTER.register(
+        "giant_anvil_shock", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("giant_anvil_shock"))
+    );
+
     public static final Supplier<SoundEvent> SMART_BLOCK_PLACER_EXTEND = REGISTER.register(
         "smart_block_placer_extend", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("smart_block_placer_extend"))
     );

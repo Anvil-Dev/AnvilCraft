@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +35,10 @@ public record TradingStationNonPlayerBreakMessage(
                 this.pos.getZ(),
                 ComponentUtil.dimension(this.dimension)
             )
-            .addln("message.anvilcraft.trading_station.break.time", DateTimeFormatter.ofPattern("yyyy.MM.ddzHH:mm:ss.SSS"))
+            .addln(
+                "message.anvilcraft.trading_station.break.time",
+                ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.ddzHH:mm:ss.SSS"))
+            )
             .list(
                 Component.translatable("message.anvilcraft.trading_station.break.onliners"),
                 this.onliners,
@@ -57,7 +61,10 @@ public record TradingStationNonPlayerBreakMessage(
                 this.pos.getZ(),
                 ComponentUtil.dimension(this.dimension)
             )
-            .addln("message.anvilcraft.trading_station.break.time", DateTimeFormatter.ofPattern("yyyy.MM.ddzHH:mm:ss.SSS"))
+            .addln(
+                "message.anvilcraft.trading_station.break.time",
+                ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.ddzHH:mm:ss.SSS"))
+            )
             .list(
                 Component.translatable("message.anvilcraft.trading_station.break.onliners"),
                 this.onliners,

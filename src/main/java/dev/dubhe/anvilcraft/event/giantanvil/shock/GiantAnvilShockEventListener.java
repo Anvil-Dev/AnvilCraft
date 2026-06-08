@@ -5,9 +5,14 @@ import dev.dubhe.anvilcraft.api.behavior.BehaviorTree;
 import dev.dubhe.anvilcraft.api.behavior.TreeNode;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -164,5 +169,61 @@ public class GiantAnvilShockEventListener {
     public static void onLand(AnvilEvent.GiantOnLand event) {
         ShockContext context = ShockContext.inflate(event);
         behaviorTree.run(context);
+        // 仅当冲击机制实际触发（中心为重型铁块）时才生成撼地粒子和音效
+        if (event.getLevel()
+                .getBlockState(event.getPos().below(2))
+                .is(ModBlocks.HEAVY_IRON_BLOCK) && AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) {
+            event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
+                SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().random.nextFloat() * 0.2f);
+            spawnGroundHeave(event);
+        }
+    }
+
+    private static void spawnGroundHeave(AnvilEvent.GiantOnLand event) {
+        if (!AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) return;
+
+        Level level = event.getLevel();
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        float fallDistance = event.getFallDistance();
+        int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+        BlockPos centerPos = event.getPos();
+        var server = serverLevel.getServer();
+        RandomSource random = level.getRandom();
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                if (Math.abs(dx) <= 1 && Math.abs(dz) <= 1) continue;
+
+                BlockPos pos = centerPos.below(2).offset(dx, 0, dz);
+                if (level.getBlockState(pos).isAir()) continue;
+
+                int ring = Math.max(Math.abs(dx), Math.abs(dz));
+                double ratio = (double) ring / radius;
+                double jumpHeight = 0.3 + (1.0 - ratio);
+                int particleCount = AnvilCraft.CLIENT_CONFIG.groundHeaveParticleCount;
+                double speed = 0.15 + jumpHeight * 0.2;
+
+                // 概率触发粒子
+                if (random.nextFloat() >= AnvilCraft.CLIENT_CONFIG.groundHeaveParticleChance) continue;
+
+                // 方形圈延迟，同一圈同时发射
+                long delayMs = ring * 30L;
+                Thread.startVirtualThread(() -> {
+                    try {
+                        Thread.sleep(delayMs);
+                    } catch (InterruptedException ignored) {
+                        return;
+                    }
+                    server.execute(() -> serverLevel.sendParticles(
+                        ParticleTypes.POOF,
+                        pos.getX() + 0.5, pos.getY() + 1.3, pos.getZ() + 0.5,
+                        particleCount,
+                        0.15, jumpHeight * 0.2, 0.15,
+                        speed
+                    ));
+                });
+            }
+        }
     }
 }

@@ -36,6 +36,15 @@
       }
     ]
   },
+  "giant_anvil_shock": {
+    "subtitle": "subtitles.anvilcraft.giant_anvil_shock",
+    "sounds": [
+      {
+        "name": "entity.generic.explode",
+        "type": "event"
+      }
+    ]
+  },
   "smart_block_placer_extend": {
     "subtitle": "subtitles.anvilcraft.smart_block_placer_extend",
     "sounds": [

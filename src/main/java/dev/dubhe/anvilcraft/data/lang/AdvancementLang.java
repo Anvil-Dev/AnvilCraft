@@ -19,6 +19,9 @@ public class AdvancementLang {
 
         provider.add("advancements.anvilcraft.devourer.title", "Too many tongue twisters");
         provider.add("advancements.anvilcraft.devourer.description", "Use the block devourer to devour the block devourer");
+
+        provider.add("advancements.anvilcraft.placer_shuttle.title", "Ping Pong Effect");
+        provider.add("advancements.anvilcraft.placer_shuttle.description", "Make two smart block placers move a block back and forth");
         // endregion
 
         // region geode line
