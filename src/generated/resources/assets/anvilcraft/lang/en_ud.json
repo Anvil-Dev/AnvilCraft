@@ -1456,6 +1456,8 @@
   "tooltip.anvilcraft.smart_block_placer.jade.placement_mode": "%s :ǝpoW ʇuǝɯǝɔɐꞁԀ",
   "tooltip.anvilcraft.space_overcompressor.stored_mass": "%s :ssɐW pǝɹoʇS",
   "tooltip.anvilcraft.thought": "oɟuᴉ ǝɹoɯ ɹoɟ [%s] ssǝɹԀ",
+  "tooltip.anvilcraft.wip_block.jade.recipe": "%s :ǝdᴉɔǝᴚ ꞁɐɹnpǝɔoɹԀ",
+  "tooltip.anvilcraft.wip_block.jade.step_count": "%d :pǝʇnɔǝxƎ sdǝʇS",
   "tooltip.anvilcraft.working_progress.progress": "%%%2$s %1$s  ",
   "tooltip.anvilcraft.working_progress.title": ":ssǝɹᵷoɹd ᵷuᴉʞɹoM"
 }

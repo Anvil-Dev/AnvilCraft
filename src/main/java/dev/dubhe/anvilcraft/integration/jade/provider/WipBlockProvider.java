@@ -26,7 +26,7 @@ public enum WipBlockProvider implements IBlockComponentProvider, IServerDataProv
                 String s2 = splits[splits.length - 1];
                 tooltip.add(
                     Component.translatable(
-                        "tooltip.anvilcraft.wip.recipe",
+                        "tooltip.anvilcraft.wip_block.jade.recipe",
                         s2
                     )
                 );
@@ -34,7 +34,7 @@ public enum WipBlockProvider implements IBlockComponentProvider, IServerDataProv
         }
         if (serverData.contains("stepCount")) {
             tooltip.add(Component.translatable(
-                "tooltip.anvilcraft.wip.step_count",
+                "tooltip.anvilcraft.wip_block.jade.step_count",
                 serverData.getInt("stepCount")
             ));
         }
