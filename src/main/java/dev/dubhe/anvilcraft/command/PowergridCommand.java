@@ -26,6 +26,10 @@ public class PowergridCommand {
     private static int showInfo(CommandContext<CommandSourceStack> ctx) {
         BlockPos pos = ctx.getArgument("pos", WorldCoordinates.class).getBlockPos(ctx.getSource());
         ServerLevel level = ctx.getSource().getLevel();
+        if (!level.isLoaded(pos)) {
+            ctx.getSource().sendFailure(Component.translatable("argument.pos.unloaded").withStyle(ChatFormatting.RED));
+            return 1;
+        }
         AtomicInteger returnValue = new AtomicInteger(0);
         Runnable notFound =  () -> ctx.getSource().sendFailure(Component.translatable(
             "command.anvilcraft.powergrid.info.not_found",

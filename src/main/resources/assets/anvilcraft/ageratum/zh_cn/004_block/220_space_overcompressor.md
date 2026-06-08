@@ -45,6 +45,7 @@ items:
 
 - 继承了潜影盒的性质，会被活塞破坏
 - 右键三种嵌套潜影盒，其分别会发出1,2,3次开启和关闭的声音，每次都会被<ref item="minecraft:observer"/>识别
+- 拥有 27/54/108 组物品容量，无法手动存储，只能使用物流方块交互
 - 可以解压回<ref item="minecraft:shulker_box"/>
 
 <row halign="center">

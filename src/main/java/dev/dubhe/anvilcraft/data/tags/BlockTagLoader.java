@@ -95,6 +95,9 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.ANVIL))
             .add(findResourceKey(Blocks.CHIPPED_ANVIL))
             .add(findResourceKey(Blocks.DAMAGED_ANVIL))
+            .add(findResourceKey(Blocks.FURNACE))
+            .add(findResourceKey(Blocks.BLAST_FURNACE))
+            .add(findResourceKey(Blocks.SMOKER))
             .add(ModBlocks.HEAVY_IRON_BLOCK.getKey())
             .add(ModBlocks.HEAVY_IRON_BEAM.getKey())
             .add(ModBlocks.HEAVY_IRON_COLUMN.getKey())
@@ -111,6 +114,7 @@ public class BlockTagLoader {
             .addTag(BlockTags.CAMPFIRES)
             .add(findResourceKey(Blocks.MAGMA_BLOCK))
             .add(ModBlocks.HEATER.getKey())
+            .add(ModBlocks.BURNING_HEATER.getKey())
             .add(ModBlocks.CORRUPTED_BEACON.getKey());
 
         provider.addTag(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)

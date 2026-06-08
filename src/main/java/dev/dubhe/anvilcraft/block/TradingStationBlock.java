@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
@@ -22,7 +23,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -58,10 +58,10 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
     }
 
     @Override
-    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction dir = context.getHorizontalDirection().getOpposite();
         if (dir.getAxis().isVertical()) dir = Direction.NORTH;
-        return super.getStateForPlacement(context).setValue(FACING, dir);
+        return this.defaultBlockState().setValue(FACING, dir);
     }
 
     @Override
@@ -153,10 +153,15 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
     }
 
     @Override
-    public void onBlockStateChange(LevelReader level, BlockPos pos, BlockState oldState, BlockState newState) {
-        if (oldState.getBlock() != this || oldState.equals(newState)) return;
-        if (!(level instanceof ServerLevel serverside)) return;
-        TradingStationMessageManager.get().onNonPlayerBreak(serverside, pos);
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (level.isClientSide()) return;
+        if (!(level.getBlockEntity(pos) instanceof TradingStationBlockEntity be)) return;
+
+        ItemHandlerUtil.dropAllToPos(be.getHandler(), level, pos.getCenter());
+        if ((state.getBlock() != this || !state.equals(newState)) && level instanceof ServerLevel serverside) {
+            TradingStationMessageManager.get().onNonPlayerBreak(serverside, pos);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     public Collection<BlockState> getBottomStates() {

@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
+import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -56,17 +57,48 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
             if (!TradingStationBlockEntity.this.canPlace(stack)) return false;
             return super.isItemValid(slot, stack);
         }
+    };
+    private final ItemStackHandler proxy = new ItemStackHandler(12) {
+        @Override
+        public void setSize(int size) {
+            TradingStationBlockEntity.this.handler.setSize(size);
+        }
+
+        @Override
+        public void setStackInSlot(int slot, ItemStack stack) {
+            TradingStationBlockEntity.this.handler.setStackInSlot(slot, stack);
+        }
+
+        @Override
+        public int getSlots() {
+            return TradingStationBlockEntity.this.handler.getSlots();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return TradingStationBlockEntity.this.handler.getStackInSlot(slot);
+        }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             if (!TradingStationBlockEntity.this.inputAllowed) return stack;
-            return super.insertItem(slot, stack, simulate);
+            return TradingStationBlockEntity.this.handler.insertItem(slot, stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
             if (!TradingStationBlockEntity.this.outputAllowed) return ItemStack.EMPTY;
-            return super.extractItem(slot, amount, simulate);
+            return TradingStationBlockEntity.this.handler.extractItem(slot, amount, simulate);
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return TradingStationBlockEntity.this.handler.getSlotLimit(slot);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return TradingStationBlockEntity.this.handler.isItemValid(slot, stack);
         }
     };
     private final FilterOnlyContainer filters = new FilterOnlyContainer(this, 3) {
@@ -81,7 +113,7 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
             TradingStationBlockEntity.popoutInvalidItems(
                 TradingStationBlockEntity.this.getLevel(),
                 TradingStationBlockEntity.this.getBlockPos(),
-                TradingStationBlockEntity.this.getItemHandler()
+                TradingStationBlockEntity.this.handler
             );
             TradingStationBlockEntity.updateAndSend(TradingStationBlockEntity.this);
         }
@@ -118,7 +150,7 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         this.filters.deserializeNBT(registries, tag.getCompound(FILTERS_NBT_ID));
         this.playerAllowed = tag.getBoolean(ALLOW_PLAYER_NBT_ID);
         this.villagerAllowed = tag.getBoolean(ALLOW_VILLAGER_NBT_ID);
-        TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.getItemHandler());
+        TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.handler);
         TradingStationBlockEntity.updateAndSend(this);
     }
 
@@ -149,7 +181,9 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
     @Override
     public void storeDiskData(CompoundTag tag) {
         if (this.owner != null) tag.putUUID(OWNER_NBT_ID, this.owner);
-        tag.put(FILTERS_NBT_ID, this.filters.serializeNBT(this.level.registryAccess()));
+        if (this.level != null) {
+            tag.put(FILTERS_NBT_ID, this.filters.serializeNBT(this.level.registryAccess()));
+        }
         tag.putBoolean(ALLOW_PLAYER_NBT_ID, this.isPlayerAllowed());
         tag.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
     }
@@ -164,16 +198,18 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
             this.owner = owner;
         }
 
-        this.filters.deserializeNBT(this.level.registryAccess(), tag.getCompound(FILTERS_NBT_ID));
+        if (this.level != null) {
+            this.filters.deserializeNBT(this.level.registryAccess(), tag.getCompound(FILTERS_NBT_ID));
+        }
         this.playerAllowed = tag.getBoolean(ALLOW_PLAYER_NBT_ID);
         this.villagerAllowed = tag.getBoolean(ALLOW_VILLAGER_NBT_ID);
-        TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.getItemHandler());
+        TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.handler);
         TradingStationBlockEntity.updateAndSend(this);
     }
 
     @Override
     public ItemStackHandler getItemHandler() {
-        return this.handler;
+        return this.proxy;
     }
 
     public boolean canPlace(ItemStack stack) {
@@ -293,7 +329,9 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
                     this.handler.setStackInSlot(slot, current.copyWithCount(newCount));
                 } else {
                     // as a fallback, drop the items into the world
-                    Block.popResourceFromFace(this.getLevel(), this.getBlockPos(), Direction.UP, providing.copyWithCount(amount));
+                    if (this.level != null) {
+                        Block.popResourceFromFace(this.level, this.getBlockPos(), Direction.UP, providing.copyWithCount(amount));
+                    }
                 }
             }
             return false;
@@ -321,6 +359,11 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         if (level == null) return;
         if (this.owner == null) this.owner = owner;
         TradingStationBlockEntity.updateAndSend(this);
+    }
+
+    @Override
+    public void setRemoved() {
+        this.owner = null;
     }
 
     public boolean isPlayerAllowed() {
@@ -378,7 +421,7 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         ItemStack provide = filters.getItem(0);
         if (!provide.isEmpty()) {
             if (provide.has(ModComponents.FILTER_CONTENT)) {
-                FilterContent content = provide.get(ModComponents.FILTER_CONTENT);
+                FilterContent content = Objects.requireNonNull(provide.get(ModComponents.FILTER_CONTENT));
                 if (content.list().isEmpty()) count++;
                 if (content.list().size() > 1) return true;
                 count += content.list().size();
@@ -389,7 +432,7 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         ItemStack provide1 = filters.getItem(1);
         if (!provide1.isEmpty()) {
             if (provide1.has(ModComponents.FILTER_CONTENT)) {
-                FilterContent content = provide1.get(ModComponents.FILTER_CONTENT);
+                FilterContent content = Objects.requireNonNull(provide1.get(ModComponents.FILTER_CONTENT));
                 if (content.list().isEmpty()) count++;
                 if (content.list().size() > 1) return true;
                 count += content.list().size();

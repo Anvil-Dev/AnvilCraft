@@ -18,8 +18,10 @@ public class PowerConverterSmallBlock extends BasePowerConverterBlock implements
     public static final VoxelShape SHAPE_SOUTH = Block.box(7, 7, 8, 9, 9, 16);
     public static final VoxelShape SHAPE_WEST = Block.box(0, 7, 7, 8, 9, 9);
 
+    public static final int INPUT_TIME = 1;
+
     public PowerConverterSmallBlock(Properties properties) {
-        super(properties, 1);
+        super(properties, INPUT_TIME);
     }
 
     @Override

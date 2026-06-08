@@ -19,7 +19,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     private int rotation = 0;
 
     @Getter
-    @Setter
     private boolean isAmplify = false;
 
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -30,6 +29,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
         if (this.rotation == 360) this.rotation = 0;
         this.preRotation = this.rotation;
         this.rotation += 3;
+    }
+
+    public void setAmplify(boolean amplify) {
+        this.setChanged();
+        isAmplify = amplify;
     }
 
     @Override

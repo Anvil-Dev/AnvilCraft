@@ -38,6 +38,17 @@ public class RegistrumBlockRecipeLoader {
     public static <T extends Block> void recipe(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
     }
 
+    public static <T extends Block> void feCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)
+            .pattern("ABA")
+            .pattern("AAA")
+            .define('A', Items.COPPER_INGOT)
+            .define('B', ModBlocks.CHARGE_COLLECTOR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FE_COLLECTOR), AnvilCraftDatagen.has(ModBlocks.FE_COLLECTOR))
+            .save(provider);
+    }
+
     public static <T extends Block> void expCollectorBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
@@ -508,25 +519,37 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void powerConverterSmall(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 9)
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 64)
             .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
             .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_big"));
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_MIDDLE), RecipeCategory.MISC, ctx.get(), 3)
-            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_MIDDLE), RecipeCategory.MISC, ctx.get(), 8)
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE))
             .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_middle"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 64)
+            .requires(ModBlocks.POWER_CONVERTER_BIG)
+            .unlockedBy("has_big", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
+            .save(provider, AnvilCraft.of(ctx.getName() + "_from_big"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
+            .requires(ModBlocks.POWER_CONVERTER_MIDDLE)
+            .unlockedBy("has_middle", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE))
+            .save(provider, AnvilCraft.of(ctx.getName() + "_from_middle"));
     }
 
     public static <T extends Block> void powerConverterMiddle(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("A")
-            .pattern("A")
-            .pattern("A")
-            .define('A', ModBlocks.POWER_CONVERTER_SMALL)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL), AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL))
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModBlocks.POWER_CONVERTER_SMALL, 8)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL),
+                AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL)
+            )
             .save(provider, ctx.getId() + "_from_small");
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 3)
-            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 8)
+            .unlockedBy("has_big", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
             .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
+            .requires(ModBlocks.POWER_CONVERTER_BIG)
+            .unlockedBy("has_big", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
+            .save(provider, AnvilCraft.of(ctx.getName() + "_from_big"));
     }
 
     public static <T extends Block> void powerConverterBig(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -540,24 +563,18 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             )
             .save(provider);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("A")
-            .pattern("A")
-            .pattern("A")
-            .define('A', ModBlocks.POWER_CONVERTER_MIDDLE)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModBlocks.POWER_CONVERTER_MIDDLE, 8)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
                 AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
             )
             .save(provider, ctx.getId() + "_from_middle");
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModBlocks.POWER_CONVERTER_SMALL)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModBlocks.POWER_CONVERTER_SMALL, 64)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
-                AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
+                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL),
+                AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL)
             )
             .save(provider, ctx.getId() + "_from_small");
     }

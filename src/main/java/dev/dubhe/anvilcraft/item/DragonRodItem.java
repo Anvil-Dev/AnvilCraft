@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffects;
@@ -199,7 +200,7 @@ public class DragonRodItem extends Item {
             case 9 -> 4;
             default -> 0;
         };
-        return Math.clamp(dragonRod.getMaxDamage() - dragonRod.getDamageValue(), 1, damage);
+        return Mth.clamp(dragonRod.getMaxDamage() - dragonRod.getDamageValue(), 1, damage);
     }
 
     public static int calculateCooldown(Player player) {

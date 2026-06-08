@@ -35,7 +35,9 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
     @Override
     public void handleOnServer(Player player) {
         Level level = player.level();
-        if (!level.isLoaded(this.pos)) return;
+        if (!level.isLoaded(this.pos)) {
+            return;
+        }
         BlockState blockState = level.getBlockState(this.pos);
         boolean stateVerified = StateUtil.verifyPossibleStatesForProperty(blockState, this.state);
         boolean hasHammer = player.getMainHandItem().getItem() instanceof AnvilHammerItem

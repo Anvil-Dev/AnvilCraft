@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.api.heat.HeatTier;
 import dev.dubhe.anvilcraft.api.heat.HeatTierLine;
 import dev.dubhe.anvilcraft.api.heat.HeaterInfo;
+import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
@@ -37,6 +38,15 @@ public class ModHeaterInfos {
             ModBlocks.HEATER.get(),
             HeaterBlock.OVERLOAD,
             false,
+            heater -> Set.of(heater.pos().above()),
+            HeatTierLine.always(HeatTier.HEATED, 2)
+        )
+    );
+    public static final HeaterInfo<BlockInfo> BURNING_HEATER = HeatRecorder.registerProducerInfo(
+        HeaterInfo.blockState(
+            ModBlocks.BURNING_HEATER.get(),
+            BurningHeaterBlock.LEVEL,
+            2,
             heater -> Set.of(heater.pos().above()),
             HeatTierLine.always(HeatTier.HEATED, 2)
         )

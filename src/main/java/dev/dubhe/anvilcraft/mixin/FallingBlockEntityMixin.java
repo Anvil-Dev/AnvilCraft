@@ -70,10 +70,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     )
     private BlockPos anvilcraft$redirectBelowInTick(BlockPos instance, Operation<BlockPos> original) {
         Vec3 netGravityVector = GravityManager.getNetGravityVectorForFallingBlock(this);
-        // 如果重力向下且没有显著水平分量，使用原版逻辑
-        if (netGravityVector.y < -0.01 && Math.abs(netGravityVector.x) < 0.01 && Math.abs(netGravityVector.z) < 0.01) {
-            return original.call(instance);
-        }
+
         // 卡在方块里则当前坐标是下方
         if (!FallingBlock.isFree(this.level().getBlockState(instance))) {
             return instance;
@@ -94,7 +91,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         Vec3 gravityVec = GravityManager.getNetGravityVectorForFallingBlock(instance);
 
         // 如果重力向下且没有显著水平分量，认为不处在特殊重力源范围内，跳过自定义逻辑返回原版
-        if (gravityVec.y < -0.01 && Math.abs(gravityVec.x) < 0.01 && Math.abs(gravityVec.z) < 0.01) {
+        if (gravityVec.y <= 0 && Math.abs(gravityVec.x) < 0.01 && Math.abs(gravityVec.z) < 0.01) {
             return original.call(instance);
         }
 
@@ -103,10 +100,6 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         BlockPos pos = BlockPos.containing(instance.position());
         BlockPos supportPos = pos.relative(gravityDir);
         BlockState supportState = level.getBlockState(supportPos);
-
-
-        // 0. 平衡环境
-        if (gravityVec.lengthSqr() < 1.0E-5) return false;
 
         // 1. 碰撞检测
         if (!this.anvilcraft$checkCollision(instance, gravityDir, original)) return false;

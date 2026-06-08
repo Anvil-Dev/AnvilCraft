@@ -472,10 +472,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                     poseStack.popPose();
                 }
             }
-            case LARGE_STRUCTURE, UNKNOWN_BLOCKS, TOO_LARGE, MULTIBLOCK_BLOCKS -> {
+            case LARGE_STRUCTURE, UNKNOWN_BLOCKS, TOO_LARGE -> {
                 // 显示叹号图标
-                boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE
-                                    || status == StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS;
+                boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE;
                 int iconColor = isWarning ? 0xFFFF55 : 0xFF5555;
 
                 // 叹号图标单独设置位置和大小
@@ -514,7 +513,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             status != StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE
             && status != StructureScannerBlockEntity.InfoStatus.UNKNOWN_BLOCKS
             && status != StructureScannerBlockEntity.InfoStatus.TOO_LARGE
-            && status != StructureScannerBlockEntity.InfoStatus.MULTIBLOCK_BLOCKS
         ) {
             return null;
         }
@@ -539,7 +537,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 case LARGE_STRUCTURE -> Component.translatable("screen.anvilcraft.structure_scanner.tooltip.large_structure");
                 case UNKNOWN_BLOCKS -> Component.translatable("screen.anvilcraft.structure_scanner.tooltip.unknown_blocks");
                 case TOO_LARGE -> Component.translatable("screen.anvilcraft.structure_scanner.tooltip.too_large");
-                case MULTIBLOCK_BLOCKS -> Component.translatable("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks");
                 default -> Component.empty();
             };
 

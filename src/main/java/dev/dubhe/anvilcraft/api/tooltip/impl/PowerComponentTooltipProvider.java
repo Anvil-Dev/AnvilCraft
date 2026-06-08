@@ -7,6 +7,8 @@ import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.util.CompatUtil;
@@ -19,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
         return entity instanceof IPowerComponent;
     }
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public List<Component> tooltip(BlockEntity e) {
         boolean original = false;
@@ -67,15 +71,37 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
         PowerComponentInfo componentInfo = optional.get();
         overloaded |= grid.getConsume() > grid.getGenerate();
         final List<Component> lines = new ArrayList<>();
-        PowerComponentType type = componentInfo.type();
-
-        int consumes = componentInfo.consumes();
 
         if (overloaded) {
             for (int i = 1; i <= 3; i++) {
                 lines.add(Component.translatable("tooltip.anvilcraft.grid_information.overloaded" + i));
             }
         }
+        if (e instanceof FeCollectorBlockEntity fe) {
+            lines.add(Component.translatable("tooltip.anvilcraft.fe_collector.title")
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
+            lines.add(Component.translatable(
+                    "tooltip.anvilcraft.fe_collector.energy",
+                    fe.getEnergyStored() / 1000,
+                    FeCollectorBlockEntity.MAX_ENERGY / 1000
+                )
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+            if (!e.getBlockState().getValue(BlockStateProperties.POWERED)) {
+                lines.add(Component.translatable("tooltip.anvilcraft.fe_collector.low_energy")
+                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.RED)));
+            }
+        }
+        if (e instanceof PowerConverterBlockEntity be) {
+            lines.add(Component.translatable("tooltip.anvilcraft.power_converter.fe_stored")
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
+            lines.add(Component.translatable(
+                    "tooltip.anvilcraft.power_converter.fe_stored.value",
+                    be.getEnergyStored() / 1000,
+                    be.getMaxEnergyStored() / 1000
+                )
+                .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+        }
+        PowerComponentType type = componentInfo.type();
         if (type == PowerComponentType.PRODUCER) {
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.producer_stats")
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
@@ -87,6 +113,7 @@ public class PowerComponentTooltipProvider extends ITooltipProvider.BlockEntityT
         } else if (type == PowerComponentType.CONSUMER) {
             lines.add(Component.translatable("tooltip.anvilcraft.grid_information.consumer_stats")
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
+            int consumes = componentInfo.consumes();
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.grid_information.input_power",
                     UnitUtil.electricityUnit(consumes, original)

@@ -10,9 +10,11 @@ import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModParticles;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,6 +25,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -141,6 +144,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         HeaterManager.addProducer(this.getBlockPos(), level, ModHeaterInfos.MAGNET_PLASMA_JETS);
         this.hurtEntities(level);
         this.provideCharge(level);
+        this.playJetSound(level);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -201,9 +205,34 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         );
         for (Entity entity : entities) {
             entity.igniteForSeconds(15.0f);
-            if (entity.hurt(entity.damageSources().inFire(), 16.0f)) {
+            if (entity.hurt(ModDamageTypes.plasmaJets(level), 16.0f)) {
                 entity.playSound(SoundEvents.GENERIC_BURN, 0.4f, 2.0f + RandomSource.create().nextFloat() * 0.4f);
             }
+        }
+    }
+
+    protected void playJetSound(ServerLevel level) {
+        // 主音效：自定义声音事件，烈焰人持续咆哮
+        if (level.getGameTime() % 5 == 0) {
+            level.playSound(
+                null,
+                this.getBlockPos(),
+                ModSoundEvents.PLASMA_JET.get(),
+                SoundSource.BLOCKS,
+                3.0f,
+                0.8f + level.random.nextFloat() * 0.2f
+            );
+        }
+        // 岩浆咝咝声：较低频率，模拟高压喷射气流
+        if (level.getGameTime() % 60 == 0) {
+            level.playSound(
+                null,
+                this.getBlockPos(),
+                ModSoundEvents.PLASMA_JET_LAVA.get(),
+                SoundSource.BLOCKS,
+                1.0f,
+                1.0f + level.random.nextFloat() * 0.3f
+            );
         }
     }
 

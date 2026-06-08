@@ -79,6 +79,10 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.grid_information.overloaded2", "Add more sources or remove the components");
         provider.add("tooltip.anvilcraft.grid_information.overloaded3", "with a high stress impact.");
 
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity", "Capacity");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity.value", "  %dmB / %dmB");
+        provider.add("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", "  %dmB / ∞");
+
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
         provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");
         provider.add("tooltip.anvilcraft.redstone.output_power", "  Output Power: %d");
@@ -100,6 +104,22 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.propel_piston.remaining_energy", "  Remaining Energy: %s");
         provider.add("tooltip.anvilcraft.propel_piston.remaining_push", "  Remaining Push: %s block-time");
 
+        provider.add("tooltip.anvilcraft.burning_heater.state_name", "State:");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.off", "  Off");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.smoldering", "  Smoldering");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.lit", "  Lit");
+        provider.add("tooltip.anvilcraft.burning_heater.burn_time_label", "Remaining Burn Time:");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt", "Can Smelt:");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt.yes", "  Yes");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt.no", "  No");
+
+        // Jade provider also uses these — no .jade. infix needed as they share the tooltip.anvilcraft.burning_heater namespace
+        provider.add("tooltip.anvilcraft.burning_heater.state.off", "State: Off");
+        provider.add("tooltip.anvilcraft.burning_heater.state.smoldering", "State: Smoldering");
+        provider.add("tooltip.anvilcraft.burning_heater.state.lit", "State: Lit");
+        provider.add("tooltip.anvilcraft.burning_heater.burn_time", "Remaining Burn Time: %s");
+
+        provider.add("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner", "Needs to be placed on the corner of the Celestial Forging Anvil");
         provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");
 

@@ -27,6 +27,9 @@ public class ModDamageTypeTagProvider extends DamageTypeTagsProvider {
         this.tag(DamageTypeTags.BYPASSES_ARMOR).addOptional(ModDamageTypes.LOST_IN_TIME.location());
         this.tag(DamageTypeTags.BYPASSES_RESISTANCE).addOptional(ModDamageTypes.LOST_IN_TIME.location());
         this.tag(DamageTypeTags.NO_KNOCKBACK).addOptional(ModDamageTypes.LOST_IN_TIME.location());
+        this.tag(DamageTypeTags.NO_KNOCKBACK).addOptional(ModDamageTypes.HEATER_BURN.location());
+        this.tag(DamageTypeTags.IS_FIRE).addOptional(ModDamageTypes.HEATER_BURN.location());
+        this.tag(DamageTypeTags.IS_FIRE).addOptional(ModDamageTypes.PLASMA_JET.location());
         this.tag(Tags.DamageTypes.IS_MAGIC).addOptional(ModDamageTypes.LOST_IN_TIME.location());
     }
 }

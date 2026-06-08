@@ -36,6 +36,10 @@ public class MultiBlockCommand {
         CommandSourceStack source = ctx.getSource();
         ServerLevel level = source.getLevel();
         BlockPos pos = ctx.getArgument("pos", WorldCoordinates.class).getBlockPos(source);
+        if (!level.isLoaded(pos)) {
+            source.sendFailure(Component.translatable("argument.pos.unloaded").withStyle(ChatFormatting.RED));
+            return 1;
+        }
         BlockState blockState = level.getBlockState(pos);
         if (blockState.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock) {
             BlockPos mainPartPos = multiPartBlock.getMainPartPos(pos, blockState);

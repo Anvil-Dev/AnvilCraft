@@ -188,8 +188,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         READY,
         LARGE_STRUCTURE,
         UNKNOWN_BLOCKS,
-        TOO_LARGE,
-        MULTIBLOCK_BLOCKS
+        TOO_LARGE
     }
     
     /**
@@ -210,12 +209,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         if (this.hasUnknownBlocks()) {
             return InfoStatus.UNKNOWN_BLOCKS;
         }
-        
-        // 检查是否有多部分方块
-        if (this.hasMultiblockBlocks()) {
-            return InfoStatus.MULTIBLOCK_BLOCKS;
-        }
-        
+
         return InfoStatus.READY;
     }
     
@@ -227,64 +221,6 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         return false;
     }
     
-    /**
-     * 检查是否有多部分方块
-     */
-    private boolean hasMultiblockBlocks() {
-        if (this.level == null) return false;
-        
-        int rangeX = this.rangeX.get();
-        int rangeY = this.rangeY.get();
-        int rangeZ = this.rangeZ.get();
-        int halfRangeX = rangeX / 2;
-
-        // 使用与实际扫描相同的坐标计算方式，确保警告区域与保存/扫描区域一致
-        for (int x = 0; x < rangeX; x++) {
-            for (int y = 0; y < rangeY; y++) {
-                for (int z = 0; z < rangeZ; z++) {
-                    BlockPos checkPos = this.calculateWorldPos(x, y, z, halfRangeX);
-                    net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(checkPos);
-                    
-                    // 检查是否为多方块方块
-                    if (isMultiblockBlock(blockState)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * 检查一个方块是否为多方块方块
-     * 
-     * @param blockState 方块状态
-     * @return 如果是多方块方块返回true
-     */
-    private boolean isMultiblockBlock(net.minecraft.world.level.block.state.BlockState blockState) {
-        net.minecraft.world.level.block.Block block = blockState.getBlock();
-        
-        // 使用switch表达式检查是否实现了多方块方块相关接口
-        if (switch (block) {
-                case dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity<?, ?> ignored1 -> true;
-                case dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock<?> ignored2 -> true;
-                case dev.dubhe.anvilcraft.api.IHasMultiBlock ignored3 -> true;
-                default -> false;
-            }) {
-            return true;
-        }
-        
-        // 检查原版多方块方块
-        // 床（BED）：由两个方块组成
-        if (block instanceof net.minecraft.world.level.block.BedBlock) {
-            return true;
-        }
-        
-        // 门（DOOR）：由上下两个方块组成
-        return block instanceof net.minecraft.world.level.block.DoorBlock;
-    }
-
     public StructureScannerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
         // 设置默认值为 5 (index = 4)

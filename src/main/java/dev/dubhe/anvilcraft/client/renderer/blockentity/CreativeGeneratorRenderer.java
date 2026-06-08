@@ -7,7 +7,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 
 public class CreativeGeneratorRenderer extends PowerProducerRenderer<CreativeGeneratorBlockEntity> {
     public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(
-        AnvilCraft.of("block/creative_generator_cube")
+        AnvilCraft.of("block/creative_generator_head")
     );
 
     /**

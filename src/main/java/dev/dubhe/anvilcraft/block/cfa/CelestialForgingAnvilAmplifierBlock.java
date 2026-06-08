@@ -4,9 +4,11 @@ import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -155,9 +157,72 @@ public class CelestialForgingAnvilAmplifierBlock
         return state.setValue(this.getPart(), part);
     }
 
+    // 增幅器放置时自动检测锻星砧角落并确定朝向
+    // 核心方块始终是 ES 角(BOTTOM_PART)，其余3块在西北侧
+    // 内层方形(3×3)四角检测角落方块 → 确定 FACING
+    // 外层方形(5×5)四角检测 BOTTOM_CENTER  → 确认真在砧角
+    private static final int[][] CORNER_CHECKS = {
+        { 1,  1, 0}, {-2,  1, 1}, { 1, -2, 2}, {-2, -2, 3},
+    };
+    private static final int[][] CENTER_CHECKS = {
+        { 2,  2}, {-3,  2}, { 2, -3}, {-3, -3},
+    };
+    private static final Direction[] FACING_MAP = {
+        Direction.NORTH, Direction.EAST, Direction.WEST, Direction.SOUTH
+    };
+
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().trySetValue(FACING, context.getHorizontalDirection().getOpposite());
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+
+        // 1. 在内层方形四角检测锻星砧角落方块
+        Direction facing = null;
+        for (int[] c : CORNER_CHECKS) {
+            for (int dy = 0; dy <= 1; dy++) {
+                BlockState state = level.getBlockState(pos.offset(c[0], dy, c[1]));
+                if (state.getBlock() instanceof CelestialForgingAnvilBlock
+                    && state.hasProperty(CelestialForgingAnvilBlock.HALF)
+                    && isCornerPart(state.getValue(CelestialForgingAnvilBlock.HALF))) {
+                    facing = FACING_MAP[c[2]];
+                    break;
+                }
+            }
+            if (facing != null) break;
+        }
+
+        // 2. 在外层方形四角验证锻星砧 BOTTOM_CENTER（排除孤立角落方块）
+        if (facing != null) {
+            boolean valid = false;
+            for (int[] c : CENTER_CHECKS) {
+                BlockState state = level.getBlockState(pos.offset(c[0], 0, c[1]));
+                if (state.getBlock() instanceof CelestialForgingAnvilBlock
+                    && state.hasProperty(CelestialForgingAnvilBlock.HALF)
+                    && state.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER) {
+                    valid = true;
+                    break;
+                }
+            }
+            if (!valid) facing = null;
+        }
+
+        if (facing == null) {
+            if (context.getPlayer() != null && !level.isClientSide) {
+                context.getPlayer().displayClientMessage(
+                    Component.translatable("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner")
+                        .withColor(0xFF8888), true);
+            }
+            return null;
+        }
+        return this.defaultBlockState().setValue(FACING, facing);
+    }
+
+    private static boolean isCornerPart(Cube323PartHalf half) {
+        return switch (half) {
+            case BOTTOM_NW, BOTTOM_NE, BOTTOM_SW, BOTTOM_SE,
+                 TOP_NW, TOP_NE, TOP_SW, TOP_SE -> true;
+            default -> false;
+        };
     }
 
     @Override
@@ -218,6 +283,4 @@ public class CelestialForgingAnvilAmplifierBlock
         return true;
     }
 
-    // region VoxelShapes
-    // E
 }

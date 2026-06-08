@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:block_crush",
+  "input": {
+    "blocks": "minecraft:furnace"
+  },
+  "result": {
+    "block": "anvilcraft:burning_heater"
+  }
+}

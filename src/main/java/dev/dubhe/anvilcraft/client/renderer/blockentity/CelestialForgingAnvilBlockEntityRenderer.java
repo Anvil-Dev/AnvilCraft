@@ -18,12 +18,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity> {
-    private static final ModelResourceLocation RING1 =
+    public static final ModelResourceLocation RING1 =
         ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1"));
-    private static final ModelResourceLocation RING2 =
+    public static final ModelResourceLocation RING2 =
         ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2"));
-    private static final ModelResourceLocation RING3 =
+    public static final ModelResourceLocation RING3 =
         ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3"));
+
+    public static final ModelResourceLocation RING4 =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4"));
+    public static final ModelResourceLocation RING5 =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_5"));
+    public static final ModelResourceLocation RING6 =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_6"));
 
     public CelestialForgingAnvilBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
     }
@@ -43,13 +50,47 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.pushPose();
         final VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout());
         if (blockEntity.isAmplify()) {
-            poseStack.translate(0.5, 4.5, 0.5);
+            poseStack.translate(0.5, 6.5, 0.5);
         } else {
-            poseStack.translate(0.5, 3.5, 0.5);
+            poseStack.translate(0.5, 4.5, 0.5);
         }
         poseStack.mulPose(Axis.XP.rotationDegrees(rotation));
         if (blockEntity.isAmplify()) {
             poseStack.scale(4, 4, 4);
+            modelRenderer.renderModel(
+                poseStack.last(),
+                vertexConsumer,
+                null,
+                Minecraft.getInstance().getModelManager().getModel(RING6),
+                0, 0, 0,
+                LightTexture.FULL_BLOCK,
+                packedOverlay
+            );
+
+            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
+            modelRenderer.renderModel(
+                poseStack.last(),
+                vertexConsumer,
+                null,
+                Minecraft.getInstance().getModelManager().getModel(RING5),
+                0, 0, 0,
+                LightTexture.FULL_BLOCK,
+                packedOverlay
+            );
+
+            poseStack.mulPose(Axis.XP.rotationDegrees(rotation));
+            modelRenderer.renderModel(
+                poseStack.last(),
+                vertexConsumer,
+                null,
+                Minecraft.getInstance().getModelManager().getModel(RING4),
+                0, 0, 0,
+                LightTexture.FULL_BLOCK,
+                packedOverlay
+            );
+        } else {
+            poseStack.scale(4, 4, 4);
+
             modelRenderer.renderModel(
                 poseStack.last(),
                 vertexConsumer,
@@ -70,19 +111,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 LightTexture.FULL_BLOCK,
                 packedOverlay
             );
-        } else {
-            poseStack.scale(4, 4, 4);
-            modelRenderer.renderModel(
-                poseStack.last(),
-                vertexConsumer,
-                null,
-                Minecraft.getInstance().getModelManager().getModel(RING2),
-                0, 0, 0,
-                LightTexture.FULL_BLOCK,
-                packedOverlay
-            );
 
-            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
+            poseStack.mulPose(Axis.XP.rotationDegrees(rotation));
             modelRenderer.renderModel(
                 poseStack.last(),
                 vertexConsumer,
