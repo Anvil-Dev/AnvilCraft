@@ -1,0 +1,55 @@
+{
+  "type": "anvilcraft:or",
+  "categories": [
+    {
+      "type": "anvilcraft:has_component",
+      "icon": {
+        "id": "minecraft:enchanted_book"
+      },
+      "name": {
+        "translate": "category.anvilcraft.enchanted.enchantments"
+      },
+      "predicate": "minecraft:enchantments",
+      "value": {}
+    },
+    {
+      "type": "anvilcraft:has_component",
+      "icon": {
+        "id": "minecraft:enchanted_book"
+      },
+      "name": {
+        "translate": "category.anvilcraft.enchanted.stored_enchantments"
+      },
+      "predicate": "minecraft:stored_enchantments",
+      "value": {}
+    },
+    {
+      "type": "anvilcraft:has_component",
+      "icon": {
+        "id": "anvilcraft:frost_metal_sword"
+      },
+      "name": {
+        "translate": "category.anvilcraft.enchanted.merciless_enchantments"
+      },
+      "predicate": "anvilcraft:merciless_enchantments",
+      "value": {}
+    },
+    {
+      "type": "anvilcraft:has_component",
+      "icon": {
+        "id": "minecraft:barrier"
+      },
+      "name": {
+        "translate": "category.anvilcraft.enchanted.disabled_enchantments"
+      },
+      "predicate": "anvilcraft:disabled_enchantments",
+      "value": {}
+    }
+  ],
+  "icon": {
+    "id": "minecraft:enchanted_book"
+  },
+  "name": {
+    "translate": "category.anvilcraft.enchanted"
+  }
+}

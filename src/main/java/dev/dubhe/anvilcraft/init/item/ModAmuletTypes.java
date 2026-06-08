@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.init.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.amulet.AnvilAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.ComradeAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.DiscountAmulet;
@@ -17,7 +17,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModAmuletTypes {
     private static final DeferredRegister<IAmulet.Type<?>> REGISTER = DeferredRegister.create(
-        ModRegistries.AMULET_TYPE_KEY,
+        ModRegistryKeys.AMULET_TYPE,
         AnvilCraft.MOD_ID
     );
 

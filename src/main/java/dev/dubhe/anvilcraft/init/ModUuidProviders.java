@@ -5,13 +5,14 @@ import dev.dubhe.anvilcraft.api.uuid.CreateOnFirstUuidProvider;
 import dev.dubhe.anvilcraft.api.uuid.DirectUuidProvider;
 import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
 import dev.dubhe.anvilcraft.api.uuid.NoUuidProvider;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModUuidProviders {
     private static final DeferredRegister<IUuidProvider.Type<?>> REGISTER = DeferredRegister.create(
-        ModRegistries.UUID_PROVIDER_TYPE_KEY,
+        ModRegistryKeys.UUID_PROVIDER_TYPE,
         AnvilCraft.MOD_ID
     );
 
