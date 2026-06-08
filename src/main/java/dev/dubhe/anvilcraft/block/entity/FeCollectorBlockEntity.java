@@ -225,10 +225,6 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5);
     }
 
-    @Override
-    public void gridTick() {
-    }
-
     public int getEnergyStored() {
         return this.energy;
     }
