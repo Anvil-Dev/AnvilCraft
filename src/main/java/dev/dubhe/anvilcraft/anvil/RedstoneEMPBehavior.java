@@ -62,7 +62,9 @@ public class RedstoneEMPBehavior implements IAnvilBehavior {
             }
         }
         // 在红石块中心生成爆发粒子
-        spawnCenterBurst(level, pos, distance);
+        if (AnvilCraft.CLIENT_CONFIG.redstoneEmpParticlesEnabled) {
+            spawnCenterBurst(level, pos, distance);
+        }
         return false;
     }
 
@@ -72,7 +74,7 @@ public class RedstoneEMPBehavior implements IAnvilBehavior {
         state = state.setValue(RedstoneTorchBlock.LIT, false);
         level.setBlockAndUpdate(pos, state);
         // 在被熄灭的火把位置生成红色粒子
-        if (level instanceof ServerLevel serverLevel) {
+        if (AnvilCraft.CLIENT_CONFIG.redstoneEmpParticlesEnabled && level instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(
                 RED_DUST,
                 pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
