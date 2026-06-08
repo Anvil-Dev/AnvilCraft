@@ -40,7 +40,7 @@
     "subtitle": "subtitles.anvilcraft.giant_anvil_shock",
     "sounds": [
       {
-        "name": "entity.warden.sonic_boom",
+        "name": "entity.generic.explode",
         "type": "event"
       }
     ]

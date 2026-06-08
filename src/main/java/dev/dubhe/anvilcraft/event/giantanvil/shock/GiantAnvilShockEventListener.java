@@ -174,7 +174,7 @@ public class GiantAnvilShockEventListener {
                 .getBlockState(event.getPos().below(2))
                 .is(ModBlocks.HEAVY_IRON_BLOCK) && AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) {
             event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
-                SoundSource.BLOCKS, 0.6f, 1.4f + event.getLevel().random.nextFloat() * 0.2f);
+                SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().random.nextFloat() * 0.2f);
             spawnGroundHeave(event);
         }
     }
@@ -208,7 +208,7 @@ public class GiantAnvilShockEventListener {
                 if (random.nextFloat() >= AnvilCraft.CLIENT_CONFIG.groundHeaveParticleChance) continue;
 
                 // 方形圈延迟，同一圈同时发射
-                long delayMs = ring * 60L;
+                long delayMs = ring * 30L;
                 Thread.startVirtualThread(() -> {
                     try {
                         Thread.sleep(delayMs);
@@ -217,7 +217,7 @@ public class GiantAnvilShockEventListener {
                     }
                     server.execute(() -> serverLevel.sendParticles(
                         ParticleTypes.POOF,
-                        pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                        pos.getX() + 0.5, pos.getY() + 1.3, pos.getZ() + 0.5,
                         particleCount,
                         0.15, jumpHeight * 0.2, 0.15,
                         speed
