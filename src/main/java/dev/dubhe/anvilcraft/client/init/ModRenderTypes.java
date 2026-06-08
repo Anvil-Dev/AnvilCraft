@@ -163,6 +163,27 @@ public class ModRenderTypes {
             .createCompositeState(true)
     );
 
+    /**
+     * Translucent atmosphere/glow layer that does NOT write depth.
+     * Prevents atmosphere cubes and star halos from occluding CFA rings
+     * and other celestial bodies behind them.
+     */
+    public static final RenderType CELESTIAL_ATMOSPHERE = RenderType.create(
+        "anvilcraft:celestial_atmosphere",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        786432,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(true)
+    );
+
     public static final RenderType BEACON_GLASS = RenderType.create(
         "anvilcraft:beacon_glass",
         DefaultVertexFormat.BLOCK,

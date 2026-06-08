@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
+import dev.dubhe.anvilcraft.util.MassRadiusDiagram;
 import net.minecraft.util.RandomSource;
 
 public class CelestialBodyRandomizer {
@@ -22,9 +23,32 @@ public class CelestialBodyRandomizer {
     }
 
     private static StarData randomizeStar(RandomSource random) {
-        int size = random.nextIntBetweenInclusive(1, 28);
-        int temperatureKelvin = random.nextIntBetweenInclusive(2000, 60000);
-        return new StarData(size, temperatureKelvin);
+        MassRadiusDiagram.ensureLoaded();
+
+        if (MassRadiusDiagram.isLoadFailed()) {
+            // Fallback: old behavior with random size, color from legacy gradient
+            int size = random.nextIntBetweenInclusive(1, 28);
+            float[] rgb = MassRadiusDiagram.starColorFallback(size);
+            return new StarData(
+                size,
+                Math.clamp((int) (rgb[0] * 255), 0, 255),
+                Math.clamp((int) (rgb[1] * 255), 0, 255),
+                Math.clamp((int) (rgb[2] * 255), 0, 255),
+                random.nextFloat() * 180f,
+                0.5f + random.nextFloat() * 2.0f
+            );
+        }
+
+        // Primary path: use mass-radius diagram
+        MassRadiusDiagram.StarPixel pixel = MassRadiusDiagram.pickRandomStar(random);
+        int size = MassRadiusDiagram.yToSize(pixel.y());
+
+        // Small random jitter on size for natural variation
+        size += random.nextIntBetweenInclusive(-2, 2);
+        size = Math.clamp(size, 1, 28);
+
+        return new StarData(size, pixel.r(), pixel.g(), pixel.b(), random.nextFloat() * 180f,
+            0.5f + random.nextFloat() * 2.0f);
     }
 
     private static GiantPlanetData randomizeGiantPlanet(RandomSource random) {
@@ -34,7 +58,7 @@ public class CelestialBodyRandomizer {
         // Ring: NONE 30%, WEAK 50%, STRONG 20%
         RingType ringType = weightedRing(random, 0.3f, 0.5f, 0.2f);
 
-        int size = random.nextIntBetweenInclusive(1, 6);
+        int size = random.nextIntBetweenInclusive(1, 8);
 
         int paletteBaseRow = random.nextIntBetweenInclusive(0, 15);
         int paletteOverlayRow;
@@ -42,7 +66,8 @@ public class CelestialBodyRandomizer {
             paletteOverlayRow = random.nextIntBetweenInclusive(0, 15);
         } while (paletteOverlayRow == paletteBaseRow);
 
-        return new GiantPlanetData(pressureType, windSpeed, ringType, size, paletteBaseRow, paletteOverlayRow);
+        return new GiantPlanetData(pressureType, windSpeed, ringType, size, paletteBaseRow, paletteOverlayRow,
+            random.nextFloat() * 180f, 0.5f + random.nextFloat() * 2.0f);
     }
 
     private static RockyPlanetData randomizeRockyPlanet(RandomSource random) {
@@ -52,13 +77,7 @@ public class CelestialBodyRandomizer {
         // Determine temperature based on atmosphere and liquid
         Temperature temperature;
         if (!hasAtmosphere) {
-            if (liquidCoverage == LiquidCoverage.NONE) {
-                // No atmosphere, no liquid: FREEZING or SCORCHED only
-                temperature = random.nextBoolean() ? Temperature.FREEZING : Temperature.SCORCHED;
-            } else {
-                // No atmosphere, has liquid: FREEZING or SCORCHED only
-                temperature = random.nextBoolean() ? Temperature.FREEZING : Temperature.SCORCHED;
-            }
+            temperature = random.nextBoolean() ? Temperature.FREEZING : Temperature.SCORCHED;
         } else {
             // Has atmosphere
             if (liquidCoverage == LiquidCoverage.NONE) {
@@ -93,7 +112,7 @@ public class CelestialBodyRandomizer {
         }
 
         return new RockyPlanetData(hasAtmosphere, liquidCoverage, temperature, ringType, size,
-            paletteBaseRow, paletteOverlayRow);
+            paletteBaseRow, paletteOverlayRow, random.nextFloat() * 180f, 0.5f + random.nextFloat() * 2.0f);
     }
 
     private static LiquidCoverage weightedLiquid(RandomSource random) {

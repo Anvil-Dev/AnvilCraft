@@ -8,7 +8,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
         "checkstyle:MultipleVariableDeclarations",
         "checkstyle:WhitespaceAround",
         "checkstyle:LocalVariableName",
-        "checkstyle:Indentation"
+        "checkstyle:Indentation",
+        "LineLength"
     }
 )
 public class CelestialBodyRenderer {
@@ -67,17 +68,17 @@ public class CelestialBodyRenderer {
         float y = 0.5f, rMin = -0.5f, rMax = 1.5f, eps = 0.001f;
         PoseStack.Pose pose = ps.last();
 
-        // Top face (upward normal)
-        vc.addVertex(pose, rMin, y + eps, rMax).setColor(-1).setUv(0, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, rMax, y + eps, rMax).setColor(-1).setUv(1, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, rMax, y + eps, rMin).setColor(-1).setUv(1, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+        // Top face (upward normal) — top-left quadrant of texture
+        vc.addVertex(pose, rMin, y + eps, rMax).setColor(-1).setUv(0, 0.5f).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+        vc.addVertex(pose, rMax, y + eps, rMax).setColor(-1).setUv(0.5f, 0.5f).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+        vc.addVertex(pose, rMax, y + eps, rMin).setColor(-1).setUv(0.5f, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
         vc.addVertex(pose, rMin, y + eps, rMin).setColor(-1).setUv(0, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
 
-        // Bottom face (downward normal)
-        vc.addVertex(pose, rMin, y - eps, rMin).setColor(-1).setUv(0, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
+        // Bottom face (downward normal) — top-right quadrant of texture
+        vc.addVertex(pose, rMin, y - eps, rMin).setColor(-1).setUv(0.5f, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
         vc.addVertex(pose, rMax, y - eps, rMin).setColor(-1).setUv(1, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
-        vc.addVertex(pose, rMax, y - eps, rMax).setColor(-1).setUv(1, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
-        vc.addVertex(pose, rMin, y - eps, rMax).setColor(-1).setUv(0, 1).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
+        vc.addVertex(pose, rMax, y - eps, rMax).setColor(-1).setUv(1, 0.5f).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
+        vc.addVertex(pose, rMin, y - eps, rMax).setColor(-1).setUv(0.5f, 0.5f).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
     }
 
     private static void faceUp(PoseStack ps, VertexConsumer vc,

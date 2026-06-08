@@ -50,7 +50,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     public static final ModelResourceLocation RING4 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4"));
     public static final ModelResourceLocation RING5 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_5"));
     public static final ModelResourceLocation RING6 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_6"));
-    public static final ModelResourceLocation STAR_MODEL = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star"));
 
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
@@ -74,17 +73,23 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(0.5, centerY, 0.5);
         poseStack.mulPose(Axis.XP.rotationDegrees(rot));
         VertexConsumer ringConsumer = multiBufferSource.getBuffer(RenderType.cutout());
+        boolean isHugeStar = bodyData instanceof StarData s && s.size() >= 20;
         if (blockEntity.isAmplify()) {
             poseStack.scale(4, 4, 4);
             modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING6), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
             poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
             modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING5), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
-            poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-            modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING4), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+            if (!isHugeStar) {
+                poseStack.mulPose(Axis.XP.rotationDegrees(rot));
+                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING4), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+            }
         } else {
             boolean isGiantPlanet = bodyData instanceof GiantPlanetData;
+            boolean isRockyPlanet = bodyData instanceof RockyPlanetData;
             poseStack.scale(4, 4, 4);
-            modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING3), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+            if (!isRockyPlanet) {
+                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING3), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+            }
             poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
             modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING2), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
             if (!isGiantPlanet) {
@@ -109,7 +114,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(0.5, centerY, 0.5);
         float scale = getBodyScale(bodyData);
         poseStack.scale(scale, scale, scale);
-        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation));
+        poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
         poseStack.translate(-0.5, -0.5, -0.5);
 
         if (bodyData instanceof StarData star) {
@@ -132,7 +138,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(0.5, centerY, 0.5);
         float ringScale = getRingScale(bodyData);
         poseStack.scale(ringScale, ringScale, ringScale);
-        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation));
+        poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
         poseStack.translate(-0.5, -0.5, -0.5);
 
         VertexConsumer ringConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(ringTexture));
@@ -149,7 +156,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         VertexConsumer starConsumer = bufferSource.getBuffer(ModRenderTypes.STAR_CUTOUT.apply(starTexture));
         CelestialBodyRenderer.renderStarBody(poseStack, starConsumer, LightTexture.FULL_BRIGHT, packedOverlay);
 
-        float[] rgb = CelestialBodyTextureBakery.starColor(star.size());
+        float[] rgb = CelestialBodyTextureBakery.starColor(star);
         int haloIterations = 10;
 
         for (int i = 0; i < haloIterations; i++) {
@@ -191,7 +198,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float r, float g, float b, float a, int light, int overlay, long seed
     ) {
         BakedModel cubeModel = blockRenderer.getBlockModel(whiteConcrete);
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.translucent());
+        VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CELESTIAL_ATMOSPHERE);
         RandomSource random = RandomSource.create(seed);
         for (Direction dir : Direction.values()) {
             for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null))
@@ -201,11 +208,17 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             consumer.putBulkData(poseStack.last(), quad, r, g, b, a, light, overlay);
     }
 
+    /**
+     * Get the visual scale for a celestial body.
+     * Stars use a 32³ cube, planets use a 16³ cube — stars are naturally 2× larger.
+     * Scale ranges account for this so that the smallest red dwarf is slightly
+     * smaller than the largest giant planet, while red giants are enormous.
+     */
     private float getBodyScale(CelestialBodyData data) {
         return switch (data) {
             case RockyPlanetData rp -> 0.41f + (rp.size() - 1) * 0.07f / 7f;
-            case GiantPlanetData gp -> 0.52f + (gp.size() - 1) * 0.10f / 5f;
-            case StarData s -> 0.46f + (s.size() - 1) * 0.54f / 27f;
+            case GiantPlanetData gp -> 0.53f + (gp.size() - 1) * 0.27f / 7f;
+            case StarData s -> 0.39f + (s.size() - 1) * 0.86f / 27f;
             default -> 0.5f;
         };
     }

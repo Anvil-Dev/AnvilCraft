@@ -10,6 +10,10 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     int size();
 
+    float axialTilt();
+
+    float rotationSpeed();
+
     CompoundTag toTag();
 
     static CelestialBodyData fromTag(CompoundTag tag) {

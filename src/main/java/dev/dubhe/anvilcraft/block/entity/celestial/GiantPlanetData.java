@@ -8,7 +8,9 @@ public record GiantPlanetData(
     RingType ringType,
     int size,
     int paletteBaseRow,
-    int paletteOverlayRow
+    int paletteOverlayRow,
+    float axialTilt,
+    float rotationSpeed
 ) implements CelestialBodyData {
 
     @Override
@@ -26,6 +28,8 @@ public record GiantPlanetData(
         tag.putInt("size", size);
         tag.putInt("paletteBaseRow", paletteBaseRow);
         tag.putInt("paletteOverlayRow", paletteOverlayRow);
+        tag.putFloat("axialTilt", axialTilt);
+        tag.putFloat("rotationSpeed", rotationSpeed);
         return tag;
     }
 
@@ -36,7 +40,9 @@ public record GiantPlanetData(
             RingType.fromName(tag.getString("ringType")),
             tag.getInt("size"),
             tag.getInt("paletteBaseRow"),
-            tag.getInt("paletteOverlayRow")
+            tag.getInt("paletteOverlayRow"),
+            tag.getFloat("axialTilt"),
+            tag.getFloat("rotationSpeed")
         );
     }
 }

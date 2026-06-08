@@ -116,7 +116,7 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     private static ResourceLocation bakeBody(CelestialBodyData data, String key) {
-        if (data instanceof StarData star) return bakeStar(key, star.size());
+        if (data instanceof StarData star) return bakeStar(key, star);
 
         TexSet tex = resolve(data);
         if (tex == null) return null;
@@ -148,34 +148,20 @@ public class CelestialBodyTextureBakery {
         return registerTexture(key, coloredBase);
     }
 
-    public static float[] starColor(int size) {
-        float t = (size - 1f) / 27f;
-        float r, g, b;
-        if (t < 1f / 6f) {
-            float s = t * 6f;
-            r = 1f; g = 0.15f + s * 0.50f; b = s * 0.05f;
-        } else if (t < 2f / 6f) {
-            float s = (t - 1f / 6f) * 6f;
-            r = 1f; g = 0.65f + s * 0.35f; b = 0.05f + s * 0.55f;
-        } else if (t < 3f / 6f) {
-            float s = (t - 2f / 6f) * 6f;
-            r = 1f; g = 1f; b = 0.6f + s * 0.4f;
-        } else if (t < 4f / 6f) {
-            float s = (t - 3f / 6f) * 6f;
-            r = 1f - s * 0.3f; g = 1f - s * 0.15f; b = 1f;
-        } else if (t < 5f / 6f) {
-            float s = (t - 4f / 6f) * 6f;
-            r = 0.7f - s * 0.25f; g = 0.85f - s * 0.35f; b = 1f;
-        } else {
-            float s = (t - 5f / 6f) * 6f;
-            r = 0.45f - s * 0.15f; g = 0.5f - s * 0.2f; b = 1f;
-        }
-        return new float[]{r, g, b};
+    /**
+     * Get the star color from the diagram-based StarData.
+     */
+    public static float[] starColor(StarData star) {
+        return new float[]{
+            star.colorR() / 255f,
+            star.colorG() / 255f,
+            star.colorB() / 255f
+        };
     }
 
-    private static NativeImage generateStarPalette(int size, int numColors) {
+    private static NativeImage generateStarPalette(StarData star, int numColors) {
         NativeImage palette = new NativeImage(numColors, 1, false);
-        float[] base = starColor(size);
+        float[] base = starColor(star);
         for (int col = 0; col < numColors; col++) {
             float brightness = 1f - (float) col / (numColors - 1) * 0.15f;
             int ir = Math.clamp((int) (base[0] * brightness * 255), 0, 255);
@@ -188,7 +174,7 @@ public class CelestialBodyTextureBakery {
 
     @SuppressWarnings("checkstyle:NeedBraces")
     @Nullable
-    private static ResourceLocation bakeStar(String key, int size) {
+    private static ResourceLocation bakeStar(String key, StarData star) {
         NativeImage starImg = loadImage("star.png");
         if (starImg == null) return null;
 
@@ -200,21 +186,12 @@ public class CelestialBodyTextureBakery {
         starImg.close();
 
         int[] refGrays = PaletteColorMapper.extractReferenceGrays(frame);
-        NativeImage palette = generateStarPalette(size, refGrays.length);
+        NativeImage palette = generateStarPalette(star, refGrays.length);
         NativeImage colored = PaletteColorMapper.colorTexture(frame, palette, 0, true);
         frame.close();
         palette.close();
 
         return registerTexture(key, colored);
-    }
-
-    private static NativeImage cropTopLeftSquare(NativeImage image) {
-        int halfW = image.getWidth() / 2, halfH = image.getHeight() / 2;
-        NativeImage cropped = new NativeImage(halfW, halfH, false);
-        for (int y = 0; y < halfH; y++)
-            for (int x = 0; x < halfW; x++)
-                cropped.setPixelRGBA(x, y, image.getPixelRGBA(x, y));
-        return cropped;
     }
 
     @Nullable
@@ -229,25 +206,23 @@ public class CelestialBodyTextureBakery {
         NativeImage ringImg = loadImage(ringFile);
         if (ringImg == null) return null;
 
-        NativeImage cropped = cropTopLeftSquare(ringImg);
-        ringImg.close();
-
         NativeImage paletteImg = loadImage("planet_giant_ring_color.png");
         if (paletteImg != null) {
             int ringPaletteRow = data instanceof RockyPlanetData rp ? rp.paletteBaseRow()
                 : data instanceof GiantPlanetData gp ? gp.paletteBaseRow() : 0;
-            NativeImage colored = PaletteColorMapper.colorTexture(cropped, paletteImg, ringPaletteRow, true);
+            NativeImage colored = PaletteColorMapper.colorTexture(ringImg, paletteImg, ringPaletteRow, true);
             paletteImg.close();
-            cropped.close();
+            ringImg.close();
             return registerTexture(key, colored);
         }
 
-        cropped.close();
+        ringImg.close();
         return null;
     }
 
     private static String cacheKey(CelestialBodyData data) {
-        if (data instanceof StarData s) return "star_" + s.size();
+        if (data instanceof StarData s)
+            return "star_" + s.size() + "_" + s.colorR() + "_" + s.colorG() + "_" + s.colorB();
         if (data instanceof RockyPlanetData rp)
             return "rp_" + rp.hasAtmosphere() + "_" + rp.liquidCoverage().getSerializedName()
                 + "_" + rp.temperature().getSerializedName() + "_" + rp.size()
