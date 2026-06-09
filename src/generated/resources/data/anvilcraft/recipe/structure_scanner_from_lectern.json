@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "minecraft:lectern",
+    "minecraft:ender_eye"
+  ],
+  "result": {
+    "id": "anvilcraft:structure_scanner"
+  }
+}

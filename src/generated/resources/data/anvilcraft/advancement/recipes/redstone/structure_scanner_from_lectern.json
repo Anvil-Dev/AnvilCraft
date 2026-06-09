@@ -1,31 +1,21 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_crab_claw": {
+    "has_ender_eye": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:crab_claw"
+            "items": "minecraft:ender_eye"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_magnetoelectric_core": {
+    "has_lectern": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:magnetoelectric_core"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_processor": {
-      "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:processor"
+            "items": "minecraft:lectern"
           }
         ]
       },
@@ -33,7 +23,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:smart_block_placer"
+        "recipe": "anvilcraft:structure_scanner_from_lectern"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -41,14 +31,13 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_crab_claw",
-      "has_processor",
-      "has_magnetoelectric_core"
+      "has_lectern",
+      "has_ender_eye"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:smart_block_placer"
+      "anvilcraft:structure_scanner_from_lectern"
     ]
   }
 }

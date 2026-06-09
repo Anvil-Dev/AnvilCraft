@@ -801,6 +801,44 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void smartBlockPlacer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
+            .pattern("AAB")
+            .pattern("AC ")
+            .pattern("DEA")
+            .define('A', Items.IRON_INGOT)
+            .define('B', ModItems.CRAB_CLAW)
+            .define('C', ModItems.PROCESSOR)
+            .define('D', Items.HOPPER)
+            .define('E', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CRAB_CLAW), AnvilCraftDatagen.has(lookup, ModItems.CRAB_CLAW))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(lookup, ModItems.PROCESSOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK))
+            .save(provider);
+    }
+
+    public static <T extends Block> void structureScanner(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.REDSTONE, ctx.get())
+            .requires(Blocks.LECTERN)
+            .requires(Items.ENDER_EYE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.LECTERN), AnvilCraftDatagen.has(lookup, Blocks.LECTERN))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.ENDER_EYE), AnvilCraftDatagen.has(lookup, Items.ENDER_EYE))
+            .save(provider, AnvilCraft.recipe("structure_scanner_from_lectern"));
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
+            .pattern("AB")
+            .pattern("CD")
+            .define('A', Items.GLASS_PANE)
+            .define('B', ModItems.PROCESSOR)
+            .define('C', Blocks.LECTERN)
+            .define('D', ModBlocks.RUBY_LASER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(lookup, ModItems.PROCESSOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_LASER), AnvilCraftDatagen.has(lookup, ModBlocks.RUBY_LASER))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.LECTERN), AnvilCraftDatagen.has(lookup, Blocks.LECTERN))
+            .save(provider);
+    }
+
     public static <T extends Block> void blockDevourer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())

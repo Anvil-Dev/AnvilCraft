@@ -1,21 +1,31 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_ender_eye": {
-      "conditions": {
-        "items": [
-          {
-            "items": "minecraft:ender_eye"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
     "has_lectern": {
       "conditions": {
         "items": [
           {
             "items": "minecraft:lectern"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_processor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:processor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_ruby_laser": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:ruby_laser"
           }
         ]
       },
@@ -31,8 +41,9 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_lectern",
-      "has_ender_eye"
+      "has_processor",
+      "has_ruby_laser",
+      "has_lectern"
     ]
   ],
   "rewards": {

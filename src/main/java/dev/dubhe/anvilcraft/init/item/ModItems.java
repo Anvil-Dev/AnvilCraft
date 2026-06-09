@@ -683,6 +683,7 @@ public class ModItems {
         .item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
         .tab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey())
+        .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)

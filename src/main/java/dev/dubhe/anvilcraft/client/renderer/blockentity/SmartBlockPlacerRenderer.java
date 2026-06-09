@@ -34,19 +34,19 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     // 位置列表缓存
     private final Map<String, List<BlockPos>> positionCache = new HashMap<>();
 
-    private static final StandaloneModelKey<BlockStateModel> BASE_MODEL = new StandaloneModelKey<>(
+    public static final StandaloneModelKey<BlockStateModel> BASE_MODEL = new StandaloneModelKey<>(
         () -> "AnvilCraft: Smart Block Placer Base Model"
     );
-    private static final StandaloneModelKey<BlockStateModel> UPPERARM_MODEL = new StandaloneModelKey<>(
+    public static final StandaloneModelKey<BlockStateModel> UPPERARM_MODEL = new StandaloneModelKey<>(
         () -> "AnvilCraft: Smart Block Placer Upperarm Model"
     );
-    private static final StandaloneModelKey<BlockStateModel> FOREARM_MODEL = new StandaloneModelKey<>(
+    public static final StandaloneModelKey<BlockStateModel> FOREARM_MODEL = new StandaloneModelKey<>(
         () -> "AnvilCraft: Smart Block Placer Forearm Model"
     );
-    private static final StandaloneModelKey<BlockStateModel> CLAW_MODEL = new StandaloneModelKey<>(
+    public static final StandaloneModelKey<BlockStateModel> CLAW_MODEL = new StandaloneModelKey<>(
         () -> "AnvilCraft: Smart Block Placer Claw Model"
     );
-    private static final StandaloneModelKey<BlockStateModel> CLAW_OPEN_MODEL = new StandaloneModelKey<>(
+    public static final StandaloneModelKey<BlockStateModel> CLAW_OPEN_MODEL = new StandaloneModelKey<>(
         () -> "AnvilCraft: Smart Block Placer Claw Open Model"
     );
 

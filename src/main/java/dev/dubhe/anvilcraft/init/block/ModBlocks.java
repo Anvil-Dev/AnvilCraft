@@ -880,6 +880,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::horizontalFacingBlock)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
         .register();
 
     public static final BlockEntry<StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
@@ -889,6 +890,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::horizontalFacingBlock)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::structureScanner)
         .register();
 
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)

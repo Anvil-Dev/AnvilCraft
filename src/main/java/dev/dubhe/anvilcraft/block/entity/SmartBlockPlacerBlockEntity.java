@@ -96,6 +96,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 @Getter
+@Setter
 public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
     private static final int PLACEMENT_INTERVAL = 20;

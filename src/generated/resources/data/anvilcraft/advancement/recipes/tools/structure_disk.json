@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:disk_to_structure_disk"
+        "recipe": "anvilcraft:structure_disk"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:disk_to_structure_disk"
+      "anvilcraft:structure_disk"
     ]
   }
 }
