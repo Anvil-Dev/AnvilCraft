@@ -130,7 +130,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 121, this.topPos + 48, "add",
+            this.leftPos + 122, this.topPos + 48, "add",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -158,7 +158,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 121, this.topPos + 62, "add",
+            this.leftPos + 122, this.topPos + 62, "add",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -186,7 +186,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
-            this.leftPos + 121, this.topPos + 76, "add",
+            this.leftPos + 122, this.topPos + 76, "add",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -289,7 +289,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.renderInfoPanel(graphics);
 
         // 渲染STRUCTURE_TOOL_LOCKED贴图
-        graphics.blit(RenderPipelines.GUI_TEXTURED, STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126, 26);
 
         // 收集并渲染所有tooltip
         List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
