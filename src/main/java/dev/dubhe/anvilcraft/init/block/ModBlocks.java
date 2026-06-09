@@ -878,10 +878,17 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(() -> (ctx, generator) -> {
-            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
-                ctx.get(),
-                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/").withSuffix("_base"))
-            ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+            Identifier bottom = ctx.getId().withPrefix("block/").withSuffix("_bottom");
+            Identifier off = ctx.getId().withPrefix("block/").withSuffix("_bottom_off");
+            Identifier overload = ctx.getId().withPrefix("block/").withSuffix("_bottom_overload");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatchWrap.initial(SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED)
+                    .select(true, true, BlockModelGenerators.plainVariant(overload))
+                    .select(true, false, BlockModelGenerators.plainVariant(overload))
+                    .select(false, true, BlockModelGenerators.plainVariant(off))
+                    .select(false, false, BlockModelGenerators.plainVariant(bottom))
+                    .dispatch())
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
         })
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

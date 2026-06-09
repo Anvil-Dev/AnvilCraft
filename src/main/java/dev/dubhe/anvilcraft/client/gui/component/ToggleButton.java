@@ -32,7 +32,7 @@ public class ToggleButton extends Button {
         this.texture = texture;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
-        this.texYDiff = textureHeight;
+        this.texYDiff = textureHeight / 2;
         this.tooltips = tooltips;
     }
 

@@ -215,7 +215,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             16,
             REDO_TEXTURE,
             16,
-            16,
+            32,
             (btn) -> this.onModeToggleClick(),
             List.of()
         );

@@ -80,6 +80,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import net.minecraft.util.ProblemReporter;
 import org.slf4j.LoggerFactory;
@@ -3064,7 +3065,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 // 从容器预提取：先模拟提取，返回物品信息，放置成功后再真正提取
                 // 细雪桶特殊处理：预提取时就返还桶
                 if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
-                    itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
+                    try (Transaction tx = Transaction.openRoot()) {
+                        itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, tx);
+                        tx.commit();
+                    }
                 }
                 return new ContainerExtractionResult(blockItemStack.copy(), itemHandler, slot);
             }
@@ -3089,7 +3093,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                                 // 从实体容器预提取：先模拟提取，返回物品信息，放置成功后再真正提取
                                 // 细雪桶特殊处理：预提取时就返还桶
                                 if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
-                                    entityHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
+                                    try (Transaction tx = Transaction.openRoot()) {
+                                        entityHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, tx);
+                                        tx.commit();
+                                    }
                                 }
                                 return new ContainerExtractionResult(blockItemStack.copy(), entityHandler, slot);
                             }
@@ -3165,7 +3172,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     ItemStack blockItemStack = resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1));
                     // 细雪桶特殊处理：预提取时就返还桶
                     if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
-                        itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
+                        try (Transaction tx = Transaction.openRoot()) {
+                            itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, tx);
+                            tx.commit();
+                        }
                     }
                     return new ContainerExtractionResult(blockItemStack.copy(), itemHandler, slot);
                 }
@@ -3191,7 +3201,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                                     ItemStack blockItemStack = entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1));
                                     // 细雪桶特殊处理
                                     if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
-                                        entityHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
+                                        try (Transaction tx = Transaction.openRoot()) {
+                                            entityHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, tx);
+                                            tx.commit();
+                                        }
                                     }
                                     return new ContainerExtractionResult(blockItemStack.copy(), entityHandler, slot);
                                 }
@@ -3346,13 +3359,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 // 检查是否是需要的方块
                 if (blockItem.getBlock() == targetBlock) {
                     // 直接提取
-                    long extractedAmount = itemHandler.extract(slot, resource, 1, null);
+                    long extractedAmount;
+                    try (Transaction transaction = Transaction.openRoot()) {
+                        extractedAmount = itemHandler.extract(slot, resource, 1, transaction);
+                        if (extractedAmount > 0) transaction.commit();
+                    }
                     if (extractedAmount <= 0) {
                         return ItemStack.EMPTY;
                     }
                     ItemStack extracted = resource.toStack(1);
                     if (extracted.is(Items.POWDER_SNOW_BUCKET)) {
-                        itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
+                        try (Transaction tx = Transaction.openRoot()) {
+                            itemHandler.insert(slot, ItemResource.of(new ItemStack(Items.BUCKET)), 1, tx);
+                            tx.commit();
+                        }
                     }
                     // 发送容器更新，让比较器能正确检测物品数量
                     level.sendBlockUpdated(inputPos, level.getBlockState(inputPos), level.getBlockState(inputPos), 3);
@@ -3377,7 +3397,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem blockItem) {
                                 if (blockItem.getBlock() == targetBlock) {
-                                    long extractedAmount = entityHandler.extract(slot, entityResource, 1, null);
+                                    long extractedAmount;
+                                    try (Transaction transaction = Transaction.openRoot()) {
+                                        extractedAmount = entityHandler.extract(slot, entityResource, 1, transaction);
+                                        if (extractedAmount > 0) transaction.commit();
+                                    }
                                     if (extractedAmount > 0) {
                                         return entityResource.toStack(1);
                                     }
@@ -3550,7 +3574,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 真正从容器中删除物品
             ItemResource resource = itemHandler.getResource(slot);
             if (!resource.isEmpty()) {
-                itemHandler.extract(slot, resource, 1, null);
+                try (Transaction transaction = Transaction.openRoot()) {
+                    itemHandler.extract(slot, resource, 1, transaction);
+                    transaction.commit();
+                }
             }
             // 不需要处理细雪桶，因为预提取时已经把桶插回去了
         }
@@ -3586,7 +3613,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (itemHandler != null) {
             ItemStack remaining = extractedItem.copy();
             for (int slot = 0; slot < itemHandler.size() && !remaining.isEmpty(); slot++) {
-                long inserted = itemHandler.insert(slot, ItemResource.of(remaining), remaining.getCount(), null);
+                long inserted;
+                try (Transaction tx = Transaction.openRoot()) {
+                    inserted = itemHandler.insert(slot, ItemResource.of(remaining), remaining.getCount(), tx);
+                    if (inserted > 0) tx.commit();
+                }
                 if (inserted >= remaining.getCount()) {
                     remaining = ItemStack.EMPTY;
                 } else {

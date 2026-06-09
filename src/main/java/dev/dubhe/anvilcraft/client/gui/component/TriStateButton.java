@@ -32,7 +32,7 @@ public class TriStateButton extends Button {
         this.texture = texture;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
-        this.texYDiff = textureHeight;
+        this.texYDiff = textureHeight / 3;
         this.tooltips = tooltips;
     }
 
@@ -61,7 +61,9 @@ public class TriStateButton extends Button {
         if (!this.visible) return;
         this.isHovered = this.isMouseOver(mouseX, mouseY);
         int offsetV = 0;
-        if (this.isHovered || this.selected) {
+        if (this.selected) {
+            offsetV = this.texYDiff * 2;
+        } else if (this.isHovered) {
             offsetV = this.texYDiff;
         }
         graphics.blit(

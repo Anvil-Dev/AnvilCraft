@@ -185,7 +185,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 16,
                 LAYER_DEFAULT[i],
                 16,
-                16,
+                48,
                 (btn) -> this.onLayerButtonClick(index),
                 List.of(Component.translatable("screen.anvilcraft.smart_block_placer.layer." + (i + 1)))
             );
@@ -234,7 +234,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             16,
             this.showAllLayers ? LAYER_ALL : LAYER_SINGLE,
             16,
-            16,
+            32,
             (btn) -> this.onLayerModeButtonClick(),
             List.of(this.getLayerModeTooltip())
         );
@@ -253,7 +253,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             16,
             this.isPickupMode ? PICKUP_MODE : MOVE_MODE,
             16,
-            16,
+            32,
             (btn) -> this.onOperationModeButtonClick(),
             List.of(this.getOperationModeTooltip())
         );
@@ -278,7 +278,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             16,
             SKIP_MISSING,
             16,
-            16,
+            48,
             (btn) -> this.onSkipMissingButtonClick(),
             List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.skip"))
         );
@@ -292,7 +292,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             16,
             STOP_MISSING,
             16,
-            16,
+            48,
             (btn) -> this.onStopMissingButtonClick(),
             List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.stop"))
         );
@@ -395,7 +395,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         TriStateButton button = new TriStateButton(
             xpos, ypos, 16, 16,
-            POSITION_SELECT, 16, 16,
+            POSITION_SELECT, 16, 48,
             (btn) -> onPositionButtonClick(row, col, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
