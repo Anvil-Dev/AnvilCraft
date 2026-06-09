@@ -37,7 +37,6 @@ import java.util.List;
 
 public class StructureScannerBlockEntity extends BaseMachineBlockEntity implements MenuProvider {
     // 物品栏处理器: 槽位0=磁盘输入, 槽位1=输出
-    @Getter
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(2) {
         @Override
         public boolean isValid(int index, ItemResource resource) {
