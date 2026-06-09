@@ -80,6 +80,7 @@ import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceHeavyHalberdItem
 import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceResonatorItem;
 import dev.dubhe.anvilcraft.item.utility.CrabClawItem;
 import dev.dubhe.anvilcraft.item.utility.DiskItem;
+import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.utility.EnergyWeaponPlatformItem;
 import dev.dubhe.anvilcraft.item.utility.FilterItem;
 import dev.dubhe.anvilcraft.item.utility.GeodeItem;
@@ -676,6 +677,12 @@ public class ModItems {
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
         .properties(p -> p.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::disk)
+        .register();
+
+    public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
+        .item("structure_disk", StructureDiskItem::new)
+        .properties(p -> p.stacksTo(1))
+        .tab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey())
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)

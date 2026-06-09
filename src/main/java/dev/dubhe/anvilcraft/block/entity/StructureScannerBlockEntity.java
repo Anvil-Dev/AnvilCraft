@@ -12,6 +12,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -28,6 +31,8 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -108,7 +113,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     };
     
     // 组合的ItemHandler
-    private final IItemHandler combinedItemHandler = new CombinedInvWrapper(diskItemHandler, outputItemHandler);
+    private final ResourceHandler<ItemResource> combinedItemHandler = new CombinedInvWrapper(diskItemHandler, outputItemHandler);
     
     // 扫描范围 - X轴
     @Getter
@@ -412,7 +417,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     }
 
     @Override
-    public IItemHandler getItemHandler() {
+    public ResourceHandler<ItemResource> getItemHandler() {
         return combinedItemHandler;
     }
 
@@ -424,26 +429,19 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        this.saveAdditional(tag, provider);
+        CompoundTag tag = super.getUpdateTag(provider);
+        saveAdditionalData(tag);
         return tag;
     }
 
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        // 保存Disk物品栏
-        tag.put("diskInventory", this.diskInventory.createTag(provider));
-        // 保存输出物品栏
-        tag.put("outputInventory", this.outputInventory.createTag(provider));
-        // 保存扫描范围
+    private void saveAdditionalData(CompoundTag tag) {
+        ContainerHelper.saveAllItems(tag, this.diskInventory.getItems());
+        ContainerHelper.saveAllItems(tag, this.outputInventory.getItems());
         tag.putInt("rangeX", this.rangeX.index());
         tag.putInt("rangeY", this.rangeY.index());
         tag.putInt("rangeZ", this.rangeZ.index());
-        // 保存扫描状态
         tag.putBoolean("isScanning", this.isScanning);
         tag.putInt("currentScanLayer", this.currentScanLayer);
-        // 保存扫描结果
         if (!this.scannedBlocks.isEmpty()) {
             ListTag blocksTag = new ListTag();
             for (CachedBlockData data : this.scannedBlocks) {
@@ -456,43 +454,45 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             }
             tag.put("scannedBlocks", blocksTag);
         }
-        // 保存自动保存状态
         tag.putBoolean("pendingAutoSave", this.pendingAutoSave);
         tag.putString("autoSaveStructureName", this.autoSaveStructureName);
     }
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        CompoundTag tag = new CompoundTag();
+        saveAdditionalData(tag);
+        output.store("ScannerData", CompoundTag.CODEC, tag);
+    }
     
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        // 加载Disk物品栏
-        this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
-        // 加载输出物品栏
-        this.outputInventory.fromTag(tag.getList("outputInventory", Tag.TAG_COMPOUND), provider);
-        // 加载扫描范围
-        this.rangeX.fromIndex(tag.getInt("rangeX"));
-        this.rangeY.fromIndex(tag.getInt("rangeY"));
-        this.rangeZ.fromIndex(tag.getInt("rangeZ"));
-        // 加载扫描状态
-        this.isScanning = tag.getBoolean("isScanning");
-        this.currentScanLayer = tag.getInt("currentScanLayer");
-        // 加载扫描结果
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag tag = input.read("ScannerData", CompoundTag.CODEC).orElse(new CompoundTag());
+        ContainerHelper.loadAllItems(tag, this.diskInventory.getItems());
+        ContainerHelper.loadAllItems(tag, this.outputInventory.getItems());
+        this.rangeX.fromIndex(tag.getIntOr("rangeX", 0));
+        this.rangeY.fromIndex(tag.getIntOr("rangeY", 0));
+        this.rangeZ.fromIndex(tag.getIntOr("rangeZ", 0));
+        this.isScanning = tag.getBooleanOr("isScanning", false);
+        this.currentScanLayer = tag.getIntOr("currentScanLayer", 0);
         this.scannedBlocks.clear();
-        if (tag.contains("scannedBlocks", Tag.TAG_LIST) && this.level != null) {
-            ListTag blocksTag = tag.getList("scannedBlocks", Tag.TAG_COMPOUND);
+        if (tag.contains("scannedBlocks") && this.level != null) {
+            ListTag blocksTag = tag.getList("scannedBlocks");
             for (int i = 0; i < blocksTag.size(); i++) {
-                CompoundTag blockTag = blocksTag.getCompound(i);
-                int x = blockTag.getInt("x");
-                int y = blockTag.getInt("y");
-                int z = blockTag.getInt("z");
+                CompoundTag blockTag = blocksTag.getCompoundOrEmpty(i);
+                int x = blockTag.getIntOr("x", 0);
+                int y = blockTag.getIntOr("y", 0);
+                int z = blockTag.getIntOr("z", 0);
                 net.minecraft.world.level.block.state.BlockState state = net.minecraft.nbt.NbtUtils.readBlockState(
                     this.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BLOCK),
-                    blockTag.getCompound("state")
+                    blockTag.getCompoundOrEmpty("state")
                 );
                 this.scannedBlocks.add(new CachedBlockData(x, y, z, state));
             }
         }
-        // 加载自动保存状态
-        this.pendingAutoSave = tag.getBoolean("pendingAutoSave");
-        this.autoSaveStructureName = tag.getString("autoSaveStructureName");
+        this.pendingAutoSave = tag.getBooleanOr("pendingAutoSave", false);
+        this.autoSaveStructureName = tag.getStringOr("autoSaveStructureName", "");
     }
 }

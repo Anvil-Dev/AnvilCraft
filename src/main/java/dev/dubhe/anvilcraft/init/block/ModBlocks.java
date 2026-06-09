@@ -141,6 +141,8 @@ import dev.dubhe.anvilcraft.block.storage.TranscendiumBlock;
 import dev.dubhe.anvilcraft.block.storage.VoidMatterBlock;
 import dev.dubhe.anvilcraft.block.utility.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.utility.ArrowBlock;
+import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.utility.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.utility.ControllableSandBlock;
@@ -869,6 +871,24 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
+        .register();
+
+    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
+        .block("smart_block_placer", SmartBlockPlacerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)

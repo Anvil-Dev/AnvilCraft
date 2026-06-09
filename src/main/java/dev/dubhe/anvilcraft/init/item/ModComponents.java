@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
+import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
@@ -57,6 +58,11 @@ public class ModComponents {
     public static final DataComponentType<StructureData> STRUCTURE_DATA = register(
         "structure_data",
         b -> b.persistent(StructureData.CODEC).networkSynchronized(StructureData.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<StructureDiskData> STRUCTURE_DISK_DATA = register(
+        "structure_disk_data",
+        b -> b.persistent(StructureDiskData.CODEC).networkSynchronized(StructureDiskData.STREAM_CODEC)
     );
 
     public static final DataComponentType<StoredItem> DISPLAY_ITEM = register(

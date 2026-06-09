@@ -5,18 +5,18 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
-import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
-import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
-import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
-import dev.dubhe.anvilcraft.block.LargeCakeBlock;
-import dev.dubhe.anvilcraft.block.OverseerBlock;
-import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
+import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
+import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
+import dev.dubhe.anvilcraft.block.power.transmitting.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
-import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
-import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
+import dev.dubhe.anvilcraft.block.power.transmitting.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -32,9 +32,11 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -53,6 +55,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
@@ -75,6 +79,8 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -90,7 +96,7 @@ import javax.annotation.Nullable;
 
 @Getter
 @Setter
-public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemHandlerHolder {
+public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
     private static final int PLACEMENT_INTERVAL = 20;
     private static final int PLACEMENT_DELAY = 6;
@@ -272,72 +278,52 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return new SmartBlockPlacerBlockEntity(type, pos, blockState);
     }
 
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putBoolean("isPowered", isPowered);
-        tag.putBoolean("hasRedstoneSignal", hasRedstoneSignal);
-        tag.putInt("selectedLayer", selectedLayer);
-        tag.putInt("currentPlacementIndex", currentPlacementIndex);
-        tag.putInt("placeCooldown", placeCooldown);
-        tag.putBoolean("isPickupMode", isPickupMode);
-        tag.putBoolean("isSkipMissingMode", isSkipMissingMode);
-        if (!missingBlockItem.isEmpty()) {
-            tag.put("missingBlockItem", missingBlockItem.save(provider));
-        }
-        if (!currentHeldBlock.isEmpty()) {
-            tag.put("currentHeldBlock", currentHeldBlock.save(provider));
-        }
-        saveLayerPositions(tag);
-        // 保存Disk物品栏
-        tag.put("diskInventory", this.diskInventory.createTag(provider));
-        // 保存书物品栏
-        tag.put("bookInventory", this.bookInventory.createTag(provider));
-        // 保存输出书物品栏
-        tag.put("outputBookInventory", this.outputBookInventory.createTag(provider));
+    private static final String DATA_KEY = "SmartBlockPlacerData";
 
-        // 保存结构缓存(保存原始未旋转的数据)
-        if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
-            tag.put("cachedStructure", this.saveStructureData(this.loadedStructure, provider));
-            tag.putString("cachedStructureName", this.loadedStructureName);
-            if (this.loadedStructureUuid != null) {
-                tag.putUUID("cachedStructureUuid", this.loadedStructureUuid);
-            }
-        }
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        CompoundTag tag = new CompoundTag();
+        saveAdditionalDataToTag(tag);
+        output.store(DATA_KEY, CompoundTag.CODEC, tag);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        this.isPowered = tag.getBoolean("isPowered");
-        this.hasRedstoneSignal = tag.getBoolean("hasRedstoneSignal");
-        this.selectedLayer = tag.getInt("selectedLayer");
-        this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
-        this.placeCooldown = tag.getInt("placeCooldown");
-        this.isPickupMode = tag.getBoolean("isPickupMode");
-        this.isSkipMissingMode = tag.getBoolean("isSkipMissingMode");
-        this.missingBlockItem = tag.contains("missingBlockItem", Tag.TAG_COMPOUND)
-                                ? ItemStack.parse(provider, tag.getCompound("missingBlockItem")).orElse(ItemStack.EMPTY)
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag tag = input.read(DATA_KEY, CompoundTag.CODEC).orElse(new CompoundTag());
+        this.isPowered = tag.getBooleanOr("isPowered", false);
+        this.hasRedstoneSignal = tag.getBooleanOr("hasRedstoneSignal", false);
+        this.selectedLayer = tag.getIntOr("selectedLayer", 0);
+        this.currentPlacementIndex = tag.getIntOr("currentPlacementIndex", 0);
+        this.placeCooldown = tag.getIntOr("placeCooldown", 0);
+        this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
+        this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
+        this.missingBlockItem = tag.contains("missingBlockItem")
+                                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("missingBlockItem"))
+                                    .result().orElse(ItemStack.EMPTY)
                                 : ItemStack.EMPTY;
-        this.currentHeldBlock = tag.contains("currentHeldBlock", Tag.TAG_COMPOUND)
-                                ? ItemStack.parse(provider, tag.getCompound("currentHeldBlock")).orElse(ItemStack.EMPTY)
+        this.currentHeldBlock = tag.contains("currentHeldBlock")
+                                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("currentHeldBlock"))
+                                    .result().orElse(ItemStack.EMPTY)
                                 : ItemStack.EMPTY;
         loadLayerPositions(tag);
         // 加载Disk物品栏
-        this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
+        ContainerHelper.loadAllItems(tag, this.diskInventory.getItems());
         // 同步 lastDiskItem 缓存以匹配实际库存状态，防止后续取出蓝图时检测不到变化
         this.lastDiskItem = this.diskInventory.getItem(0).copy();
         // 加载书物品栏
-        this.bookInventory.fromTag(tag.getList("bookInventory", Tag.TAG_COMPOUND), provider);
+        ContainerHelper.loadAllItems(tag, this.bookInventory.getItems());
         // 加载输出书物品栏
-        this.outputBookInventory.fromTag(tag.getList("outputBookInventory", Tag.TAG_COMPOUND), provider);
+        ContainerHelper.loadAllItems(tag, this.outputBookInventory.getItems());
 
         // 优先从缓存加载结构数据(原始未旋转的数据)
-        if (tag.contains("cachedStructure", Tag.TAG_COMPOUND)) {
-            this.loadedStructure = this.loadStructureData(tag.getCompound("cachedStructure"), provider);
-            this.loadedStructureName = tag.getString("cachedStructureName");
+        if (tag.contains("cachedStructure")) {
+            this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
+            this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
             if (tag.contains("cachedStructureUuid")) {
-                this.loadedStructureUuid = tag.getUUID("cachedStructureUuid");
+                this.loadedStructureUuid = UUIDUtil.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid"))
+                    .result().orElse(null);
             }
             this.hasStructureDisk = true;
         }
@@ -347,7 +333,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     @Override
-    public IItemHandler getItemHandler() {
+    public ResourceHandler<ItemResource> getItemHandler() {
         return new InvWrapper(diskInventory) {
             @Override
             public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
@@ -401,9 +387,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @param provider 注册表访问器（当前未使用，保留用于未来扩展）
      */
     @SuppressWarnings("unused")
-    private CompoundTag saveStructureData(StructureLoadUtil.StructureData data, HolderLookup.Provider provider) {
+    private CompoundTag saveStructureData(StructureLoadUtil.StructureData data) {
         CompoundTag tag = new CompoundTag();
-        StructureDiskData.CODEC.encode(data.diskData, NbtOps.INSTANCE, new CompoundTag())
+        StructureDiskData.CODEC.encodeStart(NbtOps.INSTANCE, data.diskData)
             .result()
             .ifPresent(nbt -> tag.put("DiskData", nbt));
         // 保存方块列表
@@ -437,25 +423,25 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      * @param provider 注册表访问器（当前未使用，保留用于未来扩展）
      */
     @SuppressWarnings("unused")
-    private StructureLoadUtil.StructureData loadStructureData(CompoundTag tag, HolderLookup.Provider provider) {
-        Pair<StructureDiskData, Tag> orThrow = StructureDiskData.CODEC.decode(NbtOps.INSTANCE, tag.get("DiskData")).getOrThrow();
+    private StructureLoadUtil.StructureData loadStructureData(CompoundTag tag) {
+        Pair<StructureDiskData, Tag> orThrow = StructureDiskData.CODEC.parse(NbtOps.INSTANCE, tag.get("DiskData")).getOrThrow();
         StructureLoadUtil.StructureData data = new StructureLoadUtil.StructureData(orThrow.getFirst());
 
         // 加载方块列表
-        CompoundTag blocksTag = tag.getCompound("blocks");
+        CompoundTag blocksTag = tag.getCompoundOrEmpty("blocks");
         for (String key : blocksTag.getAllKeys()) {
-            CompoundTag blockTag = blocksTag.getCompound(key);
-            int x = blockTag.getInt("x");
-            int y = blockTag.getInt("y");
-            int z = blockTag.getInt("z");
+            CompoundTag blockTag = blocksTag.getCompoundOrEmpty(key);
+            int x = blockTag.getIntOr("x", 0);
+            int y = blockTag.getIntOr("y", 0);
+            int z = blockTag.getIntOr("z", 0);
 
             // 加载方块状态
             final BlockState[] stateHolder =
                 new BlockState[]{Blocks.AIR.defaultBlockState()};
-            if (blockTag.contains("state", Tag.TAG_COMPOUND)) {
+            if (blockTag.contains("state")) {
                 try {
                     BlockState.CODEC.parse(
-                        NbtOps.INSTANCE, blockTag.getCompound("state")
+                        NbtOps.INSTANCE, blockTag.getCompoundOrEmpty("state")
                     ).result().ifPresent(s -> stateHolder[0] = s);
                 } catch (Exception e) {
                     LoggerFactory.getLogger(SmartBlockPlacerBlockEntity.class)
@@ -3674,8 +3660,38 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(tag, registries);
+        saveAdditionalDataToTag(tag);
         return tag;
+    }
+
+    private void saveAdditionalDataToTag(CompoundTag tag) {
+        tag.putBoolean("isPowered", isPowered);
+        tag.putBoolean("hasRedstoneSignal", hasRedstoneSignal);
+        tag.putInt("selectedLayer", selectedLayer);
+        tag.putInt("currentPlacementIndex", currentPlacementIndex);
+        tag.putInt("placeCooldown", placeCooldown);
+        tag.putBoolean("isPickupMode", isPickupMode);
+        tag.putBoolean("isSkipMissingMode", isSkipMissingMode);
+        if (!missingBlockItem.isEmpty()) {
+            ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, missingBlockItem)
+                .result().ifPresent(nbt -> tag.put("missingBlockItem", nbt));
+        }
+        if (!currentHeldBlock.isEmpty()) {
+            ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, currentHeldBlock)
+                .result().ifPresent(nbt -> tag.put("currentHeldBlock", nbt));
+        }
+        saveLayerPositions(tag);
+        ContainerHelper.saveAllItems(tag, this.diskInventory.getItems());
+        ContainerHelper.saveAllItems(tag, this.bookInventory.getItems());
+        ContainerHelper.saveAllItems(tag, this.outputBookInventory.getItems());
+        if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
+            tag.put("cachedStructure", this.saveStructureData(this.loadedStructure));
+            tag.putString("cachedStructureName", this.loadedStructureName);
+            if (this.loadedStructureUuid != null) {
+                UUIDUtil.CODEC.encodeStart(NbtOps.INSTANCE, this.loadedStructureUuid)
+                    .result().ifPresent(nbt -> tag.put("cachedStructureUuid", nbt));
+            }
+        }
     }
 
     private void saveLayerPositions(CompoundTag tag) {
@@ -3691,8 +3707,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private void loadLayerPositions(CompoundTag tag) {
         this.layerPositions.clear();
-        if (tag.contains("layerPositions", Tag.TAG_COMPOUND)) {
-            CompoundTag layerTag = tag.getCompound("layerPositions");
+        if (tag.contains("layerPositions")) {
+            CompoundTag layerTag = tag.getCompoundOrEmpty("layerPositions");
             for (String key : layerTag.getAllKeys()) {
                 if (key.startsWith("layer_")) {
                     int layer = Integer.parseInt(key.substring(6));
@@ -3746,18 +3762,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     @Override
-    public void storeDiskData(CompoundTag tag) {
+    public void storeDiskData(ValueOutput output) {
+        CompoundTag tag = new CompoundTag();
         tag.putInt("selectedLayer", this.selectedLayer);
         tag.putInt("currentPlacementIndex", this.currentPlacementIndex);
         tag.putBoolean("isPickupMode", this.isPickupMode);
         this.saveLayerPositions(tag);
+        output.store("Data", CompoundTag.CODEC, tag);
     }
 
     @Override
-    public void applyDiskData(CompoundTag tag) {
-        this.selectedLayer = tag.getInt("selectedLayer");
-        this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
-        this.isPickupMode = tag.getBoolean("isPickupMode");
+    public void applyDiskData(ValueInput input) {
+        CompoundTag tag = input.read("Data", CompoundTag.CODEC).orElse(new CompoundTag());
+        this.selectedLayer = tag.getIntOr("selectedLayer", 0);
+        this.currentPlacementIndex = tag.getIntOr("currentPlacementIndex", 0);
+        this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
         this.loadLayerPositions(tag);
         this.expectedShuttleTarget = null;
         this.onChanged();
