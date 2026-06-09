@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
@@ -47,11 +48,11 @@ import java.util.List;
 import java.util.Optional;
 
 public class StructureScannerScreen extends AbstractContainerScreen<StructureScannerMenu> {
-    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "structure_scanner");
-    private static final Identifier REDO_TEXTURE = SharedTextures.textureGui("machine/button_any");
-    private static final Identifier STOP_TEXTURE = SharedTextures.textureGui("machine/button_no");
-    private static final Identifier CONFIRM_TEXTURE = SharedTextures.textureGui("machine/confirm");
-    private static final Identifier STRUCTURE_TOOL_LOCKED_TEXTURE = SharedTextures.textureGui("misc/background/structure_tool");
+    private static final Identifier BACKGROUND = SharedTextures.STRUCTURE_SCANNER_BACKGROUND;
+    private static final Identifier REDO_TEXTURE = SharedTextures.REDO;
+    private static final Identifier STOP_TEXTURE = SharedTextures.STOP;
+    private static final Identifier CONFIRM_TEXTURE = SharedTextures.CONFIRM;
+    private static final Identifier STRUCTURE_TOOL_LOCKED_TEXTURE = SharedTextures.STRUCTURE_TOOL_LOCKED;
 
     // 预览窗口位置和尺寸
     private int previewWindowX;
@@ -118,11 +119,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             return Component.literal(blockEntity != null ? blockEntity.getRangeX().get().toString() : "?");
         }
         ));
-        this.addRenderableWidget(new TexturedButton(
-            this.leftPos + 84, this.topPos + 48, 16, 16,
-            SharedTextures.textureGui("misc/slider_like/button_minus"),
-            16, 16, 32,
-            (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 84, this.topPos + 48, "minus",
+            _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeX().previous();
@@ -130,11 +129,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
         }
         ));
-        this.addRenderableWidget(new TexturedButton(
-            this.leftPos + 122, this.topPos + 48, 16, 16,
-            SharedTextures.textureGui("misc/slider_like/button_add"),
-            16, 16, 32,
-            (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 121, this.topPos + 48, "add",
+            _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeX().next();
@@ -150,11 +147,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             return Component.literal(blockEntity != null ? blockEntity.getRangeZ().get().toString() : "?");
         }
         ));
-        this.addRenderableWidget(new TexturedButton(
-            this.leftPos + 84, this.topPos + 62, 16, 16,
-            SharedTextures.textureGui("misc/slider_like/button_minus"),
-            16, 16, 32,
-            (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 84, this.topPos + 62, "minus",
+            _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeZ().previous();
@@ -162,11 +157,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
         }
         ));
-        this.addRenderableWidget(new TexturedButton(
-            this.leftPos + 122, this.topPos + 62, 16, 16,
-            SharedTextures.textureGui("misc/slider_like/button_add"),
-            16, 16, 32,
-            (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 121, this.topPos + 62, "add",
+            _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeZ().next();
@@ -182,11 +175,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             return Component.literal(blockEntity != null ? blockEntity.getRangeY().get().toString() : "?");
         }
         ));
-        this.addRenderableWidget(new TexturedButton(
-            this.leftPos + 84, this.topPos + 76, 16, 16,
-            SharedTextures.textureGui("misc/slider_like/button_minus"),
-            16, 16, 32,
-            (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 84, this.topPos + 76, "minus",
+            _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeY().previous();
@@ -194,11 +185,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
         }
         ));
-        this.addRenderableWidget(new TexturedButton(
-            this.leftPos + 122, this.topPos + 76, 16, 16,
-            SharedTextures.textureGui("misc/slider_like/button_add"),
-            16, 16, 32,
-            (b) -> {
+        this.addRenderableWidget(new ItemCollectorButton(
+            this.leftPos + 121, this.topPos + 76, "add",
+            _ -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeY().next();

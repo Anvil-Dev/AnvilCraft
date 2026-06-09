@@ -32,12 +32,18 @@ public class SharedTextures {
     public static final Identifier BUTTON_REVERSE_ON = textureGui("machine/button_reverse_on");
     public static final Identifier BUTTON_REVERSE_OFF = textureGui("machine/button_reverse_off");
     public static final Identifier CONFIRM = textureGui("machine/confirm");
+    public static final Identifier REDO = textureGui("machine/redo");
+    public static final Identifier STOP = textureGui("machine/stop");
+    public static final Identifier STRUCTURE_TOOL_LOCKED = textureGui("machine/structure_tool_locked");
     public static final Identifier DISABLED_SLOT = textureGui("machine/disabled_slot");
     public static final Identifier PLAYER_ALLOW = textureGui("machine/player_allow");
     public static final Identifier PLAYER_NOT_ALLOW = textureGui("machine/player_not_allow");
     public static final Identifier VILLAGER_ALLOW = textureGui("machine/villager_allow");
     public static final Identifier VILLAGER_NOT_ALLOW = textureGui("machine/villager_not_allow");
     public static final Identifier SMALL_SLIDER = textureGui("machine/slider");
+
+    // STRUCTURE_SCANNER
+    public static final Identifier STRUCTURE_SCANNER_BACKGROUND = bg("machine", "structure_scanner");
 
     // SMART_BLOCK_PLACER
     public static final Identifier SMART_BLOCK_PLACER_BACKGROUND = bg("machine", "smart_block_placer");
