@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "A": {
+      "tag": "c:glass_panes"
+    },
+    "B": {
+      "item": "anvilcraft:processor"
+    },
+    "C": {
+      "item": "minecraft:lectern"
+    },
+    "D": {
+      "item": "anvilcraft:ruby_laser"
+    }
+  },
+  "pattern": [
+    "AB",
+    "CD"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:structure_scanner"
+  }
+}
