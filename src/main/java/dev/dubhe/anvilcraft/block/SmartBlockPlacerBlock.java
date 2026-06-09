@@ -152,22 +152,13 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     }
 
     @Override
-    protected InteractionResult useWithoutItem(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Player player,
-        BlockHitResult hitResult
-    ) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
-            if (player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get())
-                || player.getItemInHand(InteractionHand.OFF_HAND).is(ModItems.DISK.get())) {
-                InteractionHand hand = player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get())
-                    ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+            if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
                 return placerEntity.useDisk(level, player, hand, player.getItemInHand(hand), hitResult);
             }
             if (player instanceof ServerPlayer serverPlayer) {

@@ -877,7 +877,12 @@ public class ModBlocks {
         .block("smart_block_placer", SmartBlockPlacerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .blockstate(() -> (ctx, generator) -> {
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(
+                ctx.get(),
+                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/").withSuffix("_base"))
+            ).with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+        })
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)

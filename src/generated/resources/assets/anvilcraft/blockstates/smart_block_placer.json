@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=east": {
-      "model": "anvilcraft:block/smart_block_placer",
+      "model": "anvilcraft:block/smart_block_placer_base",
       "y": 90
     },
     "facing=north": {
-      "model": "anvilcraft:block/smart_block_placer"
+      "model": "anvilcraft:block/smart_block_placer_base"
     },
     "facing=south": {
-      "model": "anvilcraft:block/smart_block_placer",
+      "model": "anvilcraft:block/smart_block_placer_base",
       "y": 180
     },
     "facing=west": {
-      "model": "anvilcraft:block/smart_block_placer",
+      "model": "anvilcraft:block/smart_block_placer_base",
       "y": 270
     }
   }
