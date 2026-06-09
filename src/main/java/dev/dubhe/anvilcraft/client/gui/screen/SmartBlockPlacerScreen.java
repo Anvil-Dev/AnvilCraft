@@ -795,9 +795,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             level,
             minPos.get(),
             maxPos.get(),
-            0, 0,
-            1, 1,
-            1,
+            this.previewWindowX,
+            this.previewWindowY,
+            this.previewWindowX + this.previewWindowWidth,
+            this.previewWindowY + this.previewWindowHeight,
+            1.0f,
             true,
             poseStack
         );
