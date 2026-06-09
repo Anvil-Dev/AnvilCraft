@@ -406,13 +406,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private void onLayerButtonClick(int index) {
         this.currentViewLayer = index;
 
-        if (this.menu.getBlockEntity() != null) {
-            this.layerPositions = new HashMap<>();
-            for (Map.Entry<Integer, Set<Integer>> entry : this.menu.getBlockEntity().getLayerPositions().entrySet()) {
-                this.layerPositions.put(entry.getKey(), new HashSet<>(entry.getValue()));
-            }
-        }
-
         for (int i = 0; i < 5; i++) {
             this.layerButtons.get(4 - i).setSelected(i == index);
         }

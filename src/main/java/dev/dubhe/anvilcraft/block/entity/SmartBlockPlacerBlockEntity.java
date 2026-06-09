@@ -41,6 +41,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -370,6 +371,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.getBlockState(),
                 Block.UPDATE_CLIENTS
             );
+            if (level instanceof ServerLevel serverLevel) {
+                serverLevel.getPlayers(p -> true).forEach(
+                    player -> player.connection.send(this.getUpdatePacket())
+                );
+            }
         }
     }
 
@@ -3741,12 +3747,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditionalDataToTag(tag);
-        return tag;
+        return this.saveWithoutMetadata(registries);
     }
 
-    private void saveAdditionalDataToTag(CompoundTag tag) {
+    public void saveAdditionalDataToTag(CompoundTag tag) {
         tag.putBoolean("isPowered", isPowered);
         tag.putBoolean("hasRedstoneSignal", hasRedstoneSignal);
         tag.putInt("selectedLayer", selectedLayer);
@@ -3787,7 +3791,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.put("layerPositions", layerTag);
     }
 
-    private void loadLayerPositions(CompoundTag tag) {
+    /**
+     * 从菜单打开包中同步的NBT数据应用状态（仅客户端调用）
+     */
+    public void applySyncDataFromMenu(CompoundTag tag) {
+        this.selectedLayer = tag.getIntOr("selectedLayer", 0);
+        this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
+        this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
+        loadLayerPositions(tag);
+    }
+
+    void loadLayerPositions(CompoundTag tag) {
         this.layerPositions.clear();
         if (tag.contains("layerPositions")) {
             CompoundTag layerTag = tag.getCompoundOrEmpty("layerPositions");

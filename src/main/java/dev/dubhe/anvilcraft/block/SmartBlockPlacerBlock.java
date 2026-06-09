@@ -6,10 +6,10 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -164,7 +164,12 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
             if (player instanceof ServerPlayer serverPlayer) {
                 var menuProvider = state.getMenuProvider(level, pos);
                 if (menuProvider != null) {
-                    ModMenuTypes.open(serverPlayer, menuProvider, pos);
+                    serverPlayer.openMenu(menuProvider, buf -> {
+                        buf.writeBlockPos(pos);
+                        CompoundTag syncTag = new CompoundTag();
+                        placerEntity.saveAdditionalDataToTag(syncTag);
+                        buf.writeNbt(syncTag);
+                    });
                 }
             }
         }

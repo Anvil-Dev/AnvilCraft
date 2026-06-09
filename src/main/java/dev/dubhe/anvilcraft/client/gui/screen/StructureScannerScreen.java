@@ -121,7 +121,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 84, this.topPos + 48, 16, 16,
             SharedTextures.textureGui("misc/slider_like/button_minus"),
-            0, 16, 16,
+            16, 16, 32,
             (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -133,7 +133,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 122, this.topPos + 48, 16, 16,
             SharedTextures.textureGui("misc/slider_like/button_add"),
-            0, 16, 16,
+            16, 16, 32,
             (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -153,7 +153,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 84, this.topPos + 62, 16, 16,
             SharedTextures.textureGui("misc/slider_like/button_minus"),
-            0, 16, 16,
+            16, 16, 32,
             (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -165,7 +165,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 122, this.topPos + 62, 16, 16,
             SharedTextures.textureGui("misc/slider_like/button_add"),
-            0, 16, 16,
+            16, 16, 32,
             (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -185,7 +185,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 84, this.topPos + 76, 16, 16,
             SharedTextures.textureGui("misc/slider_like/button_minus"),
-            0, 16, 16,
+            16, 16, 32,
             (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -197,7 +197,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.addRenderableWidget(new TexturedButton(
             this.leftPos + 122, this.topPos + 76, 16, 16,
             SharedTextures.textureGui("misc/slider_like/button_add"),
-            0, 16, 16,
+            16, 16, 32,
             (b) -> {
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
@@ -300,7 +300,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.renderInfoPanel(graphics);
 
         // 渲染STRUCTURE_TOOL_LOCKED贴图
-        graphics.blit(RenderPipelines.GUI_TEXTURED, STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126, 26);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 256, 256);
 
         // 收集并渲染所有tooltip
         List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
