@@ -13,6 +13,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
 public record FilterCategory(ItemStackTemplate icon, Component name, ItemStack filter) implements ICategory {
+    public static FilterCategory from(ItemStack filter) {
+        return new FilterCategory(ItemStackTemplate.fromNonEmptyStack(filter), filter.getHoverName(), filter);
+    }
+
     @Override
     public boolean test(UnlimitedItemStack stack) {
         return FilterItem.filter(this.filter, stack.getStack());

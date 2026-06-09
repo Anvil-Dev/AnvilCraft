@@ -35,7 +35,9 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInter
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
+import dev.dubhe.anvilcraft.block.container.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
+import dev.dubhe.anvilcraft.block.container.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.decoration.ReinforcedConcreteBlock;
@@ -953,7 +955,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<OverseerBlock> OVERSEER_BLOCK = REGISTRUM.block("overseer", OverseerBlock::new)
+    public static final BlockEntry<OverseerBlock> OVERSEER = REGISTRUM.block("overseer", OverseerBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -961,10 +963,36 @@ public class ModBlocks {
         .item(SimpleMultiPartBlockItem<Vertical3PartHalf>::new)
         .model(DataGenUtil::onlyInfo)
         .build()
-        .recipe(RegistrumBlockRecipeLoader::overseerBlock)
+        .recipe(RegistrumBlockRecipeLoader::overseer)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
+    public static final BlockEntry<CrateBlock> CRATE = REGISTRUM
+        .block("crate", CrateBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+        )
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::crate)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .register();
+    public static final BlockEntry<LargeCrateBlock> LARGE_CRATE = REGISTRUM
+        .block("large_crate", LargeCrateBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+        )
+        .item(SimpleMultiPartBlockItem::new)
+        .properties(properties -> properties.stacksTo(16))
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .register();
     public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
         .block("shulker_container", ShulkerContainerBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
@@ -979,7 +1007,7 @@ public class ModBlocks {
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.NEEDS_DIAMOND_TOOL)
+        .tag(BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRUM.block(

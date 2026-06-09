@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block.entity;
+package dev.dubhe.anvilcraft.block.entity.container;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;

@@ -1,5 +1,7 @@
 {
   "values": [
+    "anvilcraft:crate",
+    "anvilcraft:large_crate",
     "anvilcraft:crab_trap"
   ]
 }

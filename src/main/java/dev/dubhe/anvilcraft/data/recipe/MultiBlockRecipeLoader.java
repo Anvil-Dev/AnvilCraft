@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.neoforged.neoforge.common.Tags;
 
 public class MultiBlockRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -225,6 +226,14 @@ public class MultiBlockRecipeLoader {
             .layer("AAA", "ABA", "AAA")
             .symbol('A', Blocks.NETHERITE_BLOCK)
             .symbol('B', Blocks.SHULKER_BOX)
+            .save(provider);
+
+        MultiblockRecipe.builder(ModBlocks.LARGE_CRATE)
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "ABA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', BlockPredicateWithState.of(Tags.Blocks.STRIPPED_LOGS))
+            .symbol('B', ModBlocks.RESIN_BLOCK)
             .save(provider);
     }
 }

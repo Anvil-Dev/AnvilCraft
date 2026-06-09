@@ -7,8 +7,7 @@
     "translate": "category.anvilcraft.namespace",
     "with": [
       {
-        "fallback": "AnvilCraft",
-        "translate": "category.anvilcraft.namespace.anvilcraft"
+        "mod_id": "anvilcraft"
       }
     ]
   },

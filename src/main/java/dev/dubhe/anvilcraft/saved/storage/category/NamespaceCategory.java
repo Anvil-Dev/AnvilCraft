@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
-import dev.dubhe.anvilcraft.api.component.TranslatableContents;
+import dev.dubhe.anvilcraft.api.component.ModNameContents;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -14,7 +14,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.fml.ModList;
 
 public record NamespaceCategory(ItemStackTemplate icon, Component name, String namespace) implements ICategory {
     public NamespaceCategory(ItemLike icon, String namespace) {
@@ -22,15 +21,7 @@ public record NamespaceCategory(ItemStackTemplate icon, Component name, String n
             new ItemStackTemplate(icon.asItem()),
             Component.translatable(
                 "category.anvilcraft.namespace",
-                MutableComponent.create(new TranslatableContents(
-                    "category.anvilcraft.namespace." + namespace,
-                    ModList.get()
-                        .getModContainerById(namespace)
-                        .map(container -> container.getModInfo().getDisplayName())
-                        .map(Component::literal)
-                        .orElse(Component.translatable("category.anvilcraft.unknown_namespace", namespace)),
-                    TranslatableContents.NO_ARGS
-                ))
+                MutableComponent.create(new ModNameContents(namespace))
             ),
             namespace
         );
