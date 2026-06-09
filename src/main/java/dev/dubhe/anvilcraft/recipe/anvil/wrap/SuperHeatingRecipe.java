@@ -274,7 +274,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
      * 消耗燃烧加热器燃料的配方结果
      *
      * <p>当铁砧合成成功时，检查下方是否存在点燃状态的燃烧加热器，
-     * 如果存在则消耗300秒（6000tick）的燃烧时间</p>
+     * 如果存在则消耗240秒（4800tick）的燃烧时间</p>
      */
     public record ConsumeFuel() implements IRecipeOutcome<ConsumeFuel> {
         /**
