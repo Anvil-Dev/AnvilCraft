@@ -2,7 +2,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
@@ -56,6 +55,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -81,6 +81,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import net.minecraft.util.ProblemReporter;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -94,8 +95,6 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
-@Getter
-@Setter
 public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
     private static final int PLACEMENT_INTERVAL = 20;
@@ -358,6 +357,25 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         };
     }
 
+    public void onChanged() {
+        this.setChanged();
+        Level level = this.getLevel();
+        if (level != null) {
+            level.sendBlockUpdated(
+                this.getBlockPos(),
+                this.getBlockState(),
+                this.getBlockState(),
+                Block.UPDATE_CLIENTS
+            );
+        }
+    }
+
+    @Nullable
+    @Override
+    public PowerGrid getGrid() {
+        return this.grid;
+    }
+
     /**
      * 检查结构磁盘的结构大小是否有效（不超过 5x5x5）
      */
@@ -376,8 +394,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 保存结构数据到NBT
      *
-     * @param data     结构数据
-     * @param provider 注册表访问器（当前未使用，保留用于未来扩展）
+     * @param data 结构数据
      */
     @SuppressWarnings("unused")
     private CompoundTag saveStructureData(StructureLoadUtil.StructureData data) {
@@ -412,17 +429,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 从NBT加载结构数据
      *
-     * @param tag      NBT标签
-     * @param provider 注册表访问器（当前未使用，保留用于未来扩展）
+     * @param tag NBT标签
      */
     @SuppressWarnings("unused")
     private StructureLoadUtil.StructureData loadStructureData(CompoundTag tag) {
-        Pair<StructureDiskData, Tag> orThrow = StructureDiskData.CODEC.parse(NbtOps.INSTANCE, tag.get("DiskData")).getOrThrow();
-        StructureLoadUtil.StructureData data = new StructureLoadUtil.StructureData(orThrow.getFirst());
+        StructureDiskData diskData = StructureDiskData.CODEC.parse(NbtOps.INSTANCE, tag.get("DiskData")).getOrThrow();
+        StructureLoadUtil.StructureData data = new StructureLoadUtil.StructureData(diskData);
 
         // 加载方块列表
         CompoundTag blocksTag = tag.getCompoundOrEmpty("blocks");
-        for (String key : blocksTag.getAllKeys()) {
+        for (String key : blocksTag.keySet()) {
             CompoundTag blockTag = blocksTag.getCompoundOrEmpty(key);
             int x = blockTag.getIntOr("x", 0);
             int y = blockTag.getIntOr("y", 0);
@@ -705,9 +721,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
 
         // 生成材料清单书(不消耗输入书)
+        Level nonNullLevel = this.level;
+        if (nonNullLevel == null) return;
         try {
             StructureBookUtil.generateMaterialListBookToOutput(
-                this.level,
+                nonNullLevel,
                 this.getBlockPos(),
                 this
             );
@@ -1707,17 +1725,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 if (sourceBlockEntityData != null) {
                     BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
                     if (targetBlockEntity != null) {
-                        targetBlockEntity.loadWithComponents(sourceBlockEntityData, level.registryAccess());
+                        targetBlockEntity.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
                         targetBlockEntity.setChanged();
                     }
                 }
 
                 // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的红石信号更新状态
-                level.neighborChanged(targetPos, stateToPlace.getBlock(), targetPos);
+                level.neighborChanged(targetPos, stateToPlace.getBlock(), null);
 
                 // 检查是否是穿梭进度的回程：放置到了预期的穿梭目标位置
                 if (targetPos.equals(this.expectedShuttleTarget)) {
-                    TriggerUtil.placerShuttle(level, targetPos);
+                    // TriggerUtil.placerShuttle(level, targetPos);
+                    // TODO: 需要添加 placerShuttle 触发器
                     this.expectedShuttleTarget = null;
                 }
 
@@ -1950,7 +1969,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
 
             // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的状态更新
-            level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), targetPos);
+            level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), null);
 
             // 放置成功
             this.currentHeldBlock = ItemStack.EMPTY;
@@ -2101,13 +2120,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (sourceBlockEntityData != null) {
                 BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
                 if (targetBlockEntity != null) {
-                    targetBlockEntity.loadWithComponents(sourceBlockEntityData, level.registryAccess());
+                    targetBlockEntity.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
                     targetBlockEntity.setChanged();
                 }
             }
 
             // 在目标位置发送方块更新通知
-            level.neighborChanged(targetPos, blueprintState.getBlock(), targetPos);
+            level.neighborChanged(targetPos, blueprintState.getBlock(), null);
 
             // 放置成功
             this.currentHeldBlock = ItemStack.EMPTY;
@@ -2275,7 +2294,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.applyBlueprintBlockFacing(level, targetPos, index);
 
             // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的状态更新
-            level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), targetPos);
+            level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), null);
 
             // 放置成功，确认提取（真正删除或修改ItemEntity）
             extractionResult.confirmExtraction();
@@ -2707,7 +2726,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 ItemResource resource = itemHandler.getResource(slot);
                 if (!resource.isEmpty() && resource.getItem() instanceof BlockItem blockItem) {
                     if (blockItem.getBlock() == targetBlock) {
-                        totalCount += (int) itemHandler.getAmount(slot);
+                        totalCount += (int) itemHandler.getAmountAsInt(slot);
                     }
                 }
             }
@@ -2771,7 +2790,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.applyBlueprintBlockFacing(level, targetPos, index);
 
         // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的状态更新
-        level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), targetPos);
+        level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), null);
 
         // 更新索引
         this.currentPlacementIndex = (orderIndex + 1) % orderedSize;
@@ -3039,11 +3058,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (slot = 0; itemHandler != null && slot < itemHandler.size(); slot++) {
             ItemResource resource = itemHandler.getResource(slot);
             if (!resource.isEmpty() && resource.getItem() instanceof BlockItem) {
-                ItemStack blockItemStack = resource.toStack(Math.min((int) itemHandler.getAmount(slot), 1));
+                ItemStack blockItemStack = resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1));
                 // 从容器预提取：先模拟提取，返回物品信息，放置成功后再真正提取
                 // 细雪桶特殊处理：预提取时就返还桶
                 if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
-                    itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, TransactionContext.open());
+                    itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
                 }
                 return new ContainerExtractionResult(blockItemStack.copy(), itemHandler, slot);
             }
@@ -3064,11 +3083,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                         for (slot = 0; slot < entityHandler.size(); slot++) {
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem) {
-                                ItemStack blockItemStack = entityResource.toStack(Math.min((int) entityHandler.getAmount(slot), 1));
+                                ItemStack blockItemStack = entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1));
                                 // 从实体容器预提取：先模拟提取，返回物品信息，放置成功后再真正提取
                                 // 细雪桶特殊处理：预提取时就返还桶
                                 if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
-                                    entityHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, TransactionContext.open());
+                                    entityHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
                                 }
                                 return new ContainerExtractionResult(blockItemStack.copy(), entityHandler, slot);
                             }
@@ -3141,10 +3160,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (!resource.isEmpty() && resource.getItem() instanceof BlockItem blockItem) {
                 // 检查是否是需要的方块
                 if (blockItem.getBlock() == targetBlock) {
-                    ItemStack blockItemStack = resource.toStack(Math.min((int) itemHandler.getAmount(slot), 1));
+                    ItemStack blockItemStack = resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1));
                     // 细雪桶特殊处理：预提取时就返还桶
                     if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
-                        itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, TransactionContext.open());
+                        itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
                     }
                     return new ContainerExtractionResult(blockItemStack.copy(), itemHandler, slot);
                 }
@@ -3167,10 +3186,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem blockItem) {
                                 if (blockItem.getBlock() == targetBlock) {
-                                    ItemStack blockItemStack = entityResource.toStack(Math.min((int) entityHandler.getAmount(slot), 1));
+                                    ItemStack blockItemStack = entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1));
                                     // 细雪桶特殊处理
                                     if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
-                                        entityHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, TransactionContext.open());
+                                        entityHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
                                     }
                                     return new ContainerExtractionResult(blockItemStack.copy(), entityHandler, slot);
                                 }
@@ -3245,7 +3264,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (!resource.isEmpty() && resource.getItem() instanceof BlockItem blockItem) {
                 // 检查是否是需要的方块
                 if (blockItem.getBlock() == targetBlock) {
-                    return resource.toStack(Math.min((int) itemHandler.getAmount(slot), 1)).copy();
+                    return resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1)).copy();
                 }
             }
         }
@@ -3266,7 +3285,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem blockItem) {
                                 if (blockItem.getBlock() == targetBlock) {
-                                    return entityResource.toStack(Math.min((int) entityHandler.getAmount(slot), 1)).copy();
+                                    return entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1)).copy();
                                 }
                             }
                         }
@@ -3325,23 +3344,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 // 检查是否是需要的方块
                 if (blockItem.getBlock() == targetBlock) {
                     // 直接提取
-                    try (TransactionContext tx = TransactionContext.open()) {
-                        ItemResource extractedResource = itemHandler.extract(slot, resource, 1, tx);
-                        if (extractedResource.isEmpty()) {
-                            return ItemStack.EMPTY;
-                        }
-                        tx.commit();
-                        ItemStack extracted = extractedResource.toStack(1);
-                        if (extracted.is(Items.POWDER_SNOW_BUCKET)) {
-                            try (TransactionContext bucketTx = TransactionContext.open()) {
-                                itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, bucketTx);
-                                bucketTx.commit();
-                            }
-                        }
-                        // 发送容器更新，让比较器能正确检测物品数量
-                        level.sendBlockUpdated(inputPos, level.getBlockState(inputPos), level.getBlockState(inputPos), 3);
-                        return extracted;
+                    long extractedAmount = itemHandler.extract(slot, resource, 1, null);
+                    if (extractedAmount <= 0) {
+                        return ItemStack.EMPTY;
                     }
+                    ItemStack extracted = resource.toStack(1);
+                    if (extracted.is(Items.POWDER_SNOW_BUCKET)) {
+                        itemHandler.insert(ItemResource.of(new ItemStack(Items.BUCKET)), 1, null);
+                    }
+                    // 发送容器更新，让比较器能正确检测物品数量
+                    level.sendBlockUpdated(inputPos, level.getBlockState(inputPos), level.getBlockState(inputPos), 3);
+                    return extracted;
                 }
             }
         }
@@ -3362,10 +3375,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem blockItem) {
                                 if (blockItem.getBlock() == targetBlock) {
-                                    try (TransactionContext tx = TransactionContext.open()) {
-                                        ItemResource extractedResource = entityHandler.extract(slot, entityResource, 1, tx);
-                                        tx.commit();
-                                        return extractedResource.toStack(1);
+                                    long extractedAmount = entityHandler.extract(slot, entityResource, 1, null);
+                                    if (extractedAmount > 0) {
+                                        return entityResource.toStack(1);
                                     }
                                 }
                             }
@@ -3425,7 +3437,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (slot = 0; itemHandler != null && slot < itemHandler.size(); slot++) {
             ItemResource resource = itemHandler.getResource(slot);
             if (!resource.isEmpty() && resource.getItem() instanceof BlockItem) {
-                return resource.toStack(Math.min((int) itemHandler.getAmount(slot), 1)).copy();
+                return resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1)).copy();
             }
         }
 
@@ -3444,7 +3456,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                         for (slot = 0; slot < entityHandler.size(); slot++) {
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem) {
-                                return entityResource.toStack(Math.min((int) entityHandler.getAmount(slot), 1)).copy();
+                                return entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1)).copy();
                             }
                         }
                     }
@@ -3536,10 +3548,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 真正从容器中删除物品
             ItemResource resource = itemHandler.getResource(slot);
             if (!resource.isEmpty()) {
-                try (TransactionContext tx = TransactionContext.open()) {
-                    itemHandler.extract(slot, resource, 1, tx);
-                    tx.commit();
-                }
+                itemHandler.extract(slot, resource, 1, null);
             }
             // 不需要处理细雪桶，因为预提取时已经把桶插回去了
         }
@@ -3575,14 +3584,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (itemHandler != null) {
             ItemStack remaining = extractedItem.copy();
             for (int slot = 0; slot < itemHandler.size() && !remaining.isEmpty(); slot++) {
-                try (TransactionContext tx = TransactionContext.open()) {
-                    long inserted = itemHandler.insert(slot, ItemResource.of(remaining), remaining.getCount(), tx);
-                    tx.commit();
-                    if (inserted >= remaining.getCount()) {
-                        remaining = ItemStack.EMPTY;
-                    } else {
-                        remaining.shrink((int) inserted);
-                    }
+                long inserted = itemHandler.insert(slot, ItemResource.of(remaining), remaining.getCount(), null);
+                if (inserted >= remaining.getCount()) {
+                    remaining = ItemStack.EMPTY;
+                } else {
+                    remaining.shrink((int) inserted);
                 }
             }
             // 发送容器更新，让比较器能正确检测物品数量
@@ -3634,19 +3640,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return basePos.atY(basePos.getY() + yOffset)
             .relative(right, col - 2)
             .relative(right.getClockWise(), row - 2);
-    }
-
-    public void onChanged() {
-        this.setChanged();
-        Level level = this.getLevel();
-        if (level != null) {
-            level.sendBlockUpdated(
-                this.getBlockPos(),
-                this.getBlockState(),
-                this.getBlockState(),
-                Block.UPDATE_CLIENTS
-            );
-        }
     }
 
     public void setSelectedLayer(int layer) {
@@ -3765,11 +3758,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.layerPositions.clear();
         if (tag.contains("layerPositions")) {
             CompoundTag layerTag = tag.getCompoundOrEmpty("layerPositions");
-            for (String key : layerTag.getAllKeys()) {
+            for (String key : layerTag.keySet()) {
                 if (key.startsWith("layer_")) {
                     int layer = Integer.parseInt(key.substring(6));
                     Set<Integer> positions = new HashSet<>();
-                    for (int pos : layerTag.getIntArray(key)) {
+                    for (int pos : layerTag.getIntArray(key).orElse(new int[0])) {
                         positions.add(pos);
                     }
                     this.layerPositions.put(layer, positions);
