@@ -46,7 +46,7 @@ public class StructureSaveUtil {
      */
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             LOGGER.error("Failed to save structure: level is null or on client side");
             return;
         }
@@ -62,7 +62,7 @@ public class StructureSaveUtil {
             CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
 
             // 从输入槽取出磁盘
-            ItemStack diskStack = blockEntity.getDiskInventory().getItem(0);
+            ItemStack diskStack = blockEntity.getDiskStack();
             if (diskStack.isEmpty()) {
                 LOGGER.error("No structure disk in input slot");
                 return;
@@ -110,8 +110,8 @@ public class StructureSaveUtil {
             outputDisk.set(ModComponents.STRUCTURE_DISK_DATA, data);
 
             // 放入输出槽，清空输入槽和扫描结果
-            blockEntity.getOutputInventory().setItem(0, outputDisk);
-            blockEntity.getDiskInventory().setItem(0, ItemStack.EMPTY);
+            blockEntity.setOutputStack(outputDisk);
+            blockEntity.setDiskStack(ItemStack.EMPTY);
             blockEntity.getScannedBlocks().clear();
             blockEntity.setChanged();
 
@@ -134,7 +134,7 @@ public class StructureSaveUtil {
         final int rangeZ = blockEntity.getRangeZ().get();
 
         CompoundTag tag = new CompoundTag();
-        tag.putInt("DataVersion", SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+        tag.putInt("DataVersion", SharedConstants.getCurrentVersion().dataVersion().version());
         tag.putString("author", "AnvilCraft Structure Scanner");
 
         // size 字段

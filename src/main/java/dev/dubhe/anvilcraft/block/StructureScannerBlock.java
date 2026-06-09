@@ -26,16 +26,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
 
 public class StructureScannerBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final MapCodec<StructureScannerBlock> CODEC = simpleCodec(StructureScannerBlock::new);
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
 
@@ -146,14 +147,14 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
                 ModMenuTypes.open(serverPlayer, menuProvider, pos);
             }
         }
-        return InteractionResult.sidedSuccess(level.isClientSide());
+        return InteractionResult.SUCCESS_SERVER;
     }
     
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state, Level level, BlockPos pos,
-        net.minecraft.world.level.block.Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
-        if (level.isClientSide) {
+        Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+        if (level.isClientSide()) {
             return;
         }
         
@@ -181,12 +182,12 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     @SuppressWarnings("unused")
     private void autoScanAndSave(Level level, StructureScannerBlockEntity scannerEntity) {
         // 检查是否有磁盘
-        if (scannerEntity.getDiskInventory().getItem(0).isEmpty()) {
+        if (!scannerEntity.hasDisk()) {
             return;
         }
         
         // 检查输出槽位是否为空
-        if (!scannerEntity.getOutputInventory().getItem(0).isEmpty()) {
+        if (scannerEntity.hasOutput()) {
             return;
         }
         
@@ -209,47 +210,33 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     }
     
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            if (!level.isClientSide) {
-                BlockEntity blockEntity = level.getBlockEntity(pos);
-                if (blockEntity instanceof StructureScannerBlockEntity scannerEntity) {
-                    // 掉落Disk物品栏中的物品
-                    for (int i = 0; i < scannerEntity.getDiskInventory().getContainerSize(); i++) {
-                        ItemStack stack = scannerEntity.getDiskInventory().getItem(i);
-                        if (!stack.isEmpty()) {
-                            Vec3 vec3 = pos.getCenter();
-                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                                level,
-                                vec3.x,
-                                vec3.y,
-                                vec3.z,
-                                stack
-                            );
-                            itemEntity.setDefaultPickUpDelay();
-                            level.addFreshEntity(itemEntity);
-                        }
-                    }
-                    
-                    // 掉落Output物品栏中的物品
-                    for (int i = 0; i < scannerEntity.getOutputInventory().getContainerSize(); i++) {
-                        ItemStack stack = scannerEntity.getOutputInventory().getItem(i);
-                        if (!stack.isEmpty()) {
-                            Vec3 vec3 = pos.getCenter();
-                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                                level,
-                                vec3.x,
-                                vec3.y,
-                                vec3.z,
-                                stack
-                            );
-                            itemEntity.setDefaultPickUpDelay();
-                            level.addFreshEntity(itemEntity);
-                        }
-                    }
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof StructureScannerBlockEntity scannerEntity) {
+                // 掉落Disk物品栏中的物品
+                ItemStack diskStack = scannerEntity.getDiskStack();
+                if (!diskStack.isEmpty()) {
+                    Vec3 vec3 = pos.getCenter();
+                    net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                        level, vec3.x, vec3.y, vec3.z, diskStack
+                    );
+                    itemEntity.setDefaultPickUpDelay();
+                    level.addFreshEntity(itemEntity);
+                }
+                
+                // 掉落Output物品栏中的物品
+                ItemStack outputStack = scannerEntity.getOutputStack();
+                if (!outputStack.isEmpty()) {
+                    Vec3 vec3 = pos.getCenter();
+                    net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                        level, vec3.x, vec3.y, vec3.z, outputStack
+                    );
+                    itemEntity.setDefaultPickUpDelay();
+                    level.addFreshEntity(itemEntity);
                 }
             }
-            super.onRemove(state, level, pos, newState, movedByPiston);
         }
+        return super.playerWillDestroy(level, pos, state, player);
     }
 }

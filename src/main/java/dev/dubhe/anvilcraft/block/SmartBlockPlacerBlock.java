@@ -34,6 +34,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
 
 public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
@@ -158,7 +159,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         Player player,
         BlockHitResult hitResult
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -176,67 +177,65 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
                 }
             }
         }
-        return InteractionResult.sidedSuccess(false);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
-    public void neighborChanged(
+    protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        BlockPos neighborPos,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            if (!level.isClientSide) {
-                BlockEntity blockEntity = level.getBlockEntity(pos);
-                if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
-                    // 掉落Disk物品栏中的物品
-                    for (int i = 0; i < placerEntity.getDiskInventory().getContainerSize(); i++) {
-                        ItemStack stack = placerEntity.getDiskInventory().getItem(i);
-                        if (!stack.isEmpty()) {
-                            Vec3 vec3 = pos.getCenter();
-                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                                level,
-                                vec3.x,
-                                vec3.y,
-                                vec3.z,
-                                stack
-                            );
-                            itemEntity.setDefaultPickUpDelay();
-                            level.addFreshEntity(itemEntity);
-                        }
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
+                // 掉落Disk物品栏中的物品
+                for (int i = 0; i < placerEntity.getDiskInventory().getContainerSize(); i++) {
+                    ItemStack stack = placerEntity.getDiskInventory().getItem(i);
+                    if (!stack.isEmpty()) {
+                        Vec3 vec3 = pos.getCenter();
+                        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                            level,
+                            vec3.x,
+                            vec3.y,
+                            vec3.z,
+                            stack
+                        );
+                        itemEntity.setDefaultPickUpDelay();
+                        level.addFreshEntity(itemEntity);
                     }
-                    
-                    // 掉落书物品栏中的物品（输入书，如果有的话）
-                    for (int i = 0; i < placerEntity.getBookInventory().getContainerSize(); i++) {
-                        ItemStack stack = placerEntity.getBookInventory().getItem(i);
-                        if (!stack.isEmpty()) {
-                            Vec3 vec3 = pos.getCenter();
-                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                                level,
-                                vec3.x,
-                                vec3.y,
-                                vec3.z,
-                                stack
-                            );
-                            itemEntity.setDefaultPickUpDelay();
-                            level.addFreshEntity(itemEntity);
-                        }
+                }
+                
+                // 掉落书物品栏中的物品（输入书，如果有的话）
+                for (int i = 0; i < placerEntity.getBookInventory().getContainerSize(); i++) {
+                    ItemStack stack = placerEntity.getBookInventory().getItem(i);
+                    if (!stack.isEmpty()) {
+                        Vec3 vec3 = pos.getCenter();
+                        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                            level,
+                            vec3.x,
+                            vec3.y,
+                            vec3.z,
+                            stack
+                        );
+                        itemEntity.setDefaultPickUpDelay();
+                        level.addFreshEntity(itemEntity);
                     }
                 }
             }
-            super.onRemove(state, level, pos, newState, movedByPiston);
         }
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
@@ -247,13 +246,13 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     }
     
     @Override
-    public boolean hasAnalogOutputSignal(BlockState state) {
+    protected boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
     
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        if (level.isClientSide) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        if (level.isClientSide()) {
             return 0;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);

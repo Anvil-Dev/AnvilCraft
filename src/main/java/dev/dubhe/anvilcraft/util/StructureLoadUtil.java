@@ -152,10 +152,10 @@ public class StructureLoadUtil {
         boolean filterMultiblock
     ) {
         // 读取 palette
-        ListTag paletteTag = tag.getList("palette", 10);  // 10 = COMPOUND
+        ListTag paletteTag = tag.getListOrEmpty("palette");
         List<BlockState> palette = new ArrayList<>();
         for (int i = 0; i < paletteTag.size(); i++) {
-            CompoundTag stateTag = paletteTag.getCompound(i);
+            CompoundTag stateTag = paletteTag.getCompound(i).orElse(null);
             try {
                 BlockState state = NbtUtils.readBlockState(registry.lookupOrThrow(Registries.BLOCK), stateTag);
                 palette.add(state);
@@ -165,16 +165,17 @@ public class StructureLoadUtil {
         }
 
         // 读取 blocks，过滤掉多方块方块
-        ListTag blocksTag = tag.getList("blocks", 10);  // 10 = COMPOUND
+        ListTag blocksTag = tag.getListOrEmpty("blocks");
         for (int i = 0; i < blocksTag.size(); i++) {
-            CompoundTag blockTag = blocksTag.getCompound(i);
-            ListTag posTag = blockTag.getList("pos", 3);  // 3 = INT
+            CompoundTag blockTag = blocksTag.getCompound(i).orElse(null);
+            if (blockTag == null) continue;
+            ListTag posTag = blockTag.getListOrEmpty("pos");
 
             if (posTag.size() >= 3) {
-                int x = posTag.getInt(0);
-                int y = posTag.getInt(1);
-                int z = posTag.getInt(2);
-                int stateIndex = blockTag.getInt("state");
+                int x = posTag.getInt(0).orElse(0);
+                int y = posTag.getInt(1).orElse(0);
+                int z = posTag.getInt(2).orElse(0);
+                int stateIndex = blockTag.getInt("state").orElse(-1);
 
                 if (stateIndex >= 0 && stateIndex < palette.size()) {
                     BlockState state = palette.get(stateIndex);
