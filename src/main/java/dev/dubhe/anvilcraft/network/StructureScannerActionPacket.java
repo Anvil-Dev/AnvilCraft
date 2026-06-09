@@ -94,7 +94,7 @@ public record StructureScannerActionPacket(String action, int value, String name
             }
             case "confirm" -> {
                 // 检查是否放入了结构磁盘
-                if (blockEntity.getDiskInventory().getItem(0).isEmpty()) {
+                if (!blockEntity.hasDisk()) {
                     player.sendSystemMessage(
                         net.minecraft.network.chat.Component.translatable(
                             "message.anvilcraft.structure_scanner.no_disk"
@@ -104,7 +104,7 @@ public record StructureScannerActionPacket(String action, int value, String name
                 }
                 
                 // 检查输出槽位是否为空
-                if (!blockEntity.getOutputInventory().getItem(0).isEmpty()) {
+                if (blockEntity.hasOutput()) {
                     player.sendSystemMessage(
                         net.minecraft.network.chat.Component.translatable(
                             "message.anvilcraft.structure_scanner.output_not_empty"

@@ -13,7 +13,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,10 +140,13 @@ public class StructureBookUtil {
         // 设置书的专用组件
         final ItemStack writtenBook = new ItemStack(Items.WRITTEN_BOOK);
         var bookContent = new net.minecraft.world.item.component.WrittenBookContent(
-            Component.literal("Material List"),  // resolved title
-            "Smart Block Placer",  // owner
+            net.minecraft.server.network.Filterable.from(
+                net.minecraft.server.network.FilteredText.passThrough("Material List")),  // title
+            "Smart Block Placer",  // author
             0,  // generation
-            pages,  // pages
+            pages.stream()
+                .map(net.minecraft.server.network.Filterable::passThrough)
+                .toList(),  // pages
             false  // resolved
         );
         writtenBook.set(DataComponents.WRITTEN_BOOK_CONTENT, bookContent);
@@ -233,14 +237,17 @@ public class StructureBookUtil {
         int count = 0;
 
         // 使用 level.getCapability 获取物品处理器
-        IItemHandler itemHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, inputPos, null);
+        ResourceHandler<ItemResource> itemHandler = level.getCapability(Capabilities.Item.BLOCK, inputPos, null);
 
         if (itemHandler != null) {
-            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-                ItemStack stack = itemHandler.getStackInSlot(slot);
-                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem blockItem) {
-                    if (blockItem.getBlock() == targetBlock) {
-                        count += stack.getCount();
+            for (int slot = 0; slot < itemHandler.size(); slot++) {
+                ItemResource resource = itemHandler.getResource(slot);
+                if (!resource.isEmpty()) {
+                    ItemStack stack = resource.toStack(itemHandler.getAmountAsInt(slot));
+                    if (stack.getItem() instanceof BlockItem blockItem) {
+                        if (blockItem.getBlock() == targetBlock) {
+                            count += stack.getCount();
+                        }
                     }
                 }
             }

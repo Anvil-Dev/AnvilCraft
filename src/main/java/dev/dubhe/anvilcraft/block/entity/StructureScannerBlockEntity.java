@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -11,8 +12,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.ContainerHelper;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
@@ -27,94 +28,153 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class StructureScannerBlockEntity extends BaseMachineBlockEntity implements MenuProvider {
-    /**
-     * -- GETTER --
-     *  获取Disk物品栏
-     */
-    // Disk物品栏
+    // 物品栏处理器: 槽位0=磁盘输入, 槽位1=输出
+    @Getter
+    private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(2) {
+        @Override
+        public boolean isValid(int index, ItemResource resource) {
+            if (index == 0) {
+                // 只允许放入结构磁盘
+                return resource.getItem() == ModItems.STRUCTURE_DISK.get();
+            }
+            // 输出槽位: 禁止外部设备插入
+            return false;
+        }
+
+        @Override
+        public int insert(ItemResource resource, int amount, TransactionContext transaction) {
+            return super.insert(0, resource, amount, transaction);
+        }
+
+        @Override
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (index != 0) return 0;
+            return super.insert(index, resource, amount, transaction);
+        }
+
+        @Override
+        public int extract(ItemResource resource, int amount, TransactionContext transaction) {
+            return super.extract(1, resource, amount, transaction);
+        }
+
+        @Override
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            if (index != 1) return 0;
+            return super.extract(index, resource, amount, transaction);
+        }
+
+        @Override
+        protected void onContentsChanged(int index, ItemStack previousContents) {
+            super.onContentsChanged(index, previousContents);
+            StructureScannerBlockEntity.this.setChanged();
+        }
+    };
+
+    // 向后兼容的 SimpleContainer 适配器（供菜单槽位使用，共享 FilteredItemStackHandler 的 backing list）
     @Getter
     private final SimpleContainer diskInventory = new SimpleContainer(1) {
         @Override
+        public ItemStack getItem(int index) {
+            return itemHandler.getStacks().get(0);
+        }
+
+        @Override
+        public ItemStack removeItem(int index, int count) {
+            ItemStack stack = itemHandler.getStacks().get(0);
+            if (stack.isEmpty()) return ItemStack.EMPTY;
+            ItemStack result = stack.split(count);
+            if (stack.isEmpty()) itemHandler.getStacks().set(0, ItemStack.EMPTY);
+            setChanged();
+            return result;
+        }
+
+        @Override
+        public ItemStack removeItemNoUpdate(int index) {
+            ItemStack stack = itemHandler.getStacks().get(0);
+            if (stack.isEmpty()) return ItemStack.EMPTY;
+            itemHandler.getStacks().set(0, ItemStack.EMPTY);
+            return stack;
+        }
+
+        @Override
+        public void setItem(int index, ItemStack stack) {
+            itemHandler.getStacks().set(0, stack);
+            setChanged();
+        }
+
+        @Override
+        public boolean canPlaceItem(int index, ItemStack stack) {
+            return itemHandler.isValid(0, ItemResource.of(stack));
+        }
+
+        @Override
         public void setChanged() {
             super.setChanged();
             StructureScannerBlockEntity.this.setChanged();
         }
+
+        @Override
+        public boolean isEmpty() {
+            return itemHandler.getStacks().get(0).isEmpty();
+        }
     };
-    
-    /**
-     * -- GETTER --
-     *  获取输出物品栏
-     */
-    // 输出物品栏
+
     @Getter
     private final SimpleContainer outputInventory = new SimpleContainer(1) {
         @Override
+        public ItemStack getItem(int index) {
+            return itemHandler.getStacks().get(1);
+        }
+
+        @Override
+        public ItemStack removeItem(int index, int count) {
+            ItemStack stack = itemHandler.getStacks().get(1);
+            if (stack.isEmpty()) return ItemStack.EMPTY;
+            ItemStack result = stack.split(count);
+            if (stack.isEmpty()) itemHandler.getStacks().set(1, ItemStack.EMPTY);
+            setChanged();
+            return result;
+        }
+
+        @Override
+        public ItemStack removeItemNoUpdate(int index) {
+            ItemStack stack = itemHandler.getStacks().get(1);
+            if (stack.isEmpty()) return ItemStack.EMPTY;
+            itemHandler.getStacks().set(1, ItemStack.EMPTY);
+            return stack;
+        }
+
+        @Override
+        public void setItem(int index, ItemStack stack) {
+            itemHandler.getStacks().set(1, stack);
+            setChanged();
+        }
+
+        @Override
+        public boolean canPlaceItem(int index, ItemStack stack) {
+            return false;  // 输出槽位禁止手动放入
+        }
+
+        @Override
         public void setChanged() {
             super.setChanged();
             StructureScannerBlockEntity.this.setChanged();
         }
-    };
-    
-    // Disk物品栏的ItemHandler包装器,带物品验证
-    private final IItemHandlerModifiable diskItemHandler = new InvWrapper(diskInventory) {
+
         @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            // 只允许放入结构磁盘
-            if (!stack.is(ModItems.STRUCTURE_DISK.get())) {
-                return stack;
-            }
-            return super.insertItem(slot, stack, simulate);
-        }
-        
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            // 只允许结构磁盘
-            return stack.is(ModItems.STRUCTURE_DISK.get());
-        }
-        
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            // 禁止漏斗等外部设备取出物品
-            return ItemStack.EMPTY;
+        public boolean isEmpty() {
+            return itemHandler.getStacks().get(1).isEmpty();
         }
     };
-    
-    // 输出物品栏的ItemHandler包装器
-    private final IItemHandlerModifiable outputItemHandler = new InvWrapper(outputInventory) {
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            // 允许漏斗等外部设备取出物品
-            return super.extractItem(slot, amount, simulate);
-        }
-        
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            // 禁止漏斗等外部设备插入物品
-            return stack;
-        }
-        
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            // 禁止外部设备插入任何物品
-            return false;
-        }
-    };
-    
-    // 组合的ItemHandler
-    private final ResourceHandler<ItemResource> combinedItemHandler = new CombinedInvWrapper(diskItemHandler, outputItemHandler);
-    
+
     // 扫描范围 - X轴
     @Getter
     private final WatchableCyclingValue<Integer> rangeX = new WatchableCyclingValue<>(
@@ -264,7 +324,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.setChanged();
         
         // 同步到客户端（包括范围数据）
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
     }
@@ -277,7 +337,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.setChanged();
         
         // 同步到客户端
-        if (this.level != null && !this.level.isClientSide) {
+        if (this.level != null && !this.level.isClientSide()) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
     }
@@ -294,7 +354,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
      * 执行自动保存
      */
     private void performAutoSave() {
-        if (this.level == null || this.level.isClientSide) {
+        if (this.level == null || this.level.isClientSide()) {
             return;
         }
         
@@ -302,12 +362,12 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.pendingAutoSave = false;
         
         // 检查是否放入了结构磁盘
-        if (this.getDiskInventory().getItem(0).isEmpty()) {
+        if (this.itemHandler.getResource(0).isEmpty()) {
             return;
         }
         
         // 检查输出槽位是否为空
-        if (!this.getOutputInventory().getItem(0).isEmpty()) {
+        if (!this.itemHandler.getResource(1).isEmpty()) {
             return;
         }
         
@@ -349,7 +409,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.setChanged();
         
         // 每扫描一层就同步到客户端
-        if (this.level != null && !this.level.isClientSide) {
+        if (this.level != null && !this.level.isClientSide()) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
         
@@ -417,8 +477,35 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     }
 
     @Override
-    public ResourceHandler<ItemResource> getItemHandler() {
-        return combinedItemHandler;
+    public FilteredItemStackHandler getItemHandler() {
+        return itemHandler;
+    }
+
+    // 便捷访问方法
+    public ItemStack getDiskStack() {
+        ItemResource resource = this.itemHandler.getResource(0);
+        return resource.isEmpty() ? ItemStack.EMPTY : resource.toStack(this.itemHandler.getAmountAsInt(0));
+    }
+
+    public void setDiskStack(ItemStack stack) {
+        this.itemHandler.set(0, ItemResource.of(stack), stack.getCount());
+    }
+
+    public ItemStack getOutputStack() {
+        ItemResource resource = this.itemHandler.getResource(1);
+        return resource.isEmpty() ? ItemStack.EMPTY : resource.toStack(this.itemHandler.getAmountAsInt(1));
+    }
+
+    public void setOutputStack(ItemStack stack) {
+        this.itemHandler.set(1, ItemResource.of(stack), stack.getCount());
+    }
+
+    public boolean hasDisk() {
+        return !this.itemHandler.getResource(0).isEmpty();
+    }
+
+    public boolean hasOutput() {
+        return !this.itemHandler.getResource(1).isEmpty();
     }
 
     @Nullable
@@ -435,8 +522,23 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     }
 
     private void saveAdditionalData(CompoundTag tag) {
-        ContainerHelper.saveAllItems(tag, this.diskInventory.getItems());
-        ContainerHelper.saveAllItems(tag, this.outputInventory.getItems());
+        // 序列化 handler 数据（使用 ItemStack CODEC）
+        {
+            ListTag diskItems = new ListTag();
+            ItemStack diskStack = this.itemHandler.getStacks().get(0);
+            if (!diskStack.isEmpty()) {
+                diskItems.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, diskStack).result().orElse(new CompoundTag()));
+            }
+            tag.put("diskItems", diskItems);
+        }
+        {
+            ListTag outputItems = new ListTag();
+            ItemStack outputStack = this.itemHandler.getStacks().get(1);
+            if (!outputStack.isEmpty()) {
+                outputItems.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, outputStack).result().orElse(new CompoundTag()));
+            }
+            tag.put("outputItems", outputItems);
+        }
         tag.putInt("rangeX", this.rangeX.index());
         tag.putInt("rangeY", this.rangeY.index());
         tag.putInt("rangeZ", this.rangeZ.index());
@@ -470,8 +572,21 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         CompoundTag tag = input.read("ScannerData", CompoundTag.CODEC).orElse(new CompoundTag());
-        ContainerHelper.loadAllItems(tag, this.diskInventory.getItems());
-        ContainerHelper.loadAllItems(tag, this.outputInventory.getItems());
+        // 反序列化到 handler
+        if (tag.contains("diskItems")) {
+            ListTag diskItems = tag.getListOrEmpty("diskItems");
+            if (!diskItems.isEmpty()) {
+                ItemStack stack = ItemStack.CODEC.parse(NbtOps.INSTANCE, diskItems.getCompoundOrEmpty(0)).result().orElse(ItemStack.EMPTY);
+                this.itemHandler.getStacks().set(0, stack);
+            }
+        }
+        if (tag.contains("outputItems")) {
+            ListTag outputItems = tag.getListOrEmpty("outputItems");
+            if (!outputItems.isEmpty()) {
+                ItemStack stack = ItemStack.CODEC.parse(NbtOps.INSTANCE, outputItems.getCompoundOrEmpty(0)).result().orElse(ItemStack.EMPTY);
+                this.itemHandler.getStacks().set(1, stack);
+            }
+        }
         this.rangeX.fromIndex(tag.getIntOr("rangeX", 0));
         this.rangeY.fromIndex(tag.getIntOr("rangeY", 0));
         this.rangeZ.fromIndex(tag.getIntOr("rangeZ", 0));
@@ -479,7 +594,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.currentScanLayer = tag.getIntOr("currentScanLayer", 0);
         this.scannedBlocks.clear();
         if (tag.contains("scannedBlocks") && this.level != null) {
-            ListTag blocksTag = tag.getList("scannedBlocks");
+            ListTag blocksTag = tag.getListOrEmpty("scannedBlocks");
             for (int i = 0; i < blocksTag.size(); i++) {
                 CompoundTag blockTag = blocksTag.getCompoundOrEmpty(i);
                 int x = blockTag.getIntOr("x", 0);
