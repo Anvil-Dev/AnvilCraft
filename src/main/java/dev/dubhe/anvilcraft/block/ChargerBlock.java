@@ -192,6 +192,23 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                             return ItemInteractionResult.SUCCESS;
                         }
                     }
+                    // 检查槽位1是否有正在充电的FE物品
+                    ItemStack slot1Stack = charger.getFilteredItemStackHandler().getStackInSlot(1);
+                    if (!slot1Stack.isEmpty()) {
+                        ItemStack extracted = charger.tryExtractFeItemFromSlot1();
+                        if (!extracted.isEmpty()) {
+                            player.getInventory().placeItemBackInInventory(extracted);
+                            level.playSound(
+                                null,
+                                pos,
+                                SoundEvents.ITEM_PICKUP,
+                                SoundSource.PLAYERS,
+                                .2f,
+                                1f + level.getRandom().nextFloat()
+                            );
+                            return ItemInteractionResult.SUCCESS;
+                        }
+                    }
                 } else if (charger.containsValidItem(stack)) {
                     ItemStack result = charger.getFilteredItemStackHandler().insertItem(0, stack, true);
                     if (result.isEmpty() || result.getCount() < stack.getCount()) {
