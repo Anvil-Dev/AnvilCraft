@@ -40,8 +40,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarriedAware {
-    public static final int MAX_ENERGY = 480000;
-    public static final int FLIGHT_CONSUMPTION = 20;
+    public static final int MAX_ENERGY = 120000000;
+    public static final int FLIGHT_CONSUMPTION = 5000;
 
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_64 = new DynamicPowerComponent.PowerConsumption(64);
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_128 = new DynamicPowerComponent.PowerConsumption(128);
@@ -262,27 +262,22 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     }
 
     private static void capacitorTick(IDynamicPowerComponentHolder holder, ItemStack backpack) {
-        int currentEnergy = getEnergyStored(backpack);
-        if (currentEnergy <= MAX_ENERGY * 0.9333) {
-            if (!(holder instanceof ServerPlayer player)) return;
-            Inventory inventory = player.getInventory();
-            int slot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
-            if (slot >= 0) {
-                inventory.removeItem(slot, 1);
-                inventory.placeItemBackInInventory(ModItems.CAPACITOR_EMPTY.asStack());
-                addEnergy(backpack, MAX_ENERGY / 15);
-                return;
-            }
+        if (!(holder instanceof ServerPlayer player)) return;
+        Inventory inventory = player.getInventory();
+
+        int slot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
+        if (slot >= 0) {
+            inventory.removeItem(slot, 1);
+            inventory.placeItemBackInInventory(ModItems.CAPACITOR_EMPTY.asStack());
+            addEnergy(backpack, 8_000_000);
+            return;
         }
-        if (currentEnergy <= MAX_ENERGY / 15) {
-            if (!(holder instanceof ServerPlayer player)) return;
-            Inventory inventory = player.getInventory();
-            int slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
-            if (slot >= 0) {
-                inventory.removeItem(slot, 1);
-                inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
-                addEnergy(backpack, MAX_ENERGY - currentEnergy);
-            }
+
+        slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
+        if (slot >= 0) {
+            inventory.removeItem(slot, 1);
+            inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
+            addEnergy(backpack, 160_000_000);
         }
     }
 
