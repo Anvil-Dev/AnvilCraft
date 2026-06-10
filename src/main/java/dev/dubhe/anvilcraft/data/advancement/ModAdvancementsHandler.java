@@ -458,7 +458,7 @@ public class ModAdvancementsHandler {
 
         AdvancementHolder overseer = mainLine.createBranch().next()
             .display(
-                ModBlocks.OVERSEER_BLOCK,
+                ModBlocks.OVERSEER,
                 Component.translatable("advancements.anvilcraft.overseer.title"),
                 Component.translatable("advancements.anvilcraft.overseer.description"),
                 null,

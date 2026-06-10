@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.init.item;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.def.AmuletDefinition;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.amulet.def.AbnormalAmuletDefinition;
 import dev.dubhe.anvilcraft.item.amulet.def.ComradeAmuletDefinition;
 import net.neoforged.bus.api.IEventBus;
@@ -12,7 +12,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModAmuletDefinitionTypes {
     private static final DeferredRegister<IAmuletDefinition.Type<?>> REGISTER = DeferredRegister.create(
-        ModRegistries.AMULET_DEF_TYPE_KEY,
+        ModRegistryKeys.AMULET_DEF_TYPE,
         AnvilCraft.MOD_ID
     );
 

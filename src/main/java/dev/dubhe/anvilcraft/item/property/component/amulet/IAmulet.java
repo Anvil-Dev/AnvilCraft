@@ -2,7 +2,8 @@ package dev.dubhe.anvilcraft.item.property.component.amulet;
 
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.util.ISerializer;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -19,8 +20,8 @@ import java.util.function.Consumer;
 
 /// 护符类
 public interface IAmulet extends TooltipProvider {
-    Codec<IAmulet> CODEC = ModRegistries.AMULET_TYPE_REGISTRY.byNameCodec().dispatch(IAmulet::getType, IAmulet.Type::codec);
-    StreamCodec<RegistryFriendlyByteBuf, IAmulet> STREAM_CODEC = ByteBufCodecs.registry(ModRegistries.AMULET_TYPE_KEY)
+    Codec<IAmulet> CODEC = ModRegistries.AMULET_TYPE.byNameCodec().dispatch(IAmulet::getType, IAmulet.Type::codec);
+    StreamCodec<RegistryFriendlyByteBuf, IAmulet> STREAM_CODEC = ByteBufCodecs.registry(ModRegistryKeys.AMULET_TYPE)
         .dispatch(IAmulet::getType, IAmulet.Type::streamCodec);
 
     /// 在物品栏内时调用。<br>

@@ -910,7 +910,7 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Block> void overseerBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+    public static <T extends Block> void overseer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
@@ -921,6 +921,19 @@ public class RegistrumBlockRecipeLoader {
             .define('C', ModBlocks.ROYAL_STEEL_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.ENDER_EYE), AnvilCraftDatagen.has(lookup, Items.ENDER_EYE))
+            .save(provider);
+    }
+
+    public static <T extends Block> void crate(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TRANSPORTATION, ctx.get())
+            .pattern("AAA")
+            .pattern("ABA")
+            .pattern("AAA")
+            .define('A', ItemTags.PLANKS)
+            .define('B', ModItems.RESIN)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.PLANKS), AnvilCraftDatagen.has(lookup, ItemTags.PLANKS))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.RESIN), AnvilCraftDatagen.has(lookup, ModItems.RESIN))
             .save(provider);
     }
 

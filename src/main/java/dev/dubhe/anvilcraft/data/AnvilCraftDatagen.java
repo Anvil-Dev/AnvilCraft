@@ -13,13 +13,14 @@ import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
 import dev.dubhe.anvilcraft.data.provider.ModParticleDescriptionProvider;
 import dev.dubhe.anvilcraft.data.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.tags.TagsHandler;
-import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.entity.ModTradeSets;
 import dev.dubhe.anvilcraft.init.entity.ModVillagerTrades;
 import dev.dubhe.anvilcraft.init.item.ModAmuletDefinitions;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
+import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.advancements.criterion.ItemPredicate;
@@ -75,7 +76,8 @@ public class AnvilCraftDatagen {
         genInit.add(Registries.VILLAGER_TRADE, ModVillagerTrades::bootstrap);
         genInit.add(Registries.TRADE_SET, ModTradeSets::bootstrap);
         genInit.add(LibRegistries.DEFINITIONS_KEY, ModMultiblockDefinitions::bootstrap);
-        genInit.add(ModRegistries.AMULET_DEF, ModAmuletDefinitions::bootstrap);
+        genInit.add(ModRegistryKeys.AMULET_DEF, ModAmuletDefinitions::bootstrap);
+        genInit.add(ModRegistryKeys.CATEGORY, ModCategories::bootstrap);
 
         REGISTRUM.addDataGenerator(ProviderType.ITEM_TAGS, TagsHandler::initItem);
         REGISTRUM.addDataGenerator(ProviderType.BLOCK_TAGS, TagsHandler::initBlock);
