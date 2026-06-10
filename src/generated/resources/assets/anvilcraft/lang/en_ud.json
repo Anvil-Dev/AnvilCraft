@@ -1454,5 +1454,6 @@
   "tooltip.anvilcraft.space_overcompressor.stored_mass": "%s :ssɐW pǝɹoʇS",
   "tooltip.anvilcraft.thought": "oɟuᴉ ǝɹoɯ ɹoɟ [%s] ssǝɹԀ",
   "tooltip.anvilcraft.working_progress.progress": "%%%2$s %1$s  ",
+  "tooltip.anvilcraft.working_progress.time": "%2$s / %1$s  ",
   "tooltip.anvilcraft.working_progress.title": ":ssǝɹᵷoɹd ᵷuᴉʞɹoM"
 }

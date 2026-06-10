@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
@@ -42,8 +43,10 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Setter
     private boolean isCharger;
+    @Getter
     @Setter
     private int timeLeft = 0;
+    @Getter
     @Setter
     private int timeTotalCache = 0;
     private int powerValue = 0;
@@ -171,13 +174,14 @@ public class ChargerBlockEntity extends BlockEntity
                 if (remainingFE > 0) {
                     isFeCharging = true;
                     feCooldown = 0;
-                    int feChargeRate = 16 * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
+                    int baselinePower = 64;
+                    int feChargeRate = baselinePower * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
                     int ticks = Math.max(1, (remainingFE + feChargeRate - 1) / feChargeRate);
                     itemHandler.setStackInSlot(0, ItemStack.EMPTY);
                     itemHandler.setStackInSlot(1, stack);
                     timeLeft = ticks + 1;
                     timeTotalCache = ticks;
-                    powerValue = -16;
+                    powerValue = -baselinePower;
                     syncPacket();
                 }
             }
@@ -195,11 +199,7 @@ public class ChargerBlockEntity extends BlockEntity
         ItemStack stack = itemHandler.getStackInSlot(1).copy();
         if (stack.isEmpty()) return;
         if (!itemHandler.getStackInSlot(2).isEmpty()) {
-            if (isFeCharging) {
-                powerValue = -16;
-            } else {
-                powerValue = 0;
-            }
+            powerValue = 0;
             return;
         }
         if (isCharger) {
@@ -279,8 +279,27 @@ public class ChargerBlockEntity extends BlockEntity
     @Override
     public int getInputPower() {
         if (!isCharger || this.getBlockState().getValue(ChargerBlock.POWERED)) return 0;
-        if (isFeCharging) return 16;
         return -powerValue;
+    }
+
+    private int getFeChargingPowerLevel() {
+        if (grid == null) return 0;
+        int generate = grid.getGenerate();
+
+        // 统计同一电网上正在FE充电的充电器数量
+        int chargerCount = 0;
+        for (IPowerComponent component : grid.getComponents()) {
+            if (component instanceof ChargerBlockEntity other && other.isFeCharging) {
+                chargerCount++;
+            }
+        }
+        int perCharger = Math.max(1, generate / Math.max(1, chargerCount));
+
+        if (perCharger >= 512) return 512;
+        if (perCharger >= 256) return 256;
+        if (perCharger >= 128) return 128;
+        if (perCharger >= 64) return 64;
+        return 0;
     }
 
     @Nullable
@@ -380,11 +399,12 @@ public class ChargerBlockEntity extends BlockEntity
         }
         if (timeLeft > 0) {
             if (isFeCharging) {
-                powerValue = -16;
+                int powerLevel = getFeChargingPowerLevel();
+                powerValue = powerLevel > 0 ? -powerLevel : 0;
             }
             if (!isCharger || isGridWorking()) {
                 if (isFeCharging) {
-                    // FE物品：动态计算剩余时间
+                    // FE物品：梯度功率，动态计算剩余时间
                     ItemStack processingStack = itemHandler.getStackInSlot(1);
                     if (!processingStack.isEmpty()) {
                         IEnergyStorage storage = processingStack.getCapability(Capabilities.EnergyStorage.ITEM);
@@ -394,15 +414,21 @@ public class ChargerBlockEntity extends BlockEntity
                                 isFeCharging = false;
                                 timeLeft = 0;
                             } else {
-                                int feChargeRate = 16 * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
-                                int ticks = Math.max(1, (remainingFE + feChargeRate - 1) / feChargeRate);
-                                timeLeft = ticks + 1;
-                                int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-                                if (feCooldown <= 0) {
-                                    feCooldown = countdown;
-                                    storage.receiveEnergy(feChargeRate * countdown, false);
-                                } else {
-                                    feCooldown--;
+                                int powerLevel = getFeChargingPowerLevel();
+                                if (powerLevel > 0) {
+                                    int feChargeRate = powerLevel * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
+                                    int ticks = Math.max(1, (remainingFE + feChargeRate - 1) / feChargeRate);
+                                    timeLeft = ticks + 1;
+                                    int totalFE = storage.getMaxEnergyStored();
+                                    int totalTicks = Math.max(1, (totalFE + feChargeRate - 1) / feChargeRate);
+                                    timeTotalCache = totalTicks;
+                                    int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
+                                    if (feCooldown <= 0) {
+                                        feCooldown = countdown;
+                                        storage.receiveEnergy(feChargeRate * countdown, false);
+                                    } else {
+                                        feCooldown--;
+                                    }
                                 }
                             }
                         }

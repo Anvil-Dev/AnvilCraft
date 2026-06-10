@@ -71,6 +71,13 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
             FormattingUtil.toShadeProgress(progress, 5),
             String.valueOf(((int) (progress * 10000)) / 100.0)
         ).withStyle(ChatFormatting.GRAY));
+        if (charger.getTimeTotalCache() > 0) {
+            lines.add(Component.translatable(
+                "tooltip.anvilcraft.working_progress.time",
+                FormattingUtil.toFormattedTime(charger.getTimeLeft(), 3),
+                FormattingUtil.toFormattedTime(charger.getTimeTotalCache(), 3)
+            ).withStyle(ChatFormatting.GRAY));
+        }
         return lines;
     }
 
