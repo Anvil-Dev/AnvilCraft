@@ -332,9 +332,7 @@ public class ItemTooltipManager {
                 "stored_energy",
                 tooltip,
                 ChatFormatting.GRAY,
-                Component.literal(
-                    UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown())
-                ).withStyle(ChatFormatting.GOLD)
+                UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown())
             );
         }
         if (stack.has(ModComponents.MULTIPHASE)) {

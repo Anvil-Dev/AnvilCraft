@@ -1,28 +1,32 @@
  package dev.dubhe.anvilcraft.util;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+
 public class UnitUtil {
-    public static String energyUnit(int energy, boolean original) {
+    public static Component energyUnit(int energy, boolean original) {
         if (original) {
-            return energy + " FE";
+            return Component.literal(String.valueOf(energy)).withStyle(ChatFormatting.GOLD)
+                .append(Component.literal(" FE").withStyle(ChatFormatting.GRAY));
         }
         if (energy < 1000) {
-            return String.format("%d FE", energy);
+            return Component.literal(String.valueOf(energy)).withStyle(ChatFormatting.GOLD)
+                .append(Component.literal(" FE").withStyle(ChatFormatting.GRAY));
         } else if (energy < 1000000) {
             double kfeValue = (double) energy / 1000;
             double truncated = Math.floor(kfeValue * 100) / 100;
-            if (truncated == Math.floor(truncated)) {
-                return String.format("%.0f kFE", truncated);
-            } else {
-                return String.format("%.2f kFE", truncated);
-            }
+            MutableComponent number = truncated == Math.floor(truncated)
+                ? Component.literal(String.format("%.0f", truncated)).withStyle(ChatFormatting.GOLD)
+                : Component.literal(String.format("%.2f", truncated)).withStyle(ChatFormatting.GOLD);
+            return number.append(Component.literal(" kFE").withStyle(ChatFormatting.GRAY));
         } else {
             double mfeValue = (double) energy / 1000000;
             double truncated = Math.floor(mfeValue * 100) / 100;
-            if (truncated == Math.floor(truncated)) {
-                return String.format("%.0f MFE", truncated);
-            } else {
-                return String.format("%.2f MFE", truncated);
-            }
+            MutableComponent number = truncated == Math.floor(truncated)
+                ? Component.literal(String.format("%.0f", truncated)).withStyle(ChatFormatting.GOLD)
+                : Component.literal(String.format("%.2f", truncated)).withStyle(ChatFormatting.GOLD);
+            return number.append(Component.literal(" MFE").withStyle(ChatFormatting.GRAY));
         }
     }
 

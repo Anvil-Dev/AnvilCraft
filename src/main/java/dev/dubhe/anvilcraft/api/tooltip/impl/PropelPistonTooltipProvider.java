@@ -43,7 +43,7 @@ public class PropelPistonTooltipProvider extends ITooltipProvider.BlockEntityToo
             String count = String.format("%.0f", Math.ceil(storedEnergy / 5f));
             tooltips.add(Component.translatable("tooltip.anvilcraft.propel_piston.state").withStyle(ChatFormatting.BLUE));
             tooltips.add(Component.translatable("tooltip.anvilcraft.propel_piston.remaining_energy",
-                    Component.literal(UnitUtil.energyUnit(storedEnergy, original)).withStyle(ChatFormatting.GOLD))
+                    UnitUtil.energyUnit(storedEnergy, original))
                 .withStyle(ChatFormatting.GRAY));
             tooltips.add(Component.translatable("tooltip.anvilcraft.propel_piston.remaining_push", count)
                 .withStyle(ChatFormatting.GRAY));
