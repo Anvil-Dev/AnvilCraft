@@ -48,6 +48,8 @@ import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.container.HyperdimensionStorageStationBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.container.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.container.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
@@ -340,9 +342,19 @@ public class ModBlockEntities {
         .validBlocks(ModBlocks.NEUTRON_IRRADIATOR)
         .register();
 
+    public static final BlockEntityEntry<LargeCrateBlockEntity> LARGE_CRATE = REGISTRUM
+        .blockEntity("large_crate", LargeCrateBlockEntity::new)
+        .validBlocks(ModBlocks.LARGE_CRATE)
+        .register();
+
     public static final BlockEntityEntry<ShulkerContainerBlockEntity> SHULKER_CONTAINER = REGISTRUM
         .blockEntity("shulker_container", ShulkerContainerBlockEntity::new)
         .validBlocks(ModBlocks.SHULKER_CONTAINER)
+        .register();
+
+    public static final BlockEntityEntry<HyperdimensionStorageStationBlockEntity> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
+        .blockEntity("hyperdimension_storage_station", HyperdimensionStorageStationBlockEntity::new)
+        .validBlocks(ModBlocks.HYPERDIMENSION_STORAGE_STATION)
         .register();
 
     public static final BlockEntityEntry<NestingShulkerBoxBlockEntity> NESTING_SHULKER_BOX = REGISTRUM

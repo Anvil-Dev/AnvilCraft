@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.init.storage;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.saved.storage.category.CreativeModeTabCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.HasComponentCategory;
@@ -12,14 +11,20 @@ import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.OrCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.client.RecipeBookCategoryCategory;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.component.predicates.AnyValue;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
+import net.minecraft.core.component.predicates.DataComponentPredicates;
+import net.minecraft.core.component.predicates.EnchantmentsPredicate;
+import net.minecraft.core.component.predicates.PotionsPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.registries.holdersets.AnyHolderSet;
+
+import java.util.List;
+import java.util.Map;
 
 public class ModCategories {
     public static final ResourceKey<ICategory> FOODS_AND_DRINKS = ModCategories.key("foods_and_drinks");
@@ -30,20 +35,14 @@ public class ModCategories {
     public static void bootstrap(BootstrapContext<ICategory> ctx) {
         ctx.register(
             ModCategories.FOODS_AND_DRINKS,
-            new OrCategory(
+            HasComponentCategory.or(
                 Items.APPLE,
                 ModCategories.FOODS_AND_DRINKS.identifier(),
-                new HasComponentCategory(
-                    Items.APPLE,
-                    AnvilCraft.of("foods"),
+                Map.of(
                     DataComponentPredicate.AnyValueType.create(DataComponents.FOOD),
-                    new AnyValue(DataComponents.FOOD)
-                ),
-                new HasComponentCategory(
-                    Items.POTION,
-                    AnvilCraft.of("drinks"),
-                    DataComponentPredicate.AnyValueType.create(DataComponents.POTION_CONTENTS),
-                    new AnyValue(DataComponents.POTION_CONTENTS)
+                    EnchantmentsPredicate.enchantments(List.of()), // ignored
+                    DataComponentPredicates.POTIONS,
+                    PotionsPredicate.potions(new AnyHolderSet<>(Registries.POTION, ctx.holderLookup(Registries.POTION).orElseThrow()))
                 )
             )
         );
@@ -70,32 +69,18 @@ public class ModCategories {
         );
         ctx.register(
             ModCategories.ENCHANTED,
-            new OrCategory(
+            HasComponentCategory.or(
                 Items.ENCHANTED_BOOK,
                 ModCategories.ENCHANTED.identifier(),
-                new HasComponentCategory(
-                    Items.ENCHANTED_BOOK,
-                    ModCategories.ENCHANTED.identifier().withSuffix(".enchantments"),
-                    DataComponentPredicate.AnyValueType.create(DataComponents.ENCHANTMENTS),
-                    new AnyValue(DataComponents.ENCHANTMENTS)
-                ),
-                new HasComponentCategory(
-                    Items.ENCHANTED_BOOK,
-                    ModCategories.ENCHANTED.identifier().withSuffix(".stored_enchantments"),
-                    DataComponentPredicate.AnyValueType.create(DataComponents.STORED_ENCHANTMENTS),
-                    new AnyValue(DataComponents.STORED_ENCHANTMENTS)
-                ),
-                new HasComponentCategory(
-                    ModItems.FROST_METAL_SWORD,
-                    ModCategories.ENCHANTED.identifier().withSuffix(".merciless_enchantments"),
+                Map.of(
+                    DataComponentPredicates.ENCHANTMENTS,
+                    EnchantmentsPredicate.enchantments(List.of()),
+                    DataComponentPredicates.STORED_ENCHANTMENTS,
+                    EnchantmentsPredicate.storedEnchantments(List.of()),
                     DataComponentPredicate.AnyValueType.create(ModComponents.MERCILESS_ENCHANTMENTS),
-                    new AnyValue(ModComponents.MERCILESS_ENCHANTMENTS)
-                ),
-                new HasComponentCategory(
-                    Items.BARRIER,
-                    ModCategories.ENCHANTED.identifier().withSuffix(".disabled_enchantments"),
+                    EnchantmentsPredicate.enchantments(List.of()), // ignored
                     DataComponentPredicate.AnyValueType.create(ModComponents.DISABLED_ENCHANTMENTS),
-                    new AnyValue(ModComponents.DISABLED_ENCHANTMENTS)
+                    EnchantmentsPredicate.enchantments(List.of()) // ignored
                 )
             )
         );

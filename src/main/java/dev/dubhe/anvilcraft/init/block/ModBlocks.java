@@ -37,6 +37,7 @@ import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockIt
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.container.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
+import dev.dubhe.anvilcraft.block.container.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.ShulkerContainerBlock;
@@ -362,6 +363,7 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -976,7 +978,7 @@ public class ModBlocks {
         )
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::crate)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .tag(BlockTags.MINEABLE_WITH_AXE)
         .register();
     public static final BlockEntry<LargeCrateBlock> LARGE_CRATE = REGISTRUM
@@ -989,6 +991,7 @@ public class ModBlocks {
         )
         .item(SimpleMultiPartBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_AXE)
@@ -1004,10 +1007,28 @@ public class ModBlocks {
         )
         .item(ShulkerContainerBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
+        .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops()
+        )
+        .item(SimpleMultiPartBlockItem::new)
+        .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.NEEDS_EMBER_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRUM.block(
@@ -1204,6 +1225,7 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1218,6 +1240,7 @@ public class ModBlocks {
         .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>::new)
         .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1229,6 +1252,7 @@ public class ModBlocks {
         .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>::new)
         .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1246,6 +1270,7 @@ public class ModBlocks {
             .emissiveRendering(ModBlocks::always))
         .item(SimpleMultiPartBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
@@ -1263,6 +1288,7 @@ public class ModBlocks {
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilAmplifierBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))

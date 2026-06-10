@@ -13,18 +13,18 @@
           "type": "minecraft:item",
           "conditions": [
             {
-              "block": "anvilcraft:large_crate",
+              "block": "anvilcraft:hyperdimension_storage_station",
               "condition": "minecraft:block_state_property",
               "properties": {
-                "half": "bottom_center"
+                "half": "mid_center"
               }
             }
           ],
-          "name": "anvilcraft:large_crate"
+          "name": "anvilcraft:hyperdimension_storage_station"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/large_crate"
+  "random_sequence": "anvilcraft:blocks/hyperdimension_storage_station"
 }

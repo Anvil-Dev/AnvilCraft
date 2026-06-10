@@ -1,33 +1,15 @@
 {
-  "type": "anvilcraft:or",
-  "categories": [
-    {
-      "type": "anvilcraft:has_component",
-      "icon": {
-        "id": "minecraft:apple"
-      },
-      "name": {
-        "translate": "category.anvilcraft.foods"
-      },
-      "predicate": "minecraft:food",
-      "value": {}
-    },
-    {
-      "type": "anvilcraft:has_component",
-      "icon": {
-        "id": "minecraft:potion"
-      },
-      "name": {
-        "translate": "category.anvilcraft.drinks"
-      },
-      "predicate": "minecraft:potion_contents",
-      "value": {}
-    }
-  ],
+  "type": "anvilcraft:has_component",
   "icon": {
     "id": "minecraft:apple"
   },
   "name": {
     "translate": "category.anvilcraft.foods_and_drinks"
+  },
+  "predicates": {
+    "minecraft:food": {},
+    "minecraft:potion_contents": {
+      "type": "neoforge:any"
+    }
   }
 }

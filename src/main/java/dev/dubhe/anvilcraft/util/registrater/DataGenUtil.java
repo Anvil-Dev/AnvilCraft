@@ -33,6 +33,7 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
+import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.conditional.IsUsingItem;
@@ -235,9 +236,23 @@ public class DataGenUtil {
         return new NonNullBiConsumer<>() {
             @Override
             public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                Item item = ctx.get();
+                generator.itemModelOutput.accept(
+                    item,
+                    ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item))
+                );
+            }
+        };
+    }
+
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> oversizedItem() {
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
                 generator.itemModelOutput.accept(
                     ctx.get(),
-                    ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get()))
+                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/")),
+                    new ClientItem.Properties(true, true, 1.0F)
                 );
             }
         };

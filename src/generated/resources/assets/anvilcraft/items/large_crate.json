@@ -2,5 +2,6 @@
   "model": {
     "type": "minecraft:model",
     "model": "anvilcraft:block/large_crate"
-  }
+  },
+  "oversized_in_gui": true
 }

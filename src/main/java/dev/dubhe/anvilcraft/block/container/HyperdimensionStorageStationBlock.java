@@ -20,18 +20,18 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class LargeCrateBlock
+public class HyperdimensionStorageStationBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCrateBlock>, IHammerRemovable {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, HyperdimensionStorageStationBlock>, IHammerRemovable {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
 
-    public LargeCrateBlock(Properties properties) {
+    public HyperdimensionStorageStationBlock(Properties properties) {
         super(properties);
     }
 
     @Override
     public Property<Cube3x3PartHalf> getPart() {
-        return LargeCrateBlock.HALF;
+        return HyperdimensionStorageStationBlock.HALF;
     }
 
     @Override
@@ -41,11 +41,11 @@ public class LargeCrateBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(LargeCrateBlock.HALF);
+        builder.add(HyperdimensionStorageStationBlock.HALF);
     }
 
     @Override
-    public LargeCrateBlock getMultiBlock() {
+    public HyperdimensionStorageStationBlock getMultiBlock() {
         return this;
     }
 
@@ -61,14 +61,13 @@ public class LargeCrateBlock
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.LARGE_CRATE.create(pos, state);
+        return ModBlockEntities.HYPERDIMENSION_STORAGE_STATION.create(pos, state);
     }
 
     // region VoxelShapes
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(HALF)) {
-            case BOTTOM_CENTER -> BOTTOM_CENTER;
             case BOTTOM_W -> BOTTOM_W;
             case BOTTOM_E -> BOTTOM_E;
             case BOTTOM_N -> BOTTOM_N;
@@ -77,16 +76,11 @@ public class LargeCrateBlock
             case BOTTOM_WS -> BOTTOM_SW;
             case BOTTOM_EN -> BOTTOM_NE;
             case BOTTOM_ES -> BOTTOM_SE;
-            case MID_CENTER -> MID_CENTER;
-            case MID_W -> MID_W;
-            case MID_E -> MID_E;
-            case MID_N -> MID_N;
-            case MID_S -> MID_S;
+            case MID_CENTER, BOTTOM_CENTER, MID_N, MID_S, MID_E, MID_W, TOP_CENTER -> MID_CENTER;
             case MID_WN -> MID_NW;
             case MID_WS -> MID_SW;
             case MID_EN -> MID_NE;
             case MID_ES -> MID_SE;
-            case TOP_CENTER -> TOP_CENTER;
             case TOP_W -> TOP_W;
             case TOP_E -> TOP_E;
             case TOP_N -> TOP_N;
@@ -100,26 +94,29 @@ public class LargeCrateBlock
 
     protected static final VoxelShape MID_CENTER = Shapes.block();
 
-    protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 2, 0, 16, 16, 16);
-    protected static final VoxelShape TOP_CENTER = ShapeUtil.rotate(Direction.Axis.X, 180, BOTTOM_CENTER);
-    protected static final VoxelShape MID_N = ShapeUtil.rotate(Direction.Axis.X, 270, BOTTOM_CENTER);
-    protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_N);
-    protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_N);
-    protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_N);
-
     protected static final VoxelShape BOTTOM_N = ShapeUtil.merge(
-        new AABB(0, 2, 2, 16, 16, 16),
-        new AABB(0, 0, 0, 16, 7, 7)
+        new AABB(0, 3.5, 3.5, 2.5, 6.5, 6.5),
+        new AABB(2.5, 2, 2, 13.5, 8, 8),
+        new AABB(13.5, 3.5, 3.5, 16, 6.5, 6.5),
+
+        new AABB(0, 14, 4, 16, 16, 16),
+        new AABB(0, 4, 14, 16, 16, 16),
+
+        new AABB(4, 7, 7, 12, 14, 14)
     );
     protected static final VoxelShape BOTTOM_W = ShapeUtil.rotate(Direction.Axis.Y, 90, BOTTOM_N);
     protected static final VoxelShape BOTTOM_S = ShapeUtil.rotate(Direction.Axis.Y, 180, BOTTOM_N);
     protected static final VoxelShape BOTTOM_E = ShapeUtil.rotate(Direction.Axis.Y, 270, BOTTOM_N);
 
-    protected static final VoxelShape BOTTOM_NW = ShapeUtil.cut(
-        new AABB(0, 0, 0, 16, 16, 16),
-        new AABB(7, 7, 0, 16, 16, 2),
-        new AABB(7, 0, 7, 16, 2, 16),
-        new AABB(0, 7, 7, 2, 16, 16)
+    protected static final VoxelShape BOTTOM_NW = ShapeUtil.merge(
+        new AABB(0, 0, 0, 10, 10, 10),
+        new AABB(3.5, 3.5, 11, 6.5, 6.5, 16),
+        new AABB(3.5, 11, 3.5, 6.5, 16, 6.5),
+        new AABB(11, 3.5, 3.5, 16, 6.5, 6.5),
+
+        new AABB(4, 14, 14, 16, 16, 16),
+        new AABB(14, 4, 14, 16, 16, 16),
+        new AABB(14, 14, 4, 16, 16, 16)
     );
     protected static final VoxelShape BOTTOM_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, BOTTOM_NW);
     protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, BOTTOM_NW);
