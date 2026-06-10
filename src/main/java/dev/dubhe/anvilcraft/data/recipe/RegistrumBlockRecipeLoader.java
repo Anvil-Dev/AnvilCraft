@@ -1046,7 +1046,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void propelPiston(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ItemStack itemStack = new ItemStack(ctx.get());
-        itemStack.set(ModComponents.STORED_ENERGY, 4000);
+        itemStack.set(ModComponents.STORED_ENERGY, 8000000);
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, itemStack)
             .pattern("CDC")
             .pattern("ABA")

@@ -33,8 +33,8 @@ public class IonoCraftBackpackHUD {
         if (!itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
             return;
         }
-        int flightTime = IonoCraftBackpackItem.getFlightTime(itemStack);
-        final int percent = Math.round((float) flightTime / AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 100);
+        int energy = IonoCraftBackpackItem.getEnergyStored(itemStack);
+        final int percent = Math.round((float) energy / IonoCraftBackpackItem.MAX_ENERGY * 100);
 
         final Font font = mc.font;
         PoseStack poseStack = guiGraphics.pose();

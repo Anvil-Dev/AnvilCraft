@@ -41,10 +41,10 @@ public class ItemTooltipLang {
 
         provider.add("tooltip.anvilcraft.fe_collector.low_energy", "Insufficient FE");
         provider.add("tooltip.anvilcraft.fe_collector.title", "Forge Energy");
-        provider.add("tooltip.anvilcraft.fe_collector.energy", "  %dk/%dk");
+        provider.add("tooltip.anvilcraft.fe_collector.energy", "  %d/%d kFE");
 
         provider.add("tooltip.anvilcraft.power_converter.fe_stored", "Forge Energy");
-        provider.add("tooltip.anvilcraft.power_converter.fe_stored.value", "  %dk/%dk");
+        provider.add("tooltip.anvilcraft.power_converter.fe_stored.value", "  %d/%d kFE");
 
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %ds");
 
@@ -65,7 +65,7 @@ public class ItemTooltipLang {
             "Store pills, right-click to take one pill each, and press [%s] to use them in the inventory"
         );
 
-        provider.add("item.anvilcraft.ionocraft_backpack.flight_time_energy", "Remaining Energy: %sMJ, Flight Time: %ss");
+        provider.add("item.anvilcraft.ionocraft_backpack.flight_time_energy", "Remaining Energy: %s, Flight Time: %ss");
 
         provider.add("tooltip.anvilcraft.resonator.desc", "Press [%s] to switch modes. Auto mode supports all tools");
         provider.add(

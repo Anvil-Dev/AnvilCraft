@@ -27,7 +27,7 @@ import java.util.Set;
 
 public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     /**
-     * 储存的能量 单位：kJ
+     * 储存的能量 单位：FE
      */
     @Getter
     private int storedEnergy = 0;
@@ -49,7 +49,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     public void updateStoredEnergy(Integer energy) {
-        this.storedEnergy = Math.clamp(energy, 0, 80000);
+        this.storedEnergy = Math.clamp(energy, 0, 160000000);
         if (level == null || !(level instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -76,7 +76,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
             power = laserLevel * 15;
         }
         if (!changed) {
-            if (storedEnergy < 80000) {
+            if (storedEnergy < 160000000) {
                 delay++;
                 if (delay >= 20) {
                     delay = 0;
@@ -123,7 +123,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putInt("storedEnergy", Math.min(this.storedEnergy, 80000));
+        tag.putInt("storedEnergy", Math.min(this.storedEnergy, 160000000));
     }
 
     @Override

@@ -3,17 +3,25 @@ package dev.dubhe.anvilcraft.util;
 public class UnitUtil {
     public static String energyUnit(int energy, boolean original) {
         if (original) {
-            return energy + " kJ";
+            return energy + " FE";
         }
         if (energy < 1000) {
-            return String.format("%d kJ", energy);
-        } else {
-            double mjValue = (double) energy / 1000;
-            double truncated = Math.floor(mjValue * 100) / 100;
+            return String.format("%d FE", energy);
+        } else if (energy < 1000000) {
+            double kfeValue = (double) energy / 1000;
+            double truncated = Math.floor(kfeValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
-                return String.format("%.0f MJ", truncated);
+                return String.format("%.0f kFE", truncated);
             } else {
-                return String.format("%.2f MJ", truncated);
+                return String.format("%.2f kFE", truncated);
+            }
+        } else {
+            double mfeValue = (double) energy / 1000000;
+            double truncated = Math.floor(mfeValue * 100) / 100;
+            if (truncated == Math.floor(truncated)) {
+                return String.format("%.0f M FE", truncated);
+            } else {
+                return String.format("%.2f M FE", truncated);
             }
         }
     }
