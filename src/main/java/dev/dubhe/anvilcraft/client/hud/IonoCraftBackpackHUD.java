@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.hud;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;

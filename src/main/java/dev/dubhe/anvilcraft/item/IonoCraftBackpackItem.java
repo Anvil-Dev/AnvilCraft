@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemProperties;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
@@ -124,14 +123,14 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
         int energy = getEnergyStored(stack);
-        int seconds = energy / FLIGHT_CONSUMPTION / 20;
+        int totalSeconds = energy / FLIGHT_CONSUMPTION / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
         tooltipComponents.add(Component.translatable(
-            "item.anvilcraft.ionocraft_backpack.flight_time_energy",
-            Component.literal(
-                UnitUtil.energyUnit(energy, false)
-            ).withStyle(ChatFormatting.GOLD),
+            "item.anvilcraft.ionocraft_backpack.flight_time",
+            Component.literal(String.valueOf(minutes)).withStyle(ChatFormatting.GOLD),
             Component.literal(String.valueOf(seconds)).withStyle(ChatFormatting.GOLD)
-        ));
+        ).withStyle(ChatFormatting.GRAY));
     }
 
     public static int getEnergyStored(ItemStack stack) {

@@ -206,11 +206,11 @@ public class ItemTooltipManager {
         );
         NORMAL.put(ModItems.NATURE_AMULET.get(), "Combines Silence, Cat, Dog, and Feather Amulet effects");
         NORMAL.put(ModItems.GEM_AMULET.get(), "Combines effects of all four Gem Amulets");
-        NORMAL.put(ModItems.CAPACITOR.asItem(), "8 M FE stored");
-        NORMAL.put(ModItems.CAPACITOR_EMPTY.asItem(), "8 M FE capacity");
-        NORMAL.put(ModItems.SUPER_CAPACITOR.asItem(), "160 M FE stored");
-        NORMAL.put(ModItems.SUPER_CAPACITOR_EMPTY.asItem(), "160 M FE capacity");
-        NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 M FE stored, but will only inherit the result of Energy Weapon Making");
+        NORMAL.put(ModItems.CAPACITOR.asItem(), "8 MFE stored");
+        NORMAL.put(ModItems.CAPACITOR_EMPTY.asItem(), "8 MFE capacity");
+        NORMAL.put(ModItems.SUPER_CAPACITOR.asItem(), "160 MFE stored");
+        NORMAL.put(ModItems.SUPER_CAPACITOR_EMPTY.asItem(), "160 MFE capacity");
+        NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
         NORMAL.put(ModBlocks.BLACK_HOLE.asItem(), "Dev Block with intense gravitational attraction");
         NORMAL.put(ModBlocks.WHITE_HOLE.asItem(), "Dev Block with intense gravitational repulsion");
         NORMAL.put(ModBlocks.CHARGER.asItem(), "Charges items, supports manual or automated input");
@@ -332,7 +332,9 @@ public class ItemTooltipManager {
                 "stored_energy",
                 tooltip,
                 ChatFormatting.GRAY,
-                UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown())
+                Component.literal(
+                    UnitUtil.energyUnit(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), Screen.hasShiftDown())
+                ).withStyle(ChatFormatting.GOLD)
             );
         }
         if (stack.has(ModComponents.MULTIPHASE)) {

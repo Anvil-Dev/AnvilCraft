@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.util;
+ package dev.dubhe.anvilcraft.util;
 
 public class UnitUtil {
     public static String energyUnit(int energy, boolean original) {
@@ -19,9 +19,9 @@ public class UnitUtil {
             double mfeValue = (double) energy / 1000000;
             double truncated = Math.floor(mfeValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
-                return String.format("%.0f M FE", truncated);
+                return String.format("%.0f MFE", truncated);
             } else {
-                return String.format("%.2f M FE", truncated);
+                return String.format("%.2f MFE", truncated);
             }
         }
     }
