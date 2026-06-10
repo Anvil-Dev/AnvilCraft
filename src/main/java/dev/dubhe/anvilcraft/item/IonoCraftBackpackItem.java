@@ -64,7 +64,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
         super(
             ArmorMaterials.IRON,
             Type.CHESTPLATE,
-            properties.component(ModComponents.STORED_ENERGY, MAX_ENERGY)
+            properties.component(ModComponents.STORED_ENERGY, 0)
         );
         DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
         addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
