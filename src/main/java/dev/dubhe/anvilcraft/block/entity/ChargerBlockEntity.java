@@ -284,20 +284,16 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     @Nullable
-    public ItemStack tryExtractFeItemFromSlot1() {
+    public ItemStack tryExtractItemFromSlot1() {
         ItemStack stack = itemHandler.getStackInSlot(1);
         if (stack.isEmpty()) return null;
-        IEnergyStorage energyStorage = stack.getCapability(Capabilities.EnergyStorage.ITEM);
-        if (energyStorage != null) {
-            itemHandler.setStackInSlot(1, ItemStack.EMPTY);
-            isFeCharging = false;
-            feCooldown = 0;
-            timeLeft = 0;
-            powerValue = 0;
-            setChanged();
-            return stack;
-        }
-        return null;
+        itemHandler.setStackInSlot(1, ItemStack.EMPTY);
+        isFeCharging = false;
+        feCooldown = 0;
+        timeLeft = 0;
+        powerValue = 0;
+        setChanged();
+        return stack;
     }
 
     @Override

@@ -168,11 +168,14 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (!level.isClientSide()) {
+        if (level.isClientSide()) {
+            // 客户端：只要手持物品就阻止默认交互（避免预测出互换）
+            if (!stack.isEmpty()) return ItemInteractionResult.SUCCESS;
+        } else {
             if (level.getBlockEntity(pos) instanceof ChargerBlockEntity charger) {
                 // 玩家空手时尝试取出物品
                 if (stack.isEmpty()) {
-                    // 优先从输出槽（槽位2）取物品，如果为空则从输入槽（槽位0）取
+                    // 优先从输出槽（槽位2）取物品，输入槽（槽位0）由于已被拦截无法直接提取
                     for (int slot : new int[]{
                         2,
                         0
@@ -180,6 +183,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                         ItemStack itemInSlot = charger.getFilteredItemStackHandler().getStackInSlot(slot);
                         if (!itemInSlot.isEmpty()) {
                             ItemStack extracted = charger.getFilteredItemStackHandler().extractItem(slot, itemInSlot.getCount(), false);
+                            if (extracted.isEmpty()) continue;
                             player.getInventory().placeItemBackInInventory(extracted);
                             level.playSound(
                                 null,
@@ -192,10 +196,10 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                             return ItemInteractionResult.SUCCESS;
                         }
                     }
-                    // 检查槽位1是否有正在充电的FE物品
+                    // 检查槽位1是否有正在处理的物品（配方/FE充电）
                     ItemStack slot1Stack = charger.getFilteredItemStackHandler().getStackInSlot(1);
                     if (!slot1Stack.isEmpty()) {
-                        ItemStack extracted = charger.tryExtractFeItemFromSlot1();
+                        ItemStack extracted = charger.tryExtractItemFromSlot1();
                         if (!extracted.isEmpty()) {
                             player.getInventory().placeItemBackInInventory(extracted);
                             level.playSound(
@@ -210,13 +214,16 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                         }
                     }
                 } else if (charger.containsValidItem(stack)) {
+                    // 只放入输入槽（槽位0），如果被占用了就不放，但也不触发默认交互
                     ItemStack result = charger.getFilteredItemStackHandler().insertItem(0, stack, true);
                     if (result.isEmpty() || result.getCount() < stack.getCount()) {
                         int countDiff = stack.getCount() - (result.isEmpty() ? 0 : result.getCount());
                         ItemStack toInsert = stack.split(countDiff);
                         charger.getFilteredItemStackHandler().insertItem(0, toInsert, false);
-                        return ItemInteractionResult.SUCCESS;
                     }
+                    return ItemInteractionResult.SUCCESS;
+                } else {
+                    return ItemInteractionResult.SUCCESS;
                 }
             }
         }
