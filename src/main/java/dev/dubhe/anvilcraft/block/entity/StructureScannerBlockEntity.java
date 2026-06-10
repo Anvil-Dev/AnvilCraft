@@ -566,11 +566,27 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         saveAdditionalData(tag);
         output.store("ScannerData", CompoundTag.CODEC, tag);
     }
-    
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        saveAdditionalData(tag);
+    }
+
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         CompoundTag tag = input.read("ScannerData", CompoundTag.CODEC).orElse(new CompoundTag());
+        loadScannerData(tag);
+    }
+
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        loadScannerData(tag);
+    }
+
+    private void loadScannerData(CompoundTag tag) {
         // 反序列化到 handler
         if (tag.contains("diskItems")) {
             ListTag diskItems = tag.getListOrEmpty("diskItems");
