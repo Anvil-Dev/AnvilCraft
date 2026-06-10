@@ -292,9 +292,25 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        saveAdditionalDataToTag(tag);
+    }
+
+    @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         CompoundTag tag = input.read(DATA_KEY, CompoundTag.CODEC).orElse(new CompoundTag());
+        loadFromTag(tag);
+    }
+
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        loadFromTag(tag);
+    }
+
+    private void loadFromTag(CompoundTag tag) {
         this.isPowered = tag.getBooleanOr("isPowered", false);
         this.hasRedstoneSignal = tag.getBooleanOr("hasRedstoneSignal", false);
         this.selectedLayer = tag.getIntOr("selectedLayer", 0);
