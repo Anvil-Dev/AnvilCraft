@@ -864,12 +864,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
 
         // 检查蓝图模式状态变化
-        boolean newBlueprintMode = blockEntity.getDiskInventory().getItem(0).isEmpty()
-            ? false : !blockEntity.getDiskInventory().getItem(0).isEmpty();
-        newBlueprintMode = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+        boolean newBlueprintMode = !blockEntity.getDiskInventory().getItem(0).isEmpty();
         if (newBlueprintMode != this.isBlueprintMode) {
             this.isBlueprintMode = newBlueprintMode;
             this.cachedPreviewLevelLike = null;
+            // 立即刷新按钮布局以匹配当前模式
+            this.updateButtonsForBlueprintMode();
         }
 
         // 检查层数据变化

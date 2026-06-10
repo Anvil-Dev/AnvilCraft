@@ -567,9 +567,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         output.store("ScannerData", CompoundTag.CODEC, tag);
     }
 
-    @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
         saveAdditionalData(tag);
     }
 
@@ -580,9 +578,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         loadScannerData(tag);
     }
 
-    @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
         loadScannerData(tag);
     }
 

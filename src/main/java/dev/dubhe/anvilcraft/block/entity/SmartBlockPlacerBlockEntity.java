@@ -286,28 +286,44 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
+        // 物品栏直接保存到ValueOutput（不通过CompoundTag中转，避免兼容性问题）
+        saveInventoryToOutput(output, "diskInventory", this.diskInventory);
+        saveInventoryToOutput(output, "bookInventory", this.bookInventory);
+        saveInventoryToOutput(output, "outputBookInventory", this.outputBookInventory);
+        // 其他数据仍通过CompoundTag保存
         CompoundTag tag = new CompoundTag();
         saveAdditionalDataToTag(tag);
         output.store(DATA_KEY, CompoundTag.CODEC, tag);
     }
 
-    @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
         saveAdditionalDataToTag(tag);
+        // 旧路径也保存物品栏（向后兼容）
+        saveItemsToTag(tag, this.diskInventory);
+        saveItemsToTag(tag, this.bookInventory);
+        saveItemsToTag(tag, this.outputBookInventory);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        // 物品栏直接从ValueInput加载
+        loadInventoryFromInput(input, "diskInventory", this.diskInventory);
+        this.lastDiskItem = this.diskInventory.getItem(0).copy();
+        loadInventoryFromInput(input, "bookInventory", this.bookInventory);
+        loadInventoryFromInput(input, "outputBookInventory", this.outputBookInventory);
+        // 其他数据从CompoundTag加载
         CompoundTag tag = input.read(DATA_KEY, CompoundTag.CODEC).orElse(new CompoundTag());
         loadFromTag(tag);
     }
 
-    @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
         loadFromTag(tag);
+        // 旧路径也从CompoundTag加载物品栏（向后兼容）
+        loadItemsFromTag(tag, this.diskInventory);
+        this.lastDiskItem = this.diskInventory.getItem(0).copy();
+        loadItemsFromTag(tag, this.bookInventory);
+        loadItemsFromTag(tag, this.outputBookInventory);
     }
 
     private void loadFromTag(CompoundTag tag) {
@@ -327,14 +343,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                                     .result().orElse(ItemStack.EMPTY)
                                 : ItemStack.EMPTY;
         loadLayerPositions(tag);
-        // 加载Disk物品栏
-        loadItemsFromTag(tag, this.diskInventory);
-        // 同步 lastDiskItem 缓存以匹配实际库存状态，防止后续取出蓝图时检测不到变化
-        this.lastDiskItem = this.diskInventory.getItem(0).copy();
-        // 加载书物品栏
-        loadItemsFromTag(tag, this.bookInventory);
-        // 加载输出书物品栏
-        loadItemsFromTag(tag, this.outputBookInventory);
 
         // 优先从缓存加载结构数据(原始未旋转的数据)
         if (tag.contains("cachedStructure")) {
@@ -3761,6 +3769,23 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
+    /**
+     * 将SimpleContainer中的物品直接保存到ValueOutput（不通过CompoundTag）
+     */
+    private static void saveInventoryToOutput(ValueOutput output, String key, SimpleContainer container) {
+        ItemStack stack = container.getItem(0);
+        if (!stack.isEmpty()) {
+            output.store(key, ItemStack.CODEC, stack);
+        }
+    }
+
+    /**
+     * 从ValueInput直接加载物品到SimpleContainer（不通过CompoundTag）
+     */
+    private static void loadInventoryFromInput(ValueInput input, String key, SimpleContainer container) {
+        input.read(key, ItemStack.CODEC).ifPresent(stack -> container.setItem(0, stack));
+    }
+
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return this.saveWithoutMetadata(registries);
@@ -3783,9 +3808,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 .result().ifPresent(nbt -> tag.put("currentHeldBlock", nbt));
         }
         saveLayerPositions(tag);
-        saveItemsToTag(tag, this.diskInventory);
-        saveItemsToTag(tag, this.bookInventory);
-        saveItemsToTag(tag, this.outputBookInventory);
         if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
             tag.put("cachedStructure", this.saveStructureData(this.loadedStructure));
             tag.putString("cachedStructureName", this.loadedStructureName);
