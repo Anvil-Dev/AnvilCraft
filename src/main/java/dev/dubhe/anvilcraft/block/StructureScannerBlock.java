@@ -27,12 +27,14 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.redstone.Orientation;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 public class StructureScannerBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final MapCodec<StructureScannerBlock> CODEC = simpleCodec(StructureScannerBlock::new);
@@ -67,19 +69,20 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
         );
     }
 
+    @NotNull
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
+    protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
         builder.add(FACING, POWERED, UPSIDE_DOWN);
     }
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
+    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
         Direction facing = context.getClickedFace();
         boolean upsideDown = facing == Direction.DOWN;
         Direction horizontalFacing = context.getHorizontalDirection().getOpposite();
@@ -90,12 +93,13 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
             .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
+    @NotNull
     @Override
     public VoxelShape getShape(
-        BlockState state,
-        BlockGetter level,
-        BlockPos pos,
-        CollisionContext context
+        @NotNull BlockState state,
+        @NotNull BlockGetter level,
+        @NotNull BlockPos pos,
+        @NotNull CollisionContext context
     ) {
         Direction facing = state.getValue(FACING);
         boolean upsideDown = state.getValue(UPSIDE_DOWN);
@@ -110,21 +114,21 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
 
     @Override
     @Nullable
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new StructureScannerBlockEntity(ModBlockEntities.STRUCTURE_SCANNER.get(), pos, state);
     }
     
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level,
-        BlockState state,
-        BlockEntityType<T> type
+        @NotNull Level level,
+        @NotNull BlockState state,
+        @NotNull BlockEntityType<T> type
     ) {
         if (level.isClientSide()) {
             return null;
         }
-        return (level1, pos, state1, entity) -> {
+        return (level1, pos, ignored, entity) -> {
             if (entity instanceof StructureScannerBlockEntity be) {
                 be.tickServer(level1, pos);
             }
@@ -132,12 +136,14 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    protected @NonNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected @NonNull InteractionResult useWithoutItem(
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult
+    ) {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
@@ -152,8 +158,8 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     
     @Override
     protected void neighborChanged(
-        BlockState state, Level level, BlockPos pos,
-        Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
+        @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
+        @NotNull Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston) {
         if (level.isClientSide()) {
             return;
         }
@@ -171,7 +177,7 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof StructureScannerBlockEntity scannerEntity) {
                 // 执行自动扫描和保存
-                autoScanAndSave(level, scannerEntity);
+                this.autoScanAndSave(level, scannerEntity);
             }
         }
     }
@@ -210,7 +216,8 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     }
     
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    public @NonNull BlockState playerWillDestroy(
+        @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!level.isClientSide()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof StructureScannerBlockEntity scannerEntity) {

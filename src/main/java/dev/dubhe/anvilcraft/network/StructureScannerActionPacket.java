@@ -58,23 +58,23 @@ public record StructureScannerActionPacket(String action, int value, String name
             return;
         }
         
-        switch (action) {
+        switch (this.action) {
             case "start" -> {
                 blockEntity.startScanning();
                 // 同步范围到客户端
-                syncRangeToClient(player, blockEntity);
+                this.syncRangeToClient(player, blockEntity);
             }
             case "stop" -> {
                 blockEntity.stopScanning();
                 // 同步范围到客户端
-                syncRangeToClient(player, blockEntity);
+                this.syncRangeToClient(player, blockEntity);
             }
             case "rangeChange" -> {
                 // name 格式: "rangeX", "rangeY", "rangeZ"
-                boolean validRange = switch (name) {
-                    case "rangeX" -> validateAndApplyRange(blockEntity.getRangeX(), value);
-                    case "rangeY" -> validateAndApplyRange(blockEntity.getRangeY(), value);
-                    case "rangeZ" -> validateAndApplyRange(blockEntity.getRangeZ(), value);
+                boolean validRange = switch (this.name) {
+                    case "rangeX" -> validateAndApplyRange(blockEntity.getRangeX(), this.value);
+                    case "rangeY" -> validateAndApplyRange(blockEntity.getRangeY(), this.value);
+                    case "rangeZ" -> validateAndApplyRange(blockEntity.getRangeZ(), this.value);
                     default -> false;
                 };
                 
@@ -82,15 +82,15 @@ public record StructureScannerActionPacket(String action, int value, String name
                     AnvilCraft.LOGGER.warn(
                         "Player {} sent invalid range value: {} for {} (valid range: 0-{})",
                         player.getName().getString(),
-                        value,
-                        name,
-                        name.startsWith("range") ? getRangeCount(blockEntity, name) - 1 : 0
+                        this.value,
+                        this.name,
+                        this.name.startsWith("range") ? getRangeCount(blockEntity, this.name) - 1 : 0
                     );
                     return;
                 }
                 
                 // 同步范围到客户端
-                syncRangeToClient(player, blockEntity);
+                this.syncRangeToClient(player, blockEntity);
             }
             case "confirm" -> {
                 // 检查是否放入了结构磁盘
@@ -114,7 +114,7 @@ public record StructureScannerActionPacket(String action, int value, String name
                 }
                 
                 // 保存结构文件(成功或失败都不会发送聊天消息,仅记录到服务器日志)
-                String structureName = name.isEmpty() ? "structure_" + System.currentTimeMillis() : name;
+                String structureName = this.name.isEmpty() ? "structure_" + System.currentTimeMillis() : this.name;
                 dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(
                     player.level(), blockEntity, structureName
                 );
