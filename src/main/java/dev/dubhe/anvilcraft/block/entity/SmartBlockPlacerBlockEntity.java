@@ -4,19 +4,20 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
-import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
-import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
-import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
 import dev.dubhe.anvilcraft.block.power.transmitting.RemoteTransmissionPoleBlock;
-import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
-import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.power.transmitting.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
+import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
+import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -25,7 +26,6 @@ import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.StructureBookUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
-import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -35,13 +35,12 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -55,9 +54,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
@@ -76,14 +72,15 @@ import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
-import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
-import net.minecraft.util.ProblemReporter;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -91,6 +88,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.IntFunction;
@@ -99,7 +97,9 @@ import javax.annotation.Nullable;
 
 @Getter
 @Setter
-public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
+
+public class SmartBlockPlacerBlockEntity extends BlockEntity
+    implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
     private static final int PLACEMENT_INTERVAL = 20;
     private static final int PLACEMENT_DELAY = 6;
@@ -164,6 +164,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     // 标记当前是否有方块正在被智能放置器移动
     private static final ThreadLocal<Boolean> IS_BEING_MOVED_BY_PLACER = ThreadLocal.withInitial(() -> false);
 
+    @Nullable
     private PowerGrid grid = null;
     private boolean isPowered = false;
     private boolean hasRedstoneSignal = false;
@@ -292,12 +293,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         saveInventoryToOutput(output, "outputBookInventory", this.outputBookInventory);
         // 其他数据仍通过CompoundTag保存
         CompoundTag tag = new CompoundTag();
-        saveAdditionalDataToTag(tag);
+        this.saveAdditionalDataToTag(tag);
         output.store(DATA_KEY, CompoundTag.CODEC, tag);
     }
 
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        saveAdditionalDataToTag(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider ignored) {
+        this.saveAdditionalDataToTag(tag);
         // 旧路径也保存物品栏（向后兼容）
         saveItemsToTag(tag, this.diskInventory);
         saveItemsToTag(tag, this.bookInventory);
@@ -314,11 +315,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         loadInventoryFromInput(input, "outputBookInventory", this.outputBookInventory);
         // 其他数据从CompoundTag加载
         CompoundTag tag = input.read(DATA_KEY, CompoundTag.CODEC).orElse(new CompoundTag());
-        loadFromTag(tag);
+        this.loadFromTag(tag);
     }
 
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        loadFromTag(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider ignored) {
+        this.loadFromTag(tag);
         // 旧路径也从CompoundTag加载物品栏（向后兼容）
         loadItemsFromTag(tag, this.diskInventory);
         this.lastDiskItem = this.diskInventory.getItem(0).copy();
@@ -342,7 +343,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                                 ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("currentHeldBlock"))
                                     .result().orElse(ItemStack.EMPTY)
                                 : ItemStack.EMPTY;
-        loadLayerPositions(tag);
+        this.loadLayerPositions(tag);
 
         // 优先从缓存加载结构数据(原始未旋转的数据)
         if (tag.contains("cachedStructure")) {
@@ -366,13 +367,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             public boolean isValid(int index, ItemResource resource) {
                 // 只允许放入结构磁盘
                 return resource.getItem() == ModItems.STRUCTURE_DISK.get()
-                    && isStructureSizeValid(resource);
+                    && SmartBlockPlacerBlockEntity.this.isStructureSizeValid(resource);
             }
 
             @Override
             public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
                 if (index != 0) return 0;
-                if (!isValid(index, resource)) return 0;
+                if (!this.isValid(index, resource)) return 0;
                 return super.insert(index, resource, amount, transaction);
             }
 
@@ -396,7 +397,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 Block.UPDATE_CLIENTS
             );
             if (level instanceof ServerLevel serverLevel) {
-                serverLevel.getPlayers(p -> true).forEach(
+                serverLevel.getPlayers(_ -> true).forEach(
                     player -> player.connection.send(this.getUpdatePacket())
                 );
             }
@@ -604,6 +605,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     /**
      * 检查是否包含无效结构（磁盘存在但结构数据无效）
      */
+    @SuppressWarnings("unused")
     public boolean hasInvalidStructure() {
         return this.hasInvalidStructure;
     }
@@ -618,7 +620,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return 0;
         }
 
-        int newSignal = calculateComparatorSignal();
+        int newSignal = this.calculateComparatorSignal();
         
         // 如果信号强度发生变化，立即发送更新通知比较器
         if (newSignal != this.lastComparatorSignal) {
@@ -687,7 +689,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
             // 使用与放置逻辑相同的方法构建位置列表
-            List<BlockPos> allPositions = buildOrderedPositionsFromLayers(this.getBlockPos(), facing, upsideDown);
+            List<BlockPos> allPositions = this.buildOrderedPositionsFromLayers(this.getBlockPos(), facing, upsideDown);
 
             if (allPositions.isEmpty()) {
                 return 0;
@@ -837,7 +839,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
 
             // 获取这个位置需要的方块
-            Block requiredBlock = getRequiredBlockForPosition(index);
+            Block requiredBlock = this.getRequiredBlockForPosition(index);
             if (requiredBlock == null) {
                 continue;
             }
@@ -847,12 +849,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (this.isPickupMode) {
                 // Pickup模式：检查容器和掉落物实体
                 // 先获取蓝图状态，检查是否是可堆叠方块
-                BlockState blueprintState = getBlueprintBlockState(index, level);
-                int stackCount = getStackCountFromState(blueprintState);
+                BlockState blueprintState = this.getBlueprintBlockState(index, level);
+                int stackCount = this.getStackCountFromState(blueprintState);
 
                 if (stackCount > 1) {
                     // 可堆叠方块：检查数量是否足够
-                    int availableCount = countBlockItemInContainer(level, pos, requiredBlock);
+                    int availableCount = this.countBlockItemInContainer(level, pos, requiredBlock);
                     hasBlock = availableCount >= stackCount;
                 } else {
                     // 普通方块：检查是否有存量
@@ -1000,11 +1002,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean canWork = this.checkCanWork(level, pos, mode);
         boolean isResourceDepleted = this.checkResourceDepleted(level, pos, mode);
 
-        if (stopWorkCycleIfResourceDepleted(isResourceDepleted)) {
+        if (this.stopWorkCycleIfResourceDepleted(isResourceDepleted)) {
             return;
         }
 
-        tickCommonCooldownLogic(
+        this.tickCommonCooldownLogic(
             level,
             canWork,
             () -> this.executePlacement(level, pos, mode),
@@ -1067,15 +1069,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     if (!this.isSkipMissingMode && !containerEmpty) {
                         // 获取当前有序位置对应的原始索引
                         int actualIndex = orderedIndices.get(this.currentPlacementIndex);
-                        Block requiredBlock = getRequiredBlockForPosition(actualIndex);
+                        Block requiredBlock = this.getRequiredBlockForPosition(actualIndex);
                         if (requiredBlock != null) {
                             // 检查是否是可堆叠方块
-                            BlockState blueprintState = getBlueprintBlockState(actualIndex, level);
-                            int stackCount = getStackCountFromState(blueprintState);
+                            BlockState blueprintState = this.getBlueprintBlockState(actualIndex, level);
+                            int stackCount = this.getStackCountFromState(blueprintState);
 
                             if (stackCount > 1) {
                                 // 可堆叠方块：检查数量是否足够
-                                int availableCount = countBlockItemInContainer(level, pos, requiredBlock);
+                                int availableCount = this.countBlockItemInContainer(level, pos, requiredBlock);
                                 yield availableCount < stackCount;  // 数量不足视为资源耗尽
                             } else {
                                 // 普通方块：检查是否有存量
@@ -1093,13 +1095,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
                     // 检查源位置是否有方块
                     BlockState sourceState = level.getBlockState(sourcePos);
-                    boolean sourceEmpty = sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing);
+                    boolean sourceEmpty = sourceState.isAir() || this.isBlockNotPushable(sourceState, level, sourcePos, facing);
 
                     // 停止模式下，额外检查当前索引位置的方块是否匹配
                     if (!this.isSkipMissingMode && !sourceEmpty) {
                         // 获取当前有序位置对应的原始索引
                         int actualIndex = orderedIndices.get(this.currentPlacementIndex);
-                        Block requiredBlock = getRequiredBlockForPosition(actualIndex);
+                        Block requiredBlock = this.getRequiredBlockForPosition(actualIndex);
                         if (requiredBlock != null) {
                             // 源方块与当前位置需要的方块不匹配，视为资源耗尽
                             yield !sourceState.is(requiredBlock);
@@ -1214,18 +1216,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
 
                 // 获取当前索引需要的方块
-                Block requiredBlock = getRequiredBlockForPosition(index);
+                Block requiredBlock = this.getRequiredBlockForPosition(index);
                 if (requiredBlock == null) {
                     continue;
                 }
 
                 // 获取蓝图状态，检查是否是可堆叠方块
-                BlockState blueprintState = getBlueprintBlockState(index, level);
-                int stackCount = getStackCountFromState(blueprintState);
+                BlockState blueprintState = this.getBlueprintBlockState(index, level);
+                int stackCount = this.getStackCountFromState(blueprintState);
 
                 if (stackCount > 1) {
                     // 可堆叠方块：检查容器中是否有足够的数量
-                    int availableCount = countBlockItemInContainer(level, pos, requiredBlock);
+                    int availableCount = this.countBlockItemInContainer(level, pos, requiredBlock);
                     if (availableCount < stackCount) {
                         // 数量不足，跳过
                         continue;
@@ -1252,7 +1254,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos sourcePos = pos.relative(facing.getOpposite());
             BlockState sourceState = level.getBlockState(sourcePos);
 
-            if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+            if (sourceState.isAir() || this.isBlockNotPushable(sourceState, level, sourcePos, facing)) {
                 this.currentHeldBlock = ItemStack.EMPTY;
                 return;
             }
@@ -1277,7 +1279,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
 
                 // 获取蓝图需要的方块
-                Block requiredBlock = getRequiredBlockForPosition(index);
+                Block requiredBlock = this.getRequiredBlockForPosition(index);
                 if (requiredBlock == null) {
                     continue;
                 }
@@ -1379,7 +1381,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
 
-        return hasValidTargetPositions(level, basePos, facing, upsideDown);
+        return this.hasValidTargetPositions(level, basePos, facing, upsideDown);
     }
 
     private boolean hasTargetPositions(Level level, BlockPos placerPos) {
@@ -1393,11 +1395,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockPos sourcePos = placerPos.relative(facing.getOpposite());
 
         BlockState sourceState = level.getBlockState(sourcePos);
-        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+        if (sourceState.isAir() || this.isBlockNotPushable(sourceState, level, sourcePos, facing)) {
             return false;
         }
 
-        return hasValidTargetPositions(level, basePos, facing, upsideDown);
+        return this.hasValidTargetPositions(level, basePos, facing, upsideDown);
     }
 
     /**
@@ -1431,8 +1433,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
                 
                 // 可堆叠方块：检查是否还可以继续堆叠（不检查具体方块类型）
-                int currentStack = getStackCountFromState(targetState);
-                int maxStack = getMaxStackCountForState(targetState);
+                int currentStack = this.getStackCountFromState(targetState);
+                int maxStack = this.getMaxStackCountForState(targetState);
                 if (currentStack < maxStack) {
                     return true;  // 还可以堆叠
                 }
@@ -1494,7 +1496,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
         // 检查源位置是否有方块
         BlockState sourceState = level.getBlockState(sourcePos);
-        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+        if (sourceState.isAir() || this.isBlockNotPushable(sourceState, level, sourcePos, facing)) {
             return false;
         }
 
@@ -1630,7 +1632,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private boolean hasBlockItemsInContainer(Level level, BlockPos placerPos) {
-        return !getBlockItemFromContainer(level, placerPos).isEmpty();
+        return !this.getBlockItemFromContainer(level, placerPos).isEmpty();
     }
 
     private Direction getFacing(BlockPos pos, Level level) {
@@ -1645,38 +1647,39 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
         // 使用预提取逻辑，放置成功后才真正删除ItemEntity
-        executeUnifiedBlockOperationWithExtraction(
+        this.executeUnifiedBlockOperationWithExtraction(
             level, facing, upsideDown,
-            () -> buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
+            () -> this.buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
             (index) -> {
                 // 获取当前位置的方块状态
-                List<BlockPos> allPositions = buildOrderedPositionsFromLayers(placerPos, facing, upsideDown);
+                List<BlockPos> allPositions = this.buildOrderedPositionsFromLayers(placerPos, facing, upsideDown);
                 if (index >= 0 && index < allPositions.size()) {
                     BlockPos targetPos = allPositions.get(index);
                     BlockState currentState = level.getBlockState(targetPos);
                     
                     // 如果是可堆叠方块，必须提取匹配的方块物品
-                    int currentStack = getStackCountFromState(currentState);
-                    int maxStack = getMaxStackCountForState(currentState);
+                    int currentStack = this.getStackCountFromState(currentState);
+                    int maxStack = this.getMaxStackCountForState(currentState);
                     if (currentStack < maxStack) {
                         // 可堆叠方块：提取与当前位置匹配的方块物品
                         Block requiredBlock = currentState.getBlock();
-                        return this.preExtractSpecificBlockItemFromContainer(level, placerPos, requiredBlock);  // 找到了匹配的方块
-                        // 没找到匹配的方块，返回 null 阻止放置
+                        return Objects.requireNonNull(
+                            this.preExtractSpecificBlockItemFromContainer(
+                                level, placerPos, requiredBlock));  // 找到了匹配的方块// 没找到匹配的方块，返回 null 阻止放置
                     }
                 }
                 
                 // 空位或其他情况：提取容器中的第一个方块物品
-                return this.preExtractBlockItemFromContainer(level, placerPos);
+                return Objects.requireNonNull(this.preExtractBlockItemFromContainer(level, placerPos));
             },
-            (blockItem, blockItemObj, targetPos, extractionResult) -> {
+            (blockItem, _, targetPos, extractionResult) -> {
                 BlockState newState = level.getBlockState(targetPos);
                 
                 // 关键修复：基于放置后的方块状态判断是否可堆叠，而不是基于预提取的物品
                 if (!newState.isAir()) {
                     // 检查是否是可堆叠方块
-                    int currentStack = getStackCountFromState(newState);
-                    int maxStack = getMaxStackCountForState(newState);
+                    int currentStack = this.getStackCountFromState(newState);
+                    int maxStack = this.getMaxStackCountForState(newState);
                     
                     // 如果当前数量小于最大数量，说明还可以继续堆叠
                     if (currentStack < maxStack) {
@@ -1705,7 +1708,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
         // 检查源方块
         BlockState sourceState = level.getBlockState(sourcePos);
-        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+        if (sourceState.isAir() || this.isBlockNotPushable(sourceState, level, sourcePos, facing)) {
             return;
         }
 
@@ -1720,9 +1723,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
         final ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
 
-        executeUnifiedBlockOperation(
+        this.executeUnifiedBlockOperation(
             level, facing, upsideDown,
-            () -> buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
+            () -> this.buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
             (index) -> sourceItem,  // 忽略 index，总是源方块
             () -> sourceItem,
             (blockItem, blockItemObj, targetPos) -> {
@@ -1758,7 +1761,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 if (sourceBlockEntityData != null) {
                     BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
                     if (targetBlockEntity != null) {
-                        targetBlockEntity.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
+                        targetBlockEntity.loadWithComponents(
+                            TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
                         targetBlockEntity.setChanged();
                     }
                 }
@@ -1774,7 +1778,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
 
                 // 检测穿梭行为：当前放置器的目标位置是否是另一个放置器的源位置
-                checkAndTriggerShuttle(level, targetPos);
+                this.checkAndTriggerShuttle(level, targetPos);
 
                 this.currentHeldBlock = ItemStack.EMPTY;
                 return false;
@@ -1815,7 +1819,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
 
                 // 条件2：当前放置器的源位置在邻居的目标点位中
-                if (!isMySourceInNeighborTargets(level, neighborPlacer,
+                if (!this.isMySourceInNeighborTargets(level, neighborPlacer,
                     neighborPos, neighborFacing, mySource)) {
                     continue;
                 }
@@ -1888,7 +1892,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
 
             // 获取当前索引需要的方块
-            Block requiredBlock = getRequiredBlockForPosition(index);
+            Block requiredBlock = this.getRequiredBlockForPosition(index);
             if (requiredBlock == null) {
                 continue;
             }
@@ -1919,12 +1923,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
 
             // 获取蓝图状态，检查是否是可堆叠方块
-            BlockState blueprintState = getBlueprintBlockState(index, level);
-            int stackCount = getStackCountFromState(blueprintState);
+            BlockState blueprintState = this.getBlueprintBlockState(index, level);
+            int stackCount = this.getStackCountFromState(blueprintState);
 
             if (stackCount > 1) {
                 // 可堆叠方块：先检查容器中是否有足够的物品
-                int availableCount = countBlockItemInContainer(level, placerPos, requiredBlock);
+                int availableCount = this.countBlockItemInContainer(level, placerPos, requiredBlock);
 
                 if (availableCount < stackCount) {
                     if (!this.isSkipMissingMode) {
@@ -1949,7 +1953,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
             if (stackCount > 1) {
                 // 可堆叠方块：需要提取 stackCount 个物品
-                if (!extractAndPlaceStackableBlock(
+                if (!this.extractAndPlaceStackableBlock(
                     level, placerPos, targetPos, facing, upsideDown,
                     requiredBlock, stackCount, index, orderIndex, orderedIndices.size()
                 )) {
@@ -1996,7 +2000,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 放置成功后，修正方块的朝向为蓝图中的朝向
             if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
                 // 多方块方块：应用蓝图状态到所有部件（包括 setPlacedBy 创建的次要部件）
-                applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
+                this.applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
             } else {
                 this.applyBlueprintBlockFacing(level, targetPos, index);
             }
@@ -2031,7 +2035,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
         // 检查源方块
         BlockState sourceState = level.getBlockState(sourcePos);
-        if (sourceState.isAir() || isBlockNotPushable(sourceState, level, sourcePos, facing)) {
+        if (sourceState.isAir() || this.isBlockNotPushable(sourceState, level, sourcePos, facing)) {
             return;
         }
 
@@ -2077,7 +2081,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
 
             // 获取蓝图需要的方块
-            Block requiredBlock = getRequiredBlockForPosition(index);
+            Block requiredBlock = this.getRequiredBlockForPosition(index);
             if (requiredBlock == null) {
                 continue;
             }
@@ -2107,7 +2111,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.onChanged();
 
             // 获取蓝图中的目标状态（已经包含旋转、倒挂和状态过滤处理）
-            BlockState blueprintState = getBlueprintBlockState(index, level);
+            BlockState blueprintState = this.getBlueprintBlockState(index, level);
 
             // 多方块方块使用蓝图中的朝向进行放置，确保所有部件位置正确
             Direction placementFacing = facing;
@@ -2143,7 +2147,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             // 放置成功后，修正方块的朝向为蓝图中的朝向
             if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
                 // 多方块方块：应用蓝图状态到所有部件（包括 setPlacedBy 创建的次要部件）
-                applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
+                this.applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
             } else {
                 this.applyBlueprintBlockFacing(level, targetPos, index);
                 // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向），只更新客户端
@@ -2153,7 +2157,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (sourceBlockEntityData != null) {
                 BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
                 if (targetBlockEntity != null) {
-                    targetBlockEntity.loadWithComponents(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
+                    targetBlockEntity.loadWithComponents(
+                        TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
                     targetBlockEntity.setChanged();
                 }
             }
@@ -2302,8 +2307,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
             // 预提取物品（不真正删除ItemEntity）
             ExtractionResult extractionResult = itemExtractor.apply(index);
-            if (extractionResult == null || extractionResult.getItemStack().isEmpty()
-                || !(extractionResult.getItemStack().getItem() instanceof BlockItem)) {
+            if (extractionResult.getItemStack().isEmpty() || !(extractionResult.getItemStack().getItem() instanceof BlockItem)) {
                 // 容器中没有物品或物品类型不对，立即停止
                 this.currentHeldBlock = ItemStack.EMPTY;  // 清空动画显示
                 this.currentPlacementIndex = (index + 1) % allPositions.size();
@@ -2759,7 +2763,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 ItemResource resource = itemHandler.getResource(slot);
                 if (!resource.isEmpty() && resource.getItem() instanceof BlockItem blockItem) {
                     if (blockItem.getBlock() == targetBlock) {
-                        totalCount += (int) itemHandler.getAmountAsInt(slot);
+                        totalCount += itemHandler.getAmountAsInt(slot);
                     }
                 }
             }
@@ -2868,7 +2872,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
 
         // 应用白名单过滤：只保留白名单中的状态属性
-        rotatedState = applyWhitelistFilter(rotatedState);
+        rotatedState = this.applyWhitelistFilter(rotatedState);
 
         return rotatedState;
     }
@@ -2905,7 +2909,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (worldState.getBlock() != rotatedState.getBlock()) return;
 
         // 应用白名单过滤：只保留白名单中的状态属性
-        rotatedState = applyWhitelistFilter(rotatedState);
+        rotatedState = this.applyWhitelistFilter(rotatedState);
 
         // 海泡菜特殊处理:手动将 waterlogged 设置为 false
         if (rotatedState.is(Blocks.SEA_PICKLE)
@@ -3017,6 +3021,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      *
      * @return 是否正在被移动
      */
+    @SuppressWarnings("unused")
     public static boolean isBlockBeingMovedByPlacer() {
         return IS_BEING_MOVED_BY_PLACER.get();
     }
@@ -3091,7 +3096,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (slot = 0; itemHandler != null && slot < itemHandler.size(); slot++) {
             ItemResource resource = itemHandler.getResource(slot);
             if (!resource.isEmpty() && resource.getItem() instanceof BlockItem) {
-                ItemStack blockItemStack = resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1));
+                ItemStack blockItemStack = resource.toStack(Math.min(itemHandler.getAmountAsInt(slot), 1));
                 // 从容器预提取：先模拟提取，返回物品信息，放置成功后再真正提取
                 // 细雪桶特殊处理：预提取时就返还桶
                 if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
@@ -3119,7 +3124,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                         for (slot = 0; slot < entityHandler.size(); slot++) {
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem) {
-                                ItemStack blockItemStack = entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1));
+                                ItemStack blockItemStack = entityResource.toStack(Math.min(entityHandler.getAmountAsInt(slot), 1));
                                 // 从实体容器预提取：先模拟提取，返回物品信息，放置成功后再真正提取
                                 // 细雪桶特殊处理：预提取时就返还桶
                                 if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
@@ -3199,7 +3204,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (!resource.isEmpty() && resource.getItem() instanceof BlockItem blockItem) {
                 // 检查是否是需要的方块
                 if (blockItem.getBlock() == targetBlock) {
-                    ItemStack blockItemStack = resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1));
+                    ItemStack blockItemStack = resource.toStack(Math.min(itemHandler.getAmountAsInt(slot), 1));
                     // 细雪桶特殊处理：预提取时就返还桶
                     if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
                         try (Transaction tx = Transaction.openRoot()) {
@@ -3228,7 +3233,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem blockItem) {
                                 if (blockItem.getBlock() == targetBlock) {
-                                    ItemStack blockItemStack = entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1));
+                                    ItemStack blockItemStack = entityResource.toStack(Math.min(entityHandler.getAmountAsInt(slot), 1));
                                     // 细雪桶特殊处理
                                     if (blockItemStack.is(Items.POWDER_SNOW_BUCKET)) {
                                         try (Transaction tx = Transaction.openRoot()) {
@@ -3309,7 +3314,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (!resource.isEmpty() && resource.getItem() instanceof BlockItem blockItem) {
                 // 检查是否是需要的方块
                 if (blockItem.getBlock() == targetBlock) {
-                    return resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1)).copy();
+                    return resource.toStack(Math.min(itemHandler.getAmountAsInt(slot), 1)).copy();
                 }
             }
         }
@@ -3330,7 +3335,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem blockItem) {
                                 if (blockItem.getBlock() == targetBlock) {
-                                    return entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1)).copy();
+                                    return entityResource.toStack(Math.min(entityHandler.getAmountAsInt(slot), 1)).copy();
                                 }
                             }
                         }
@@ -3493,7 +3498,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (slot = 0; itemHandler != null && slot < itemHandler.size(); slot++) {
             ItemResource resource = itemHandler.getResource(slot);
             if (!resource.isEmpty() && resource.getItem() instanceof BlockItem) {
-                return resource.toStack(Math.min((int) itemHandler.getAmountAsInt(slot), 1)).copy();
+                return resource.toStack(Math.min(itemHandler.getAmountAsInt(slot), 1)).copy();
             }
         }
 
@@ -3512,7 +3517,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                         for (slot = 0; slot < entityHandler.size(); slot++) {
                             ItemResource entityResource = entityHandler.getResource(slot);
                             if (!entityResource.isEmpty() && entityResource.getItem() instanceof BlockItem) {
-                                return entityResource.toStack(Math.min((int) entityHandler.getAmountAsInt(slot), 1)).copy();
+                                return entityResource.toStack(Math.min(entityHandler.getAmountAsInt(slot), 1)).copy();
                             }
                         }
                     }
@@ -3569,13 +3574,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
          * 注意：细雪桶的返还已在预提取阶段处理，这里只需删除细雪桶
          */
         public void confirmExtraction() {
-            if (fromItemEntity && sourceItemEntity != null && sourceItemEntity.isAlive()) {
-                int count = sourceItemEntity.getItem().getCount();
+            if (this.fromItemEntity && this.sourceItemEntity != null && this.sourceItemEntity.isAlive()) {
+                int count = this.sourceItemEntity.getItem().getCount();
                 // 不需要处理细雪桶，因为预提取时已经生成空桶掉落物了
                 if (count > 1) {
-                    sourceItemEntity.getItem().setCount(count - 1);
+                    this.sourceItemEntity.getItem().setCount(count - 1);
                 } else {
-                    sourceItemEntity.discard();
+                    this.sourceItemEntity.discard();
                 }
             }
         }
@@ -3602,10 +3607,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         @Override
         public void confirmExtraction() {
             // 真正从容器中删除物品
-            ItemResource resource = itemHandler.getResource(slot);
+            ItemResource resource = this.itemHandler.getResource(this.slot);
             if (!resource.isEmpty()) {
                 try (Transaction transaction = Transaction.openRoot()) {
-                    itemHandler.extract(slot, resource, 1, transaction);
+                    this.itemHandler.extract(this.slot, resource, 1, transaction);
                     transaction.commit();
                 }
             }
@@ -3723,13 +3728,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     public void togglePosition(int layer, int position, boolean selected) {
         this.expectedShuttleTarget = null;
-        Set<Integer> positions = layerPositions.computeIfAbsent(layer, k -> new HashSet<>());
+        Set<Integer> positions = this.layerPositions.computeIfAbsent(layer, k -> new HashSet<>());
         if (selected) {
             positions.add(position);
         } else {
             positions.remove(position);
             if (positions.isEmpty()) {
-                layerPositions.remove(layer);
+                this.layerPositions.remove(layer);
             }
         }
         this.onChanged();
@@ -3792,22 +3797,22 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     public void saveAdditionalDataToTag(CompoundTag tag) {
-        tag.putBoolean("isPowered", isPowered);
-        tag.putBoolean("hasRedstoneSignal", hasRedstoneSignal);
-        tag.putInt("selectedLayer", selectedLayer);
-        tag.putInt("currentPlacementIndex", currentPlacementIndex);
-        tag.putInt("placeCooldown", placeCooldown);
-        tag.putBoolean("isPickupMode", isPickupMode);
-        tag.putBoolean("isSkipMissingMode", isSkipMissingMode);
-        if (!missingBlockItem.isEmpty()) {
-            ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, missingBlockItem)
+        tag.putBoolean("isPowered", this.isPowered);
+        tag.putBoolean("hasRedstoneSignal", this.hasRedstoneSignal);
+        tag.putInt("selectedLayer", this.selectedLayer);
+        tag.putInt("currentPlacementIndex", this.currentPlacementIndex);
+        tag.putInt("placeCooldown", this.placeCooldown);
+        tag.putBoolean("isPickupMode", this.isPickupMode);
+        tag.putBoolean("isSkipMissingMode", this.isSkipMissingMode);
+        if (!this.missingBlockItem.isEmpty()) {
+            ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.missingBlockItem)
                 .result().ifPresent(nbt -> tag.put("missingBlockItem", nbt));
         }
-        if (!currentHeldBlock.isEmpty()) {
-            ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, currentHeldBlock)
+        if (!this.currentHeldBlock.isEmpty()) {
+            ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.currentHeldBlock)
                 .result().ifPresent(nbt -> tag.put("currentHeldBlock", nbt));
         }
-        saveLayerPositions(tag);
+        this.saveLayerPositions(tag);
         if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
             tag.put("cachedStructure", this.saveStructureData(this.loadedStructure));
             tag.putString("cachedStructureName", this.loadedStructureName);
@@ -3836,7 +3841,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.selectedLayer = tag.getIntOr("selectedLayer", 0);
         this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
         this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
-        loadLayerPositions(tag);
+        this.loadLayerPositions(tag);
     }
 
     void loadLayerPositions(CompoundTag tag) {
