@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
@@ -80,7 +81,6 @@ import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceHeavyHalberdItem
 import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceResonatorItem;
 import dev.dubhe.anvilcraft.item.utility.CrabClawItem;
 import dev.dubhe.anvilcraft.item.utility.DiskItem;
-import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.utility.EnergyWeaponPlatformItem;
 import dev.dubhe.anvilcraft.item.utility.FilterItem;
 import dev.dubhe.anvilcraft.item.utility.GeodeItem;
@@ -682,7 +682,6 @@ public class ModItems {
     public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
         .item("structure_disk", StructureDiskItem::new)
         .properties(p -> p.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey())
         .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 

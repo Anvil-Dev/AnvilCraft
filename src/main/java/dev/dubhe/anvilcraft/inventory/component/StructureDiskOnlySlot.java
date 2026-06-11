@@ -65,7 +65,7 @@ public class StructureDiskOnlySlot extends Slot {
         }
 
         // 如果不强制限制大小，直接允许放入
-        if (!enforceSizeLimit) {
+        if (!this.enforceSizeLimit) {
             return true;
         }
 
@@ -86,7 +86,7 @@ public class StructureDiskOnlySlot extends Slot {
     @Override
     public boolean mayPickup(net.minecraft.world.entity.player.Player playerIn) {
         // 检查提取条件(如果书槽位有书,则不允许取出)
-        return canExtractCondition == null || canExtractCondition.getAsBoolean();
+        return this.canExtractCondition == null || this.canExtractCondition.getAsBoolean();
     }
 
     @Override

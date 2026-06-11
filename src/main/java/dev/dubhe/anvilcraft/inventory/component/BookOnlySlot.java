@@ -34,8 +34,8 @@ public class BookOnlySlot extends Slot {
 
     @Override
     public boolean isActive() {
-        if (isActiveCondition != null) {
-            return isActiveCondition.getAsBoolean();
+        if (this.isActiveCondition != null) {
+            return this.isActiveCondition.getAsBoolean();
         }
         return true;
     }

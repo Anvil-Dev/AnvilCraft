@@ -814,7 +814,8 @@ public class RegistrumBlockRecipeLoader {
             .define('E', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CRAB_CLAW), AnvilCraftDatagen.has(lookup, ModItems.CRAB_CLAW))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(lookup, ModItems.PROCESSOR))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK))
             .save(provider);
     }
 
