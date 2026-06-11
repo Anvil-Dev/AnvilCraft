@@ -192,16 +192,18 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                             ItemStack extracted = charger.getFilteredItemStackHandler().extractItem(slot, itemInSlot.getCount(), false);
                             if (extracted.isEmpty()) continue;
                             player.getInventory().placeItemBackInInventory(extracted);
-                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
+                                SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
                             return ItemInteractionResult.SUCCESS;
                         }
                     }
                     ItemStack slot1Stack = charger.getFilteredItemStackHandler().getStackInSlot(1);
                     if (!slot1Stack.isEmpty()) {
                         ItemStack extracted = charger.tryExtractItemFromSlot1();
-                        if (!extracted.isEmpty()) {
+                        if (extracted != null && !extracted.isEmpty()) {
                             player.getInventory().placeItemBackInInventory(extracted);
-                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
+                                SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
                             return ItemInteractionResult.SUCCESS;
                         }
                     }
@@ -224,16 +226,18 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
                             ItemStack extracted = discharger.getFilteredItemStackHandler().extractItem(slot, itemInSlot.getCount(), false);
                             if (extracted.isEmpty()) continue;
                             player.getInventory().placeItemBackInInventory(extracted);
-                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
+                                SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
                             return ItemInteractionResult.SUCCESS;
                         }
                     }
                     ItemStack slot1Stack = discharger.getFilteredItemStackHandler().getStackInSlot(1);
                     if (!slot1Stack.isEmpty()) {
                         ItemStack extracted = discharger.tryExtractItemFromSlot1();
-                        if (!extracted.isEmpty()) {
+                        if (extracted != null && !extracted.isEmpty()) {
                             player.getInventory().placeItemBackInInventory(extracted);
-                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
+                                SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
                             return ItemInteractionResult.SUCCESS;
                         }
                     }

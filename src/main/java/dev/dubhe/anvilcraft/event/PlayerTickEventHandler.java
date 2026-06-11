@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
@@ -9,8 +11,6 @@ import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
