@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:block_smear/grass_block"
+        "recipe": "anvilcraft:procedural_process/redstone_computer_from_procedural"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:block_smear/grass_block"
+      "anvilcraft:procedural_process/redstone_computer_from_procedural"
     ]
   }
 }

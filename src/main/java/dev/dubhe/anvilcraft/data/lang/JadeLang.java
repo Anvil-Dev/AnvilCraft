@@ -43,5 +43,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.discharger.jade.working_progress", "Discharging Progress: %s");
         provider.add("tooltip.anvilcraft.discharger.jade.time", "%1$s / %2$s");
         provider.add("tooltip.anvilcraft.discharger.jade.energy", "%1$s / %2$s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.recipe", "Procedural Recipe: %s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");
     }
 }

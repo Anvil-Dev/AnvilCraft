@@ -35,9 +35,9 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     public static final int MAX_BURN_TIME = 1200 * 20;
 
     /**
-     * 点燃 (level=2) 的燃烧时间阈值：300秒 = 6000tick
+     * 点燃 (level=2) 的燃烧时间阈值：4分钟 = 240秒 = 4800tick
      */
-    public static final int LIT_THRESHOLD = 300 * 20;
+    public static final int LIT_THRESHOLD = 240 * 20;
 
     @Getter
     private int burnTime = 0;

@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
+import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,9 +44,13 @@ public class FlintBlock extends Block {
                     for (int z = -1; z < 2; z++) {
                         BlockPos offset = pos.offset(x, y, z);
                         BlockState blockState = level.getBlockState(offset);
-                        if (blockState.is(ModBlocks.OIL_CAULDRON)) {
-                            OilCauldronBlock.ignite(level, offset, blockState);
-                            return;
+                        if (blockState.getBlock() instanceof IIgnitableCauldron ignitableCauldron) {
+                            BlockCache blockCache = new BlockCache(level);
+                            if (!ignitableCauldron.isIgnited(blockCache, offset)) {
+                                ignitableCauldron.setIgnited(blockCache, offset, true);
+                                blockCache.accept();
+                                return;
+                            }
                         } else if (blockState.getBlock() instanceof CampfireBlock) {
                             if (!blockState.getValue(CampfireBlock.LIT)) {
                                 level.setBlock(offset, blockState.setValue(CampfireBlock.LIT, true), 3);

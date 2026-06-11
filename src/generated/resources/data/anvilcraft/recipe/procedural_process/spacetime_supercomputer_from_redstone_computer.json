@@ -1,0 +1,84 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "icon": {
+    "count": 1,
+    "id": "anvilcraft:item_collector"
+  },
+  "initial_block": {
+    "blocks": "anvilcraft:redstone_computer"
+  },
+  "loop": 3,
+  "multiple_loop_first_step": {
+    "content": {
+      "type": "anvilcraft:item_inject",
+      "block_ingredient": {
+        "blocks": "anvilcraft:wip_block"
+      },
+      "block_result": {
+        "block": "anvilcraft:wip_block"
+      },
+      "ingredients": [
+        {
+          "items": "anvilcraft:transcendium_nugget"
+        }
+      ]
+    },
+    "index": 0
+  },
+  "result_block": {
+    "block": "anvilcraft:item_collector"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:redstone_computer"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:transcendium_nugget"
+          }
+        ]
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:reversed_smear_alike",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:wip_block"
+          },
+          {
+            "blocks": "anvilcraft:neutron_irradiator"
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 1
+    },
+    {
+      "content": {
+        "type": "anvilcraft:reversed_smear_alike",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:wip_block"
+          },
+          {
+            "blocks": "anvilcraft:confined_time_anvilon"
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 2
+    }
+  ]
+}

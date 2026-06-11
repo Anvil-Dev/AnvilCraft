@@ -101,6 +101,7 @@ import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
+import dev.dubhe.anvilcraft.block.RedstoneComputerBlock;
 import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
@@ -132,6 +133,7 @@ import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
+import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCutterBlock;
@@ -2441,6 +2443,15 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
+    public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)
+        .properties(
+            p -> p.noOcclusion()
+                .lightLevel(bs -> 1)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<CakeBaseBlock> CAKE_BASE_BLOCK = REGISTRUM.block("cake_base_block", CakeBaseBlock::new)
         .initialProperties(() -> Blocks.CAKE)
         .item()
@@ -3789,6 +3800,66 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::advancedComparator)
+        .register();
+
+    public static final BlockEntry<RedstoneComputerBlock> REDSTONE_COMPUTER = REGISTRUM.block(
+            "redstone_computer",
+            RedstoneComputerBlock::new
+        )
+        .properties(
+            properties ->
+                properties.strength(3.0F, 3.5F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .isRedstoneConductor(ModBlocks::never)
+        )
+        .blockstate((ctx, provider) -> {
+            ModelFile redstoneComputer = new ModelFile.ExistingModelFile(
+                ctx.getId().withPrefix("block/"),
+                provider.models().existingFileHelper
+            );
+            ModelFile redstoneComputerOn = new ModelFile.ExistingModelFile(
+                ctx.getId().withPrefix("block/").withSuffix("_on"),
+                provider.models().existingFileHelper
+            );
+
+            provider.getVariantBuilder(ctx.get())
+                .partialState()
+                .with(RedstoneComputerBlock.FACING, Direction.SOUTH)
+                .with(RedstoneComputerBlock.POWERED, false)
+                .addModels(new ConfiguredModel(redstoneComputer))
+                .partialState()
+                .with(RedstoneComputerBlock.FACING, Direction.WEST)
+                .with(RedstoneComputerBlock.POWERED, false)
+                .addModels(new ConfiguredModel(redstoneComputer, 0, 90, false))
+                .partialState()
+                .with(RedstoneComputerBlock.FACING, Direction.NORTH)
+                .with(RedstoneComputerBlock.POWERED, false)
+                .addModels(new ConfiguredModel(redstoneComputer, 0, 180, false))
+                .partialState()
+                .with(RedstoneComputerBlock.FACING, Direction.EAST)
+                .with(RedstoneComputerBlock.POWERED, false)
+                .addModels(new ConfiguredModel(redstoneComputer, 0, 270, false))
+                .partialState()
+                .with(RedstoneComputerBlock.FACING, Direction.SOUTH)
+                .with(RedstoneComputerBlock.POWERED, true)
+                .addModels(new ConfiguredModel(redstoneComputerOn))
+                .partialState()
+                .with(RedstoneComputerBlock.FACING, Direction.WEST)
+                .with(RedstoneComputerBlock.POWERED, true)
+                .addModels(new ConfiguredModel(redstoneComputerOn, 0, 90, false))
+                .partialState()
+                .with(RedstoneComputerBlock.FACING, Direction.NORTH)
+                .with(RedstoneComputerBlock.POWERED, true)
+                .addModels(new ConfiguredModel(redstoneComputerOn, 0, 180, false))
+                .partialState()
+                .with(RedstoneComputerBlock.FACING, Direction.EAST)
+                .with(RedstoneComputerBlock.POWERED, true)
+                .addModels(new ConfiguredModel(redstoneComputerOn, 0, 270, false));
+        })
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::redstoneComputer)
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRUM.block(

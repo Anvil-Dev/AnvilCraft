@@ -26,6 +26,7 @@ public class BlockCompressRecipeLoader {
             ModBlocks.CHOCOLATE_CAKE_BLOCK.get()
         );
         blockCompress(provider, BlockTags.LEAVES, Blocks.DIRT, Blocks.PODZOL);
+        blockCompress(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
         blockCompress(provider, ModBlockTags.MUSHROOM_BLOCK, Blocks.DIRT, Blocks.MYCELIUM);
         blockCompress(
             provider,

@@ -9,6 +9,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
@@ -75,5 +76,7 @@ abstract class RecipeManagerMixin {
             });
         this.byType = byTypeBuilder.build();
         this.byName = byNameBuilder.build();
+
+        ProceduralProcessStepManager.initialize(byName);
     }
 }

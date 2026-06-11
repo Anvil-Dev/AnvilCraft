@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -74,7 +75,9 @@ public class AnvilEventListener {
             brokeBlock(level, hitBlockPos, event);
             return;
         }
-        handleNeoAnvilRecipe(event);
+        if (!ProceduralProcessStepManager.checkAnyMatches(event)) {
+            handleNeoAnvilRecipe(event);
+        }
         for (IAnvilBehavior behavior : IAnvilBehavior.findMatching(hitBlockState)) {
             if (behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event)) {
                 return;

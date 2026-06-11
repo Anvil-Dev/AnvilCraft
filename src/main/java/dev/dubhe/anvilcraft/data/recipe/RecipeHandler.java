@@ -40,5 +40,6 @@ public class RecipeHandler {
         DeformationRecipeLoader.init(provider);
         EnergyWeaponMakeRecipeLoader.init(provider);
         PortalConversionRecipeLoader.init(provider);
+        ProceduralProcessRecipeLoader.init(provider);
     }
 }

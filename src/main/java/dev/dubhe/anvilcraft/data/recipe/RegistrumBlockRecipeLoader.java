@@ -2001,6 +2001,22 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void redstoneComputer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+            .pattern("BDB")
+            .pattern("BPB")
+            .pattern("BIB")
+            .define('B', ModItems.CIRCUIT_BOARD)
+            .define('P', ModItems.PROCESSOR)
+            .define('I', Items.IRON_BLOCK)
+            .define('D', ModItems.DISK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(ModItems.PROCESSOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DISK), AnvilCraftDatagen.has(ModItems.DISK))
+            .save(provider);
+    }
+
     public static <T extends Block> void copperPressurePlate(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(Items.COPPER_INGOT);
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 1)
