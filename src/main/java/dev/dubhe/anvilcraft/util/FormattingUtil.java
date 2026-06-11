@@ -57,26 +57,21 @@ public class FormattingUtil {
     }
 
     /**
-     * @param total          总tick数
-     * @param thresholdInSec 切换显示格式的阈值（秒），小于该值时显示gt格式，否则显示分秒格式
-     * @return 格式化后的时间字符串
+     * @param total 总tick数
+     * @return 格式化后的时间字符串，格式为 Xm Xs
      */
-    public static String toFormattedTime(int total, int thresholdInSec) {
-        int thresholdTicks = thresholdInSec * 20;
-
-        if (total < thresholdTicks) {
-            return total + "gt";
-        }
-
+    public static String toFormattedTime(int total) {
         int minutes = total / 20 / 60;
         int seconds = (total / 20) % 60;
+        return minutes + "m " + seconds + "s";
+    }
 
-        if (minutes > 0) {
-            String sec = seconds > 0 ? " " + seconds + "\"" : "";
-            return minutes + "'" + sec;
-        }
-
-        return seconds + "\"";
+    /**
+     * @deprecated 保留阈值参数的重载，内部始终输出 Xm Xs 格式
+     */
+    @Deprecated
+    public static String toFormattedTime(int total, int thresholdInSec) {
+        return toFormattedTime(total);
     }
 
     /**

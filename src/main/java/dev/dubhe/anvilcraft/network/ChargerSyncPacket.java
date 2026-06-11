@@ -10,7 +10,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
-public record ChargerSyncPacket(BlockPos pos, int timeLeft, int timeTotal) implements IClientboundPacket {
+public record ChargerSyncPacket(BlockPos pos, int timeLeft, int timeTotal, boolean feCharging) implements IClientboundPacket {
     public static final Type<ChargerSyncPacket> TYPE = IPacket.type(AnvilCraft.of("charger_sync"));
     public static final StreamCodec<ByteBuf, ChargerSyncPacket> STREAM_CODEC = StreamCodec.composite(
         BlockPos.STREAM_CODEC,
@@ -19,6 +19,8 @@ public record ChargerSyncPacket(BlockPos pos, int timeLeft, int timeTotal) imple
         ChargerSyncPacket::timeLeft,
         ByteBufCodecs.VAR_INT,
         ChargerSyncPacket::timeTotal,
+        ByteBufCodecs.BOOL,
+        ChargerSyncPacket::feCharging,
         ChargerSyncPacket::new
     );
 
@@ -32,5 +34,6 @@ public record ChargerSyncPacket(BlockPos pos, int timeLeft, int timeTotal) imple
         if (!(player.level().getBlockEntity(this.pos) instanceof ChargerBlockEntity charger)) return;
         charger.setTimeLeft(this.timeLeft);
         charger.setTimeTotalCache(this.timeTotal);
+        charger.setFeCharging(this.feCharging);
     }
 }

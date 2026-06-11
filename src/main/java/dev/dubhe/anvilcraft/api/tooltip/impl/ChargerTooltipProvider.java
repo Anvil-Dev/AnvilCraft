@@ -9,9 +9,11 @@ import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
@@ -71,7 +73,15 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
             FormattingUtil.toShadeProgress(progress, 5),
             String.valueOf(((int) (progress * 10000)) / 100.0)
         ).withStyle(ChatFormatting.GRAY));
-        if (charger.getTimeTotalCache() > 0) {
+        if (charger.isFeCharging()) {
+            // FE 充电：显示已充电量 / 总容量，带 kFE/MFE 缩写
+            int currentEnergy = charger.getTimeTotalCache() - charger.getTimeLeft();
+            MutableComponent feLine = Component.literal("  ").withStyle(ChatFormatting.GRAY)
+                .append(UnitUtil.energyUnit(currentEnergy, false))
+                .append(Component.literal(" / ").withStyle(ChatFormatting.GRAY))
+                .append(UnitUtil.energyUnit(charger.getTimeTotalCache(), false));
+            lines.add(feLine);
+        } else if (charger.getTimeTotalCache() > 0) {
             lines.add(Component.translatable(
                 "tooltip.anvilcraft.working_progress.time",
                 FormattingUtil.toFormattedTime(charger.getTimeLeft(), 3),

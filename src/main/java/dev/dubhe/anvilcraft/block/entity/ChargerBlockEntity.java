@@ -21,6 +21,10 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -51,6 +55,14 @@ public class ChargerBlockEntity extends BlockEntity
     private int timeTotalCache = 0;
     private int powerValue = 0;
     private boolean isFeCharging = false;
+
+    public boolean isFeCharging() {
+        return isFeCharging;
+    }
+
+    public void setFeCharging(boolean feCharging) {
+        this.isFeCharging = feCharging;
+    }
     private int feCooldown = 0;
     private int signalCache = 0;
 
@@ -174,14 +186,11 @@ public class ChargerBlockEntity extends BlockEntity
                 if (remainingFE > 0) {
                     isFeCharging = true;
                     feCooldown = 0;
-                    int baselinePower = 64;
-                    int feChargeRate = baselinePower * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
-                    int ticks = Math.max(1, (remainingFE + feChargeRate - 1) / feChargeRate);
                     itemHandler.setStackInSlot(0, ItemStack.EMPTY);
                     itemHandler.setStackInSlot(1, stack);
-                    timeLeft = ticks + 1;
-                    timeTotalCache = ticks;
-                    powerValue = -baselinePower;
+                    timeLeft = remainingFE;
+                    timeTotalCache = maxEnergy;
+                    powerValue = -64;
                     syncPacket();
                 }
             }
@@ -192,7 +201,7 @@ public class ChargerBlockEntity extends BlockEntity
         if (this.getCurrentLevel() == null || !(this.getCurrentLevel() instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache));
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeCharging));
     }
 
     private void moveItemToTransformedOverSlot() {
@@ -260,6 +269,7 @@ public class ChargerBlockEntity extends BlockEntity
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.putInt("TimeLeft", timeLeft);
+        tag.putInt("TimeTotalCache", timeTotalCache);
         tag.put("Depository", itemHandler.serializeNBT(provider));
         tag.putBoolean("Mode", isCharger);
         tag.putBoolean("FeCharging", isFeCharging);
@@ -270,10 +280,41 @@ public class ChargerBlockEntity extends BlockEntity
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         timeLeft = tag.getInt("TimeLeft");
+        timeTotalCache = tag.getInt("TimeTotalCache");
         itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
         isCharger = tag.getBoolean("Mode");
         isFeCharging = tag.getBoolean("FeCharging");
         feCooldown = tag.getInt("FeCooldown");
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        return saveWithoutMetadata(provider);
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
+        super.handleUpdateTag(tag, provider);
+        // 客户端加载后重新计算显示物品
+        if (level != null && level.isClientSide) {
+            this.displayItemStack = getDisplayItemStackForRender();
+        }
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void onDataPacket(Connection connection,
+                             ClientboundBlockEntityDataPacket packet,
+                             HolderLookup.Provider provider) {
+        super.onDataPacket(connection, packet, provider);
+        // 收到方块更新包后重新计算显示物品
+        if (level != null && level.isClientSide) {
+            this.displayItemStack = getDisplayItemStackForRender();
+        }
     }
 
     @Override
@@ -326,8 +367,8 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     public double getProgress() {
-        if (this.timeTotalCache != 0) return 1 - (double) timeLeft / timeTotalCache;
-        return 0;
+        if (this.timeTotalCache == 0) return 0;
+        return Math.max(0, Math.min(1, 1 - (double) timeLeft / timeTotalCache));
     }
 
     public int getAnalogRedstoneSignal() {
@@ -404,7 +445,7 @@ public class ChargerBlockEntity extends BlockEntity
             }
             if (!isCharger || isGridWorking()) {
                 if (isFeCharging) {
-                    // FE物品：梯度功率，动态计算剩余时间
+                    // FE物品：使用物品实际电量计算进度
                     ItemStack processingStack = itemHandler.getStackInSlot(1);
                     if (!processingStack.isEmpty()) {
                         IEnergyStorage storage = processingStack.getCapability(Capabilities.EnergyStorage.ITEM);
@@ -413,15 +454,11 @@ public class ChargerBlockEntity extends BlockEntity
                             if (remainingFE <= 0) {
                                 isFeCharging = false;
                                 timeLeft = 0;
+                                timeTotalCache = 0;
                             } else {
                                 int powerLevel = getFeChargingPowerLevel();
                                 if (powerLevel > 0) {
                                     int feChargeRate = powerLevel * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
-                                    int ticks = Math.max(1, (remainingFE + feChargeRate - 1) / feChargeRate);
-                                    timeLeft = ticks + 1;
-                                    int totalFE = storage.getMaxEnergyStored();
-                                    int totalTicks = Math.max(1, (totalFE + feChargeRate - 1) / feChargeRate);
-                                    timeTotalCache = totalTicks;
                                     int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
                                     if (feCooldown <= 0) {
                                         feCooldown = countdown;
@@ -429,6 +466,9 @@ public class ChargerBlockEntity extends BlockEntity
                                     } else {
                                         feCooldown--;
                                     }
+                                    // timeLeft/timeTotalCache 直接存实际 FE 值，进度 = 1 - remaining/max
+                                    timeLeft = remainingFE;
+                                    timeTotalCache = storage.getMaxEnergyStored();
                                 }
                             }
                         }
@@ -455,6 +495,6 @@ public class ChargerBlockEntity extends BlockEntity
         if (level2.getGameTime() % 10 != 0) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             level2, level2.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache));
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeCharging));
     }
 }
