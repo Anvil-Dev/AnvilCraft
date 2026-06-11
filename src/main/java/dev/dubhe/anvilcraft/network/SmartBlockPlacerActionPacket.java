@@ -53,10 +53,10 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
             return;
         }
         
-        switch (action) {
+        switch (this.action) {
             case "mode" -> {
                 // value: 0=移动模式, 1=拾取模式
-                boolean pickupMode = value == 1;
+                boolean pickupMode = this.value == 1;
                 blockEntity.setPickupMode(pickupMode);
             }
             case "layer" -> {
@@ -74,12 +74,12 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
             }
             case "position" -> {
                 // name 格式: "layer:position:selected"
-                String[] parts = name.split(":");
+                String[] parts = this.name.split(":");
                 if (parts.length != 3) {
                     AnvilCraft.LOGGER.warn(
                         "Player {} sent malformed position data: {}",
                         player.getName().getString(),
-                        name
+                        this.name
                     );
                     return;
                 }
@@ -115,19 +115,19 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                     AnvilCraft.LOGGER.warn(
                         "Player {} sent non-numeric position data: {}",
                         player.getName().getString(),
-                        name
+                        this.name
                     );
                 }
             }
             case "missingMode" -> {
                 // value: 0=停止模式, 1=跳过模式
-                boolean skipMissingMode = value == 1;
+                boolean skipMissingMode = this.value == 1;
                 blockEntity.setSkipMissingMode(skipMissingMode);
             }
             default -> AnvilCraft.LOGGER.warn(
                 "Player {} sent unknown SmartBlockPlacer action: {}",
                 player.getName().getString(),
-                action
+                this.action
             );
         }
     }

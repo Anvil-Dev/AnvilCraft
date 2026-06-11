@@ -354,7 +354,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 boolean animationCompleted = elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 5;
 
                 if (animationCompleted) {
-                    BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
+                    BlockPos targetPos = this.getNextTargetPosition(entity, facing, upsideDown);
                     if (targetPos == null || targetPos.equals(animTargetPos)) {
                         if (!entity.isClientIsRetracting()) {
                             if (!entity.isRetractSoundPlayed()) {
@@ -410,7 +410,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
 
             if (animStartTime == 0 && hasValidWorkItem) {
-                BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
+                BlockPos targetPos = this.getNextTargetPosition(entity, facing, upsideDown);
                 if (targetPos != null && entity.getLevel() != null) {
                     entity.getLevel().playLocalSound(
                         entity.getBlockPos(),
@@ -499,6 +499,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
     }
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void submit(
         SmartBlockPlacerRenderState state,
@@ -506,7 +507,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         SubmitNodeCollector collector,
         CameraRenderState camera
     ) {
-        Direction facing = state.getFacing();
         boolean upsideDown = state.isUpsideDown();
         float baseSwingAngle = state.getBaseSwingAngle();
         float upperArmAngle = state.getUpperArmAngle();
@@ -523,7 +523,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         if (upsideDown) {
             poseStack.mulPose(Axis.XP.rotationDegrees(180f));
         }
-        applyHorizontalRotation(poseStack, facing, upsideDown);
+        Direction facing = state.getFacing();
+        this.applyHorizontalRotation(poseStack, facing, upsideDown);
         poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
 
         // 渲染底座
@@ -561,7 +562,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
 
         // 渲染钳子中的方块
-        if (clawOpen && state.isHasHeldItem() && state.getHeldItem() != null) {
+        if (clawOpen && state.isHasHeldItem()) {
             poseStack.pushPose();
             poseStack.translate(0.5, 0.96, 0.1);
             poseStack.mulPose(Axis.XP.rotationDegrees(-40));
@@ -630,7 +631,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             var rotatedStructure = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
                 loadedStructure);
             if (!rotatedStructure.isEmpty()) {
-                return getBlueprintTargetPosition(entity, facing, upsideDown, rotatedStructure);
+                return this.getBlueprintTargetPosition(entity, facing, upsideDown, rotatedStructure);
             }
             return null;
         }
@@ -640,7 +641,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
         Map<Integer, Set<Integer>> layerPositions = entity.getLayerPositions();
 
-        List<BlockPos> allPositions = buildOrderedPositionsForRenderer(basePos, facing, layerPositions, upsideDown);
+        List<BlockPos> allPositions = this.buildOrderedPositionsForRenderer(basePos, facing, layerPositions, upsideDown);
 
         if (allPositions.isEmpty()) {
             return null;
@@ -673,11 +674,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             if (!targetState.isAir()) {
                 net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
                 if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
-                    if (canBeStacked(targetState, heldBlockItem)) {
+                    if (this.canBeStacked(targetState, heldBlockItem)) {
                         return targetPos;
                     }
                 } else if (heldItem.isEmpty()) {
-                    if (canBeStacked(targetState, null)) {
+                    if (this.canBeStacked(targetState, null)) {
                         return targetPos;
                     }
                 }
@@ -723,12 +724,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 canPlace = true;
             } else if (!targetState.getFluidState().isEmpty()) {
                 canPlace = true;
-            } else if (canBeStacked(
+            } else if (this.canBeStacked(
                                 targetState, heldItem.getItem()
                                                  instanceof net.minecraft.world.item.BlockItem
                                              ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
                 canPlace = true;
-            } else if (canBeStacked(targetState, null)) {
+            } else if (this.canBeStacked(targetState, null)) {
                 canPlace = true;
             }
 
@@ -767,9 +768,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 net.minecraft.world.level.block.state.BlockState loopState = entity.getLevel().getBlockState(targetPos);
 
                 boolean loopCanPlace = loopState.isAir() || !loopState.getFluidState().isEmpty()
-                    || canBeStacked(loopState, heldItem.getItem() instanceof net.minecraft.world.item.BlockItem
+                    || this.canBeStacked(loopState, heldItem.getItem() instanceof net.minecraft.world.item.BlockItem
                         ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)
-                    || canBeStacked(loopState, null);
+                    || this.canBeStacked(loopState, null);
 
                 if (!loopCanPlace) {
                     continue;

@@ -141,11 +141,8 @@ public class StructureScannerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        if (this.blockEntity == null) {
-            return false;
-        }
         return stillValid(
-            ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.STRUCTURE_SCANNER.get()
         );

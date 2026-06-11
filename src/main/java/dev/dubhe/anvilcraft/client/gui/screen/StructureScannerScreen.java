@@ -17,7 +17,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.network.StructureScannerActionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
@@ -45,7 +44,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class StructureScannerScreen extends AbstractContainerScreen<StructureScannerMenu> {
     private static final Identifier BACKGROUND = SharedTextures.STRUCTURE_SCANNER_BACKGROUND;
@@ -73,16 +71,19 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private int lastMouseY = 0;
 
     // 模式切换按钮
+    @Nullable
     private ToggleButton modeToggleButton;
     private boolean isScanMode = true;
 
     // 文本输入框
+    @Nullable
     private EditBox nameInput;
 
     // 缓存数据
+    @Nullable
     private StructureScannerBlockEntity cachedBlockEntity;
     private boolean cachedHasDisk;
-    private StructureScannerBlockEntity.InfoStatus cachedInfoStatus;
+    private StructureScannerBlockEntity.InfoStatus cachedInfoStatus = StructureScannerBlockEntity.InfoStatus.READY;
     private boolean cachedIsScanComplete;
     private boolean cachedHasStartedScanning;
     private int cachedRangeX = -1;
@@ -90,6 +91,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private int cachedRangeZ = -1;
 
     // 预览缓存
+    @Nullable
     private LevelLike cachedPreviewLevelLike;
     private Direction cachedPreviewFacing = Direction.NORTH;
 
@@ -110,8 +112,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.previewWindowX = this.leftPos + 136;
         this.previewWindowY = this.topPos + 18;
 
-        if (this.minecraft == null) return;
-
         // 添加X轴范围控制按钮和数值显示
         this.addRenderableWidget(new TextWidget(
             this.leftPos + 97, this.topPos + 49, 20, 8, this.minecraft.font, () -> {
@@ -125,7 +125,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeX().previous();
-                ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("rangeChange", blockEntity.getRangeX().index(), "rangeX"));
+                ClientPacketDistributor.sendToServer(
+                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeX().index(), "rangeX"));
             }
         }
         ));
@@ -135,7 +136,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeX().next();
-                ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("rangeChange", blockEntity.getRangeX().index(), "rangeX"));
+                ClientPacketDistributor.sendToServer(
+                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeX().index(), "rangeX"));
             }
         }
         ));
@@ -153,7 +155,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeZ().previous();
-                ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("rangeChange", blockEntity.getRangeZ().index(), "rangeZ"));
+                ClientPacketDistributor.sendToServer(
+                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeZ().index(), "rangeZ")
+                );
             }
         }
         ));
@@ -163,7 +167,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeZ().next();
-                ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("rangeChange", blockEntity.getRangeZ().index(), "rangeZ"));
+                ClientPacketDistributor.sendToServer(
+                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeZ().index(), "rangeZ")
+                );
             }
         }
         ));
@@ -181,7 +187,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeY().previous();
-                ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("rangeChange", blockEntity.getRangeY().index(), "rangeY"));
+                ClientPacketDistributor.sendToServer(
+                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeY().index(), "rangeY")
+                );
             }
         }
         ));
@@ -191,7 +199,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             var blockEntity = this.menu.getBlockEntity();
             if (blockEntity != null) {
                 blockEntity.getRangeY().next();
-                ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("rangeChange", blockEntity.getRangeY().index(), "rangeY"));
+                ClientPacketDistributor.sendToServer(
+                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeY().index(), "rangeY")
+                );
             }
         }
         ));
@@ -255,7 +265,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 256);
+        graphics.blit(RenderPipelines
+            .GUI_TEXTURED, BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 256);
 
         // 渲染磁盘槽位的虚影（当槽位为空时）
         var blockEntity = this.menu.getBlockEntity();
@@ -264,7 +275,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (!diskStack.isEmpty()) {
                 int diskSlotX = this.leftPos + 8;
                 int diskSlotY = this.topPos + 112;
-                renderMaskedItem(graphics, diskStack, diskSlotX, diskSlotY);
+                this.renderMaskedItem(graphics, diskStack, diskSlotX, diskSlotY);
             }
         }
     }
@@ -289,7 +300,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.renderInfoPanel(graphics);
 
         // 渲染STRUCTURE_TOOL_LOCKED贴图
-        graphics.blit(RenderPipelines.GUI_TEXTURED, STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126, 26);
+        graphics.blit(RenderPipelines
+            .GUI_TEXTURED, STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126, 26);
 
         // 收集并渲染所有tooltip
         List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
@@ -391,7 +403,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     /// 渲染信息栏
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderInfoPanel(GuiGraphicsExtractor graphics) {
-        if (this.cachedBlockEntity == null) return;
         if (!this.cachedHasDisk) return;
 
         StructureScannerBlockEntity.InfoStatus status = this.cachedInfoStatus;
@@ -435,13 +446,14 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 graphics.text(this.font, "!", textOffsetX, 0, iconColor, false);
                 graphics.pose().popMatrix();
             }
-            default -> { }
+            default -> {
+
+            }
         }
     }
 
     @Nullable
     private TooltipRenderInfo collectInfoPanelTooltip(int mouseX, int mouseY) {
-        if (this.cachedBlockEntity == null) return null;
         if (!this.cachedHasDisk) return null;
 
         StructureScannerBlockEntity.InfoStatus status = this.cachedInfoStatus;
@@ -481,10 +493,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     /// 根据磁盘状态更新文本框可编辑状态
     private void updateNameInputEditable() {
-        if (this.cachedBlockEntity == null) {
-            this.nameInput.setEditable(false);
-            return;
-        }
+        if (this.nameInput == null) return;
 
         this.nameInput.setEditable(this.cachedHasDisk);
 
@@ -495,7 +504,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     /// 根据扫描状态更新模式切换按钮
     private void updateModeToggleButton() {
-        if (this.cachedBlockEntity == null) return;
+        if (this.modeToggleButton == null) return;
 
         if (this.cachedHasStartedScanning && !this.cachedIsScanComplete) {
             if (this.isScanMode) {
@@ -514,7 +523,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     /// 渲染3D预览
     private void renderPreview(GuiGraphicsExtractor graphics) {
-        if (this.minecraft == null || this.minecraft.level == null) return;
+        if (this.minecraft.level == null) return;
 
         // 使用 scissor 裁剪预览窗口区域
         graphics.enableScissor(
@@ -536,7 +545,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     /// 渲染3D预览内容
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderPreviewContent(GuiGraphicsExtractor graphics, int posX, int posY) {
-        if (this.minecraft == null || this.minecraft.level == null) return;
+        if (this.minecraft.level == null) return;
         if (this.cachedBlockEntity == null) return;
 
         var level = this.minecraft.level;
@@ -559,10 +568,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 posY,
                 80.0f,
                 this.previewRotationX,
-                this.previewRotationY + getFacingYawOffset(facing),
+                this.previewRotationY + this.getFacingYawOffset(facing),
                 sizeX,
-                sizeY,
-                -0.5f
+                sizeY
             );
         }
 
@@ -571,6 +579,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     /// 以固定大小渲染 LevelLike 预览
+    @SuppressWarnings("checkstyle:ParameterName")
     private void renderPreviewWithFixedSize(
         LevelLike level,
         GuiGraphicsExtractor graphics,
@@ -580,8 +589,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         float rotationX,
         float rotationY,
         int sizeX,
-        int sizeY,
-        float zOffset
+        int sizeY
     ) {
         var minPos = level.getMinPos();
         var maxPos = level.getMaxPos();
@@ -605,7 +613,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         poseStack.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
         poseStack.translate(offsetX, 0, offsetZ);
 
-        poseStack.translate(0, 0, zOffset);
+        poseStack.translate(0, 0, (float) -0.5);
 
         GuiRenderExtras.submitStructure(
             graphics,
@@ -624,11 +632,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     /// 构建预览用的LevelLike实例（带缓存）
     private @Nullable LevelLike buildPreviewLevelLike(Direction facing) {
-        if (this.cachedBlockEntity == null || this.minecraft == null || this.minecraft.level == null) {
+        if (this.minecraft.level == null || this.cachedBlockEntity == null) {
             return null;
         }
 
-        if (this.cachedPreviewLevelLike != null && this.cachedPreviewFacing == facing) {
+        if (this.cachedPreviewFacing == facing) {
             return this.cachedPreviewLevelLike;
         }
 
@@ -659,7 +667,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         if (!scannedBlocks.isEmpty()) {
             for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-                BlockState rotatedState = rotateBlockStateForPreview(data.state(), facing);
+                BlockState rotatedState = this.rotateBlockStateForPreview(data.state(), facing);
                 int renderY = upsideDown ? (Math.max(1, rangeY) - 1 - data.y()) : data.y();
                 previewLevelLike.setBlockState(new BlockPos(data.x(), renderY, data.z() + 1), rotatedState);
             }
@@ -677,19 +685,19 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
             Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-            Direction rotatedFacing = rotateDirection(blockFacing, scannerFacing);
+            Direction rotatedFacing = this.rotateDirection(blockFacing, scannerFacing);
             return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
         }
 
         if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
             Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
-            Direction rotatedFacing = rotateDirection(blockFacing, scannerFacing);
+            Direction rotatedFacing = this.rotateDirection(blockFacing, scannerFacing);
             return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
         }
 
         if (state.hasProperty(BlockStateProperties.FACING)) {
             Direction blockFacing = state.getValue(BlockStateProperties.FACING);
-            Direction rotatedFacing = rotateDirection6Way(blockFacing, scannerFacing);
+            Direction rotatedFacing = this.rotateDirection6Way(blockFacing, scannerFacing);
             return state.setValue(BlockStateProperties.FACING, rotatedFacing);
         }
 
@@ -722,8 +730,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     /// 渲染Scanner边框
     private void renderScannerBorder(GuiGraphicsExtractor graphics, int posX, int posY, Direction facing) {
-        if (this.minecraft == null || this.minecraft.level == null) return;
-        if (this.cachedBlockEntity == null) return;
+        if (this.minecraft.level == null) return;
 
         int rangeX = this.cachedRangeX;
         int rangeY = this.cachedRangeY;
@@ -733,7 +740,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         int sizeY = Math.max(1, rangeY);
 
         MultiBufferSource.BufferSource buffers = this.minecraft.renderBuffers().bufferSource();
-        VertexConsumer consumer = buffers.getBuffer(RenderTypes.LINES);
 
         PoseStack poseStack = new PoseStack();
 
@@ -756,7 +762,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         float offsetX = (float) -sizeX / 2 + 0.05f;
         float offsetZ = (float) -sizeX / 2 + 1;
         poseStack.translate(-offsetX, 0, -offsetZ);
-        float yawOffset = getFacingYawOffset(facing);
+        float yawOffset = this.getFacingYawOffset(facing);
         poseStack.mulPose(Axis.YP.rotationDegrees(this.previewRotationY + 45 + yawOffset));
         poseStack.translate(offsetX, 0, offsetZ);
 
@@ -767,6 +773,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         VoxelShape borderShape = Shapes.create(0.0, 0.0, 2.0, rangeX, rangeY, rangeZ + 2);
 
         // 8. 渲染边框
+        VertexConsumer consumer = buffers.getBuffer(RenderTypes.LINES);
         TooltipRenderHelper.renderOutline(poseStack, consumer, 0, 0, 0, BlockPos.ZERO, borderShape, 0xFF00FFCC);
 
         buffers.endBatch(RenderTypes.LINES);
@@ -827,6 +834,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     /// 模式切换按钮点击事件
     private void onModeToggleClick() {
+        if (this.modeToggleButton == null) return;
+
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity == null) return;
 
@@ -847,6 +856,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     /// 确认按钮点击事件
     private void onConfirmClick() {
+        if (this.nameInput == null) return;
+
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity == null) return;
 
@@ -867,6 +878,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     public void resize(int width, int height) {
+        if (this.nameInput == null) {
+            this.init(width, height);
+            return;
+        }
         String string = this.nameInput.getValue();
         this.init(width, height);
         this.nameInput.setValue(string);
@@ -874,15 +889,15 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (this.nameInput.isFocused()) {
-            if (event.key() == 256 && this.minecraft != null && this.minecraft.player != null) {
+        if (this.nameInput != null && this.nameInput.isFocused()) {
+            if (event.key() == 256 && this.minecraft.player != null) {
                 this.minecraft.player.closeContainer();
                 return true;
             }
             return this.nameInput.keyPressed(event);
         }
 
-        if (event.key() == 256 && this.minecraft != null && this.minecraft.player != null) {
+        if (event.key() == 256 && this.minecraft.player != null) {
             this.minecraft.player.closeContainer();
             return true;
         }

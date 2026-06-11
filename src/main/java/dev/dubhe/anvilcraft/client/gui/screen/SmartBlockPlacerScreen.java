@@ -1,28 +1,21 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
-import dev.dubhe.anvilcraft.client.init.ModShaders;
-import dev.dubhe.anvilcraft.client.renderer.RenderState;
-import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.network.SmartBlockPlacerActionPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
-import dev.dubhe.anvilcraft.util.StructureLoadUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -39,17 +32,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +45,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -89,9 +76,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private final List<TriStateButton> layerButtons = new ArrayList<>();
     private final TriStateButton[][] positionButtons = new TriStateButton[5][5];
+    @Nullable
     private ToggleButton layerModeButton;
+    @Nullable
     private ToggleButton operationModeButton;
+    @Nullable
     private TriStateButton skipMissingButton;
+    @Nullable
     private TriStateButton stopMissingButton;
     private int currentViewLayer = 0;
     private Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
@@ -99,6 +90,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean isPickupMode = true;
     private boolean isSkipMissingMode = true;
 
+    @Nullable
     private Boolean dragTargetState = null;
 
     private boolean isBlueprintMode = false;
@@ -121,6 +113,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;
 
+    @Nullable
     private LevelLike cachedPreviewLevelLike = null;
     private Map<Integer, Set<Integer>> cachedLayerPositions = new HashMap<>();
     private int cachedViewLayer = -1;
@@ -128,11 +121,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean cachedPickupMode = true;
     private boolean cachedBlueprintMode = false;
     private @Nullable UUID cachedStructureUuid = null;
-    private long cachedGameTimeBlockType = -1;
+    private final long cachedGameTimeBlockType = -1;
 
     private long structureNameScrollTime = 0;
     private String lastRenderedStructureName = "";
-    private boolean isStructureNameHovered = false;
+    private final boolean isStructureNameHovered = false;
 
     private int structureInfoBaseX;
     private int structureInfoBaseY;
@@ -196,6 +189,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void initPositionButtons() {
         int gridStartX = this.leftPos + 33;
         int gridStartY = this.topPos + 18;
@@ -334,6 +328,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void updateButtonsForBlueprintMode() {
         this.removeLayerButtons();
         this.initLayerButtons();
@@ -362,7 +357,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private void removeLayerButtons() {
         for (TriStateButton button : this.layerButtons) {
-            if (button != null) this.removeWidget(button);
+            this.removeWidget(button);
         }
         this.layerButtons.clear();
     }
@@ -396,7 +391,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         TriStateButton button = new TriStateButton(
             xpos, ypos, 16, 16,
             POSITION_SELECT, 16, 48,
-            (btn) -> onPositionButtonClick(row, col, positionIndex, tooltipSelected, tooltipUnselected),
+            (btn) -> this.onPositionButtonClick(row, col, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
         button.setSelected(selected);
@@ -421,16 +416,20 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private void onLayerModeButtonClick() {
         this.showAllLayers = !this.showAllLayers;
-        this.layerModeButton.setSelected(this.showAllLayers);
-        this.layerModeButton.setTexture(this.showAllLayers ? LAYER_ALL : LAYER_SINGLE);
-        this.layerModeButton.setTooltips(List.of(this.getLayerModeTooltip()));
+        if (this.layerModeButton != null) {
+            this.layerModeButton.setSelected(this.showAllLayers);
+            this.layerModeButton.setTexture(this.showAllLayers ? LAYER_ALL : LAYER_SINGLE);
+            this.layerModeButton.setTooltips(List.of(this.getLayerModeTooltip()));
+        }
     }
 
     private void onOperationModeButtonClick() {
         this.isPickupMode = !this.isPickupMode;
-        this.operationModeButton.setSelected(this.isPickupMode);
-        this.operationModeButton.setTexture(this.isPickupMode ? PICKUP_MODE : MOVE_MODE);
-        this.operationModeButton.setTooltips(List.of(this.getOperationModeTooltip()));
+        if (this.operationModeButton != null) {
+            this.operationModeButton.setSelected(this.isPickupMode);
+            this.operationModeButton.setTexture(this.isPickupMode ? PICKUP_MODE : MOVE_MODE);
+            this.operationModeButton.setTooltips(List.of(this.getOperationModeTooltip()));
+        }
         ClientPacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("mode", this.isPickupMode ? 1 : 0));
     }
 
@@ -592,7 +591,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             if (!diskStack.isEmpty()) {
                 int diskSlotX = i + 8;
                 int diskSlotY = j + 119;
-                renderMaskedItem(graphics, diskStack, diskSlotX, diskSlotY);
+                this.renderMaskedItem(graphics, diskStack, diskSlotX, diskSlotY);
             }
         }
 
@@ -601,7 +600,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             if (!bookStack.isEmpty()) {
                 int bookSlotX = i + 46;
                 int bookSlotY = j + 86;
-                renderMaskedItem(graphics, bookStack, bookSlotX, bookSlotY);
+                this.renderMaskedItem(graphics, bookStack, bookSlotX, bookSlotY);
             }
         }
     }
@@ -653,7 +652,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      */
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderPreview(GuiGraphicsExtractor graphics) {
-        if (this.minecraft == null || this.minecraft.level == null) return;
+        if (this.minecraft.level == null) return;
 
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity == null) return;
@@ -700,7 +699,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         if (blockEntity == null) return;
 
         String structureName = blockEntity.getLoadedStructureName();
-        if (structureName == null || structureName.isEmpty()) return;
+        if (structureName.isEmpty()) return;
 
         // 检测名称是否变化，重置滚动时间
         if (!structureName.equals(this.lastRenderedStructureName)) {
@@ -757,7 +756,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         float rotationY,
         int sizeX,
         int sizeY,
-        float zOffset
+        float zoffset
     ) {
         var minPos = level.getMinPos();
         var maxPos = level.getMaxPos();
@@ -788,7 +787,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         poseStack.translate(offsetX, 0, offsetZ);
 
         // 6. Z偏移
-        poseStack.translate(0, 0, zOffset);
+        poseStack.translate(0, 0, zoffset);
 
         GuiRenderExtras.submitStructure(
             graphics,
@@ -809,10 +808,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
      * 渲染放置范围边框
      */
     private void renderPlacementRangeBox(GuiGraphicsExtractor graphics, int posX, int posY) {
-        if (this.minecraft == null || this.minecraft.level == null) return;
+        if (this.minecraft.level == null) return;
 
         MultiBufferSource.BufferSource buffers = this.minecraft.renderBuffers().bufferSource();
-        VertexConsumer consumer = buffers.getBuffer(RenderTypes.LINES);
 
         PoseStack poseStack = new PoseStack();
 
@@ -836,6 +834,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 5x5x5 放置范围的边框
         VoxelShape borderShape = Shapes.create(0.0, 0.0, 0.0, sizeX, sizeY, sizeX);
+        VertexConsumer consumer = buffers.getBuffer(RenderTypes.LINES);
         TooltipRenderHelper.renderOutline(poseStack, consumer, 0, 0, 0, BlockPos.ZERO, borderShape, 0xFFFFAA00);
 
         buffers.endBatch(RenderTypes.LINES);
@@ -908,7 +907,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Nullable
     private LevelLike buildPreviewLevelLike() {
-        if (this.minecraft == null || this.minecraft.level == null) return null;
+        if (this.minecraft.level == null) return null;
 
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity == null) return null;
@@ -939,44 +938,44 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
 
             for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
-                int layer = entry.getKey();
+                int previewY = entry.getKey();
 
-                if (!this.showAllLayers && layer != this.currentViewLayer) continue;
+                if (!this.showAllLayers && previewY != this.currentViewLayer) continue;
 
                 for (int posIndex : entry.getValue()) {
                     int row = posIndex / 5;
-                    int col = posIndex % 5;
+                    int previewX = posIndex % 5;
 
                     int worldX;
                     int worldY;
                     int worldZ;
 
                     if (upsideDown) {
-                        worldY = basePos.getY() + layer;
+                        worldY = basePos.getY() + previewY;
                     } else {
-                        worldY = basePos.getY() - layer;
+                        worldY = basePos.getY() - previewY;
                     }
 
                     // 根据朝向计算世界坐标
                     switch (facing) {
                         case NORTH -> {
-                            worldX = basePos.getX() + col;
+                            worldX = basePos.getX() + previewX;
                             worldZ = basePos.getZ() + row;
                         }
                         case SOUTH -> {
-                            worldX = basePos.getX() - col;
+                            worldX = basePos.getX() - previewX;
                             worldZ = basePos.getZ() - row;
                         }
                         case WEST -> {
                             worldX = basePos.getX() + row;
-                            worldZ = basePos.getZ() - col;
+                            worldZ = basePos.getZ() - previewX;
                         }
                         case EAST -> {
                             worldX = basePos.getX() - row;
-                            worldZ = basePos.getZ() + col;
+                            worldZ = basePos.getZ() + previewX;
                         }
                         default -> {
-                            worldX = basePos.getX() + col;
+                            worldX = basePos.getX() + previewX;
                             worldZ = basePos.getZ() + row;
                         }
                     }
@@ -985,8 +984,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                     BlockState worldState = level.getBlockState(worldPos);
 
                     // 在预览坐标系中：col=X, layer=Y, row=Z
-                    int previewX = col;
-                    int previewY = layer;
                     int previewZ = row + 1;
 
                     previewLevelLike.setBlockState(new BlockPos(previewX, previewY, previewZ), worldState);
