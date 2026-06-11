@@ -52,6 +52,8 @@ public class DischargerBlockEntity extends BlockEntity
     @Setter
     private int timeTotalCache = 0;
     private int powerValue = 0;
+    @Getter
+    @Setter
     private boolean isFeDischarging = false;
     private int signalCache = 0;
 
