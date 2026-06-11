@@ -1,4 +1,4 @@
- package dev.dubhe.anvilcraft.util;
+package dev.dubhe.anvilcraft.util;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
