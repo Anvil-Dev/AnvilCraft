@@ -197,7 +197,7 @@ public class BlockTagLoader {
             .addElement(ModBlocks.TRANSMISSION_POLE.getId())
             .addElement(ModBlocks.REMOTE_TRANSMISSION_POLE.getId())
             .addElement(ModBlocks.TESLA_TOWER.getId())
-            .addElement(ModBlocks.OVERSEER_BLOCK.getId())
+            .addElement(ModBlocks.OVERSEER.getId())
             .addElement(ModBlocks.ACCELERATION_RING.getId())
             .addElement(ModBlocks.DEFLECTION_RING.getId());
 

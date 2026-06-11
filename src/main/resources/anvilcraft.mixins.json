@@ -15,6 +15,7 @@
     "CandleCakeBlockMixin",
     "CauldronFluidContentMixin",
     "ComparatorBlockEntityMixin",
+    "ComponentSerializationMixin",
     "CraftingMenuMixin",
     "DefaultDispenseItemBehaviorMixin",
     "DispenseItemEmptyBottleBehaviorMixin",

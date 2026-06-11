@@ -188,13 +188,19 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
             codeBuilder.append(", ");
             if (predicate.getProperties().isEmpty()) {
                 codeBuilder.append("\"");
-                codeBuilder.append(BuiltInRegistries.BLOCK.getKey(predicate.getBlock()));
+                codeBuilder.append(predicate.getBlock().<String>map(
+                    block -> BuiltInRegistries.BLOCK.getKey(block).toString(),
+                    tag -> "#" + tag.location()
+                ));
                 codeBuilder.append("\"");
                 codeBuilder.append(")");
             } else {
                 codeBuilder.append("BlockPredicateWithState.of(");
                 codeBuilder.append("\"");
-                codeBuilder.append(BuiltInRegistries.BLOCK.getKey(predicate.getBlock()));
+                codeBuilder.append(predicate.getBlock().<String>map(
+                    block -> BuiltInRegistries.BLOCK.getKey(block).toString(),
+                    tag -> "#" + tag.location()
+                ));
                 codeBuilder.append("\"");
                 codeBuilder.append(")");
                 codeBuilder.append("\n");

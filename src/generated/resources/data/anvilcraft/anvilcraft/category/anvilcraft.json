@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:namespace",
+  "icon": {
+    "id": "anvilcraft:royal_anvil"
+  },
+  "name": {
+    "translate": "category.anvilcraft.namespace",
+    "with": [
+      {
+        "mod_id": "anvilcraft"
+      }
+    ]
+  },
+  "namespace": "anvilcraft"
+}

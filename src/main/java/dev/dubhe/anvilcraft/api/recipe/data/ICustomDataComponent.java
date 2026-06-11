@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.api.recipe.data;
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.util.ISerializer;
 import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,10 +16,10 @@ import org.jspecify.annotations.Nullable;
 ///
 /// @param <T> 该数据组件的类型
 public interface ICustomDataComponent<T> {
-    Codec<ICustomDataComponent<?>> CODEC = Codec.lazyInitialized(() -> ModRegistries.CUSTOM_DATA_TYPE_REGISTRY
+    Codec<ICustomDataComponent<?>> CODEC = Codec.lazyInitialized(() -> ModRegistries.CUSTOM_DATA_TYPE
         .byNameCodec().dispatch(ICustomDataComponent::getType, ICustomDataComponent.Type::codec));
     StreamCodec<RegistryFriendlyByteBuf, ICustomDataComponent<?>> STREAM_CODEC = StreamCodec.recursive(
-        streamCodec -> ByteBufCodecs.registry(ModRegistries.CUSTOM_DATA_TYPE_KEY)
+        streamCodec -> ByteBufCodecs.registry(ModRegistryKeys.CUSTOM_DATA_TYPE)
             .dispatch(ICustomDataComponent::getType, ICustomDataComponent.Type::streamCodec));
 
     /// 获取该数据组件的类型。

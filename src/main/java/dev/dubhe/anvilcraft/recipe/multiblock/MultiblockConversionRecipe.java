@@ -185,11 +185,6 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         return this.inputPattern.getSize();
     }
 
-    public Block centerOutput() {
-        int t = this.getSize() / 2;
-        return this.getOutputPattern().getPredicate(t, t, t).getBlock();
-    }
-
     @Override
     public ItemStack assemble(MultiblockInput input) {
         return ItemStack.EMPTY;
@@ -227,11 +222,17 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
                 .append("', ");
             if (predicate.getProperties().isEmpty()) {
                 codeBuilder.append("\"")
-                    .append(BuiltInRegistries.BLOCK.getKey(predicate.getBlock()))
+                    .append(predicate.getBlock().<String>map(
+                        block -> BuiltInRegistries.BLOCK.getKey(block).toString(),
+                        tag -> "#" + tag.location()
+                    ))
                     .append("\")");
             } else {
                 codeBuilder.append("BlockPredicateWithState.of(\"")
-                    .append(BuiltInRegistries.BLOCK.getKey(predicate.getBlock()))
+                    .append(predicate.getBlock().<String>map(
+                        block -> BuiltInRegistries.BLOCK.getKey(block).toString(),
+                        tag -> "#" + tag.location()
+                    ))
                     .append("\")\n");
                 predicate.getProperties().forEach((property, value) -> {
                     codeBuilder.append("        .hasState(\"")
@@ -259,7 +260,11 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
 
     @Override
     public String getSuggestedName() {
-        return BuiltInRegistries.BLOCK.getKey(this.centerOutput()).getPath();
+        int t = this.getSize() / 2;
+        return this.getOutputPattern().getPredicate(t, t, t).getBlock().map(
+            block -> BuiltInRegistries.BLOCK.getKey(block).getPath(),
+            tag -> tag.location().getPath()
+        );
     }
 
     public static class Builder extends AbstractRecipeBuilder<MultiblockConversionRecipe> {
@@ -346,7 +351,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         public void validate(Identifier id) {
             if (this.inputPattern.getSize() != this.outputPattern.getSize()) {
                 throw new IllegalArgumentException(("Input size must be same as output size: %s input size: %d, output size: %d")
-                    .formatted(id, this.inputPattern.getSize(), this.outputPattern.getSize()));
+                                                       .formatted(id, this.inputPattern.getSize(), this.outputPattern.getSize()));
             }
             if (!this.inputPattern.checkSymbols()) {
                 throw new IllegalArgumentException("Input pattern must contain all valid symbols: " + id);

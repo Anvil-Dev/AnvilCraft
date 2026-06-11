@@ -2,5 +2,6 @@
   "model": {
     "type": "minecraft:model",
     "model": "anvilcraft:block/large_fluid_tank"
-  }
+  },
+  "oversized_in_gui": true
 }

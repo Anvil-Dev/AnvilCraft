@@ -1,6 +1,6 @@
 {
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/cube",
+	"parent": "anvilcraft:block/template_large_block",
 	"ambientocclusion": false,
 	"render_type": "minecraft:cutout",
 	"textures": {
