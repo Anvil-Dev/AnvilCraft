@@ -49,6 +49,8 @@ public class ChargerBlockEntity extends BlockEntity
     @Setter
     private int timeTotalCache = 0;
     private int powerValue = 0;
+    @Getter
+    @Setter
     private boolean isFeCharging = false;
     private int feCooldown = 0;
     private int signalCache = 0;
