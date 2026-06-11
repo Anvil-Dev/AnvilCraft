@@ -41,7 +41,7 @@ public enum ChargerProvider implements IBlockComponentProvider, IServerDataProvi
             (float) progress,
             Component.translatable("tooltip.anvilcraft.charger.jade.working_progress",
                 Component.literal(String.format("%.1f%%", progress * 100))),
-            helper.progressStyle().color(0xFF4169E1).textColor(-1),
+            helper.progressStyle().color(0xFF87CEEB).textColor(-1),
             Util.make(STYLE.clone(), box -> {
                 box.borderColor = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};
                 box.borderWidth = 1.0f;

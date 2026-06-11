@@ -277,7 +277,7 @@ public class ChargerBlockEntity extends BlockEntity
         super.handleUpdateTag(tag, provider);
         // 客户端加载后重新计算显示物品
         if (level != null && level.isClientSide) {
-            this.displayItemStack = getDisplayItemStackForRender();
+            this.displayItemStack = getDisplayItemStackForRender().copy();
         }
     }
 
@@ -293,7 +293,7 @@ public class ChargerBlockEntity extends BlockEntity
         super.onDataPacket(connection, packet, provider);
         // 收到方块更新包后重新计算显示物品
         if (level != null && level.isClientSide) {
-            this.displayItemStack = getDisplayItemStackForRender();
+            this.displayItemStack = getDisplayItemStackForRender().copy();
         }
     }
 

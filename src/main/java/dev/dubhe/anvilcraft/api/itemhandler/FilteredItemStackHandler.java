@@ -247,6 +247,10 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         if (!tag.contains("Inventory")) return;
         this.filterEnabled = tag.getBoolean("FilterEnabled");
+        // 先清空所有插槽，防止标记为空的插槽残留旧数据
+        for (int i = 0; i < this.stacks.size(); i++) {
+            this.stacks.set(i, ItemStack.EMPTY);
+        }
         ListTag inventory = (ListTag) tag.get("Inventory");
         int size = tag.getInt("Size");
         for (Tag entry : inventory) {

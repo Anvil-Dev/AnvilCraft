@@ -265,7 +265,7 @@ public class DischargerBlockEntity extends BlockEntity
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
         super.handleUpdateTag(tag, provider);
         if (level != null && level.isClientSide) {
-            this.displayItemStack = getDisplayItemStackForRender();
+            this.displayItemStack = getDisplayItemStackForRender().copy();
         }
     }
 
@@ -280,7 +280,7 @@ public class DischargerBlockEntity extends BlockEntity
                              HolderLookup.Provider provider) {
         super.onDataPacket(connection, packet, provider);
         if (level != null && level.isClientSide) {
-            this.displayItemStack = getDisplayItemStackForRender();
+            this.displayItemStack = getDisplayItemStackForRender().copy();
         }
     }
 
