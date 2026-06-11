@@ -12,10 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -28,6 +25,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
@@ -82,36 +81,36 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     private final SimpleContainer diskInventory = new SimpleContainer(1) {
         @Override
         public ItemStack getItem(int index) {
-            return itemHandler.getStacks().get(0);
+            return StructureScannerBlockEntity.this.itemHandler.getStacks().getFirst();
         }
 
         @Override
         public ItemStack removeItem(int index, int count) {
-            ItemStack stack = itemHandler.getStacks().get(0);
+            ItemStack stack = StructureScannerBlockEntity.this.itemHandler.getStacks().getFirst();
             if (stack.isEmpty()) return ItemStack.EMPTY;
             ItemStack result = stack.split(count);
-            if (stack.isEmpty()) itemHandler.getStacks().set(0, ItemStack.EMPTY);
-            setChanged();
+            if (stack.isEmpty()) StructureScannerBlockEntity.this.itemHandler.getStacks().set(0, ItemStack.EMPTY);
+            this.setChanged();
             return result;
         }
 
         @Override
         public ItemStack removeItemNoUpdate(int index) {
-            ItemStack stack = itemHandler.getStacks().get(0);
+            ItemStack stack = StructureScannerBlockEntity.this.itemHandler.getStacks().getFirst();
             if (stack.isEmpty()) return ItemStack.EMPTY;
-            itemHandler.getStacks().set(0, ItemStack.EMPTY);
+            StructureScannerBlockEntity.this.itemHandler.getStacks().set(0, ItemStack.EMPTY);
             return stack;
         }
 
         @Override
         public void setItem(int index, ItemStack stack) {
-            itemHandler.getStacks().set(0, stack);
-            setChanged();
+            StructureScannerBlockEntity.this.itemHandler.getStacks().set(0, stack);
+            this.setChanged();
         }
 
         @Override
         public boolean canPlaceItem(int index, ItemStack stack) {
-            return itemHandler.isValid(0, ItemResource.of(stack));
+            return StructureScannerBlockEntity.this.itemHandler.isValid(0, ItemResource.of(stack));
         }
 
         @Override
@@ -122,7 +121,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
         @Override
         public boolean isEmpty() {
-            return itemHandler.getStacks().get(0).isEmpty();
+            return StructureScannerBlockEntity.this.itemHandler.getStacks().getFirst().isEmpty();
         }
     };
 
@@ -130,31 +129,31 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     private final SimpleContainer outputInventory = new SimpleContainer(1) {
         @Override
         public ItemStack getItem(int index) {
-            return itemHandler.getStacks().get(1);
+            return StructureScannerBlockEntity.this.itemHandler.getStacks().getLast();
         }
 
         @Override
         public ItemStack removeItem(int index, int count) {
-            ItemStack stack = itemHandler.getStacks().get(1);
+            ItemStack stack = StructureScannerBlockEntity.this.itemHandler.getStacks().getLast();
             if (stack.isEmpty()) return ItemStack.EMPTY;
             ItemStack result = stack.split(count);
-            if (stack.isEmpty()) itemHandler.getStacks().set(1, ItemStack.EMPTY);
-            setChanged();
+            if (stack.isEmpty()) StructureScannerBlockEntity.this.itemHandler.getStacks().set(1, ItemStack.EMPTY);
+            this.setChanged();
             return result;
         }
 
         @Override
         public ItemStack removeItemNoUpdate(int index) {
-            ItemStack stack = itemHandler.getStacks().get(1);
+            ItemStack stack = StructureScannerBlockEntity.this.itemHandler.getStacks().getLast();
             if (stack.isEmpty()) return ItemStack.EMPTY;
-            itemHandler.getStacks().set(1, ItemStack.EMPTY);
+            StructureScannerBlockEntity.this.itemHandler.getStacks().set(1, ItemStack.EMPTY);
             return stack;
         }
 
         @Override
         public void setItem(int index, ItemStack stack) {
-            itemHandler.getStacks().set(1, stack);
-            setChanged();
+            StructureScannerBlockEntity.this.itemHandler.getStacks().set(1, stack);
+            this.setChanged();
         }
 
         @Override
@@ -170,7 +169,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
         @Override
         public boolean isEmpty() {
-            return itemHandler.getStacks().get(1).isEmpty();
+            return StructureScannerBlockEntity.this.itemHandler.getStacks().getLast().isEmpty();
         }
     };
 
@@ -178,7 +177,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     @Getter
     private final WatchableCyclingValue<Integer> rangeX = new WatchableCyclingValue<>(
         "rangeX",
-        thiz -> this.setChanged(),
+        ignored -> this.setChanged(),
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
     );
     
@@ -186,7 +185,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     @Getter
     private final WatchableCyclingValue<Integer> rangeY = new WatchableCyclingValue<>(
         "rangeY",
-        thiz -> this.setChanged(),
+        ignored -> this.setChanged(),
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
     );
     
@@ -194,7 +193,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     @Getter
     private final WatchableCyclingValue<Integer> rangeZ = new WatchableCyclingValue<>(
         "rangeZ",
-        thiz -> this.setChanged(),
+        ignored -> this.setChanged(),
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
     );
 
@@ -395,7 +394,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         // 扫描当前层的所有方块
         for (int x = 0; x < rangeX; x++) {
             for (int z = 1; z < rangeZ + 1; z++) {
-                BlockPos worldPos = calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
+                BlockPos worldPos = this.calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
                 net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
                 
                 if (!blockState.isAir()) {
@@ -477,7 +476,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     @Override
     public FilteredItemStackHandler getItemHandler() {
-        return itemHandler;
+        return this.itemHandler;
     }
 
     // 便捷访问方法
@@ -499,8 +498,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         this.itemHandler.set(1, ItemResource.of(stack), stack.getCount());
     }
 
-    public boolean hasDisk() {
-        return !this.itemHandler.getResource(0).isEmpty();
+    public boolean isDiskEmpty() {
+        return this.itemHandler.getResource(0).isEmpty();
     }
 
     public boolean hasOutput() {
@@ -516,7 +515,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = super.getUpdateTag(provider);
-        saveAdditionalData(tag);
+        this.saveAdditionalData(tag);
         return tag;
     }
 
@@ -524,7 +523,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         // 序列化 handler 数据（使用 ItemStack CODEC）
         {
             ListTag diskItems = new ListTag();
-            ItemStack diskStack = this.itemHandler.getStacks().get(0);
+            ItemStack diskStack = this.itemHandler.getStacks().getFirst();
             if (!diskStack.isEmpty()) {
                 diskItems.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, diskStack).result().orElse(new CompoundTag()));
             }
@@ -532,7 +531,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
         {
             ListTag outputItems = new ListTag();
-            ItemStack outputStack = this.itemHandler.getStacks().get(1);
+            ItemStack outputStack = this.itemHandler.getStacks().getLast();
             if (!outputStack.isEmpty()) {
                 outputItems.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, outputStack).result().orElse(new CompoundTag()));
             }
@@ -563,23 +562,23 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         CompoundTag tag = new CompoundTag();
-        saveAdditionalData(tag);
+        this.saveAdditionalData(tag);
         output.store("ScannerData", CompoundTag.CODEC, tag);
     }
 
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        saveAdditionalData(tag);
+        this.saveAdditionalData(tag);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         CompoundTag tag = input.read("ScannerData", CompoundTag.CODEC).orElse(new CompoundTag());
-        loadScannerData(tag);
+        this.loadScannerData(tag);
     }
 
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        loadScannerData(tag);
+        this.loadScannerData(tag);
     }
 
     private void loadScannerData(CompoundTag tag) {
@@ -594,7 +593,8 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         if (tag.contains("outputItems")) {
             ListTag outputItems = tag.getListOrEmpty("outputItems");
             if (!outputItems.isEmpty()) {
-                ItemStack stack = ItemStack.CODEC.parse(NbtOps.INSTANCE, outputItems.getCompoundOrEmpty(0)).result().orElse(ItemStack.EMPTY);
+                ItemStack stack = ItemStack.CODEC.parse(
+                    NbtOps.INSTANCE, outputItems.getCompoundOrEmpty(0)).result().orElse(ItemStack.EMPTY);
                 this.itemHandler.getStacks().set(1, stack);
             }
         }

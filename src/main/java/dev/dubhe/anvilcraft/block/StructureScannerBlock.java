@@ -182,7 +182,7 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     @SuppressWarnings("unused")
     private void autoScanAndSave(Level level, StructureScannerBlockEntity scannerEntity) {
         // 检查是否有磁盘
-        if (!scannerEntity.hasDisk()) {
+        if (scannerEntity.isDiskEmpty()) {
             return;
         }
         
