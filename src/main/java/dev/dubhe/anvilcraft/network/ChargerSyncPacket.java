@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -31,9 +32,14 @@ public record ChargerSyncPacket(BlockPos pos, int timeLeft, int timeTotal, boole
 
     @Override
     public void handleOnClient(Player player) {
-        if (!(player.level().getBlockEntity(this.pos) instanceof ChargerBlockEntity charger)) return;
-        charger.setTimeLeft(this.timeLeft);
-        charger.setTimeTotalCache(this.timeTotal);
-        charger.setFeCharging(this.feCharging);
+        if (player.level().getBlockEntity(this.pos) instanceof ChargerBlockEntity charger) {
+            charger.setTimeLeft(this.timeLeft);
+            charger.setTimeTotalCache(this.timeTotal);
+            charger.setFeCharging(this.feCharging);
+        } else if (player.level().getBlockEntity(this.pos) instanceof DischargerBlockEntity discharger) {
+            discharger.setTimeLeft(this.timeLeft);
+            discharger.setTimeTotalCache(this.timeTotal);
+            discharger.setFeDischarging(this.feCharging);
+        }
     }
 }

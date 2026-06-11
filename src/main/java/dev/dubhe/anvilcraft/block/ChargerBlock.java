@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.IStateListener;
@@ -113,7 +114,15 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         boolean movedByPiston
     ) {
         if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof ChargerBlockEntity entity) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof ChargerBlockEntity entity) {
+            Vec3 vec3 = entity.getBlockPos().getCenter();
+            FilteredItemStackHandler depository = entity.getFilteredItemStackHandler();
+            for (int slot = 0; slot < depository.getSlots(); slot++) {
+                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, depository.getStackInSlot(slot));
+            }
+            level.updateNeighbourForOutputSignal(pos, this);
+        } else if (be instanceof DischargerBlockEntity entity) {
             Vec3 vec3 = entity.getBlockPos().getCenter();
             FilteredItemStackHandler depository = entity.getFilteredItemStackHandler();
             for (int slot = 0; slot < depository.getSlots(); slot++) {
@@ -155,7 +164,9 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        return blockEntity instanceof ChargerBlockEntity charger ? charger.getAnalogRedstoneSignal() : 0;
+        if (blockEntity instanceof ChargerBlockEntity charger) return charger.getAnalogRedstoneSignal();
+        if (blockEntity instanceof DischargerBlockEntity discharger) return discharger.getAnalogRedstoneSignal();
+        return 0;
     }
 
     @Override
@@ -175,51 +186,63 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
             if (level.getBlockEntity(pos) instanceof ChargerBlockEntity charger) {
                 // 玩家空手时尝试取出物品
                 if (stack.isEmpty()) {
-                    // 优先从输出槽（槽位2）取物品，输入槽（槽位0）由于已被拦截无法直接提取
-                    for (int slot : new int[]{
-                        2,
-                        0
-                    }) {
+                    for (int slot : new int[]{2, 0}) {
                         ItemStack itemInSlot = charger.getFilteredItemStackHandler().getStackInSlot(slot);
                         if (!itemInSlot.isEmpty()) {
                             ItemStack extracted = charger.getFilteredItemStackHandler().extractItem(slot, itemInSlot.getCount(), false);
                             if (extracted.isEmpty()) continue;
                             player.getInventory().placeItemBackInInventory(extracted);
-                            level.playSound(
-                                null,
-                                pos,
-                                SoundEvents.ITEM_PICKUP,
-                                SoundSource.PLAYERS,
-                                .2f,
-                                1f + level.getRandom().nextFloat()
-                            );
+                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
                             return ItemInteractionResult.SUCCESS;
                         }
                     }
-                    // 检查槽位1是否有正在处理的物品（配方/FE充电）
                     ItemStack slot1Stack = charger.getFilteredItemStackHandler().getStackInSlot(1);
                     if (!slot1Stack.isEmpty()) {
                         ItemStack extracted = charger.tryExtractItemFromSlot1();
                         if (!extracted.isEmpty()) {
                             player.getInventory().placeItemBackInInventory(extracted);
-                            level.playSound(
-                                null,
-                                pos,
-                                SoundEvents.ITEM_PICKUP,
-                                SoundSource.PLAYERS,
-                                .2f,
-                                1f + level.getRandom().nextFloat()
-                            );
+                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
                             return ItemInteractionResult.SUCCESS;
                         }
                     }
                 } else if (charger.containsValidItem(stack)) {
-                    // 只放入输入槽（槽位0），如果被占用了就不放，但也不触发默认交互
                     ItemStack result = charger.getFilteredItemStackHandler().insertItem(0, stack, true);
                     if (result.isEmpty() || result.getCount() < stack.getCount()) {
                         int countDiff = stack.getCount() - (result.isEmpty() ? 0 : result.getCount());
                         ItemStack toInsert = stack.split(countDiff);
                         charger.getFilteredItemStackHandler().insertItem(0, toInsert, false);
+                    }
+                    return ItemInteractionResult.SUCCESS;
+                } else {
+                    return ItemInteractionResult.SUCCESS;
+                }
+            } else if (level.getBlockEntity(pos) instanceof DischargerBlockEntity discharger) {
+                if (stack.isEmpty()) {
+                    for (int slot : new int[]{2, 0}) {
+                        ItemStack itemInSlot = discharger.getFilteredItemStackHandler().getStackInSlot(slot);
+                        if (!itemInSlot.isEmpty()) {
+                            ItemStack extracted = discharger.getFilteredItemStackHandler().extractItem(slot, itemInSlot.getCount(), false);
+                            if (extracted.isEmpty()) continue;
+                            player.getInventory().placeItemBackInInventory(extracted);
+                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+                            return ItemInteractionResult.SUCCESS;
+                        }
+                    }
+                    ItemStack slot1Stack = discharger.getFilteredItemStackHandler().getStackInSlot(1);
+                    if (!slot1Stack.isEmpty()) {
+                        ItemStack extracted = discharger.tryExtractItemFromSlot1();
+                        if (!extracted.isEmpty()) {
+                            player.getInventory().placeItemBackInInventory(extracted);
+                            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+                            return ItemInteractionResult.SUCCESS;
+                        }
+                    }
+                } else if (discharger.containsValidItem(stack)) {
+                    ItemStack result = discharger.getFilteredItemStackHandler().insertItem(0, stack, true);
+                    if (result.isEmpty() || result.getCount() < stack.getCount()) {
+                        int countDiff = stack.getCount() - (result.isEmpty() ? 0 : result.getCount());
+                        ItemStack toInsert = stack.split(countDiff);
+                        discharger.getFilteredItemStackHandler().insertItem(0, toInsert, false);
                     }
                     return ItemInteractionResult.SUCCESS;
                 } else {

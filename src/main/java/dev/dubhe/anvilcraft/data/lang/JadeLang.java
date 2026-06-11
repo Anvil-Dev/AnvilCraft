@@ -39,5 +39,9 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.charger.jade.working_progress", "Working Progress: %s");
         provider.add("tooltip.anvilcraft.charger.jade.time", "%1$s / %2$s");
         provider.add("tooltip.anvilcraft.charger.jade.energy", "%1$s / %2$s");
+
+        provider.add("tooltip.anvilcraft.discharger.jade.working_progress", "Discharging Progress: %s");
+        provider.add("tooltip.anvilcraft.discharger.jade.time", "%1$s / %2$s");
+        provider.add("tooltip.anvilcraft.discharger.jade.energy", "%1$s / %2$s");
     }
 }

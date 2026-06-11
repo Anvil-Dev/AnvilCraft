@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
-import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
@@ -20,20 +20,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
+public class DischargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
     @Override
     public boolean accepts(BlockEntity value) {
-        return value instanceof ChargerBlockEntity;
+        return value instanceof DischargerBlockEntity;
     }
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
         if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
-        if (!(value instanceof ChargerBlockEntity charger)) return List.of();
+        if (!(value instanceof DischargerBlockEntity discharger)) return List.of();
 
         final List<Component> lines = new ArrayList<>();
+        BlockPos pos = discharger.getBlockPos();
         boolean overloaded = false;
-        BlockPos pos = charger.getBlockPos();
         if (value.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
             overloaded = value.getBlockState().getValues().getOrDefault(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
         }
@@ -67,24 +67,29 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
         lines.add(Component.translatable("tooltip.anvilcraft.grid_information.total_generated", grid.getGenerate())
             .withStyle(ChatFormatting.GRAY));
 
+        // 放电器进度：从满衰减到空 (remaining / total)
+        int timeLeft = discharger.getTimeLeft();
+        int timeTotalCache = discharger.getTimeTotalCache();
+        double progress = discharger.getProgress(); // timeLeft / timeTotalCache in DischargerBlockEntity
+
         lines.add(Component.translatable("tooltip.anvilcraft.working_progress.title").withStyle(ChatFormatting.BLUE));
         lines.add(Component.translatable(
             "tooltip.anvilcraft.working_progress.progress",
-            FormattingUtil.toShadeProgress(charger.getProgress(), 5),
-            String.valueOf(((int) (charger.getProgress() * 10000)) / 100.0)
+            FormattingUtil.toShadeProgress(progress, 5),
+            String.valueOf(((int) (progress * 10000)) / 100.0)
         ).withStyle(ChatFormatting.GRAY));
-        if (charger.isFeCharging()) {
-            int currentEnergy = charger.getTimeTotalCache() - charger.getTimeLeft();
+        if (discharger.isFeDischarging()) {
+            // FE放电：显示剩余电量 / 总容量
             MutableComponent feLine = Component.literal("  ").withStyle(ChatFormatting.GRAY)
-                .append(UnitUtil.energyUnit(currentEnergy, false))
+                .append(UnitUtil.energyUnit(timeLeft, false))
                 .append(Component.literal(" / ").withStyle(ChatFormatting.GRAY))
-                .append(UnitUtil.energyUnit(charger.getTimeTotalCache(), false));
+                .append(UnitUtil.energyUnit(timeTotalCache, false));
             lines.add(feLine);
-        } else if (charger.getTimeTotalCache() > 0) {
+        } else if (timeTotalCache > 0) {
             lines.add(Component.translatable(
                 "tooltip.anvilcraft.working_progress.time",
-                FormattingUtil.toFormattedTime(charger.getTimeLeft(), 3),
-                FormattingUtil.toFormattedTime(charger.getTimeTotalCache(), 3)
+                FormattingUtil.toFormattedTime(timeLeft, 3),
+                FormattingUtil.toFormattedTime(timeTotalCache, 3)
             ).withStyle(ChatFormatting.GRAY));
         }
         return lines;

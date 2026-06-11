@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -55,6 +57,11 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
 
     @Override
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
+        // 充电器和放电器有专用 Provider，跳过
+        if (blockAccessor.getBlockEntity() instanceof ChargerBlockEntity
+            || blockAccessor.getBlockEntity() instanceof DischargerBlockEntity) {
+            return;
+        }
         if (blockAccessor.getBlockEntity() instanceof IPowerComponent blockEntity) {
             PowerGrid powerGrid = blockEntity.getGrid();
             if (powerGrid == null) {

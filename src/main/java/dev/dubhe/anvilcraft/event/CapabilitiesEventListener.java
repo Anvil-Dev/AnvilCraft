@@ -32,6 +32,7 @@ public class CapabilitiesEventListener {
             ModBlockEntities.BATCH_CRAFTER.get(),
             ModBlockEntities.BATCH_CUTTER.get(),
             ModBlockEntities.CHARGER.get(),
+            ModBlockEntities.DISCHARGER.get(),
             ModBlockEntities.CHUTE.get(),
             ModBlockEntities.SIMPLE_CHUTE.get(),
             ModBlockEntities.ITEM_COLLECTOR.get(),
