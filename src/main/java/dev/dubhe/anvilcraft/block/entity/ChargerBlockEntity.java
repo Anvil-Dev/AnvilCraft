@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -51,14 +50,6 @@ public class ChargerBlockEntity extends BlockEntity
     private int timeTotalCache = 0;
     private int powerValue = 0;
     private boolean isFeCharging = false;
-
-    public boolean isFeCharging() {
-        return isFeCharging;
-    }
-
-    public void setFeCharging(boolean feCharging) {
-        this.isFeCharging = feCharging;
-    }
     private int feCooldown = 0;
     private int signalCache = 0;
 
@@ -331,11 +322,6 @@ public class ChargerBlockEntity extends BlockEntity
         powerValue = 0;
         setChanged();
         return stack;
-    }
-
-    @Override
-    public PowerComponentType getComponentType() {
-        return PowerComponentType.CONSUMER;
     }
 
     public int getOutputPower() {

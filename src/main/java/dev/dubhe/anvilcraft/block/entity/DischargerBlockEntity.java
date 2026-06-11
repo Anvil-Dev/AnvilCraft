@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
-import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -55,14 +54,6 @@ public class DischargerBlockEntity extends BlockEntity
     private int powerValue = 0;
     private boolean isFeDischarging = false;
     private int signalCache = 0;
-
-    public boolean isFeDischarging() {
-        return isFeDischarging;
-    }
-
-    public void setFeDischarging(boolean feDischarging) {
-        this.isFeDischarging = feDischarging;
-    }
 
     @Getter
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
@@ -311,11 +302,6 @@ public class DischargerBlockEntity extends BlockEntity
         powerValue = 0;
         setChanged();
         return stack;
-    }
-
-    @Override
-    public PowerComponentType getComponentType() {
-        return PowerComponentType.PRODUCER;
     }
 
     @Override
