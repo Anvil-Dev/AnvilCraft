@@ -71,12 +71,14 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     public void onFormed() {
         this.isBigger = true;
         this.tank.setCapacity(BIG_CAPACITY);
+        this.setChanged();
     }
 
     public void onUnformed() {
         this.isBigger = false;
         this.tank.setInfinity(false);
         this.tank.setCapacity(CAPACITY);
+        this.setChanged();
     }
 
     private void updateLightLevel() {
