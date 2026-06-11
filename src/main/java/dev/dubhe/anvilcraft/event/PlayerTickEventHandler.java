@@ -17,6 +17,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber
@@ -60,8 +62,13 @@ public class PlayerTickEventHandler {
             if (item.isEmpty()) continue;
             if (!item.has(ModComponents.STORED_ENERGY)) continue;
 
+            // 获取物品的最大容量
+            IEnergyStorage storage = item.getCapability(Capabilities.EnergyStorage.ITEM);
+            if (storage == null) continue;
+
             int current = item.getOrDefault(ModComponents.STORED_ENERGY, 0);
-            int added = Math.min(energyAmount, Integer.MAX_VALUE - current);
+            int maxEnergy = storage.getMaxEnergyStored();
+            int added = Math.min(energyAmount, maxEnergy - current);
             if (added <= 0) continue;
 
             item.set(ModComponents.STORED_ENERGY, current + added);

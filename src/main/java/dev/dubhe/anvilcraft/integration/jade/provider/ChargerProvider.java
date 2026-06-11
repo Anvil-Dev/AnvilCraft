@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -40,7 +39,8 @@ public enum ChargerProvider implements IBlockComponentProvider, IServerDataProvi
         // 进度条
         tooltip.add(helper.progress(
             (float) progress,
-            Component.literal(String.format("%.1f%%", progress * 100)),
+            Component.translatable("tooltip.anvilcraft.charger.jade.working_progress",
+                Component.literal(String.format("%.1f%%", progress * 100))),
             helper.progressStyle().color(0xFF4169E1).textColor(-1),
             Util.make(STYLE.clone(), box -> {
                 box.borderColor = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};
@@ -52,14 +52,11 @@ public enum ChargerProvider implements IBlockComponentProvider, IServerDataProvi
         // 时间或 FE 数值
         if (feCharging) {
             int currentEnergy = timeTotalCache - timeLeft;
-            MutableComponent feLine = Component.literal("")
-                .append(UnitUtil.energyUnit(currentEnergy, false))
-                .append(Component.literal(" / "))
-                .append(UnitUtil.energyUnit(timeTotalCache, false));
-            tooltip.add(feLine);
+            tooltip.add(Component.translatable("tooltip.anvilcraft.charger.jade.energy",
+                UnitUtil.energyUnit(currentEnergy, false),
+                UnitUtil.energyUnit(timeTotalCache, false)));
         } else {
-            tooltip.add(Component.translatable(
-                "tooltip.anvilcraft.working_progress.time",
+            tooltip.add(Component.translatable("tooltip.anvilcraft.charger.jade.time",
                 FormattingUtil.toFormattedTime(timeLeft),
                 FormattingUtil.toFormattedTime(timeTotalCache)));
         }

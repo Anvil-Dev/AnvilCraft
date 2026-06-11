@@ -35,5 +35,9 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing_mode", "Missing Mode: %s");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing.skip", "Skip");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing.stop", "Stop");
+
+        provider.add("tooltip.anvilcraft.charger.jade.working_progress", "Working Progress: %s");
+        provider.add("tooltip.anvilcraft.charger.jade.time", "%1$s / %2$s");
+        provider.add("tooltip.anvilcraft.charger.jade.energy", "%1$s / %2$s");
     }
 }
