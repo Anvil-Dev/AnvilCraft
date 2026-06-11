@@ -13,6 +13,8 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
+import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -242,9 +244,11 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.DEFLECTION_RING.asItem(), "Deflects passing objects 90°, detect speed with Comparator");
         NORMAL.put(ModItems.DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.FILTER.asItem(), "Matches items based on configuration, usable in any filter slot");
-        NORMAL.put(ModItems.TOTEM_OF_RECOVERY.asItem(), "Teleports to spawn on death");
-        NORMAL.put(ModItems.TOTEM_OF_RAGE.asItem(), "Grants invulnerability and berserk on fatal damage");
+        NORMAL.put(ModItems.TOTEM_OF_RECOVERY.asItem(), "Teleports to spawn on death, grants a Recall Pearl to return to death point");
+        NORMAL.put(ModItems.TOTEM_OF_RAGE.asItem(), "Grants invulnerability and berserk on fatal damage, death is inevitable after 1 minute");
         NORMAL.put(ModItems.COMRADE_AMULET.asItem(), "Signable by players via right-click, prevents damage from signed players");
+        NORMAL.put(ModItems.PILL_BOX.asItem(), "Store pills for quick use");
+        NORMAL.put(ModItems.AMULET_BOX.asItem(), "Stores multiple active amulets or totems");
 
         SHIFT.put(
             ModBlocks.SPECTRAL_ANVIL.asItem(),
@@ -305,10 +309,15 @@ public class ItemTooltipManager {
             ModItems.DRAGON_ROD.asItem(),
             "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
         );
-        SHIFT.put(ModItems.TOTEM_OF_RECOVERY.asItem(), "Teleports to spawn on death, grants a Recall Pearl to return to death point");
         SHIFT.put(
-            ModItems.TOTEM_OF_RAGE.asItem(),
-            "Grants invulnerability and berserk on fatal damage, death is inevitable after 1 minute"
+            ModItems.PILL_BOX.asItem(),
+            "Store pills, right-click to take one pill each, and press [%s] to use them in the inventory"
+        );
+        SHIFT.put(
+            ModItems.AMULET_BOX.asItem(), """
+                Stores multiple active amulets or totems
+                Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;
+                When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift."""
         );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
@@ -423,6 +432,13 @@ public class ItemTooltipManager {
                     .withStyle(ChatFormatting.GRAY)
             );
         }
+        if (stack.is(ModItems.AMULET_BOX.asItem())) {
+            BoxContents contents = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
+            tooltip.add(Component.empty());
+            tooltip.add(Component.translatable(
+                "tooltip.anvilcraft.item.amulet_box.fullness", contents.usage(), AmuletBoxItem.CAPACITY
+            ).withStyle(ChatFormatting.GRAY));
+        }
     }
 
     private static Component getItemTooltip(Item item) {
@@ -430,6 +446,12 @@ public class ItemTooltipManager {
     }
 
     private static Component getItemTooltipShift(Item item) {
+        if (item == ModItems.PILL_BOX.asItem()) {
+            return Component.translatable(
+                getTranslationKeyShift(item),
+                Component.keybind("key.anvilcraft.use_pill_box")
+            ).withStyle(ChatFormatting.GRAY);
+        }
         return Component.translatable(getTranslationKeyShift(item)).withStyle(ChatFormatting.GRAY);
     }
 

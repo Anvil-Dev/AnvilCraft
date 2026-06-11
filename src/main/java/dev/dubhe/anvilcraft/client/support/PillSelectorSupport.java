@@ -40,7 +40,7 @@ public class PillSelectorSupport {
     }
 
     public void render(GuiGraphics guiGraphics, int x, int y) {
-        if (pillBox.isEmpty() || this.contents.pills().isEmpty()) {
+        if (pillBox.isEmpty()) {
             return;
         }
         final int left = x - 78 / 2;
