@@ -56,22 +56,23 @@ public class RenderEventListener {
     @SubscribeEvent
     public static void onRender(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
-        if (Minecraft.getInstance().options.hideGui) return;
-        Entity entity = event.getCamera().getEntity();
+
         PoseStack pose = event.getPoseStack();
         MultiBufferSource.BufferSource bufferSource =
             event.getLevelRenderer().renderBuffers.bufferSource();
 
         Vec3 vec3 = event.getCamera().getPosition();
-
         double camX = vec3.x();
         double camY = vec3.y();
         double camZ = vec3.z();
 
-        // ---- 巨型铁砧撼地震波：渲染弹跳方块叠加层 ----
+        // ---- 巨型铁砧撼地震波：渲染弹跳方块叠加层（不跟随 F1 隐藏） ----
         SeismicBounceManager.getInstance().render(
             pose, bufferSource, event.getPartialTick().getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused()), camX, camY, camZ);
 
+        if (Minecraft.getInstance().options.hideGui) return;
+
+        Entity entity = event.getCamera().getEntity();
         PowerGridSupport.renderTransmitterLine(pose, bufferSource, vec3);
 
         if (!(entity instanceof LivingEntity livingEntity)) return;

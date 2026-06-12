@@ -223,7 +223,7 @@ public class GiantAnvilShockEventListener {
 
                 int ring = Math.max(Math.abs(dx), Math.abs(dz));
                 double ratio = (double) ring / radius;
-                double jumpHeight = 0.3 + (1.0 - ratio);
+                double jumpHeight = 0.15 + (1.0 - ratio) * 0.5;
                 int particleCount = AnvilCraft.CLIENT_CONFIG.groundHeaveParticleCount;
                 double speed = 0.15 + jumpHeight * 0.2;
 
