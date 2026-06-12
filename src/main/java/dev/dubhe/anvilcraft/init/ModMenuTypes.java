@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
@@ -48,6 +49,7 @@ import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
+import dev.dubhe.anvilcraft.inventory.StorageMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
@@ -65,8 +67,9 @@ public class ModMenuTypes {
         .menu("batch_cutter", BatchCutterMenu::new, () -> BatchCutterScreen::new)
         .register();
 
-    public static final MenuEntry<ChuteMenu> CHUTE =
-        REGISTRUM.menu("chute", ChuteMenu::new, () -> ChuteScreen::new).register();
+    public static final MenuEntry<ChuteMenu> CHUTE = REGISTRUM
+        .menu("chute", ChuteMenu::new, () -> ChuteScreen::new)
+        .register();
 
     public static final MenuEntry<MagneticChuteMenu> MAGNETIC_CHUTE = REGISTRUM
         .menu("magnetic_chute", MagneticChuteMenu::new, () -> MagneticChuteScreen::new)
@@ -162,7 +165,11 @@ public class ModMenuTypes {
             () -> FrostSmithingScreen::new)
         .register();
     public static final MenuEntry<EnergyWeaponMakeMenu> ENERGY_WEAPON_MAKE = REGISTRUM
-        .menu("energy_weapon_make", EnergyWeaponMakeMenu::new, () -> EnergyWeaponMakeScreen::new).register();
+        .menu("energy_weapon_make", EnergyWeaponMakeMenu::new, () -> EnergyWeaponMakeScreen::new)
+        .register();
+    public static final MenuEntry<StorageMenu> STORAGE = REGISTRUM
+        .menu("storage", StorageMenu::new, () -> StorageScreen::new)
+        .register();
 
     public static void register() {
     }

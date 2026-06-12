@@ -1,18 +1,30 @@
 package dev.dubhe.anvilcraft.saved.storage;
 
+import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.saved.BetterSavedData;
-import dev.dubhe.anvilcraft.saved.storage.category.Categories;
 import lombok.Getter;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 @Getter
 public abstract class BaseStorage extends BetterSavedData {
+    public static final MapCodec<BaseStorage> CODEC = StorageType.CODEC
+        .dispatchMap(StorageType::find, StorageType::codec);
+    public static final StreamCodec<RegistryFriendlyByteBuf, BaseStorage> STREAM_CODEC = StorageType.STREAM_CODEC
+        .<RegistryFriendlyByteBuf>cast()
+        .dispatch(StorageType::find, StorageType::streamCodec);
     private final TypeLimitItemStacksResourceHandler items = this.constructItemHandler();
-    private final Categories categories = new Categories();
 
     protected abstract TypeLimitItemStacksResourceHandler constructItemHandler();
+
+    protected <T extends BaseStorage> T sync(TypeLimitItemStacksResourceHandler items) {
+        this.items.sync(items);
+        return Util.cast(this);
+    }
 
     @Override
     protected void registerDataFixers() {

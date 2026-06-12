@@ -166,4 +166,7 @@ public class AnvilCraftServerConfig {
 
     @Comment("The max size of the entries in multiphases' recover station")
     public int multiphaseRecoverMaxSize = 20;
+
+    @Comment("The max size of the entries in storages' recover station")
+    public int storageRecoverMaxSize = 20;
 }

@@ -51,9 +51,6 @@ import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.container.HyperdimensionStorageStationBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.container.LargeCrateBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.container.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.IncandescentBlockEntity;
@@ -63,6 +60,10 @@ import dev.dubhe.anvilcraft.block.entity.nesting.NestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.nesting.OverNestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.HyperdimensionStorageStationBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
@@ -362,6 +363,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<NeutronIrradiatorBlockEntity> NEUTRON_IRRADIATOR = REGISTRUM
         .blockEntity("neutron_irradiator", NeutronIrradiatorBlockEntity::createBlockEntity)
         .validBlocks(ModBlocks.NEUTRON_IRRADIATOR)
+        .register();
+
+    public static final BlockEntityEntry<CrateBlockEntity> CRATE = REGISTRUM
+        .blockEntity("crate", CrateBlockEntity::new)
+        .validBlocks(ModBlocks.CRATE)
         .register();
 
     public static final BlockEntityEntry<LargeCrateBlockEntity> LARGE_CRATE = REGISTRUM

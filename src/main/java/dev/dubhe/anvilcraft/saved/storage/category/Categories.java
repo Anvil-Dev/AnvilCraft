@@ -5,6 +5,9 @@ import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -28,6 +31,13 @@ public class Categories implements ValueIOSerializable {
             .forGetter(Categories::getEnabled),
         Categories::new
     );
+    public static final StreamCodec<RegistryFriendlyByteBuf, Categories> STREAM_CODEC = StreamCodec.composite(
+        ICategory.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        Categories::getCustom,
+        ICategory.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        Categories::getEnabled,
+        Categories::new
+    );
     private List<ICategory> custom;
     private List<ICategory> enabled;
 
@@ -49,6 +59,11 @@ public class Categories implements ValueIOSerializable {
 
     public void addCustom(ItemStack filter) {
         this.custom.add(FilterCategory.from(filter));
+    }
+
+    public void sync(Categories categories) {
+        this.custom = categories.custom;
+        this.enabled = categories.enabled;
     }
 
     @Override

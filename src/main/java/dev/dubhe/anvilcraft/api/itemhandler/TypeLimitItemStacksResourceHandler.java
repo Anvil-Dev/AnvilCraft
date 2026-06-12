@@ -1,9 +1,16 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.network.util.BoolAndInt;
 import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
+import lombok.AccessLevel;
+import lombok.Getter;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -19,14 +26,43 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
 
+@Getter(AccessLevel.PRIVATE)
 public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemResource>, ValueIOSerializable {
-    public static final String VALUE_IO_KEY = "stacks";
+    public static final String STACKS_KEY = "stacks";
+    public static final String TYPE_LIMIT_KEY = "type_limit";
+    public static final String SPACE_SIZE_KEY = "space_size";
     public static final Codec<NonNullList<UnlimitedItemStack>> STACKS_CODEC = UnlimitedItemStack.CODEC
         .listOf()
         .xmap(TypeLimitItemStacksResourceHandler::constructStackList, Function.identity());
-    private final int typeLimit;
-    private final int spaceSize;
+    public static final MapCodec<TypeLimitItemStacksResourceHandler> CODEC = CodecUtil.mapCodec(
+        TypeLimitItemStacksResourceHandler.STACKS_CODEC
+            .fieldOf(TypeLimitItemStacksResourceHandler.STACKS_KEY)
+            .forGetter(TypeLimitItemStacksResourceHandler::getStacks),
+        Codec.INT
+            .fieldOf(TypeLimitItemStacksResourceHandler.TYPE_LIMIT_KEY)
+            .forGetter(TypeLimitItemStacksResourceHandler::getTypeLimit),
+        Codec.INT
+            .fieldOf(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY)
+            .forGetter(TypeLimitItemStacksResourceHandler::getSpaceSize),
+        TypeLimitItemStacksResourceHandler::new
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, NonNullList<UnlimitedItemStack>> STACKS_STREAM_CODEC = UnlimitedItemStack
+        .STREAM_CODEC
+        .apply(ByteBufCodecs.list())
+        .map(TypeLimitItemStacksResourceHandler::constructStackList, Function.identity());
+    public static final StreamCodec<RegistryFriendlyByteBuf, TypeLimitItemStacksResourceHandler> STREAM_CODEC = StreamCodec.composite(
+        TypeLimitItemStacksResourceHandler.STACKS_STREAM_CODEC,
+        TypeLimitItemStacksResourceHandler::getStacks,
+        ByteBufCodecs.VAR_INT,
+        TypeLimitItemStacksResourceHandler::getTypeLimit,
+        ByteBufCodecs.VAR_INT,
+        TypeLimitItemStacksResourceHandler::getSpaceSize,
+        TypeLimitItemStacksResourceHandler::new
+    );
+    private int typeLimit;
+    private int spaceSize;
     private final NonNullList<UnlimitedItemStack> stacks = TypeLimitItemStacksResourceHandler.constructStackList();
     private int space = 0;
 
@@ -38,6 +74,53 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
 
     public TypeLimitItemStacksResourceHandler(int typeLimit, int spaceSize) {
         this.typeLimit = typeLimit;
+        this.spaceSize = spaceSize;
+    }
+
+    private TypeLimitItemStacksResourceHandler(NonNullList<UnlimitedItemStack> stacks, int typeLimit, int spaceSize) {
+        this.typeLimit = typeLimit;
+        this.spaceSize = spaceSize;
+        this.initStacks(stacks);
+    }
+
+    private void initStacks(NonNullList<UnlimitedItemStack> stacks) {
+        this.space = 0;
+        MAIN:
+        for (UnlimitedItemStack stack : stacks) {
+            // 剩余空间连一个都塞不下，直接下一个
+            if (this.computeEmptySize(stack) < 1) {
+                continue;
+            }
+
+            int space = TypeLimitItemStacksResourceHandler.computeSpace(stack, stack.count());
+
+            // 塞得下整个栈，塞完下一个
+            if (this.space + space <= this.spaceSize) {
+                this.space += space;
+                this.stacks.add(stack);
+                continue;
+            }
+
+            // 塞不下整个栈，尝试找到能塞下的数量
+
+            for (int i = stack.count() - 1; i >= 0; i--) {
+                space = TypeLimitItemStacksResourceHandler.computeSpace(stack, i);
+                // 找到了，塞完下一个
+                if (this.space + space <= this.spaceSize) {
+                    this.space += space;
+                    this.stacks.add(stack);
+                    continue MAIN;
+                }
+            }
+            // 找不到不塞，下一个
+        }
+    }
+
+    public void addSpaceSize(IntUnaryOperator adder) {
+        int spaceSize = adder.applyAsInt(this.spaceSize);
+        if (spaceSize < this.spaceSize) {
+            return;
+        }
         this.spaceSize = spaceSize;
     }
 
@@ -68,7 +151,7 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
 
     @Override
     public long getCapacityAsLong(int index, ItemResource resource) {
-        return Integer.MAX_VALUE;
+        return Long.MAX_VALUE;
     }
 
     @Override
@@ -78,6 +161,10 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
 
     protected int computeEmptySize(ItemResource resource) {
         return TypeLimitItemStacksResourceHandler.computeCount(resource, this.spaceSize - this.space);
+    }
+
+    protected int computeEmptySize(ItemInstance instance) {
+        return TypeLimitItemStacksResourceHandler.computeCount(instance, this.spaceSize - this.space);
     }
 
     protected int findEmptySlot() {
@@ -178,6 +265,12 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
         }
     }
 
+    public void sync(TypeLimitItemStacksResourceHandler items) {
+        this.typeLimit = items.typeLimit;
+        this.spaceSize = items.spaceSize;
+        this.initStacks(items.stacks);
+    }
+
     @Override
     public void serialize(ValueOutput output) {
         NonNullList<UnlimitedItemStack> saving = TypeLimitItemStacksResourceHandler.constructStackList();
@@ -187,13 +280,17 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
             }
             saving.add(stack);
         }
-        output.store(TypeLimitItemStacksResourceHandler.VALUE_IO_KEY, TypeLimitItemStacksResourceHandler.STACKS_CODEC, saving);
+        output.store(TypeLimitItemStacksResourceHandler.STACKS_KEY, TypeLimitItemStacksResourceHandler.STACKS_CODEC, saving);
+        output.putInt(TypeLimitItemStacksResourceHandler.TYPE_LIMIT_KEY, this.typeLimit);
+        output.putInt(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY, this.spaceSize);
     }
 
     @Override
     public void deserialize(ValueInput input) {
+        this.typeLimit = input.getIntOr(TypeLimitItemStacksResourceHandler.TYPE_LIMIT_KEY, Integer.MAX_VALUE);
+        input.getInt(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY).ifPresent(size -> this.spaceSize = size);
         Optional<NonNullList<UnlimitedItemStack>> stacksOp = input.read(
-            TypeLimitItemStacksResourceHandler.VALUE_IO_KEY,
+            TypeLimitItemStacksResourceHandler.STACKS_KEY,
             TypeLimitItemStacksResourceHandler.STACKS_CODEC
         );
         if (stacksOp.isEmpty()) {

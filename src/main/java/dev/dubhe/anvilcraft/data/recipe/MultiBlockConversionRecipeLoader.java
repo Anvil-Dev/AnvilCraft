@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
-import dev.dubhe.anvilcraft.block.container.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
