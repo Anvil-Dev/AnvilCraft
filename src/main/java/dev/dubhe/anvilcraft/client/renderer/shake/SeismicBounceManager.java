@@ -51,7 +51,7 @@ public class SeismicBounceManager {
                     && level.getBlockEntity(pos) == null) {
                     float amplitude = MAX_AMPLITUDE * (1.0f - (float) dist / radius);
                     amplitude = Math.max(amplitude, 0.15f);
-                    int delay = (dist - 2) * 1;
+                    int delay = (dist - 2);
                     startBounce(pos, amplitude, delay);
                 }
             }
@@ -94,7 +94,7 @@ public class SeismicBounceManager {
             BlockState state = level.getBlockState(pos);
             if (state.isAir() || state.getRenderShape() != RenderShape.MODEL) continue;
 
-            lightPos.set(pos.getX(), pos.getY() + Math.max(1, (int) Math.round(offsetY)), pos.getZ());
+            lightPos.set(pos.getX(), pos.getY() + Math.max(1, Math.round(offsetY)), pos.getZ());
 
             poseStack.pushPose();
             poseStack.translate(
@@ -102,6 +102,11 @@ public class SeismicBounceManager {
                 pos.getY() - camY + offsetY,
                 pos.getZ() - camZ
             );
+
+            // 微扩 0.1% 避免与原方块 z-fighting
+            poseStack.translate(0.5, 0.5, 0.5);
+            poseStack.scale(1.001f, 1.001f, 1.001f);
+            poseStack.translate(-0.5, -0.5, -0.5);
 
             var model = dispatcher.getBlockModel(state);
             long seed = state.getSeed(pos);
