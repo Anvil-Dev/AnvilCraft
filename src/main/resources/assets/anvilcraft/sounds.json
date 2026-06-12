@@ -45,6 +45,15 @@
       }
     ]
   },
+  "giant_anvil_resin_shock": {
+    "subtitle": "subtitles.anvilcraft.giant_anvil_resin_shock",
+    "sounds": [
+      {
+        "name": "block.slime_block.break",
+        "type": "event"
+      }
+    ]
+  },
   "tesla_tower_strike": {
     "subtitle": "subtitles.anvilcraft.tesla_tower_strike",
     "sounds": [
