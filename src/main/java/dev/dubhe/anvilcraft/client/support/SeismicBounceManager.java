@@ -23,8 +23,10 @@ public class SeismicBounceManager {
 
     private static final int BOUNCE_DURATION_TICKS = 16;
     private static final float MAX_AMPLITUDE = 0.85f;
+    private static final int CENTER_EXCLUSION_RADIUS = 1;
 
     private final Map<BlockPos, BounceData> activeBounces = new ConcurrentHashMap<>();
+    private final RandomSource tesselateRandom = RandomSource.create();
 
     private SeismicBounceManager() {
     }
@@ -39,7 +41,8 @@ public class SeismicBounceManager {
 
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
-                if (Math.abs(dx) <= 1 && Math.abs(dz) <= 1) continue;
+                // 跳过中心 3×3 区域，避免铁砧正下方方块弹跳
+                if (Math.abs(dx) <= CENTER_EXCLUSION_RADIUS && Math.abs(dz) <= CENTER_EXCLUSION_RADIUS) continue;
 
                 int dist = Math.max(Math.abs(dx), Math.abs(dz));
                 BlockPos pos = center.offset(dx, 0, dz);
@@ -49,10 +52,13 @@ public class SeismicBounceManager {
                     && state.getRenderShape() == RenderShape.MODEL
                     && level.isEmptyBlock(pos.above())
                     && level.getBlockEntity(pos) == null) {
-                    float amplitude = MAX_AMPLITUDE * (1.0f - (float) dist / radius);
+                    // 振幅随机扰动 0.8~1.2 倍，使弹跳高度有自然差异
+                    float amplitude = MAX_AMPLITUDE * (1.0f - (float) dist / radius)
+                        * (0.8f + tesselateRandom.nextFloat() * 0.4f);
                     amplitude = Math.max(amplitude, 0.15f);
-                    int delay = (dist - 2);
-                    startBounce(pos, amplitude, delay);
+                    // 同圈延迟增加随机偏移 -1~+1 tick，让波纹更自然
+                    int delay = (dist - 2) + tesselateRandom.nextInt(3) - 1;
+                    startBounce(pos, amplitude, Math.max(delay, 0));
                 }
             }
         }
@@ -82,8 +88,6 @@ public class SeismicBounceManager {
 
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         BlockPos.MutableBlockPos lightPos = new BlockPos.MutableBlockPos();
-        RandomSource tesselateRandom = RandomSource.create();
-
         for (Map.Entry<BlockPos, BounceData> entry : activeBounces.entrySet()) {
             BounceData data = entry.getValue();
             BlockPos pos = entry.getKey();
@@ -140,10 +144,7 @@ public class SeismicBounceManager {
         private float amplitude;
 
         BounceData(float amplitude, int startDelay) {
-            this.totalTicks = BOUNCE_DURATION_TICKS;
-            this.startDelay = startDelay;
-            this.remainingTicks = BOUNCE_DURATION_TICKS + startDelay;
-            this.amplitude = amplitude;
+            this.reset(amplitude, startDelay);
         }
 
         void reset(float newAmplitude, int newStartDelay) {

@@ -223,6 +223,10 @@ public class GiantAnvilShockEventListener {
 
                 int ring = Math.max(Math.abs(dx), Math.abs(dz));
                 double ratio = (double) ring / radius;
+                // 粒子弹跳高度：整体降低约 50%
+                // 旧公式：0.3 + (1.0 - ratio)  → 范围 [1.3, 0.3]
+                // 新公式：0.15 + (1.0 - ratio) * 0.5 → 范围 [0.65, 0.15]
+                // 减缓粒子过高飞散，更贴近地面效果
                 double jumpHeight = 0.15 + (1.0 - ratio) * 0.5;
                 int particleCount = AnvilCraft.CLIENT_CONFIG.groundHeaveParticleCount;
                 double speed = 0.15 + jumpHeight * 0.2;

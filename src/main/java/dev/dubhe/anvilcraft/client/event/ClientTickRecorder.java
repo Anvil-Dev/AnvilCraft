@@ -19,6 +19,7 @@ public class ClientTickRecorder {
     @SubscribeEvent
     public static void onTick(ClientTickEvent.Pre e) {
         if (!Minecraft.getInstance().isPaused()) {
+            // 每24小时重置一次（20 tick/s × 3600 s × 24 h = 1,728,000），以保持浮点精度
             ClientTickRecorder.ticks = (ClientTickRecorder.ticks + 1) % 1_728_000;
             // 驱动震波弹跳动画
             SeismicBounceManager.getInstance().tick();
