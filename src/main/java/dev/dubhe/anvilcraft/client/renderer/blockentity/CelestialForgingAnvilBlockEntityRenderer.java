@@ -73,15 +73,28 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(0.5, centerY, 0.5);
         poseStack.mulPose(Axis.XP.rotationDegrees(rot));
         VertexConsumer ringConsumer = multiBufferSource.getBuffer(RenderType.cutout());
-        boolean isHugeStar = bodyData instanceof StarData s && s.size() >= 20;
         if (blockEntity.isAmplify()) {
             poseStack.scale(4, 4, 4);
-            modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING6), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
-            poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-            modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING5), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
-            if (!isHugeStar) {
-                poseStack.mulPose(Axis.XP.rotationDegrees(rot));
+            if (bodyData != null) {
+                if (bodyData.size() < 26) {
+                    // size < 26: RING4 + RING5
+                    modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING4), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                    poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
+                    modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING5), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                } else {
+                    // size >= 26: RING5 + RING6
+                    poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
+                    modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING5), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                    poseStack.mulPose(Axis.XP.rotationDegrees(rot));
+                    modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING6), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                }
+            } else {
+                // No body: all 3 rings
                 modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING4), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
+                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING5), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                poseStack.mulPose(Axis.XP.rotationDegrees(rot));
+                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING6), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
             }
         } else {
             boolean isGiantPlanet = bodyData instanceof GiantPlanetData;
@@ -99,7 +112,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
         poseStack.popPose();
 
-        if (bodyData != null) {
+        // Skip stellar bodies when amplifier is missing
+        boolean canRender = bodyData != null
+            && !(bodyData instanceof StarData && !blockEntity.isAmplifierPresent());
+        if (canRender) {
             float bodyRot = blockEntity.getBodyRotation() + partialTick;
             renderCelestialBody(bodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay, blockEntity.getBlockPos().asLong());
             renderCelestialRing(bodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay);
@@ -161,8 +177,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         for (int i = 0; i < haloIterations; i++) {
             float progress = (float) i / haloIterations;
-            float haloScale = 2.0f + progress * 1.2f;
-            float alpha = (2.4f - 2.25f * progress) / haloIterations;
+            // Halved from original (2.0→3.2) to match 1×1 cube (was 2×2)
+            float haloScale = 1.0f + progress * 0.6f;
+            float alpha = (1.2f - 1.125f * progress) / haloIterations;
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.scale(haloScale, haloScale, haloScale);
@@ -191,6 +208,23 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             renderTranslucentCube(poseStack, bufferSource, atmosRgb[0], atmosRgb[1], atmosRgb[2], 0.2f, LightTexture.FULL_BRIGHT, packedOverlay, seed);
             poseStack.popPose();
         }
+
+        // Brown dwarf: weak star-like halo
+        if (bodyData instanceof GiantPlanetData gp && gp.brownDwarf()) {
+            float[] rgb = getAtmosphereColor(Temperature.SCORCHED);
+            int haloIterations = 3;
+            for (int i = 0; i < haloIterations; i++) {
+                float progress = (float) i / haloIterations;
+                float haloScale = 1.15f + progress * 0.25f;
+                float alpha = (0.45f - 0.38f * progress) / haloIterations;
+                poseStack.pushPose();
+                poseStack.translate(0.5, 0.5, 0.5);
+                poseStack.scale(haloScale, haloScale, haloScale);
+                poseStack.translate(-0.5, -0.5, -0.5);
+                renderTranslucentCube(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], alpha, LightTexture.FULL_BRIGHT, packedOverlay, seed);
+                poseStack.popPose();
+            }
+        }
     }
 
     private void renderTranslucentCube(
@@ -210,17 +244,21 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     /**
      * Get the visual scale for a celestial body.
-     * Stars use a 32³ cube, planets use a 16³ cube — stars are naturally 2× larger.
-     * Scale ranges account for this so that the smallest red dwarf is slightly
-     * smaller than the largest giant planet, while red giants are enormous.
+     * All bodies use the same 16³ cube base and the same scale formula —
+     * only the space anvil count (size) matters for visual size.
+     * Below size 20: linear growth. Above size 20: accelerating (quadratic) growth.
+     * Max size 64 ≈ old size-30 effective scale (2.63), prevents clipping.
      */
     private float getBodyScale(CelestialBodyData data) {
-        return switch (data) {
-            case RockyPlanetData rp -> 0.41f + (rp.size() - 1) * 0.07f / 7f;
-            case GiantPlanetData gp -> 0.53f + (gp.size() - 1) * 0.27f / 7f;
-            case StarData s -> 0.39f + (s.size() - 1) * 0.86f / 27f;
-            default -> 0.5f;
-        };
+        int size = data.size();
+        if (size <= 20) {
+            // Linear: size 1 → 0.2, size 20 → 1.0
+            return 0.2f + (size - 1) * 0.8f / 19f;
+        } else {
+            // Quadratic acceleration: size 20 → 1.0, size 64 → 2.63 (was old size-30 max)
+            float t = (size - 20) / 44f;
+            return 1.0f + t * t * 1.63f;
+        }
     }
 
     private float getRingScale(CelestialBodyData data) {

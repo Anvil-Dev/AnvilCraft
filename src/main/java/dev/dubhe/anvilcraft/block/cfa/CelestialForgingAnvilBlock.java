@@ -5,16 +5,27 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.PropelPiston;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -26,8 +37,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -173,14 +186,14 @@ public class CelestialForgingAnvilBlock
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide()) {
-            return PropelPiston.createTickerHelper(
-                type,
-                ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(),
-                (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
-            );
-        }
-        return null;
+        return PropelPiston.createTickerHelper(
+            type,
+            ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(),
+            (level1, blockPos, blockState, blockEntity) -> {
+                if (level.isClientSide()) blockEntity.tick();
+                else blockEntity.serverTick();
+            }
+        );
     }
 
     @Override
@@ -206,17 +219,107 @@ public class CelestialForgingAnvilBlock
     @Override
     public void onFormed(Level level, MultiblockState state) {
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
-            .ifPresent(be -> be.setAmplify(true));
+            .ifPresent(be -> {
+                be.setAmplify(true);
+                be.setAmplifierPresent(true);
+                be.setLocked(false);
+                be.setChanged();
+                level.sendBlockUpdated(
+                    state.getControllerPos(),
+                    be.getBlockState(),
+                    be.getBlockState(),
+                    3
+                );
+            });
     }
 
     @Override
     public void onUnformed(Level level, MultiblockState state) {
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
-            .ifPresent(be -> be.setAmplify(false));
+            .ifPresent(be -> {
+                be.setAmplifierPresent(false);
+                if (be.getCelestialBodyData() instanceof StarData) {
+                    be.setLocked(true);
+                    be.getSearchHistory().clear();
+                    // Keep isAmplify true so stellar body stays in data,
+                    // but the renderer hides it when amplifier is missing
+                } else {
+                    be.setAmplify(false);
+                }
+                be.setChanged();
+                level.sendBlockUpdated(
+                    state.getControllerPos(),
+                    be.getBlockState(),
+                    be.getBlockState(),
+                    3
+                );
+            });
     }
 
     @Override
     public BlockPos correctPos(ServerLevel level, BlockPos pos, BlockState state) {
         return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
+    }
+
+    @Override
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+        BlockPos mainPos = getMainPartPos(pos, state);
+        if (level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
+            // Drop inventory items and clear them from BE so the dropped block
+            // item's NBT doesn't include "anvils" data
+            for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
+                ItemStack stack = be.getAnvilInventory().getItem(i);
+                if (!stack.isEmpty()) {
+                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+                    be.getAnvilInventory().setItem(i, ItemStack.EMPTY);
+                }
+            }
+            be.getSearchHistory().clear();
+        }
+        return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (state.is(newState.getBlock())) return;
+        BlockPos mainPos = getMainPartPos(pos, state);
+        boolean isMain = state.hasProperty(HALF) && state.getValue(HALF) == Cube323PartHalf.BOTTOM_CENTER;
+        if (isMain && level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
+            // Drop any remaining inventory items (for non-player destruction)
+            for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
+                ItemStack stack = be.getAnvilInventory().getItem(i);
+                if (!stack.isEmpty()) {
+                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+                }
+            }
+            // Drop block item with preserved NBT (celestial body data, etc.)
+            // Must be done here (not via loot table) because copy_components cannot
+            // properly convert block entity NBT to item data components in 1.21
+            if (!level.isClientSide) {
+                ItemStack blockStack = new ItemStack(asItem());
+                CompoundTag beTag = new CompoundTag();
+                be.saveAdditional(beTag, level.registryAccess());
+                beTag.remove("anvils");
+                BlockItem.setBlockEntityData(blockStack, be.getType(), beTag);
+                Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, blockStack);
+            }
+            be.getSearchHistory().clear();
+        }
+        // Don't call super.onRemove() — we handle drops manually above
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(
+        BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
+    ) {
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+        BlockPos mainPos = getMainPartPos(pos, state);
+        BlockEntity be = level.getBlockEntity(mainPos);
+        if (be instanceof CelestialForgingAnvilBlockEntity cfaBe && player instanceof ServerPlayer sp) {
+            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
+            ModMenuTypes.open(sp, cfaBe, mainPos);
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
     }
 }

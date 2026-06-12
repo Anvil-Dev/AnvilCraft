@@ -27,9 +27,9 @@ public class CelestialBodyRenderer {
 
         faceUp(ps, vc, x1, x2, z1, z2, y2, 16f/64, 0, 32f/64, 16f/64, light, overlay);
         PoseStack.Pose pose = ps.last();
-        vc.addVertex(pose, x1, y1, z1).setColor(-1).setUv(48f/64, 16f/64).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
+        vc.addVertex(pose, x1, y1, z1).setColor(-1).setUv(32f/64, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
         vc.addVertex(pose, x2, y1, z1).setColor(-1).setUv(48f/64, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
-        vc.addVertex(pose, x2, y1, z2).setColor(-1).setUv(32f/64, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
+        vc.addVertex(pose, x2, y1, z2).setColor(-1).setUv(48f/64, 16f/64).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
         vc.addVertex(pose, x1, y1, z2).setColor(-1).setUv(32f/64, 16f/64).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
         faceNorth(ps, vc, x1, x2, y1, y2, z1, 48f/64, 16f/64, 64f/64, 32f/64, light, overlay);
         faceEast(ps, vc, x2, y1, y2, z1, z2, 32f/64, 16f/64, 48f/64, 32f/64, light, overlay);
@@ -40,8 +40,8 @@ public class CelestialBodyRenderer {
     public static void renderStarBody(
         PoseStack ps, VertexConsumer vc, int light, int overlay
     ) {
-        float min = -0.5f, max = 1.5f;
-        renderFullCube(ps, vc, min, min, min, max, max, max, light, overlay);
+        // Same 1×1 cube as planets, but with full-texture UVs (star uses DynamicTexture)
+        renderFullCube(ps, vc, 0, 0, 0, 1, 1, 1, light, overlay);
     }
 
     private static void renderFullCube(

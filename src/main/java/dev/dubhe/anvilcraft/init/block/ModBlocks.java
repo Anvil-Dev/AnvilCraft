@@ -143,6 +143,7 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilFluidInter
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
@@ -1320,15 +1321,21 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilBlock> CELESTIAL_FORGING_ANVIL = REGISTRUM
         .block("celestial_forging_anvil", CelestialForgingAnvilBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .loot(SimpleMultiPartBlock::loot)
         .properties((properties) -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
-        .item(SimpleMultiPartBlockItem::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .loot((tables, block) -> {
+            // Generate empty loot table (rolls=0) so datagen doesn't break.
+            // Actual drop (with NBT) is handled manually in onRemove.
+            tables.add(block, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(0.0f))));
+        })
+        .item(CelestialForgingAnvilBlockItem::new)
+        .properties((properties) -> properties.stacksTo(1))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
