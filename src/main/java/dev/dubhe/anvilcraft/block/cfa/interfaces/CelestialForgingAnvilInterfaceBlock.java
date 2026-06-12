@@ -82,12 +82,16 @@ public abstract class CelestialForgingAnvilInterfaceBlock
                 for (int dy = -1; dy <= 1; dy++) {
                     BlockPos checkPos = pos.offset(dx, dy, dz);
                     BlockState checkState = level.getBlockState(checkPos);
-                    if (checkState.getBlock() instanceof CelestialForgingAnvilBlock
+                    if (
+                        checkState.getBlock() instanceof CelestialForgingAnvilBlock
                         && checkState.hasProperty(CelestialForgingAnvilBlock.HALF)
-                        && checkState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER) {
+                        && checkState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER
+                    ) {
                         BlockEntity be = level.getBlockEntity(checkPos);
-                        if (be instanceof CelestialForgingAnvilBlockEntity cfaBe
-                            && player instanceof ServerPlayer sp) {
+                        if (
+                            be instanceof CelestialForgingAnvilBlockEntity cfaBe
+                            && player instanceof ServerPlayer sp
+                        ) {
                             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                             ModMenuTypes.open(sp, cfaBe, checkPos);
                             return InteractionResult.SUCCESS;

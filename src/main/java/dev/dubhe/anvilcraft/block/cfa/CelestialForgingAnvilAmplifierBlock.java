@@ -277,7 +277,11 @@ public class CelestialForgingAnvilAmplifierBlock
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         // Scan nearby for the controller (BOTTOM_CENTER of anvil)
@@ -286,12 +290,16 @@ public class CelestialForgingAnvilAmplifierBlock
                 for (int dy = -1; dy <= 1; dy++) {
                     BlockPos checkPos = pos.offset(dx, dy, dz);
                     BlockState checkState = level.getBlockState(checkPos);
-                    if (checkState.getBlock() instanceof CelestialForgingAnvilBlock
+                    if (
+                        checkState.getBlock() instanceof CelestialForgingAnvilBlock
                         && checkState.hasProperty(CelestialForgingAnvilBlock.HALF)
-                        && checkState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER) {
+                        && checkState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER
+                    ) {
                         BlockEntity be = level.getBlockEntity(checkPos);
-                        if (be instanceof CelestialForgingAnvilBlockEntity cfaBe
-                            && player instanceof ServerPlayer sp) {
+                        if (
+                            be instanceof CelestialForgingAnvilBlockEntity cfaBe
+                            && player instanceof ServerPlayer sp
+                        ) {
                             if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                             ModMenuTypes.open(sp, cfaBe, checkPos);
                             return InteractionResult.SUCCESS;

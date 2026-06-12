@@ -190,8 +190,11 @@ public class CelestialForgingAnvilBlock
             type,
             ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(),
             (level1, blockPos, blockState, blockEntity) -> {
-                if (level.isClientSide()) blockEntity.tick();
-                else blockEntity.serverTick();
+                if (level.isClientSide()) {
+                    blockEntity.tick();
+                } else {
+                    blockEntity.serverTick();
+                }
             }
         );
     }
@@ -310,7 +313,11 @@ public class CelestialForgingAnvilBlock
 
     @Override
     protected InteractionResult useWithoutItem(
-        BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         BlockPos mainPos = getMainPartPos(pos, state);
