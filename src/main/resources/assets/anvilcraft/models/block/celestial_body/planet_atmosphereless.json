@@ -1,26 +1,25 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/cube",
+	"parent": "minecraft:block/block",
 	"render_type": "minecraft:cutout",
-	"texture_size": [32, 32],
+	"texture_size": [64, 64],
 	"textures": {
-		"0": "anvilcraft:block/celestial_body/star",
-		"particle": "anvilcraft:block/celestial_body/star"
+		"particle": "anvilcraft:block/celestial_body/planet_atmosphereless",
+		"base": "anvilcraft:block/celestial_body/planet_atmosphereless"
 	},
 	"elements": [
 		{
 			"from": [0, 0, 0],
 			"to": [16, 16, 16],
 			"shade": false,
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#0"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#0"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#0"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#0"},
-				"up": {"uv": [16, 16, 0, 0], "texture": "#0"},
-				"down": {"uv": [16, 0, 0, 16], "texture": "#0"}
+				"north": {"uv": [4, 4, 8, 8], "texture": "#base"},
+				"east": {"uv": [0, 4, 4, 8], "texture": "#base"},
+				"south": {"uv": [12, 4, 16, 8], "texture": "#base"},
+				"west": {"uv": [8, 4, 12, 8], "texture": "#base"},
+				"up": {"uv": [4, 0, 8, 4], "rotation": 180, "texture": "#base"},
+				"down": {"uv": [4, 8, 8, 12], "rotation": 180, "texture": "#base"}
 			}
 		}
 	],

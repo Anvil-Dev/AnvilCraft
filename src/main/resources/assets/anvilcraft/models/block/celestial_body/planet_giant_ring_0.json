@@ -5,8 +5,8 @@
 	"render_type": "minecraft:cutout",
 	"texture_size": [32, 32],
 	"textures": {
-		"ring": "anvilcraft:block/celestial_body/planet_giant_ring_1",
-		"particle": "anvilcraft:block/celestial_body/planet_giant_ring_1"
+		"particle": "anvilcraft:block/celestial_body/planet_giant_ring_0",
+		"ring": "anvilcraft:block/celestial_body/planet_giant_ring_0"
 	},
 	"elements": [
 		{

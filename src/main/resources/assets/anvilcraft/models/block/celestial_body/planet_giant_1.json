@@ -1,14 +1,13 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/cube",
+	"parent": "minecraft:block/block",
 	"render_type": "minecraft:cutout",
 	"texture_size": [64, 64],
 	"textures": {
 		"particle": "anvilcraft:block/celestial_body/planet_giant",
 		"base": "anvilcraft:block/celestial_body/planet_giant",
-		"overlay": "anvilcraft:block/celestial_body/planet_giant_overlay_0",
-		"ring": "anvilcraft:block/celestial_body/planet_giant_ring_1"
+		"overlay": "anvilcraft:block/celestial_body/planet_giant_overlay_1"
 	},
 	"elements": [
 		{
@@ -20,8 +19,8 @@
 				"east": {"uv": [0, 4, 4, 8], "texture": "#base"},
 				"south": {"uv": [12, 4, 16, 8], "texture": "#base"},
 				"west": {"uv": [8, 4, 12, 8], "texture": "#base"},
-				"up": {"uv": [8, 4, 4, 0], "texture": "#base"},
-				"down": {"uv": [12, 0, 8, 4], "texture": "#base"}
+				"up": {"uv": [4, 0, 8, 4], "rotation": 180, "texture": "#base"},
+				"down": {"uv": [4, 8, 8, 12], "rotation": 180, "texture": "#base"}
 			}
 		},
 		{
@@ -33,18 +32,8 @@
 				"east": {"uv": [0, 4, 4, 8], "texture": "#overlay"},
 				"south": {"uv": [12, 4, 16, 8], "texture": "#overlay"},
 				"west": {"uv": [8, 4, 12, 8], "texture": "#overlay"},
-				"up": {"uv": [8, 4, 4, 0], "texture": "#overlay"},
-				"down": {"uv": [12, 0, 8, 4], "texture": "#overlay"}
-			}
-		},
-		{
-			"from": [-8, 8, -8],
-			"to": [24, 8, 24],
-			"shade": false,
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
-			"faces": {
-				"up": {"uv": [8, 8, 0, 0], "texture": "#ring"},
-				"down": {"uv": [16, 0, 8, 8], "texture": "#ring"}
+				"up": {"uv": [4, 0, 8, 4], "rotation": 180, "texture": "#overlay"},
+				"down": {"uv": [4, 8, 8, 12], "rotation": 180, "texture": "#overlay"}
 			}
 		}
 	],
