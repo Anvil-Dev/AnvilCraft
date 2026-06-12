@@ -36,9 +36,9 @@ public class GiantAnvilLandingEventListener {
     private static final int MIN_MULTIBLOCK_SIZE = 3;
     private static final int MAX_MULTIBLOCK_SIZE = 15;
 
-    /// 在一个边长为 {@code size} 的立方体区域中，绕着中心将 {@code pos} 旋转到对应位置。
+    /// 在一个边长为 `size` 的立方体区域中，绕着中心将 `pos` 旋转到对应位置。
     ///
-    /// @param pos      被旋转的方块坐标 (从 {@code (0, 0, 0)} 到 {@code （size - 1, size - 1, size - 1)})
+    /// @param pos      被旋转的方块坐标（从 `(0, 0, 0)` 到 `(size - 1, size - 1, size - 1)`）
     /// @param size     立方体区域的边长
     /// @param rotation 旋转操作
     /// @return 旋转后的相对坐标

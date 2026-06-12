@@ -29,7 +29,7 @@ public interface IAmulet extends TooltipProvider {
     ///
     /// @param player    玩家
     /// @param amulet    护符物品堆
-    /// @param isEnabled 护符启用状态。{@code true} 为已启用，反之则为未启用
+    /// @param isEnabled 护符启用状态。`true` 为已启用，反之则为未启用
     /// @see IAmulet#shouldImmune(ServerPlayer, DamageSource)
     default void inventoryTick(ServerPlayer player, ItemStack amulet, boolean isEnabled) {
     }

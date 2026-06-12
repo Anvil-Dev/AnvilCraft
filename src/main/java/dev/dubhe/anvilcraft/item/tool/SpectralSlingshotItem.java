@@ -44,9 +44,9 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public class SpectralSlingshotItem extends ProjectileWeaponItem {
-    /// Set to {@code true} when the crossbow is 20% charged.
+    /// Set to `true` when the crossbow is 20% charged.
     private boolean startSoundPlayed = false;
-    /// Set to {@code true} when the crossbow is 50% charged.
+    /// Set to `true` when the crossbow is 50% charged.
     private boolean midLoadSoundPlayed = false;
 
     // 证明自己，比起弹弓，更像弩（指这里的音效从弩抄的）
