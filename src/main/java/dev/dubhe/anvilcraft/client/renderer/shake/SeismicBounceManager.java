@@ -34,7 +34,7 @@ public class SeismicBounceManager {
     private static final int BOUNCE_DURATION_TICKS = 16; // ~0.8秒
 
     /** 弹跳最大高度（方块单位） */
-    private static final float MAX_AMPLITUDE = 2.0f;
+    private static final float MAX_AMPLITUDE = 0.85f; // 实际弹起约 0.6 格
 
     /** 活跃的弹跳动画 */
     private final Map<BlockPos, BounceData> activeBounces = new ConcurrentHashMap<>();
@@ -70,8 +70,10 @@ public class SeismicBounceManager {
 
                 if (!state.isAir() && state.getRenderShape() == RenderShape.MODEL) {
                     float amplitude = MAX_AMPLITUDE * (1.0f - (float) dist / radius);
-                    amplitude = Math.max(amplitude, 0.4f);
-                    startBounce(pos, amplitude);
+                    amplitude = Math.max(amplitude, 0.15f);
+                    // 距离越远延迟越大，形成由内向外扩散的波纹效果
+                    int delay = (dist - 2) * 1; // 每格 1 tick 延迟，快速扩散
+                    startBounce(pos, amplitude, delay);
                 }
             }
         }
@@ -79,13 +81,17 @@ public class SeismicBounceManager {
 
     /**
      * 开始单个方块的弹跳动画。
+     *
+     * @param pos      方块位置
+     * @param amplitude 弹跳最大高度
+     * @param startDelay 开始延迟（tick），用于实现波纹扩散
      */
-    public void startBounce(BlockPos pos, float amplitude) {
+    public void startBounce(BlockPos pos, float amplitude, int startDelay) {
         BounceData existing = activeBounces.get(pos);
         if (existing != null) {
-            existing.reset(amplitude);
+            existing.reset(amplitude, startDelay);
         } else {
-            activeBounces.put(pos, new BounceData(amplitude));
+            activeBounces.put(pos, new BounceData(amplitude, startDelay));
         }
     }
 
@@ -162,34 +168,52 @@ public class SeismicBounceManager {
     // ======================================================================
 
     public static class BounceData {
+        /** 活跃弹跳持续 tick 数 */
         private int totalTicks;
+        /** 开始前的延迟 tick 数（扩散波纹用） */
+        private int startDelay;
+        /** 剩余总 tick（含延迟） */
         @Getter
         private int remainingTicks;
         @Getter
         private float amplitude;
 
-        BounceData(float amplitude) {
+        BounceData(float amplitude, int startDelay) {
             this.totalTicks = BOUNCE_DURATION_TICKS;
-            this.remainingTicks = BOUNCE_DURATION_TICKS;
+            this.startDelay = startDelay;
+            this.remainingTicks = BOUNCE_DURATION_TICKS + startDelay;
             this.amplitude = amplitude;
         }
 
-        void reset(float newAmplitude) {
+        void reset(float newAmplitude, int newStartDelay) {
             this.totalTicks = BOUNCE_DURATION_TICKS;
-            this.remainingTicks = BOUNCE_DURATION_TICKS;
+            this.startDelay = newStartDelay;
+            this.remainingTicks = BOUNCE_DURATION_TICKS + newStartDelay;
             this.amplitude = newAmplitude;
         }
 
+        /**
+         * 弹跳进度 [0, 1]。
+         * 延迟期间返回 0，延迟结束后从 0 逐渐到 1。
+         */
         public float getProgress() {
-            return 1.0f - (float) remainingTicks / totalTicks;
+            int elapsed = (totalTicks + startDelay) - remainingTicks;
+            int active = elapsed - startDelay;
+            if (active <= 0) return 0f;
+            return Math.min((float) active / totalTicks, 1.0f);
         }
 
         /**
          * 获取当前帧的 Y 轴偏移量。
          * 单向阻尼弹跳曲线：快速弹起 → 回落。
+         * 延迟期间返回 0。
          */
         public float getRenderOffsetY(float partialTick) {
-            float progress = getProgress();
+            int elapsed = (totalTicks + startDelay) - remainingTicks;
+            int active = elapsed - startDelay;
+            if (active < 0) return 0f; // 仍在延迟中
+
+            float progress = (float) active / totalTicks;
             progress += partialTick / totalTicks;
             progress = Math.min(progress, 1.0f);
 

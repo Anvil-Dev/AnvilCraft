@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.shake.SeismicBounceManager;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -38,7 +39,8 @@ public record GiantAnvilShockEffectPacket(BlockPos centerPos, int radius) implem
 
     @Override
     public void handleOnClient(Player player) {
-        // 在客户端触发弹跳动画
+        // 绑定到撼地粒子配置开关
+        if (!AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) return;
         SeismicBounceManager.getInstance().triggerShock(this.centerPos, this.radius);
     }
 }
