@@ -19,7 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 客户端震波弹跳动画管理器。
- * <p>
+ *
+ *  <p>
  * 当巨型铁砧撼地时，记录受影响的方块位置并驱动其弹跳动画。
  * 在{@code RenderLevelStageEvent}中以叠加渲染的方式实现视觉弹跳，
  * 不改变BlockState，不修改原始方块在区块中的渲染。

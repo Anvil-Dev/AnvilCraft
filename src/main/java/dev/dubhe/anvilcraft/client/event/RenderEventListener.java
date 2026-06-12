@@ -69,7 +69,8 @@ public class RenderEventListener {
         double camZ = vec3.z();
 
         // ---- 巨型铁砧撼地震波：渲染弹跳方块叠加层 ----
-        SeismicBounceManager.getInstance().render(pose, bufferSource, event.getPartialTick().getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused()), camX, camY, camZ);
+        SeismicBounceManager.getInstance().render(
+            pose, bufferSource, event.getPartialTick().getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused()), camX, camY, camZ);
 
         PowerGridSupport.renderTransmitterLine(pose, bufferSource, vec3);
 

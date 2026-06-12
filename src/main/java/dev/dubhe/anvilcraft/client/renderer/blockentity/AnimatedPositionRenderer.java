@@ -12,8 +12,8 @@ import net.minecraft.world.phys.AABB;
 
 /**
  * 支持平滑位移渲染的 BlockEntityRenderer 基类。
- * <p>
- * 与 {@link AnimatedPositionBlockEntity} 配合使用，
+ *
+ *  <p>
  * 自动将方块模型渲染在插值后的偏移位置，BlockState 本身不变。
  * </p>
  *
@@ -78,7 +78,8 @@ public abstract class AnimatedPositionRenderer<T extends BlockEntity & IAnimated
 
     /**
      * 渲染方块自身的模型。
-     * <p>
+     *
+     *  <p>
      * 默认使用 Minecraft 的 BlockRenderDispatcher 渲染该位置的 BlockState。
      * 子类可 override 以渲染自定义模型或替换渲染方式。
      * </p>
@@ -104,7 +105,8 @@ public abstract class AnimatedPositionRenderer<T extends BlockEntity & IAnimated
 
     /**
      * 额外渲染扩展点。
-     * <p>
+     *
+     *  <p>
      * 在方块模型渲染之后调用，位移已应用，所有坐标都是相对于偏移位置的。
      * 默认不做任何额外渲染。
      * </p>
@@ -126,7 +128,8 @@ public abstract class AnimatedPositionRenderer<T extends BlockEntity & IAnimated
 
     /**
      * 获取渲染边界。
-     * <p>
+     *
+     *  <p>
      * 默认：以方块位置为中心，向每个方向扩展 1 格（因为位移通常不超过 1 格）。
      * 如果位移可能超过 1 格，子类应 override 此方法返回更大的 AABB。
      * </p>

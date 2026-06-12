@@ -13,7 +13,8 @@ import net.minecraft.world.entity.player.Player;
 
 /**
  * 巨型铁砧震波效果包（Server → Client）。
- * <p>
+ *
+ *  <p>
  * 告诉客户端在指定位置发生了震波，客户端播放方块弹跳动画。
  * </p>
  */

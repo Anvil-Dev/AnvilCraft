@@ -43,7 +43,10 @@ public class GiantAnvilShockEventListener {
 
     static {
         TreeNode<ShockContext> root = TreeNode.<ShockContext>predicatedExecutable(
-            it -> it.unwrap().level().getBlockState(it.unwrap().centerPos()).is(ModBlocks.HEAVY_IRON_BLOCK)
+            it -> {
+                @SuppressWarnings("resource") Level level = it.unwrap().level();
+                return level.getBlockState(it.unwrap().centerPos()).is(ModBlocks.HEAVY_IRON_BLOCK);
+            }
         ).then(
             // break mode
             TreeNode.<ShockContext>executes(it -> {
@@ -149,7 +152,8 @@ public class GiantAnvilShockEventListener {
                 1,
                 radius * 2 + 1
             );
-            List<LivingEntity> e = it.unwrap().level().getEntitiesOfClass(LivingEntity.class, aabb);
+            @SuppressWarnings("resource") Level level = it.unwrap().level();
+            List<LivingEntity> e = level.getEntitiesOfClass(LivingEntity.class, aabb);
             for (LivingEntity l : e) {
                 if (it.has(HURT_TYPE)) {
                     HurtType hurtType = it.getAttachment(HURT_TYPE, HurtType.class);
@@ -158,7 +162,7 @@ public class GiantAnvilShockEventListener {
                 } else {
                     if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
                         l.hurt(
-                            it.unwrap().level().damageSources().source(DamageTypes.FALL, it.unwrap().fallingGiantAnvil()),
+                            level.damageSources().source(DamageTypes.FALL, it.unwrap().fallingGiantAnvil()),
                             it.unwrap().fallDistance() * 2
                         );
                     }

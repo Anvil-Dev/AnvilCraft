@@ -11,12 +11,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3fc;
-
 /**
  * 支持平滑位移渲染的 BlockEntity 基类。
- * <p>
+ *
+ *  <p>
  * 通过 {@link #setTargetOffset(float, float, float)} 设置目标位移，
  * 渲染时会用 partialTick 在上一帧位置和目标位置之间做线性插值，
  * 从而实现不改变 BlockState 的平滑视觉移动。
@@ -27,6 +25,7 @@ import org.joml.Vector3fc;
  * setTargetOffset(targetX, targetY, targetZ);
  * }</pre>
  */
+
 public abstract class AnimatedPositionBlockEntity extends BlockEntity implements IAnimatedPosition {
 
     // ---- 当前帧位置（tick() 结束时写入） ----
@@ -123,7 +122,8 @@ public abstract class AnimatedPositionBlockEntity extends BlockEntity implements
 
     /**
      * <b>必须</b>在子类 {@code tick()} 中调用，或由子类 override 后 super.tick()。
-     * <p>
+     *
+     *  <p>
      * 职责：
      * <ol>
      *   <li>保存上一帧位置（用于插值）</li>

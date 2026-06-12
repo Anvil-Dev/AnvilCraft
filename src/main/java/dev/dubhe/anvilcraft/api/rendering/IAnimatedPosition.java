@@ -2,7 +2,8 @@ package dev.dubhe.anvilcraft.api.rendering;
 
 /**
  * 支持平滑位移渲染的接口。
- * <p>
+ *
+ *  <p>
  * 由 {@link AnimatedPositionBlockEntity} 实现，
  * 供 {@link dev.dubhe.anvilcraft.client.renderer.blockentity.AnimatedPositionRenderer} 使用。
  * </p>
