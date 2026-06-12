@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.mojang.serialization.MapCodec;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.component.ModNameContents;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -18,6 +17,6 @@ public class ComponentSerializationMixin {
         ExtraCodecs.LateBoundIdMapper<String, MapCodec<? extends ComponentContents>> contentTypes,
         CallbackInfo ci
     ) {
-        contentTypes.put(AnvilCraft.of("mod_name").toString(), ModNameContents.CODEC);
+        contentTypes.put("anvilcraft:mod_name", ModNameContents.CODEC);
     }
 }
