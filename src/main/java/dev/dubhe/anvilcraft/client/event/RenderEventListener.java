@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.client.renderer.shake.SeismicBounceManager;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -62,9 +63,14 @@ public class RenderEventListener {
             event.getLevelRenderer().renderBuffers.bufferSource();
 
         Vec3 vec3 = event.getCamera().getPosition();
+
         double camX = vec3.x();
         double camY = vec3.y();
         double camZ = vec3.z();
+
+        // ---- 巨型铁砧撼地震波：渲染弹跳方块叠加层 ----
+        SeismicBounceManager.getInstance().render(pose, bufferSource, event.getPartialTick().getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused()), camX, camY, camZ);
+
         PowerGridSupport.renderTransmitterLine(pose, bufferSource, vec3);
 
         if (!(entity instanceof LivingEntity livingEntity)) return;

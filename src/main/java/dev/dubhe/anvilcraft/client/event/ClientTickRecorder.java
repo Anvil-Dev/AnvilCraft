@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.renderer.shake.SeismicBounceManager;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -18,7 +19,9 @@ public class ClientTickRecorder {
     @SubscribeEvent
     public static void onTick(ClientTickEvent.Pre e) {
         if (!Minecraft.getInstance().isPaused()) {
-            ClientTickRecorder.ticks = (ClientTickRecorder.ticks + 1) % 1_728_000; // 每24小时重置一次，以保持浮点精度
+            ClientTickRecorder.ticks = (ClientTickRecorder.ticks + 1) % 1_728_000;
+            // 驱动震波弹跳动画
+            SeismicBounceManager.getInstance().tick();
         }
     }
 }

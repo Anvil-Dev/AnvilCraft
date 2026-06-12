@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.network.GiantAnvilShockEffectPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Blocks;
@@ -27,6 +29,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
@@ -169,13 +172,29 @@ public class GiantAnvilShockEventListener {
     public static void onLand(AnvilEvent.GiantOnLand event) {
         ShockContext context = ShockContext.inflate(event);
         behaviorTree.run(context);
-        // 仅当冲击机制实际触发（中心为重型铁块）时才生成撼地粒子和音效
+        // 仅当冲击机制实际触发（中心为重型铁块）时才生成撼地效果
         if (event.getLevel()
                 .getBlockState(event.getPos().below(2))
-                .is(ModBlocks.HEAVY_IRON_BLOCK) && AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) {
-            event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
-                SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().random.nextFloat() * 0.2f);
-            spawnGroundHeave(event);
+                .is(ModBlocks.HEAVY_IRON_BLOCK)) {
+            float fallDistance = event.getFallDistance();
+            int radius = (int) Math.min(Math.ceil(fallDistance), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+            BlockPos shockCenter = event.getPos().below(2);
+
+            // 发送震波效果包到附近所有玩家
+            if (event.getLevel() instanceof ServerLevel serverLevel) {
+                PacketDistributor.sendToPlayersTrackingChunk(
+                    serverLevel,
+                    new ChunkPos(event.getPos()),
+                    new GiantAnvilShockEffectPacket(shockCenter, radius)
+                );
+            }
+
+            // 音效与粒子
+            if (AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) {
+                event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
+                    SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().random.nextFloat() * 0.2f);
+                spawnGroundHeave(event);
+            }
         }
     }
 
