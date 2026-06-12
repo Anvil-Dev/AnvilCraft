@@ -45,6 +45,15 @@
       }
     ]
   },
+  "tesla_tower_strike": {
+    "subtitle": "subtitles.anvilcraft.tesla_tower_strike",
+    "sounds": [
+      {
+        "name": "minecraft:entity.lightning_bolt.impact",
+        "type": "event"
+      }
+    ]
+  },
   "smart_block_placer_extend": {
     "subtitle": "subtitles.anvilcraft.smart_block_placer_extend",
     "sounds": [

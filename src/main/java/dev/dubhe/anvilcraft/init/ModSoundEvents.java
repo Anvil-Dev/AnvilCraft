@@ -32,6 +32,10 @@ public class ModSoundEvents {
         "giant_anvil_shock", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("giant_anvil_shock"))
     );
 
+    public static final Supplier<SoundEvent> TESLA_TOWER_STRIKE = REGISTER.register(
+        "tesla_tower_strike", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("tesla_tower_strike"))
+    );
+
     public static final Supplier<SoundEvent> SMART_BLOCK_PLACER_EXTEND = REGISTER.register(
         "smart_block_placer_extend", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("smart_block_placer_extend"))
     );
