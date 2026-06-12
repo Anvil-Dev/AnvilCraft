@@ -85,7 +85,13 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected InteractionResult useWithoutItem(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
+    ) {
         level.setBlockAndUpdate(pos, state.cycle(MOVING));
         return InteractionResult.SUCCESS;
     }
@@ -160,18 +166,30 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
     }
 
     @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level level,
+        BlockState state,
+        BlockEntityType<T> type
+    ) {
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(type,
+        return createTickerHelper(
+            type,
             ModBlockEntities.PROPEL_PISTON.get(),
             (level1, blockPos, blockState, blockEntity) ->
-                blockEntity.tick(level1, blockPos, blockState));
+                blockEntity.tick(level1, blockPos, blockState)
+        );
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+    public void setPlacedBy(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        @Nullable LivingEntity placer,
+        ItemStack stack
+    ) {
         Integer energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
@@ -191,7 +209,14 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                 level.setBlockAndUpdate(pos, state.setValue(MOVING, false));
                 return false;
             }
-            level.playSound(null, pos, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.5F, level.getRandom().nextFloat() * 0.25F + 0.6F);
+            level.playSound(
+                null,
+                pos,
+                SoundEvents.PISTON_EXTEND,
+                SoundSource.BLOCKS,
+                0.5F,
+                level.getRandom().nextFloat() * 0.25F + 0.6F
+            );
         }
         EventHooks.onPistonMovePost(level, pos, direction, (id == 0));
         level.scheduleTick(pos.relative(direction), this, 6);
@@ -258,19 +283,26 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                     BlockPos relative = blockPos3.relative(facing.getOpposite());
                     if (
                         list1.get(k).getBlock() instanceof IMoveableEntityBlock
-                        && level.getBlockEntity(relative) instanceof BlockEntity be
+                            && level.getBlockEntity(relative) instanceof BlockEntity be
                     ) {
                         blockEntity = be;
                         level.removeBlockEntity(relative);
                     }
                 }
                 level.setBlock(blockPos3, blockState8, 68);
-                BlockEntity be = MovingPistonBlock.newMovingBlockEntity(blockPos3, blockState8, list1.get(k), facing, true, false);
-                if (be instanceof IPistonMovingBlockEntityExtension entity) {
+                BlockEntity movingBlockEntity = MovingPistonBlock.newMovingBlockEntity(
+                    blockPos3,
+                    blockState8,
+                    list1.get(k),
+                    facing,
+                    true,
+                    false
+                );
+                if (movingBlockEntity instanceof IPistonMovingBlockEntityExtension entity) {
                     // noinspection UnstableApiUsage
                     entity.anvillib$setBlockEntity(blockEntity);
                 }
-                level.setBlockEntity(blockEntity);
+                level.setBlockEntity(movingBlockEntity);
                 blockStates[i++] = blockState5;
             }
 
