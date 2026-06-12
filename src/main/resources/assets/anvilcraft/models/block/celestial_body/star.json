@@ -10,8 +10,8 @@
 	},
 	"elements": [
 		{
-			"from": [-8, -8, -8],
-			"to": [24, 24, 24],
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
 			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
