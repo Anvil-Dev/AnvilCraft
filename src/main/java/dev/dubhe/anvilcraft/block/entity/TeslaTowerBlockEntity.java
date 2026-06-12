@@ -257,7 +257,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 targetLightningRod
             );
             this.flashTimer = 5;
-            this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.6f);
+            this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         }
     }
 
