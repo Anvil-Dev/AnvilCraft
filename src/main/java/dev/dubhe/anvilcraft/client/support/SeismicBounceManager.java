@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.client.renderer.shake;
+package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;

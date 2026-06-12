@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.renderer.shake.SeismicBounceManager;
+import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
