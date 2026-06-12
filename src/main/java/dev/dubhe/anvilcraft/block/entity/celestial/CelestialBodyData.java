@@ -2,12 +2,13 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.nbt.CompoundTag;
 
-@SuppressWarnings({"checkstyle:all"})
 public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetData, StarData {
 
     CelestialBodyType type();
 
-    /** The matched body class from the diagram. */
+    /**
+     * The matched body class from the diagram.
+     */
     CelestialBodyClass bodyClass();
 
     RingType ringType();
@@ -32,13 +33,17 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
         };
     }
 
-    /** Read CelestialBodyClass from tag, with fallback for old data. */
+    /**
+     * Read CelestialBodyClass from tag, with fallback for old data.
+     */
     static CelestialBodyClass readClass(CompoundTag tag, CelestialBodyType bodyType) {
         String className = tag.getString("bodyClass");
         if (!className.isEmpty()) {
             try {
                 return CelestialBodyClass.valueOf(className);
-            } catch (IllegalArgumentException ignored) { }
+            } catch (IllegalArgumentException ignored) {
+                // do nothing
+            }
         }
         // Fallback for old data without bodyClass
         return switch (bodyType) {
@@ -53,8 +58,8 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
                 };
             }
             case GIANT_PLANET -> tag.getBoolean("brownDwarf")
-                ? CelestialBodyClass.BROWN_DWARF
-                : CelestialBodyClass.GAS_GIANT;
+                                 ? CelestialBodyClass.BROWN_DWARF
+                                 : CelestialBodyClass.GAS_GIANT;
             case STAR -> CelestialBodyClass.M_MAIN;
         };
     }

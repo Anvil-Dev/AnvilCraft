@@ -12,7 +12,6 @@ import java.io.InputStream;
  * Each 64×64 diagram maps anvil counts to pixel colors that identify body classes.
  * Uses classloader-based loading (works on both server and client).
  */
-@SuppressWarnings({"checkstyle:all"})
 public final class CelestialBodyMatcher {
 
     private static final String DIR = "assets/anvilcraft/textures/misc";
@@ -31,14 +30,13 @@ public final class CelestialBodyMatcher {
     private static NativeImage starColorTempImage;
     private static boolean loadAttempted = false;
 
-    private CelestialBodyMatcher() {}
+    private CelestialBodyMatcher() {
+    }
 
     // === Public API ===
 
     /**
      * Try to match celestial body from the four anvil counts.
-     *
-     * @return matched CelestialBodyData, or null if matching failed
      */
     // Diagrams are 64×64 pixels. Anvil counts range 1–64.
     // Pixel (1,1) bottom-left → 0-indexed (x=0, y=63).
@@ -69,12 +67,16 @@ public final class CelestialBodyMatcher {
         return generateBodyData(bodyClass, time, space, mass, energy, random);
     }
 
-    /** Maps anvil count (1–64) to 0-indexed diagram x pixel. */
+    /**
+     * Maps anvil count (1–64) to 0-indexed diagram x pixel.
+     */
     private static int toX(int count) {
         return Math.clamp(count - 1, 0, DIAG_SIZE - 1);
     }
 
-    /** Maps anvil count (1–64) to 0-indexed diagram y pixel (inverted: bottom→top). */
+    /**
+     * Maps anvil count (1–64) to 0-indexed diagram y pixel (inverted: bottom→top).
+     */
     private static int toY(int count) {
         return Math.clamp(DIAG_SIZE - count, 0, DIAG_SIZE - 1);
     }
@@ -164,8 +166,8 @@ public final class CelestialBodyMatcher {
     ) {
         return switch (bodyClass) {
             case LARGE_MOON -> generateLargeMoon(space, random);
-            case ROCKY_NO_LIQUID, ROCKY_LOW_LIQUID, ROCKY_MED_LIQUID, ROCKY_HIGH_LIQUID ->
-                generateRockyPlanet(bodyClass, energy, space, random);
+            case ROCKY_NO_LIQUID, ROCKY_LOW_LIQUID, ROCKY_MED_LIQUID, ROCKY_HIGH_LIQUID -> generateRockyPlanet(
+                bodyClass, energy, space, random);
             case ICE_GIANT -> generateGiantPlanet(bodyClass, PressureType.ICE, space, random);
             case GAS_GIANT -> generateGiantPlanet(bodyClass, PressureType.GAS, space, random);
             case BROWN_DWARF -> generateBrownDwarf(space, energy, random);
@@ -218,7 +220,9 @@ public final class CelestialBodyMatcher {
         int size = sizeForSpace(space);
         int baseRow = random.nextInt(16);
         int overlayRow;
-        do { overlayRow = random.nextInt(16); } while (overlayRow == baseRow);
+        do {
+            overlayRow = random.nextInt(16);
+        } while (overlayRow == baseRow);
         int mag = weightedMagnetic(random, 0.01f, 0.49f, 0.50f);
         return new GiantPlanetData(
             CelestialBodyClass.BROWN_DWARF,
@@ -236,7 +240,9 @@ public final class CelestialBodyMatcher {
         int size = sizeForSpace(space);
         int baseRow = random.nextInt(16);
         int overlayRow;
-        do { overlayRow = random.nextInt(16); } while (overlayRow == baseRow);
+        do {
+            overlayRow = random.nextInt(16);
+        } while (overlayRow == baseRow);
         WindSpeed wind = random.nextBoolean() ? WindSpeed.HIGH : WindSpeed.VERY_HIGH;
         int mag = weightedMagnetic(random, 0.01f, 0.49f, 0.50f);
         return new GiantPlanetData(
@@ -286,7 +292,9 @@ public final class CelestialBodyMatcher {
         return RingType.STRONG;
     }
 
-    /** Weighted magnetic field: gives level 0, 1, or 2 with given probabilities. */
+    /**
+     * Weighted magnetic field: gives level 0, 1, or 2 with given probabilities.
+     */
     private static int weightedMagnetic(RandomSource random, float p0, float p1, float p2) {
         float f = random.nextFloat();
         if (f < p0) return 0;
@@ -313,12 +321,12 @@ public final class CelestialBodyMatcher {
     @SuppressWarnings("checkstyle:NeedBraces")
     private static int[] getStarColorFromTempDiagram(int energy) {
         NativeImage img = loadStarColorTemp();
-        if (img == null) return new int[]{255, 255, 255};
+        if (img == null) return new int[] {255, 255, 255};
         int row = toY(energy);
         int argb = img.getPixelRGBA(0, row);
         int r = argb & 0xFF;
         int g = (argb >> 8) & 0xFF;
         int b = (argb >> 16) & 0xFF;
-        return new int[]{r, g, b};
+        return new int[] {r, g, b};
     }
 }

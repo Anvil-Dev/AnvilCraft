@@ -18,7 +18,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 @Getter
-@SuppressWarnings({"checkstyle:all"})
 public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     static final int ANVIL_SLOTS = 4;
     private static final int SEED_SLOT = 4;
@@ -171,8 +170,9 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        // noinspection DataFlowIssue
         return stillValid(
-            ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.blockEntity.getLevel(), blockEntity.getBlockPos()),
             player,
             ModBlocks.CELESTIAL_FORGING_ANVIL.get()
         );
@@ -194,21 +194,21 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
     public static String formatRadius(int count) {
         if (count == 0) return "---";
-        double rEarth = 0.125 * Math.pow(2.0, (count - 1) / 3.0);
-        if (rEarth >= 12.7) {
-            return format3SigFig(rEarth * 0.125 / 12.7) + " R☉";
+        double earthR = 0.125 * Math.pow(2.0, (count - 1) / 3.0);
+        if (earthR >= 12.7) {
+            return format3SigFig(earthR * 0.125 / 12.7) + " R☉";
         } else {
-            return format3SigFig(rEarth) + " R⊕";
+            return format3SigFig(earthR) + " R⊕";
         }
     }
 
     public static String formatMass(int count) {
         if (count == 0) return "---";
-        double mEarth = 0.022 * Math.pow(2.0, (count - 1) / 2.0);
-        if (mEarth >= 22600.0) {
-            return format3SigFig(mEarth * 0.063 / 22600.0) + " M☉";
+        double earthM = 0.022 * Math.pow(2.0, (count - 1) / 2.0);
+        if (earthM >= 22600.0) {
+            return format3SigFig(earthM * 0.063 / 22600.0) + " M☉";
         } else {
-            return format3SigFig(mEarth) + " M⊕";
+            return format3SigFig(earthM) + " M⊕";
         }
     }
 
@@ -222,6 +222,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         }
     }
 
+    @SuppressWarnings("MalformedFormatString")
     static String format3SigFig(double value) {
         if (Math.abs(value) < 1e-9) return "0";
         int pow = (int) Math.floor(Math.log10(Math.abs(value)));

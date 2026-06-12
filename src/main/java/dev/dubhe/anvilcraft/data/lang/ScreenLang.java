@@ -272,58 +272,67 @@ public class ScreenLang {
         // Celestial Forging Anvil
         provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil");
         provider.add("screen.anvilcraft.cfa.celestial_params", "Celestial Parameter");
-        provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere");
-        provider.add("screen.anvilcraft.cfa.liquid", "Liquid Coverage");
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock search results");
         provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first. If you are not the owner of the Celestial Forging Anvil, please inquire with the owner before proceeding");
         provider.add("screen.anvilcraft.cfa.missing_amplifier", "Amplifier missing, celestial body status cannot be synced");
         provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power, search cannot be performed");
-        provider.add("screen.anvilcraft.cfa.pressure", "Pressure Type");
         provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Search Again");
-        provider.add("screen.anvilcraft.cfa.ring", "Ring");
         provider.add("screen.anvilcraft.cfa.search_fail", "parameters are unreasonable, search cannot be performed");
         provider.add("screen.anvilcraft.cfa.search_loading", "Searching");
         provider.add("screen.anvilcraft.cfa.search_tooltip", "Search for celestial bodies with this parameter");
-        provider.add("screen.anvilcraft.cfa.temp", "Temperature");
         provider.add("screen.anvilcraft.cfa.type_brown_dwarf", "Type: Brown Dwarf");
         provider.add("screen.anvilcraft.cfa.type_giant", "Type: Giant Planet");
         provider.add("screen.anvilcraft.cfa.type_rocky", "Type: Rocky Planet");
         provider.add("screen.anvilcraft.cfa.type_star", "Type: Star");
         provider.add("screen.anvilcraft.cfa.unlock", "Click to unlock search results");
-        provider.add("screen.anvilcraft.cfa.wind", "Wind Speed");
-        provider.add("screen.anvilcraft.cfa.radius", "Radius");
-        provider.add("screen.anvilcraft.cfa.mag", "Mag");
-        provider.add("screen.anvilcraft.cfa.spin", "Spin");
-        provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt");
-        provider.add("screen.anvilcraft.cfa.type", "Type");
+        provider.add("screen.anvilcraft.cfa.radius", "Radius: %s");
+        provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt: %s");
+
+        provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere: %s");
         provider.add("screen.anvilcraft.cfa.atmos.yes", "Yes");
         provider.add("screen.anvilcraft.cfa.atmos.no", "No");
+
+        provider.add("screen.anvilcraft.cfa.mag", "Mag: %s");
         provider.add("screen.anvilcraft.cfa.mag.none", "None");
         provider.add("screen.anvilcraft.cfa.mag.very_weak", "Very Weak");
         provider.add("screen.anvilcraft.cfa.mag.weak", "Weak");
         provider.add("screen.anvilcraft.cfa.mag.medium", "Medium");
         provider.add("screen.anvilcraft.cfa.mag.strong", "Strong");
         provider.add("screen.anvilcraft.cfa.mag.very_strong", "Very Strong");
+
+        provider.add("screen.anvilcraft.cfa.spin", "Spin: %s");
         provider.add("screen.anvilcraft.cfa.spin.very_slow", "Very Slow");
         provider.add("screen.anvilcraft.cfa.spin.slow", "Slow");
         provider.add("screen.anvilcraft.cfa.spin.medium", "Medium");
         provider.add("screen.anvilcraft.cfa.spin.fast", "Fast");
         provider.add("screen.anvilcraft.cfa.spin.very_fast", "Very Fast");
+
+        provider.add("screen.anvilcraft.cfa.temp", "Temperature: %s");
         provider.add("screen.anvilcraft.cfa.temp.freezing", "Freezing");
         provider.add("screen.anvilcraft.cfa.temp.cold", "Cold");
         provider.add("screen.anvilcraft.cfa.temp.mild", "Mild");
         provider.add("screen.anvilcraft.cfa.temp.hot", "Hot");
         provider.add("screen.anvilcraft.cfa.temp.scorched", "Scorched");
+
+        provider.add("screen.anvilcraft.cfa.liquid", "Liquid Coverage: %s");
         provider.add("screen.anvilcraft.cfa.liquid.none", "None");
         provider.add("screen.anvilcraft.cfa.liquid.low", "Low");
         provider.add("screen.anvilcraft.cfa.liquid.medium", "Medium");
         provider.add("screen.anvilcraft.cfa.liquid.high", "High");
+
+        provider.add("screen.anvilcraft.cfa.ring", "Ring: %s");
         provider.add("screen.anvilcraft.cfa.ring.weak", "Weak");
         provider.add("screen.anvilcraft.cfa.ring.strong", "Strong");
+
+        provider.add("screen.anvilcraft.cfa.pressure", "Pressure Type: %s");
         provider.add("screen.anvilcraft.cfa.pressure.gas", "Gas");
         provider.add("screen.anvilcraft.cfa.pressure.ice", "Ice");
+
+        provider.add("screen.anvilcraft.cfa.wind", "Wind Speed: %s");
         provider.add("screen.anvilcraft.cfa.wind.high", "High");
         provider.add("screen.anvilcraft.cfa.wind.very_high", "Very High");
+
+        provider.add("screen.anvilcraft.cfa.type", "Type: %s");
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon");
         provider.add("screen.anvilcraft.cfa.class.rocky_no_liquid", "Rocky Planet (Arid)");
         provider.add("screen.anvilcraft.cfa.class.rocky_low_liquid", "Rocky Planet (Low Liquid)");

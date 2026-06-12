@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
+import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -9,7 +10,6 @@ import java.util.Map;
  * Enum of all celestial body classes identifiable from the mass-radius diagram.
  * Each constant stores its diagram pixel color (RGB) and classification flags.
  */
-@SuppressWarnings({"checkstyle:all"})
 public enum CelestialBodyClass {
     // === Planetary (no amplifier needed) ===
     LARGE_MOON(0x999966, false, false, false),
@@ -56,7 +56,17 @@ public enum CelestialBodyClass {
     WHITE_DWARF(0x666666, true, false, true);
 
     private final int rgb;
+    /**
+     * -- GETTER --
+     * Whether this body requires amplifier mode.
+     */
+    @Getter
     private final boolean stellar;
+    /**
+     * -- GETTER --
+     * Main sequence stars — step 2 uses age_temp, step 3 needed.
+     */
+    @Getter
     private final boolean mainSequence;
     private final boolean step2UsesSp;
 
@@ -75,35 +85,49 @@ public enum CelestialBodyClass {
         this.step2UsesSp = step2UsesSp;
     }
 
-    public int rgb() { return rgb; }
-
-    /** Whether this body requires amplifier mode. */
-    public boolean isStellar() { return stellar; }
-
-    /** Main sequence stars — step 2 uses age_temp, step 3 needed. */
-    public boolean isMainSequence() { return mainSequence; }
-
-    /** Whether step 2 uses age_temp_sp instead of age_temp. */
-    public boolean step2UsesSp() { return step2UsesSp; }
-
-    /** Whether step 3 (age_radius lookup) is needed. */
-    public boolean needsStep3() { return stellar || this == BROWN_DWARF; }
-
-    /** Planetary bodies (including brown dwarf, excluding large moon). */
-    public boolean isPlanetary() { return !stellar; }
-
-    /** Rocky planet types (for step 2 special matching). */
-    public boolean isRockyPlanet() {
-        return this == ROCKY_NO_LIQUID || this == ROCKY_LOW_LIQUID
-            || this == ROCKY_MED_LIQUID || this == ROCKY_HIGH_LIQUID;
+    public int rgb() {
+        return rgb;
     }
 
-    /** The accepted step 2 color for this body class. Rocky planets all use ROCKY_LOW_LIQUID rgb. */
+    /**
+     * Whether step 2 uses age_temp_sp instead of age_temp.
+     */
+    public boolean step2UsesSp() {
+        return step2UsesSp;
+    }
+
+    /**
+     * Whether step 3 (age_radius lookup) is needed.
+     */
+    public boolean needsStep3() {
+        return stellar || this == BROWN_DWARF;
+    }
+
+    /**
+     * Planetary bodies (including brown dwarf, excluding large moon).
+     */
+    public boolean isPlanetary() {
+        return !stellar;
+    }
+
+    /**
+     * Rocky planet types (for step 2 special matching).
+     */
+    public boolean isRockyPlanet() {
+        return this == ROCKY_NO_LIQUID || this == ROCKY_LOW_LIQUID
+               || this == ROCKY_MED_LIQUID || this == ROCKY_HIGH_LIQUID;
+    }
+
+    /**
+     * The accepted step 2 color for this body class. Rocky planets all use ROCKY_LOW_LIQUID rgb.
+     */
     public int step2MatchRgb() {
         return isRockyPlanet() ? ROCKY_LOW_LIQUID.rgb : rgb;
     }
 
-    public boolean isGiantPlanet() { return this == ICE_GIANT || this == GAS_GIANT; }
+    public boolean isGiantPlanet() {
+        return this == ICE_GIANT || this == GAS_GIANT;
+    }
 
     @Nullable
     public static CelestialBodyClass fromRgb(int rgb) {
