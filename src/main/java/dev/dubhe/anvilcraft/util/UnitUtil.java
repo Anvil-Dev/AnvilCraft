@@ -82,16 +82,16 @@ public class UnitUtil {
         if (amount < 1000) {
             return String.format("%d mB", amount);
         } else if (amount < 1000000) {
-            double mwValue = (double) amount / 1000;
-            double truncated = Math.floor(mwValue * 100) / 100;
+            double bucketValue = (double) amount / 1000;
+            double truncated = Math.floor(bucketValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
                 return String.format("%.0f B", truncated);
             } else {
                 return String.format("%.2f B", truncated);
             }
         } else {
-            double gwValue = (double) amount / 1000000;
-            double truncated = Math.floor(gwValue * 100) / 100;
+            double kiloBucketValue = (double) amount / 1000000;
+            double truncated = Math.floor(kiloBucketValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
                 return String.format("%.0f KB", truncated);
             } else {
