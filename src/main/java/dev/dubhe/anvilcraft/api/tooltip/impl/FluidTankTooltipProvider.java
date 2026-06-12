@@ -21,21 +21,21 @@ import java.util.List;
 public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
     @Override
     public boolean accepts(BlockEntity value) {
-        return value instanceof FluidTankBlockEntity || value instanceof LargeFluidTankBlockEntity ||
-                value instanceof FishTankBlockEntity;
+        return value instanceof FluidTankBlockEntity || value instanceof LargeFluidTankBlockEntity
+            || value instanceof FishTankBlockEntity;
     }
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
         if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
 
-        boolean original = false;
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null && player.isShiftKeyDown()) {
-            original = true;
-        }
         final List<Component> lines = new ArrayList<>();
         if (value instanceof IFluidHandlerHolder tank) {
+            boolean original = false;
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player != null && player.isShiftKeyDown()) {
+                original = true;
+            }
             int amount = tank.getFluidHandler().getFluidInTank(0).getAmount();
             if (amount > 0) {
                 lines.add(Component.translatable("tooltip.anvilcraft.fluid_tank.fluid")
@@ -54,8 +54,8 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
             } else {
                 lines.add(Component.translatable(
                         "tooltip.anvilcraft.fluid_tank.capacity.value",
-                                UnitUtil.fluidUnit(amount, original),
-                                UnitUtil.fluidUnit(tank.getFluidHandler().getTankCapacity(0), original)
+                        UnitUtil.fluidUnit(amount, original),
+                        UnitUtil.fluidUnit(tank.getFluidHandler().getTankCapacity(0), original)
                     )
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
             }
