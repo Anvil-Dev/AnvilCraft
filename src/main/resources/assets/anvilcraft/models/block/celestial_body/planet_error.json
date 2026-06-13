@@ -1,0 +1,89 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"render_type": "minecraft:cutout",
+	"texture_size": [64, 64],
+	"textures": {
+		"particle": "anvilcraft:block/celestial_body/planet_error",
+		"base": "anvilcraft:block/celestial_body/planet_error"
+	},
+	"elements": [
+		{
+			"from": [8, 0, 0],
+			"to": [16, 16, 8],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [4, 4, 6, 8], "texture": "#base"},
+				"east": {"uv": [2, 4, 4, 8], "texture": "#base"},
+				"south": {"uv": [14, 4, 16, 8], "texture": "#base"},
+				"west": {"uv": [8, 4, 10, 8], "texture": "#base"},
+				"up": {"uv": [4, 2, 6, 4], "rotation": 180, "texture": "#base"},
+				"down": {"uv": [4, 8, 6, 10], "rotation": 180, "texture": "#base"}
+			}
+		},
+		{
+			"from": [0, 8, 0],
+			"to": [8, 16, 16],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [6, 4, 8, 6], "texture": "#base"},
+				"east": {"uv": [0, 4, 4, 6], "texture": "#base"},
+				"south": {"uv": [12, 4, 14, 6], "texture": "#base"},
+				"west": {"uv": [8, 4, 12, 6], "texture": "#base"},
+				"up": {"uv": [6, 0, 8, 4], "rotation": 180, "texture": "#base"},
+				"down": {"uv": [6, 8, 8, 12], "rotation": 180, "texture": "#base"}
+			}
+		},
+		{
+			"from": [0, 0, 8],
+			"to": [16, 8, 16],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [4, 6, 8, 8], "texture": "#base"},
+				"east": {"uv": [0, 6, 2, 8], "texture": "#base"},
+				"south": {"uv": [12, 6, 16, 8], "texture": "#base"},
+				"west": {"uv": [10, 6, 12, 8], "texture": "#base"},
+				"up": {"uv": [4, 0, 8, 2], "rotation": 180, "texture": "#base"},
+				"down": {"uv": [4, 10, 8, 12], "rotation": 180, "texture": "#base"}
+			}
+		},
+		{
+			"from": [10, 10, 10],
+			"to": [18, 18, 18],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [10, 10, 12, 12], "texture": "#base"},
+				"east": {"uv": [8, 10, 10, 12], "texture": "#base"},
+				"south": {"uv": [14, 10, 16, 12], "texture": "#base"},
+				"west": {"uv": [12, 10, 14, 12], "texture": "#base"},
+				"up": {"uv": [10, 8, 12, 10], "rotation": 180, "texture": "#base"},
+				"down": {"uv": [10, 12, 12, 14], "rotation": 180, "texture": "#base"}
+			}
+		},
+		{
+			"from": [-2, -2, -2],
+			"to": [6, 6, 6],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [10, 10, 12, 12], "texture": "#base"},
+				"east": {"uv": [8, 10, 10, 12], "texture": "#base"},
+				"south": {"uv": [14, 10, 16, 12], "texture": "#base"},
+				"west": {"uv": [12, 10, 14, 12], "texture": "#base"},
+				"up": {"uv": [10, 8, 12, 10], "rotation": 180, "texture": "#base"},
+				"down": {"uv": [10, 12, 12, 14], "rotation": 180, "texture": "#base"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"shade": false,
+			"children": [0, 1, 2]
+		},
+		3,
+		4
+	]
+}
