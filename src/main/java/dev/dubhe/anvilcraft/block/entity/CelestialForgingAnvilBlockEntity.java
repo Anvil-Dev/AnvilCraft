@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
@@ -103,6 +105,46 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     /** Whether the amplifier multiblock is physically formed. */
     @Getter @Setter
     private boolean amplifierPresent = false;
+
+    // Material slot filter (set when a refactor option is selected)
+    @Getter @Setter
+    private ItemStack materialFilter = new ItemStack(net.minecraft.world.item.Items.BARRIER);
+    @Getter @Setter
+    private int materialLimit = 0;
+
+    @Getter
+    private final SimpleContainer materialContainer = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            CelestialForgingAnvilBlockEntity.this.setChanged();
+        }
+    };
+
+    /**
+     * Configure the material slot for a given refactor option.
+     * Called on the server when the player selects a refactor option.
+     */
+    public void configureMaterialSlot(int optionIndex) {
+        if (level == null || level.isClientSide()) return;
+        if (!locked || celestialBodyData == null) return;
+        List<CelestialRefactorOption> options = CelestialRefactorRegistry.getOptions(celestialBodyData, isAmplify);
+        if (optionIndex < 0 || optionIndex >= options.size()) {
+            setMaterialFilter(new ItemStack(net.minecraft.world.item.Items.BARRIER));
+            setMaterialLimit(0);
+        } else {
+            CelestialRefactorOption opt = options.get(optionIndex);
+            if (opt.needsMaterial()) {
+                setMaterialFilter(opt.material().copy());
+                setMaterialLimit(opt.materialCount());
+            } else {
+                setMaterialFilter(new ItemStack(net.minecraft.world.item.Items.BARRIER));
+                setMaterialLimit(0);
+            }
+        }
+        this.setChanged();
+        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
 
     // Search timer
     @Getter private int searchTicksRemaining = 0;
@@ -379,6 +421,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         }
         tag.put("anvils", invTag);
+        // Material slot
+        if (!materialFilter.isEmpty()) {
+            tag.put("materialFilter", materialFilter.save(registries));
+        }
+        tag.putInt("materialLimit", materialLimit);
     }
 
     @Override
@@ -405,6 +452,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         loadSearchHistory(tag);
         loadInventory(tag, registries);
+        // Material filter
+        if (tag.contains("materialFilter")) {
+            this.materialFilter = ItemStack.parse(registries, tag.getCompound("materialFilter"))
+                .orElse(new ItemStack(net.minecraft.world.item.Items.BARRIER));
+        } else {
+            this.materialFilter = new ItemStack(net.minecraft.world.item.Items.BARRIER);
+        }
+        this.materialLimit = tag.getInt("materialLimit");
         // Sync to client — important for when loadAdditional is called after onLoad
         // (e.g., BlockItem.updateCustomBlockEntityTag during placement restores saved NBT)
         if (level != null && !level.isClientSide()) {
@@ -434,6 +489,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             histTag.put("h" + i, searchHistory.get(i).toTag());
         }
         tag.put("searchHistory", histTag);
+        // Material filter sync
+        if (!materialFilter.isEmpty()) {
+            tag.put("materialFilter", materialFilter.save(registries));
+        }
+        tag.putInt("materialLimit", materialLimit);
         return tag;
     }
 
@@ -456,6 +516,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         loadSearchHistory(tag);
         loadInventory(tag, lookupProvider);
+        // Material filter (client side — read from sync)
+        if (tag.contains("materialFilter")) {
+            this.materialFilter = ItemStack.parse(lookupProvider, tag.getCompound("materialFilter"))
+                .orElse(new ItemStack(net.minecraft.world.item.Items.BARRIER));
+        } else {
+            this.materialFilter = new ItemStack(net.minecraft.world.item.Items.BARRIER);
+        }
+        this.materialLimit = tag.getInt("materialLimit");
     }
 
     private void loadInventory(CompoundTag tag, HolderLookup.Provider registries) {

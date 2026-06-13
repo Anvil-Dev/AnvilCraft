@@ -353,5 +353,36 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.b_supergiant", "Blue Supergiant");
         provider.add("screen.anvilcraft.cfa.class.o_supergiant", "Blue Supergiant");
         provider.add("screen.anvilcraft.cfa.class.white_dwarf", "White Dwarf");
+
+        // Celestial Restriction Ring Refactor
+        provider.add("screen.anvilcraft.cfa.refactor_title", "Refactor");
+        provider.add("screen.anvilcraft.cfa.need_lock", "Need to lock");
+        provider.add("screen.anvilcraft.cfa.no_refactor_option", "No refactoring option selected");
+        provider.add("screen.anvilcraft.cfa.insufficient_materials", "Insufficient building materials");
+        provider.add("screen.anvilcraft.cfa.material_required", "Requires: %s × %s");
+        provider.add("screen.anvilcraft.cfa.refactor_materials", "Refactor materials");
+        // CFA Interface tooltips
+        provider.add("screen.anvilcraft.cfa.logistics_interface.title", "Logistics Interface");
+        provider.add("screen.anvilcraft.cfa.fluid_interface.title", "Fluid Interface");
+        provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface");
+        provider.add("screen.anvilcraft.cfa.interface.empty", "(Empty)");
+        provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving: Lv.%s");
+        provider.add("screen.anvilcraft.cfa.laser_interface.no_laser", "No laser");
+        provider.add("screen.anvilcraft.cfa.laser_interface.required", "Required: Lv.%s");
+        provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid");
+        provider.add("screen.anvilcraft.cfa.laser_interface.invalid", "✗ Invalid");
+
+        // Megastructure names (English) — 11 unique megastructures
+        provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator", "Planet Excavator");
+        provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor", "Planet Exctractor");
+        provider.add("screen.anvilcraft.cfa.megastructure.eco_station", "Ecological Station");
+        provider.add("screen.anvilcraft.cfa.megastructure.temple", "Temple");
+        provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor", "Giant Planet Exctractor");
+        provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider", "Stellar Ring Collider");
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small", "Dyson Sphere");
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large", "Dyson Sphere");
+        provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil", "Magnetar Coil");
+        provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere", "Penrose Sphere");
+        provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor", "Matter Decompressor");
     }
 }

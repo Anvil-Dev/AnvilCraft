@@ -12,6 +12,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
@@ -21,9 +22,10 @@ import java.util.Objects;
 public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     static final int ANVIL_SLOTS = 4;
     private static final int SEED_SLOT = 4;
+    static final int MATERIAL_SLOT = 5;
     private final CelestialForgingAnvilBlockEntity blockEntity;
 
-    // Slot indices: 0=time, 1=space, 2=mass, 3=energy, 4=seed
+    // Slot indices: 0=time, 1=space, 2=mass, 3=energy, 4=seed, 5=material
 
     public CelestialForgingAnvilMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory,
@@ -39,6 +41,9 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
         // Seed slot (暂无功能限制)
         this.addSlot(new Slot(blockEntity.getAnvilInventory(), SEED_SLOT, 9, 121));
+
+        // Material slot (filtered with stack limit, position matches RF_MAT_X/Y)
+        this.addSlot(new CFAMaterialSlot(blockEntity, 267, 121));
 
         // Player inventory (3 rows x 9 columns)
         for (int row = 0; row < 3; row++) {
@@ -68,13 +73,13 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         ItemStack stack = slot.getItem();
         ItemStack copy = stack.copy();
 
-        if (index <= SEED_SLOT) {
-            // From anvil/seed slot to player inventory
-            if (!this.moveItemStackTo(stack, SEED_SLOT + 1, this.slots.size(), true)) {
+        if (index <= SEED_SLOT || index == MATERIAL_SLOT) {
+            // From anvil/seed/material slot to player inventory
+            if (!this.moveItemStackTo(stack, MATERIAL_SLOT + 1, this.slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
         } else {
-            // From player inventory: try anvil slots first, then seed slot
+            // From player inventory: try anvil slots, then seed slot, then material slot
             boolean moved = false;
             for (int i = 0; i < ANVIL_SLOTS; i++) {
                 Slot anvilSlot = this.slots.get(i);
@@ -87,6 +92,12 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             }
             if (!moved) {
                 this.moveItemStackTo(stack, SEED_SLOT, SEED_SLOT + 1, false);
+            }
+            if (!moved) {
+                Slot matSlot = this.slots.get(MATERIAL_SLOT);
+                if (matSlot.mayPlace(stack)) {
+                    this.moveItemStackTo(stack, MATERIAL_SLOT, MATERIAL_SLOT + 1, false);
+                }
             }
             return ItemStack.EMPTY;
         }
@@ -111,6 +122,12 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             int slot = (id - 1) % 4;
             boolean add = id <= 4;
             handleAnvilTransfer(slot, add);
+            return true;
+        }
+        // Refactor option selected: id 9+
+        if (id >= 9) {
+            int optionIndex = id - 9;
+            blockEntity.configureMaterialSlot(optionIndex);
             return true;
         }
         return super.clickMenuButton(player, id);
@@ -259,6 +276,31 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         @Override
         public int getMaxStackSize() {
             return 64;
+        }
+    }
+
+    // === Custom slot for building material ===
+
+    public static class CFAMaterialSlot extends Slot {
+
+        private final CelestialForgingAnvilBlockEntity blockEntity;
+
+        public CFAMaterialSlot(CelestialForgingAnvilBlockEntity blockEntity, int x, int y) {
+            super(blockEntity.getMaterialContainer(), 0, x, y);
+            this.blockEntity = blockEntity;
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            ItemStack filter = blockEntity.getMaterialFilter();
+            if (filter.isEmpty() || filter.is(Items.BARRIER)) return false;
+            return ItemStack.isSameItemSameComponents(filter, stack);
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            int limit = blockEntity.getMaterialLimit();
+            return limit > 0 ? limit : 1;
         }
     }
 }

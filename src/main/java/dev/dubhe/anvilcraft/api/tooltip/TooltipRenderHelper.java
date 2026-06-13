@@ -106,28 +106,31 @@ public class TooltipRenderHelper {
         int vy = vector2ic.y();
         thiz.pose().pushPose();
 
+        boolean hasIcon = !itemStack.isEmpty();
+
         int finalVy = vy;
         int finalWidth = width;
-        int finalHeight = height + 16;
+        int finalHeight = height + (hasIcon ? 16 : 0);
         thiz.drawManaged(() -> renderTooltipBackground(
             thiz, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor));
         thiz.pose().translate(0.0F, 0.0F, 400.0F);
 
-        thiz.renderFakeItem(itemStack, vx, vy);
-
-        vy += 16;
+        if (hasIcon) {
+            thiz.renderFakeItem(itemStack, vx, vy);
+            vy += 16;
+        }
 
         ClientTooltipComponent component;
         for (int i = 0, q = vy; i < components.size(); ++i) {
             component = components.get(i);
             component.renderText(font, vx, q, thiz.pose().last().pose(), thiz.bufferSource());
-            q += component.getHeight() + (i == 0 ? 2 : 0);
+            q += component.getHeight() + (i == 0 && hasIcon ? 2 : 0);
         }
 
         for (int i = 0, q = vy; i < components.size(); ++i) {
             component = components.get(i);
             component.renderImage(font, vx, q, thiz);
-            q += component.getHeight() + (i == 0 ? 2 : 0);
+            q += component.getHeight() + (i == 0 && hasIcon ? 2 : 0);
         }
 
         thiz.pose().popPose();

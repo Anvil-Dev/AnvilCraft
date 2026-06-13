@@ -8,6 +8,9 @@ import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLogisticsInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
@@ -390,6 +393,27 @@ public class ModBlockEntities {
         .blockEntity("celestial_forging_anvil", CelestialForgingAnvilBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL)
         .renderer(() -> CelestialForgingAnvilBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CelestialForgingAnvilLogisticsInterfaceBlockEntity>
+        CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE = REGISTRUM
+        .blockEntity("celestial_forging_anvil_logistics_interface",
+            CelestialForgingAnvilLogisticsInterfaceBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)
+        .register();
+
+    public static final BlockEntityEntry<CelestialForgingAnvilFluidInterfaceBlockEntity>
+        CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE = REGISTRUM
+        .blockEntity("celestial_forging_anvil_fluid_interface",
+            CelestialForgingAnvilFluidInterfaceBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE)
+        .register();
+
+    public static final BlockEntityEntry<CelestialForgingAnvilLaserInterfaceBlockEntity>
+        CELESTIAL_FORGING_ANVIL_LASER_INTERFACE = REGISTRUM
+        .blockEntity("celestial_forging_anvil_laser_interface",
+            CelestialForgingAnvilLaserInterfaceBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE)
         .register();
 
     public static final BlockEntityEntry<TradingStationBlockEntity> TRADING_STATION = REGISTRUM

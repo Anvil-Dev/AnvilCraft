@@ -52,6 +52,14 @@ public class CapabilitiesEventListener {
             )
         );
 
+        event.registerBlockEntity(
+            Capabilities.ItemHandler.BLOCK,
+            ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get(),
+            (be, side) -> (side == null || side == be.getBlockState().getValue(
+                net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING))
+                ? be.getItemHandler() : null
+        );
+
         event.registerBlock(
             Capabilities.ItemHandler.BLOCK,
             ((level, pos, state, blockEntity, side) -> new HoneyCauldronWrapper(level, pos)),
@@ -68,6 +76,14 @@ public class CapabilitiesEventListener {
             type,
             (be, side) -> be.getFluidHandler()
         ));
+
+        event.registerBlockEntity(
+            Capabilities.FluidHandler.BLOCK,
+            ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get(),
+            (be, side) -> (side == null || side == be.getBlockState().getValue(
+                net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING))
+                ? be.getFluidHandler() : null
+        );
 
         event.registerItem(
             Capabilities.FluidHandler.ITEM,

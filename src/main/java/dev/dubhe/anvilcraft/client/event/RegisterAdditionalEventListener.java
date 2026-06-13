@@ -8,6 +8,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
+@SuppressWarnings("Linelength")
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class RegisterAdditionalEventListener {
 
@@ -34,6 +35,35 @@ public class RegisterAdditionalEventListener {
         event.register(CelestialForgingAnvilBlockEntityRenderer.R4);
         event.register(CelestialForgingAnvilBlockEntityRenderer.R5);
         event.register(CelestialForgingAnvilBlockEntityRenderer.R6);
+
+        // Celestial Restriction Ring megastructure models - Ring 1
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1_eco_station")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1_excavator")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1_excavator_off")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1_exctractor")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1_temple")));
+        // Ring 2
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2_exctractor")));
+        // Ring 4
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil_fix")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil_ring")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_collider")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_dyson_sphere")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor_fix")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor_ring")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere_fix")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere_laser")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere_laser_off")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4_wormhole_stabilizer")));
+        // Ring 5
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_5_dyson_sphere")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_5_stellar_evolution_accelerator")));
+        // Ring 6
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_6_stellar_evolution_accelerator")));
+
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_base")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_upperarm")));

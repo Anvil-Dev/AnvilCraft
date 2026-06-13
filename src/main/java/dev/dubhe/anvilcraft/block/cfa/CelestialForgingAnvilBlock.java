@@ -225,7 +225,6 @@ public class CelestialForgingAnvilBlock
             .ifPresent(be -> {
                 be.setAmplify(true);
                 be.setAmplifierPresent(true);
-                be.setLocked(false);
                 be.setChanged();
                 level.sendBlockUpdated(
                     state.getControllerPos(),
