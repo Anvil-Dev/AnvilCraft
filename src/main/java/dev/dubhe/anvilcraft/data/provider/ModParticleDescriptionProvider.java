@@ -14,5 +14,6 @@ public class ModParticleDescriptionProvider extends ParticleDescriptionProvider 
     @Override
     protected void addDescriptions() {
         spriteSet(ModParticles.PLASMA_JETS.get(), ResourceLocation.withDefaultNamespace("generic"), 8, true);
+        spriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), ResourceLocation.withDefaultNamespace("generic"), 8, true);
     }
 }
