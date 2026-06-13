@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemProperties;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.network.IonoCraftBackpackFlyingPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
@@ -30,11 +31,15 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -59,6 +64,8 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     );
 
     private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
+    /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
+    private static final Map<UUID, Boolean> FLYING_TRACKER = new HashMap<>();
 
     public IonoCraftBackpackItem(Properties properties) {
         super(
@@ -144,10 +151,6 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
 
     public static int getFlightTime(ItemStack stack) {
         return getEnergyStored(stack) / FLIGHT_CONSUMPTION;
-    }
-
-    public static void addFlightTime(ItemStack stack, int time) {
-        addEnergy(stack, time * FLIGHT_CONSUMPTION);
     }
 
     public static boolean canModify(ItemStack stack, DynamicPowerComponent component) {
@@ -253,6 +256,20 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
         refreshFlight(player);
 
         ItemStack backpack = getByPlayer(player);
+        boolean nowFlying = !backpack.isEmpty()
+            && player.getAbilities().flying
+            && !player.isCreative()
+            && !player.isSpectator();
+
+        // 飞行状态变化时同步到周边客户端
+        Boolean prevFlying = FLYING_TRACKER.put(player.getUUID(), nowFlying);
+        if (prevFlying == null || prevFlying != nowFlying) {
+            PacketDistributor.sendToPlayersTrackingEntity(
+                player,
+                new IonoCraftBackpackFlyingPacket(player.getId(), nowFlying)
+            );
+        }
+
         if (backpack.isEmpty()) return;
 
         if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {

@@ -16,6 +16,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * 飘升机背包客户端处理器 — 负责飞行时的排气粒子效果。
  * 粒子位置跟随玩家身体模型（yBodyRot）旋转，与背包引擎模型实际位置一致。
@@ -25,6 +29,20 @@ public class IonoCraftBackpackClientHandler {
     private static final double SIDE_OFFSET = 0.3;
     private static final double BACK_OFFSET = 0.45;
     private static final double Y_OFFSET = 0.9;
+
+    /** 服务器同步的正在用背包飞行的玩家 entityId 集合 */
+    private static final Set<Integer> SYNCED_FLYING_PLAYERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
+    /**
+     * 由 {@code IonoCraftBackpackFlyingPacket} 在客户端调用，记录服务器同步的飞行状态。
+     */
+    public static void onFlyingSync(int playerId, boolean flying) {
+        if (flying) {
+            SYNCED_FLYING_PLAYERS.add(playerId);
+        } else {
+            SYNCED_FLYING_PLAYERS.remove(playerId);
+        }
+    }
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -42,10 +60,15 @@ public class IonoCraftBackpackClientHandler {
             if (player == localPlayer && firstPerson) continue;
 
             if (player.isCreative() || player.isSpectator()) continue;
-            if (!player.getAbilities().flying) continue;
 
             ItemStack backpack = IonoCraftBackpackItem.getByPlayer(player);
             if (backpack.isEmpty()) continue;
+
+            // 本地玩家用精确 abilities；远程玩家用服务器同步的精确状态
+            boolean flying = player == localPlayer
+                ? player.getAbilities().flying
+                : SYNCED_FLYING_PLAYERS.contains(player.getId());
+            if (!flying) continue;
 
             spawnExhaustParticles(level, player, level.random);
         }
@@ -56,14 +79,17 @@ public class IonoCraftBackpackClientHandler {
         double cosYaw = Math.cos(yawRad);
         double sinYaw = Math.sin(yawRad);
 
+        double backX = sinYaw;
+        double backZ = -cosYaw;
+
         double[][] exhausts = {{SIDE_OFFSET, BACK_OFFSET}, {-SIDE_OFFSET, BACK_OFFSET}};
 
         for (double[] exhaust : exhausts) {
             double sideComp = exhaust[0];
             double backComp = exhaust[1];
 
-            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * sinYaw;
-            double worldZ = player.getZ() + sideComp * (-sinYaw) + backComp * (-cosYaw);
+            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * backX;
+            double worldZ = player.getZ() + sideComp * (-sinYaw) + backComp * backZ;
             double worldY = player.getY() + Y_OFFSET;
 
             double velX = random.nextGaussian() * 0.02;
