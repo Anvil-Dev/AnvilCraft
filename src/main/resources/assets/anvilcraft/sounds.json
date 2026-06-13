@@ -57,7 +57,7 @@
   "tesla_tower_strike": {
     "subtitle": "subtitles.anvilcraft.tesla_tower_strike",
     "sounds": [
-      "anvilcraft:tesla_tower"
+      "anvilcraft:tesla_tower_strike"
     ]
   },
   "smart_block_placer_extend": {

@@ -41,6 +41,9 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
         if (level == null) {
             return;
         }
+        if (level.getGameTime() - blockEntity.getLastStrikeTime() > 5) {
+            return;
+        }
         Vec3 end;
         if (blockEntity.getTargetEntityUUID() != null) {
             Entity entity = level.getEntities().get(blockEntity.getTargetEntityUUID());

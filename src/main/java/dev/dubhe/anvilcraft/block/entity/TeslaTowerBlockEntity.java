@@ -33,8 +33,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -47,6 +50,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +64,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
     private final ArrayList<Pair<TeslaFilter, String>> whiteList = new ArrayList<>();
     private int tickCount = 0;
     private int flashTimer = 0;
+    @Getter
+    private long lastStrikeTime = 0;
     @Setter
     @Getter
     private @Nullable PowerGrid grid;
@@ -108,6 +114,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
+        tag.putLong("LastStrikeTime", this.lastStrikeTime);
         if (this.targetEntityUUID != null) {
             tag.putUUID("TargetEntityUUID", this.targetEntityUUID);
         }
@@ -131,6 +138,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
+        this.lastStrikeTime = tag.getLong("LastStrikeTime");
         if (tag.contains("TargetEntityUUID")) {
             this.targetEntityUUID = tag.getUUID("TargetEntityUUID");
         } else {
@@ -186,6 +194,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 this.targetEntity = null;
                 this.targetEntityUUID = null;
                 this.targetLightningRod = null;
+                this.setChanged();
                 this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
             }
         }
@@ -230,8 +239,18 @@ public class TeslaTowerBlockEntity extends BlockEntity
             }
             this.targetEntity = targetEntity;
             this.targetEntityUUID = targetEntity.getUUID();
+            this.lastStrikeTime = this.level.getGameTime();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
-            this.targetEntity.hurt(this.level.damageSources().lightningBolt(), 5.0F);
+            if (this.level instanceof ServerLevel serverLevel) {
+                LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(serverLevel);
+                if (lightningBolt != null) {
+                    lightningBolt.moveTo(targetEntity.position());
+                    lightningBolt.setDamage(lightningBolt.getDamage() * 2);
+                    if (!EventHooks.onEntityStruckByLightning(targetEntity, lightningBolt)) {
+                        targetEntity.thunderHit(serverLevel, lightningBolt);
+                    }
+                }
+            }
             this.flashTimer = 5;
             this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         } else {
@@ -250,6 +269,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 return;
             }
             this.targetLightningRod = targetLightningRod;
+            this.lastStrikeTime = this.level.getGameTime();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
             ((LightningRodBlock) Blocks.LIGHTNING_ROD).onLightningStrike(
                 this.level.getBlockState(targetLightningRod),
