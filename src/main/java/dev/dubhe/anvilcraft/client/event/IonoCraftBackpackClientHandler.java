@@ -51,7 +51,6 @@ public class IonoCraftBackpackClientHandler {
         double sinYaw = Math.sin(yawRad);
 
         // 身体局部坐标系：back = (sin(yaw), 0, -cos(yaw))
-        double backX = sinYaw;
         double backZ = -cosYaw;
 
         // 两个引擎喷口（左后、右后）
@@ -61,7 +60,7 @@ public class IonoCraftBackpackClientHandler {
             double sideComp = exhaust[0];
             double backComp = exhaust[1];
 
-            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * backX;
+            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * sinYaw;
             double worldZ = player.getZ() + sideComp * (-sinYaw) + backComp * backZ;
             double worldY = player.getY() + Y_OFFSET;
 
