@@ -4,9 +4,9 @@
 	"parent": "minecraft:block/cube",
 	"render_type": "minecraft:cutout",
 	"textures": {
-		"top": "anvilcraft:block/fluid_tank_top",
-		"particle": "anvilcraft:block/fluid_tank_side",
-		"side": "anvilcraft:block/fluid_tank_side"
+		"top": "anvilcraft:block/creative_fluid_tank_top",
+		"particle": "anvilcraft:block/creative_fluid_tank_side",
+		"side": "anvilcraft:block/creative_fluid_tank_side"
 	},
 	"elements": [
 		{
