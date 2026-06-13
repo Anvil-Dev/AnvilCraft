@@ -161,6 +161,8 @@
   "anvilcraft.configuration.induction_light_block_ripening_cooldown.tooltip": "Induction light block ripening cooldown",
   "anvilcraft.configuration.induction_light_block_ripening_range": "Induction Light Block Ripening Range",
   "anvilcraft.configuration.induction_light_block_ripening_range.tooltip": "Induction light block ripening range",
+  "anvilcraft.configuration.iono_craft_backpack_exhaust_particles_enabled": "Iono Craft Backpack Exhaust Particles Enabled",
+  "anvilcraft.configuration.iono_craft_backpack_exhaust_particles_enabled.tooltip": "Enable exhaust particles when flying with Ionocraft Backpack",
   "anvilcraft.configuration.iono_craft_backpack_hud": "Iono Craft Backpack Hud",
   "anvilcraft.configuration.iono_craft_backpack_hud.button": "Iono Craft Backpack Hud",
   "anvilcraft.configuration.iono_craft_backpack_hud.enabled": "Enabled",

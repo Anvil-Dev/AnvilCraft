@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import net.minecraft.client.Minecraft;
@@ -31,6 +32,7 @@ public class IonoCraftBackpackClientHandler {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;
         if (minecraft.isPaused()) return;
+        if (!AnvilCraftClient.CONFIG.ionoCraftBackpackExhaustParticlesEnabled) return;
         LocalPlayer player = minecraft.player;
         if (player == null) return;
 
