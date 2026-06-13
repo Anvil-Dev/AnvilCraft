@@ -2,7 +2,7 @@
   "type": "anvilcraft:procedural_process",
   "icon": {
     "count": 1,
-    "id": "anvilcraft:item_collector"
+    "id": "anvilcraft:spacetime_supercomputer"
   },
   "initial_block": {
     "blocks": "anvilcraft:redstone_computer"
@@ -26,7 +26,7 @@
     "index": 0
   },
   "result_block": {
-    "block": "anvilcraft:item_collector"
+    "block": "anvilcraft:spacetime_supercomputer"
   },
   "steps": [
     {

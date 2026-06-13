@@ -58,8 +58,8 @@ public class ProceduralProcessRecipeLoader {
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
-            .result(ModBlocks.ITEM_COLLECTOR)
-            .icon(ModBlocks.ITEM_COLLECTOR.asStack())
+            .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .icon(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack())
             .loop(3)
             .multipleLoopFirstStep(
                 ItemInjectRecipe.builder()
@@ -69,6 +69,6 @@ public class ProceduralProcessRecipeLoader {
                     .buildRecipe()
             )
             .save(provider, "spacetime_supercomputer_from_redstone_computer");
-    }
 
+    }
 }
