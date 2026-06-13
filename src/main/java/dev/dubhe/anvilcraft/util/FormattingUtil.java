@@ -139,6 +139,8 @@ public class FormattingUtil {
      * 根据进度生成一个给定长度的进度条
      *
      * @param progress 进度，0-1
+     * @param length   进度条长度
+     * @param format   文本格式
      * @return 进度条文本
      */
     public static Component toShadeProgress(double progress, int length, ChatFormatting... format) {
