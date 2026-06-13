@@ -1,14 +1,13 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
-import dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.SpacetimeSupercomputerBlockEntitySyncPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,6 +26,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
@@ -56,8 +56,10 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
                     ClientboundBlockEntityDataPacket.create(spacetimeSupercomputerBlockEntity, BlockEntity::saveCustomOnly)
                 );
                 serverPlayer.connection.send(new SpacetimeSupercomputerBlockEntitySyncPacket(pos));
-            } else if (player instanceof LocalPlayer) {
-                Minecraft.getInstance().setScreen(new SpacetimeSupercomputerScreen(spacetimeSupercomputerBlockEntity));
+            } else if (level.isClientSide) {
+                DistExecutor.run(Dist.CLIENT, () -> () -> Minecraft.getInstance().setScreen(
+                    new dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen(spacetimeSupercomputerBlockEntity)
+                ));
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
         } else {
