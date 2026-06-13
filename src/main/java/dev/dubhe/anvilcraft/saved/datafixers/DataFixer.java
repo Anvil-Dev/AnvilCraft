@@ -6,12 +6,12 @@ import net.minecraft.nbt.CompoundTag;
 /// 数据格式修复器
 ///
 /// @apiNote 若类名内需要包含版本号，建议命名为其数据格式的版本。<br>
-///     如某个修复器可以修复从上个版本升级到v2.4版本的数据，则可命名为 {@code V2_4}
+///     如某个修复器可以修复从上个版本升级到v2.4版本的数据，则可命名为 `V2_4`
 public abstract class DataFixer {
     /// 获取该修复器数据格式的版本
     ///
     /// @return 该修复器数据格式的版本
-    /// @apiNote 如某修复器负责修复v2->v2.1数据格式的数据，则返回 {@code 2.1}
+    /// @apiNote 如某修复器负责修复v2->v2.1数据格式的数据，则返回 `2.1`
     public abstract double version();
 
     /// 将数据修复成特定的数据格式。

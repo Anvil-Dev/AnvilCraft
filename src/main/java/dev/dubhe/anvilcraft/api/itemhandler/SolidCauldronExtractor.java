@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 
 public class SolidCauldronExtractor extends SnapshotJournal<BlockState> implements ResourceHandler<ItemResource> {
     /// To make sure multiple accesses to the same cauldron return the same wrapper,
-    /// we maintain a {@code (Level, BlockPos) -> Wrapper} cache.
+    /// we maintain a `(Level, BlockPos) -> Wrapper` cache.
     private record WrapperLocation(Level level, BlockPos pos) {
         public BlockState getBlockState() {
             return this.level.getBlockState(this.pos);
