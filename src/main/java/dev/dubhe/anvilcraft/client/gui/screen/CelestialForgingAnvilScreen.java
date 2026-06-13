@@ -358,7 +358,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                     Component.translatable(
                         rp.hasAtmosphere()
                         ? "screen.anvilcraft.cfa.atmos.yes"
-                        : "screen.anvilcraft.cfa.atmos.no"
+                        : "screen.anvilcraft.cfa.none"
                     )
                 ));
                 lines.add(Component.translatable(
@@ -392,7 +392,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private Component magText(int level) {
         String key = switch (level) {
-            case 0 -> "screen.anvilcraft.cfa.mag.none";
+            case 0 -> "screen.anvilcraft.cfa.none";
             case 1 -> "screen.anvilcraft.cfa.mag.very_weak";
             case 2 -> "screen.anvilcraft.cfa.mag.weak";
             case 3 -> "screen.anvilcraft.cfa.mag.medium";

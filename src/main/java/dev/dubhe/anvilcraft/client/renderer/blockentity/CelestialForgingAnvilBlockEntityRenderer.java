@@ -33,23 +33,16 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.joml.Vector3f;
 
-@SuppressWarnings(
-    {
-        "checkstyle:Linelength",
-        "checkstyle:VariableDeclarationUsageDistance",
-        "deprecation",
-        "checkstyle:Indentation",
-        "checkstyle:NeedBraces"
-    }
-)
+@SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity> {
-    public static final ModelResourceLocation RING1 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1"));
-    public static final ModelResourceLocation RING2 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2"));
-    public static final ModelResourceLocation RING3 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3"));
-    public static final ModelResourceLocation RING4 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4"));
-    public static final ModelResourceLocation RING5 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_5"));
-    public static final ModelResourceLocation RING6 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_6"));
+    public static final ModelResourceLocation R1 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_1"));
+    public static final ModelResourceLocation R2 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_2"));
+    public static final ModelResourceLocation R3 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_3"));
+    public static final ModelResourceLocation R4 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_4"));
+    public static final ModelResourceLocation R5 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_5"));
+    public static final ModelResourceLocation R6 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_6"));
 
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
@@ -60,9 +53,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     @Override
     public void render(
-        CelestialForgingAnvilBlockEntity blockEntity, float partialTick,
-        PoseStack poseStack, MultiBufferSource multiBufferSource,
-        int packedLight, int packedOverlay
+        CelestialForgingAnvilBlockEntity blockEntity,
+        float partialTick,
+        PoseStack poseStack,
+        MultiBufferSource multiBufferSource,
+        int packedLight,
+        int packedOverlay
     ) {
         ModelBlockRenderer modelRenderer = Minecraft.getInstance().getBlockRenderer().getModelRenderer();
         float rot = blockEntity.getRotation() + (blockEntity.getRotation() - blockEntity.getPreRotation()) * partialTick;
@@ -78,53 +74,165 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             if (bodyData != null) {
                 if (bodyData.size() < 26) {
                     // size < 26: RING4 + RING5
-                    modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING4), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                    modelRenderer.renderModel(
+                        poseStack.last(),
+                        ringConsumer,
+                        null,
+                        Minecraft.getInstance().getModelManager().getModel(R4),
+                        0,
+                        0,
+                        0,
+                        LightTexture.FULL_BRIGHT,
+                        packedOverlay
+                    );
                     poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-                    modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING5), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                    modelRenderer.renderModel(
+                        poseStack.last(),
+                        ringConsumer,
+                        null,
+                        Minecraft.getInstance().getModelManager().getModel(R5),
+                        0,
+                        0,
+                        0,
+                        LightTexture.FULL_BRIGHT,
+                        packedOverlay
+                    );
                 } else {
                     // size >= 26: RING5 + RING6
                     poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-                    modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING5), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                    modelRenderer.renderModel(
+                        poseStack.last(),
+                        ringConsumer,
+                        null,
+                        Minecraft.getInstance().getModelManager().getModel(R5),
+                        0,
+                        0,
+                        0,
+                        LightTexture.FULL_BRIGHT,
+                        packedOverlay
+                    );
                     poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-                    modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING6), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                    modelRenderer.renderModel(
+                        poseStack.last(),
+                        ringConsumer,
+                        null,
+                        Minecraft.getInstance().getModelManager().getModel(R6),
+                        0,
+                        0,
+                        0,
+                        LightTexture.FULL_BRIGHT,
+                        packedOverlay
+                    );
                 }
             } else {
                 // No body: all 3 rings
-                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING4), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                modelRenderer.renderModel(
+                    poseStack.last(),
+                    ringConsumer,
+                    null,
+                    Minecraft.getInstance().getModelManager().getModel(R4),
+                    0,
+                    0,
+                    0,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay
+                );
                 poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING5), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                modelRenderer.renderModel(
+                    poseStack.last(),
+                    ringConsumer,
+                    null,
+                    Minecraft.getInstance().getModelManager().getModel(R5),
+                    0,
+                    0,
+                    0,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay
+                );
                 poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING6), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                modelRenderer.renderModel(
+                    poseStack.last(),
+                    ringConsumer,
+                    null,
+                    Minecraft.getInstance().getModelManager().getModel(R6),
+                    0,
+                    0,
+                    0,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay
+                );
             }
         } else {
             boolean isGiantPlanet = bodyData instanceof GiantPlanetData;
             boolean isRockyPlanet = bodyData instanceof RockyPlanetData;
             poseStack.scale(4, 4, 4);
             if (!isRockyPlanet) {
-                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING3), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                modelRenderer.renderModel(
+                    poseStack.last(),
+                    ringConsumer,
+                    null,
+                    Minecraft.getInstance().getModelManager().getModel(R3),
+                    0,
+                    0,
+                    0,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay
+                );
             }
             poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-            modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING2), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+            modelRenderer.renderModel(
+                poseStack.last(),
+                ringConsumer,
+                null,
+                Minecraft.getInstance().getModelManager().getModel(R2),
+                0,
+                0,
+                0,
+                LightTexture.FULL_BRIGHT,
+                packedOverlay
+            );
             if (!isGiantPlanet) {
                 poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-                modelRenderer.renderModel(poseStack.last(), ringConsumer, null, Minecraft.getInstance().getModelManager().getModel(RING1), 0, 0, 0, LightTexture.FULL_BRIGHT, packedOverlay);
+                modelRenderer.renderModel(
+                    poseStack.last(),
+                    ringConsumer,
+                    null,
+                    Minecraft.getInstance().getModelManager().getModel(R1),
+                    0,
+                    0,
+                    0,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay
+                );
             }
         }
         poseStack.popPose();
 
         // Skip stellar bodies when amplifier is missing
-        boolean canRender = bodyData != null
-            && !(bodyData instanceof StarData && !blockEntity.isAmplifierPresent());
+        boolean canRender = bodyData != null && !(bodyData instanceof StarData && !blockEntity.isAmplifierPresent());
         if (canRender) {
             float bodyRot = blockEntity.getBodyRotation() + partialTick;
-            renderCelestialBody(bodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay, blockEntity.getBlockPos().asLong());
+            renderCelestialBody(
+                bodyData,
+                centerY,
+                bodyRot,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                blockEntity.getBlockPos().asLong()
+            );
             renderCelestialRing(bodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay);
         }
     }
 
     private void renderCelestialBody(
-        CelestialBodyData bodyData, float centerY, float bodyRotation,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedOverlay, long seed
+        CelestialBodyData bodyData,
+        float centerY,
+        float bodyRotation,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        long seed
     ) {
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
@@ -143,8 +251,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     }
 
     private void renderCelestialRing(
-        CelestialBodyData bodyData, float centerY, float bodyRotation,
-        PoseStack poseStack, MultiBufferSource bufferSource, int packedOverlay
+        CelestialBodyData bodyData,
+        float centerY,
+        float bodyRotation,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay
     ) {
         if (bodyData.ringType() == RingType.NONE) return;
         ResourceLocation ringTexture = CelestialBodyTextureBakery.getOrBakeRing(bodyData);
@@ -163,10 +275,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.popPose();
     }
 
-    private void renderStarBody(
-        StarData star, PoseStack poseStack, MultiBufferSource bufferSource,
-        int packedOverlay, long seed
-    ) {
+    private void renderStarBody(StarData star, PoseStack poseStack, MultiBufferSource bufferSource, int packedOverlay, long seed) {
         ResourceLocation starTexture = CelestialBodyTextureBakery.getOrBakeBody(star);
         if (starTexture == null) return;
         VertexConsumer starConsumer = bufferSource.getBuffer(ModRenderTypes.STAR_CUTOUT.apply(starTexture));
@@ -190,8 +299,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     }
 
     private void renderPlanetBody(
-        CelestialBodyData bodyData, PoseStack poseStack, MultiBufferSource bufferSource,
-        int packedOverlay, long seed
+        CelestialBodyData bodyData,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        long seed
     ) {
         ResourceLocation bodyTexture = CelestialBodyTextureBakery.getOrBakeBody(bodyData);
         if (bodyTexture != null) {
@@ -205,7 +317,17 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.scale(1.125f, 1.125f, 1.125f);
             poseStack.translate(-0.5, -0.5, -0.5);
-            renderTranslucentCube(poseStack, bufferSource, atmosRgb[0], atmosRgb[1], atmosRgb[2], 0.2f, LightTexture.FULL_BRIGHT, packedOverlay, seed);
+            renderAtmosphereCube(
+                poseStack,
+                bufferSource,
+                atmosRgb[0],
+                atmosRgb[1],
+                atmosRgb[2],
+                0.2f,
+                LightTexture.FULL_BRIGHT,
+                packedOverlay,
+                seed
+            );
             poseStack.popPose();
         }
 
@@ -221,25 +343,99 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 poseStack.translate(0.5, 0.5, 0.5);
                 poseStack.scale(haloScale, haloScale, haloScale);
                 poseStack.translate(-0.5, -0.5, -0.5);
-                renderTranslucentCube(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], alpha, LightTexture.FULL_BRIGHT, packedOverlay, seed);
+                renderTranslucentCube(
+                    poseStack,
+                    bufferSource,
+                    rgb[0],
+                    rgb[1],
+                    rgb[2],
+                    alpha,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay,
+                    seed
+                );
                 poseStack.popPose();
             }
         }
     }
 
     private void renderTranslucentCube(
-        PoseStack poseStack, MultiBufferSource bufferSource,
-        float r, float g, float b, float a, int light, int overlay, long seed
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        float r,
+        float g,
+        float b,
+        float a,
+        int light,
+        int overlay,
+        long seed
     ) {
         BakedModel cubeModel = blockRenderer.getBlockModel(whiteConcrete);
         VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CELESTIAL_ATMOSPHERE);
         RandomSource random = RandomSource.create(seed);
         for (Direction dir : Direction.values()) {
-            for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null))
+            for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null)) {
                 consumer.putBulkData(poseStack.last(), quad, r, g, b, a, light, overlay);
+            }
         }
-        for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null))
+        for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null)) {
             consumer.putBulkData(poseStack.last(), quad, r, g, b, a, light, overlay);
+        }
+    }
+
+    /**
+     * Like {@link #renderTranslucentCube} but alpha varies per face based on
+     * direction: faces pointing away from the light scatter more, and faces
+     * edge-on to the camera (the planet's limb) glow strongest — creating
+     * an atmospheric rim around the dark hemisphere.
+     */
+    private void renderAtmosphereCube(
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        float r,
+        float g,
+        float b,
+        float baseAlpha,
+        int light,
+        int overlay,
+        long seed
+    ) {
+        BakedModel cubeModel = blockRenderer.getBlockModel(whiteConcrete);
+        VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CELESTIAL_ATMOSPHERE);
+        RandomSource random = RandomSource.create(seed);
+        PoseStack.Pose pose = poseStack.last();
+
+        // Compute view direction from body centre toward camera, in eye space
+        Vector3f bodyCenter = new Vector3f(0.5f, 0.5f, 0.5f);
+        bodyCenter.mulPosition(pose.pose());
+        float vx = -bodyCenter.x;
+        float vy = -bodyCenter.y;
+        float vz = -bodyCenter.z;
+        float vlen = (float) Math.sqrt(vx * vx + vy * vy + vz * vz);
+        if (vlen > 1e-6f) {
+            vx /= vlen;
+            vy /= vlen;
+            vz /= vlen;
+        }
+
+        for (Direction dir : Direction.values()) {
+            float alpha = CelestialBodyRenderer.computeAtmosphereAlpha(
+                pose,
+                dir.getStepX(),
+                dir.getStepY(),
+                dir.getStepZ(),
+                baseAlpha,
+                vx,
+                vy,
+                vz
+            );
+            for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null)) {
+                consumer.putBulkData(pose, quad, r, g, b, alpha, light, overlay);
+            }
+        }
+        for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null)) {
+            consumer.putBulkData(pose, quad, r, g, b, baseAlpha, light, overlay);
+        }
     }
 
     /**
@@ -272,11 +468,31 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     private float[] getAtmosphereColor(Temperature temperature) {
         return switch (temperature) {
-            case FREEZING -> new float[]{0.4f, 0.6f, 0.9f};
-            case COLD -> new float[]{0.5f, 0.7f, 0.9f};
-            case MILD -> new float[]{0.6f, 0.8f, 1.0f};
-            case HOT -> new float[]{0.9f, 0.5f, 0.3f};
-            case SCORCHED -> new float[]{1.0f, 0.3f, 0.1f};
+            case FREEZING -> new float[]{
+                0.4f,
+                0.6f,
+                0.9f
+            };
+            case COLD -> new float[]{
+                0.5f,
+                0.7f,
+                0.9f
+            };
+            case MILD -> new float[]{
+                0.6f,
+                0.8f,
+                1.0f
+            };
+            case HOT -> new float[]{
+                0.9f,
+                0.5f,
+                0.3f
+            };
+            case SCORCHED -> new float[]{
+                1.0f,
+                0.3f,
+                0.1f
+            };
         };
     }
 
@@ -284,10 +500,18 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     public AABB getRenderBoundingBox(CelestialForgingAnvilBlockEntity blockEntity) {
         BlockState state = blockEntity.getBlockState();
         if (!blockEntity.isAmplify()) {
-            AABB aabb = new AABB(blockEntity.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset())).inflate(1, 0, 0);
+            AABB aabb = new AABB(blockEntity.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset())).inflate(
+                1,
+                0,
+                0
+            );
             return aabb.setMaxY(aabb.maxY + 5);
         }
-        AABB aabb = new AABB(blockEntity.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset())).inflate(3, 0, 3);
+        AABB aabb = new AABB(blockEntity.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset())).inflate(
+            3,
+            0,
+            3
+        );
         return aabb.setMaxY(aabb.maxY + 7);
     }
 }

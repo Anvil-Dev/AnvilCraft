@@ -28,12 +28,12 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/laser")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/axis")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/advanced_comparator_indicator")));
-        event.register(CelestialForgingAnvilBlockEntityRenderer.RING1);
-        event.register(CelestialForgingAnvilBlockEntityRenderer.RING2);
-        event.register(CelestialForgingAnvilBlockEntityRenderer.RING3);
-        event.register(CelestialForgingAnvilBlockEntityRenderer.RING4);
-        event.register(CelestialForgingAnvilBlockEntityRenderer.RING5);
-        event.register(CelestialForgingAnvilBlockEntityRenderer.RING6);
+        event.register(CelestialForgingAnvilBlockEntityRenderer.R1);
+        event.register(CelestialForgingAnvilBlockEntityRenderer.R2);
+        event.register(CelestialForgingAnvilBlockEntityRenderer.R3);
+        event.register(CelestialForgingAnvilBlockEntityRenderer.R4);
+        event.register(CelestialForgingAnvilBlockEntityRenderer.R5);
+        event.register(CelestialForgingAnvilBlockEntityRenderer.R6);
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_base")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_upperarm")));

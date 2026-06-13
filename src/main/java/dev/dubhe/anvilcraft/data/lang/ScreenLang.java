@@ -275,9 +275,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock search results");
         provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first.");
         provider.add("screen.anvilcraft.cfa.missing_amplifier", "Amplifier missing, celestial body status cannot be synced");
-        provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power, search cannot be performed");
+        provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power");
         provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Search Again");
-        provider.add("screen.anvilcraft.cfa.search_fail", "parameters are unreasonable, search cannot be performed");
+        provider.add("screen.anvilcraft.cfa.search_fail", "parameters are unreasonable");
         provider.add("screen.anvilcraft.cfa.search_loading", "Searching");
         provider.add("screen.anvilcraft.cfa.search_tooltip", "Search for celestial bodies with this parameter");
         provider.add("screen.anvilcraft.cfa.unlock", "Click to unlock search results");
@@ -286,10 +286,9 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere: %s");
         provider.add("screen.anvilcraft.cfa.atmos.yes", "Yes");
-        provider.add("screen.anvilcraft.cfa.atmos.no", "No");
+        provider.add("screen.anvilcraft.cfa.none", "None");
 
         provider.add("screen.anvilcraft.cfa.mag", "Magnetic Field: %s");
-        provider.add("screen.anvilcraft.cfa.mag.none", "None");
         provider.add("screen.anvilcraft.cfa.mag.very_weak", "Very Weak");
         provider.add("screen.anvilcraft.cfa.mag.weak", "Weak");
         provider.add("screen.anvilcraft.cfa.mag.medium", "Medium");
@@ -311,7 +310,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.temp.scorched", "Scorched");
 
         provider.add("screen.anvilcraft.cfa.liquid", "Liquid Coverage: %s");
-        provider.add("screen.anvilcraft.cfa.liquid.none", "None");
         provider.add("screen.anvilcraft.cfa.liquid.low", "Low");
         provider.add("screen.anvilcraft.cfa.liquid.medium", "Medium");
         provider.add("screen.anvilcraft.cfa.liquid.high", "High");
@@ -326,16 +324,16 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.cfa.type", "Type: %s");
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon");
-        provider.add("screen.anvilcraft.cfa.class.rocky_no_liquid", "Rocky Planet (Arid)");
-        provider.add("screen.anvilcraft.cfa.class.rocky_low_liquid", "Rocky Planet (Low Liquid)");
-        provider.add("screen.anvilcraft.cfa.class.rocky_med_liquid", "Rocky Planet (Medium Liquid)");
-        provider.add("screen.anvilcraft.cfa.class.rocky_high_liquid", "Rocky Planet (High Liquid)");
+        provider.add("screen.anvilcraft.cfa.class.rocky_no_liquid", "Rocky Planet");
+        provider.add("screen.anvilcraft.cfa.class.rocky_low_liquid", "Rocky Planet");
+        provider.add("screen.anvilcraft.cfa.class.rocky_med_liquid", "Rocky Planet");
+        provider.add("screen.anvilcraft.cfa.class.rocky_high_liquid", "Rocky Planet");
         provider.add("screen.anvilcraft.cfa.class.ice_giant", "Ice Giant");
         provider.add("screen.anvilcraft.cfa.class.gas_giant", "Gas Giant");
         provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf");
-        provider.add("screen.anvilcraft.cfa.class.m_main", "M-type (Red Dwarf)");
-        provider.add("screen.anvilcraft.cfa.class.k_main", "K-type (Orange Dwarf)");
-        provider.add("screen.anvilcraft.cfa.class.g_main", "G-type (Yellow Dwarf)");
+        provider.add("screen.anvilcraft.cfa.class.m_main", "Red Dwarf");
+        provider.add("screen.anvilcraft.cfa.class.k_main", "Orange Dwarf");
+        provider.add("screen.anvilcraft.cfa.class.g_main", "Yellow Dwarf");
         provider.add("screen.anvilcraft.cfa.class.f_main", "F-type Star");
         provider.add("screen.anvilcraft.cfa.class.a_main", "A-type Star");
         provider.add("screen.anvilcraft.cfa.class.b_main", "B-type Star");
@@ -350,9 +348,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.m_supergiant", "Red Supergiant");
         provider.add("screen.anvilcraft.cfa.class.k_supergiant", "Orange Supergiant");
         provider.add("screen.anvilcraft.cfa.class.g_supergiant", "Yellow Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.f_supergiant", "Yellow-White Supergiant");
+        provider.add("screen.anvilcraft.cfa.class.f_supergiant", "Yellow Supergiant");
         provider.add("screen.anvilcraft.cfa.class.a_supergiant", "White Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.b_supergiant", "Blue-White Supergiant");
+        provider.add("screen.anvilcraft.cfa.class.b_supergiant", "Blue Supergiant");
         provider.add("screen.anvilcraft.cfa.class.o_supergiant", "Blue Supergiant");
         provider.add("screen.anvilcraft.cfa.class.white_dwarf", "White Dwarf");
     }
