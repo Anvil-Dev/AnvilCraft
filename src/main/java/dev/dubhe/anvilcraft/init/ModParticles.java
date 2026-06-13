@@ -16,6 +16,22 @@ public class ModParticles {
         "plasma_jets", () -> new SimpleParticleType(false)
     );
 
+    public static final Supplier<SimpleParticleType> ANVILON_ENERGY = REGISTER.register(
+        "anvilon_energy", () -> new SimpleParticleType(false)
+    );
+
+    public static final Supplier<SimpleParticleType> ANVILON_MASS = REGISTER.register(
+        "anvilon_mass", () -> new SimpleParticleType(false)
+    );
+
+    public static final Supplier<SimpleParticleType> ANVILON_SPACE = REGISTER.register(
+        "anvilon_space", () -> new SimpleParticleType(false)
+    );
+
+    public static final Supplier<SimpleParticleType> ANVILON_TIME = REGISTER.register(
+        "anvilon_time", () -> new SimpleParticleType(false)
+    );
+
     public static void register(IEventBus modBus) {
         REGISTER.register(modBus);
     }

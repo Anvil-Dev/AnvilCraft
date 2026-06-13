@@ -3,14 +3,18 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.google.common.collect.ImmutableMap;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
+import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.function.Supplier;
 
 public class NeutronIrradiatorBlockEntity extends BlockEntity {
 
@@ -20,6 +24,14 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         ModBlocks.CONFINED_SPACE_ANVILON.get(), IrradiatorType.SPACE,
         ModBlocks.CONFINED_TIME_ANVILON.get(), IrradiatorType.TIME
     );
+
+    public static final ImmutableMap<Block, Supplier<SimpleParticleType>> PARTICLE_TYPE_MAP = ImmutableMap.of(
+        ModBlocks.CONFINED_ENERGY_ANVILON.get(), ModParticles.ANVILON_ENERGY,
+        ModBlocks.CONFINED_MASS_ANVILON.get(), ModParticles.ANVILON_MASS,
+        ModBlocks.CONFINED_SPACE_ANVILON.get(), ModParticles.ANVILON_SPACE,
+        ModBlocks.CONFINED_TIME_ANVILON.get(), ModParticles.ANVILON_TIME
+    );
+
     public static final int TYPE_CHECK_THRESHOLD = 6;
 
     public NeutronIrradiatorBlockEntity(BlockPos pos, BlockState blockState) {

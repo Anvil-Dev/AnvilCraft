@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -19,6 +21,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
 
@@ -76,5 +80,27 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, E
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(type, ModBlockEntities.NEUTRON_IRRADIATOR.get(),
                 (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
+    }
+
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        IrradiatorType type = state.getValue(TYPE);
+        if (type == IrradiatorType.NEUTRON) return;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (i == 0 && j == 0) continue;
+                if (random.nextInt(8) != 0) continue;
+                Block block = level.getBlockState(pos.offset(i, 0, j)).getBlock();
+                if (NeutronIrradiatorBlockEntity.IRRADIATOR_TYPE_MAP.get(block) != type) continue;
+                Supplier<SimpleParticleType> particle = NeutronIrradiatorBlockEntity.PARTICLE_TYPE_MAP.get(block);
+                if (particle == null) continue;
+                level.addParticle(particle.get(),
+                    pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5,
+                    i + 0.3 * (random.nextDouble() - 0.5),
+                    -0.5 + 0.3 * (random.nextDouble() - 0.5),
+                    j + 0.3 * (random.nextDouble() - 0.5));
+
+            }
+        }
     }
 }
