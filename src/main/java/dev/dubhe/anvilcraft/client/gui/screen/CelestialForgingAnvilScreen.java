@@ -42,12 +42,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final int PV_Y = 15;
     private static final int PV_W = 148;
     private static final int PV_H = 99;
-    private static final int PV_BODY_W = 74;
+    private static final int PV_BODY_W = 59;
     private static final int PV_BODY_H = 69;
-    private static final int PV_INFO_X = 172;
+    private static final int PV_INFO_X = 157;
     private static final int PV_INFO_Y = 15;
-    private static final int PV_INFO_W = 74;
-    private static final int PV_INFO_H = 69;
+    private static final int PV_INFO_W = 89;
+    private static final int PV_INFO_H = 79;
     private static final int PV_BOT_Y = 84;
 
     // Search button (sprite: 48x32 = top half normal, bottom half hover)
@@ -293,9 +293,23 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private void renderBodyInfo(GuiGraphics guiGraphics, CelestialBodyData body) {
         List<Component> lines = buildInfoLines(body);
+        // Split "Label: value" into "Label:" + "value" on separate lines
+        List<Component> displayLines = new ArrayList<>();
+        for (Component comp : lines) {
+            String text = comp.getString();
+            int colonSpace = text.indexOf(": ");
+            if (colonSpace > 0) {
+                String label = text.substring(0, colonSpace + 1);
+                String value = text.substring(colonSpace + 2);
+                displayLines.add(Component.literal(label).withStyle(comp.getStyle()));
+                displayLines.add(Component.literal(value).withStyle(comp.getStyle()));
+            } else {
+                displayLines.add(comp);
+            }
+        }
         int lineHeight = font.lineHeight + 1;
         int maxLines = PV_INFO_H / lineHeight;
-        int maxScroll = Math.max(0, lines.size() - maxLines);
+        int maxScroll = Math.max(0, displayLines.size() - maxLines);
         if (scrollOffset > maxScroll) scrollOffset = maxScroll;
         if (scrollOffset < 0) scrollOffset = 0;
 
@@ -304,10 +318,18 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             leftPos + PV_INFO_X + PV_INFO_W, topPos + PV_INFO_Y + PV_INFO_H
         );
 
-        for (int i = scrollOffset; i < Math.min(lines.size(), scrollOffset + maxLines); i++) {
-            guiGraphics.drawString(font, lines.get(i), PV_INFO_X, PV_INFO_Y + (i - scrollOffset) * lineHeight, 0xCCCCCC, false);
+        for (int i = scrollOffset; i < Math.min(displayLines.size(), scrollOffset + maxLines); i++) {
+            guiGraphics.drawString(font, displayLines.get(i), PV_INFO_X, PV_INFO_Y + (i - scrollOffset) * lineHeight, 0xCCCCCC, false);
         }
         guiGraphics.disableScissor();
+
+        // Thin scrollbar on right edge of info panel
+        if (maxScroll > 0) {
+            int sbX = PV_INFO_X + PV_INFO_W - 2;
+            int sbH = Math.max(8, PV_INFO_H * maxLines / displayLines.size());
+            int sbY = PV_INFO_Y + (PV_INFO_H - sbH) * scrollOffset / maxScroll;
+            guiGraphics.fill(sbX, sbY, sbX + 2, sbY + sbH, 0x80CCCCCC);
+        }
     }
 
     private List<Component> buildInfoLines(CelestialBodyData body) {
@@ -417,33 +439,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guiGraphics.drawString(this.font, text, textX, y, 0xFFFFFF, true);
     }
 
-    // Hover tooltips for the 4 anvil slots
-    private static final String[] ANVIL_TOOLTIP_KEYS = {
-        "screen.anvilcraft.cfa.anvil_tooltip.time",
-        "screen.anvilcraft.cfa.anvil_tooltip.space",
-        "screen.anvilcraft.cfa.anvil_tooltip.mass",
-        "screen.anvilcraft.cfa.anvil_tooltip.energy"
-    };
-
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
-        // Anvil slot tooltips when empty
-        int relX = mouseX - leftPos;
-        int relY = mouseY - topPos;
-        for (int i = 0; i < 4; i++) {
-            int sy = 38 + i * 18;
-            if (relX >= 9 && relX < 27 && relY >= sy && relY < sy + 18) {
-                if (getMenu().getSlot(i).getItem().isEmpty()) {
-                    guiGraphics.renderTooltip(
-                        font,
-                        Component.translatable(ANVIL_TOOLTIP_KEYS[i]), mouseX, mouseY
-                    );
-                }
-                break;
-            }
-        }
         if (lockedMsgTick > 0) {
             Component msg = Component.translatable("screen.anvilcraft.cfa.locked_tooltip");
             int w = font.width(msg);
@@ -478,7 +477,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 guiGraphics.renderTooltip(font, Component.translatable("screen.anvilcraft.cfa.search_tooltip"), x, y);
             }
         }
-        if (isOverLockButton(relX, relY)) {
+        if (isOverLockButton(relX, relY)
+            && (searchState == SearchState.DONE || searchState == SearchState.LOADING)) {
             guiGraphics.renderTooltip(
                 font,
                 Component.translatable(isLocked() ? "screen.anvilcraft.cfa.unlock" : "screen.anvilcraft.cfa.lock"), x, y
@@ -515,7 +515,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             goNext();
             return true;
         }
-        if (isOverLockButton(relX, relY)) {
+        if (isOverLockButton(relX, relY)
+            && (searchState == SearchState.DONE || searchState == SearchState.LOADING)) {
             setLocked(!isLocked());
             return true;
         }
@@ -526,8 +527,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         int relX = (int) mouseX - leftPos;
         int relY = (int) mouseY - topPos;
-        // Parameter area: scroll to add/remove anvils
-        if (MathUtil.isInRange(relY, 32, 91)) {
+        if (MathUtil.isInRange(relX, 33, 91)) {
             int paramIdx = -1;
             if (MathUtil.isInRange(relY, 42, 53)) {
                 paramIdx = 0;

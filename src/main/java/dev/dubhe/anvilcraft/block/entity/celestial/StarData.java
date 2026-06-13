@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
-import dev.dubhe.anvilcraft.util.MassRadiusDiagram;
 import net.minecraft.nbt.CompoundTag;
 
 public record StarData(
@@ -42,18 +41,13 @@ public record StarData(
     public static StarData fromTag(CompoundTag tag) {
         CelestialBodyClass cls = CelestialBodyData.readClass(tag, CelestialBodyType.STAR);
         int size = tag.getInt("size");
-        int r;
-        int g;
-        int b;
+        int r = 0;
+        int g = 0;
+        int b = 0;
         if (tag.contains("colorR")) {
             r = tag.getInt("colorR");
             g = tag.getInt("colorG");
             b = tag.getInt("colorB");
-        } else {
-            float[] rgb = MassRadiusDiagram.starColorFallback(size);
-            r = Math.clamp((int) (rgb[0] * 255), 0, 255);
-            g = Math.clamp((int) (rgb[1] * 255), 0, 255);
-            b = Math.clamp((int) (rgb[2] * 255), 0, 255);
         }
         int mag = tag.contains("magneticFieldStrength") ? tag.getInt("magneticFieldStrength") : 0;
         return new StarData(cls, size, r, g, b, tag.getFloat("axialTilt"), tag.getFloat("rotationSpeed"), mag);

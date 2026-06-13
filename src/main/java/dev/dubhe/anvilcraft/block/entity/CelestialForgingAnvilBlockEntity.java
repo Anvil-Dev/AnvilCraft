@@ -49,11 +49,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Nullable
     private CelestialBodyData celestialBodyData = null;
 
-    @Getter
+    @Getter @Setter
     private long bodySeed = 0;
 
     /** Mass anvil count at time of body matching, for gravity calculation. */
-    @Getter
+    @Getter @Setter
     private int stellarMass = 0;
 
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -85,7 +85,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     @Override
     public PowerComponentType getComponentType() {
-        return PowerComponentType.CONSUMER;
+        return IPowerConsumer.super.getComponentType();
     }
 
     private boolean hasEnoughPower() {

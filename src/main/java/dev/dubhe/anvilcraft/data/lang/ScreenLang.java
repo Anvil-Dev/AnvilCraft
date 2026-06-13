@@ -271,19 +271,15 @@ public class ScreenLang {
 
         // Celestial Forging Anvil
         provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil");
-        provider.add("screen.anvilcraft.cfa.celestial_params", "Celestial Parameter");
+        provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter");
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock search results");
-        provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first. If you are not the owner of the Celestial Forging Anvil, please inquire with the owner before proceeding");
+        provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first.");
         provider.add("screen.anvilcraft.cfa.missing_amplifier", "Amplifier missing, celestial body status cannot be synced");
         provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power, search cannot be performed");
         provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Search Again");
         provider.add("screen.anvilcraft.cfa.search_fail", "parameters are unreasonable, search cannot be performed");
         provider.add("screen.anvilcraft.cfa.search_loading", "Searching");
         provider.add("screen.anvilcraft.cfa.search_tooltip", "Search for celestial bodies with this parameter");
-        provider.add("screen.anvilcraft.cfa.type_brown_dwarf", "Type: Brown Dwarf");
-        provider.add("screen.anvilcraft.cfa.type_giant", "Type: Giant Planet");
-        provider.add("screen.anvilcraft.cfa.type_rocky", "Type: Rocky Planet");
-        provider.add("screen.anvilcraft.cfa.type_star", "Type: Star");
         provider.add("screen.anvilcraft.cfa.unlock", "Click to unlock search results");
         provider.add("screen.anvilcraft.cfa.radius", "Radius: %s");
         provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt: %s");
@@ -292,7 +288,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.atmos.yes", "Yes");
         provider.add("screen.anvilcraft.cfa.atmos.no", "No");
 
-        provider.add("screen.anvilcraft.cfa.mag", "Mag: %s");
+        provider.add("screen.anvilcraft.cfa.mag", "Magnetic Field: %s");
         provider.add("screen.anvilcraft.cfa.mag.none", "None");
         provider.add("screen.anvilcraft.cfa.mag.very_weak", "Very Weak");
         provider.add("screen.anvilcraft.cfa.mag.weak", "Weak");
@@ -320,10 +316,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.liquid.medium", "Medium");
         provider.add("screen.anvilcraft.cfa.liquid.high", "High");
 
-        provider.add("screen.anvilcraft.cfa.ring", "Ring: %s");
-        provider.add("screen.anvilcraft.cfa.ring.weak", "Weak");
-        provider.add("screen.anvilcraft.cfa.ring.strong", "Strong");
-
         provider.add("screen.anvilcraft.cfa.pressure", "Pressure Type: %s");
         provider.add("screen.anvilcraft.cfa.pressure.gas", "Gas");
         provider.add("screen.anvilcraft.cfa.pressure.ice", "Ice");
@@ -341,13 +333,13 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.ice_giant", "Ice Giant");
         provider.add("screen.anvilcraft.cfa.class.gas_giant", "Gas Giant");
         provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf");
-        provider.add("screen.anvilcraft.cfa.class.m_main", "M-type Main Sequence Star (Red Dwarf)");
-        provider.add("screen.anvilcraft.cfa.class.k_main", "K-type Main Sequence Star (Orange Dwarf)");
-        provider.add("screen.anvilcraft.cfa.class.g_main", "G-type Main Sequence Star (Yellow Dwarf)");
-        provider.add("screen.anvilcraft.cfa.class.f_main", "F-type Main Sequence Star");
-        provider.add("screen.anvilcraft.cfa.class.a_main", "A-type Main Sequence Star");
-        provider.add("screen.anvilcraft.cfa.class.b_main", "B-type Main Sequence Star");
-        provider.add("screen.anvilcraft.cfa.class.o_main", "O-type Main Sequence Star");
+        provider.add("screen.anvilcraft.cfa.class.m_main", "M-type (Red Dwarf)");
+        provider.add("screen.anvilcraft.cfa.class.k_main", "K-type (Orange Dwarf)");
+        provider.add("screen.anvilcraft.cfa.class.g_main", "G-type (Yellow Dwarf)");
+        provider.add("screen.anvilcraft.cfa.class.f_main", "F-type Star");
+        provider.add("screen.anvilcraft.cfa.class.a_main", "A-type Star");
+        provider.add("screen.anvilcraft.cfa.class.b_main", "B-type Star");
+        provider.add("screen.anvilcraft.cfa.class.o_main", "O-type Star");
         provider.add("screen.anvilcraft.cfa.class.m_giant", "Red Giant");
         provider.add("screen.anvilcraft.cfa.class.k_giant", "Orange Giant");
         provider.add("screen.anvilcraft.cfa.class.g_giant", "Yellow Giant");

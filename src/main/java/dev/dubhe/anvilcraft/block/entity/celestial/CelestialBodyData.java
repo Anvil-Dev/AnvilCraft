@@ -33,33 +33,14 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
         };
     }
 
-    /**
-     * Read CelestialBodyClass from tag, with fallback for old data.
-     */
     static CelestialBodyClass readClass(CompoundTag tag, CelestialBodyType bodyType) {
         String className = tag.getString("bodyClass");
         if (!className.isEmpty()) {
-            try {
-                return CelestialBodyClass.valueOf(className);
-            } catch (IllegalArgumentException ignored) {
-                // do nothing
-            }
+            return CelestialBodyClass.valueOf(className);
         }
-        // Fallback for old data without bodyClass
         return switch (bodyType) {
-            case ROCKY_PLANET -> {
-                String lc = tag.getString("liquidCoverage");
-                yield switch (lc) {
-                    case "none" -> CelestialBodyClass.ROCKY_NO_LIQUID;
-                    case "low" -> CelestialBodyClass.ROCKY_LOW_LIQUID;
-                    case "medium" -> CelestialBodyClass.ROCKY_MED_LIQUID;
-                    case "high" -> CelestialBodyClass.ROCKY_HIGH_LIQUID;
-                    default -> CelestialBodyClass.ROCKY_NO_LIQUID;
-                };
-            }
-            case GIANT_PLANET -> tag.getBoolean("brownDwarf")
-                                 ? CelestialBodyClass.BROWN_DWARF
-                                 : CelestialBodyClass.GAS_GIANT;
+            case ROCKY_PLANET -> CelestialBodyClass.ROCKY_NO_LIQUID;
+            case GIANT_PLANET -> CelestialBodyClass.GAS_GIANT;
             case STAR -> CelestialBodyClass.M_MAIN;
         };
     }

@@ -278,6 +278,12 @@ public class CelestialForgingAnvilBlock
                 }
             }
             be.getSearchHistory().clear();
+            // Clear celestial body data so the dropped block item
+            // doesn't carry over the old body to a new placement
+            be.setCelestialBodyData(null);
+            be.setBodySeed(0);
+            be.setStellarMass(0);
+            be.setLocked(false);
         }
         return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
     }
