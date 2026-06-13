@@ -145,9 +145,9 @@ public class GiantAnvilShockEventListener {
                 // 让范围内的生物原地弹跳
                 int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
                 AABB aabb = AABB.ofSize(
-                    Vec3.atCenterOf(it.unwrap().centerPos().above(2)),
+                    Vec3.atCenterOf(it.unwrap().centerPos().above()),
                     radius * 2 + 1,
-                    6,
+                    2,
                     radius * 2 + 1
                 );
                 List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, aabb);
@@ -166,8 +166,24 @@ public class GiantAnvilShockEventListener {
                     );
                     double ratio = 1.0 - Math.min(dist / radius, 1.0);
                     double upwardSpeed = 0.4 + ratio * 0.35;
-                    living.setDeltaMovement(living.getDeltaMovement().x, upwardSpeed, living.getDeltaMovement().z);
-                    living.hurtMarked = true;
+                    if (ejected) {
+                        // 下车后延迟弹起，等待客户端同步位置
+                        if (level instanceof ServerLevel sl) {
+                            final double finalSpeed = upwardSpeed;
+                            sl.getServer().tell(new net.minecraft.server.TickTask(
+                                sl.getServer().getTickCount() + 4,
+                                () -> {
+                                    if (living.isAlive()) {
+                                        living.setDeltaMovement(living.getDeltaMovement().x, finalSpeed, living.getDeltaMovement().z);
+                                        living.hurtMarked = true;
+                                    }
+                                }
+                            ));
+                        }
+                    } else {
+                        living.setDeltaMovement(living.getDeltaMovement().x, upwardSpeed, living.getDeltaMovement().z);
+                        living.hurtMarked = true;
+                    }
                 }
                 it.putAttachment(NO_HURT, true);
             })
