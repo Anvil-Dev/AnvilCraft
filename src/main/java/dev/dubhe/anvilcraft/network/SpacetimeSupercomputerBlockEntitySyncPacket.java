@@ -4,15 +4,15 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
-import dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public record SpacetimeSupercomputerBlockEntitySyncPacket(BlockPos pos) implements IClientboundPacket {
     private static final Type<SpacetimeSupercomputerBlockEntitySyncPacket> TYPE =
@@ -30,12 +30,18 @@ public record SpacetimeSupercomputerBlockEntitySyncPacket(BlockPos pos) implemen
 
     @Override
     public void handleOnClient(Player player) {
-        Minecraft mc = Minecraft.getInstance();
         Level level = player.level();
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof SpacetimeSupercomputerBlockEntity
-            && mc.screen instanceof SpacetimeSupercomputerScreen spacetimeSupercomputerScreen) {
-            spacetimeSupercomputerScreen.updateGui();
+        if (blockEntity instanceof SpacetimeSupercomputerBlockEntity) {
+            updateScreenIfOpen();
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void updateScreenIfOpen() {
+        var mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.screen instanceof dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen screen) {
+            screen.updateGui();
         }
     }
 }

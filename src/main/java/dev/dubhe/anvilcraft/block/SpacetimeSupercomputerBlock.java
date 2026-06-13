@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
-import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
@@ -27,6 +26,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
@@ -57,14 +57,19 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
                 );
                 serverPlayer.connection.send(new SpacetimeSupercomputerBlockEntitySyncPacket(pos));
             } else if (level.isClientSide) {
-                DistExecutor.run(Dist.CLIENT, () -> () -> Minecraft.getInstance().setScreen(
-                    new dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen(spacetimeSupercomputerBlockEntity)
-                ));
+                openScreen(spacetimeSupercomputerBlockEntity);
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
         } else {
             return InteractionResult.PASS;
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void openScreen(SpacetimeSupercomputerBlockEntity entity) {
+        Minecraft.getInstance().setScreen(
+            new dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen(entity)
+        );
     }
 
     @Override
