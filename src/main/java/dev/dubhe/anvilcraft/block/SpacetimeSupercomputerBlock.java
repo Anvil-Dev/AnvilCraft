@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.network.SpacetimeSupercomputerBlockEntitySyncPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.neoforged.api.distmarker.Dist;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
