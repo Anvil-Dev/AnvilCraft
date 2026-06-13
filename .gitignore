@@ -122,3 +122,4 @@ run/
 /fabric/src/main/resources/resoucepacks/
 
 runs/
+**/skills/
