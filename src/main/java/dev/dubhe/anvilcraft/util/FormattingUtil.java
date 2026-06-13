@@ -49,19 +49,20 @@ public class FormattingUtil {
     }
 
     /// 对应表：
-    /// <table>
-    ///     <tr><th>tick数</th><th>阈值</th><th>显示效果</th></tr>
-    ///     <tr><td>30gt</td><td>1</td><td>1"50</td></tr>
-    ///     <tr><td>30gt</td><td>5</td><td>30gt</td></tr>
-    ///     <tr><td>100gt</td><td>5</td><td>5"</td></tr>
-    ///     <tr><td>150gt</td><td>5</td><td>7"50</td></tr>
-    ///     <tr><td>1200gt</td><td>5</td><td>1'</td></tr>
-    ///     <tr><td>1220gt</td><td>5</td><td>1'01</td></tr>
-    ///     <tr><td>1635gt</td><td>5</td><td>1'21"75</td></tr>
-    /// </table>
+    ///
+    /// |  tick数  | 阈值  | 显示效果     |
+    /// |:---------|:---:|:----------|
+    /// | `30gt`   | `1` | `1"50`    |
+    /// | `30gt`   | `5` | `30gt`    |
+    /// | `100gt`  | `5` | `5"`      |
+    /// | `150gt`  | `5` | `7"50`    |
+    /// | `1200gt` | `5` | `1'`      |
+    /// | `1220gt` | `5` | `1'01`    |
+    /// | `1635gt` | `5` | `1'21"75` |
     ///
     /// @param total          总tick数
     /// @param thresholdInSec 切换显示格式的阈值（秒），小于该值时显示gt格式，否则显示分秒格式
+    ///
     /// @return 格式化后的时间字符串
     public static String toFormattedTime(int total, int thresholdInSec) {
         int thresholdTicks = thresholdInSec * 20;

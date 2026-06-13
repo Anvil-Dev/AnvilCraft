@@ -6,14 +6,14 @@ import dev.dubhe.anvilcraft.api.recipe.number.ConstantValue;
 import dev.dubhe.anvilcraft.api.recipe.number.EnchantmentLevelProvider;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.number.UniformGenerator;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModNumberProviderTypes {
     private static final DeferredRegister<INumberProvider.Type<?>> DF = DeferredRegister
-        .create(ModRegistries.NUMBER_PROVIDER_TYPE_REGISTRY, AnvilCraft.MOD_ID);
+        .create(ModRegistries.NUMBER_PROVIDER_TYPE, AnvilCraft.MOD_ID);
 
     public static final DeferredHolder<INumberProvider.Type<?>, ConstantValue.Type> CONSTANT = DF
         .register("constant", ConstantValue.Type::new);

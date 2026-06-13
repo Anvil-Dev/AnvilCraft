@@ -1,0 +1,7 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "anvilcraft:block/hyperdimension_storage_station"
+  },
+  "oversized_in_gui": true
+}

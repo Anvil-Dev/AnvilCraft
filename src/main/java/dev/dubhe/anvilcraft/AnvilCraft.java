@@ -47,6 +47,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
+import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import lombok.Getter;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -107,6 +108,7 @@ public class AnvilCraft {
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
         ModAmuletDefinitionTypes.register(modEventBus);
+        ModCategoryTypes.register(modEventBus);
         ModConsumeEffects.register(modEventBus);
         ModEntitySubPredicates.register(modEventBus);
 

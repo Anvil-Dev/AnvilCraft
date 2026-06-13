@@ -197,7 +197,7 @@ public class BlockTagLoader {
             .addElement(ModBlocks.TRANSMISSION_POLE.getId())
             .addElement(ModBlocks.REMOTE_TRANSMISSION_POLE.getId())
             .addElement(ModBlocks.TESLA_TOWER.getId())
-            .addElement(ModBlocks.OVERSEER_BLOCK.getId())
+            .addElement(ModBlocks.OVERSEER.getId())
             .addElement(ModBlocks.ACCELERATION_RING.getId())
             .addElement(ModBlocks.DEFLECTION_RING.getId());
 
@@ -283,14 +283,12 @@ public class BlockTagLoader {
             .addElement(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getId())
             .addElement(ModBlocks.EMBER_METAL_BLOCK.getId());
 
-        // tier 0：原版三种铁砧以及下列所有;
+        // tier 0：所有铁砧以及下列所有;
         // tier 1：皇家铁砧以及下列所有;
         // tier 2：余烬铁砧以及下列所有;
         // tier 3：超限铁砧
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_0)
-            .addElement(findId(Blocks.ANVIL))
-            .addElement(findId(Blocks.CHIPPED_ANVIL))
-            .addElement(findId(Blocks.DAMAGED_ANVIL))
+            .addTag(BlockTags.ANVIL.location())
             .addTag(ModBlockTags.ANVIL_TIER_1.location());
 
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_1)

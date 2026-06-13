@@ -211,7 +211,7 @@ public class ItemTooltipManager {
                   "Output signal when side blocks are the same. Right-click to switch to precise state detection mode");
         SHIFT.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output signal");
         SHIFT.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock. Strike with falling anvil to create a Moneral Fountain");
-        SHIFT.put(ModBlocks.OVERSEER_BLOCK.asItem(),
+        SHIFT.put(ModBlocks.OVERSEER.asItem(),
                   "Chunk loader on 3x3 Royal Steel base. Higher base layers increase chunk load range (max 3 layers, 5x5 range)");
         SHIFT.put(ModBlocks.SPACE_OVERCOMPRESSOR.asItem(),
                   "Compresses items into Neutronium Ingots. Compresses multiblock outputs into drops");

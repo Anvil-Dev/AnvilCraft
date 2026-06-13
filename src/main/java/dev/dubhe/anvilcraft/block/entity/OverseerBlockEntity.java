@@ -116,7 +116,7 @@ public class OverseerBlockEntity extends BlockEntity {
         for (int i = 0; i < 3; i++) {
             BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
             BlockState state = level.getBlockState(pos);
-            if (level.getBlockState(pos).is(ModBlocks.OVERSEER_BLOCK)) {
+            if (level.getBlockState(pos).is(ModBlocks.OVERSEER)) {
                 level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, supportsLevel), 2);
             }
         }
@@ -126,7 +126,7 @@ public class OverseerBlockEntity extends BlockEntity {
     private boolean checkBlocks() {
         for (int i = 0; i < 3; i++) {
             BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
-            if (!level.getBlockState(pos).is(ModBlocks.OVERSEER_BLOCK)) {
+            if (!level.getBlockState(pos).is(ModBlocks.OVERSEER)) {
                 return false;
             }
         }

@@ -118,39 +118,6 @@ public class ShulkerContainerBlock
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(HALF)) {
-            case BOTTOM_CENTER -> BOTTOM_CENTER;
-            case BOTTOM_W -> BOTTOM_W;
-            case BOTTOM_E -> BOTTOM_E;
-            case BOTTOM_N -> BOTTOM_N;
-            case BOTTOM_S -> BOTTOM_S;
-            case BOTTOM_NW -> BOTTOM_NW;
-            case BOTTOM_SW -> BOTTOM_SW;
-            case BOTTOM_NE -> BOTTOM_NE;
-            case BOTTOM_SE -> BOTTOM_SE;
-            case MID_CENTER -> MID_CENTER;
-            case MID_W -> MID_W;
-            case MID_E -> MID_E;
-            case MID_N -> MID_N;
-            case MID_S -> MID_S;
-            case MID_NW -> MID_NW;
-            case MID_SW -> MID_SW;
-            case MID_NE -> MID_NE;
-            case MID_SE -> MID_SE;
-            case TOP_CENTER -> TOP_CENTER;
-            case TOP_W -> TOP_W;
-            case TOP_E -> TOP_E;
-            case TOP_N -> TOP_N;
-            case TOP_S -> TOP_S;
-            case TOP_NW -> TOP_NW;
-            case TOP_SW -> TOP_SW;
-            case TOP_NE -> TOP_NE;
-            case TOP_SE -> TOP_SE;
-        };
-    }
-
-    @Override
     public void removePartsAndUpdate(Level level, BlockPos pos) {
         BlockState blockState = level.getBlockState(pos);
         if (!blockState.is(this)) return;
@@ -224,6 +191,39 @@ public class ShulkerContainerBlock
     }
 
     // region VoxelShapes
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(HALF)) {
+            case BOTTOM_CENTER -> BOTTOM_CENTER;
+            case BOTTOM_W -> BOTTOM_W;
+            case BOTTOM_E -> BOTTOM_E;
+            case BOTTOM_N -> BOTTOM_N;
+            case BOTTOM_S -> BOTTOM_S;
+            case BOTTOM_NW -> BOTTOM_NW;
+            case BOTTOM_SW -> BOTTOM_SW;
+            case BOTTOM_NE -> BOTTOM_NE;
+            case BOTTOM_SE -> BOTTOM_SE;
+            case MID_CENTER -> MID_CENTER;
+            case MID_W -> MID_W;
+            case MID_E -> MID_E;
+            case MID_N -> MID_N;
+            case MID_S -> MID_S;
+            case MID_NW -> MID_NW;
+            case MID_SW -> MID_SW;
+            case MID_NE -> MID_NE;
+            case MID_SE -> MID_SE;
+            case TOP_CENTER -> TOP_CENTER;
+            case TOP_W -> TOP_W;
+            case TOP_E -> TOP_E;
+            case TOP_N -> TOP_N;
+            case TOP_S -> TOP_S;
+            case TOP_NW -> TOP_NW;
+            case TOP_SW -> TOP_SW;
+            case TOP_NE -> TOP_NE;
+            case TOP_SE -> TOP_SE;
+        };
+    }
+
     protected static final VoxelShape MID_CENTER = Shapes.block();
 
     protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 2, 0, 16, 16, 16);

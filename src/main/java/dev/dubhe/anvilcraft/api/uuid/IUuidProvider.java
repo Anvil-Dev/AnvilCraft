@@ -2,7 +2,8 @@ package dev.dubhe.anvilcraft.api.uuid;
 
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.util.ISerializer;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,10 +13,10 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface IUuidProvider extends Supplier<UUID> {
-    Codec<IUuidProvider> CODEC = Codec.lazyInitialized(() -> ModRegistries.UUID_PROVIDER_TYPE_REGISTRY
+    Codec<IUuidProvider> CODEC = Codec.lazyInitialized(() -> ModRegistries.UUID_PROVIDER_TYPE
         .byNameCodec().dispatch(IUuidProvider::getType, Type::codec));
     StreamCodec<RegistryFriendlyByteBuf, IUuidProvider> STREAM_CODEC = StreamCodec.recursive(
-        streamCodec -> ByteBufCodecs.registry(ModRegistries.UUID_PROVIDER_TYPE_KEY)
+        streamCodec -> ByteBufCodecs.registry(ModRegistryKeys.UUID_PROVIDER_TYPE)
             .dispatch(IUuidProvider::getType, Type::streamCodec));
 
     @Override

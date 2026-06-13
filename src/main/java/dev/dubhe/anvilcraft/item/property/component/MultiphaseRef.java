@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.item.property.component;
 
-import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
@@ -30,21 +28,13 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public record MultiphaseRef(IUuidProvider id) implements TooltipProvider {
-    // TODO: 兼容性支持结束后将此常量重命名为 CODEC
-    public static final MapCodec<MultiphaseRef> TRUE_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
+    public static final MapCodec<MultiphaseRef> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         IUuidProvider.CODEC
             .fieldOf("id")
             .forGetter(MultiphaseRef::id)
     ).apply(ins, MultiphaseRef::new));
-    // TODO: 兼容性支持结束后移除此常量
-    public static final MapCodec<MultiphaseRef> CODEC = Codec.mapEither(TRUE_CODEC, Multiphase.CODEC)
-        .xmap(
-            either -> either.map(Function.identity(), MultiphaseRef::new),
-            Either::left
-        );
     public static final StreamCodec<RegistryFriendlyByteBuf, MultiphaseRef> STREAM_CODEC = StreamCodec.composite(
         IUuidProvider.STREAM_CODEC,
         MultiphaseRef::id,

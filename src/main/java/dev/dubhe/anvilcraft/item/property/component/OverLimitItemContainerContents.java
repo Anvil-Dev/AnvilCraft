@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.item.property.component;
 import com.google.common.collect.Iterables;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.OverLimitItemHandler;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import lombok.Getter;
