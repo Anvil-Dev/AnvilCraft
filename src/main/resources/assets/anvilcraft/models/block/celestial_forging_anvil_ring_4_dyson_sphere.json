@@ -1,7 +1,7 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/cube",
+	"parent": "anvilcraft:block/celestial_forging_anvil_ring_big",
 	"render_type": "minecraft:cutout",
 	"textures": {
 		"1": "anvilcraft:block/celestial_forging_anvil_rings",
@@ -1228,8 +1228,8 @@
 			"to": [4, 4.875, 4],
 			"shade": false,
 			"faces": {
-				"up": {"uv": [0, 0, 8, 8], "texture": "#2"},
-				"down": {"uv": [0, 0, 8, 8], "texture": "#2"}
+				"up": {"uv": [1.5, 1.5, 9.5, 9.5], "texture": "#2"},
+				"down": {"uv": [1.5, 1.5, 9.5, 9.5], "texture": "#2"}
 			}
 		},
 		{
@@ -1237,8 +1237,8 @@
 			"to": [4.875, 4, 4],
 			"shade": false,
 			"faces": {
-				"east": {"uv": [0, 0, 8, 8], "texture": "#2"},
-				"west": {"uv": [0, 0, 8, 8], "rotation": 180, "texture": "#2"}
+				"east": {"uv": [1.5, 1.5, 9.5, 9.5], "texture": "#2"},
+				"west": {"uv": [1.5, 1.5, 9.5, 9.5], "rotation": 180, "texture": "#2"}
 			}
 		},
 		{
@@ -1246,8 +1246,8 @@
 			"to": [4, 4, -4.875],
 			"shade": false,
 			"faces": {
-				"north": {"uv": [0, 0, 8, 8], "texture": "#2"},
-				"south": {"uv": [0, 0, 8, 8], "rotation": 180, "texture": "#2"}
+				"north": {"uv": [1.5, 1.5, 9.5, 9.5], "texture": "#2"},
+				"south": {"uv": [1.5, 1.5, 9.5, 9.5], "rotation": 180, "texture": "#2"}
 			}
 		},
 		{
@@ -1255,8 +1255,8 @@
 			"to": [-4.875, 4, 4],
 			"shade": false,
 			"faces": {
-				"east": {"uv": [0, 0, 8, 8], "rotation": 180, "texture": "#2"},
-				"west": {"uv": [0, 0, 8, 8], "texture": "#2"}
+				"east": {"uv": [1.5, 1.5, 9.5, 9.5], "rotation": 180, "texture": "#2"},
+				"west": {"uv": [1.5, 1.5, 9.5, 9.5], "texture": "#2"}
 			}
 		},
 		{
@@ -1264,8 +1264,8 @@
 			"to": [4, -4.875, 4],
 			"shade": false,
 			"faces": {
-				"up": {"uv": [0, 0, 8, 8], "rotation": 90, "texture": "#2"},
-				"down": {"uv": [0, 0, 8, 8], "rotation": 270, "texture": "#2"}
+				"up": {"uv": [1.5, 1.5, 9.5, 9.5], "rotation": 90, "texture": "#2"},
+				"down": {"uv": [1.5, 1.5, 9.5, 9.5], "rotation": 270, "texture": "#2"}
 			}
 		},
 		{
@@ -1273,49 +1273,11 @@
 			"to": [4, 4, 4.875],
 			"shade": false,
 			"faces": {
-				"north": {"uv": [0, 0, 8, 8], "rotation": 180, "texture": "#2"},
-				"south": {"uv": [0, 0, 8, 8], "texture": "#2"}
+				"north": {"uv": [1.5, 1.5, 9.5, 9.5], "rotation": 180, "texture": "#2"},
+				"south": {"uv": [1.5, 1.5, 9.5, 9.5], "texture": "#2"}
 			}
 		}
 	],
-	"display": {
-		"thirdperson_righthand": {
-			"rotation": [75, 45, 0],
-			"translation": [0, 2.5, 0],
-			"scale": [0.2, 0.2, 0.2]
-		},
-		"thirdperson_lefthand": {
-			"rotation": [75, 45, 0],
-			"translation": [0, 2.5, 0],
-			"scale": [0.2, 0.2, 0.2]
-		},
-		"firstperson_righthand": {
-			"rotation": [0, -135, 0],
-			"translation": [3.75, 0, 0],
-			"scale": [0.2, 0.2, 0.2]
-		},
-		"firstperson_lefthand": {
-			"rotation": [0, -135, 0],
-			"translation": [3.75, 0, 0],
-			"scale": [0.2, 0.2, 0.2]
-		},
-		"ground": {
-			"translation": [0, 4, 0],
-			"scale": [0.2, 0.2, 0.2]
-		},
-		"gui": {
-			"rotation": [30, -135, 0],
-			"translation": [0, -0.25, 0],
-			"scale": [0.24, 0.24, 0.24]
-		},
-		"head": {
-			"translation": [0, 1, 0],
-			"scale": [0.6, 0.6, 0.6]
-		},
-		"fixed": {
-			"scale": [0.66, 0.66, 0.66]
-		}
-	},
 	"groups": [
 		{
 			"name": "group",

@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.AmethystAxeItem;
 import dev.dubhe.anvilcraft.item.AmethystHoeItem;
 import dev.dubhe.anvilcraft.item.AmethystPickaxeItem;
@@ -514,6 +515,11 @@ public class ModItems {
                 .predicate(AnvilCraft.of("flight_time"), 0)
                 .model(new ModelFile.UncheckedModelFile(offModel.getUncheckedLocation()))
                 .end();
+        }).tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), (ctx, modifier) -> {
+            modifier.accept(ctx.get().getDefaultInstance());
+            ItemStack full = new ItemStack(ctx.get());
+            full.set(ModComponents.STORED_ENERGY, IonoCraftBackpackItem.MAX_ENERGY);
+            modifier.accept(full);
         }).tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();

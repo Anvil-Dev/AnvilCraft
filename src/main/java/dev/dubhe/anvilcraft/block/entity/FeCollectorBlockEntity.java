@@ -42,6 +42,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     int outputPower;
     PowerGrid grid;
     private boolean clientSyncDirty;
+    @Nullable Direction lastInputSide;
 
     public static FeCollectorBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         return new FeCollectorBlockEntity(type, pos, state);
@@ -61,6 +62,8 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         this.energy = tag.getInt("Energy");
         this.producing = tag.getBoolean("Producing");
         this.time = tag.getInt("Time");
+        this.lastInputSide = tag.contains("LastInputSide")
+            ? Direction.valueOf(tag.getString("LastInputSide")) : null;
     }
 
     @Override
@@ -69,6 +72,9 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         tag.putInt("Energy", this.energy);
         tag.putBoolean("Producing", this.producing);
         tag.putInt("Time", this.time);
+        if (this.lastInputSide != null) {
+            tag.putString("LastInputSide", this.lastInputSide.name());
+        }
     }
 
     @Override
@@ -107,16 +113,12 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             : new Direction[]{Direction.NORTH, Direction.SOUTH};
     }
 
-    Direction getOutputSide() {
-        Direction.Axis a = getBlockState().getValue(BlockStateProperties.HORIZONTAL_AXIS);
-        return a == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
-    }
 
     @Nullable
     public IEnergyStorage getEnergyStorage(@Nullable Direction side) {
-        if (side == null) return new FeEnergyStore();
+        if (side == null) return new FeEnergyStore(null);
         for (Direction d : getConnectedSides()) {
-            if (d == side) return new FeEnergyStore();
+            if (d == side) return new FeEnergyStore(side);
         }
         return null;
     }
@@ -172,16 +174,19 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         if (level == null) return;
         int excess = this.energy - TRANSFER_THRESHOLD;
         if (excess <= 0) return;
-        Direction side = getOutputSide();
-        IEnergyStorage target = level.getCapability(
-            Capabilities.EnergyStorage.BLOCK, worldPosition.relative(side), side.getOpposite()
-        );
-        if (target != null && target.canReceive()) {
-            int accepted = target.receiveEnergy(excess, false);
-            if (accepted > 0) {
-                this.energy -= accepted;
-                setChanged();
-                clientSyncDirty = true;
+        for (Direction side : getConnectedSides()) {
+            if (excess <= 0) break;
+            IEnergyStorage target = level.getCapability(
+                Capabilities.EnergyStorage.BLOCK, worldPosition.relative(side), side.getOpposite()
+            );
+            if (target != null && target.canReceive()) {
+                int accepted = target.receiveEnergy(excess, false);
+                if (accepted > 0) {
+                    excess -= accepted;
+                    this.energy -= accepted;
+                    setChanged();
+                    clientSyncDirty = true;
+                }
             }
         }
     }
@@ -230,11 +235,38 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     }
 
     class FeEnergyStore implements IEnergyStorage {
+        @Nullable private final Direction side;
+
+        FeEnergyStore(@Nullable Direction side) {
+            this.side = side;
+        }
+
+        /**
+         * 判断当前面是否为输入面：
+         * - 默认（lastInputSide == null）两面都可输入
+         * - 已确定输入面后，只有该面可输入
+         */
+        private boolean isInputSide() {
+            return lastInputSide == null || lastInputSide == side;
+        }
+
+        /**
+         * 判断当前面是否为输出面：
+         * - 默认（lastInputSide == null）不可输出
+         * - 对端是输入面时，本面变为输出面
+         */
+        private boolean isOutputSide() {
+            return lastInputSide != null && lastInputSide != side;
+        }
+
         public int receiveEnergy(int maxReceive, boolean simulate) {
             if (!canReceive()) return 0;
             int r = Math.min(MAX_ENERGY - energy, maxReceive);
             if (!simulate) {
                 energy += r;
+                if (side != null && lastInputSide != side) {
+                    lastInputSide = side;
+                }
                 setChanged();
                 clientSyncDirty = true;
             }
@@ -261,11 +293,11 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
         }
 
         public boolean canExtract() {
-            return true;
+            return isOutputSide();
         }
 
         public boolean canReceive() {
-            return energy < MAX_ENERGY;
+            return isInputSide() && energy < MAX_ENERGY;
         }
     }
 }

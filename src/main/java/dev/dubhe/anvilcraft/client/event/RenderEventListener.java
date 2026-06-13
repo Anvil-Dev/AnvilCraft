@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
+import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -53,6 +54,19 @@ public class RenderEventListener {
     }
 
     @SubscribeEvent
+    public static void onRenderBounce(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
+        SeismicBounceManager.getInstance().render(
+            event.getPoseStack(),
+            event.getLevelRenderer().renderBuffers.bufferSource(),
+            event.getPartialTick().getGameTimeDeltaPartialTick(Minecraft.getInstance().isPaused()),
+            event.getCamera().getPosition().x(),
+            event.getCamera().getPosition().y(),
+            event.getCamera().getPosition().z()
+        );
+    }
+
+    @SubscribeEvent
     public static void onRender(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
         if (Minecraft.getInstance().options.hideGui) return;
@@ -65,6 +79,7 @@ public class RenderEventListener {
         double camX = vec3.x();
         double camY = vec3.y();
         double camZ = vec3.z();
+
         PowerGridSupport.renderTransmitterLine(pose, bufferSource, vec3);
 
         if (!(entity instanceof LivingEntity livingEntity)) return;

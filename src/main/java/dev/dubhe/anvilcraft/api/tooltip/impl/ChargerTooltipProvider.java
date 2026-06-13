@@ -9,9 +9,11 @@ import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
+import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
@@ -28,11 +30,12 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
     public List<Component> tooltip(BlockEntity value) {
         if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
         if (!(value instanceof ChargerBlockEntity charger)) return List.of();
+
         final List<Component> lines = new ArrayList<>();
         boolean overloaded = false;
         BlockPos pos = charger.getBlockPos();
-        if (charger.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
-            overloaded = charger.getBlockState().getValues().getOrDefault(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
+        if (value.getBlockState().hasProperty(IPowerComponent.OVERLOAD)) {
+            overloaded = value.getBlockState().getValues().getOrDefault(IPowerComponent.OVERLOAD, true).equals(Boolean.TRUE);
         }
         Optional<SimplePowerGrid> powerGrids = SimplePowerGrid.findPowerGrid(pos);
         if (powerGrids.isEmpty()) return List.of();
@@ -64,13 +67,26 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
         lines.add(Component.translatable("tooltip.anvilcraft.grid_information.total_generated", grid.getGenerate())
             .withStyle(ChatFormatting.GRAY));
 
-        double progress = charger.getProgress();
         lines.add(Component.translatable("tooltip.anvilcraft.working_progress.title").withStyle(ChatFormatting.BLUE));
         lines.add(Component.translatable(
             "tooltip.anvilcraft.working_progress.progress",
-            FormattingUtil.toShadeProgress(progress, 5),
-            String.valueOf(((int) (progress * 10000)) / 100.0)
+            FormattingUtil.toShadeProgress(charger.getProgress(), 5),
+            String.valueOf(((int) (charger.getProgress() * 10000)) / 100.0)
         ).withStyle(ChatFormatting.GRAY));
+        if (charger.isFeCharging()) {
+            int currentEnergy = charger.getTimeTotalCache() - charger.getTimeLeft();
+            MutableComponent feLine = Component.literal("  ").withStyle(ChatFormatting.GRAY)
+                .append(UnitUtil.energyUnit(currentEnergy, false))
+                .append(Component.literal(" / ").withStyle(ChatFormatting.GRAY))
+                .append(UnitUtil.energyUnit(charger.getTimeTotalCache(), false));
+            lines.add(feLine);
+        } else if (charger.getTimeTotalCache() > 0) {
+            lines.add(Component.translatable(
+                "tooltip.anvilcraft.working_progress.time",
+                FormattingUtil.toFormattedTime(charger.getTimeLeft()),
+                FormattingUtil.toFormattedTime(charger.getTimeTotalCache())
+            ).withStyle(ChatFormatting.GRAY));
+        }
         return lines;
     }
 

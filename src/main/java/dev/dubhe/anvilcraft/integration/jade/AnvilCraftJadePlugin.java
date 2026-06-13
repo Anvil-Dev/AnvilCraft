@@ -2,7 +2,9 @@ package dev.dubhe.anvilcraft.integration.jade;
 
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.integration.jade.provider.BurningHeaterProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.ChargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapStorageProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.DischargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
@@ -30,7 +32,8 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(HeatableBlockProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(BurningHeaterProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(SmartBlockPlacerProvider.INSTANCE, Block.class);
-        registration.registerBlockDataProvider(WipBlockProvider.INSTANCE, Block.class);
+        registration.registerBlockDataProvider(ChargerProvider.INSTANCE, BlockEntity.class);
+        registration.registerBlockDataProvider(DischargerProvider.INSTANCE, BlockEntity.class);
     }
 
     @Override
@@ -43,6 +46,8 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(HeatableBlockProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(BurningHeaterProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(SmartBlockPlacerProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(ChargerProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(DischargerProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(WipBlockProvider.INSTANCE, Block.class);
     }
 }

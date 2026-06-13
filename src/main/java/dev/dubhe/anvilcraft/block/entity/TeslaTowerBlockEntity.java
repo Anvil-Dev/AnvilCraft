@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
@@ -32,6 +33,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -57,6 +59,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable {
     private final ArrayList<Pair<TeslaFilter, String>> whiteList = new ArrayList<>();
     private int tickCount = 0;
+    private int flashTimer = 0;
     @Setter
     @Getter
     private @Nullable PowerGrid grid;
@@ -177,11 +180,21 @@ public class TeslaTowerBlockEntity extends BlockEntity
         this.flushState(this.level, getBlockPos().above(2));
         this.flushState(this.level, getBlockPos().above(3));
         if (this.level.isClientSide()) return;
+        if (this.flashTimer > 0) {
+            this.flashTimer--;
+            if (this.flashTimer == 0) {
+                this.targetEntity = null;
+                this.targetEntityUUID = null;
+                this.targetLightningRod = null;
+                this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+            }
+        }
         if (state.getValue(TeslaTowerBlock.OVERLOAD) || state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF) {
             final boolean hasChanged = this.targetEntity != null || this.targetEntityUUID != null || this.targetLightningRod != null;
             this.targetEntity = null;
             this.targetEntityUUID = null;
             this.targetLightningRod = null;
+            this.flashTimer = 0;
             if (hasChanged) {
                 this.setChanged();
                 this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
@@ -219,6 +232,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
             this.targetEntityUUID = targetEntity.getUUID();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
             this.targetEntity.hurt(this.level.damageSources().lightningBolt(), 5.0F);
+            this.flashTimer = 5;
+            this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         } else {
             ArrayList<BlockPos> lightningRods = new ArrayList<>();
             BlockPos.betweenClosedStream(aabb)
@@ -241,6 +256,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 this.level,
                 targetLightningRod
             );
+            this.flashTimer = 5;
+            this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         }
     }
 
