@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -60,7 +61,6 @@ public class DischargerBlockEntity extends BlockEntity
     private boolean isFeDischarging = false;
     private int signalCache = 0;
 
-    @Getter
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
 
         @Override
@@ -355,7 +355,11 @@ public class DischargerBlockEntity extends BlockEntity
 
     private void dropItemStack(ItemStack stack) {
         if (!stack.isEmpty() && this.level != null) {
-            BlockPos.dropItemStack(this.level, this.getBlockPos().above(), stack);
+            Containers.dropItemStack(this.level,
+                this.getBlockPos().getX() + 0.5,
+                this.getBlockPos().getY() + 1.0,
+                this.getBlockPos().getZ() + 0.5,
+                stack);
         }
     }
 
@@ -433,7 +437,7 @@ public class DischargerBlockEntity extends BlockEntity
         for (int slot = 0; slot < depository.size(); slot++) {
             ItemStack stack = depository.getStacks().get(slot).copy();
             if (!stack.isEmpty()) {
-                BlockPos.dropItemStack(this.level, pos.getCenter(), stack);
+                Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), stack);
             }
         }
     }

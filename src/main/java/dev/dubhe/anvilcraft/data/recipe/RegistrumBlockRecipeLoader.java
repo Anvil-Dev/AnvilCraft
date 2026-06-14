@@ -1103,7 +1103,7 @@ public class RegistrumBlockRecipeLoader {
                 BuiltInRegistries.ITEM.get(ctx.getId()).orElseThrow(),
                 1,
                 DataComponentPatch.builder()
-                    .set(ModComponents.STORED_ENERGY, new StoredEnergy(4000))
+                    .set(ModComponents.STORED_ENERGY, new StoredEnergy(8000000))
                     .build()
             ))
             .pattern("CDC")

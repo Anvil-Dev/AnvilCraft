@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -18,6 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -56,7 +58,6 @@ public class ChargerBlockEntity extends BlockEntity
     private int feCooldown = 0;
     private int signalCache = 0;
 
-    @Getter
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
 
         @Override
@@ -305,7 +306,6 @@ public class ChargerBlockEntity extends BlockEntity
         return PowerComponentType.CONSUMER;
     }
 
-    @Override
     public int getOutputPower() {
         return 0;
     }
@@ -365,7 +365,11 @@ public class ChargerBlockEntity extends BlockEntity
 
     private void dropItemStack(ItemStack stack) {
         if (!stack.isEmpty() && this.level != null) {
-            BlockPos.dropItemStack(this.level, this.getBlockPos().above(), stack);
+            Containers.dropItemStack(this.level,
+                this.getBlockPos().getX() + 0.5,
+                this.getBlockPos().getY() + 1.0,
+                this.getBlockPos().getZ() + 0.5,
+                stack);
         }
     }
 
@@ -452,7 +456,7 @@ public class ChargerBlockEntity extends BlockEntity
         for (int slot = 0; slot < depository.size(); slot++) {
             ItemStack stack = depository.getStacks().get(slot).copy();
             if (!stack.isEmpty()) {
-                BlockPos.dropItemStack(this.level, pos.getCenter(), stack);
+                Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), stack);
             }
         }
     }
