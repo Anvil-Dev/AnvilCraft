@@ -37,9 +37,9 @@ items:
 # Acquisition
 
 - To obtain your first amulet, you need an <ref item="anvilcraft:amulet_box"/>:
-  - Have an <ref item="anvilcraft:amulet_box"/> in your inventory with a Totem of Undying inside
-  - Take specific fatal damage and have the Totem of Undying consumed to block it
-  - 20% chance to obtain the corresponding amulet. If it fails, the chance increases by an additional 10%
+  1. Have an <ref item="anvilcraft:amulet_box"/> in your inventory with a Totem of Undying inside
+  2. Take specific fatal damage and have the Totem of Undying consumed to block it
+  3. 20% chance to obtain the corresponding amulet. If it fails, the chance increases by an additional 10%
 - Afterwards, amulets can be replicated in the <ref item="anvilcraft:jewelcrafting_table"/>; you must obtain the first one before replication
 
 Below is a list of each amulet, its fatal damage source, and its effect

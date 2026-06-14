@@ -1,0 +1,27 @@
+{
+    DataVersion: 3955,
+    size: [6, 3, 1],
+    data: [
+        {pos: [2, 0, 0], state: "minecraft:observer{facing:west,powered:false}"},
+        {pos: [3, 0, 0], state: "minecraft:smooth_stone"},
+        {pos: [4, 0, 0], state: "minecraft:observer{facing:west,powered:false}"},
+        {pos: [5, 0, 0], state: "minecraft:smooth_stone"},
+        {pos: [0, 1, 0], state: "minecraft:piston{extended:false,facing:east}"},
+        {pos: [2, 1, 0], state: "minecraft:slime_block"},
+        {pos: [3, 1, 0], state: "minecraft:sticky_piston{extended:false,facing:west}"},
+        {pos: [4, 1, 0], state: "minecraft:rail{shape:east_west,waterlogged:false}"},
+        {pos: [5, 1, 0], state: "anvilcraft:block_devourer{facing:east,triggered:false}"},
+        {pos: [2, 2, 0], state: "minecraft:redstone_block"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:observer{facing:west,powered:false}",
+        "minecraft:smooth_stone",
+        "minecraft:piston{extended:false,facing:east}",
+        "minecraft:slime_block",
+        "minecraft:sticky_piston{extended:false,facing:west}",
+        "minecraft:redstone_block",
+        "minecraft:rail{shape:east_west,waterlogged:false}",
+        "anvilcraft:block_devourer{facing:east,triggered:false}"
+    ]
+}

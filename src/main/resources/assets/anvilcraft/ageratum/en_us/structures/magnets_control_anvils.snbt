@@ -1,0 +1,24 @@
+{
+    DataVersion: 3955,
+    size: [3, 4, 2],
+    data: [
+        {pos: [0, 0, 1], state: "minecraft:cobblestone"},
+        {pos: [2, 0, 1], state: "minecraft:gravel"},
+        {pos: [2, 1, 1], state: "minecraft:anvil{facing:west}"},
+        {pos: [0, 2, 1], state: "minecraft:anvil{facing:west}"},
+        {pos: [0, 3, 0], state: "minecraft:lever{face:wall,facing:north,powered:false}"},
+        {pos: [0, 3, 1], state: "anvilcraft:magnet_block{lit:false}"},
+        {pos: [2, 3, 0], state: "minecraft:lever{face:wall,facing:north,powered:true}"},
+        {pos: [2, 3, 1], state: "anvilcraft:magnet_block{lit:true}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:cobblestone",
+        "minecraft:gravel",
+        "anvilcraft:magnet_block{lit:false}",
+        "anvilcraft:magnet_block{lit:true}",
+        "minecraft:anvil{facing:west}",
+        "minecraft:lever{face:wall,facing:north,powered:false}",
+        "minecraft:lever{face:wall,facing:north,powered:true}"
+    ]
+}
