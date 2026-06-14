@@ -1,0 +1,9 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "anvilcraft:block/burning_heater",
+	"ambientocclusion": false,
+	"textures": {
+		"side": "anvilcraft:block/burning_heater_side_lit",
+		"top": "anvilcraft:block/burning_heater_top_lit"
+	}
+}

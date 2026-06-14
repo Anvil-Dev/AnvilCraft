@@ -1,0 +1,65 @@
+{
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"ambientocclusion": false,
+	"textures": {
+		"bottom": "anvilcraft:block/burning_heater_bottom",
+		"particle": "anvilcraft:block/burning_heater_side",
+		"side": "anvilcraft:block/burning_heater_side",
+		"top": "anvilcraft:block/burning_heater_top"
+	},
+	"elements": [
+		{
+			"from": [3, 0, 3],
+			"to": [13, 13, 13],
+			"faces": {
+				"up": {"uv": [3, 3, 13, 13], "texture": "#top"},
+				"down": {"uv": [3, 3, 13, 13], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 3],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"east": {"uv": [13, 0, 16, 16], "texture": "#side"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"west": {"uv": [0, 0, 3, 16], "texture": "#side"},
+				"up": {"uv": [0, 0, 16, 3], "texture": "#top"},
+				"down": {"uv": [0, 13, 16, 16], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [13, 0, 3],
+			"to": [16, 16, 13],
+			"faces": {
+				"east": {"uv": [3, 0, 13, 16], "texture": "#side"},
+				"west": {"uv": [3, 0, 13, 16], "texture": "#side"},
+				"up": {"uv": [13, 3, 16, 13], "texture": "#top"},
+				"down": {"uv": [13, 3, 16, 13], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [0, 0, 3],
+			"to": [3, 16, 13],
+			"faces": {
+				"east": {"uv": [3, 0, 13, 16], "texture": "#side"},
+				"west": {"uv": [3, 0, 13, 16], "texture": "#side"},
+				"up": {"uv": [0, 3, 3, 13], "texture": "#top"},
+				"down": {"uv": [0, 3, 3, 13], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [0, 0, 13],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"east": {"uv": [0, 0, 3, 16], "texture": "#side"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#side"},
+				"west": {"uv": [13, 0, 16, 16], "texture": "#side"},
+				"up": {"uv": [0, 13, 16, 16], "texture": "#top"},
+				"down": {"uv": [0, 0, 16, 3], "texture": "#bottom"}
+			}
+		}
+	]
+}

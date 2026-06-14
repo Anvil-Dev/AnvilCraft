@@ -598,6 +598,15 @@ public class ModBlocks {
                 : state.getValue(BurningHeaterBlock.LEVEL) >= 1 ? 7 : 0)
             )
         .simpleItem()
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatchWrap.initial(BurningHeaterBlock.LEVEL)
+                    .select(0, BlockModelGenerators.plainVariant(ctx.getId().withPath(p -> "block/burning_heater")))
+                    .select(1, BlockModelGenerators.plainVariant(ctx.getId().withPath(p -> "block/burning_heater_smoldering")))
+                    .select(2, BlockModelGenerators.plainVariant(ctx.getId().withPath(p -> "block/burning_heater_lit")))
+                    .dispatch()
+                )
+        ))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
