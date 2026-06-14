@@ -144,8 +144,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         }
         if (!(entity instanceof ItemEntity itemEntity)) return;
         if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
-            this.tryIgnite(level, pos);
-            itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
+            if (this.tryIgnite(level, pos)) {
+                itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
+            }
         } else if (itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
             this.tryIgnite(level, pos);
         }
@@ -164,8 +165,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             return;
         }
         if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
-            this.tryIgnite(level, pos);
-            itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
+            if (this.tryIgnite(level, pos)) {
+                itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
+            }
         } else if (itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
             this.tryIgnite(level, pos);
         }
