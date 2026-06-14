@@ -6,7 +6,9 @@ import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.Connection;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
@@ -16,8 +18,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
+import org.jspecify.annotations.Nullable;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
@@ -60,9 +67,6 @@ public class BurningHeaterBlockEntity extends BlockEntity {
 
             if (this.burnTime > 0) {
                 this.burnTime--;
-                if (this.burnTime % 20 == 0) {
-                    needsUpdate = true;
-                }
             }
 
             int burnTimeBeforeFuel = this.burnTime;
@@ -71,8 +75,9 @@ public class BurningHeaterBlockEntity extends BlockEntity {
                 needsUpdate = true;
             }
 
-            if (needsUpdate) {
+            if (needsUpdate || level.getGameTime() % 4 == 0) {
                 setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
                 level.updateNeighbourForOutputSignal(pos, state.getBlock());
             }
 
@@ -110,6 +115,26 @@ public class BurningHeaterBlockEntity extends BlockEntity {
                 }
             }
         }
+    }
+
+    /**
+     * 获取用于显示的燃烧时间（客户端返回服务器同步值，无倒计时估算）
+     */
+    public int getDisplayBurnTime() {
+        return this.burnTime;
+    }
+
+    @Override
+    @Nullable
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        CompoundTag tag = super.getUpdateTag(provider);
+        tag.putInt("BurnTime", this.burnTime);
+        return tag;
     }
 
     public void consumeBurnTime(int ticks) {

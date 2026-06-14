@@ -1,12 +1,14 @@
 package dev.dubhe.anvilcraft.integration.jade;
 
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
+import dev.dubhe.anvilcraft.integration.jade.provider.BurningHeaterProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapStorageProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.BurningHeaterClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CrabTrapStorageClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.HeatableBlockClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ItemDetectorClientProvider;
@@ -31,11 +33,13 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(SpaceOvercompressorProvider.INSTANCE, BlockEntity.class);
         registration.registerItemStorage(CrabTrapStorageProvider.INSTANCE, CrabTrapBlockEntity.class);
         registration.registerBlockDataProvider(HeatableBlockProvider.INSTANCE, Block.class);
+        registration.registerBlockDataProvider(BurningHeaterProvider.INSTANCE, Block.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(PowerBlockClientProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(BurningHeaterClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(RubyPrismClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(ItemDetectorClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(SpaceOvercompressorClientProvider.INSTANCE, Block.class);

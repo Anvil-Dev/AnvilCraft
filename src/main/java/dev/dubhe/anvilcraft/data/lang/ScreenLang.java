@@ -121,6 +121,15 @@ public class ScreenLang {
 
         provider.add("tooltip.anvilcraft.space_overcompressor.stored_mass", "Stored Mass: %s");
 
+        provider.add("tooltip.anvilcraft.burning_heater.state_name", "State:");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.off", "  Off");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.smoldering", "  Smoldering");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.lit", "  Lit");
+        provider.add("tooltip.anvilcraft.burning_heater.burn_time_label", "Remaining Burn Time:");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt", "Can Smelt:");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt.yes", "  Yes");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt.no", "  No");
+
         provider.add("screen.anvilcraft.ember_metal_upgrade_smithing_template", "Ember Metal Upgrade");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description", "Put the Ember Metal Ingot or Ember Metal Block");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to", "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations");
