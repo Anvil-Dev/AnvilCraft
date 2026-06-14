@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
@@ -67,6 +68,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
@@ -197,7 +199,13 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRUM
         .blockEntity("charger", ChargerBlockEntity::new)
         .renderer(() -> ChargerRenderer::new)
-        .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
+        .validBlock(ModBlocks.CHARGER)
+        .register();
+
+    public static final BlockEntityEntry<DischargerBlockEntity> DISCHARGER = REGISTRUM
+        .blockEntity("discharger", DischargerBlockEntity::new)
+        .renderer(() -> DischargerRenderer::new)
+        .validBlock(ModBlocks.DISCHARGER)
         .register();
 
     public static final BlockEntityEntry<ActiveSilencerBlockEntity> ACTIVE_SILENCER = REGISTRUM

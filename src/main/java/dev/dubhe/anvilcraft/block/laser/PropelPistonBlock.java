@@ -109,15 +109,15 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
             int storedEnergy = propelPistonBlockEntity.getStoredEnergy();
             if (stack.is(ModItems.CAPACITOR)) {
-                if (storedEnergy < 76000) {
-                    propelPistonBlockEntity.addEnergy(4000);
+                if (storedEnergy < 152000000) {
+                    propelPistonBlockEntity.addEnergy(8000000);
                     stack.consume(1, player);
                     player.addItem(ModItems.CAPACITOR_EMPTY.asStack());
                     return InteractionResult.SUCCESS;
                 }
             } else if (stack.is(ModItems.SUPER_CAPACITOR)) {
-                if (storedEnergy < 20000) {
-                    propelPistonBlockEntity.updateStoredEnergy(80000);
+                if (storedEnergy < 40000000) {
+                    propelPistonBlockEntity.updateStoredEnergy(160000000);
                     stack.consume(1, player);
                     player.addItem(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
                     return InteractionResult.SUCCESS;
@@ -246,7 +246,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
             list.addFirst(pos);
 
             if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-                propelPistonBlockEntity.addEnergy(-(list.size() * 5));
+                propelPistonBlockEntity.addEnergy(-(list.size() * 10000));
             }
 
             for (BlockPos blockPos1 : list) {
