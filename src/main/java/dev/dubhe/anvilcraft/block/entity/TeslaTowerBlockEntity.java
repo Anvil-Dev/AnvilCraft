@@ -229,6 +229,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         }
         Optional<LivingEntity> target = this.level.getEntitiesOfClass(LivingEntity.class, aabb)
             .stream()
+            .filter(LivingEntity::isAlive)
             .filter(it -> this.whiteList.stream().noneMatch(it2 -> it2.left().match(it, it2.right())))
             .min((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()));
         if (target.isPresent()) {
