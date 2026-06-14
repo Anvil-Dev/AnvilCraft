@@ -361,7 +361,8 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .strength(4.0F)
             .sound(GiantAnvilBlock.SOUND_TYPE)
-            .explosionResistance(1200))
+            .explosionResistance(1200)
+            .isViewBlocking(ModBlocks::never))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .properties((properties) -> properties.stacksTo(16))
@@ -1015,7 +1016,11 @@ public class ModBlocks {
     public static final BlockEntry<LargeLaserBlock> LARGE_LASER = REGISTRUM
         .block("large_laser", LargeLaserBlock::new)
         .initialProperties(RUBY_LASER::get)
-        .properties(properties -> properties.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties
+            .isSuffocating(ModBlocks::never)
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .isViewBlocking(ModBlocks::never))
         .loot(FlexibleMultiPartBlock::loot)
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, DirectionProperty, Direction>::new)
         .properties((properties) -> properties.stacksTo(16))
@@ -1284,7 +1289,11 @@ public class ModBlocks {
             LargeFluidTankBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never))
+        .properties(p -> p
+            .isSuffocating(ModBlocks::never)
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .isViewBlocking(ModBlocks::never))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .properties((properties) -> properties.stacksTo(16))
@@ -1324,6 +1333,7 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .properties((properties) -> properties
             .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
