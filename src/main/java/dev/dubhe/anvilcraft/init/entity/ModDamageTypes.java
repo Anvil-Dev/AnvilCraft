@@ -27,12 +27,17 @@ public class ModDamageTypes {
         Registries.DAMAGE_TYPE,
         AnvilCraft.of("falling_giant_anvil")
     );
+    public static final ResourceKey<DamageType> HEATER_BURN = ResourceKey.create(
+        Registries.DAMAGE_TYPE,
+        AnvilCraft.of("heater_burn")
+    );
 
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
         ctx.register(LASER, new DamageType("anvilcraft.laser", 0.1F, DamageEffects.BURNING));
         ctx.register(LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1F));
         ctx.register(FALLING_GIANT_ANVIL, new DamageType("anvilcraft.falling_giant_anvil", 0.1F));
+        ctx.register(HEATER_BURN, new DamageType("anvilcraft.heater_burn", 0.1F, DamageEffects.BURNING));
     }
 
     public static DamageSource laser(Level level) {
@@ -45,6 +50,10 @@ public class ModDamageTypes {
 
     public static DamageSource fallingGiantAnvil(Level level, @Nullable Entity cause) {
         return ModDamageTypes.source(ModDamageTypes.FALLING_GIANT_ANVIL, level, cause);
+    }
+
+    public static DamageSource heaterBurn(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.HEATER_BURN, level);
     }
 
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {

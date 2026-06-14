@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
+import net.minecraft.world.item.component.ItemContainerContents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
@@ -151,6 +152,11 @@ public class ModComponents {
     public static final DataComponentType<MultitoolMode> MULTITOOL_MODE = register(
         "multitool_mode",
         b -> b.persistent(MultitoolMode.CODEC).networkSynchronized(MultitoolMode.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<ItemContainerContents> BURNING_HEATER_CONTENTS = register(
+        "burning_heater_contents",
+        b -> b.persistent(ItemContainerContents.CODEC).networkSynchronized(ItemContainerContents.STREAM_CODEC)
     );
 
     public static final DataComponentType<IAmulet> AMULET = register(

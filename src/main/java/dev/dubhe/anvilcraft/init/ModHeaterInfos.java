@@ -9,6 +9,8 @@ import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
+import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
+import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -39,6 +41,23 @@ public class ModHeaterInfos {
             false,
             heater -> Set.of(heater.pos().above()),
             HeatTierLine.always(HeatTier.HEATED, 2)
+        )
+    );
+    public static final HeaterInfo<BurningHeaterBlockEntity> BURNING_HEATER = HeatRecorder.registerProducerInfo(
+        HeaterInfo.blockEntity(
+            ModBlockEntities.BURNING_HEATER,
+            be -> {
+                int level = be.getBlockState().getValue(BurningHeaterBlock.LEVEL);
+                if (level >= 2) return Set.of(be.getBlockPos().above(1), be.getBlockPos().above(2));
+                return Set.of(be.getBlockPos().above());
+            },
+            HeatTierLine.builder()
+                .addPoint(1, HeatTier.NORMAL)
+                .addPoint(BurningHeaterBlockEntity.LIT_THRESHOLD / 20, HeatTier.HEATED, 2)
+                .addPoint(BurningHeaterBlockEntity.MAX_BURN_TIME / 20, HeatTier.REDHOT, 4)
+                .addPoint(HeatTier.GLOWING, 4)
+                .build(),
+            be -> be.getBurnTime() / 20
         )
     );
     public static final HeaterInfo<MineralFountainBlockEntity> LAVA_MINERAL_FOUNTAIN = HeatRecorder.registerProducerInfo(

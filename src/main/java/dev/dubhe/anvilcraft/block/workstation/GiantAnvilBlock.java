@@ -20,6 +20,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -284,7 +285,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             }
         }
 
-        level.playSound(null, belowPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.55F, level.getRandom().nextFloat() * 0.1F + 0.55F);
+        level.playSound(null, belowPos, ModSoundEvents.GIANT_ANVIL_LAND.get(), SoundSource.BLOCKS, 0.55F, level.getRandom().nextFloat() * 0.1F + 0.55F);
     }
 
     @Override

@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
@@ -138,6 +139,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<HeaterBlockEntity> HEATER = REGISTRUM
         .blockEntity("heater", HeaterBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.HEATER)
+        .register();
+
+    public static final BlockEntityEntry<BurningHeaterBlockEntity> BURNING_HEATER = REGISTRUM
+        .blockEntity("burning_heater", BurningHeaterBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.BURNING_HEATER)
         .register();
 
     public static final BlockEntityEntry<TransmissionPoleBlockEntity> TRANSMISSION_POLE = REGISTRUM

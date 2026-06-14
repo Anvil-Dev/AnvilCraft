@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -587,6 +588,17 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::heater)
+        .register();
+
+    public static final BlockEntry<BurningHeaterBlock> BURNING_HEATER = REGISTRUM.block("burning_heater", BurningHeaterBlock::new)
+        .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(properties -> properties
+            .noOcclusion()
+            .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) >= 2 ? 15
+                : state.getValue(BurningHeaterBlock.LEVEL) >= 1 ? 7 : 0)
+            )
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<TransmissionPoleBlock> TRANSMISSION_POLE = REGISTRUM.block(
