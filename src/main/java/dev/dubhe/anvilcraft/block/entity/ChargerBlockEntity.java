@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import net.neoforged.neoforge.transfer.ResourceHandler;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -33,6 +32,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -160,7 +160,7 @@ public class ChargerBlockEntity extends BlockEntity
 
         ChargerChargingRecipe recipe = this.getItemRecipe(resource);
         if (!this.checkRecipeItemNotValid(recipe)) {
-            isFeCharging = false;
+            this.isFeCharging = false;
             this.itemHandler.set(0, ItemResource.EMPTY, 0);
             ItemStackTemplate transformed = recipe.result();
             this.itemHandler.set(1, ItemResource.of(transformed), transformed.count());
@@ -177,8 +177,8 @@ public class ChargerBlockEntity extends BlockEntity
         if (energyHandler != null
             && energyHandler.getAmountAsInt() < energyHandler.getCapacityAsInt()
         ) {
-            isFeCharging = true;
-            feCooldown = 0;
+            this.isFeCharging = true;
+            this.feCooldown = 0;
             this.itemHandler.set(0, ItemResource.EMPTY, 0);
             this.itemHandler.set(1, resource, 1);
             int remainingFE = energyHandler.getCapacityAsInt() - energyHandler.getAmountAsInt();
@@ -204,7 +204,7 @@ public class ChargerBlockEntity extends BlockEntity
             return;
         }
 
-        if (isFeCharging) {
+        if (this.isFeCharging) {
             this.itemHandler.set(2, resource, 1);
         } else {
             ChargerChargingRecipe recipe = this.getItemRecipe(resource);
@@ -279,8 +279,8 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     private int getFeChargingPowerLevel() {
-        if (grid == null) return 0;
-        int remaining = grid.getRemaining();
+        if (this.grid == null) return 0;
+        int remaining = this.grid.getRemaining();
         if (remaining >= 512) return 512;
         if (remaining >= 256) return 256;
         if (remaining >= 128) return 128;
@@ -384,11 +384,11 @@ public class ChargerBlockEntity extends BlockEntity
             this.moveItemToTransformingSlot();
         }
         if (this.timeLeft > 0) {
-            if (isFeCharging) {
+            if (this.isFeCharging) {
                 this.powerValue = -(this.getFeChargingPowerLevel());
             }
             if (this.isGridWorking()) {
-                if (isFeCharging) {
+                if (this.isFeCharging) {
                     ItemStack processingStack = this.itemHandler.getStacks().get(1);
                     if (!processingStack.isEmpty()) {
                         EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(

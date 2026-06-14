@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import net.minecraft.world.item.Items;
@@ -83,6 +84,13 @@ public class ModCapabilities {
             Capabilities.Energy.ITEM,
             (stack, ctx) -> new ItemFEStorage(stack, 640000000),
             ModItems.ENERGY_WEAPON_PLATFORM.get()
+        );
+
+        // 飘升机背包 FE capability
+        event.registerItem(
+            Capabilities.Energy.ITEM,
+            (stack, ctx) -> new ItemFEStorage(stack, IonoCraftBackpackItem.MAX_ENERGY),
+            ModItems.IONOCRAFT_BACKPACK.get()
         );
     }
 

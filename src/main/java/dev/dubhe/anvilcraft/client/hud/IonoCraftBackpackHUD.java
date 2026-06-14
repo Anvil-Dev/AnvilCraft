@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -19,23 +20,23 @@ import org.joml.Matrix3x2fStack;
 public class IonoCraftBackpackHUD {
     private static final Identifier BATTERY_EMPTY = SharedTextures.textureGui("misc/battery_display/battery_empty");
     private static final Identifier BATTERY_FULL = SharedTextures.textureGui("misc/battery_display/battery_full");
+    private static final int FULL_BAR_COLOR = 0xFF5454FF;
+    private static final int BAR_COLOR = 0x7087FFFF;
 
     public static void render(GuiGraphicsExtractor graphics, DeltaTracker partialTick) {
-        if (!AnvilCraftClient.CONFIG.ionoCraftBackpackHud.enabled) {
-            return;
-        }
+        if (!AnvilCraftClient.CONFIG.ionoCraftBackpackHud.enabled) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.hideGui) return;
         LocalPlayer player = mc.player;
-        if (player == null) {
-            return;
-        }
+        if (player == null) return;
+
         ItemStack itemStack = IonoCraftBackpackItem.getByPlayer(player);
-        if (!itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
-            return;
-        }
-        int flightTime = IonoCraftBackpackItem.getFlightTime(itemStack);
-        final int percent = Math.round((float) flightTime / AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 100);
+        if (!itemStack.is(ModItems.IONOCRAFT_BACKPACK)) return;
+
+        int energy = IonoCraftBackpackItem.getEnergyStored(itemStack);
+        final int percent = Math.round((float) energy / IonoCraftBackpackItem.MAX_ENERGY * 100);
+        float ratio = Math.clamp((float) energy / IonoCraftBackpackItem.MAX_ENERGY, 0, 1);
+        int color = ColorUtil.lerpColor(ratio, BAR_COLOR, FULL_BAR_COLOR);
 
         final Font font = mc.font;
         Matrix3x2fStack pose = graphics.pose();
@@ -52,7 +53,7 @@ public class IonoCraftBackpackHUD {
         pose.translate(20, 4);
         Component text = Component.translatable("hud.anvilcraft.ionocraft_backpack_power", percent);
         int textWidth = font.width(text);
-        graphics.text(font, text, 0, 0, 0xFFFFFFFF, true);
+        graphics.text(font, text, 0, 0, color, true);
 
         final int batteryHeight = (int) (percent / 100F * 16);
 

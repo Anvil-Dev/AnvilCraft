@@ -163,7 +163,7 @@ public class DischargerBlockEntity extends BlockEntity
 
         ChargerChargingRecipe recipe = this.getItemRecipe(resource);
         if (!this.checkRecipeItemNotValid(recipe)) {
-            isFeDischarging = false;
+            this.isFeDischarging = false;
             this.itemHandler.set(0, ItemResource.EMPTY, 0);
             ItemStackTemplate transformed = recipe.result();
             this.itemHandler.set(1, ItemResource.of(transformed), transformed.count());
@@ -178,7 +178,7 @@ public class DischargerBlockEntity extends BlockEntity
         ItemStack stack = this.itemHandler.getStacks().get(0).copy();
         EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
         if (energyHandler != null && energyHandler.getAmountAsInt() > 0) {
-            isFeDischarging = true;
+            this.isFeDischarging = true;
             this.itemHandler.set(0, ItemResource.EMPTY, 0);
             this.itemHandler.set(1, ItemResource.of(stack), stack.getCount());
             this.timeLeft = energyHandler.getAmountAsInt();
@@ -262,10 +262,10 @@ public class DischargerBlockEntity extends BlockEntity
     }
 
     private int getFeDischargingPowerLevel() {
-        if (grid == null) return 0;
-        int consume = grid.getConsume();
+        if (this.grid == null) return 0;
+        int consume = this.grid.getConsume();
         int count = 0;
-        for (IPowerComponent component : grid.getComponents()) {
+        for (IPowerComponent component : this.grid.getComponents()) {
             if (component instanceof DischargerBlockEntity other && other.isFeDischarging) {
                 count++;
             }
@@ -374,10 +374,10 @@ public class DischargerBlockEntity extends BlockEntity
             this.moveItemToTransformingSlot();
         }
         if (this.timeLeft > 0) {
-            if (isFeDischarging) {
+            if (this. isFeDischarging) {
                 this.powerValue = this.getFeDischargingPowerLevel();
             }
-            if (isFeDischarging) {
+            if (this.isFeDischarging) {
                 ItemStack processingStack = this.itemHandler.getStacks().get(1);
                 if (!processingStack.isEmpty()) {
                     EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(

@@ -21,27 +21,27 @@ public class ItemFEStorage implements EnergyHandler {
 
     @Override
     public long getAmountAsLong() {
-        return stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
+        return this.stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
     }
 
     @Override
     public long getCapacityAsLong() {
-        return capacity;
+        return this.capacity;
     }
 
     @Override
     public int insert(int maxInsert, TransactionContext transaction) {
-        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
-        int accepted = Math.min(maxInsert, capacity - energy);
+        int energy = this.stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
+        int accepted = Math.min(maxInsert, this.capacity - energy);
         if (accepted > 0) {
-            stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(energy + accepted));
+            this.stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(energy + accepted));
         }
         return accepted;
     }
 
     @Override
     public int extract(int maxExtract, TransactionContext transaction) {
-        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
+        int energy = this.stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         int extracted = Math.min(energy, maxExtract);
         if (extracted > 0) {
             stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(energy - extracted));

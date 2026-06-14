@@ -99,7 +99,7 @@ public class AnvilCraftClient {
             Identifier defaultId
         ) {
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
-                if (IonoCraftBackpackItem.getFlightTime(itemStack) > 0) {
+                if (IonoCraftBackpackItem.getEnergyStored(itemStack) > 0) {
                     return IonoCraftBackpackItem.TEXTURE;
                 }
                 return IonoCraftBackpackItem.TEXTURE_OFF;

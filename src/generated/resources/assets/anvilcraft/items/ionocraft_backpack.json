@@ -12,7 +12,7 @@
     "predicate": "anvilcraft:integer_component",
     "property": "minecraft:component",
     "value": {
-      "type": "anvilcraft:flight_time",
+      "type": "anvilcraft:stored_energy",
       "value": 0
     }
   }
