@@ -157,24 +157,6 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
         return output.buildResult();
     }
 
-    /**
-     * 接收来自服务端的同步数据（专用网络包）
-     */
-    public void onSync(int burnTime, ItemStack fuelStack) {
-        this.burnTime = burnTime;
-        if (!fuelStack.isEmpty()) {
-            this.itemHandler.set(0,
-                ItemResource.of(fuelStack.getItem(), fuelStack.getComponentsPatch()),
-                fuelStack.getCount()
-            );
-        } else {
-            this.itemHandler.set(0, ItemResource.EMPTY, 0);
-        }
-        if (level != null) {
-            this.lastSyncGameTime = level.getGameTime();
-        }
-    }
-
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
