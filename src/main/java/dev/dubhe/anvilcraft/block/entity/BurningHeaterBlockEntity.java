@@ -17,9 +17,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 @SuppressWarnings("deprecation")
 public class BurningHeaterBlockEntity extends BlockEntity {
@@ -29,17 +31,16 @@ public class BurningHeaterBlockEntity extends BlockEntity {
     @Getter
     private int burnTime = 0;
 
-    @SuppressWarnings("deprecation")
     @Getter
-    private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+    private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(1) {
         @Override
-        public void onContentsChanged(int slot) {
+        public void onContentsChanged(int index, ItemStack previousContents) {
             setChanged();
         }
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return getItemBurnTime(stack) > 0 || stack.is(Items.BUCKET);
+        public boolean isValid(int index, ItemResource resource) {
+            return getItemBurnTime(resource.toStack()) > 0 || resource.toStack().is(Items.BUCKET);
         }
     };
 
@@ -65,7 +66,7 @@ public class BurningHeaterBlockEntity extends BlockEntity {
             }
 
             int burnTimeBeforeFuel = this.burnTime;
-            tryConsumeFuel();
+            this.tryConsumeFuel();
             if (this.burnTime != burnTimeBeforeFuel) {
                 needsUpdate = true;
             }
@@ -75,7 +76,7 @@ public class BurningHeaterBlockEntity extends BlockEntity {
                 level.updateNeighbourForOutputSignal(pos, state.getBlock());
             }
 
-            updateBurningState(level, pos, state);
+            this.updateBurningState(level, pos, state);
             HeaterManager.addProducer(pos, level, ModHeaterInfos.BURNING_HEATER);
             return;
         }
@@ -115,18 +116,28 @@ public class BurningHeaterBlockEntity extends BlockEntity {
         int remaining = ticks;
 
         while (remaining > 0) {
-            ItemStack fuel = this.itemHandler.getStackInSlot(0);
-            int burnTimePerItem = getItemBurnTime(fuel);
+            ItemResource fuelResource = this.itemHandler.getResource(0);
+            if (fuelResource.isEmpty()) break;
+            int fuelCount = this.itemHandler.getAmountAsInt(0);
+            int burnTimePerItem = getItemBurnTime(fuelResource.toStack());
             if (burnTimePerItem <= 0) break;
 
             int itemsToConsume = (remaining + burnTimePerItem - 1) / burnTimePerItem;
-            itemsToConsume = Math.min(itemsToConsume, fuel.getCount());
+            itemsToConsume = Math.min(itemsToConsume, fuelCount);
             if (itemsToConsume <= 0) break;
 
             remaining -= itemsToConsume * burnTimePerItem;
-            this.itemHandler.extractItem(0, itemsToConsume, false);
-            if (fuel.getCraftingRemainder() != null && this.itemHandler.getStackInSlot(0).isEmpty()) {
-                this.itemHandler.setStackInSlot(0, fuel.getCraftingRemainder().create());
+            try (Transaction tx = Transaction.openRoot()) {
+                this.itemHandler.extract(0, fuelResource, itemsToConsume, tx);
+                tx.commit();
+            }
+            ItemStack fuelStack = fuelResource.toStack(itemsToConsume);
+            if (fuelStack.getCraftingRemainder() != null && this.itemHandler.getResource(0).isEmpty()) {
+                ItemStack remainderStack = fuelStack.getCraftingRemainder().create();
+                this.itemHandler.set(0,
+                    ItemResource.of(remainderStack.getItem(), remainderStack.getComponentsPatch()),
+                    remainderStack.getCount()
+                );
             }
         }
 
@@ -157,17 +168,27 @@ public class BurningHeaterBlockEntity extends BlockEntity {
     private void tryConsumeFuel() {
         if (this.burnTime >= MAX_BURN_TIME) return;
 
-        ItemStack fuel = this.itemHandler.getStackInSlot(0);
-        int burnTimePerItem = getItemBurnTime(fuel);
+        ItemResource fuelResource = this.itemHandler.getResource(0);
+        if (fuelResource.isEmpty()) return;
+        int fuelCount = this.itemHandler.getAmountAsInt(0);
+        int burnTimePerItem = getItemBurnTime(fuelResource.toStack());
         if (burnTimePerItem <= 0) return;
 
-        int itemsToConsume = Math.min(fuel.getCount(), (MAX_BURN_TIME - this.burnTime) / burnTimePerItem);
+        int itemsToConsume = Math.min(fuelCount, (MAX_BURN_TIME - this.burnTime) / burnTimePerItem);
         if (itemsToConsume <= 0) return;
 
         this.burnTime += itemsToConsume * burnTimePerItem;
-        this.itemHandler.extractItem(0, itemsToConsume, false);
-        if (fuel.getCraftingRemainder() != null && this.itemHandler.getStackInSlot(0).isEmpty()) {
-            this.itemHandler.setStackInSlot(0, fuel.getCraftingRemainder().create());
+        try (Transaction tx = Transaction.openRoot()) {
+            this.itemHandler.extract(0, fuelResource, itemsToConsume, tx);
+            tx.commit();
+        }
+        ItemStack fuelStack = fuelResource.toStack(itemsToConsume);
+        if (fuelStack.getCraftingRemainder() != null && this.itemHandler.getResource(0).isEmpty()) {
+            ItemStack remainderStack = fuelStack.getCraftingRemainder().create();
+            this.itemHandler.set(0,
+                ItemResource.of(remainderStack.getItem(), remainderStack.getComponentsPatch()),
+                remainderStack.getCount()
+            );
         }
     }
 

@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,9 +22,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     /**
      * 燃烧等级：0=熄灭，1=阴燃(0-300s)，2=点燃(≥300s)
@@ -72,18 +75,29 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (!(level.getBlockEntity(pos) instanceof BurningHeaterBlockEntity be)) return InteractionResult.PASS;
-        //noinspection deprecation
-        if (!(be.getItemHandler() instanceof ItemStackHandler handler)) return InteractionResult.PASS;
+        ItemStacksResourceHandler handler = be.getItemHandler();
 
         ItemStack held = player.getMainHandItem();
-        ItemStack current = handler.getStackInSlot(0);
+        ItemResource currentResource = handler.getResource(0);
+        boolean hasItem = !currentResource.isEmpty();
 
         if (!held.isEmpty() && BurningHeaterBlockEntity.getItemBurnTime(held) > 0) {
-            ItemStack remaining = handler.insertItem(0, held.copy(), false);
-            held.setCount(remaining.getCount());
+            ItemResource heldResource = ItemResource.of(held.getItem(), held.getComponentsPatch());
+            try (Transaction tx = Transaction.openRoot()) {
+                int inserted = handler.insert(0, heldResource, held.getCount(), tx);
+                tx.commit();
+                held.setCount(held.getCount() - inserted);
+            }
             return InteractionResult.CONSUME;
-        } else if (held.isEmpty() && !current.isEmpty()) {
-            player.setItemInHand(player.getUsedItemHand(), handler.extractItem(0, current.getMaxStackSize(), false));
+        } else if (held.isEmpty() && hasItem) {
+            int amount = handler.getAmountAsInt(0);
+            try (Transaction tx = Transaction.openRoot()) {
+                int extracted = handler.extract(0, currentResource, amount, tx);
+                tx.commit();
+                if (extracted > 0) {
+                    player.setItemInHand(player.getUsedItemHand(), currentResource.toStack(extracted));
+                }
+            }
             return InteractionResult.CONSUME;
         }
 
