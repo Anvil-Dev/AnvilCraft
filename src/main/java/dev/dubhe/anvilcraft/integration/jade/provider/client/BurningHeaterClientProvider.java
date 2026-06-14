@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,7 +41,7 @@ public enum BurningHeaterClientProvider implements IBlockComponentProvider {
             if (displayBurnTime > 0) {
                 tooltip.add(Component.translatable(
                     "tooltip.anvilcraft.burning_heater.jade.burn_time",
-                    FormattingUtil.toFormattedTime(displayBurnTime, 60)));
+                    FormattingUtil.toFormattedTime(displayBurnTime)));
             }
 
             boolean canSmelt = level == 2;

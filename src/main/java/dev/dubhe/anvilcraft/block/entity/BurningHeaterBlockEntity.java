@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
@@ -8,8 +9,12 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.Connection;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -17,26 +22,26 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
-import org.jspecify.annotations.Nullable;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("deprecation")
-public class BurningHeaterBlockEntity extends BlockEntity {
+public class BurningHeaterBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     public static final int MAX_BURN_TIME = 1200 * 20;
     public static final int LIT_THRESHOLD = 240 * 20;
 
     @Getter
     private int burnTime = 0;
+
+    /** 客户端上次同步到 burnTime 时的游戏时间 */
+    private long lastSyncGameTime = 0;
 
     @Getter
     private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(1) {
@@ -61,21 +66,34 @@ public class BurningHeaterBlockEntity extends BlockEntity {
         return new BurningHeaterBlockEntity(type, pos, blockState);
     }
 
+    /**
+     * 获取用于显示的燃烧时间。
+     * 客户端上根据上次同步时间进行本地倒计时估算，避免频繁网络同步。
+     */
+    public int getDisplayBurnTime() {
+        if (level == null || !level.isClientSide()) return this.burnTime;
+        if (this.lastSyncGameTime <= 0) return this.burnTime;
+        long elapsed = level.getGameTime() - this.lastSyncGameTime;
+        return Math.max(0, this.burnTime - (int) elapsed);
+    }
+
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (!level.isClientSide()) {
-            boolean needsUpdate = false;
+            int oldBurnTime = this.burnTime;
+            int oldLevel = state.getValue(BurningHeaterBlock.LEVEL);
 
             if (this.burnTime > 0) {
                 this.burnTime--;
             }
 
-            int burnTimeBeforeFuel = this.burnTime;
             this.tryConsumeFuel();
-            if (this.burnTime != burnTimeBeforeFuel) {
-                needsUpdate = true;
-            }
+            int newLevel = state.getValue(BurningHeaterBlock.LEVEL);
 
-            if (needsUpdate || level.getGameTime() % 4 == 0) {
+            // 仅在燃烧时间大幅变化或燃烧等级改变时同步到客户端
+            boolean bigChange = Math.abs(this.burnTime - oldBurnTime) > 20
+                || oldLevel != newLevel;
+
+            if (bigChange) {
                 setChanged();
                 level.sendBlockUpdated(pos, state, state, 3);
                 level.updateNeighbourForOutputSignal(pos, state.getBlock());
@@ -86,6 +104,7 @@ public class BurningHeaterBlockEntity extends BlockEntity {
             return;
         }
 
+        // 客户端逻辑：音效和粒子
         int burningLevel = state.getValue(BurningHeaterBlock.LEVEL);
         if (burningLevel >= 1) {
             RandomSource random = level.getRandom();
@@ -117,11 +136,12 @@ public class BurningHeaterBlockEntity extends BlockEntity {
         }
     }
 
-    /**
-     * 获取用于显示的燃烧时间（客户端返回服务器同步值，无倒计时估算）
-     */
-    public int getDisplayBurnTime() {
-        return this.burnTime;
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null) {
+            this.lastSyncGameTime = level.getGameTime();
+        }
     }
 
     @Override
@@ -132,9 +152,43 @@ public class BurningHeaterBlockEntity extends BlockEntity {
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = super.getUpdateTag(provider);
-        tag.putInt("BurnTime", this.burnTime);
-        return tag;
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+        this.saveAdditional(output);
+        return output.buildResult();
+    }
+
+    /**
+     * 接收来自服务端的同步数据（专用网络包）
+     */
+    public void onSync(int burnTime, ItemStack fuelStack) {
+        this.burnTime = burnTime;
+        if (!fuelStack.isEmpty()) {
+            this.itemHandler.set(0,
+                ItemResource.of(fuelStack.getItem(), fuelStack.getComponentsPatch()),
+                fuelStack.getCount()
+            );
+        } else {
+            this.itemHandler.set(0, ItemResource.EMPTY, 0);
+        }
+        if (level != null) {
+            this.lastSyncGameTime = level.getGameTime();
+        }
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.burnTime = input.getIntOr("BurnTime", 0);
+        // 从磁盘加载燃料物品
+        input.read("FuelItem", ItemStack.CODEC).ifPresent(stack -> {
+            if (!stack.isEmpty()) {
+                ItemResource resource = ItemResource.of(stack.getItem(), stack.getComponentsPatch());
+                this.itemHandler.set(0, resource, stack.getCount());
+            }
+        });
+        if (level != null) {
+            this.lastSyncGameTime = level.getGameTime();
+        }
     }
 
     public void consumeBurnTime(int ticks) {
@@ -172,6 +226,7 @@ public class BurningHeaterBlockEntity extends BlockEntity {
 
         setChanged();
         if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }
     }
@@ -207,9 +262,8 @@ public class BurningHeaterBlockEntity extends BlockEntity {
             this.itemHandler.extract(0, fuelResource, itemsToConsume, tx);
             tx.commit();
         }
-        ItemStack fuelStack = fuelResource.toStack(itemsToConsume);
-        if (fuelStack.getCraftingRemainder() != null && this.itemHandler.getResource(0).isEmpty()) {
-            ItemStack remainderStack = fuelStack.getCraftingRemainder().create();
+        if (fuelResource.toStack().getCraftingRemainder() != null && this.itemHandler.getResource(0).isEmpty()) {
+            ItemStack remainderStack = fuelResource.toStack().getCraftingRemainder().create();
             this.itemHandler.set(0,
                 ItemResource.of(remainderStack.getItem(), remainderStack.getComponentsPatch()),
                 remainderStack.getCount()
@@ -228,11 +282,13 @@ public class BurningHeaterBlockEntity extends BlockEntity {
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putInt("BurnTime", this.burnTime);
-    }
-
-    @Override
-    protected void loadAdditional(ValueInput input) {
-        super.loadAdditional(input);
-        this.burnTime = input.getIntOr("BurnTime", 0);
+        // 持久化燃料物品
+        int count = this.itemHandler.getAmountAsInt(0);
+        ItemStack fuelStack = this.itemHandler.getResource(0).toStack();
+        if (!fuelStack.isEmpty()) {
+            fuelStack = fuelStack.copyWithCount(count);
+            output.store("FuelItem", ItemStack.CODEC, fuelStack);
+        }
     }
 }
+

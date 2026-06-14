@@ -31,7 +31,8 @@ public class ModRecipeOutcomeTypes {
         RoyalPreferenceOutcome.Type::new
     );
 
-    public static final DeferredHolder<IRecipeOutcome.Type<?>, ConsumeBurningHeaterFuel.Type> CONSUME_BURNING_HEATER_FUEL = OUTCOME_TYPE.register(
+    public static final DeferredHolder<IRecipeOutcome.Type<?>, ConsumeBurningHeaterFuel.Type>
+        CONSUME_BURNING_HEATER_FUEL = OUTCOME_TYPE.register(
         "consume_burning_heater_fuel",
         ConsumeBurningHeaterFuel.Type::new
     );

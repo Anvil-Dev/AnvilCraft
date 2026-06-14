@@ -8,8 +8,10 @@ import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,8 +59,23 @@ public class BurningHeaterTooltipProvider extends ITooltipProvider.BlockEntityTo
             lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.burn_time_label")
                 .withStyle(ChatFormatting.BLUE));
             lines.add(Component.literal(
-                "  " + FormattingUtil.toFormattedTime(burnTime, 60)
+                "  " + FormattingUtil.toFormattedTime(burnTime)
             ).withStyle(ChatFormatting.GRAY));
+        }
+
+        lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.fuel")
+            .withStyle(ChatFormatting.BLUE));
+        ItemResource fuelResource = be.getItemHandler().getResource(0);
+        if (fuelResource.isEmpty()) {
+            lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.fuel.none")
+                .withStyle(ChatFormatting.DARK_GRAY));
+        } else {
+            int fuelCount = be.getItemHandler().getAmountAsInt(0);
+            ItemStack fuelStack = fuelResource.toStack();
+            lines.add(Component.literal("  ")
+                .append(fuelStack.getHoverName())
+                .append(" × " + fuelCount)
+                .withStyle(ChatFormatting.GRAY));
         }
 
         lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.can_smelt")

@@ -99,6 +99,19 @@ public class FormattingUtil {
         return result.toString();
     }
 
+    /// 格式化时间（简单人性化格式）
+    ///
+    /// @param total 总tick数
+    ///
+    /// @return 格式化后的时间字符串，如 "4m 0s"
+    public static String toFormattedTime(int total) {
+        if (total <= 0) return "0m 0s";
+        int totalSeconds = (total + 19) / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return "%dm %ds".formatted(minutes, seconds);
+    }
+
     /// 根据进度生成一个给定长度的进度条
     ///
     /// @param progress 进度，0-1

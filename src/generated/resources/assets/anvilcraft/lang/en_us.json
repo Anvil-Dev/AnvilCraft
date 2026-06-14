@@ -1493,6 +1493,8 @@
   "tooltip.anvilcraft.burning_heater.can_smelt": "Can Smelt:",
   "tooltip.anvilcraft.burning_heater.can_smelt.no": "  No",
   "tooltip.anvilcraft.burning_heater.can_smelt.yes": "  Yes",
+  "tooltip.anvilcraft.burning_heater.fuel": "Fuel:",
+  "tooltip.anvilcraft.burning_heater.fuel.none": "  None",
   "tooltip.anvilcraft.burning_heater.jade.burn_time": "Burn Time: %s",
   "tooltip.anvilcraft.burning_heater.jade.can_smelt": "Can Smelt: %s",
   "tooltip.anvilcraft.burning_heater.jade.can_smelt.no": "No",

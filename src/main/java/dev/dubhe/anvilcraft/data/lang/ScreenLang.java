@@ -129,6 +129,8 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.burning_heater.can_smelt", "Can Smelt:");
         provider.add("tooltip.anvilcraft.burning_heater.can_smelt.yes", "  Yes");
         provider.add("tooltip.anvilcraft.burning_heater.can_smelt.no", "  No");
+        provider.add("tooltip.anvilcraft.burning_heater.fuel", "Fuel:");
+        provider.add("tooltip.anvilcraft.burning_heater.fuel.none", "  None");
 
         provider.add("screen.anvilcraft.ember_metal_upgrade_smithing_template", "Ember Metal Upgrade");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description", "Put the Ember Metal Ingot or Ember Metal Block");
