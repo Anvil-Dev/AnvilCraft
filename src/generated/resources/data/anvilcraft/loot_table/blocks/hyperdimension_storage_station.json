@@ -16,7 +16,7 @@
               "block": "anvilcraft:hyperdimension_storage_station",
               "condition": "minecraft:block_state_property",
               "properties": {
-                "half": "mid_center"
+                "half": "bottom_center"
               }
             }
           ],

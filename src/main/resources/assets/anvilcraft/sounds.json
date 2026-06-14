@@ -1,0 +1,20 @@
+{
+  "giant_anvil_shock": {
+    "subtitle": "subtitles.anvilcraft.giant_anvil_shock",
+    "sounds": [
+      {
+        "name": "entity.generic.explode",
+        "type": "event"
+      }
+    ]
+  },
+  "giant_anvil_resin_shock": {
+    "subtitle": "subtitles.anvilcraft.giant_anvil_resin_shock",
+    "sounds": [
+      {
+        "name": "block.slime_block.break",
+        "type": "event"
+      }
+    ]
+  }
+}

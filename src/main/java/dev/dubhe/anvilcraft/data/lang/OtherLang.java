@@ -40,6 +40,9 @@ public class OtherLang {
         provider.add("enchantment.anvilcraft.harvest", "Harvest");
         provider.add("enchantment.anvilcraft.smelting", "Smelting");
         provider.add("enchantment.anvilcraft.disintegration", "Disintegration");
+        provider.add("subtitles.anvilcraft.giant_anvil_land", "Giant Anvil landed");
+        provider.add("subtitles.anvilcraft.giant_anvil_shock", "Giant Anvil shockwave");
+        provider.add("subtitles.anvilcraft.giant_anvil_resin_shock", "Giant Anvil resin shock");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.falling_giant_anvil", "%1$s died due to systemic resonance caused by ground vibrations");

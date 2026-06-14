@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
-import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
@@ -73,7 +72,7 @@ public class AnvilCraftClient {
 
     @SubscribeEvent
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
-        e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
+        // IonocraftBackpackDecoration has been removed - decoration was migrated to armor renderer
     }
 
     @SubscribeEvent

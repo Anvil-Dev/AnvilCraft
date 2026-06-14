@@ -28,6 +28,17 @@ public class AnvilCraftClientConfig {
     @Comment("Bloom effect on laser and power transmitter lines.")
     public boolean renderBloomEffect = true;
 
+    @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
+    public boolean groundHeaveParticlesEnabled = true;
+
+    @Comment("Number of particles per block spawned by ground heave effect")
+    @BoundedDiscrete(max = 5, min = 0)
+    public int groundHeaveParticleCount = 1;
+
+    @Comment("Probability (0.0-1.0) each block spawns ground heave particles")
+    @BoundedDiscrete(max = 1, min = 0)
+    public double groundHeaveParticleChance = 0.8;
+
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
 
