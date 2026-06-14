@@ -60,7 +60,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     private void onSearchTextChange(String text) {
         leftScrollOff = 0;
         filteredFilters.clear();
-        if (text == null || text.isEmpty()) {
+        if (text.isEmpty()) {
             this.filterText = "";
             filteredFilters.addAll(allFilter);
             filteredFilters.removeIf(it -> whiteFilters.stream()
@@ -74,7 +74,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (text.startsWith("#")) {
             String search = text.replaceFirst("#", "");
             allFilter.stream()
-                .filter(it -> it.right().contains(search))
+                .filter(it -> it.left().tooltip(it.right()).contains(search)
+                    || it.right().contains(search))
                 .filter(it -> whiteFilters.stream()
                     .noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
                 )
@@ -91,7 +92,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
                 }
             }
             allFilter.stream()
-                .filter(it -> it.left().title().getString().contains(filterText))
+                .filter(it -> it.left().getTitle(it.right()).getString().contains(filterText)
+                    || it.right().contains(filterText))
                 .filter(it ->
                     whiteFilters.stream().noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right())))
                 .forEach(filteredFilters::add);
@@ -149,11 +151,13 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (variant == FILTER_FILTERED) {
             actualIndex += leftScrollOff;
             if (filteredFilters.isEmpty() || actualIndex >= filteredFilters.size()) return Component.empty();
-            return filteredFilters.get(actualIndex).left().title();
+            Pair<TeslaFilter, String> filter = filteredFilters.get(actualIndex);
+            return filter.left().getTitle(filter.right());
         } else {
             actualIndex += rightScrollOff;
             if (whiteFilters.isEmpty() || actualIndex >= whiteFilters.size()) return Component.empty();
-            return whiteFilters.get(actualIndex).left().title();
+            Pair<TeslaFilter, String> filter = whiteFilters.get(actualIndex);
+            return filter.left().getTitle(filter.right());
         }
     }
 
@@ -247,7 +251,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             .toList()
         );
         allFilter.addAll(BuiltInRegistries.ENTITY_TYPE.stream()
-            .map(it -> Pair.of(TeslaFilter.getFilter("IsEntityIdFilter"), Component.translatable(it.getDescriptionId()).getString()))
+            .map(it -> Pair.of(TeslaFilter.getFilter("IsEntityIdFilter"), BuiltInRegistries.ENTITY_TYPE.getKey(it).toString()))
             .toList()
         );
         filteredFilters.addAll(allFilter);

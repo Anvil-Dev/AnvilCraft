@@ -117,6 +117,7 @@ import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.SpaceOvercompressorBlock;
+import dev.dubhe.anvilcraft.block.SpacetimeSupercomputerBlock;
 import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.StepEffectBlock;
@@ -1452,6 +1453,19 @@ public class ModBlocks {
             );
         })
         .recipe(RegistrumBlockRecipeLoader::propelPiston)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<SpacetimeSupercomputerBlock> SPACETIME_SUPERCOMPUTER = REGISTRUM
+        .block("spacetime_supercomputer", SpacetimeSupercomputerBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties((properties) -> properties
+            .noOcclusion()
+            .explosionResistance(1200)
+            .isValidSpawn(Blocks::never)
+            .isSuffocating(ModBlocks::never))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .blockstate(DataGenUtil::simple)
         .simpleItem()
         .register();
 

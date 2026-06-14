@@ -5,9 +5,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.ColorUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -24,11 +21,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
 import java.util.Optional;
 
 public class AmuletBoxItem extends Item {
@@ -146,24 +141,6 @@ public class AmuletBoxItem extends Item {
     @Override
     public UseAnim getUseAnimation(ItemStack itemStack) {
         return UseAnim.NONE;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        BoxContents contents = stack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        if (Screen.hasShiftDown()) {
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.desc").withStyle(ChatFormatting.GRAY));
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.line_1").withStyle(ChatFormatting.GRAY));
-            tooltipComponents.add(Component.translatable("tooltip.anvilcraft.item.amulet_box.line_2").withStyle(ChatFormatting.GRAY));
-        } else {
-            tooltipComponents.add(Component.translatable(
-                "tooltip.anvilcraft.press_key",
-                Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.DARK_GRAY));
-        }
-        tooltipComponents.add(Component.empty());
-        tooltipComponents.add(Component.translatable(
-            "tooltip.anvilcraft.item.amulet_box.fullness", contents.usage(), CAPACITY
-        ).withStyle(ChatFormatting.GRAY));
     }
 
     @Override

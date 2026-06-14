@@ -48,22 +48,11 @@ public class ItemTooltipLang {
 
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %sm %ss");
 
-        provider.add(
-            "tooltip.anvilcraft.item.amulet_box.line_1",
-            "Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;"
-        );
-        provider.add(
-            "tooltip.anvilcraft.item.amulet_box.line_2",
-            "When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift."
-        );
         provider.add("tooltip.anvilcraft.item.amulet_box.fullness", "Fullness: %1$d / %2$d");
 
         provider.add("tooltip.anvilcraft.press_key", "Hold %s for more information");
 
-        provider.add(
-            "tooltip.anvilcraft.pill_box",
-            "Store pills, right-click to take one pill each, and press [%s] to use them in the inventory"
-        );
+
 
         provider.add("tooltip.anvilcraft.resonator.desc", "Press [%s] to switch modes. Auto mode supports all tools");
         provider.add(
@@ -72,7 +61,6 @@ public class ItemTooltipLang {
         );
 
         provider.add("tooltip.anvilcraft.thought", "Press [%s] for more info");
-        provider.add("tooltip.anvilcraft.item.amulet_box.desc", "Stores multiple active amulets or totems");
 
         // Structure Disk
         provider.add("item.anvilcraft.structure_disk.structure", "Structure: %s");
