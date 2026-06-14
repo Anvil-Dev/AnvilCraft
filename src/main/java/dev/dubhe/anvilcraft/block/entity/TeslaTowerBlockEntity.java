@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.taslatower.IsEntityIdFilter;
 import dev.dubhe.anvilcraft.api.taslatower.IsFriendlyFilter;
 import dev.dubhe.anvilcraft.api.taslatower.IsOnVehicleFilter;
 import dev.dubhe.anvilcraft.api.taslatower.IsPetFilter;
+import dev.dubhe.anvilcraft.api.taslatower.IsPlayerFilter;
 import dev.dubhe.anvilcraft.api.taslatower.IsPlayerIdFilter;
 import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
@@ -297,6 +298,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     public void initWhiteList(Player player) {
+        this.whiteList.add(Pair.of(new IsPlayerFilter(), ""));
         this.whiteList.add(Pair.of(new IsPlayerIdFilter(), player.getName().getString()));
         this.whiteList.add(Pair.of(new IsPetFilter(), ""));
         this.whiteList.add(Pair.of(new HasCustomNameFilter(), ""));

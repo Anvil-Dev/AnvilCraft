@@ -169,6 +169,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.tesla_tower.filter.is_pet", "Pet Filter");
         provider.add("screen.anvilcraft.tesla_tower.filter.is_on_vehicle", "On Vehicle Filter");
         provider.add("screen.anvilcraft.tesla_tower.filter.is_friendly", "Friendly Entity Filter");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_hostile", "Hostile Entity Filter");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_neutral", "Neutral Entity Filter");
         provider.add("screen.anvilcraft.tesla_tower.filter.is_entity_id", "Entity Filter");
         provider.add("screen.anvilcraft.tesla_tower.filter.is_baby_friendly", "Baby Friendly Entity Filter");
         provider.add("screen.anvilcraft.tesla_tower.filter.has_custom_name", "Custom Named Entity Filter");
