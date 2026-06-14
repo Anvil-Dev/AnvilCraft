@@ -249,6 +249,14 @@ public class TeslaTowerBlockEntity extends BlockEntity
                     if (!EventHooks.onEntityStruckByLightning(targetEntity, lightningBolt)) {
                         targetEntity.thunderHit(serverLevel, lightningBolt);
                     }
+                    if (!targetEntity.isAlive() || targetEntity.isRemoved()) {
+                        AABB area = new AABB(targetEntity.blockPosition()).inflate(1.0);
+                        LivingEntity converted = this.level.getEntitiesOfClass(LivingEntity.class, area,
+                            e -> e != targetEntity && e.isAlive()).stream().findFirst().orElse(targetEntity);
+                        this.targetEntity = converted;
+                        this.targetEntityUUID = converted.getUUID();
+                        this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+                    }
                 }
             }
             this.flashTimer = 5;
