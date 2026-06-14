@@ -32,15 +32,27 @@ items:
 Colliding the <ref item="anvilcraft:giant_anvil"/> at different speeds with the <ref item="anvilcraft:corrupted_beacon"/> and <ref item="anvilcraft:space_overcompressor"/> yields different anvilons
 </info>
 
+<row halign="center">
 <recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_32"/>
+<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_128"/>
+</row>
+
+<row halign="center">
 <recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_space_overcompressor_32"/>
-<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_giant_anvil_32"/>
-<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_128"/>
-<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_128"/>
 <recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_space_overcompressor_128"/>
+</row>
+
+<row halign="center">
+<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_giant_anvil_32"/>
+<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_giant_anvil_128"/>
+</row>
 
 ## Anvilon Irradiation
 
 <structure id="../structures/anvilon_irradiator.nbt"/>
 
 When there are 6 identical anvilons in the eight surrounding blocks of a 3x3 area on the same horizontal level as the <ref item="anvilcraft:neutron_irradiator"/>, it transforms into the corresponding "Anvilon Irradiator"
+
+# <ref item="anvilcraft:confined_neutronium_ingot"/>
+
+<recipe id="anvilcraft:item_inject/confined_neutronium_ingot"/>

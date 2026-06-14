@@ -32,12 +32,20 @@ items:
 以不同速度撞击<ref item="anvilcraft:giant_anvil"/>、<ref item="anvilcraft:corrupted_beacon"/>和<ref item="anvilcraft:space_overcompressor"/>，可以得到不同的砧子
 </info>
 
+<row halign="center">
 <recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_32"/>
+<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_128"/>
+</row>
+
+<row halign="center">
 <recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_space_overcompressor_32"/>
-<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_giant_anvil_32"/>
-<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_128"/>
-<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_corrupted_beacon_128"/>
 <recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_space_overcompressor_128"/>
+</row>
+
+<row halign="center">
+<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_giant_anvil_32"/>
+<recipe id="anvilcraft:anvil_collision/anvil_tier_0_and_giant_anvil_128"/>
+</row>
 
 ## 砧子辐照
 
@@ -45,3 +53,6 @@ items:
 
 <ref item="anvilcraft:neutron_irradiator"/>同一水平面周围3x3区域内的八个格子内存在6个相同的砧子时，变为对应的“砧子辐照器”
 
+# <ref item="anvilcraft:confined_neutronium_ingot"/>
+
+<recipe id="anvilcraft:item_inject/confined_neutronium_ingot"/>
