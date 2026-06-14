@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemProperties;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.network.IonoCraftBackpackFlyingPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
@@ -30,16 +31,23 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarriedAware {
+    public static final int MAX_ENERGY = 120000000;
+    public static final int FLIGHT_CONSUMPTION = 5000;
+
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_64 = new DynamicPowerComponent.PowerConsumption(64);
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_128 = new DynamicPowerComponent.PowerConsumption(128);
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_256 = new DynamicPowerComponent.PowerConsumption(256);
@@ -56,12 +64,14 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     );
 
     private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
+    /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
+    private static final Map<UUID, Boolean> FLYING_TRACKER = new HashMap<>();
 
     public IonoCraftBackpackItem(Properties properties) {
         super(
             ArmorMaterials.IRON,
             Type.CHESTPLATE,
-            properties.component(ModComponents.FLIGHT_TIME, 0)
+            properties.component(ModComponents.STORED_ENERGY, 0)
         );
         DispenserBlock.registerBehavior(this, ArmorItem.DISPENSE_ITEM_BEHAVIOR);
         addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
@@ -119,21 +129,28 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        int flightTime = getFlightTime(stack);
-        double energy = flightTime / 20.0 * 0.05;
+        int energy = getEnergyStored(stack);
+        int totalSeconds = energy / FLIGHT_CONSUMPTION / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
         tooltipComponents.add(Component.translatable(
-            "item.anvilcraft.ionocraft_backpack.flight_time_energy",
-            Component.literal(String.format("%.1f", energy)).withStyle(ChatFormatting.GOLD),
-            Component.literal(String.valueOf(flightTime / 20)).withStyle(ChatFormatting.GOLD)
-        ));
+            "item.anvilcraft.ionocraft_backpack.flight_time",
+            Component.literal(String.valueOf(minutes)).withStyle(ChatFormatting.GOLD),
+            Component.literal(String.valueOf(seconds)).withStyle(ChatFormatting.GOLD)
+        ).withStyle(ChatFormatting.GRAY));
+    }
+
+    public static int getEnergyStored(ItemStack stack) {
+        return stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+    }
+
+    public static void addEnergy(ItemStack stack, int amount) {
+        int current = getEnergyStored(stack);
+        stack.set(ModComponents.STORED_ENERGY, Math.clamp(current + amount, 0, MAX_ENERGY));
     }
 
     public static int getFlightTime(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.FLIGHT_TIME, 0);
-    }
-
-    public static void addFlightTime(ItemStack stack, int time) {
-        stack.set(ModComponents.FLIGHT_TIME, Math.clamp(getFlightTime(stack) + time, 0, AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime));
+        return getEnergyStored(stack) / FLIGHT_CONSUMPTION;
     }
 
     public static boolean canModify(ItemStack stack, DynamicPowerComponent component) {
@@ -173,7 +190,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
                 instance.removeModifier(CREATIVE_FLIGHT);
             }
             return;
-        } else if (getFlightTime(equipped) >= AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime && !player.getAbilities().flying) {
+        } else if (getEnergyStored(equipped) >= MAX_ENERGY && !player.getAbilities().flying) {
             powerComponent.getPowerConsumptions().remove(CONSUMPTION_64);
             powerComponent.getPowerConsumptions().remove(CONSUMPTION_128);
             powerComponent.getPowerConsumptions().remove(CONSUMPTION_256);
@@ -220,8 +237,8 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
         ItemStack equipped = getByPlayer(player);
         AttributeInstance instance = player.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
         if (instance == null) return;
-        int flightTime = getFlightTime(equipped);
-        if (flightTime > 0) {
+        int energy = getEnergyStored(equipped);
+        if (energy > 0) {
             if (!instance.hasModifier(CREATIVE_FLIGHT_ID)) {
                 instance.addTransientModifier(CREATIVE_FLIGHT);
             }
@@ -239,40 +256,45 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
         refreshFlight(player);
 
         ItemStack backpack = getByPlayer(player);
+        boolean nowFlying = !backpack.isEmpty()
+            && player.getAbilities().flying
+            && !player.isCreative()
+            && !player.isSpectator();
+
+        // 飞行状态变化时同步到周边客户端
+        Boolean prevFlying = FLYING_TRACKER.put(player.getUUID(), nowFlying);
+        if (prevFlying == null || prevFlying != nowFlying) {
+            PacketDistributor.sendToPlayersTrackingEntity(
+                player,
+                new IonoCraftBackpackFlyingPacket(player.getId(), nowFlying)
+            );
+        }
+
         if (backpack.isEmpty()) return;
 
-        AtomicInteger flightTime = new AtomicInteger();
-
         if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {
-            flightTime.decrementAndGet();
+            addEnergy(backpack, -FLIGHT_CONSUMPTION);
         }
-        capacitorTick(holder, backpack, flightTime);
-
-        addFlightTime(backpack, flightTime.get());
+        capacitorTick(holder, backpack);
     }
 
-    private static void capacitorTick(IDynamicPowerComponentHolder holder, ItemStack backpack, AtomicInteger flightTime) {
-        int currentFlightTime = getFlightTime(backpack);
-        if (currentFlightTime <= AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 0.9333) {
-            if (!(holder instanceof ServerPlayer player)) return;
-            Inventory inventory = player.getInventory();
-            int slot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
-            if (slot >= 0) {
-                inventory.removeItem(slot, 1);
-                inventory.placeItemBackInInventory(ModItems.CAPACITOR_EMPTY.asStack());
-                flightTime.addAndGet(AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime / 15);
-                return;
-            }
+    private static void capacitorTick(IDynamicPowerComponentHolder holder, ItemStack backpack) {
+        if (!(holder instanceof ServerPlayer player)) return;
+        Inventory inventory = player.getInventory();
+
+        int slot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
+        if (slot >= 0) {
+            inventory.removeItem(slot, 1);
+            inventory.placeItemBackInInventory(ModItems.CAPACITOR_EMPTY.asStack());
+            addEnergy(backpack, 8_000_000);
+            return;
         }
-        if (currentFlightTime <= AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime / 15) {
-            if (!(holder instanceof ServerPlayer player)) return;
-            Inventory inventory = player.getInventory();
-            int slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
-            if (slot >= 0) {
-                inventory.removeItem(slot, 1);
-                inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
-                flightTime.addAndGet(AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime - currentFlightTime);
-            }
+
+        slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
+        if (slot >= 0) {
+            inventory.removeItem(slot, 1);
+            inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
+            addEnergy(backpack, 160_000_000);
         }
     }
 

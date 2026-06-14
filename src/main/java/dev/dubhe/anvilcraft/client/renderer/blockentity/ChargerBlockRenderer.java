@@ -3,15 +3,11 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
-import dev.dubhe.anvilcraft.client.support.RenderModelSupport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 
@@ -42,25 +38,15 @@ public class ChargerBlockRenderer extends BaseShowItemRenderer<ChargerBlockEntit
     ) {
         ItemStack stack = getDisplayItemStack(be);
         if (stack == null || stack.isEmpty()) return;
-        BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, be.getLevel(), null, getSeed(be));
-
-        AABB aabb = RenderModelSupport.getSize(model);
-
-        double modelDepth = aabb.getZsize();
-
-        double x = 0.5;
-        double y = 0.5625 + modelDepth / 4;
-        double z = 0.375;
 
         poseStack.pushPose();
-
-        // 先平移到计算好的位置，再进行旋转
-        poseStack.translate(x, y, z);
+        poseStack.translate(0.5, 0.586, 0.5);
+        poseStack.scale(0.8f, 0.8f, 0.8f);
         poseStack.mulPose(Axis.XP.rotationDegrees(90.0f));
 
         Minecraft.getInstance()
             .getItemRenderer()
-            .render(stack, ItemDisplayContext.GROUND, false, poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, model);
+            .renderStatic(stack, ItemDisplayContext.FIXED, packedLight, packedOverlay, poseStack, buffer, be.getLevel(), 0);
         poseStack.popPose();
     }
 }

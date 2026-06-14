@@ -70,7 +70,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
         if (IonoCraftBackpackItem.canModify(
             stack,
             this.anvilcraft$component
-        ) && IonoCraftBackpackItem.getFlightTime(stack) < AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime) {
+        ) && IonoCraftBackpackItem.getEnergyStored(stack) < IonoCraftBackpackItem.MAX_ENERGY) {
             PowerGrid powerGrid = this.anvilcraft$component.getPowerGrid();
             if (powerGrid != null && powerGrid.isWorking()) {
                 int chargeAmount = 0;
@@ -86,7 +86,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
                     chargeAmount = 24;
                 }
                 
-                IonoCraftBackpackItem.addFlightTime(stack, chargeAmount);
+                IonoCraftBackpackItem.addEnergy(stack, chargeAmount * IonoCraftBackpackItem.FLIGHT_CONSUMPTION);
             }
         }
     }

@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.hud;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -33,8 +32,8 @@ public class IonoCraftBackpackHUD {
         if (!itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
             return;
         }
-        int flightTime = IonoCraftBackpackItem.getFlightTime(itemStack);
-        final int percent = Math.round((float) flightTime / AnvilCraft.CONFIG.ionoCraftBackpackMaxFlightTime * 100);
+        int energy = IonoCraftBackpackItem.getEnergyStored(itemStack);
+        final int percent = Math.round((float) energy / IonoCraftBackpackItem.MAX_ENERGY * 100);
 
         final Font font = mc.font;
         PoseStack poseStack = guiGraphics.pose();

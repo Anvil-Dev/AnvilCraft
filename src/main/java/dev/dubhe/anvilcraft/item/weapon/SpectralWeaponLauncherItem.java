@@ -21,11 +21,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
-    public static final int SHOOT_CONSUME = 800;
+    public static final int SHOOT_CONSUME = 1600000;
     public static final int EXHAUSTED_MODEL = 1;
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
-    public static final int MAX_ENERGY = 320000;
+    public static final int MAX_ENERGY = 640000000;
 
     public SpectralWeaponLauncherItem(Properties properties) {
         super(
@@ -74,7 +74,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
         if (launcher.isEmpty() || !launcher.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) return;
 
         int energy = launcher.getOrDefault(ModComponents.STORED_ENERGY, 0);
-        while (energy <= 240000) { // 240MJ
+        while (energy <= 480000) { // 480 kFE
             Inventory inventory = player.getInventory();
             int slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
             if (slot < 0) break;
@@ -83,7 +83,7 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
                 inventory.removeItem(slot, 1);
                 inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
             }
-            energy += 80000; // 80MJ
+            energy += 160000; // 160 kFE
         }
         if (energy == launcher.getOrDefault(ModComponents.STORED_ENERGY, 0)) return;
         launcher.set(ModComponents.STORED_ENERGY, energy);

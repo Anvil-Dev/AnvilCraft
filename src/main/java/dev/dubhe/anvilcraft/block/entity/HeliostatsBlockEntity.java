@@ -14,6 +14,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -116,6 +117,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
         }
         if (level.isRainingAt(getBlockPos().above())
             || level.getBrightness(LightLayer.SKY, getBlockPos().above()) != 15
+            || (level.isRaining()
+                && level.getBiome(getBlockPos().above()).value()
+                    .getPrecipitationAt(getBlockPos().above()) == Biome.Precipitation.SNOW)
         ) {
             return WorkResult.NO_SUN;
         }

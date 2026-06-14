@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 public class TeslaGunItem extends Item {
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
-    public static final int MAX_ENERGY = 320000;
+    public static final int MAX_ENERGY = 640000000;
 
     public TeslaGunItem(Properties properties) {
         super(properties.component(ModComponents.STORED_ENERGY, TeslaGunItem.MAX_ENERGY));

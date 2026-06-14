@@ -140,6 +140,7 @@ public class ScreenLang {
 
         provider.add("tooltip.anvilcraft.working_progress.title", "Working progress:");
         provider.add("tooltip.anvilcraft.working_progress.progress", "  %1$s %2$s%%");
+        provider.add("tooltip.anvilcraft.working_progress.time", "  %1$s / %2$s");
 
         provider.add("tooltip.anvilcraft.space_overcompressor.stored_mass", "Stored Mass: %s");
 
