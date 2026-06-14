@@ -1,0 +1,8 @@
+{
+  "type": "anvilcraft:planet_resource",
+  "category": "fluid",
+  "fluid": {
+    "output_fluid": "minecraft:lava",
+    "temperature": "scorched"
+  }
+}

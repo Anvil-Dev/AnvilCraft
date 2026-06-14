@@ -37,7 +37,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -263,55 +262,55 @@ public class CelestialForgingAnvilBlock
         return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
     }
 
-    @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
-        BlockPos mainPos = getMainPartPos(pos, state);
-        if (level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
-            // Drop inventory items and clear them from BE so the dropped block
-            // item's NBT doesn't include "anvils" data
-            for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
-                ItemStack stack = be.getAnvilInventory().getItem(i);
-                if (!stack.isEmpty()) {
-                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-                    be.getAnvilInventory().setItem(i, ItemStack.EMPTY);
-                }
-            }
-            be.getSearchHistory().clear();
-            // Clear celestial body data so the dropped block item
-            // doesn't carry over the old body to a new placement
-            be.setCelestialBodyData(null);
-            be.setBodySeed(0);
-            be.setStellarMass(0);
-            be.setLocked(false);
-        }
-        return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
-    }
-
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.is(newState.getBlock())) return;
         BlockPos mainPos = getMainPartPos(pos, state);
         boolean isMain = state.hasProperty(HALF) && state.getValue(HALF) == Cube323PartHalf.BOTTOM_CENTER;
         if (isMain && level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
-            // Drop any remaining inventory items (for non-player destruction)
+            // 1. Drop all inventory contents into the world
             for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
                 ItemStack stack = be.getAnvilInventory().getItem(i);
                 if (!stack.isEmpty()) {
                     Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
                 }
             }
-            // Drop block item with preserved NBT (celestial body data, etc.)
-            // Must be done here (not via loot table) because copy_components cannot
-            // properly convert block entity NBT to item data components in 1.21
+            ItemStack matStack = be.getMaterialContainer().getItem(0);
+            if (!matStack.isEmpty()) {
+                Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, matStack);
+            }
+
+            // 2. Drop the block item, preserving celestial body, megastructure,
+            //    and matching parameters so the body reappears when placed elsewhere.
+            //    Runtime & position-dependent flags are stripped from the item tag.
             if (!level.isClientSide) {
                 ItemStack blockStack = new ItemStack(asItem());
                 CompoundTag beTag = new CompoundTag();
                 be.saveAdditional(beTag, level.registryAccess());
-                beTag.remove("anvils");
-                BlockItem.setBlockEntityData(blockStack, be.getType(), beTag);
+
+                // Strip data that is tied to the current world position or transient runtime
+                beTag.remove("anvils");               // inventory — already dropped above
+                beTag.remove("materialFilter");       // UI state — resets on menu close
+                beTag.remove("materialLimit");        // UI state
+                beTag.remove("searchHistory");        // search history — not preserved
+                beTag.remove("searching");            // runtime
+                beTag.remove("searchTicks");          // runtime
+                beTag.remove("searchFailed");         // runtime
+                beTag.remove("powerInsufficient");    // runtime
+                beTag.remove("excavatorLaserActive"); // depends on nearby laser blocks
+                beTag.remove("amplifierPresent");     // depends on multiblock structure
+
+                if (!beTag.isEmpty()) {
+                    BlockItem.setBlockEntityData(blockStack, be.getType(), beTag);
+                }
                 Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, blockStack);
             }
-            be.getSearchHistory().clear();
+
+            // 3. Wipe the block entity so a fresh CFA placed at this position
+            //    starts with a clean slate. Chunk save/load is unaffected —
+            //    saveAdditional/loadAdditional handle that path independently.
+            be.clearPositionDependentData();
         }
         // Don't call super.onRemove() — we handle drops manually above
     }

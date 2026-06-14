@@ -41,5 +41,7 @@ public class RecipeHandler {
         EnergyWeaponMakeRecipeLoader.init(provider);
         PortalConversionRecipeLoader.init(provider);
         ProceduralProcessRecipeLoader.init(provider);
+        PlanetResourceRecipeLoader.init(provider);
+        TempleDemandRecipeLoader.init(provider);
     }
 }

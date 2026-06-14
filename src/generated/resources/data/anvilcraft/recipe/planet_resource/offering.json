@@ -1,0 +1,32 @@
+{
+  "type": "anvilcraft:planet_resource",
+  "category": "offering",
+  "offering": {
+    "entries": [
+      {
+        "id": "minecraft:emerald_block",
+        "weight": 50
+      },
+      {
+        "id": "minecraft:experience_bottle",
+        "weight": 40
+      },
+      {
+        "id": "anvilcraft:royal_steel_ingot",
+        "weight": 5
+      },
+      {
+        "id": "minecraft:totem_of_undying",
+        "weight": 2
+      },
+      {
+        "id": "anvilcraft:gem_amulet_random",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:heart_of_the_sea",
+        "weight": 1
+      }
+    ]
+  }
+}

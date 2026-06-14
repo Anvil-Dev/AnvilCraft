@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -15,7 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -28,10 +28,9 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     private static final int STACKS_PER_TYPE = 16;
     private static final int MAX_PER_SLOT = STACKS_PER_TYPE * 64;
 
-    @Getter
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(TYPE_COUNT) {
         @Override
-        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+        public boolean isItemValid(int slot, ItemStack stack) {
             ItemStack current = getStackInSlot(slot);
             if (current.isEmpty()) {
                 for (int i = 0; i < TYPE_COUNT; i++) {
@@ -87,37 +86,71 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    @SuppressWarnings("unused")
+    public IItemHandler getItemHandler() {
+        return itemHandler;
+    }
+
+    // === Temple demand display (pushed by CFA controller) ===
+    @Getter @Setter
+    private ItemStack templeDemandItem = ItemStack.EMPTY;
+    @Getter @Setter
+    private int templeDemandCount = 0;
+    @Getter @Setter
+    private boolean templeDemandSatisfied = false;
+
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registries) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", itemHandler.serializeNBT(registries));
+        if (!templeDemandItem.isEmpty()) {
+            tag.put("templeDemandItem", templeDemandItem.save(registries));
+        }
+        tag.putInt("templeDemandCount", templeDemandCount);
+        tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registries) {
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains("inventory")) {
             itemHandler.deserializeNBT(registries, tag.getCompound("inventory"));
         }
+        if (tag.contains("templeDemandItem")) {
+            this.templeDemandItem = ItemStack.parse(registries, tag.getCompound("templeDemandItem"))
+                .orElse(ItemStack.EMPTY);
+        } else {
+            this.templeDemandItem = ItemStack.EMPTY;
+        }
+        this.templeDemandCount = tag.getInt("templeDemandCount");
+        this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(@NotNull HolderLookup.Provider registries) {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.put("inventory", itemHandler.serializeNBT(registries));
+        if (!templeDemandItem.isEmpty()) {
+            tag.put("templeDemandItem", templeDemandItem.save(registries));
+        }
+        tag.putInt("templeDemandCount", templeDemandCount);
+        tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         return tag;
     }
 
     @Override
-    public void handleUpdateTag(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registries) {
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.handleUpdateTag(tag, registries);
         if (tag.contains("inventory")) {
             itemHandler.deserializeNBT(registries, tag.getCompound("inventory"));
         }
-    }
-
-    @SuppressWarnings("unused")
-    public IItemHandler getItemHandler() {
-        return itemHandler;
+        if (tag.contains("templeDemandItem")) {
+            this.templeDemandItem = ItemStack.parse(registries, tag.getCompound("templeDemandItem"))
+                .orElse(ItemStack.EMPTY);
+        } else {
+            this.templeDemandItem = ItemStack.EMPTY;
+        }
+        this.templeDemandCount = tag.getInt("templeDemandCount");
+        this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
     }
 }

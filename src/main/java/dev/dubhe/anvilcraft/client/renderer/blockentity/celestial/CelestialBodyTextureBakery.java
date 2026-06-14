@@ -79,36 +79,80 @@ public class CelestialBodyTextureBakery {
         return null;
     }
 
+    @SuppressWarnings("Linelength")
+    /*
+      Resolve texture set for a rocky planet.
+
+      <table>
+      <caption>Texture mapping by temperature, liquid coverage, and atmosphere</caption>
+      <tr><th>Temperature</th><th>Liquid</th><th>Atmosphere</th><th>Base</th><th>Palette</th><th>Class</th></tr>
+      <tr><td>FREEZING</td><td>NONE</td><td>no</td><td>planet_atmosphereless</td><td>planet_mix_color_freezing</td><td>Deathly Frozen</td></tr>
+      <tr><td>FREEZING</td><td>NONE</td><td>yes</td><td>planet_arid</td><td>planet_mix_color_freezing</td><td>Desolate Frozen</td></tr>
+      <tr><td>FREEZING</td><td>has</td><td>any</td><td>wet/boggy/oceanic</td><td>planet_mix_color_freezing</td><td>Frozen Planet</td></tr>
+      <tr><td>SCORCHED</td><td>NONE</td><td>no</td><td>planet_atmosphereless</td><td>planet_mix_color_scorched</td><td>Deathly Scorched</td></tr>
+      <tr><td>SCORCHED</td><td>NONE</td><td>yes</td><td>planet_arid</td><td>planet_mix_color_scorched</td><td>Desolate Scorched</td></tr>
+      <tr><td>SCORCHED</td><td>has</td><td>any</td><td>wet/boggy/oceanic</td><td>planet_mix_color_scorched</td><td>Lava Planet</td></tr>
+      <tr><td>COLD/MILD/HOT</td><td>—</td><td>no</td><td>planet_atmosphereless</td><td>planet_atmosphereless_color</td><td>Deathly Planet</td></tr>
+      <tr><td>COLD/MILD/HOT</td><td>NONE</td><td>yes</td><td>planet_desert</td><td>planet_arid_color</td><td>Desert Planet</td></tr>
+      <tr><td>COLD/MILD/HOT</td><td>has</td><td>yes</td><td>wet/boggy/oceanic</td><td>planet_mix_color</td><td>9 types</td></tr>
+      </table>
+     */
     private static TexSet resolveRocky(RockyPlanetData rp) {
         String base, overlay = null, palette;
-        if (!rp.hasAtmosphere() && rp.liquidCoverage() == LiquidCoverage.NONE) {
-            base = "planet_atmosphereless.png";
-        } else {
+        boolean hasAtmos = rp.hasAtmosphere();
+        boolean hasLiquid = rp.liquidCoverage() != LiquidCoverage.NONE;
+        Temperature temp = rp.temperature();
+
+        if (hasLiquid && (temp == Temperature.FREEZING || temp == Temperature.SCORCHED)) {
+            // Extreme temp: liquid takes priority over atmosphere (Frozen Planet / Lava Planet)
             base = switch (rp.liquidCoverage()) {
-                case NONE -> "planet_arid.png";
                 case LOW -> "planet_wet.png";
                 case MEDIUM -> "planet_boggy.png";
                 case HIGH -> "planet_oceanic.png";
+                default -> "planet_arid.png";
             };
             overlay = switch (rp.liquidCoverage()) {
-                case NONE -> null;
                 case LOW -> "planet_wet_overlay.png";
                 case MEDIUM -> "planet_boggy_overlay.png";
                 case HIGH -> "planet_oceanic_overlay.png";
+                default -> null;
             };
-        }
-        if (!rp.hasAtmosphere()) {
-            palette = rp.liquidCoverage() == LiquidCoverage.NONE
-                ? (rp.temperature() == Temperature.FREEZING ? "planet_atmosphereless_color.png" : "planet_mix_color_scorched.png")
-                : (rp.temperature() == Temperature.FREEZING ? "planet_mix_color_freezing.png" : "planet_mix_color_scorched.png");
-        } else {
-            palette = rp.liquidCoverage() == LiquidCoverage.NONE
-                ? (rp.temperature() == Temperature.SCORCHED ? "planet_mix_color_scorched.png" : "planet_arid_color.png")
-                : switch (rp.temperature()) {
+            palette = temp == Temperature.FREEZING
+                ? "planet_mix_color_freezing.png"
+                : "planet_mix_color_scorched.png";
+        } else if (!hasAtmos) {
+            // No atmosphere: always atmosphereless (Deathly Frozen / Deathly Scorched / Deathly Planet)
+            base = "planet_atmosphereless.png";
+            palette = switch (temp) {
                 case FREEZING -> "planet_mix_color_freezing.png";
                 case SCORCHED -> "planet_mix_color_scorched.png";
-                default -> "planet_mix_color.png";
-                };
+                default -> "planet_atmosphereless_color.png";
+            };
+        } else if (hasLiquid) {
+            // Has atmosphere + has liquid + mild temps (Frozen Riverbank / Warm Riverbank / … / Warm Ocean)
+            base = switch (rp.liquidCoverage()) {
+                case LOW -> "planet_wet.png";
+                case MEDIUM -> "planet_boggy.png";
+                case HIGH -> "planet_oceanic.png";
+                default -> "planet_arid.png";
+            };
+            overlay = switch (rp.liquidCoverage()) {
+                case LOW -> "planet_wet_overlay.png";
+                case MEDIUM -> "planet_boggy_overlay.png";
+                case HIGH -> "planet_oceanic_overlay.png";
+                default -> null;
+            };
+            palette = "planet_mix_color.png";
+        } else {
+            // Has atmosphere, no liquid (Desolate Frozen / Desolate Scorched / Desert Planet)
+            base = (temp == Temperature.FREEZING || temp == Temperature.SCORCHED)
+                ? "planet_arid.png"
+                : "planet_desert.png";
+            palette = switch (temp) {
+                case FREEZING -> "planet_mix_color_freezing.png";
+                case SCORCHED -> "planet_mix_color_scorched.png";
+                default -> "planet_arid_color.png";
+            };
         }
         return new TexSet(base, overlay, palette);
     }

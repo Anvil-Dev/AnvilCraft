@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,9 +41,8 @@ public final class CelestialRefactorRegistry {
         boolean isLarge = body.size() >= 26;
         int ring = switch (body) {
             case StarData ignored -> isLarge ? 5 : 4;
-            case GiantPlanetData ignored -> isLarge ? 2 : 2;
-            case RockyPlanetData ignored -> isLarge ? 1 : 1;
-            default -> isLarge ? 2 : 1;
+            case GiantPlanetData ignored -> 2;
+            case RockyPlanetData ignored -> 1;
         };
         if (amplified) {
             ring = Math.max(ring, 4);
@@ -55,12 +56,42 @@ public final class CelestialRefactorRegistry {
      * <p>
      * Non-amplified CFA has rings 1-3 → shows ring 1+2 megastructures.<br>
      * Amplified CFA has rings 3-5 → shows ring 4+5 megastructures.
+     *
+     * @param resources the planetary resource set, used to filter options by resource availability;
+     *                  may be null (most permissive, all ring-eligible options shown)
      */
-    public static List<CelestialRefactorOption> getOptions(CelestialBodyData body, boolean amplified) {
+    public static List<CelestialRefactorOption> getOptions(CelestialBodyData body, boolean amplified,
+                                                           @Nullable PlanetaryResourceSet resources) {
         if (body == null) return Collections.emptyList();
         int innermostRing = getInnermostRing(body, amplified);
         int maxRing = amplified ? 5 : 2;
-        return getOptionsForRing(innermostRing, maxRing);
+        List<CelestialRefactorOption> options = getOptionsForRing(innermostRing, maxRing);
+
+        // Filter planet_exctractor: rocky planet must have liquid
+        if (body instanceof RockyPlanetData rocky && rocky.liquidCoverage() == LiquidCoverage.NONE) {
+            options.removeIf(opt -> "planet_exctractor".equals(opt.megastructure()));
+        }
+
+        // Filter eco_station: requires biological resources and no low-level civilization
+        if (resources != null) {
+            options.removeIf(opt -> "eco_station".equals(opt.megastructure())
+                && !isEcoStationEligible(resources));
+            // Filter temple: requires low-level civilization
+            options.removeIf(opt -> "temple".equals(opt.megastructure())
+                && !resources.hasCivilization());
+        }
+
+        return options;
+    }
+
+    /**
+     * Eco station is only eligible when the planet has biological resources
+     * and does NOT have a low-level civilization.
+     */
+    private static boolean isEcoStationEligible(PlanetaryResourceSet resources) {
+        if (resources.hasCivilization()) return false;
+        return !resources.getBiologicalItems().isEmpty()
+            || !resources.getBiologicalFluids().isEmpty();
     }
 
     /**
@@ -73,14 +104,18 @@ public final class CelestialRefactorRegistry {
 
         if (innermostRing <= 1 && 1 <= maxRing) {
             // Ring 1 megastructures (innermost for small rocky planets)
-            options.add(CelestialRefactorOption.noMaterial(1, "planet_excavator",
-                ringModel(1, "excavator"), prefix + "planet_excavator"));
-            options.add(CelestialRefactorOption.noMaterial(1, "planet_exctractor",
-                ringModel(1, "exctractor"), prefix + "planet_exctractor"));
-            options.add(CelestialRefactorOption.noMaterial(1, "eco_station",
-                ringModel(1, "eco_station"), prefix + "eco_station"));
-            options.add(CelestialRefactorOption.noMaterial(1, "temple",
-                ringModel(1, "temple"), prefix + "temple"));
+            options.add(CelestialRefactorOption.withMaterial(1, "planet_excavator",
+                ringModel(1, "excavator"), prefix + "planet_excavator",
+                ModBlocks.RUBY_PRISM.asItem(), 16));
+            options.add(CelestialRefactorOption.withMaterial(1, "planet_exctractor",
+                ringModel(1, "exctractor"), prefix + "planet_exctractor",
+                ModBlocks.FLUID_TANK.asItem(), 16));
+            options.add(CelestialRefactorOption.withMaterial(1, "eco_station",
+                ringModel(1, "eco_station"), prefix + "eco_station",
+                ModBlocks.TEMPERING_GLASS.asItem(), 64));
+            options.add(CelestialRefactorOption.withMaterial(1, "temple",
+                ringModel(1, "temple"), prefix + "temple",
+                net.minecraft.world.item.Items.GOLD_BLOCK, 64));
         }
         if (innermostRing <= 2 && 2 <= maxRing) {
             // Ring 2 megastructures (innermost for small giant planets)

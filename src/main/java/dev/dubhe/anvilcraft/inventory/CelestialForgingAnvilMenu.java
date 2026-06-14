@@ -91,9 +91,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
                 }
             }
             if (!moved) {
-                this.moveItemStackTo(stack, SEED_SLOT, SEED_SLOT + 1, false);
-            }
-            if (!moved) {
                 Slot matSlot = this.slots.get(MATERIAL_SLOT);
                 if (matSlot.mayPlace(stack)) {
                     this.moveItemStackTo(stack, MATERIAL_SLOT, MATERIAL_SLOT + 1, false);
@@ -125,9 +122,30 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             return true;
         }
         // Refactor option selected: id 9+
-        if (id >= 9) {
+        if (id >= 9 && id < 100) {
             int optionIndex = id - 9;
             blockEntity.configureMaterialSlot(optionIndex);
+            return true;
+        }
+        // Build megastructure request: id 100+
+        if (id >= 100 && id < 200) {
+            int optionIndex = id - 100;
+            blockEntity.buildMegastructure(optionIndex);
+            return true;
+        }
+        // Lock toggle: id 200
+        if (id == 200) {
+            blockEntity.toggleLocked();
+            return true;
+        }
+        // History browse prev: id 201
+        if (id == 201) {
+            blockEntity.browseHistoryPrev();
+            return true;
+        }
+        // History browse next: id 202
+        if (id == 202) {
+            blockEntity.browseHistoryNext();
             return true;
         }
         return super.clickMenuButton(player, id);
@@ -181,6 +199,24 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
                     targetSlot.setChanged();
                     return;
                 }
+            }
+        }
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        // Reset material slot filter when the UI closes so it always
+        // starts as the barrier ghost on the next open.
+        if (!player.level().isClientSide()) {
+            blockEntity.setMaterialFilter(new ItemStack(Items.BARRIER));
+            blockEntity.setMaterialLimit(0);
+            blockEntity.setChanged();
+            // Push to clients so the next UI open sees the barrier ghost
+            var level = blockEntity.getLevel();
+            if (level != null) {
+                var state = blockEntity.getBlockState();
+                level.sendBlockUpdated(blockEntity.getBlockPos(), state, state, 3);
             }
         }
     }

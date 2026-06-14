@@ -44,6 +44,24 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     public static final ModelResourceLocation R5 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_5"));
     public static final ModelResourceLocation R6 = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_ring_6"));
 
+    // Excavator megastructure models
+    public static final ModelResourceLocation R1_EXCAVATOR = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_1_excavator"));
+    public static final ModelResourceLocation R1_EXCAVATOR_OFF = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_1_excavator_off"));
+
+    // Extractor megastructure model
+    public static final ModelResourceLocation R1_EXCTRACTOR = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_1_exctractor"));
+
+    // Eco Station megastructure model
+    public static final ModelResourceLocation R1_ECO_STATION = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_1_eco_station"));
+
+    // Temple megastructure model
+    public static final ModelResourceLocation R1_TEMPLE = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_1_temple"));
+
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
 
@@ -193,11 +211,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             );
             if (!isGiantPlanet) {
                 poseStack.mulPose(Axis.XP.rotationDegrees(rot));
+                ModelResourceLocation r1Model = getRing1Model(blockEntity);
                 modelRenderer.renderModel(
                     poseStack.last(),
                     ringConsumer,
                     null,
-                    Minecraft.getInstance().getModelManager().getModel(R1),
+                    Minecraft.getInstance().getModelManager().getModel(r1Model),
                     0,
                     0,
                     0,
@@ -223,6 +242,30 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             );
             renderCelestialRing(bodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay);
         }
+    }
+
+    /**
+     * Get the appropriate ring 1 model, accounting for excavator megastructure.
+     */
+    private ModelResourceLocation getRing1Model(CelestialForgingAnvilBlockEntity blockEntity) {
+        if (blockEntity.getActiveMegastructureIndex() >= 0) {
+            var option = blockEntity.getActiveMegastructureOption();
+            if (option != null) {
+                if ("planet_excavator".equals(option.megastructure())) {
+                    return blockEntity.isExcavatorLaserActive() ? R1_EXCAVATOR : R1_EXCAVATOR_OFF;
+                }
+                if ("planet_exctractor".equals(option.megastructure())) {
+                    return R1_EXCTRACTOR;
+                }
+                if ("eco_station".equals(option.megastructure())) {
+                    return R1_ECO_STATION;
+                }
+                if ("temple".equals(option.megastructure())) {
+                    return R1_TEMPLE;
+                }
+            }
+        }
+        return R1;
     }
 
     private void renderCelestialBody(

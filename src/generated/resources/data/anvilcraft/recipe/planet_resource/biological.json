@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:planet_resource",
+  "biological": {
+    "mild_extra_fluids": [
+      {
+        "id": "anvilcraft:milk",
+        "weight": 50
+      },
+      {
+        "id": "anvilcraft:honey",
+        "weight": 50
+      }
+    ]
+  },
+  "category": "biological"
+}

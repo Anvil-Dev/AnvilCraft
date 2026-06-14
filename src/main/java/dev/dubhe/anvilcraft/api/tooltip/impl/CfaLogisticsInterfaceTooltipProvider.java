@@ -21,6 +21,18 @@ public class CfaLogisticsInterfaceTooltipProvider extends ITooltipProvider.Block
         if (!(value instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logistics)) return List.of();
         List<Component> lines = new ArrayList<>();
 
+        // Show temple demand if active and unsatisfied (pushed directly by CFA controller)
+        var demandItem = logistics.getTempleDemandItem();
+        if (!demandItem.isEmpty() && !logistics.isTempleDemandSatisfied()) {
+            lines.add(Component.literal("⛧ Temple Demand ⛧")
+                .withStyle(ChatFormatting.GOLD));
+            lines.add(Component.literal(" · ")
+                .append(demandItem.getHoverName())
+                .append(Component.literal(" ×" + logistics.getTempleDemandCount()))
+                .withStyle(ChatFormatting.YELLOW));
+            lines.add(Component.literal(""));
+        }
+
         var handler = logistics.getItemHandler();
         boolean hasAny = false;
         for (int i = 0; i < handler.getSlots(); i++) {

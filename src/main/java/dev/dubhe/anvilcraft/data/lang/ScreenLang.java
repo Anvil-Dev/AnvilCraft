@@ -272,7 +272,7 @@ public class ScreenLang {
         // Celestial Forging Anvil
         provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil");
         provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter");
-        provider.add("screen.anvilcraft.cfa.lock", "Click to lock search results");
+        provider.add("screen.anvilcraft.cfa.lock", "Click to lock");
         provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first.");
         provider.add("screen.anvilcraft.cfa.missing_amplifier", "Amplifier missing, celestial body status cannot be synced");
         provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power");
@@ -280,8 +280,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.search_fail", "parameters are unreasonable");
         provider.add("screen.anvilcraft.cfa.search_loading", "Searching");
         provider.add("screen.anvilcraft.cfa.search_tooltip", "Search for celestial bodies with this parameter");
-        provider.add("screen.anvilcraft.cfa.unlock", "Click to unlock search results");
+        provider.add("screen.anvilcraft.cfa.unlock", "Shift-Click to unlock");
+        provider.add("screen.anvilcraft.cfa.unlock_warning", "Unlock will delete the megastructure, Shift-Click to confirm");
         provider.add("screen.anvilcraft.cfa.radius", "Radius: %s");
+        provider.add("screen.anvilcraft.cfa.age", "Age: %s");
+        provider.add("screen.anvilcraft.cfa.mass", "Mass: %s");
         provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt: %s");
 
         provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere: %s");
@@ -310,6 +313,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.temp.scorched", "Scorched");
 
         provider.add("screen.anvilcraft.cfa.liquid", "Liquid Coverage: %s");
+        provider.add("screen.anvilcraft.cfa.liquid.none", "None");
         provider.add("screen.anvilcraft.cfa.liquid.low", "Low");
         provider.add("screen.anvilcraft.cfa.liquid.medium", "Medium");
         provider.add("screen.anvilcraft.cfa.liquid.high", "High");
@@ -324,10 +328,24 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.cfa.type", "Type: %s");
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon");
-        provider.add("screen.anvilcraft.cfa.class.rocky_no_liquid", "Rocky Planet");
-        provider.add("screen.anvilcraft.cfa.class.rocky_low_liquid", "Rocky Planet");
-        provider.add("screen.anvilcraft.cfa.class.rocky_med_liquid", "Rocky Planet");
-        provider.add("screen.anvilcraft.cfa.class.rocky_high_liquid", "Rocky Planet");
+        // Rocky planet types — keyed by temperature × liquid × atmosphere
+        provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_no_atmos", "Deathly Frozen");
+        provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_atmos", "Desolate Frozen");
+        provider.add("screen.anvilcraft.cfa.class.freezing_liquid", "Frozen Planet");
+        provider.add("screen.anvilcraft.cfa.class.scorched_no_liquid_no_atmos", "Deathly Scorched");
+        provider.add("screen.anvilcraft.cfa.class.scorched_no_liquid_atmos", "Desolate Scorched");
+        provider.add("screen.anvilcraft.cfa.class.scorched_liquid", "Lava Planet");
+        provider.add("screen.anvilcraft.cfa.class.deathly_planet", "Deathly Planet");
+        provider.add("screen.anvilcraft.cfa.class.desert_planet", "Desert Planet");
+        provider.add("screen.anvilcraft.cfa.class.cold_riverbank", "Frozen Riverbank");
+        provider.add("screen.anvilcraft.cfa.class.mild_riverbank", "Warm Riverbank");
+        provider.add("screen.anvilcraft.cfa.class.hot_riverbank", "Sweltering Riverbank");
+        provider.add("screen.anvilcraft.cfa.class.cold_land_ocean", "Frozen Land-Ocean");
+        provider.add("screen.anvilcraft.cfa.class.mild_land_ocean", "Warm Land-Ocean");
+        provider.add("screen.anvilcraft.cfa.class.hot_land_ocean", "Sweltering Land-Ocean");
+        provider.add("screen.anvilcraft.cfa.class.cold_ocean", "Frozen Ocean");
+        provider.add("screen.anvilcraft.cfa.class.mild_ocean", "Warm Ocean");
+        provider.add("screen.anvilcraft.cfa.class.hot_ocean", "Sweltering Ocean");
         provider.add("screen.anvilcraft.cfa.class.ice_giant", "Ice Giant");
         provider.add("screen.anvilcraft.cfa.class.gas_giant", "Gas Giant");
         provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf");
@@ -361,6 +379,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.insufficient_materials", "Insufficient building materials");
         provider.add("screen.anvilcraft.cfa.material_required", "Requires: %s × %s");
         provider.add("screen.anvilcraft.cfa.refactor_materials", "Refactor materials");
+        provider.add("screen.anvilcraft.cfa.refactor_start_tooltip", "Refactor Celestial Restriction into a selected megastructure");
         // CFA Interface tooltips
         provider.add("screen.anvilcraft.cfa.logistics_interface.title", "Logistics Interface");
         provider.add("screen.anvilcraft.cfa.fluid_interface.title", "Fluid Interface");
@@ -371,6 +390,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.laser_interface.required", "Required: Lv.%s");
         provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid");
         provider.add("screen.anvilcraft.cfa.laser_interface.invalid", "✗ Invalid");
+        provider.add("screen.anvilcraft.cfa.already_built", "This megastructure already exists");
 
         // Megastructure names (English) — 11 unique megastructures
         provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator", "Planet Excavator");
@@ -384,5 +404,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil", "Magnetar Coil");
         provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere", "Penrose Sphere");
         provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor", "Matter Decompressor");
+
+        // Planet resource bar
+        provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —");
     }
 }
