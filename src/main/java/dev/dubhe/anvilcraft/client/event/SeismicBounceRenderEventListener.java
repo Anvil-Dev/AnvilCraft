@@ -32,6 +32,10 @@ public class SeismicBounceRenderEventListener {
         double camZ = event.getLevelRenderState().cameraRenderState.pos.z();
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
 
+        if (blockRenderer == null) {
+            blockRenderer = new ModelBlockRenderer(true, false, mc.getBlockColors());
+        }
+
         var poseStack = event.getPoseStack();
         var nodeCollector = event.getSubmitNodeCollector();
 
@@ -45,20 +49,23 @@ public class SeismicBounceRenderEventListener {
             BlockState state = mc.level.getBlockState(pos);
             if (state.isAir() || state.getRenderShape() != RenderShape.MODEL) continue;
 
+            var model = mc.getModelManager().getBlockStateModelSet().get(state);
+            long seed = state.getSeed(pos);
+
             poseStack.pushPose();
             poseStack.translate(pos.getX() - camX, pos.getY() - camY + offsetY, pos.getZ() - camZ);
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.scale(1.0005f, 1.000f, 1.0005f);
             poseStack.translate(-0.5, -0.5, -0.5);
 
-            if (blockRenderer == null) continue;
-            var model = mc.getModelManager().getBlockStateModelSet().get(state);
-            long seed = state.getSeed(pos);
+            final var finalModel = model;
+            final long finalSeed = seed;
+
             nodeCollector.submitCustomGeometry(poseStack, RenderTypes.solidMovingBlock(), (pose, consumer) ->
                 blockRenderer.tesselateBlock(
                     (x, y, z, quad, instance) -> consumer.putBakedQuad(pose, quad, instance),
                     0, 0, 0,
-                    mc.level, pos, state, model, seed
+                    mc.level, pos, state, finalModel, finalSeed
                 )
             );
 
