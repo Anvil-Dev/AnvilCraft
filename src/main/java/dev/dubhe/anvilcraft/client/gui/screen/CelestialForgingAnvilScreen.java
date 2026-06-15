@@ -492,7 +492,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private void renderBodyInfo(GuiGraphics guiGraphics, CelestialBodyData body) {
         var be = getMenu().getBlockEntity();
-        List<Component> lines = buildInfoLines(body, be.getAgeAnvilCount(), be.getStellarMass());
+        float offsetAge = be.getDisplayOffset(0);
+        float offsetRadius = be.getDisplayOffset(1);
+        float offsetMass = be.getDisplayOffset(2);
+        List<Component> lines = buildInfoLines(body, be.getAgeAnvilCount(), be.getStellarMass(),
+            offsetAge, offsetRadius, offsetMass);
         // Split "Label: value" into "Label:" + "value" on separate lines
         List<Component> displayLines = new ArrayList<>();
         for (Component comp : lines) {
@@ -618,19 +622,23 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
     }
 
-    private List<Component> buildInfoLines(CelestialBodyData body, int ageAnvilCount, int massAnvilCount) {
+    private List<Component> buildInfoLines(CelestialBodyData body, int ageAnvilCount, int massAnvilCount,
+                                            float offsetAge, float offsetRadius, float offsetMass) {
         List<Component> lines = new ArrayList<>();
         // Type name: "类型：XXX星"
         String typeKey = body instanceof RockyPlanetData rp
             ? rockyTypeKey(rp)
             : "screen.anvilcraft.cfa.class." + body.bodyClass().name().toLowerCase();
         lines.add(Component.translatable("screen.anvilcraft.cfa.type", Component.translatable(typeKey)));
-        // Age (from time anvil count)
-        lines.add(Component.translatable("screen.anvilcraft.cfa.age", CelestialForgingAnvilMenu.formatAge(ageAnvilCount)));
-        // Radius (from space anvil count = size)
-        lines.add(Component.translatable("screen.anvilcraft.cfa.radius", CelestialForgingAnvilMenu.formatRadius(body.size())));
-        // Mass (from mass anvil count)
-        lines.add(Component.translatable("screen.anvilcraft.cfa.mass", CelestialForgingAnvilMenu.formatMass(massAnvilCount)));
+        // Age (with ±5% display offset applied to the formatted value)
+        lines.add(Component.translatable("screen.anvilcraft.cfa.age",
+            CelestialForgingAnvilMenu.formatAgeOffset(ageAnvilCount, offsetAge)));
+        // Radius (space anvil count = body size; with ±5% display offset)
+        lines.add(Component.translatable("screen.anvilcraft.cfa.radius",
+            CelestialForgingAnvilMenu.formatRadiusOffset(body.size(), offsetRadius)));
+        // Mass (with ±5% display offset)
+        lines.add(Component.translatable("screen.anvilcraft.cfa.mass",
+            CelestialForgingAnvilMenu.formatMassOffset(massAnvilCount, offsetMass)));
         switch (body) {
             case StarData s -> {
                 lines.add(this.magText(s.magneticFieldStrength()));

@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
@@ -87,117 +88,78 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(0.5, centerY, 0.5);
         poseStack.mulPose(Axis.XP.rotationDegrees(rot));
         VertexConsumer ringConsumer = multiBufferSource.getBuffer(RenderType.cutout());
+
+        // Track previous body and animation state for ring fade transitions
+        CelestialBodyData prevBody = blockEntity.getAnimationPreviousBodyData();
+        float animProgress = blockEntity.getAnimationProgress(partialTick);
+        boolean isAnimating = blockEntity.getAnimationTicks() > 0;
+        boolean animForward = blockEntity.isAnimationForward();
+
         if (blockEntity.isAmplify()) {
             poseStack.scale(4, 4, 4);
-            if (bodyData != null) {
-                if (bodyData.size() < 26) {
-                    // size < 26: RING4 + RING5
-                    modelRenderer.renderModel(
-                        poseStack.last(),
-                        ringConsumer,
-                        null,
-                        Minecraft.getInstance().getModelManager().getModel(R4),
-                        0,
-                        0,
-                        0,
-                        LightTexture.FULL_BRIGHT,
-                        packedOverlay
-                    );
-                    poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-                    modelRenderer.renderModel(
-                        poseStack.last(),
-                        ringConsumer,
-                        null,
-                        Minecraft.getInstance().getModelManager().getModel(R5),
-                        0,
-                        0,
-                        0,
-                        LightTexture.FULL_BRIGHT,
-                        packedOverlay
-                    );
-                } else {
-                    // size >= 26: RING5 + RING6
-                    poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-                    modelRenderer.renderModel(
-                        poseStack.last(),
-                        ringConsumer,
-                        null,
-                        Minecraft.getInstance().getModelManager().getModel(R5),
-                        0,
-                        0,
-                        0,
-                        LightTexture.FULL_BRIGHT,
-                        packedOverlay
-                    );
-                    poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-                    modelRenderer.renderModel(
-                        poseStack.last(),
-                        ringConsumer,
-                        null,
-                        Minecraft.getInstance().getModelManager().getModel(R6),
-                        0,
-                        0,
-                        0,
-                        LightTexture.FULL_BRIGHT,
-                        packedOverlay
-                    );
-                }
-            } else {
-                // No body: all 3 rings
-                modelRenderer.renderModel(
-                    poseStack.last(),
-                    ringConsumer,
-                    null,
-                    Minecraft.getInstance().getModelManager().getModel(R4),
-                    0,
-                    0,
-                    0,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay
-                );
-                poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-                modelRenderer.renderModel(
-                    poseStack.last(),
-                    ringConsumer,
-                    null,
-                    Minecraft.getInstance().getModelManager().getModel(R5),
-                    0,
-                    0,
-                    0,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay
-                );
-                poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-                modelRenderer.renderModel(
-                    poseStack.last(),
-                    ringConsumer,
-                    null,
-                    Minecraft.getInstance().getModelManager().getModel(R6),
-                    0,
-                    0,
-                    0,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay
-                );
-            }
-        } else {
-            boolean isGiantPlanet = bodyData instanceof GiantPlanetData;
-            boolean isRockyPlanet = bodyData instanceof RockyPlanetData;
-            poseStack.scale(4, 4, 4);
-            if (!isRockyPlanet) {
-                modelRenderer.renderModel(
-                    poseStack.last(),
-                    ringConsumer,
-                    null,
-                    Minecraft.getInstance().getModelManager().getModel(R3),
-                    0,
-                    0,
-                    0,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay
-                );
-            }
+            // R4
+            renderRingMaybe(
+                R4,
+                4,
+                bodyData,
+                prevBody,
+                isAnimating,
+                animForward,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
+            // Z rotation
             poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
+            // R5 — always visible in amplify mode
+            modelRenderer.renderModel(
+                poseStack.last(),
+                ringConsumer,
+                null,
+                Minecraft.getInstance().getModelManager().getModel(R5),
+                0,
+                0,
+                0,
+                LightTexture.FULL_BRIGHT,
+                packedOverlay
+            );
+            // X rotation
+            poseStack.mulPose(Axis.XP.rotationDegrees(rot));
+            // R6
+            renderRingMaybe(
+                R6,
+                6,
+                bodyData,
+                prevBody,
+                isAnimating,
+                animForward,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
+        } else {
+            poseStack.scale(4, 4, 4);
+            // R3
+            renderRingMaybe(
+                R3,
+                3,
+                bodyData,
+                prevBody,
+                isAnimating,
+                animForward,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
+            // Z rotation
+            poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
+            // R2 — always visible in non-amplify mode
             modelRenderer.renderModel(
                 poseStack.last(),
                 ringConsumer,
@@ -209,38 +171,43 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 LightTexture.FULL_BRIGHT,
                 packedOverlay
             );
-            if (!isGiantPlanet) {
-                poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-                ModelResourceLocation r1Model = getRing1Model(blockEntity);
-                modelRenderer.renderModel(
-                    poseStack.last(),
-                    ringConsumer,
-                    null,
-                    Minecraft.getInstance().getModelManager().getModel(r1Model),
-                    0,
-                    0,
-                    0,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay
-                );
-            }
+            // X rotation
+            poseStack.mulPose(Axis.XP.rotationDegrees(rot));
+            // R1 — model may change based on megastructure
+            ModelResourceLocation r1Model = getRing1Model(blockEntity);
+            renderRingMaybe(
+                r1Model,
+                1,
+                bodyData,
+                prevBody,
+                isAnimating,
+                animForward,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
         }
         poseStack.popPose();
 
-        // Skip stellar bodies when amplifier is missing
-        boolean canRender = bodyData != null && !(bodyData instanceof StarData && !blockEntity.isAmplifierPresent());
+        // Use effective body data (considers reverse animation where celestialBodyData is already null)
+        CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
+        boolean canRender = effectiveBodyData != null && !(effectiveBodyData instanceof StarData && !blockEntity.isAmplifierPresent());
         if (canRender) {
-            float bodyRot = blockEntity.getBodyRotation() + partialTick;
+            float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
+            float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
             renderCelestialBody(
-                bodyData,
+                effectiveBodyData,
                 centerY,
                 bodyRot,
                 poseStack,
                 multiBufferSource,
                 packedOverlay,
-                blockEntity.getBlockPos().asLong()
+                blockEntity.getBlockPos().asLong(),
+                animProgress
             );
-            renderCelestialRing(bodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay);
+            renderCelestialRing(effectiveBodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay, animProgress);
         }
     }
 
@@ -268,6 +235,120 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         return R1;
     }
 
+    /**
+     * Determine whether a mechanical ring should be visible for the given body data.
+     */
+    private static boolean isRingVisible(int ring, @Nullable CelestialBodyData bodyData, boolean isAmplify) {
+        if (isAmplify) {
+            return switch (ring) {
+                case 4 -> bodyData == null || bodyData.size() < 26;
+                case 5 -> true;
+                case 6 -> bodyData != null && bodyData.size() >= 26;
+                default -> false;
+            };
+        } else {
+            if (bodyData == null) return ring >= 1 && ring <= 3;
+            return switch (ring) {
+                case 1 -> !(bodyData instanceof GiantPlanetData);
+                case 2 -> true;
+                case 3 -> !(bodyData instanceof RockyPlanetData);
+                default -> false;
+            };
+        }
+    }
+
+    /**
+     * Render a mechanical ring with fade-in / fade-out transitions
+     * when its visibility changes between the previous and current celestial body.
+     */
+    private void renderRingMaybe(
+        ModelResourceLocation modelId,
+        int ringIndex,
+        @Nullable CelestialBodyData currBody,
+        @Nullable CelestialBodyData prevBody,
+        boolean isAnimating,
+        boolean animForward,
+        float animProgress,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        ModelBlockRenderer modelRenderer
+    ) {
+        // Rings 1-3: non-amplify mode, Rings 4-6: amplify mode
+        boolean isAmplify = ringIndex >= 4;
+        boolean visibleNow = isRingVisible(ringIndex, currBody, isAmplify);
+        // null prevBody means no previous body → all rings were visible
+        boolean wasVisible = prevBody == null || isRingVisible(ringIndex, prevBody, isAmplify);
+
+        if (!isAnimating) {
+            // No animation — simple render if visible
+            if (visibleNow) {
+                renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
+            }
+            return;
+        }
+
+        if (visibleNow && wasVisible) {
+            // Always visible — render normally with cutout
+            renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
+        } else if (visibleNow) {
+            // Hidden → Visible: scale from near-zero to 1.0 and rise into position
+            float scale = animForward ? animProgress : (1.0f - animProgress);
+            if (scale > 0.01f) {
+                renderRingScaled(modelId, scale, poseStack, bufferSource, packedOverlay, modelRenderer);
+            }
+        } else if (wasVisible) {
+            // Visible → Hidden: scale from 1.0 to near-zero and sink into the anvil
+            float scale = animForward ? (1.0f - animProgress) : animProgress;
+            if (scale > 0.01f) {
+                renderRingScaled(modelId, scale, poseStack, bufferSource, packedOverlay, modelRenderer);
+            }
+        }
+        // else: !visibleNow && !wasVisible — always hidden, do nothing
+    }
+
+    /**
+     * Render a ring model with the standard cutout render type.
+     */
+    private void renderRingCutout(
+        ModelResourceLocation modelId,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        ModelBlockRenderer modelRenderer
+    ) {
+        modelRenderer.renderModel(
+            poseStack.last(),
+            bufferSource.getBuffer(RenderType.cutout()),
+            null,
+            Minecraft.getInstance().getModelManager().getModel(modelId),
+            0,
+            0,
+            0,
+            LightTexture.FULL_BRIGHT,
+            packedOverlay
+        );
+    }
+
+    /**
+     * Render a ring model scaled around its center (the model origin, since rings are centered at 0,0,0).
+     *
+     * @param scale 0.0 = invisible, 1.0 = full size
+     */
+    private void renderRingScaled(
+        ModelResourceLocation modelId,
+        float scale,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        ModelBlockRenderer modelRenderer
+    ) {
+        poseStack.pushPose();
+        poseStack.scale(scale, scale, scale);
+        renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
+        poseStack.popPose();
+    }
+
     private void renderCelestialBody(
         CelestialBodyData bodyData,
         float centerY,
@@ -275,11 +356,17 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
-        long seed
+        long seed,
+        float animProgress
     ) {
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        float scale = getBodyScale(bodyData);
+        float baseScale = getBodyScale(bodyData);
+        float scale = baseScale * animProgress;
+        if (scale < 0.001f) {
+            poseStack.popPose();
+            return;
+        }
         poseStack.scale(scale, scale, scale);
         poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
@@ -299,7 +386,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float bodyRotation,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
-        int packedOverlay
+        int packedOverlay,
+        float animProgress
     ) {
         if (bodyData.ringType() == RingType.NONE) return;
         ResourceLocation ringTexture = CelestialBodyTextureBakery.getOrBakeRing(bodyData);
@@ -307,7 +395,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        float ringScale = getRingScale(bodyData);
+        float ringScale = getRingScale(bodyData) * animProgress;
+        if (ringScale < 0.001f) {
+            poseStack.popPose();
+            return;
+        }
         poseStack.scale(ringScale, ringScale, ringScale);
         poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));

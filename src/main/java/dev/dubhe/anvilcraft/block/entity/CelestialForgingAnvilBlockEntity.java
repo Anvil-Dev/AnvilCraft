@@ -179,6 +179,54 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Getter
     private int bodyRotation = 0;
 
+    // === Celestial body animation (client-side only, not persisted) ===
+    @Getter
+    private int animationTicks = 0;
+    @Getter
+    private boolean animationForward = true;
+    @Nullable
+    @Getter
+    private CelestialBodyData animationPreviousBodyData = null;
+    private static final int ANIMATION_DURATION_TICKS = 20; // 1 second at 20 TPS
+
+    /**
+     * Get the effective celestial body data for rendering, accounting for reverse animation.
+     * During reverse animation, the actual celestialBodyData is already null (server cleared it),
+     * so we use the cached previous data to keep rendering the shrinking body.
+     */
+    @Nullable
+    public CelestialBodyData getEffectiveBodyDataForRendering() {
+        if (celestialBodyData != null) return celestialBodyData;
+        if (animationTicks > 0 && !animationForward && animationPreviousBodyData != null) {
+            return animationPreviousBodyData;
+        }
+        return null;
+    }
+
+    /**
+     * Get animation progress from 0 (hidden) to 1 (fully visible).
+     * Uses ease-in-out cubic interpolation.
+     */
+    public float getAnimationProgress(float partialTick) {
+        if (animationTicks <= 0) return animationForward ? 1.0f : 0.0f;
+        float t = (ANIMATION_DURATION_TICKS - animationTicks + partialTick) / (float) ANIMATION_DURATION_TICKS;
+        float eased = easeInOutCubic(t);
+        return animationForward ? eased : (1.0f - eased);
+    }
+
+    /**
+     * Get rotation speed multiplier during animation.
+     * Starts fast (5x) and decays to 1x as animation progresses.
+     */
+    public float getAnimationRotationBoost(float partialTick) {
+        float progress = getAnimationProgress(partialTick);
+        return 1.0f + 4.0f * (1.0f - progress);
+    }
+
+    private static float easeInOutCubic(float t) {
+        return t < 0.5f ? 4.0f * t * t * t : 1.0f - (float) Math.pow(-2.0f * t + 2.0f, 3) / 2.0f;
+    }
+
     @Getter
     @Setter
     private boolean locked = false;
@@ -246,7 +294,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private boolean searchFailed = false;
     @Getter
     private boolean powerInsufficient = false;
-    private static final int SEARCH_TICKS = 2; // 10 second
+    private static final int SEARCH_TICKS = 200; // 10 second
 
     // Power grid
     @Setter
@@ -471,6 +519,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.preRotation = this.rotation;
         this.rotation += 3;
         this.bodyRotation += 1;
+
+        // Animation tick (client-side only)
+        if (animationTicks > 0) {
+            animationTicks--;
+            if (animationTicks == 0 && !animationForward) {
+                animationPreviousBodyData = null;
+            }
+        }
     }
 
     public void setAmplify(boolean amplify) {
@@ -562,6 +618,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.rotation = 0;
         this.preRotation = 0;
         this.bodyRotation = 0;
+    }
+
+    /**
+     * Get a reproducible ±5% random offset percentage derived from bodySeed.
+     * Used only for UI display of age/radius/mass values.
+     *
+     * @param index 0=age(time), 1=radius(space), 2=mass
+     * @return offset in [-0.05, +0.05]
+     */
+    public float getDisplayOffset(int index) {
+        if (bodySeed == 0) return 0f;
+        net.minecraft.util.RandomSource rand = net.minecraft.util.RandomSource.create(bodySeed + index * 7919);
+        return (rand.nextFloat() - 0.5f) * 0.1f;
     }
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
@@ -678,10 +747,30 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.searching = false;
         }
         this.bodySeed = tag.getLong("bodySeed");
+        // Capture old body data for animation transition detection
+        CelestialBodyData oldBodyData = this.celestialBodyData;
         if (tag.contains("celestialBody")) {
             this.celestialBodyData = CelestialBodyData.fromTag(tag.getCompound("celestialBody"));
         } else {
             this.celestialBodyData = null;
+        }
+        // Detect transitions for animation (client-side only, e.g. singleplayer chunk load)
+        if (level != null && level.isClientSide()) {
+            boolean hadBody = oldBodyData != null;
+            boolean hasBody = this.celestialBodyData != null;
+            if (!hadBody && hasBody) {
+                this.animationTicks = ANIMATION_DURATION_TICKS;
+                this.animationForward = true;
+                this.animationPreviousBodyData = null;
+            } else if (hadBody && !hasBody) {
+                this.animationTicks = ANIMATION_DURATION_TICKS;
+                this.animationForward = false;
+                this.animationPreviousBodyData = oldBodyData;
+            } else if (hadBody && hasBody && !oldBodyData.toTag().equals(this.celestialBodyData.toTag())) {
+                this.animationTicks = ANIMATION_DURATION_TICKS;
+                this.animationForward = true;
+                this.animationPreviousBodyData = oldBodyData;
+            }
         }
         loadSearchHistory(tag);
         loadInventory(tag, registries);
@@ -776,10 +865,34 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.searchFailed = tag.getBoolean("searchFailed");
         this.powerInsufficient = tag.getBoolean("powerInsufficient");
         this.bodySeed = tag.getLong("bodySeed");
+
+        // Capture old body data for animation transition detection
+        CelestialBodyData oldBodyData = this.celestialBodyData;
         if (tag.contains("celestialBody")) {
             this.celestialBodyData = CelestialBodyData.fromTag(tag.getCompound("celestialBody"));
         } else {
             this.celestialBodyData = null;
+        }
+        // Detect transitions for animation (client-side only)
+        if (level != null && level.isClientSide()) {
+            boolean hadBody = oldBodyData != null;
+            boolean hasBody = this.celestialBodyData != null;
+            if (!hadBody && hasBody) {
+                // Body appeared — start forward (grow-in) animation
+                this.animationTicks = ANIMATION_DURATION_TICKS;
+                this.animationForward = true;
+                this.animationPreviousBodyData = null;
+            } else if (hadBody && !hasBody) {
+                // Body disappeared — start reverse (shrink-out) animation
+                this.animationTicks = ANIMATION_DURATION_TICKS;
+                this.animationForward = false;
+                this.animationPreviousBodyData = oldBodyData;
+            } else if (hadBody && hasBody && !oldBodyData.toTag().equals(this.celestialBodyData.toTag())) {
+                // Body changed to a different type — animate transition
+                this.animationTicks = ANIMATION_DURATION_TICKS;
+                this.animationForward = true;
+                this.animationPreviousBodyData = oldBodyData;
+            }
         }
         loadSearchHistory(tag);
         loadInventory(tag, lookupProvider);

@@ -275,6 +275,47 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         }
     }
 
+    /**
+     * Format age with a proportional offset applied to the raw value before unit conversion.
+     */
+    public static String formatAgeOffset(int count, float offset) {
+        if (count == 0) return "---";
+        double my = 2.0 * Math.pow(2.0, (count - 1) / 3.0) * (1.0 + offset);
+        if (my >= 1024.0 * 1024.0) {
+            return format3SigFig(my / (1024.0 * 1024.0)) + " Ty";
+        } else if (my >= 1024.0) {
+            return format3SigFig(my / 1024.0) + " By";
+        } else {
+            return format3SigFig(my) + " My";
+        }
+    }
+
+    /**
+     * Format radius with a proportional offset applied to the raw value before unit conversion.
+     */
+    public static String formatRadiusOffset(int count, float offset) {
+        if (count == 0) return "---";
+        double earthR = 0.125 * Math.pow(2.0, (count - 1) / 3.0) * (1.0 + offset);
+        if (earthR >= 12.7) {
+            return format3SigFig(earthR * 0.125 / 12.7) + " R☉";
+        } else {
+            return format3SigFig(earthR) + " R⊕";
+        }
+    }
+
+    /**
+     * Format mass with a proportional offset applied to the raw value before unit conversion.
+     */
+    public static String formatMassOffset(int count, float offset) {
+        if (count == 0) return "---";
+        double earthM = 0.022 * Math.pow(2.0, (count - 1) / 2.0) * (1.0 + offset);
+        if (earthM >= 22600.0) {
+            return format3SigFig(earthM * 0.063 / 22600.0) + " M☉";
+        } else {
+            return format3SigFig(earthM) + " M⊕";
+        }
+    }
+
     @SuppressWarnings("MalformedFormatString")
     static String format3SigFig(double value) {
         if (Math.abs(value) < 1e-9) return "0";
