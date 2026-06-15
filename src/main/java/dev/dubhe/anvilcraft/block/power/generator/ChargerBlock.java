@@ -202,16 +202,21 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
 
     private static InteractionResult tryExtract(
         Player player, Level level, BlockPos pos, FilteredItemStackHandler handler, BlockEntity be) {
-        for (int slot : new int[]{2, 0, 1}) {
-            ItemResource resourceIn = handler.getResource(slot);
-            if (resourceIn.isEmpty()) continue;
+        for (int slot : new int[]{2, 1, 0}) {
+            ItemStack stack = handler.getStacks().get(slot);
+            if (stack.isEmpty()) continue;
             try (Transaction tx = Transaction.openRoot()) {
-                int extracted = handler.extract(slot, resourceIn, Integer.MAX_VALUE, tx);
-                if (extracted == 0) continue;
+                ItemResource resourceIn = handler.getResource(slot);
+                int count = handler.getAmountAsInt(slot);
+                if (count <= 0) continue;
+                handler.set(slot, ItemResource.EMPTY, 0);
                 tx.commit();
-                if (be instanceof ChargerBlockEntity charger) charger.stopProcessing();
-                if (be instanceof DischargerBlockEntity discharger) discharger.stopProcessing();
-                player.getInventory().placeItemBackInInventory(resourceIn.toStack(extracted));
+                // 只有从加工槽(slot 1)取物才中断加工，从输出槽取成品不影响加工
+                if (slot == 1) {
+                    if (be instanceof ChargerBlockEntity charger) charger.stopProcessing();
+                    if (be instanceof DischargerBlockEntity discharger) discharger.stopProcessing();
+                }
+                player.getInventory().placeItemBackInInventory(resourceIn.toStack(count));
                 level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
                     SoundSource.PLAYERS, .2F, 1F + level.getRandom().nextFloat());
                 return InteractionResult.SUCCESS;

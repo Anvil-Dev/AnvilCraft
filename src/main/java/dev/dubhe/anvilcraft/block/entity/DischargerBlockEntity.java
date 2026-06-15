@@ -273,6 +273,7 @@ public class DischargerBlockEntity extends BlockEntity
 
     public void stopProcessing() {
         this.timeLeft = 0;
+        this.timeTotalCache = 0;
         this.isFeDischarging = false;
         this.powerValue = 0;
     }

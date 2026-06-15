@@ -36,6 +36,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -57,6 +58,13 @@ public class ChargerBlockEntity extends BlockEntity
     private int signalCache = 0;
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
+
+        @Override
+        public int extract(int index, ItemResource resource, int maxExtract, TransactionContext transaction) {
+            // 漏斗只能从输出槽(slot 2)抽取物品
+            if (index != 2) return 0;
+            return super.extract(index, resource, maxExtract, transaction);
+        }
 
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
@@ -168,6 +176,7 @@ public class ChargerBlockEntity extends BlockEntity
     private void moveItemToTransformedOverSlot() {
         ItemResource resource = this.itemHandler.getResource(1);
         if (resource.isEmpty()) return;
+        // 输出槽被占 → 维持原始物品在加工槽，下一tick继续尝试
         if (!this.itemHandler.getResource(2).isEmpty()) {
             this.powerValue = 0;
             return;
@@ -177,9 +186,13 @@ public class ChargerBlockEntity extends BlockEntity
             this.itemHandler.set(2, resource, 1);
         } else {
             ChargerChargingRecipe recipe = this.getItemRecipe(resource);
-            if (this.checkRecipeItemNotValid(recipe)) return;
-            ItemStackTemplate transformed = recipe.result();
-            this.itemHandler.set(2, ItemResource.of(transformed), transformed.count());
+            if (recipe == null || this.checkRecipeItemNotValid(recipe)) {
+                // 非配方物品直接移回输入槽
+                this.itemHandler.set(0, resource, 1);
+            } else {
+                ItemStackTemplate transformed = recipe.result();
+                this.itemHandler.set(2, ItemResource.of(transformed), transformed.count());
+            }
         }
         this.itemHandler.set(1, ItemResource.EMPTY, 0);
         this.powerValue = 0;
@@ -277,6 +290,7 @@ public class ChargerBlockEntity extends BlockEntity
 
     public void stopProcessing() {
         this.timeLeft = 0;
+        this.timeTotalCache = 0;
         this.isFeCharging = false;
         this.feCooldown = 0;
         this.powerValue = 0;
@@ -402,8 +416,10 @@ public class ChargerBlockEntity extends BlockEntity
             }
         }
         if (this.timeLeft == 0) {
+            boolean hadItem = !this.itemHandler.getResource(1).isEmpty();
             this.moveItemToTransformedOverSlot();
-            if (this.timeLeft == 0) {
+            // 只有成功移出（加工槽空了）才归零timeTotalCache，输出槽满时保留状态继续尝试
+            if (this.itemHandler.getResource(1).isEmpty() && hadItem) {
                 this.timeTotalCache = 0;
             }
         }

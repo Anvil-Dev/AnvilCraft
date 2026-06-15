@@ -83,8 +83,8 @@ public class ChargerTooltipProvider extends ITooltipProvider.BlockEntityTooltipP
         } else if (charger.getTimeTotalCache() > 0) {
             lines.add(Component.translatable(
                 "tooltip.anvilcraft.working_progress.time",
-                FormattingUtil.toFormattedTime(charger.getTimeLeft(), 3),
-                FormattingUtil.toFormattedTime(charger.getTimeTotalCache(), 3)
+                FormattingUtil.toFormattedTime(charger.getTimeLeft()),
+                FormattingUtil.toFormattedTime(charger.getTimeTotalCache())
             ).withStyle(ChatFormatting.GRAY));
         }
         return lines;
