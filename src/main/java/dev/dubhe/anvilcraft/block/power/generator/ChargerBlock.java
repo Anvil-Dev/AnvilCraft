@@ -156,83 +156,63 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (level.isClientSide()) {
-            if (!stack.isEmpty()) return InteractionResult.SUCCESS;
-            return super.useItemOn(stack, state, level, pos, player, hand, hit);
-        }
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof ChargerBlockEntity charger) {
-            return handleChargerInteraction(stack, player, level, pos,
-                charger.getFilteredItemStackHandler(),
-                resource -> charger.containsValidItem(resource));
-        } else if (be instanceof DischargerBlockEntity discharger) {
-            return handleDischargerInteraction(stack, player, level, pos,
-                discharger.getFilteredItemStackHandler(),
-                resource -> discharger.containsValidItem(resource));
+        if (!(be instanceof ChargerBlockEntity) && !(be instanceof DischargerBlockEntity)) {
+            return InteractionResult.PASS;
         }
-        return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        FilteredItemStackHandler handler = be instanceof ChargerBlockEntity charger
+            ? charger.getFilteredItemStackHandler()
+            : ((DischargerBlockEntity) be).getFilteredItemStackHandler();
+
+        if (stack.isEmpty()) {
+            return tryExtract(player, level, pos, handler, be);
+        }
+
+        if (!handler.getStacks().get(0).isEmpty()) return InteractionResult.PASS;
+
+        ItemResource resource = ItemResource.of(stack);
+        if (be instanceof ChargerBlockEntity charger && !charger.containsValidItem(resource)) return InteractionResult.PASS;
+        if (be instanceof DischargerBlockEntity discharger && !discharger.containsValidItem(resource)) return InteractionResult.PASS;
+
+        try (Transaction tx = Transaction.openRoot()) {
+            int inserted = handler.insert(0, resource, 1, tx);
+            if (inserted == 0) return InteractionResult.PASS;
+            tx.commit();
+            stack.shrink(inserted);
+            return InteractionResult.CONSUME;
+        }
     }
 
-    private static InteractionResult handleChargerInteraction(
-        ItemStack stack, Player player, Level level, BlockPos pos,
-        FilteredItemStackHandler handler,
-        java.util.function.Predicate<ItemResource> containsValidItem
-    ) {
-        ItemResource resource = ItemResource.of(stack);
-        if (stack.isEmpty()) {
-            for (int slot : new int[]{2, 0}) {
-                ItemResource resourceIn = handler.getResource(slot);
-                if (resourceIn.isEmpty()) continue;
-                try (Transaction transaction = Transaction.openRoot()) {
-                    int extracted = handler.extract(slot, resourceIn, Integer.MAX_VALUE, transaction);
-                    if (extracted == 0) continue;
-                    transaction.commit();
-                    player.getInventory().placeItemBackInInventory(resourceIn.toStack(extracted));
-                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
-                        SoundSource.PLAYERS, .2F, 1F + level.getRandom().nextFloat());
-                    return InteractionResult.SUCCESS;
-                }
-            }
-        } else if (containsValidItem.test(resource)) {
-            try (Transaction transaction = Transaction.openRoot()) {
-                int inserted = handler.insert(0, resource, stack.getCount(), transaction);
-                if (inserted == 0) return InteractionResult.PASS;
-                transaction.commit();
-                stack.shrink(inserted);
-                return InteractionResult.SUCCESS;
-            }
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+
+        BlockEntity be = level.getBlockEntity(pos);
+        if (!(be instanceof ChargerBlockEntity) && !(be instanceof DischargerBlockEntity)) {
+            return InteractionResult.PASS;
         }
-        return InteractionResult.PASS;
+        FilteredItemStackHandler handler = be instanceof ChargerBlockEntity charger
+            ? charger.getFilteredItemStackHandler()
+            : ((DischargerBlockEntity) be).getFilteredItemStackHandler();
+
+        return tryExtract(player, level, pos, handler, be);
     }
 
-    private static InteractionResult handleDischargerInteraction(
-        ItemStack stack, Player player, Level level, BlockPos pos,
-        FilteredItemStackHandler handler,
-        java.util.function.Predicate<ItemResource> containsValidItem
-    ) {
-        ItemResource resource = ItemResource.of(stack);
-        if (stack.isEmpty()) {
-            // 放电器：优先输出槽，然后输入槽
-            for (int slot : new int[]{2, 0}) {
-                ItemResource resourceIn = handler.getResource(slot);
-                if (resourceIn.isEmpty()) continue;
-                try (Transaction transaction = Transaction.openRoot()) {
-                    int extracted = handler.extract(slot, resourceIn, Integer.MAX_VALUE, transaction);
-                    if (extracted == 0) continue;
-                    transaction.commit();
-                    player.getInventory().placeItemBackInInventory(resourceIn.toStack(extracted));
-                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
-                        SoundSource.PLAYERS, .2F, 1F + level.getRandom().nextFloat());
-                    return InteractionResult.SUCCESS;
-                }
-            }
-        } else if (containsValidItem.test(resource)) {
-            try (Transaction transaction = Transaction.openRoot()) {
-                int inserted = handler.insert(0, resource, stack.getCount(), transaction);
-                if (inserted == 0) return InteractionResult.PASS;
-                transaction.commit();
-                stack.shrink(inserted);
+    private static InteractionResult tryExtract(Player player, Level level, BlockPos pos, FilteredItemStackHandler handler, BlockEntity be) {
+        for (int slot : new int[]{2, 0, 1}) {
+            ItemResource resourceIn = handler.getResource(slot);
+            if (resourceIn.isEmpty()) continue;
+            try (Transaction tx = Transaction.openRoot()) {
+                int extracted = handler.extract(slot, resourceIn, Integer.MAX_VALUE, tx);
+                if (extracted == 0) continue;
+                tx.commit();
+                if (be instanceof ChargerBlockEntity charger) charger.stopProcessing();
+                if (be instanceof DischargerBlockEntity discharger) discharger.stopProcessing();
+                player.getInventory().placeItemBackInInventory(resourceIn.toStack(extracted));
+                level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
+                    SoundSource.PLAYERS, .2F, 1F + level.getRandom().nextFloat());
                 return InteractionResult.SUCCESS;
             }
         }

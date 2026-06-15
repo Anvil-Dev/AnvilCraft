@@ -38,7 +38,6 @@ import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -62,34 +61,6 @@ public class DischargerBlockEntity extends BlockEntity
     private int signalCache = 0;
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
-
-        @Override
-        public int insert(ItemResource resource, int amount, TransactionContext transaction) {
-            if (!this.getResource(0).isEmpty()) return 0;
-            return super.insert(0, resource, 1, transaction);
-        }
-
-        @Override
-        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (index != 0) return 0;
-            return super.insert(index, resource, amount, transaction);
-        }
-
-        @Override
-        public boolean isValid(int index, ItemResource resource) {
-            return DischargerBlockEntity.this.containsValidItem(resource);
-        }
-
-        @Override
-        public int extract(ItemResource resource, int amount, TransactionContext transaction) {
-            return super.extract(resource, amount, transaction);
-        }
-
-        @Override
-        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (DischargerBlockEntity.this.isSlotDisabled(index)) return 0;
-            return super.extract(index, resource, amount, transaction);
-        }
 
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
@@ -298,6 +269,12 @@ public class DischargerBlockEntity extends BlockEntity
     @Override
     public PowerComponentType getComponentType() {
         return PowerComponentType.PRODUCER;
+    }
+
+    public void stopProcessing() {
+        this.timeLeft = 0;
+        this.isFeDischarging = false;
+        this.powerValue = 0;
     }
 
     public double getProgress() {
