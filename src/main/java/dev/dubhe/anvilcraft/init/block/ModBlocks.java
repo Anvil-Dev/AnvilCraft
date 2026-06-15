@@ -97,6 +97,7 @@ import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.power.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.power.batch.BatchCutterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.DischargerBlock;
+import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
@@ -696,6 +697,14 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::chargeCollector)
+        .register();
+
+    public static final BlockEntry<FeCollectorBlock> FE_COLLECTOR = REGISTRUM.block("fe_collector", FeCollectorBlock::new)
+        .simpleItem()
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)

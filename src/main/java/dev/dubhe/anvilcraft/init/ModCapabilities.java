@@ -92,6 +92,20 @@ public class ModCapabilities {
             (stack, ctx) -> new ItemFEStorage(stack, IonoCraftBackpackItem.MAX_ENERGY),
             ModItems.IONOCRAFT_BACKPACK.get()
         );
+
+        // 能量转换器 FE capability
+        event.registerBlockEntity(
+            Capabilities.Energy.BLOCK,
+            ModBlockEntities.POWER_CONVERTER.get(),
+            (be, direction) -> be.getEnergyStorage(direction)
+        );
+
+        // FE收集器 FE capability
+        event.registerBlockEntity(
+            Capabilities.Energy.BLOCK,
+            ModBlockEntities.FE_COLLECTOR.get(),
+            (be, direction) -> be.getEnergyStorage(direction)
+        );
     }
 
     /// 物品

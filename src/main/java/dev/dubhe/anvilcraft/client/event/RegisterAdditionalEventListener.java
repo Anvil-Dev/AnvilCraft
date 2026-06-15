@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRender
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
@@ -56,6 +57,10 @@ public class RegisterAdditionalEventListener {
         event.register(
             VoidEnergyCollectorRenderer.HEAD,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/void_energy_collector_head"))
+        );
+        event.register(
+            FeCollectorRenderer.MODEL,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fe_collector_head"))
         );
         event.register(
             HammerEffectRenderEventListener.MODEL,
