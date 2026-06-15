@@ -71,6 +71,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     public static final ModelResourceLocation R4_COLLIDER = ModelResourceLocation.standalone(AnvilCraft.of(
         "block/celestial_forging_anvil_ring_4_collider"));
 
+    // Dyson Sphere megastructure models (replace ring 4 / ring 5)
+    public static final ModelResourceLocation R4_DYSON_SPHERE = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_dyson_sphere"));
+    public static final ModelResourceLocation R5_DYSON_SPHERE = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_5_dyson_sphere"));
+
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
 
@@ -104,52 +110,66 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         boolean animForward = blockEntity.isAnimationForward();
 
         if (blockEntity.isAmplify()) {
+            // Check if Dyson Sphere is active — these rings render with star-synchronous rotation
+            // instead of mechanical rotation, so they are skipped here and rendered later.
+            // Dyson Sphere also hides the outer rings (R5 for small, R6 for both).
+            boolean isDysonSphereR4 = isDysonSphereActive(blockEntity, 4);
+            boolean isDysonSphereR5 = isDysonSphereActive(blockEntity, 5);
+            boolean anyDysonSphere = isDysonSphereR4 || isDysonSphereR5;
+
             poseStack.scale(4, 4, 4);
-            // R4 — model may change based on megastructure
-            ModelResourceLocation r4Model = getRing4Model(blockEntity);
-            renderRingMaybe(
-                r4Model,
-                4,
-                bodyData,
-                prevBody,
-                isAnimating,
-                animForward,
-                animProgress,
-                poseStack,
-                multiBufferSource,
-                packedOverlay,
-                modelRenderer
-            );
+            // R4 — skip if Dyson Sphere (rendered later with star rotation)
+            if (!isDysonSphereR4) {
+                ModelResourceLocation r4Model = getRing4Model(blockEntity);
+                renderRingMaybe(
+                    r4Model,
+                    4,
+                    bodyData,
+                    prevBody,
+                    isAnimating,
+                    animForward,
+                    animProgress,
+                    poseStack,
+                    multiBufferSource,
+                    packedOverlay,
+                    modelRenderer
+                );
+            }
             // Z rotation
             poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-            // R5 — always visible in amplify mode
-            modelRenderer.renderModel(
-                poseStack.last(),
-                ringConsumer,
-                null,
-                Minecraft.getInstance().getModelManager().getModel(R5),
-                0,
-                0,
-                0,
-                LightTexture.FULL_BRIGHT,
-                packedOverlay
-            );
+            // R5 — hide when any Dyson Sphere is active
+            if (!anyDysonSphere) {
+                ModelResourceLocation r5Model = getRing5Model(blockEntity);
+                modelRenderer.renderModel(
+                    poseStack.last(),
+                    ringConsumer,
+                    null,
+                    Minecraft.getInstance().getModelManager().getModel(r5Model),
+                    0,
+                    0,
+                    0,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay
+                );
+            }
             // X rotation
             poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-            // R6
-            renderRingMaybe(
-                R6,
-                6,
-                bodyData,
-                prevBody,
-                isAnimating,
-                animForward,
-                animProgress,
-                poseStack,
-                multiBufferSource,
-                packedOverlay,
-                modelRenderer
-            );
+            // R6 — hide when any Dyson Sphere is active
+            if (!anyDysonSphere) {
+                renderRingMaybe(
+                    R6,
+                    6,
+                    bodyData,
+                    prevBody,
+                    isAnimating,
+                    animForward,
+                    animProgress,
+                    poseStack,
+                    multiBufferSource,
+                    packedOverlay,
+                    modelRenderer
+                );
+            }
         } else {
             poseStack.scale(4, 4, 4);
             // R3
@@ -200,6 +220,28 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             );
         }
         poseStack.popPose();
+
+        // Render Dyson Sphere rings with star-synchronous rotation
+        if (blockEntity.isAmplify()) {
+            boolean isDysonSphereR4 = isDysonSphereActive(blockEntity, 4);
+            boolean isDysonSphereR5 = isDysonSphereActive(blockEntity, 5);
+            if ((isDysonSphereR4 || isDysonSphereR5) && bodyData instanceof StarData star) {
+                float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
+                float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
+                renderDysonSphereRings(
+                    isDysonSphereR4,
+                    isDysonSphereR5,
+                    centerY,
+                    bodyRot,
+                    star,
+                    animProgress,
+                    poseStack,
+                    multiBufferSource,
+                    packedOverlay,
+                    modelRenderer
+                );
+            }
+        }
 
         // Use effective body data (considers reverse animation where celestialBodyData is already null)
         CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
@@ -261,7 +303,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     }
 
     /**
-     * Get the appropriate ring 4 model, accounting for stellar ring collider megastructure.
+     * Get the appropriate ring 4 model, accounting for megastructures that replace ring 4.
      */
     private ModelResourceLocation getRing4Model(CelestialForgingAnvilBlockEntity blockEntity) {
         if (blockEntity.getActiveMegastructureIndex() >= 0) {
@@ -274,9 +316,75 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     }
                     return R4_COLLIDER;
                 }
+                if ("dyson_sphere_small".equals(option.megastructure())) {
+                    return R4_DYSON_SPHERE;
+                }
             }
         }
         return R4;
+    }
+
+    /**
+     * Get the appropriate ring 5 model, accounting for megastructures that replace ring 5.
+     */
+    private ModelResourceLocation getRing5Model(CelestialForgingAnvilBlockEntity blockEntity) {
+        if (blockEntity.getActiveMegastructureIndex() >= 0) {
+            var option = blockEntity.getActiveMegastructureOption();
+            if (option != null) {
+                if ("dyson_sphere_large".equals(option.megastructure())) {
+                    return R5_DYSON_SPHERE;
+                }
+            }
+        }
+        return R5;
+    }
+
+    /**
+     * Check whether a Dyson Sphere megastructure is active on the given ring index.
+     */
+    private static boolean isDysonSphereActive(CelestialForgingAnvilBlockEntity blockEntity, int ring) {
+        if (blockEntity.getActiveMegastructureIndex() < 0) return false;
+        var option = blockEntity.getActiveMegastructureOption();
+        if (option == null) return false;
+        if (ring == 4) return "dyson_sphere_small".equals(option.megastructure());
+        if (ring == 5) return "dyson_sphere_large".equals(option.megastructure());
+        return false;
+    }
+
+    /**
+     * Render Dyson Sphere rings with star-synchronous rotation (Y rotation matching the star),
+     * instead of the mechanical X/Z rotation used by other rings.
+     */
+    private void renderDysonSphereRings(
+        boolean renderR4,
+        boolean renderR5,
+        float centerY,
+        float bodyRot,
+        StarData star,
+        float animProgress,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        ModelBlockRenderer modelRenderer
+    ) {
+        if (!renderR4 && !renderR5) return;
+        float scale = animProgress;
+        if (scale < 0.001f) return;
+
+        poseStack.pushPose();
+        poseStack.translate(0.5, centerY, 0.5);
+        poseStack.scale(4, 4, 4);
+        // Apply star's axial tilt and Y rotation — same as star body rendering
+        poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * star.rotationSpeed()));
+
+        if (renderR4) {
+            renderRingCutout(R4_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
+        }
+        if (renderR5) {
+            renderRingCutout(R5_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
+        }
+        poseStack.popPose();
     }
 
     /**

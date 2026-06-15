@@ -10,7 +10,8 @@ public record StarData(
     int colorB,
     float axialTilt,
     float rotationSpeed,
-    int magneticFieldStrength
+    int magneticFieldStrength,
+    int energy
 ) implements CelestialBodyData {
 
     @Override
@@ -35,6 +36,7 @@ public record StarData(
         tag.putFloat("axialTilt", axialTilt);
         tag.putFloat("rotationSpeed", rotationSpeed);
         tag.putInt("magneticFieldStrength", magneticFieldStrength);
+        tag.putInt("energy", energy);
         return tag;
     }
 
@@ -50,6 +52,7 @@ public record StarData(
             b = tag.getInt("colorB");
         }
         int mag = tag.contains("magneticFieldStrength") ? tag.getInt("magneticFieldStrength") : 0;
-        return new StarData(cls, size, r, g, b, tag.getFloat("axialTilt"), tag.getFloat("rotationSpeed"), mag);
+        int energy = tag.contains("energy") ? tag.getInt("energy") : 0;
+        return new StarData(cls, size, r, g, b, tag.getFloat("axialTilt"), tag.getFloat("rotationSpeed"), mag, energy);
     }
 }

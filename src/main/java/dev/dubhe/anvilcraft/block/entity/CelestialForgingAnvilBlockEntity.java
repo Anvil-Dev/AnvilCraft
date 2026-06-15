@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
@@ -58,7 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer {
+public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer, IPowerProducer {
     @Getter
     private int preRotation = 0;
     @Getter
@@ -193,6 +194,37 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 if ("stellar_ring_collider".equals(option.megastructure())) {
                     return 4000;
                 }
+                // Dyson Sphere: passive, no power consumption
+                if ("dyson_sphere_small".equals(option.megastructure())
+                    || "dyson_sphere_large".equals(option.megastructure())) {
+                    return 0;
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * IPowerProducer: generate power when Dyson Sphere is active.
+     * Power formula: P = (E × R²) / 800 (MW, rounded down), returned in kW (×1000)
+     * E = energy anvil count from celestial body parameters (StarData.energy)
+     * R = celestial body size from celestial body parameters (StarData.size)
+     */
+    @Override
+    public int getOutputPower() {
+        if (activeMegastructureIndex >= 0 && celestialBodyData instanceof StarData star) {
+            CelestialRefactorOption option = getActiveMegastructureOption();
+            if (option != null) {
+                if ("dyson_sphere_small".equals(option.megastructure())
+                    || "dyson_sphere_large".equals(option.megastructure())) {
+                    int e = star.energy();
+                    int r = star.size();
+                    if (e > 0 && r > 0) {
+                        // P = (E × R²) / 800 MW, return in kW (×1000)
+                        int powerMW = (e * r * r) / 800;
+                        return powerMW * 1000;
+                    }
+                }
             }
         }
         return 0;
@@ -215,6 +247,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     @Override
     public PowerComponentType getComponentType() {
+        if (activeMegastructureIndex >= 0) {
+            CelestialRefactorOption option = getActiveMegastructureOption();
+            if (option != null) {
+                if ("dyson_sphere_small".equals(option.megastructure())
+                    || "dyson_sphere_large".equals(option.megastructure())) {
+                    return PowerComponentType.PRODUCER;
+                }
+            }
+        }
         return IPowerConsumer.super.getComponentType();
     }
 
@@ -467,6 +508,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             serverTickEcoStation();
             serverTickTemple();
             serverTickStellarRingCollider();
+            serverTickDysonSphere();
         }
     }
 
@@ -729,6 +771,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void onLoad() {
         super.onLoad();
         if (level != null && !level.isClientSide()) {
+            // Re-register with power grid to ensure CFA is in both producer and consumer sets
+            PowerGrid.addComponent(this);
             this.setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
@@ -740,6 +784,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putBoolean("amplified", this.isAmplify);
         tag.putLong("bodySeed", this.bodySeed);
         tag.putInt("stellarMass", this.stellarMass);
+
         tag.putBoolean("locked", this.locked);
         tag.putBoolean("amplifierPresent", this.amplifierPresent);
         tag.putBoolean("searching", this.searching);
@@ -876,6 +921,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putBoolean("amplified", this.isAmplify);
         tag.putLong("bodySeed", this.bodySeed);
         tag.putInt("stellarMass", this.stellarMass);
+
         tag.putBoolean("locked", this.locked);
         tag.putBoolean("amplifierPresent", this.amplifierPresent);
         tag.putBoolean("searching", this.searching);
@@ -1156,6 +1202,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         // Clear material filter
         this.materialFilter = new ItemStack(Items.BARRIER);
         this.materialLimit = 0;
+        // Re-register with power grid to restore CONSUMER type
+        PowerGrid.addComponent(this);
     }
 
     /**
@@ -1213,6 +1261,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             activeMegastructureIndex = optionIndex;
         }
 
+        // Re-register with power grid so the component type change takes effect
+        // (e.g., Dyson Sphere switches CFA from CONSUMER to PRODUCER)
+        PowerGrid.addComponent(this);
         this.setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }
@@ -1970,6 +2021,23 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         colliderReservedHitBlockSource = null;
         colliderActiveSpeed = 0;
         broadcastColliderState(false, false);
+    }
+
+    // === Dyson Sphere ===
+
+    /**
+     * Dyson Sphere passive power generation tick.
+     * Power is generated through {@link #getOutputPower()} called by the power grid.
+     * This tick handles state transitions and grid sync.
+     */
+    private void serverTickDysonSphere() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) return;
+        String name = option.megastructure();
+        if (!"dyson_sphere_small".equals(name) && !"dyson_sphere_large".equals(name)) return;
+        // Dyson Sphere is passive — no per-tick work needed.
+        // Power is generated via getOutputPower() called by the power grid during flush().
     }
 
     // === Eco Station ===

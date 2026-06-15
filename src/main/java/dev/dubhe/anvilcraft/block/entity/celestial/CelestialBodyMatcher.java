@@ -264,7 +264,7 @@ public final class CelestialBodyMatcher {
         return new StarData(
             bodyClass,
             size, rgb[0], rgb[1], rgb[2],
-            0f, randomRotationSpeed(random), mag  // stars have no axial tilt
+            0f, randomRotationSpeed(random), mag, energy  // stars have no axial tilt
         );
     }
 

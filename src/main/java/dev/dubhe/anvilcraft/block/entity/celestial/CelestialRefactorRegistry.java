@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -138,8 +139,9 @@ public final class CelestialRefactorRegistry {
             options.add(CelestialRefactorOption.withMaterial(4, "stellar_ring_collider",
                 ringModel(4, "collider"), prefix + "stellar_ring_collider",
                 ModBlocks.ACCELERATION_RING.asItem(), 16));
-            options.add(CelestialRefactorOption.noMaterial(4, "dyson_sphere_small",
-                ringModel(4, "dyson_sphere"), prefix + "dyson_sphere_small"));
+            options.add(CelestialRefactorOption.withMaterial(4, "dyson_sphere_small",
+                ringModel(4, "dyson_sphere"), prefix + "dyson_sphere_small",
+                ModItems.TRANSCENDIUM_INGOT, 16));
             options.add(CelestialRefactorOption.noMaterial(4, "magnetar_coil",
                 ringModel(4, "coil"), prefix + "magnetar_coil"));
             options.add(CelestialRefactorOption.noMaterial(4, "penrose_sphere",
@@ -149,8 +151,9 @@ public final class CelestialRefactorRegistry {
         }
         if (innermostRing <= 5 && 5 <= maxRing) {
             // Ring 5 megastructures (innermost for large stars)
-            options.add(CelestialRefactorOption.noMaterial(5, "dyson_sphere_large",
-                ringModel(5, "dyson_sphere"), prefix + "dyson_sphere_large"));
+            options.add(CelestialRefactorOption.withMaterial(5, "dyson_sphere_large",
+                ringModel(5, "dyson_sphere"), prefix + "dyson_sphere_large",
+                ModItems.TRANSCENDIUM_INGOT, 32));
         }
         return options;
     }
