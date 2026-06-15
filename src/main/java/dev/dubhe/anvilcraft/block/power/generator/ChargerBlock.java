@@ -200,7 +200,8 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         return tryExtract(player, level, pos, handler, be);
     }
 
-    private static InteractionResult tryExtract(Player player, Level level, BlockPos pos, FilteredItemStackHandler handler, BlockEntity be) {
+    private static InteractionResult tryExtract(
+        Player player, Level level, BlockPos pos, FilteredItemStackHandler handler, BlockEntity be) {
         for (int slot : new int[]{2, 0, 1}) {
             ItemResource resourceIn = handler.getResource(slot);
             if (resourceIn.isEmpty()) continue;

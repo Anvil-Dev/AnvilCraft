@@ -28,8 +28,10 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
     private static final VoxelShape SHAPE_X = ShapeUtil.merge(
         Block.box(0, 0, 0, 16, 4, 16),

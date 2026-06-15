@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PowerGeneratorRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -29,5 +28,10 @@ public class FeCollectorRenderer extends PowerProducerRenderer<FeCollectorBlockE
     @Override
     protected float elevation() {
         return 0.68F;
+    }
+
+    @Override
+    protected float rotation(FeCollectorBlockEntity be, float partialTick) {
+        return be.getRotation() + (float) (Math.log(be.getServerPower() + 1) * 2.5F * partialTick);
     }
 }

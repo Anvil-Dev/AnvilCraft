@@ -33,7 +33,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -66,7 +65,7 @@ public class ChargerBlockEntity extends BlockEntity
             if (level == null || level.isClientSide()) return;
             ChargerBlockEntity.this.setChanged();
             ChargerBlockEntity.this.updateDisplayItemStack();
-            ChargerBlockEntity.this.level.sendBlockUpdated(
+            level.sendBlockUpdated(
                 ChargerBlockEntity.this.getBlockPos(),
                 ChargerBlockEntity.this.getBlockState(),
                 ChargerBlockEntity.this.getBlockState(),
@@ -101,7 +100,7 @@ public class ChargerBlockEntity extends BlockEntity
         // 检查FE充电能力
         ItemStack stack = resource.toStack();
         if (stack.isEmpty()) return false;
-        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
+        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, null);
         if (energyHandler == null) return false;
         return energyHandler.getAmountAsInt() < energyHandler.getCapacityAsInt();
     }
@@ -143,7 +142,7 @@ public class ChargerBlockEntity extends BlockEntity
 
         // FE充电：物品可接收FE时开始充电
         ItemStack stack = this.itemHandler.getStacks().get(0).copy();
-        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
+        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, null);
         if (energyHandler != null
             && energyHandler.getAmountAsInt() < energyHandler.getCapacityAsInt()
         ) {
@@ -369,7 +368,7 @@ public class ChargerBlockEntity extends BlockEntity
                     ItemStack processingStack = this.itemHandler.getStacks().get(1);
                     if (!processingStack.isEmpty()) {
                         EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(
-                            processingStack, ItemAccess.forStack(processingStack));
+                            processingStack, null);
                         if (storage != null) {
                             int powerLevel = this.getFeChargingPowerLevel();
                             if (powerLevel > 0) {

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init.block;
 
+import com.mojang.math.Quadrant;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
@@ -11,6 +12,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
+import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -97,7 +99,6 @@ import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.power.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.power.batch.BatchCutterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.DischargerBlock;
-import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
@@ -210,11 +211,13 @@ import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -245,6 +248,7 @@ import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
@@ -702,7 +706,18 @@ public class ModBlocks {
     public static final BlockEntry<FeCollectorBlock> FE_COLLECTOR = REGISTRUM.block("fe_collector", FeCollectorBlock::new)
         .simpleItem()
         .properties(BlockBehaviour.Properties::noOcclusion)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .lang("FE Collector")
+        .blockstate(() -> (ctx, generator) -> {
+            MultiVariant model = BlockModelGenerators.plainVariant(
+                ctx.getId().withPath(p -> "block/" + p + "_base")
+            );
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get()).with(
+                PropertyDispatchWrap.initial(BlockStateProperties.HORIZONTAL_AXIS)
+                    .select(Direction.Axis.X, model)
+                    .select(Direction.Axis.Z, model.with(VariantMutator.Y_ROT.withValue(Quadrant.R90)))
+                    .dispatch()
+            ));
+        })
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
