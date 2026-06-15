@@ -24,6 +24,7 @@ public class BlockCrushRecipeLoader {
         blockCrush(provider, Blocks.SOUL_SOIL, Blocks.SOUL_SAND);
         blockCrush(provider, Blocks.NETHERRACK, ModBlocks.NETHER_DUST.get());
         blockCrush(provider, Blocks.END_STONE, ModBlocks.END_DUST.get());
+        blockCrush(provider, Blocks.FURNACE, ModBlocks.BURNING_HEATER.get());
     }
 
     private static void blockCrush(RegistrumRecipeProvider provider, Block input, Block result) {

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "minecraft:copper_ingot",
+    "B": "anvilcraft:charge_collector"
+  },
+  "pattern": [
+    "ABA",
+    "AAA"
+  ],
+  "result": {
+    "count": 2,
+    "id": "anvilcraft:fe_collector"
+  }
+}

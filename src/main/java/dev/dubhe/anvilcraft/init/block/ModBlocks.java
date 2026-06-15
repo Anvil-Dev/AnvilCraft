@@ -718,6 +718,7 @@ public class ModBlocks {
                     .dispatch()
             ));
         })
+        .recipe(RegistrumBlockRecipeLoader::feCollector)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
