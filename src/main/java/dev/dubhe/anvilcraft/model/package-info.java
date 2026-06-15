@@ -1,5 +1,5 @@
 /**
- * 用于存放访数据结构类
+ * 用于存放数据结构类
  */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
