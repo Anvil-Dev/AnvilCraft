@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init.block;
 
+import com.mojang.math.Quadrant;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumBlockModelGenerator;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
@@ -10,6 +11,8 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
+import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -208,11 +211,13 @@ import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -243,6 +248,7 @@ import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
@@ -589,6 +595,26 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::heater)
         .register();
 
+    public static final BlockEntry<BurningHeaterBlock> BURNING_HEATER = REGISTRUM.block("burning_heater", BurningHeaterBlock::new)
+        .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(properties -> properties
+            .noOcclusion()
+            .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) >= 2 ? 15
+                : state.getValue(BurningHeaterBlock.LEVEL) >= 1 ? 7 : 0)
+            )
+        .simpleItem()
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatchWrap.initial(BurningHeaterBlock.LEVEL)
+                    .select(0, BlockModelGenerators.plainVariant(ctx.getId().withPath(p -> "block/burning_heater")))
+                    .select(1, BlockModelGenerators.plainVariant(ctx.getId().withPath(p -> "block/burning_heater_smoldering")))
+                    .select(2, BlockModelGenerators.plainVariant(ctx.getId().withPath(p -> "block/burning_heater_lit")))
+                    .dispatch()
+                )
+        ))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
     public static final BlockEntry<TransmissionPoleBlock> TRANSMISSION_POLE = REGISTRUM.block(
             "transmission_pole",
             TransmissionPoleBlock::new
@@ -675,6 +701,26 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::chargeCollector)
+        .register();
+
+    public static final BlockEntry<FeCollectorBlock> FE_COLLECTOR = REGISTRUM.block("fe_collector", FeCollectorBlock::new)
+        .simpleItem()
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .lang("FE Collector")
+        .blockstate(() -> (ctx, generator) -> {
+            MultiVariant model = BlockModelGenerators.plainVariant(
+                ctx.getId().withPath(p -> "block/" + p + "_base")
+            );
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get()).with(
+                PropertyDispatchWrap.initial(BlockStateProperties.HORIZONTAL_AXIS)
+                    .select(Direction.Axis.X, model)
+                    .select(Direction.Axis.Z, model.with(VariantMutator.Y_ROT.withValue(Quadrant.R90)))
+                    .dispatch()
+            ));
+        })
+        .recipe(RegistrumBlockRecipeLoader::feCollector)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)

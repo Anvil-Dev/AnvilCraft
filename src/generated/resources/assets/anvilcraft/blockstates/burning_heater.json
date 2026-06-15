@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "anvilcraft:block/burning_heater"
+    },
+    "level=1": {
+      "model": "anvilcraft:block/burning_heater_smoldering"
+    },
+    "level=2": {
+      "model": "anvilcraft:block/burning_heater_lit"
+    }
+  }
+}

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init.recipe;
 import dev.anvilcraft.lib.v2.recipe.init.LibRegistries;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.ConsumeBurningHeaterFuel;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
@@ -28,5 +29,11 @@ public class ModRecipeOutcomeTypes {
     public static final DeferredHolder<IRecipeOutcome.Type<?>, RoyalPreferenceOutcome.Type> ROYAL_PREFERENCE = OUTCOME_TYPE.register(
         "royal_preference",
         RoyalPreferenceOutcome.Type::new
+    );
+
+    public static final DeferredHolder<IRecipeOutcome.Type<?>, ConsumeBurningHeaterFuel.Type>
+        CONSUME_BURNING_HEATER_FUEL = OUTCOME_TYPE.register(
+        "consume_burning_heater_fuel",
+        ConsumeBurningHeaterFuel.Type::new
     );
 }

@@ -118,8 +118,20 @@ public class ScreenLang {
 
         provider.add("tooltip.anvilcraft.working_progress.title", "Working progress:");
         provider.add("tooltip.anvilcraft.working_progress.progress", "  %1$s %2$s%%");
+        provider.add("tooltip.anvilcraft.working_progress.time", "  %1$s / %2$s");
 
         provider.add("tooltip.anvilcraft.space_overcompressor.stored_mass", "Stored Mass: %s");
+
+        provider.add("tooltip.anvilcraft.burning_heater.state_name", "State:");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.off", "  Off");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.smoldering", "  Smoldering");
+        provider.add("tooltip.anvilcraft.burning_heater.state_name.lit", "  Lit");
+        provider.add("tooltip.anvilcraft.burning_heater.burn_time_label", "Remaining Burn Time:");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt", "Can Smelt:");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt.yes", "  Yes");
+        provider.add("tooltip.anvilcraft.burning_heater.can_smelt.no", "  No");
+        provider.add("tooltip.anvilcraft.burning_heater.fuel", "Fuel:");
+        provider.add("tooltip.anvilcraft.burning_heater.fuel.none", "  None");
 
         provider.add("screen.anvilcraft.ember_metal_upgrade_smithing_template", "Ember Metal Upgrade");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description", "Put the Ember Metal Ingot or Ember Metal Block");
@@ -140,15 +152,17 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.active_silencer.search", "enter keyword to search");
 
-        provider.add("screen.anvilcraft.tesla_tower.filter.unknown", "Unknown Filter");
-        provider.add("screen.anvilcraft.tesla_tower.filter.is_player_id", "Player Id Filter");
-        provider.add("screen.anvilcraft.tesla_tower.filter.is_player", "Player Filter");
-        provider.add("screen.anvilcraft.tesla_tower.filter.is_pet", "Pet Filter");
-        provider.add("screen.anvilcraft.tesla_tower.filter.is_on_vehicle", "On Vehicle Filter");
-        provider.add("screen.anvilcraft.tesla_tower.filter.is_friendly", "Friendly Entity Filter");
-        provider.add("screen.anvilcraft.tesla_tower.filter.is_entity_id", "Entity Filter");
-        provider.add("screen.anvilcraft.tesla_tower.filter.is_baby_friendly", "Baby Friendly Entity Filter");
-        provider.add("screen.anvilcraft.tesla_tower.filter.has_custom_name", "Custom Named Entity Filter");
+        provider.add("screen.anvilcraft.tesla_tower.filter.unknown", "Unknown");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_player_id", "Player Id");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_player", "Player");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_pet", "Pet");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_on_vehicle", "On Vehicle");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_friendly", "Friendly Entity");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_hostile", "Hostile Entity");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_neutral", "Neutral Entity");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_entity_id", "Entity");
+        provider.add("screen.anvilcraft.tesla_tower.filter.is_baby_friendly", "Baby Friendly Entity");
+        provider.add("screen.anvilcraft.tesla_tower.filter.has_custom_name", "Custom Named Entity");
 
         provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power: %d%%");
 

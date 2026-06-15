@@ -93,7 +93,7 @@ public record EnergyWeaponMakeRecipe(
         ItemStack result = this.result.create();
         ItemEnchantments enchantments = input.items.getFirst().get(DataComponents.ENCHANTMENTS);
         if (enchantments != null) result.set(DataComponents.ENCHANTMENTS, enchantments);
-        if (result.has(ModComponents.STORED_ENERGY)) result.set(ModComponents.STORED_ENERGY, new StoredEnergy(320000)); // 320MJ
+        if (result.has(ModComponents.STORED_ENERGY)) result.set(ModComponents.STORED_ENERGY, new StoredEnergy(640000000)); // 640 MFE
         return result;
     }
 

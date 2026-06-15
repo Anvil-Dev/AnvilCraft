@@ -54,5 +54,6 @@ public class ModRenderPipelines {
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(LASER_TRANSLUCENT);
+        event.registerPipeline(LIGHTNING);
     }
 }

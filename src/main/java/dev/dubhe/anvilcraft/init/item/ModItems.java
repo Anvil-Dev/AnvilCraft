@@ -591,6 +591,7 @@ public class ModItems {
             )
             .enchantable(15)
         )
+        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::ionocraftBackpack)
         .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)

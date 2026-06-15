@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.IStateListener;
@@ -140,7 +141,9 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        return blockEntity instanceof ChargerBlockEntity charger ? charger.getAnalogRedstoneSignal() : 0;
+        if (blockEntity instanceof ChargerBlockEntity charger) return charger.getAnalogRedstoneSignal();
+        if (blockEntity instanceof DischargerBlockEntity discharger) return discharger.getAnalogRedstoneSignal();
+        return 0;
     }
 
     @Override
@@ -153,43 +156,72 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         InteractionHand hand,
         BlockHitResult hit
     ) {
-        if (level.isClientSide()) return super.useItemOn(stack, state, level, pos, player, hand, hit);
-        if (!(level.getBlockEntity(pos) instanceof ChargerBlockEntity charger)) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+
+        BlockEntity be = level.getBlockEntity(pos);
+        if (!(be instanceof ChargerBlockEntity) && !(be instanceof DischargerBlockEntity)) {
+            return InteractionResult.PASS;
         }
-        // 玩家空手时尝试取出物品
-        FilteredItemStackHandler handler = charger.getFilteredItemStackHandler();
-        ItemResource resource = ItemResource.of(stack);
+        FilteredItemStackHandler handler = be instanceof ChargerBlockEntity charger
+            ? charger.getFilteredItemStackHandler()
+            : ((DischargerBlockEntity) be).getFilteredItemStackHandler();
+
         if (stack.isEmpty()) {
-            // 优先从输出槽（槽位2）取物品，如果为空则从输入槽（槽位0）取
-            for (int slot : new int[] {2, 0}) {
-                ItemResource resourceIn = handler.getResource(slot);
-                if (resourceIn.isEmpty()) continue;
-                try (Transaction transaction = Transaction.openRoot()) {
-                    int extracted = handler.extract(slot, resourceIn, Integer.MAX_VALUE, transaction);
-                    if (extracted == 0) continue;
-                    transaction.commit();
-                    player.getInventory().placeItemBackInInventory(resourceIn.toStack(extracted));
-                    level.playSound(
-                        null,
-                        pos,
-                        SoundEvents.ITEM_PICKUP,
-                        SoundSource.PLAYERS,
-                        .2F,
-                        1F + level.getRandom().nextFloat()
-                    );
-                    return InteractionResult.SUCCESS;
+            return tryExtract(player, level, pos, handler, be);
+        }
+
+        if (!handler.getStacks().get(0).isEmpty()) return InteractionResult.PASS;
+
+        ItemResource resource = ItemResource.of(stack);
+        if (be instanceof ChargerBlockEntity charger && !charger.containsValidItem(resource)) return InteractionResult.PASS;
+        if (be instanceof DischargerBlockEntity discharger && !discharger.containsValidItem(resource)) return InteractionResult.PASS;
+
+        try (Transaction tx = Transaction.openRoot()) {
+            int inserted = handler.insert(0, resource, 1, tx);
+            if (inserted == 0) return InteractionResult.PASS;
+            tx.commit();
+            stack.shrink(inserted);
+            return InteractionResult.CONSUME;
+        }
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+
+        BlockEntity be = level.getBlockEntity(pos);
+        if (!(be instanceof ChargerBlockEntity) && !(be instanceof DischargerBlockEntity)) {
+            return InteractionResult.PASS;
+        }
+        FilteredItemStackHandler handler = be instanceof ChargerBlockEntity charger
+            ? charger.getFilteredItemStackHandler()
+            : ((DischargerBlockEntity) be).getFilteredItemStackHandler();
+
+        return tryExtract(player, level, pos, handler, be);
+    }
+
+    private static InteractionResult tryExtract(
+        Player player, Level level, BlockPos pos, FilteredItemStackHandler handler, BlockEntity be) {
+        for (int slot : new int[]{2, 1, 0}) {
+            ItemStack stack = handler.getStacks().get(slot);
+            if (stack.isEmpty()) continue;
+            try (Transaction tx = Transaction.openRoot()) {
+                final ItemResource resourceIn = handler.getResource(slot);
+                int count = handler.getAmountAsInt(slot);
+                if (count <= 0) continue;
+                handler.set(slot, ItemResource.EMPTY, 0);
+                tx.commit();
+                // 只有从加工槽(slot 1)取物才中断加工，从输出槽取成品不影响加工
+                if (slot == 1) {
+                    if (be instanceof ChargerBlockEntity charger) charger.stopProcessing();
+                    if (be instanceof DischargerBlockEntity discharger) discharger.stopProcessing();
                 }
-            }
-        } else if (charger.containsValidItem(resource)) {
-            try (Transaction transaction = Transaction.openRoot()) {
-                int inserted = handler.insert(0, resource, stack.getCount(), transaction);
-                if (inserted == 0) return super.useItemOn(stack, state, level, pos, player, hand, hit);
-                transaction.commit();
-                stack.shrink(inserted);
+                player.getInventory().placeItemBackInInventory(resourceIn.toStack(count));
+                level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
+                    SoundSource.PLAYERS, .2F, 1F + level.getRandom().nextFloat());
                 return InteractionResult.SUCCESS;
             }
         }
-        return super.useItemOn(stack, state, level, pos, player, hand, hit);
+        return InteractionResult.PASS;
     }
 }

@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.api.tooltip;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.impl.AffectRangeProviderImpl;
+import dev.dubhe.anvilcraft.api.tooltip.impl.BurningHeaterTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.ChargerTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.DeflectionRingTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.DischargerTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeatCollectorTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeatableBlockTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltip;
@@ -47,6 +49,7 @@ public class HudTooltipManager {
 
     static {
         INSTANCE.registerBlockEntityTooltip(new ChargerTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new DischargerTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new HeatCollectorTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new PowerComponentTooltipProvider());
         INSTANCE.registerAffectRange(new AffectRangeProviderImpl());
@@ -58,6 +61,7 @@ public class HudTooltipManager {
         INSTANCE.registerBlockTooltip(new InjectedBlockTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new InjectedBlockEntityTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new HeatableBlockTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new BurningHeaterTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new DeflectionRingTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new PropelPistonTooltipProvider());
     }

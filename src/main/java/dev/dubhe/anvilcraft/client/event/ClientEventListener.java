@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
+import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
@@ -126,6 +127,7 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
+        SeismicBounceManager.getInstance().tick();
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime < 0) {
             return;

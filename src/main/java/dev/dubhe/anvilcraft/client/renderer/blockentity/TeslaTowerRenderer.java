@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -39,9 +40,14 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        Level level = be.getLevel();
+        if (level == null) return;
+        if (level.getGameTime() - be.getLastStrikeTime() > 5) {
+            return;
+        }
         state.setStart(new Vec3(0.5, 3.5, 0.5));
         if (be.getTargetEntityUUID() != null) {
-            Entity entity = be.getLevel().getEntities().get(be.getTargetEntityUUID());
+            Entity entity = level.getEntities().get(be.getTargetEntityUUID());
             if (entity == null) return;
             state.setEnd(entity.getEyePosition());
         } else if (be.getTargetLightningRod() != null) {

@@ -1,13 +1,15 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "key": {
-    "A": "anvilcraft:power_converter_middle"
-  },
-  "pattern": [
-    "A",
-    "A",
-    "A"
+  "ingredients": [
+    "anvilcraft:power_converter_middle",
+    "anvilcraft:power_converter_middle",
+    "anvilcraft:power_converter_middle",
+    "anvilcraft:power_converter_middle",
+    "anvilcraft:power_converter_middle",
+    "anvilcraft:power_converter_middle",
+    "anvilcraft:power_converter_middle",
+    "anvilcraft:power_converter_middle"
   ],
   "result": {
     "id": "anvilcraft:power_converter_big"

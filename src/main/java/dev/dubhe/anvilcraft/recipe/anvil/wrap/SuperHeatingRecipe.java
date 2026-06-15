@@ -4,10 +4,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.ConsumeBurningHeaterFuel;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
@@ -82,8 +84,13 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
                 BlockStatePredicate.builder()
                     .of(ModBlocks.HEATER.get())
                     .with(HeaterBlock.OVERLOAD, false)
+                    .or()
+                    .of(ModBlocks.BURNING_HEATER.get())
+                    .with(BurningHeaterBlock.LEVEL, 2)
                     .build()
             );
+
+        property.addOutcome(new ConsumeBurningHeaterFuel(240 * 20));
 
         for (ChanceItemStack result : results) {
             if (result.stack().is(ModItems.ROYAL_STEEL_INGOT.get()) || result.stack().is(ModBlocks.ROYAL_STEEL_BLOCK.get().asItem())) {

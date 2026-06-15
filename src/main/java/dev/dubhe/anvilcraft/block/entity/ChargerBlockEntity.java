@@ -1,16 +1,14 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.IHasDisplayItem;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentInfo;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.power.generator.ChargerBlock;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.network.ChargerSyncPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
@@ -20,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -31,54 +30,40 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
 public class ChargerBlockEntity extends BlockEntity
-    implements IPowerConsumer, IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemResourceHandlerHolder, IHasDisplayItem {
+    implements IPowerConsumer, IFilterBlockEntity, IStateListener<Boolean>, IItemResourceHandlerHolder, IHasDisplayItem {
 
-    @Setter
-    private boolean isCharger;
+    @Getter
     @Setter
     private int timeLeft = 0;
+    @Getter
     @Setter
     private int timeTotalCache = 0;
     private int powerValue = 0;
+    @Getter
+    @Setter
+    private boolean isFeCharging = false;
+    private int feCooldown = 0;
     private int signalCache = 0;
 
-    @Getter
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
 
         @Override
-        public int insert(ItemResource resource, int amount, TransactionContext transaction) {
-            if (!this.getResource(0).isEmpty()) return 0;
-            return super.insert(0, resource, 1, transaction);
-        }
-
-        @Override
-        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (index != 0) return 0;
-            return super.insert(index, resource, amount, transaction);
-        }
-
-        @Override
-        public boolean isValid(int index, ItemResource resource) {
-            return ChargerBlockEntity.this.containsValidItem(resource);
-        }
-
-        @Override
-        public int extract(ItemResource resource, int amount, TransactionContext transaction) {
-            return super.extract(2, resource, amount, transaction);
-        }
-
-        @Override
-        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        public int extract(int index, ItemResource resource, int maxExtract, TransactionContext transaction) {
+            // 漏斗只能从输出槽(slot 2)抽取物品
             if (index != 2) return 0;
-            return super.extract(2, resource, amount, transaction);
+            return super.extract(index, resource, maxExtract, transaction);
         }
 
         @Override
@@ -88,7 +73,7 @@ public class ChargerBlockEntity extends BlockEntity
             if (level == null || level.isClientSide()) return;
             ChargerBlockEntity.this.setChanged();
             ChargerBlockEntity.this.updateDisplayItemStack();
-            ChargerBlockEntity.this.level.sendBlockUpdated(
+            level.sendBlockUpdated(
                 ChargerBlockEntity.this.getBlockPos(),
                 ChargerBlockEntity.this.getBlockState(),
                 ChargerBlockEntity.this.getBlockState(),
@@ -99,14 +84,13 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Getter
     private ItemStack displayItemStack = ItemStack.EMPTY;
-    
+
     @Getter
     @Setter
     private @Nullable PowerGrid grid;
 
     public ChargerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        this.isCharger = blockState.is(ModBlocks.CHARGER.get());
     }
 
     public boolean containsValidItem(ItemResource resource) {
@@ -117,9 +101,16 @@ public class ChargerBlockEntity extends BlockEntity
             input,
             serverLevel
         );
-        if (recipe.isEmpty()) return false;
-        if (recipe.get().value().power() == 0) return false;
-        return this.isCharger == recipe.get().value().power() < 0;
+        if (recipe.isPresent()) {
+            if (recipe.get().value().power() == 0) return false;
+            return recipe.get().value().power() < 0; // 充电器使用power < 0的配方
+        }
+        // 检查FE充电能力
+        ItemStack stack = resource.toStack();
+        if (stack.isEmpty()) return false;
+        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, null);
+        if (energyHandler == null) return false;
+        return energyHandler.getAmountAsInt() < energyHandler.getCapacityAsInt();
     }
 
     @Nullable
@@ -137,50 +128,75 @@ public class ChargerBlockEntity extends BlockEntity
     private boolean checkRecipeItemNotValid(@Nullable ChargerChargingRecipe recipe) {
         if (recipe == null) return true;
         if (recipe.power() == 0) return true;
-        return this.isCharger != recipe.power() < 0;
+        return recipe.power() >= 0; // 充电器只接受power < 0的配方
     }
 
     private void moveItemToTransformingSlot() {
         ItemResource resource = this.itemHandler.getResource(0);
         if (resource.isEmpty()) return;
         if (!this.itemHandler.getResource(1).isEmpty()) return;
+
         ChargerChargingRecipe recipe = this.getItemRecipe(resource);
-        if (this.checkRecipeItemNotValid(recipe)) return;
-        this.itemHandler.set(0, ItemResource.EMPTY, 0);
-        if (this.isCharger) {
+        if (!this.checkRecipeItemNotValid(recipe)) {
+            this.isFeCharging = false;
+            this.itemHandler.set(0, ItemResource.EMPTY, 0);
             this.itemHandler.set(1, resource, 1);
-        } else {
-            ItemStackTemplate transformed = recipe.result();
-            this.itemHandler.set(1, ItemResource.of(transformed), transformed.count());
+            this.timeLeft = recipe.time() + 1; // since there is a "timeLeft--" after this, here +1 to negate
+            this.timeTotalCache = recipe.time();
+            this.powerValue = recipe.power();
+            this.syncPacket();
+            return;
         }
-        this.timeLeft = recipe.time() + 1; // since there is a "timeLeft--" after this, here +1 to negate
-        this.timeTotalCache = recipe.time(); // make a total time cache for client display
-        this.powerValue = recipe.power();
+
+        // FE充电：物品可接收FE时开始充电
+        ItemStack stack = this.itemHandler.getStacks().get(0).copy();
+        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, null);
+        if (energyHandler != null
+            && energyHandler.getAmountAsInt() < energyHandler.getCapacityAsInt()
+        ) {
+            this.isFeCharging = true;
+            this.feCooldown = 0;
+            this.itemHandler.set(0, ItemResource.EMPTY, 0);
+            this.itemHandler.set(1, resource, 1);
+            int remainingFE = energyHandler.getCapacityAsInt() - energyHandler.getAmountAsInt();
+            this.timeLeft = remainingFE;
+            this.timeTotalCache = energyHandler.getCapacityAsInt();
+            this.powerValue = -64;
+            this.syncPacket();
+        }
+    }
+
+    private void syncPacket() {
         if (this.getCurrentLevel() == null || !(this.getCurrentLevel() instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
-            serverLevel,
-            serverLevel.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache)
-        );
+            serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeCharging));
     }
 
     private void moveItemToTransformedOverSlot() {
         ItemResource resource = this.itemHandler.getResource(1);
         if (resource.isEmpty()) return;
+        // 输出槽被占 → 维持原始物品在加工槽，下一tick继续尝试
         if (!this.itemHandler.getResource(2).isEmpty()) {
             this.powerValue = 0;
             return;
         }
-        if (this.isCharger) {
-            ChargerChargingRecipe recipe = this.getItemRecipe(resource);
-            if (this.checkRecipeItemNotValid(recipe)) return;
-            ItemStackTemplate transformed = recipe.result();
-            this.itemHandler.set(2, ItemResource.of(transformed), transformed.count());
-        } else {
+
+        if (this.isFeCharging) {
             this.itemHandler.set(2, resource, 1);
+        } else {
+            ChargerChargingRecipe recipe = this.getItemRecipe(resource);
+            if (recipe == null || this.checkRecipeItemNotValid(recipe)) {
+                // 非配方物品直接移回输入槽
+                this.itemHandler.set(0, resource, 1);
+            } else {
+                ItemStackTemplate transformed = recipe.result();
+                this.itemHandler.set(2, ItemResource.of(transformed), transformed.count());
+            }
         }
         this.itemHandler.set(1, ItemResource.EMPTY, 0);
         this.powerValue = 0;
+        this.isFeCharging = false;
     }
 
     private void updateDisplayItemStack() {
@@ -222,45 +238,86 @@ public class ChargerBlockEntity extends BlockEntity
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putInt("TimeLeft", this.timeLeft);
+        output.putInt("TimeTotalCache", this.timeTotalCache);
         this.itemHandler.serialize(output.child("Depository"));
-        output.putBoolean("Mode", this.isCharger);
+        output.putBoolean("FeCharging", this.isFeCharging);
+        output.putInt("FeCooldown", this.feCooldown);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.timeLeft = input.getIntOr("TimeLeft", 0);
+        this.timeTotalCache = input.getIntOr("TimeTotalCache", 0);
         this.itemHandler.deserialize(input.childOrEmpty("Depository"));
-        this.isCharger = input.getBooleanOr("Mode", false);
+        this.isFeCharging = input.getBooleanOr("FeCharging", false);
+        this.feCooldown = input.getIntOr("FeCooldown", 0);
     }
 
     @Override
     public int getInputPower() {
-        return this.isCharger && !this.getBlockState().getValue(ChargerBlock.POWERED) ? -this.powerValue : 0;
+        if (this.getBlockState().getValue(ChargerBlock.POWERED)) return 0;
+        return -this.powerValue;
+    }
+
+    private int getFeChargingPowerLevel() {
+        if (this.grid == null) return 0;
+        int remaining = this.grid.getRemaining();
+        if (remaining >= 512) return 512;
+        if (remaining >= 256) return 256;
+        if (remaining >= 128) return 128;
+        if (remaining >= 64) return 64;
+        return 0;
+    }
+
+    @Nullable
+    public ItemStack tryExtractItemFromSlot1() {
+        ItemStack stack = this.itemHandler.getStacks().get(1).copy();
+        if (stack.isEmpty()) return null;
+        this.itemHandler.set(1, ItemResource.EMPTY, 0);
+        this.isFeCharging = false;
+        this.feCooldown = 0;
+        this.timeLeft = 0;
+        this.powerValue = 0;
+        this.setChanged();
+        return stack;
     }
 
     @Override
     public PowerComponentType getComponentType() {
-        return this.isCharger ? PowerComponentType.CONSUMER : PowerComponentType.PRODUCER;
+        return PowerComponentType.CONSUMER;
     }
 
-    @Override
+    public void stopProcessing() {
+        this.timeLeft = 0;
+        this.timeTotalCache = 0;
+        this.isFeCharging = false;
+        this.feCooldown = 0;
+        this.powerValue = 0;
+    }
+
     public int getOutputPower() {
-        return !this.isCharger && !this.getBlockState().getValue(ChargerBlock.POWERED) ? this.powerValue : 0;
-    }
-
-    public double getProgress() {
-        if (this.timeTotalCache != 0) return 1 - (double) this.timeLeft / this.timeTotalCache;
         return 0;
     }
 
+    public double getProgress() {
+        if (this.timeTotalCache == 0) return 0;
+        return Math.max(0, Math.min(1, 1 - (double) this.timeLeft / this.timeTotalCache));
+    }
+
     public int getAnalogRedstoneSignal() {
+        double progress = this.getProgress();
         if (this.itemHandler.getResource(0).isEmpty() && this.itemHandler.getResource(1).isEmpty()) return 0;
-        return (int) Math.round(this.getProgress() * 15);
+        return (int) Math.round(progress * 15);
     }
 
     @Override
     public FilteredItemStackHandler getFilteredItemStackHandler() {
+        return this.itemHandler;
+    }
+
+    @Override
+    public ResourceHandler<ItemResource> getItemHandler() {
         return this.itemHandler;
     }
 
@@ -276,20 +333,39 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Override
     public Boolean getState() {
-        return this.isCharger;
+        return Boolean.TRUE;
     }
 
     @Override
     public void notifyStateChanged(Boolean newState) {
-        this.isCharger = newState;
-        ItemHandlerUtil.dropAllToPos(this.itemHandler, this.getCurrentLevel(), this.getPos().above().getBottomCenter());
+        ItemStack stack0 = this.itemHandler.getStacks().get(0).copy();
+        ItemStack stack1 = this.itemHandler.getStacks().get(1).copy();
+        ItemStack stack2 = this.itemHandler.getStacks().get(2).copy();
+        this.dropItemStack(stack0);
+        this.dropItemStack(stack1);
+        this.dropItemStack(stack2);
+        this.itemHandler.set(0, ItemResource.EMPTY, 0);
+        this.itemHandler.set(1, ItemResource.EMPTY, 0);
+        this.itemHandler.set(2, ItemResource.EMPTY, 0);
         this.timeLeft = 0;
+        this.isFeCharging = false;
+        this.feCooldown = 0;
         this.powerValue = 0;
     }
 
-    /// 充放电器逻辑
+    private void dropItemStack(ItemStack stack) {
+        if (!stack.isEmpty() && this.level != null) {
+            Containers.dropItemStack(this.level,
+                this.getBlockPos().getX() + 0.5,
+                this.getBlockPos().getY() + 1.0,
+                this.getBlockPos().getZ() + 0.5,
+                stack);
+        }
+    }
+
+    /// 充电器逻辑
     public void tick(Level level, BlockPos blockPos) {
-        this.flushState(level, blockPos);
+        flushState(level, blockPos);
         BlockState state = level.getBlockState(blockPos);
         boolean powered = state.getValue(ChargerBlock.POWERED);
         if (this.grid == null) return;
@@ -298,14 +374,54 @@ public class ChargerBlockEntity extends BlockEntity
             this.moveItemToTransformingSlot();
         }
         if (this.timeLeft > 0) {
-            if (!this.isCharger || this.isGridWorking()) {
-                // if isDisCharger or (isCharger and isGridWorking)
-                this.timeLeft--;
+            if (this.isFeCharging) {
+                this.powerValue = -(this.getFeChargingPowerLevel());
+            }
+            if (this.isGridWorking()) {
+                if (this.isFeCharging) {
+                    ItemStack processingStack = this.itemHandler.getStacks().get(1);
+                    if (!processingStack.isEmpty()) {
+                        EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(
+                            processingStack, null);
+                        if (storage != null) {
+                            int powerLevel = this.getFeChargingPowerLevel();
+                            if (powerLevel > 0) {
+                                int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
+                                int efficiency = AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
+                                int remainingFE = storage.getCapacityAsInt() - storage.getAmountAsInt();
+                                if (remainingFE <= 0) {
+                                    this.isFeCharging = false;
+                                    this.timeLeft = 0;
+                                    this.timeTotalCache = 0;
+                                } else {
+                                    int feChargeRate = powerLevel * efficiency;
+                                    if (this.feCooldown <= 0) {
+                                        this.feCooldown = countdown;
+                                        try (var transaction = Transaction.openRoot()) {
+                                            storage.insert(feChargeRate * countdown, transaction);
+                                            transaction.commit();
+                                        }
+                                    } else {
+                                        this.feCooldown--;
+                                    }
+                                    this.timeLeft = remainingFE;
+                                    this.timeTotalCache = storage.getCapacityAsInt();
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    this.timeLeft--;
+                }
             }
         }
         if (this.timeLeft == 0) {
+            boolean hadItem = !this.itemHandler.getResource(1).isEmpty();
             this.moveItemToTransformedOverSlot();
-            this.timeTotalCache = 0;
+            // 只有成功移出（加工槽空了）才归零timeTotalCache，输出槽满时保留状态继续尝试
+            if (this.itemHandler.getResource(1).isEmpty() && hadItem) {
+                this.timeTotalCache = 0;
+            }
         }
 
         int signal = this.getAnalogRedstoneSignal();
@@ -317,24 +433,23 @@ public class ChargerBlockEntity extends BlockEntity
         if (!(level instanceof ServerLevel serverLevel)) return;
         if (serverLevel.getGameTime() % 10 != 0) return;
         PacketDistributor.sendToPlayersTrackingChunk(
-            serverLevel,
-            serverLevel.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache)
-        );
+            serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeCharging));
     }
 
     @Override
     public PowerComponentInfo toPowerComponentInfo() {
-        if (this.isCharger) {
-            return IPowerConsumer.super.toPowerComponentInfo();
-        } else {
-            return IPowerProducer.super.toPowerComponentInfo();
-        }
+        return IPowerConsumer.super.toPowerComponentInfo();
     }
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         FilteredItemStackHandler depository = this.getFilteredItemStackHandler();
-        ItemHandlerUtil.dropAllToPos(depository, this.level, this.getPos().getCenter());
+        for (int slot = 0; slot < depository.size(); slot++) {
+            ItemStack stack = depository.getStacks().get(slot).copy();
+            if (!stack.isEmpty()) {
+                Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), stack);
+            }
+        }
     }
 }

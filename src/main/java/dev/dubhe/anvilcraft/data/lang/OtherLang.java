@@ -40,8 +40,19 @@ public class OtherLang {
         provider.add("enchantment.anvilcraft.harvest", "Harvest");
         provider.add("enchantment.anvilcraft.smelting", "Smelting");
         provider.add("enchantment.anvilcraft.disintegration", "Disintegration");
+        provider.add("subtitles.anvilcraft.plasma_jet", "Plasma Jet roaring");
+        provider.add("subtitles.anvilcraft.plasma_jet_lava", "Plasma Jet burst");
+        provider.add("subtitles.anvilcraft.burning_heater", "Burning Heater crackled");
+        provider.add("subtitles.anvilcraft.giant_anvil_land", "Giant Anvil landed");
+        provider.add("subtitles.anvilcraft.giant_anvil_shock", "Giant Anvil shockwave");
+        provider.add("subtitles.anvilcraft.giant_anvil_resin_shock", "Giant Anvil resin shock");
+        provider.add("subtitles.anvilcraft.tesla_tower_strike", "Tesla Tower strikes");
+        provider.add("subtitles.anvilcraft.smart_block_placer_extend", "Smart Block Placer extended");
+        provider.add("subtitles.anvilcraft.smart_block_placer_retract", "Smart Block Placer retracted");
+        provider.add("subtitles.anvilcraft.smart_block_placer_shulker_open", "Smart Block Placer whirs");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
+        provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.falling_giant_anvil", "%1$s died due to systemic resonance caused by ground vibrations");
 
         provider.add("effect.anvilcraft.rage", "Rage");

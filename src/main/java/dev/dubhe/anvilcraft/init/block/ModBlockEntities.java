@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
@@ -16,6 +17,8 @@ import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
@@ -68,6 +71,8 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
@@ -140,6 +145,11 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.HEATER)
         .register();
 
+    public static final BlockEntityEntry<BurningHeaterBlockEntity> BURNING_HEATER = REGISTRUM
+        .blockEntity("burning_heater", BurningHeaterBlockEntity::createBlockEntity)
+        .validBlock(ModBlocks.BURNING_HEATER)
+        .register();
+
     public static final BlockEntityEntry<TransmissionPoleBlockEntity> TRANSMISSION_POLE = REGISTRUM
         .blockEntity("transmission_pole", TransmissionPoleBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.TRANSMISSION_POLE)
@@ -149,6 +159,12 @@ public class ModBlockEntities {
         .blockEntity("charge_collector", ChargeCollectorBlockEntity::createBlockEntity)
         .renderer(() -> ChargeCollectorRenderer::new)
         .validBlock(ModBlocks.CHARGE_COLLECTOR)
+        .register();
+
+    public static final BlockEntityEntry<FeCollectorBlockEntity> FE_COLLECTOR = REGISTRUM
+        .blockEntity("fe_collector", FeCollectorBlockEntity::createBlockEntity)
+        .renderer(() -> FeCollectorRenderer::new)
+        .validBlock(ModBlocks.FE_COLLECTOR)
         .register();
 
     public static final BlockEntityEntry<MobAmberBlockEntity> MOB_AMBER_BLOCK = REGISTRUM
@@ -191,7 +207,13 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRUM
         .blockEntity("charger", ChargerBlockEntity::new)
         .renderer(() -> ChargerRenderer::new)
-        .validBlocks(ModBlocks.CHARGER, ModBlocks.DISCHARGER)
+        .validBlock(ModBlocks.CHARGER)
+        .register();
+
+    public static final BlockEntityEntry<DischargerBlockEntity> DISCHARGER = REGISTRUM
+        .blockEntity("discharger", DischargerBlockEntity::new)
+        .renderer(() -> DischargerRenderer::new)
+        .validBlock(ModBlocks.DISCHARGER)
         .register();
 
     public static final BlockEntityEntry<ActiveSilencerBlockEntity> ACTIVE_SILENCER = REGISTRUM

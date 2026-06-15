@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "anvilcraft:block/fe_collector_base"
+    },
+    "axis=z": {
+      "model": "anvilcraft:block/fe_collector_base",
+      "y": 90
+    }
+  }
+}

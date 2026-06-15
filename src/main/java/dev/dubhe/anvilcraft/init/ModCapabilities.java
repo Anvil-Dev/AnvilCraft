@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
@@ -8,6 +9,10 @@ import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
+import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,6 +31,7 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BATCH_CRAFTER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BATCH_CUTTER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CHARGER.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.DISCHARGER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SIMPLE_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ITEM_COLLECTOR.get(), ModCapabilities::item);
@@ -34,6 +40,7 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.NESTING_SHULKER_BOX.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.OVER_NESTING_SHULKER_BOX.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BURNING_HEATER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::item);
 
         event.registerBlock(
@@ -60,6 +67,45 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.LARGE_FLUID_TANK.get(), ModCapabilities::fluid);
 
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);
+
+        // 武器物品注册 FE ITEM capability
+        event.registerItem(
+            Capabilities.Energy.ITEM,
+            (stack, ctx) -> new ItemFEStorage(stack, AnvilRailgunItem.MAX_ENERGY),
+            ModItems.ANVIL_RAILGUN.get()
+        );
+        event.registerItem(
+            Capabilities.Energy.ITEM,
+            (stack, ctx) -> new ItemFEStorage(stack, SpectralWeaponLauncherItem.MAX_ENERGY),
+            ModItems.SPECTRAL_WEAPON_LAUNCHER.get()
+        );
+        // 能量武器平台
+        event.registerItem(
+            Capabilities.Energy.ITEM,
+            (stack, ctx) -> new ItemFEStorage(stack, 640000000),
+            ModItems.ENERGY_WEAPON_PLATFORM.get()
+        );
+
+        // 飘升机背包 FE capability
+        event.registerItem(
+            Capabilities.Energy.ITEM,
+            (stack, ctx) -> new ItemFEStorage(stack, IonoCraftBackpackItem.MAX_ENERGY),
+            ModItems.IONOCRAFT_BACKPACK.get()
+        );
+
+        // 能量转换器 FE capability
+        event.registerBlockEntity(
+            Capabilities.Energy.BLOCK,
+            ModBlockEntities.POWER_CONVERTER.get(),
+            (be, direction) -> be.getEnergyStorage(direction)
+        );
+
+        // FE收集器 FE capability
+        event.registerBlockEntity(
+            Capabilities.Energy.BLOCK,
+            ModBlockEntities.FE_COLLECTOR.get(),
+            (be, direction) -> be.getEnergyStorage(direction)
+        );
     }
 
     /// 物品

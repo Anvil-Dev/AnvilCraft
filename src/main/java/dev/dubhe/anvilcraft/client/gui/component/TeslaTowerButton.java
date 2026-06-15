@@ -76,7 +76,20 @@ public class TeslaTowerButton extends Button {
         this.setMessage(message);
         int color = 16777215 | Mth.ceil(this.alpha * 255.0F) << 24;
         Font font = Minecraft.getInstance().font;
-        graphics.text(font, message, this.getX() + 2, this.getY() + 3, color);
+        int textWidth = font.width(message);
+        int contentWidth = this.width - 4;
+
+        if (textWidth > contentWidth) {
+            // Clip long text to button area
+            graphics.enableScissor(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height);
+            graphics.text(font, message, this.getX() + 2, this.getY() + 3, color);
+            graphics.disableScissor();
+        } else {
+            // Center short text horizontally
+            int textX = this.getX() + (this.width - textWidth) / 2;
+            graphics.text(font, message, textX, this.getY() + 3, color);
+        }
+
         if (this.isHovered()) {
             Component filterText = highlighted(
                 id, searchText.replaceFirst("#", ""), ChatFormatting.GRAY);
