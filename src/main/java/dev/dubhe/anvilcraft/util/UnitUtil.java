@@ -54,17 +54,21 @@ public class UnitUtil {
             double generateMW = (double) generate / 1000;
             double consumeTruncated = Math.floor(consumeMW * 100) / 100;
             double generateTruncated = Math.floor(generateMW * 100) / 100;
-            if (consumeTruncated == Math.floor(consumeTruncated) && generateTruncated == Math.floor(generateTruncated))
+            if (consumeTruncated == Math.floor(consumeTruncated) && generateTruncated == Math.floor(generateTruncated)) {
                 return String.format("%.0f/%.0f MW", consumeTruncated, generateTruncated);
-            else return String.format("%.2f/%.2f MW", consumeTruncated, generateTruncated);
+            } else {
+                return String.format("%.2f/%.2f MW", consumeTruncated, generateTruncated);
+            }
         } else {
             double consumeMW = (double) consume / 1000000;
             double generateMW = (double) generate / 1000000;
             double consumeTruncated = Math.floor(consumeMW * 100) / 100;
             double generateTruncated = Math.floor(generateMW * 100) / 100;
-            if (consumeTruncated == Math.floor(consumeTruncated) && generateTruncated == Math.floor(generateTruncated))
+            if (consumeTruncated == Math.floor(consumeTruncated) && generateTruncated == Math.floor(generateTruncated)) {
                 return String.format("%.0f/%.0f GW", consumeTruncated, generateTruncated);
-            else return String.format("%.2f/%.2f GW", consumeTruncated, generateTruncated);
+            } else {
+                return String.format("%.2f/%.2f GW", consumeTruncated, generateTruncated);
+            }
         }
     }
 }

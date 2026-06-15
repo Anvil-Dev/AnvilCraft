@@ -44,7 +44,7 @@ public class ItemFEStorage implements EnergyHandler {
         int energy = this.stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
         int extracted = Math.min(energy, maxExtract);
         if (extracted > 0) {
-            stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(energy - extracted));
+            this.stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(energy - extracted));
         }
         return extracted;
     }

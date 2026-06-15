@@ -36,7 +36,7 @@ public class IonoCraftBackpackHUD {
         int energy = IonoCraftBackpackItem.getEnergyStored(itemStack);
         final int percent = Math.round((float) energy / IonoCraftBackpackItem.MAX_ENERGY * 100);
         float ratio = Math.clamp((float) energy / IonoCraftBackpackItem.MAX_ENERGY, 0, 1);
-        int color = ColorUtil.lerpColor(ratio, BAR_COLOR, FULL_BAR_COLOR);
+        final int color = ColorUtil.lerpColor(ratio, BAR_COLOR, FULL_BAR_COLOR);
 
         final Font font = mc.font;
         Matrix3x2fStack pose = graphics.pose();
