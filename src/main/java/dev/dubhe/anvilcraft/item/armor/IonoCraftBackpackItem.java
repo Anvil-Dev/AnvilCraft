@@ -11,8 +11,8 @@ import dev.dubhe.anvilcraft.item.IInventoryCarriedAware;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.HashedStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -244,7 +244,8 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+    public void appendHoverText(
+        ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, display, builder, tooltipFlag);
         int energy = getEnergyStored(stack);
         int flightSeconds = energy / FLIGHT_CONSUMPTION / 20;
