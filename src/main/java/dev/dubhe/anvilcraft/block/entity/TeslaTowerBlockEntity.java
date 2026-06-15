@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
@@ -28,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.Connection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -166,6 +168,11 @@ public class TeslaTowerBlockEntity extends BlockEntity
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    @Override
+    public void onDataPacket(Connection connection, ValueInput input) {
+        this.loadAdditional(input);
+    }
+
     public void tick() {
         if (this.level == null) return;
         BlockState state = this.level.getBlockState(getBlockPos());
@@ -261,7 +268,9 @@ public class TeslaTowerBlockEntity extends BlockEntity
             ArrayList<BlockPos> lightningRods = new ArrayList<>();
             BlockPos.betweenClosedStream(aabb)
                 .forEach(it -> {
-                    if (this.level.getBlockState(it).is(Blocks.LIGHTNING_ROD)) lightningRods.add(it.above(0));
+                    BlockState blockState = this.level.getBlockState(it);
+                    if (blockState.is(ModBlockTags.LIGHTNING_RODS)
+                    ) lightningRods.add(it.above(0));
                 });
             Optional<BlockPos> targetBlock = lightningRods.stream()
                 .min((b1, b2) -> new DistanceComparator(getBlockPos().getCenter()).compare(b1.getCenter(), b2.getCenter()));
@@ -275,11 +284,10 @@ public class TeslaTowerBlockEntity extends BlockEntity
             this.targetLightningRod = targetLightningRod;
             this.lastStrikeTime = this.level.getGameTime();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
-            ((LightningRodBlock) Blocks.LIGHTNING_ROD).onLightningStrike(
-                this.level.getBlockState(targetLightningRod),
-                this.level,
-                targetLightningRod
-            );
+            BlockState targetState = this.level.getBlockState(targetLightningRod);
+            if (targetState.getBlock() instanceof LightningRodBlock rodBlock) {
+                rodBlock.onLightningStrike(targetState, this.level, targetLightningRod);
+            }
             this.flashTimer = 5;
             this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         }

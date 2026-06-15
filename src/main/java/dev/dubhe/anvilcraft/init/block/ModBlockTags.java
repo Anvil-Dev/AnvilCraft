@@ -107,6 +107,9 @@ public class ModBlockTags {
 
     public static final TagKey<Block> COLLISION_IMMUNE = bind("collision_immune");
 
+    // vanilla tags
+    public static final TagKey<Block> LIGHTNING_RODS = TagKey.create(Registries.BLOCK, Identifier.withDefaultNamespace("lightning_rods"));
+
     // mekanism tags
     public static final TagKey<Block> MEKANISM_CARDBOARD_BOX_BLACKLIST = bindMekanism("cardboard_blacklist");
 
