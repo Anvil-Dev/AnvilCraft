@@ -7,16 +7,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
 import snownee.jade.addon.universal.FluidStorageProvider;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.fluid.JadeFluidObject;
-import snownee.jade.api.ui.BoxStyle;
 import snownee.jade.api.ui.IDisplayHelper;
 import snownee.jade.api.ui.IElementHelper;
-import snownee.jade.impl.ui.HorizontalLineElement;
 
 public class CreativeCrateProvider extends FluidStorageProvider.ForBlock {
     public static final CreativeCrateProvider INSTANCE = new CreativeCrateProvider();
