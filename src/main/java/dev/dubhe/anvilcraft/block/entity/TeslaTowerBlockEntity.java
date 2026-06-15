@@ -17,8 +17,8 @@ import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import dev.dubhe.anvilcraft.util.DistanceComparator;
@@ -29,8 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.Connection;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -45,7 +45,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightningRodBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -160,7 +159,25 @@ public class TeslaTowerBlockEntity extends BlockEntity
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return this.saveWithoutMetadata(registries);
+        CompoundTag tag = super.getUpdateTag(registries);
+        tag.putLong("LastStrikeTime", this.lastStrikeTime);
+        if (this.targetEntityUUID != null) {
+            tag.store("TargetEntityUUID", UUIDUtil.CODEC, this.targetEntityUUID);
+        }
+        if (this.targetLightningRod != null) {
+            tag.putIntArray("TargetLightningRod", new int[]{
+                this.targetLightningRod.getX(),
+                this.targetLightningRod.getY(),
+                this.targetLightningRod.getZ()
+            });
+        }
+        tag.putInt("WhiteListSize", this.whiteList.size());
+        for (int i = 0; i < this.whiteList.size(); i++) {
+            Pair<TeslaFilter, String> entry = this.whiteList.get(i);
+            tag.putString("WhiteListId" + i, entry.first().getId());
+            tag.putString("WhiteListArg" + i, entry.second());
+        }
+        return tag;
     }
 
     @Override
@@ -269,8 +286,9 @@ public class TeslaTowerBlockEntity extends BlockEntity
             BlockPos.betweenClosedStream(aabb)
                 .forEach(it -> {
                     BlockState blockState = this.level.getBlockState(it);
-                    if (blockState.is(ModBlockTags.LIGHTNING_RODS)
-                    ) lightningRods.add(it.above(0));
+                    if (blockState.is(ModBlockTags.LIGHTNING_RODS)) {
+                        lightningRods.add(it.above(0));
+                    }
                 });
             Optional<BlockPos> targetBlock = lightningRods.stream()
                 .min((b1, b2) -> new DistanceComparator(getBlockPos().getCenter()).compare(b1.getCenter(), b2.getCenter()));
@@ -316,6 +334,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();
         if (this.level.getBlockEntity(getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
             teslaTowerBlockEntity.whiteList.add(Pair.of(TeslaFilter.getFilter(id), arg));
+            teslaTowerBlockEntity.setChanged();
         }
     }
 
@@ -325,6 +344,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();
         if (this.level.getBlockEntity(getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
             teslaTowerBlockEntity.whiteList.removeIf(pair -> pair.first().getId().equals(id) && pair.second().equals(arg));
+            teslaTowerBlockEntity.setChanged();
         }
     }
 
@@ -335,6 +355,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         if (this.level.getBlockEntity(getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
             teslaTowerBlockEntity.whiteList.clear();
             teslaTowerBlockEntity.whiteList.addAll(filters);
+            teslaTowerBlockEntity.setChanged();
         }
     }
 
