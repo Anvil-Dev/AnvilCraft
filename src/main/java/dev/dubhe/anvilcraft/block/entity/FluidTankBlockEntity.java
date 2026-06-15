@@ -56,11 +56,13 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     public void onFormed() {
         this.isBigger = true;
         this.tank.setCapacity(BIG_CAPACITY);
+        this.setChanged();
     }
 
     public void onUnformed() {
         this.isBigger = false;
         this.tank.setCapacity(CAPACITY);
+        this.setChanged();
     }
 
     private void updateLightLevel() {

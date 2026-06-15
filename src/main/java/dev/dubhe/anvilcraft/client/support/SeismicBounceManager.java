@@ -109,7 +109,7 @@ public class SeismicBounceManager {
 
             // 微扩 0.1% 避免与原方块 z-fighting
             poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.scale(1.001f, 1.001f, 1.001f);
+            poseStack.scale(1.0005f, 1.000f, 1.0005f);
             poseStack.translate(-0.5, -0.5, -0.5);
 
             var model = dispatcher.getBlockModel(state);

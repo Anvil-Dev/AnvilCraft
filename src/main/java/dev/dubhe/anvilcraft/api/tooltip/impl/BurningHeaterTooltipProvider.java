@@ -61,7 +61,7 @@ public class BurningHeaterTooltipProvider extends ITooltipProvider.BlockEntityTo
             lines.add(Component.translatable("tooltip.anvilcraft.burning_heater.burn_time_label")
                 .withStyle(ChatFormatting.BLUE));
             lines.add(Component.literal(
-                "  " + FormattingUtil.toFormattedTime(burnTime, 1)
+                "  " + FormattingUtil.toFormattedTime(burnTime)
             ).withStyle(ChatFormatting.GRAY));
         }
 

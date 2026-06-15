@@ -29,6 +29,8 @@ import dev.dubhe.anvilcraft.block.ControllableSandBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreamBlock;
+import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
+import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.CrushingTableBlock;
 import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
@@ -117,6 +119,7 @@ import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.SpaceOvercompressorBlock;
+import dev.dubhe.anvilcraft.block.SpacetimeSupercomputerBlock;
 import dev.dubhe.anvilcraft.block.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.StepEffectBlock;
@@ -344,6 +347,30 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
+        .register();
+
+    public static final BlockEntry<CreativeFluidTankBlock> CREATIVE_FLUID_TANK = REGISTRUM
+        .block("creative_fluid_tank", CreativeFluidTankBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties((properties) -> properties
+            .explosionResistance(Float.MAX_VALUE)
+            .isValidSpawn(Blocks::never)
+            .noOcclusion())
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::simple)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<CreativeCrateBlock> CREATIVE_CRATE = REGISTRUM
+        .block("creative_crate", CreativeCrateBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties((properties) -> properties
+            .explosionResistance(Float.MAX_VALUE)
+            .isValidSpawn(Blocks::never)
+            .noOcclusion())
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::simple)
+        .simpleItem()
         .register();
 
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
@@ -1459,6 +1486,19 @@ public class ModBlocks {
             );
         })
         .recipe(RegistrumBlockRecipeLoader::propelPiston)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<SpacetimeSupercomputerBlock> SPACETIME_SUPERCOMPUTER = REGISTRUM
+        .block("spacetime_supercomputer", SpacetimeSupercomputerBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties((properties) -> properties
+            .noOcclusion()
+            .explosionResistance(1200)
+            .isValidSpawn(Blocks::never)
+            .isSuffocating(ModBlocks::never))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .blockstate(DataGenUtil::simple)
         .simpleItem()
         .register();
 

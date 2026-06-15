@@ -964,6 +964,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     public void refreshIgnited() {
         if (!FishTankBlockEntity.canIgnite(this.fluidHandler.getFluid())) {
             this.setIgnited(false);
+            return;
         }
         if (this.isIgnited()) {
             return;

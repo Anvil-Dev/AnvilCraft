@@ -88,8 +88,8 @@ public class DischargerTooltipProvider extends ITooltipProvider.BlockEntityToolt
         } else if (timeTotalCache > 0) {
             lines.add(Component.translatable(
                 "tooltip.anvilcraft.working_progress.time",
-                FormattingUtil.toFormattedTime(timeLeft, 3),
-                FormattingUtil.toFormattedTime(timeTotalCache, 3)
+                FormattingUtil.toFormattedTime(timeLeft),
+                FormattingUtil.toFormattedTime(timeTotalCache)
             ).withStyle(ChatFormatting.GRAY));
         }
         return lines;

@@ -45,7 +45,7 @@ public enum BurningHeaterProvider implements IBlockComponentProvider, IServerDat
             if (displayBurnTime > 0) {
                 tooltip.add(Component.translatable(
                     "tooltip.anvilcraft.burning_heater.burn_time",
-                    FormattingUtil.toFormattedTime(displayBurnTime, 1)));
+                    FormattingUtil.toFormattedTime(displayBurnTime)));
             }
 
             // Can smelt indicator

@@ -30,14 +30,14 @@ public class UnitUtil {
         }
     }
 
-    public static String electricityUnit(int power, boolean original) {
+    public static String electricityUnit(int amount, boolean original) {
         if (original) {
-            return power + " kW";
+            return amount + " kW";
         }
-        if (power < 1000) {
-            return String.format("%d kW", power);
-        } else if (power < 1000000) {
-            double mwValue = (double) power / 1000;
+        if (amount < 1000) {
+            return String.format("%d kW", amount);
+        } else if (amount < 1000000) {
+            double mwValue = (double) amount / 1000;
             double truncated = Math.floor(mwValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
                 return String.format("%.0f MW", truncated);
@@ -45,7 +45,7 @@ public class UnitUtil {
                 return String.format("%.2f MW", truncated);
             }
         } else {
-            double gwValue = (double) power / 1000000;
+            double gwValue = (double) amount / 1000000;
             double truncated = Math.floor(gwValue * 100) / 100;
             if (truncated == Math.floor(truncated)) {
                 return String.format("%.0f GW", truncated);
@@ -83,6 +83,31 @@ public class UnitUtil {
                 return String.format("%.0f/%.0f GW", consumeTruncated, generateTruncated);
             } else {
                 return String.format("%.2f/%.2f GW", consumeTruncated, generateTruncated);
+            }
+        }
+    }
+
+    public static String fluidUnit(int amount, boolean original) {
+        if (original) {
+            return amount + " mB";
+        }
+        if (amount < 1000) {
+            return String.format("%d mB", amount);
+        } else if (amount < 1000000) {
+            double bucketValue = (double) amount / 1000;
+            double truncated = Math.floor(bucketValue * 100) / 100;
+            if (truncated == Math.floor(truncated)) {
+                return String.format("%.0f B", truncated);
+            } else {
+                return String.format("%.2f B", truncated);
+            }
+        } else {
+            double kiloBucketValue = (double) amount / 1000000;
+            double truncated = Math.floor(kiloBucketValue * 100) / 100;
+            if (truncated == Math.floor(truncated)) {
+                return String.format("%.0f KB", truncated);
+            } else {
+                return String.format("%.2f KB", truncated);
             }
         }
     }

@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
-import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
+import dev.dubhe.anvilcraft.api.fluidtank.LargeFluidInfinityTank;
 import dev.dubhe.anvilcraft.block.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -27,10 +28,13 @@ import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int CAPACITY = 320 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 12800 * FluidType.BUCKET_VOLUME;
-    protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false) {
+    protected final LargeFluidInfinityTank tank = new LargeFluidInfinityTank(CAPACITY, false) {
         @Override
         public FluidTank readFromNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
             FluidTank tank = super.readFromNBT(lookupProvider, nbt);
@@ -40,7 +44,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
 
         @Override
         protected void onContentsChanged() {
-            LargeFluidTankBlockEntity.this.setChanged();
+            LargeFluidTankBlockEntity.this.setChangedForAllParts();
             LargeFluidTankBlockEntity.this.updateLightLevel();
             LargeFluidTankBlockEntity.this.updateBlock();
         }
@@ -57,11 +61,23 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         }
     }
 
+    protected void setChangedForAllParts() {
+        BlockPos pos = this.getBlockPos();
+        BlockState state = this.getBlockState();
+        if (!(state.getBlock() instanceof LargeFluidTankBlock block)) return;
+        Vec3i baseOffset = block.getOffset(state);
+        Arrays.stream(block.getParts()).forEach(part -> {
+            Optional.ofNullable(this.level)
+                .map(level -> level.getBlockEntity(pos.subtract(baseOffset).offset(part.getOffset())))
+                .ifPresent(BlockEntity::setChanged);
+        });
+    }
+
     public void tick() {
         BlockState state = getBlockState();
         if (!state.getValue(LargeFluidTankBlock.HALF).equals(Cube3x3PartHalf.MID_CENTER)) return;
         this.checkInfinity();
-        setChanged();
+        this.setChangedForAllParts();
     }
 
     protected void checkInfinity() {
@@ -71,12 +87,14 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     public void onFormed() {
         this.isBigger = true;
         this.tank.setCapacity(BIG_CAPACITY);
+        this.setChangedForAllParts();
     }
 
     public void onUnformed() {
         this.isBigger = false;
         this.tank.setInfinity(false);
         this.tank.setCapacity(CAPACITY);
+        this.setChangedForAllParts();
     }
 
     private void updateLightLevel() {

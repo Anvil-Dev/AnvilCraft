@@ -48,6 +48,9 @@ public class AnvilCraftClientConfig {
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
 
+    @Comment("Enable exhaust particles when flying with Ionocraft Backpack")
+    public boolean ionoCraftBackpackExhaustParticlesEnabled = true;
+
     @CollapsibleObject
     public IonoCraftBackpackHud ionoCraftBackpackHud = new IonoCraftBackpackHud();
 

@@ -438,13 +438,13 @@
 	],
 	"display": {
 		"thirdperson_righthand": {
-			"rotation": [75, 45, 0],
-			"translation": [0, 2.5, 0],
+			"rotation": [75, -45, 0],
+			"translation": [0, 0.75, 2.25],
 			"scale": [0.2, 0.2, 0.2]
 		},
 		"thirdperson_lefthand": {
 			"rotation": [75, 45, 0],
-			"translation": [0, 2.5, 0],
+			"translation": [0, 0.75, 2.25],
 			"scale": [0.2, 0.2, 0.2]
 		},
 		"firstperson_righthand": {
@@ -467,31 +467,35 @@
 			"scale": [0.3, 0.3, 0.3]
 		},
 		"head": {
-			"translation": [0, 1, 0],
+			"rotation": [-90, -45, 0],
+			"translation": [0, 12.75, -4.25],
 			"scale": [0.6, 0.6, 0.6]
 		},
 		"fixed": {
-			"rotation": [0, -45, 0],
-			"translation": [0, 3.75, 0],
-			"scale": [0.66, 0.66, 0.66]
+			"rotation": [0, 45, 0],
+			"translation": [1.75, 1.25, 0],
+			"scale": [0.25, 0.25, 0.25]
 		}
 	},
 	"groups": [
 		{
 			"name": "group",
 			"origin": [10, 23, 10],
+			"scope": 0,
 			"color": 0,
 			"children": [0, 1, 2, 3, 4, 5, 6]
 		},
 		{
 			"name": "group",
 			"origin": [8, -16, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 		},
 		{
 			"name": "group",
 			"origin": [10, 2, 10],
+			"scope": 0,
 			"color": 0,
 			"children": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
 		}

@@ -129,7 +129,7 @@ public class ActiveSilencerBlockEntity
 
     @Override
     public boolean shouldMute(ResourceLocation sound, Vec3 pos) {
-        if (getBlockState().getValue(ActiveSilencerBlock.POWERED)) return true;
+        if (getBlockState().getValue(ActiveSilencerBlock.POWERED)) return false;
         boolean inRange = range.contains(pos);
         boolean inList = mutedSound.contains(sound);
         return inRange && inList;
