@@ -206,7 +206,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
             ItemStack stack = handler.getStacks().get(slot);
             if (stack.isEmpty()) continue;
             try (Transaction tx = Transaction.openRoot()) {
-                ItemResource resourceIn = handler.getResource(slot);
+                final ItemResource resourceIn = handler.getResource(slot);
                 int count = handler.getAmountAsInt(slot);
                 if (count <= 0) continue;
                 handler.set(slot, ItemResource.EMPTY, 0);
