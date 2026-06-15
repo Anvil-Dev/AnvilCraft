@@ -82,13 +82,13 @@ public class DischargerBlockEntity extends BlockEntity
 
         @Override
         public int extract(ItemResource resource, int amount, TransactionContext transaction) {
-            return super.extract(2, resource, amount, transaction);
+            return super.extract(resource, amount, transaction);
         }
 
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (index != 2) return 0;
-            return super.extract(2, resource, amount, transaction);
+            if (DischargerBlockEntity.this.isSlotDisabled(index)) return 0;
+            return super.extract(index, resource, amount, transaction);
         }
 
         @Override
@@ -131,7 +131,7 @@ public class DischargerBlockEntity extends BlockEntity
             return recipe.get().value().power() > 0; // 放电器使用power > 0的配方
         }
         // 检查FE放电能力
-        ItemStack stack = this.itemHandler.getStacks().get(0);
+        ItemStack stack = resource.toStack();
         if (stack.isEmpty()) return false;
         EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
         if (energyHandler == null) return false;

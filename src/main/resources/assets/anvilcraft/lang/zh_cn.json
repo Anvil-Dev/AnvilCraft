@@ -949,7 +949,6 @@
   "item.anvilcraft.ionocraft": "飘升机",
   "item.anvilcraft.ionocraft_backpack": "飘升机背包",
   "item.anvilcraft.ionocraft_backpack.flight_time": "飞行时间：%d秒",
-  "item.anvilcraft.ionocraft_backpack.flight_time_energy": "剩余能量：%s MJ，飞行时间：%s 秒",
   "item.anvilcraft.item_collector": "物品收集器",
   "item.anvilcraft.item_detector": "物品探测器",
   "item.anvilcraft.jewelcrafting_table": "珠宝加工台",

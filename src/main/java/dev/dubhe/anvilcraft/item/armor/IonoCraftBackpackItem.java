@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.IInventoryCarriedAware;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.util.ColorUtil;
-import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.HashedStack;
@@ -250,8 +249,7 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         int energy = getEnergyStored(stack);
         int flightSeconds = energy / FLIGHT_CONSUMPTION / 20;
         builder.accept(Component.translatable(
-            "item.anvilcraft.ionocraft_backpack.flight_time_energy",
-            UnitUtil.energyUnit(energy, tooltipFlag.hasShiftDown()),
+            "item.anvilcraft.ionocraft_backpack.flight_time",
             Component.literal(String.valueOf(flightSeconds)).withStyle(ChatFormatting.GOLD)
         ).withStyle(ChatFormatting.GRAY));
     }

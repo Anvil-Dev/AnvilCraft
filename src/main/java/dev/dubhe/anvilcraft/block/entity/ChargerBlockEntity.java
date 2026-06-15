@@ -79,13 +79,13 @@ public class ChargerBlockEntity extends BlockEntity
 
         @Override
         public int extract(ItemResource resource, int amount, TransactionContext transaction) {
-            return super.extract(2, resource, amount, transaction);
+            return super.extract(resource, amount, transaction);
         }
 
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            if (index != 2) return 0;
-            return super.extract(2, resource, amount, transaction);
+            if (ChargerBlockEntity.this.isSlotDisabled(index)) return 0;
+            return super.extract(index, resource, amount, transaction);
         }
 
         @Override
@@ -128,7 +128,7 @@ public class ChargerBlockEntity extends BlockEntity
             return recipe.get().value().power() < 0; // 充电器使用power < 0的配方
         }
         // 检查FE充电能力
-        ItemStack stack = this.itemHandler.getStacks().get(0);
+        ItemStack stack = resource.toStack();
         if (stack.isEmpty()) return false;
         EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
         if (energyHandler == null) return false;
@@ -162,8 +162,7 @@ public class ChargerBlockEntity extends BlockEntity
         if (!this.checkRecipeItemNotValid(recipe)) {
             this.isFeCharging = false;
             this.itemHandler.set(0, ItemResource.EMPTY, 0);
-            ItemStackTemplate transformed = recipe.result();
-            this.itemHandler.set(1, ItemResource.of(transformed), transformed.count());
+            this.itemHandler.set(1, resource, 1);
             this.timeLeft = recipe.time() + 1; // since there is a "timeLeft--" after this, here +1 to negate
             this.timeTotalCache = recipe.time();
             this.powerValue = recipe.power();

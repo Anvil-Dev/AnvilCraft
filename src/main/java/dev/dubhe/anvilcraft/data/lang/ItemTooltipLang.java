@@ -44,8 +44,6 @@ public class ItemTooltipLang {
             "Store pills, right-click to take one pill each, and press [%s] to use them in the inventory"
         );
 
-        provider.add("item.anvilcraft.ionocraft_backpack.flight_time_energy", "Remaining Energy: %s FE, Flight Time: %ss");
-
         provider.add("tooltip.anvilcraft.resonator.desc", "Press [%s] to switch modes. Auto mode supports all tools");
         provider.add("tooltip.anvilcraft.resonator.mining_desc", "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click");
 
