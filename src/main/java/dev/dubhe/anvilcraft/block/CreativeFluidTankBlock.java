@@ -23,7 +23,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import org.jetbrains.annotations.Nullable;
 
 public class CreativeFluidTankBlock extends BaseEntityBlock implements IHammerRemovable {
     @Override
@@ -55,15 +54,13 @@ public class CreativeFluidTankBlock extends BaseEntityBlock implements IHammerRe
             if (blockEntity instanceof CreativeFluidTankBlockEntity creativeFluidTankBlockEntity) {
                 IFluidHandler tank = creativeFluidTankBlockEntity.getFluidHandler();
                 if (tank instanceof FluidTank fluidTank) {
-                    if (fluidInBucket.isEmpty()) {
-                        SoundEvent sound = fluidTank.isEmpty()
-                            ? null
-                            : fluidTank.getFluid().getFluidType().getSound(SoundActions.BUCKET_FILL);
+                    if (fluidInBucket.isEmpty() && !fluidTank.isEmpty()) {
+                        SoundEvent sound = fluidTank.getFluid().getFluidType().getSound(SoundActions.BUCKET_FILL);
                         if (player.isCreative()) {
                             fluidTank.setFluid(FluidStack.EMPTY);
                             creativeFluidTankBlockEntity.setChanged();
                             level.sendBlockUpdated(pos, state, state, 3);
-                        } else if (!fluidTank.isEmpty()) {
+                        } else {
                             int space = bucket.getTankCapacity(0) - fluidInBucket.getAmount();
                             if (space > 0) {
                                 FluidStack drained = fluidTank.drain(space, IFluidHandler.FluidAction.SIMULATE);

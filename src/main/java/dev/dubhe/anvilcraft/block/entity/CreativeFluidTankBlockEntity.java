@@ -34,11 +34,9 @@ public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidH
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        if (!this.fluidHandler.isEmpty()) {
-            CompoundTag fluidTag = new CompoundTag();
-            this.fluidHandler.writeToNBT(registries, fluidTag);
-            tag.put("infinityFluid", fluidTag);
-        }
+        CompoundTag fluidTag = new CompoundTag();
+        this.fluidHandler.writeToNBT(registries, fluidTag);
+        tag.put("infinityFluid", fluidTag);
         return tag;
     }
 

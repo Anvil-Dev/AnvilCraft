@@ -44,7 +44,8 @@ public class CapabilitiesEventListener {
             ModBlockEntities.STRUCTURE_SCANNER.get(),
             ModBlockEntities.SMART_BLOCK_PLACER.get(),
             ModBlockEntities.TRADING_STATION.get(),
-            ModBlockEntities.BURNING_HEATER.get()
+            ModBlockEntities.BURNING_HEATER.get(),
+            ModBlockEntities.CREATIVE_CRATE.get()
         ).forEach(type -> event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
                 type,

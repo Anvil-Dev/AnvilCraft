@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.integration.jade;
 
+import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
 import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.integration.jade.provider.BurningHeaterProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ChargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapStorageProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.CreativeCrateProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeFluidTankProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.DischargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
@@ -37,6 +40,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(ChargerProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(DischargerProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(CreativeFluidTankProvider.INSTANCE, CreativeFluidTankBlockEntity.class);
+        registration.registerBlockDataProvider(CreativeCrateProvider.INSTANCE, CreativeCrateBlockEntity.class);
     }
 
     @Override
@@ -53,5 +57,6 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(DischargerProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(WipBlockProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(CreativeFluidTankProvider.INSTANCE, CreativeFluidTankBlock.class);
+        registration.registerBlockComponent(CreativeCrateProvider.INSTANCE, CreativeCrateBlock.class);
     }
 }
