@@ -77,7 +77,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (text.startsWith("#")) {
             String search = text.replaceFirst("#", "");
             this.allFilter.stream()
-                .filter(it -> it.right().contains(search))
+                .filter(it -> it.left().tooltip(it.right()).contains(search)
+                    || it.right().contains(search))
                 .filter(it -> this.whiteFilters.stream()
                     .noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
                 )
@@ -94,7 +95,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
                 }
             }
             this.allFilter.stream()
-                .filter(it -> it.left().title().getString().contains(this.filterText))
+                .filter(it -> it.left().getTitle(it.right()).getString().contains(this.filterText)
+                    || it.right().contains(this.filterText))
                 .filter(it -> this.whiteFilters.stream()
                     .noneMatch(it2 -> it.left().getId().equals(it2.left().getId()) && it.right().equals(it2.right()))
                 )
@@ -152,11 +154,13 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (variant == FILTER_FILTERED) {
             actualIndex += this.leftScrollOff;
             if (this.filteredFilters.isEmpty() || actualIndex >= this.filteredFilters.size()) return Component.empty();
-            return this.filteredFilters.get(actualIndex).left().title();
+            Pair<TeslaFilter, String> filter = this.filteredFilters.get(actualIndex);
+            return filter.left().getTitle(filter.right());
         } else {
             actualIndex += this.rightScrollOff;
             if (this.whiteFilters.isEmpty() || actualIndex >= this.whiteFilters.size()) return Component.empty();
-            return this.whiteFilters.get(actualIndex).left().title();
+            Pair<TeslaFilter, String> filter = this.whiteFilters.get(actualIndex);
+            return filter.left().getTitle(filter.right());
         }
     }
 

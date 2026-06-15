@@ -45,6 +45,8 @@ public class ModRenderTypes {
         "anvilcraft:lightning",
         RenderSetup.builder(ModRenderPipelines.LIGHTNING)
             .affectsCrumbling()
+            .useLightmap()
+            .withTexture("Sampler0", ModTextureAtlases.LOCATION_LASER)
             .createRenderSetup()
     );
 }

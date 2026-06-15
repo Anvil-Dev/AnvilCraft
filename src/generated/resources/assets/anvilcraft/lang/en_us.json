@@ -1380,6 +1380,8 @@
   "screen.anvilcraft.tesla_tower.filter.is_baby_friendly": "Baby Friendly Entity Filter",
   "screen.anvilcraft.tesla_tower.filter.is_entity_id": "Entity Filter",
   "screen.anvilcraft.tesla_tower.filter.is_friendly": "Friendly Entity Filter",
+  "screen.anvilcraft.tesla_tower.filter.is_hostile": "Hostile Entity Filter",
+  "screen.anvilcraft.tesla_tower.filter.is_neutral": "Neutral Entity Filter",
   "screen.anvilcraft.tesla_tower.filter.is_on_vehicle": "On Vehicle Filter",
   "screen.anvilcraft.tesla_tower.filter.is_pet": "Pet Filter",
   "screen.anvilcraft.tesla_tower.filter.is_player": "Player Filter",

@@ -227,6 +227,6 @@ public class TeslaTowerBlock
                 return be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), hitResult);
             }
         }
-        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 }

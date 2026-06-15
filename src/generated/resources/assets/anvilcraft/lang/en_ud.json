@@ -1380,6 +1380,8 @@
   "screen.anvilcraft.tesla_tower.filter.is_baby_friendly": "ɹǝʇꞁᴉℲ ʎʇᴉʇuƎ ʎꞁpuǝᴉɹℲ ʎqɐᗺ",
   "screen.anvilcraft.tesla_tower.filter.is_entity_id": "ɹǝʇꞁᴉℲ ʎʇᴉʇuƎ",
   "screen.anvilcraft.tesla_tower.filter.is_friendly": "ɹǝʇꞁᴉℲ ʎʇᴉʇuƎ ʎꞁpuǝᴉɹℲ",
+  "screen.anvilcraft.tesla_tower.filter.is_hostile": "ɹǝʇꞁᴉℲ ʎʇᴉʇuƎ ǝꞁᴉʇsoH",
+  "screen.anvilcraft.tesla_tower.filter.is_neutral": "ɹǝʇꞁᴉℲ ʎʇᴉʇuƎ ꞁɐɹʇnǝN",
   "screen.anvilcraft.tesla_tower.filter.is_on_vehicle": "ɹǝʇꞁᴉℲ ǝꞁɔᴉɥǝɅ uO",
   "screen.anvilcraft.tesla_tower.filter.is_pet": "ɹǝʇꞁᴉℲ ʇǝԀ",
   "screen.anvilcraft.tesla_tower.filter.is_player": "ɹǝʇꞁᴉℲ ɹǝʎɐꞁԀ",
