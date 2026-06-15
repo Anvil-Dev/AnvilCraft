@@ -142,9 +142,53 @@ public class GiantAnvilShockEventListener {
                         level.addFreshEntity(entity);
                     }
                 }
+                // 让范围内的生物原地弹跳
+                int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
+                AABB aabb = AABB.ofSize(
+                    Vec3.atCenterOf(it.unwrap().centerPos().above()),
+                    radius * 2 + 1,
+                    2,
+                    radius * 2 + 1
+                );
+                List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, aabb);
+                for (LivingEntity living : entities) {
+                    // 坐在载具上的生物会被弹下车
+                    boolean ejected = false;
+                    if (living.isPassenger()) {
+                        living.stopRiding();
+                        ejected = true;
+                    }
+                    if (!ejected && !living.onGround()) continue;
+                    if (living.isCrouching()) continue;
+                    double dist = Math.max(
+                        Math.abs(living.getX() - it.unwrap().centerPos().getX()),
+                        Math.abs(living.getZ() - it.unwrap().centerPos().getZ())
+                    );
+                    double ratio = 1.0 - Math.min(dist / radius, 1.0);
+                    double upwardSpeed = 0.4 + ratio * 0.35;
+                    if (ejected) {
+                        // 下车后延迟弹起，等待客户端同步位置
+                        if (level instanceof ServerLevel sl) {
+                            final double finalSpeed = upwardSpeed;
+                            sl.getServer().tell(new net.minecraft.server.TickTask(
+                                sl.getServer().getTickCount() + 4,
+                                () -> {
+                                    if (living.isAlive()) {
+                                        living.setDeltaMovement(living.getDeltaMovement().x, finalSpeed, living.getDeltaMovement().z);
+                                        living.hurtMarked = true;
+                                    }
+                                }
+                            ));
+                        }
+                    } else {
+                        living.setDeltaMovement(living.getDeltaMovement().x, upwardSpeed, living.getDeltaMovement().z);
+                        living.hurtMarked = true;
+                    }
+                }
                 it.putAttachment(NO_HURT, true);
             })
         ).executes(it -> {
+            if (it.has(NO_HURT)) return;
             int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
             AABB aabb = AABB.ofSize(
                 Vec3.atCenterOf(it.unwrap().centerPos().above()),
@@ -195,8 +239,15 @@ public class GiantAnvilShockEventListener {
 
             // 音效与粒子
             if (AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) {
-                event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
-                    SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().random.nextFloat() * 0.2f);
+                boolean isResin = context.testCorner(ModBlocks.RESIN_BLOCK.get())
+                    && context.testBorder(ModBlocks.RESIN_BLOCK.get());
+                if (isResin) {
+                    event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_RESIN_SHOCK.get(),
+                        SoundSource.BLOCKS, 2.0f, 0.8f + event.getLevel().random.nextFloat() * 0.4f);
+                } else {
+                    event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
+                        SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().random.nextFloat() * 0.2f);
+                }
                 spawnGroundHeave(event);
             }
         }

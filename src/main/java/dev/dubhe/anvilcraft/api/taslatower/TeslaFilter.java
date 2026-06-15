@@ -54,6 +54,10 @@ public abstract class TeslaFilter {
 
     public abstract Component title();
 
+    public Component getTitle(String arg) {
+        return title();
+    }
+
     public String tooltip(String arg) {
         return "";
     }
@@ -65,6 +69,8 @@ public abstract class TeslaFilter {
         register(new IsPetFilter());
         register(new IsOnVehicleFilter());
         register(new IsFriendlyFilter());
+        register(new IsHostileFilter());
+        register(new IsNeutralFilter());
         register(new IsEntityIdFilter());
         register(new IsBabyFriendlyFilter());
         register(new HasCustomNameFilter());

@@ -1,5 +1,7 @@
 {
   "values": [
+    "anvilcraft:creative_fluid_tank",
+    "anvilcraft:creative_crate",
     "anvilcraft:royal_anvil",
     "anvilcraft:royal_grindstone",
     "anvilcraft:royal_smithing_table",

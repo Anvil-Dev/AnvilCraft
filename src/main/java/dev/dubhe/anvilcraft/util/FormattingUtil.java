@@ -57,29 +57,86 @@ public class FormattingUtil {
     }
 
     /**
-     * 格式化时间。
+     * 将tick数格式化为时间字符串，只显示到秒（向上取整），不显示 tick/gt。
+     * 始终显示为 "Xm Xs" 格式。
+     * <table>
+     *     <tr><th>tick数</th><th>显示效果</th></tr>
+     *     <tr><td>0gt</td><td>0m 0s</td></tr>
+     *     <tr><td>1gt</td><td>0m 1s</td></tr>
+     *     <tr><td>30gt</td><td>0m 2s</td></tr>
+     *     <tr><td>100gt</td><td>0m 5s</td></tr>
+     *     <tr><td>1199gt</td><td>1m 0s</td></tr>
+     *     <tr><td>1200gt</td><td>1m 0s</td></tr>
+     *     <tr><td>1500gt</td><td>1m 15s</td></tr>
+     *     <tr><td>1635gt</td><td>1m 22s</td></tr>
+     * </table>
      *
      * @param total 总tick数
-     * @return 格式化后的时间字符串，格式为 Xm Xs
+     * @return 格式化后的时间字符串
      */
     public static String toFormattedTime(int total) {
+        if (total <= 0) return "0m 0s";
+        // 向上取整到秒
+        int totalSeconds = (total + 19) / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return "%dm %ds".formatted(minutes, seconds);
+    }
+
+    /**
+     * 对应表：
+     * <table>
+     *     <tr><th>tick数</th><th>阈值</th><th>显示效果</th></tr>
+     *     <tr><td>30gt</td><td>1</td><td>1"50</td></tr>
+     *     <tr><td>30gt</td><td>5</td><td>30gt</td></tr>
+     *     <tr><td>100gt</td><td>5</td><td>5"</td></tr>
+     *     <tr><td>150gt</td><td>5</td><td>7"50</td></tr>
+     *     <tr><td>1200gt</td><td>5</td><td>1'</td></tr>
+     *     <tr><td>1220gt</td><td>5</td><td>1'01</td></tr>
+     *     <tr><td>1635gt</td><td>5</td><td>1'21"75</td></tr>
+     * </table>
+     *
+     * @param total          总tick数
+     * @param thresholdInSec 切换显示格式的阈值（秒），小于该值时显示gt格式，否则显示分秒格式
+     * @return 格式化后的时间字符串
+     */
+    public static String toFormattedTime(int total, int thresholdInSec) {
+        int thresholdTicks = thresholdInSec * 20;
+
+        if (total < thresholdTicks) {
+            return total + "gt";
+        }
+
         int minutes = total / 20 / 60;
         int seconds = (total / 20) % 60;
-        return minutes + "m " + seconds + "s";
+        int ticks = total % 60 % 20;
+
+        StringBuilder result = new StringBuilder();
+
+        if (minutes > 0) {
+            result.append(minutes).append("'");
+        }
+
+        if (!result.isEmpty()) {
+            if (seconds != 0 || ticks != 0) {
+                result.append(String.format("%02d", seconds));
+            }
+            if (ticks != 0) {
+                result.append('"');
+            }
+        } else {
+            result.append(seconds).append('"');
+        }
+
+        if (ticks != 0) {
+            result.append(String.format("%02d", ticks * 5));
+        }
+
+        return result.toString();
     }
 
     /**
-     * 格式化时间，保留阈值参数的重载。
-     *
-     * @deprecated 保留阈值参数的重载，内部始终输出 Xm Xs 格式
-     */
-    @Deprecated
-    public static String toFormattedTime(int total, int thresholdInSec) {
-        return toFormattedTime(total);
-    }
-
-    /**
-     * 根据进度生成一个给定长度的进度条。
+     * 根据进度生成一个给定长度的进度条
      *
      * @param progress 进度，0-1
      * @param length   进度条长度

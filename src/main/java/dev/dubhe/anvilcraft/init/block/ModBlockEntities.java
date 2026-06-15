@@ -17,6 +17,8 @@ import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
@@ -53,6 +55,7 @@ import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
@@ -78,6 +81,8 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeCrateBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ExpCollectorBlockEntityRenderer;
@@ -445,6 +450,11 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.STRUCTURE_SCANNER)
         .register();
 
+    public static final BlockEntityEntry<SpacetimeSupercomputerBlockEntity> SPACETIME_SUPERCOMPUTER = REGISTRUM
+        .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
+        .validBlock(ModBlocks.SPACETIME_SUPERCOMPUTER)
+        .register();
+
     public static final BlockEntityEntry<LargeLaserBlockEntity> LARGE_LASER = REGISTRUM
         .blockEntity("laser_laser", LargeLaserBlockEntity::new)
         .validBlock(ModBlocks.LARGE_LASER)
@@ -460,6 +470,18 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<RedStoneComputerBlockEntity> REDSTONE_COMPUTER = REGISTRUM
         .blockEntity("redstone_computer", RedStoneComputerBlockEntity::new)
         .validBlock(ModBlocks.REDSTONE_COMPUTER)
+        .register();
+
+    public static final BlockEntityEntry<CreativeFluidTankBlockEntity> CREATIVE_FLUID_TANK = REGISTRUM
+        .blockEntity("creative_fluid_tank", CreativeFluidTankBlockEntity::new)
+        .validBlock(ModBlocks.CREATIVE_FLUID_TANK)
+        .renderer(() -> CreativeFluidTankBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CreativeCrateBlockEntity> CREATIVE_CRATE = REGISTRUM
+        .blockEntity("creative_crate", CreativeCrateBlockEntity::new)
+        .validBlock(ModBlocks.CREATIVE_CRATE)
+        .renderer(() -> CreativeCrateBlockEntityRenderer::new)
         .register();
 
     public static void register() {
