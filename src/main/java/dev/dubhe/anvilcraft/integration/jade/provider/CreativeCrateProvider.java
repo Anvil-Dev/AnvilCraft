@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +42,6 @@ public class CreativeCrateProvider extends FluidStorageProvider.ForBlock {
 
     @Override
     public ResourceLocation getUid() {
-        return AnvilCraft.of("creative_fluid_tank");
+        return AnvilCraft.of("creative_crate");
     }
 }

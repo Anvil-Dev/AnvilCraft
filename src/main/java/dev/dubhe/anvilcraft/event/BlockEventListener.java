@@ -81,7 +81,7 @@ public class BlockEventListener {
                         );
                     }
                 } else {
-                    if (player.addItem(stackInSlot.copyWithCount(1))) {
+                    if (!player.addItem(stackInSlot.copyWithCount(1))) {
                         Block.popResource(level, BlockPos.containing(player.position()), stackInSlot.copyWithCount(1));
                     }
                 }
