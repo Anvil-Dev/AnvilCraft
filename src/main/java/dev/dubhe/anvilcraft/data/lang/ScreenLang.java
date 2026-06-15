@@ -392,6 +392,12 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.laser_interface.invalid", "✗ Invalid");
         provider.add("screen.anvilcraft.cfa.already_built", "This megastructure already exists");
 
+        // CFA interface HUD tooltip (displayed on logistics interface)
+        provider.add("screen.anvilcraft.cfa.temple_demand", "◇ Temple Demand ◇");
+        provider.add("screen.anvilcraft.cfa.collider_targets", "◇ Collider Targets ◇");
+        provider.add("screen.anvilcraft.cfa.collider_processing", "◇ Processing");
+        provider.add("screen.anvilcraft.cfa.collider_star_missing", "! Star Missing !");
+
         // Megastructure names (English) — 11 unique megastructures
         provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator", "Planet Excavator");
         provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor", "Planet Exctractor");

@@ -72,6 +72,16 @@ public final class CelestialRefactorRegistry {
             options.removeIf(opt -> "planet_exctractor".equals(opt.megastructure()));
         }
 
+        // Filter giant_planet_exctractor: only available for giant planets
+        if (!(body instanceof GiantPlanetData)) {
+            options.removeIf(opt -> "giant_planet_exctractor".equals(opt.megastructure()));
+        }
+
+        // Filter stellar_ring_collider: only available for small stellar bodies (size < 26)
+        if (!(body instanceof StarData star && star.size() < 26)) {
+            options.removeIf(opt -> "stellar_ring_collider".equals(opt.megastructure()));
+        }
+
         // Filter eco_station: requires biological resources and no low-level civilization
         if (resources != null) {
             options.removeIf(opt -> "eco_station".equals(opt.megastructure())
@@ -119,13 +129,15 @@ public final class CelestialRefactorRegistry {
         }
         if (innermostRing <= 2 && 2 <= maxRing) {
             // Ring 2 megastructures (innermost for small giant planets)
-            options.add(CelestialRefactorOption.noMaterial(2, "giant_planet_exctractor",
-                ringModel(2, "exctractor"), prefix + "giant_planet_exctractor"));
+            options.add(CelestialRefactorOption.withMaterial(2, "giant_planet_exctractor",
+                ringModel(2, "exctractor"), prefix + "giant_planet_exctractor",
+                ModBlocks.FLUID_TANK.asItem(), 32));
         }
         if (innermostRing <= 4 && 4 <= maxRing) {
             // Ring 4 megastructures (innermost for small stars)
-            options.add(CelestialRefactorOption.noMaterial(4, "stellar_ring_collider",
-                ringModel(4, "collider"), prefix + "stellar_ring_collider"));
+            options.add(CelestialRefactorOption.withMaterial(4, "stellar_ring_collider",
+                ringModel(4, "collider"), prefix + "stellar_ring_collider",
+                ModBlocks.ACCELERATION_RING.asItem(), 16));
             options.add(CelestialRefactorOption.noMaterial(4, "dyson_sphere_small",
                 ringModel(4, "dyson_sphere"), prefix + "dyson_sphere_small"));
             options.add(CelestialRefactorOption.noMaterial(4, "magnetar_coil",

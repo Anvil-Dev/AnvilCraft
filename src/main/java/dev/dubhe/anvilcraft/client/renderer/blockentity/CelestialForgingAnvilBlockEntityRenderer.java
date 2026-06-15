@@ -63,6 +63,14 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     public static final ModelResourceLocation R1_TEMPLE = ModelResourceLocation.standalone(AnvilCraft.of(
         "block/celestial_forging_anvil_ring_1_temple"));
 
+    // Giant Extractor megastructure model (replaces ring 2)
+    public static final ModelResourceLocation R2_EXCTRACTOR = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_2_exctractor"));
+
+    // Stellar Ring Collider megastructure model (replaces ring 4)
+    public static final ModelResourceLocation R4_COLLIDER = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_collider"));
+
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
 
@@ -97,9 +105,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         if (blockEntity.isAmplify()) {
             poseStack.scale(4, 4, 4);
-            // R4
+            // R4 — model may change based on megastructure
+            ModelResourceLocation r4Model = getRing4Model(blockEntity);
             renderRingMaybe(
-                R4,
+                r4Model,
                 4,
                 bodyData,
                 prevBody,
@@ -159,12 +168,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             );
             // Z rotation
             poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-            // R2 — always visible in non-amplify mode
+            // R2 — always visible in non-amplify mode, model may change based on megastructure
+            ModelResourceLocation r2Model = getRing2Model(blockEntity);
             modelRenderer.renderModel(
                 poseStack.last(),
                 ringConsumer,
                 null,
-                Minecraft.getInstance().getModelManager().getModel(R2),
+                Minecraft.getInstance().getModelManager().getModel(r2Model),
                 0,
                 0,
                 0,
@@ -233,6 +243,40 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             }
         }
         return R1;
+    }
+
+    /**
+     * Get the appropriate ring 2 model, accounting for giant planet extractor megastructure.
+     */
+    private ModelResourceLocation getRing2Model(CelestialForgingAnvilBlockEntity blockEntity) {
+        if (blockEntity.getActiveMegastructureIndex() >= 0) {
+            var option = blockEntity.getActiveMegastructureOption();
+            if (option != null) {
+                if ("giant_planet_exctractor".equals(option.megastructure())) {
+                    return R2_EXCTRACTOR;
+                }
+            }
+        }
+        return R2;
+    }
+
+    /**
+     * Get the appropriate ring 4 model, accounting for stellar ring collider megastructure.
+     */
+    private ModelResourceLocation getRing4Model(CelestialForgingAnvilBlockEntity blockEntity) {
+        if (blockEntity.getActiveMegastructureIndex() >= 0) {
+            var option = blockEntity.getActiveMegastructureOption();
+            if (option != null) {
+                if ("stellar_ring_collider".equals(option.megastructure())) {
+                    // When amplifier is missing, the star is not rendered — collider is off
+                    if (!blockEntity.isAmplifierPresent()) {
+                        return R4;
+                    }
+                    return R4_COLLIDER;
+                }
+            }
+        }
+        return R4;
     }
 
     /**

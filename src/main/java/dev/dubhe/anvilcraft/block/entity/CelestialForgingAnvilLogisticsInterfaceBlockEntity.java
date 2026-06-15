@@ -6,6 +6,8 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -17,6 +19,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Logistics interface for the Celestial Forging Anvil.
@@ -99,6 +104,14 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     @Getter @Setter
     private boolean templeDemandSatisfied = false;
 
+    // === Collider target items display (pushed by CFA controller) ===
+    @Getter @Setter
+    private List<ItemStack> colliderTargetItems = new ArrayList<>();
+    @Getter @Setter
+    private boolean colliderProcessing = false;
+    @Getter @Setter
+    private boolean colliderStarMissing = false;
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -108,6 +121,17 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         }
         tag.putInt("templeDemandCount", templeDemandCount);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
+        if (!colliderTargetItems.isEmpty()) {
+            ListTag list = new ListTag();
+            for (ItemStack stack : colliderTargetItems) {
+                if (!stack.isEmpty()) {
+                    list.add(stack.save(registries));
+                }
+            }
+            tag.put("colliderTargetItems", list);
+        }
+        tag.putBoolean("colliderProcessing", colliderProcessing);
+        tag.putBoolean("colliderStarMissing", colliderStarMissing);
     }
 
     @Override
@@ -124,6 +148,15 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         }
         this.templeDemandCount = tag.getInt("templeDemandCount");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
+        this.colliderTargetItems.clear();
+        if (tag.contains("colliderTargetItems")) {
+            ListTag list = tag.getList("colliderTargetItems", Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++) {
+                ItemStack.parse(registries, list.getCompound(i)).ifPresent(colliderTargetItems::add);
+            }
+        }
+        this.colliderProcessing = tag.getBoolean("colliderProcessing");
+        this.colliderStarMissing = tag.getBoolean("colliderStarMissing");
     }
 
     @Override
@@ -135,6 +168,17 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         }
         tag.putInt("templeDemandCount", templeDemandCount);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
+        if (!colliderTargetItems.isEmpty()) {
+            ListTag list = new ListTag();
+            for (ItemStack stack : colliderTargetItems) {
+                if (!stack.isEmpty()) {
+                    list.add(stack.save(registries));
+                }
+            }
+            tag.put("colliderTargetItems", list);
+        }
+        tag.putBoolean("colliderProcessing", colliderProcessing);
+        tag.putBoolean("colliderStarMissing", colliderStarMissing);
         return tag;
     }
 
@@ -152,5 +196,14 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         }
         this.templeDemandCount = tag.getInt("templeDemandCount");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
+        this.colliderTargetItems.clear();
+        if (tag.contains("colliderTargetItems")) {
+            ListTag list = tag.getList("colliderTargetItems", Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++) {
+                ItemStack.parse(registries, list.getCompound(i)).ifPresent(colliderTargetItems::add);
+            }
+        }
+        this.colliderProcessing = tag.getBoolean("colliderProcessing");
+        this.colliderStarMissing = tag.getBoolean("colliderStarMissing");
     }
 }

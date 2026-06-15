@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -12,7 +14,9 @@ import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
+import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,6 +43,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -129,6 +135,42 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Getter
     private boolean templeDemandSatisfied = false;
 
+    // === Stellar Ring Collider state ===
+    /**
+     * Remaining cooldown ticks after a cycle, 0 = ready.
+     */
+    private int colliderCooldown = 0;
+    /**
+     * Remaining work ticks for the current cycle, 0 = idle.
+     */
+    private int colliderCycleRemaining = 0;
+    /**
+     * Anvil item reserved for the current cycle.
+     */
+    private ItemStack colliderReservedAnvil = ItemStack.EMPTY;
+    /**
+     * Position of the logistics interface where the anvil was extracted from.
+     */
+    @Nullable
+    private BlockPos colliderReservedAnvilSource = null;
+    /**
+     * Hit block item reserved for the current cycle.
+     */
+    private ItemStack colliderReservedHitBlock = ItemStack.EMPTY;
+    /**
+     * Position of the logistics interface where the hit block was extracted from.
+     */
+    @Nullable
+    private BlockPos colliderReservedHitBlockSource = null;
+    /**
+     * Speed of the active recipe, for T calculation.
+     */
+    private int colliderActiveSpeed = 0;
+    /**
+     * Valid hit-block target items pushed to logistics for display.
+     */
+    private final List<ItemStack> colliderTargetItems = new ArrayList<>();
+
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -143,8 +185,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         // Eco station: CFA本体 consumes 1MW constantly
         if (activeMegastructureIndex >= 0) {
             CelestialRefactorOption option = getActiveMegastructureOption();
-            if (option != null && "eco_station".equals(option.megastructure())) {
-                return 1000;
+            if (option != null) {
+                if ("eco_station".equals(option.megastructure())) {
+                    return 1000;
+                }
+                // Stellar Ring Collider: 4MW
+                if ("stellar_ring_collider".equals(option.megastructure())) {
+                    return 4000;
+                }
             }
         }
         return 0;
@@ -415,8 +463,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (activeMegastructureIndex >= 0) {
             serverTickExcavator();
             serverTickExtractor();
+            serverTickGiantExtractor();
             serverTickEcoStation();
             serverTickTemple();
+            serverTickStellarRingCollider();
         }
     }
 
@@ -595,6 +645,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandCount = 0;
         this.templeDemandSatisfied = false;
 
+        // Collider state
+        this.colliderCooldown = 0;
+        this.colliderCycleRemaining = 0;
+        this.colliderReservedAnvil = ItemStack.EMPTY;
+        this.colliderReservedAnvilSource = null;
+        this.colliderReservedHitBlock = ItemStack.EMPTY;
+        this.colliderReservedHitBlockSource = null;
+        this.colliderActiveSpeed = 0;
+        this.colliderTargetItems.clear();
+
         // History browsing state
         this.historyBrowseIndex = 0;
         this.historyOriginalEntry = null;
@@ -629,7 +689,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      */
     public float getDisplayOffset(int index) {
         if (bodySeed == 0) return 0f;
-        net.minecraft.util.RandomSource rand = net.minecraft.util.RandomSource.create(bodySeed + index * 7919);
+        net.minecraft.util.RandomSource rand = net.minecraft.util.RandomSource.create(bodySeed + index * 7919L);
         return (rand.nextFloat() - 0.5f) * 0.1f;
     }
 
@@ -727,6 +787,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         tag.putInt("templeDemandCount", templeDemandCount);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
+        // Collider state (runtime only — not persisted)
         tag.putInt("historyBrowseIndex", historyBrowseIndex);
     }
 
@@ -766,7 +827,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 this.animationTicks = ANIMATION_DURATION_TICKS;
                 this.animationForward = false;
                 this.animationPreviousBodyData = oldBodyData;
-            } else if (hadBody && hasBody && !oldBodyData.toTag().equals(this.celestialBodyData.toTag())) {
+            } else if (hadBody && !oldBodyData.toTag().equals(this.celestialBodyData.toTag())) {
                 this.animationTicks = ANIMATION_DURATION_TICKS;
                 this.animationForward = true;
                 this.animationPreviousBodyData = oldBodyData;
@@ -800,6 +861,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         this.templeDemandCount = tag.getInt("templeDemandCount");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
+        // Collider runtime state is not persisted — always start clean on load
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
         // Sync to client — important for when loadAdditional is called after onLoad
         // (e.g., BlockItem.updateCustomBlockEntityTag during placement restores saved NBT)
@@ -849,6 +911,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         tag.putInt("templeDemandCount", templeDemandCount);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
+        // Collider runtime state not synced to client
         tag.putInt("historyBrowseIndex", historyBrowseIndex);
         return tag;
     }
@@ -887,7 +950,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 this.animationTicks = ANIMATION_DURATION_TICKS;
                 this.animationForward = false;
                 this.animationPreviousBodyData = oldBodyData;
-            } else if (hadBody && hasBody && !oldBodyData.toTag().equals(this.celestialBodyData.toTag())) {
+            } else if (hadBody && !oldBodyData.toTag().equals(this.celestialBodyData.toTag())) {
                 // Body changed to a different type — animate transition
                 this.animationTicks = ANIMATION_DURATION_TICKS;
                 this.animationForward = true;
@@ -922,6 +985,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         this.templeDemandCount = tag.getInt("templeDemandCount");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
+        // Collider runtime state not synced to client
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
     }
 
@@ -1086,6 +1150,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandCount = 0;
         this.templeDemandSatisfied = false;
         pushTempleDemandToLogistics(); // clear demand display
+        // Clear collider state
+        outputColliderReservedItems();
+        resetColliderState();
         // Clear material filter
         this.materialFilter = new ItemStack(Items.BARRIER);
         this.materialLimit = 0;
@@ -1110,17 +1177,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      * Attempt to build a megastructure. Called from the server when the player clicks "Start Refactoring".
      *
      * @param optionIndex the selected refactor option index
-     * @return true if the megastructure was built successfully
      */
-    public boolean buildMegastructure(int optionIndex) {
-        if (level == null || level.isClientSide()) return false;
-        if (celestialBodyData == null) return false;
+    public void buildMegastructure(int optionIndex) {
+        if (level == null || level.isClientSide()) return;
+        if (celestialBodyData == null) return;
         List<CelestialRefactorOption> options = CelestialRefactorRegistry.getOptions(
             celestialBodyData,
             isAmplify,
             this.planetaryResourceSet
         );
-        if (optionIndex < 0 || optionIndex >= options.size()) return false;
+        if (optionIndex < 0 || optionIndex >= options.size()) return;
 
         CelestialRefactorOption option = options.get(optionIndex);
 
@@ -1128,7 +1194,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (activeMegastructureIndex >= 0) {
             var activeOpt = getActiveMegastructureOption();
             if (activeOpt != null && activeOpt.megastructure().equals(option.megastructure())) {
-                return false;
+                return;
             }
         }
 
@@ -1140,7 +1206,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             ItemStack contained = materialContainer.getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
             if (!ItemStack.isSameItemSameComponents(contained, required) || contained.getCount() < required.getCount()) {
-                return false;
+                return;
             }
             // Consume materials
             contained.shrink(required.getCount());
@@ -1149,17 +1215,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         this.setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        return true;
     }
 
     // === Excavator ===
 
     private static final int EXCAVATOR_LASER_THRESHOLD = 16;
     private static final int EXCAVATOR_MAX_LASERS = 4;
-    private static final ResourceLocation EXCAVATOR_MEGASTRUCTURE_ID = ResourceLocation.fromNamespaceAndPath(
-        "anvilcraft",
-        "planet_excavator"
-    );
+
     private int excavatorLogisticsRoundRobin = 0;
     private int ecoStationLogisticsRoundRobin = 0;
 
@@ -1273,30 +1335,29 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     /**
-     * Scan all positions directly adjacent to the 3×3×2 CFA multiblock volume.
-     * The controller is at BOTTOM_CENTER; the multiblock extends ±1 in X/Z and +1 in Y.
+     * Scan the 12 face-adjacent positions at the CFA bottom layer (Y = controller Y).
+     * The CFA occupies X=-1..1, Z=-1..1 at Y=0. The 12 positions are the blocks
+     * directly touching each face of this 3×3 base, excluding the 4 corners
+     * (which are edge-adjacent, not face-adjacent).
      */
     private void scanAdjacentBlocks(java.util.function.Consumer<BlockPos> consumer) {
-        // Multiblock occupies offset (-1..1, 0..1, -1..1) relative to worldPosition
-        // Scan the shell around this volume: x in [-2..2], y in [-1..2], z in [-2..2]
-        // excluding positions inside the multiblock itself
-        for (int dx = -2; dx <= 2; dx++) {
-            for (int dy = -1; dy <= 2; dy++) {
-                for (int dz = -2; dz <= 2; dz++) {
-                    // Skip positions inside the multiblock volume
-                    if (dx >= -1 && dx <= 1 && dy >= 0 && dy <= 1 && dz >= -1 && dz <= 1) {
-                        continue;
-                    }
-                    // Only scan face-adjacent (not edge/corner diagonal unless it's a direct face touch)
-                    int faceCount = 0;
-                    if (Math.abs(dx) > 1) faceCount++;
-                    if (dy < 0 || dy > 1) faceCount++;
-                    if (Math.abs(dz) > 1) faceCount++;
-                    if (faceCount != 1) continue; // only face-adjacent, not corners/edges
-
-                    consumer.accept(worldPosition.offset(dx, dy, dz));
-                }
-            }
+        if (level == null) return;
+        int y = worldPosition.getY();
+        // North face (Z = -2): 3 positions
+        for (int dx = -1; dx <= 1; dx++) {
+            consumer.accept(new BlockPos(worldPosition.getX() + dx, y, worldPosition.getZ() - 2));
+        }
+        // South face (Z = 2): 3 positions
+        for (int dx = -1; dx <= 1; dx++) {
+            consumer.accept(new BlockPos(worldPosition.getX() + dx, y, worldPosition.getZ() + 2));
+        }
+        // West face (X = -2): 3 positions
+        for (int dz = -1; dz <= 1; dz++) {
+            consumer.accept(new BlockPos(worldPosition.getX() - 2, y, worldPosition.getZ() + dz));
+        }
+        // East face (X = 2): 3 positions
+        for (int dz = -1; dz <= 1; dz++) {
+            consumer.accept(new BlockPos(worldPosition.getX() + 2, y, worldPosition.getZ() + dz));
         }
     }
 
@@ -1367,6 +1428,548 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         });
         return result;
+    }
+
+    // === Giant Extractor ===
+
+    private static final String GIANT_EXTRACTOR_MEGASTRUCTURE = "giant_planet_exctractor";
+
+    private void serverTickGiantExtractor() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) return;
+        if (!GIANT_EXTRACTOR_MEGASTRUCTURE.equals(option.megastructure())) return;
+        if (planetaryResourceSet == null) return;
+
+        // Get giant fluid and item resources
+        List<PlanetaryResourceSet.WeightedFluidStack> giantFluids = planetaryResourceSet.getGiantFluids();
+        List<PlanetaryResourceSet.WeightedItemStack> giantItems = planetaryResourceSet.getGiantItems();
+
+        // Find fluid interfaces
+        List<CelestialForgingAnvilFluidInterfaceBlockEntity> fluidInterfaces = findFluidInterfaces();
+        if (fluidInterfaces.isEmpty()) return;
+
+        // Each fluid interface works independently, producing fluid per gt
+        for (CelestialForgingAnvilFluidInterfaceBlockEntity fluidInterface : fluidInterfaces) {
+            // Produce fluid
+            if (!giantFluids.isEmpty()) {
+                int totalFluidWeight = giantFluids.stream().mapToInt(PlanetaryResourceSet.WeightedFluidStack::weight).sum();
+                if (totalFluidWeight > 0) {
+                    int roll = level.getRandom().nextInt(totalFluidWeight);
+                    int cumulative = 0;
+                    ResourceLocation chosenFluid = null;
+                    for (PlanetaryResourceSet.WeightedFluidStack fluid : giantFluids) {
+                        cumulative += fluid.weight();
+                        if (roll < cumulative) {
+                            chosenFluid = fluid.fluidId();
+                            break;
+                        }
+                    }
+                    if (chosenFluid == null) chosenFluid = giantFluids.getFirst().fluidId();
+
+                    var fluid = BuiltInRegistries.FLUID.get(chosenFluid);
+                    if (fluid != net.minecraft.world.level.material.Fluids.EMPTY) {
+                        FluidStack output = new FluidStack(fluid, EXTRACTOR_FLUID_PER_TICK);
+                        if (!output.isEmpty()) {
+                            fluidInterface.getFluidHandler().fill(output, IFluidHandler.FluidAction.EXECUTE);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Produce 1 item to logistics interface
+        if (!giantItems.isEmpty()) {
+            int totalItemWeight = giantItems.stream().mapToInt(PlanetaryResourceSet.WeightedItemStack::weight).sum();
+            if (totalItemWeight > 0) {
+                int roll = level.getRandom().nextInt(totalItemWeight);
+                int cumulative = 0;
+                ResourceLocation chosenItem = null;
+                for (PlanetaryResourceSet.WeightedItemStack item : giantItems) {
+                    cumulative += item.weight();
+                    if (roll < cumulative) {
+                        chosenItem = item.itemId();
+                        break;
+                    }
+                }
+                if (chosenItem == null) chosenItem = giantItems.getFirst().itemId();
+
+                ItemLike item = BuiltInRegistries.ITEM.get(chosenItem);
+                if (item.asItem() != Items.AIR) {
+                    ItemStack output = new ItemStack(item, 1);
+                    List<IItemHandler> logistics = findLogisticsInterfaces();
+                    if (!logistics.isEmpty()) {
+                        int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                        for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                            int idx = (startIdx + attempt) % logistics.size();
+                            IItemHandler handler = logistics.get(idx);
+                            ItemStack remainder = insertIntoHandler(handler, output);
+                            if (remainder.getCount() < output.getCount()) {
+                                excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // === Stellar Ring Collider ===
+
+    private static final String COLLIDER_MEGASTRUCTURE = "stellar_ring_collider";
+    private static final int COLLIDER_COOLDOWN_TICKS = 10;
+    private static final int COLLIDER_MAX_COLLISIONS = 16;
+
+    private record LogisticsRef(IItemHandler handler, BlockPos pos) {}
+
+    private record LocatedStack(int li, int slot, ItemStack stack, Block block) {}
+
+    private void serverTickStellarRingCollider() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) return;
+        if (!COLLIDER_MEGASTRUCTURE.equals(option.megastructure())) return;
+        if (planetaryResourceSet == null) return;
+        if (!(celestialBodyData instanceof StarData star)) return;
+        if (star.size() >= 26) return;
+
+        boolean starMissing = !amplifierPresent;
+        boolean isProcessing = colliderCycleRemaining > 0 && !powerInsufficient;
+
+        // Refresh targets on 20-tick boundary
+        if (level.getGameTime() % 20 == 0) {
+            refreshColliderTargetItems();
+        }
+
+        // When amplifier is missing, star is not rendered — collider is disabled
+        if (starMissing) {
+            // Clear stale cycle state
+            if (colliderCycleRemaining > 0 || !colliderReservedAnvil.isEmpty() || !colliderReservedHitBlock.isEmpty()) {
+                outputColliderReservedItems();
+                resetColliderState();
+            }
+            broadcastColliderState(false, true);
+            return;
+        }
+
+        // Normal path: broadcast current state every tick so the client stays in sync.
+        // This is the same pattern as the starMissing branch above — without this,
+        // state transitions (e.g. processing→idle, starMissing→idle) never reach the client.
+        broadcastColliderState(isProcessing, false);
+
+        // Power check — if insufficient, output reserved items
+        if (powerInsufficient) {
+            outputColliderReservedItems();
+            resetColliderState();
+            return;
+        }
+
+        // Cooldown phase
+        if (colliderCooldown > 0) {
+            colliderCooldown--;
+            return;
+        }
+
+        // Working phase
+        if (colliderCycleRemaining > 0) {
+            colliderCycleRemaining--;
+            if (colliderCycleRemaining == 0) {
+                completeColliderCycle();
+                colliderCooldown = COLLIDER_COOLDOWN_TICKS;
+            }
+            return;
+        }
+
+        // Idle: try to start a new cycle
+        tryStartColliderCycle();
+    }
+
+    /**
+     * Broadcast collider processing/star-missing state to all nearby logistics interfaces.
+     */
+    private void broadcastColliderState(boolean processing, boolean starMissing) {
+        if (level == null || level.isClientSide()) return;
+        scanAdjacentBlocks((checkPos) -> {
+            BlockEntity be = level.getBlockEntity(checkPos);
+            if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
+                logiBe.setColliderProcessing(processing);
+                logiBe.setColliderStarMissing(starMissing);
+                logiBe.setChanged();
+            }
+        });
+    }
+
+    /**
+     * Broadcast current target items to all nearby logistics interfaces.
+     */
+    private void broadcastColliderTargets() {
+        if (level == null || level.isClientSide()) return;
+        scanAdjacentBlocks((checkPos) -> {
+            BlockEntity be = level.getBlockEntity(checkPos);
+            if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
+                logiBe.setColliderTargetItems(new ArrayList<>(colliderTargetItems));
+                logiBe.setChanged();
+            }
+        });
+    }
+
+    private void refreshColliderTargetItems() {
+        colliderTargetItems.clear();
+        if (level == null) return;
+        List<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getRecipeManager()
+            .getAllRecipesFor(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
+        for (var holder : recipes) {
+            AnvilCollisionCraftRecipe recipe = holder.value();
+            if (recipe.outputItems().isEmpty()) continue;
+            BlockStatePredicate hitPred = recipe.hitBlock();
+            if (hitPred.getStatesCache().isEmpty()) continue;
+            for (BlockState state : hitPred.getStatesCache()) {
+                ItemStack item = new ItemStack(state.getBlock().asItem(), 1);
+                boolean has = false;
+                for (ItemStack existing : colliderTargetItems) {
+                    if (ItemStack.isSameItemSameComponents(existing, item)) {
+                        has = true;
+                        break;
+                    }
+                }
+                if (!has) {
+                    colliderTargetItems.add(item);
+                }
+            }
+        }
+        broadcastColliderTargets();
+    }
+
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    private void tryStartColliderCycle() {
+        if (level == null || !(celestialBodyData instanceof StarData star)) return;
+        int mass = this.stellarMass;
+        int mag = star.magneticFieldStrength();
+        int denominator = mass * mag + 10;
+        if (denominator <= 0) return;
+
+        // Get all collision craft recipes with output items
+        List<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getRecipeManager()
+            .getAllRecipesFor(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
+
+        // Scan the 12 adjacent positions for logistics interfaces
+        List<LogisticsRef> logistics = new ArrayList<>();
+        scanAdjacentBlocks((checkPos) -> {
+            BlockEntity blockEntity = level.getBlockEntity(checkPos);
+            if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
+                logistics.add(new LogisticsRef(logiBe.getItemHandler(), checkPos.immutable()));
+            }
+        });
+        if (logistics.isEmpty()) return;
+
+        // Build candidate lists: (logisticsIndex, slotIndex, stack, block)
+        List<LocatedStack> anvilStacks = new ArrayList<>();
+        List<LocatedStack> hitStacks = new ArrayList<>();
+
+        for (int li = 0; li < logistics.size(); li++) {
+            IItemHandler handler = logistics.get(li).handler;
+            for (int slot = 0; slot < handler.getSlots(); slot++) {
+                ItemStack stack = handler.getStackInSlot(slot);
+                if (stack.isEmpty()) continue;
+                Block block = Block.byItem(stack.getItem());
+                if (block == Blocks.AIR) continue;
+                for (var holder : recipes) {
+                    AnvilCollisionCraftRecipe recipe = holder.value();
+                    if (recipe.outputItems().isEmpty()) continue;
+                    if (recipe.anvil().test(level, block.defaultBlockState(), null)) {
+                        anvilStacks.add(new LocatedStack(li, slot, stack, block));
+                        break;
+                    }
+                }
+                for (var holder : recipes) {
+                    AnvilCollisionCraftRecipe recipe = holder.value();
+                    if (recipe.outputItems().isEmpty()) continue;
+                    if (recipe.hitBlock().test(level, block.defaultBlockState(), null)) {
+                        hitStacks.add(new LocatedStack(li, slot, stack, block));
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Find best cross-interface recipe match (highest speed)
+        AnvilCollisionCraftRecipe bestRecipe = null;
+        int bestSpeed = Integer.MIN_VALUE;
+        LocatedStack bestAnvil = null;
+        LocatedStack bestHit = null;
+
+        for (LocatedStack anvil : anvilStacks) {
+            for (LocatedStack hit : hitStacks) {
+                if (anvil.li == hit.li && anvil.slot == hit.slot) continue;
+                for (var holder : recipes) {
+                    AnvilCollisionCraftRecipe recipe = holder.value();
+                    if (recipe.outputItems().isEmpty()) continue;
+                    if (recipe.speed() <= bestSpeed) continue;
+                    if (recipe.anvil().test(level, anvil.block.defaultBlockState(), null) && recipe.hitBlock()
+                        .test(level, hit.block.defaultBlockState(), null)) {
+                        bestSpeed = recipe.speed();
+                        bestRecipe = recipe;
+                        bestAnvil = anvil;
+                        bestHit = hit;
+                    }
+                }
+            }
+        }
+
+        if (bestRecipe == null || bestAnvil == null || bestHit == null) return;
+
+        // Calculate T = 1000 * V / (M * B + 10), rounded up
+        int t = (1000 * bestRecipe.speed() + denominator - 1) / denominator;
+        if (t <= 0) t = 1;
+
+        // Reserve items from the logistics interfaces
+        int anvilToTake = Math.min(bestAnvil.stack.getCount(), COLLIDER_MAX_COLLISIONS);
+        int hitToTake = Math.min(bestHit.stack.getCount(), COLLIDER_MAX_COLLISIONS);
+
+        LogisticsRef anvilSrc = logistics.get(bestAnvil.li);
+        LogisticsRef hitSrc = logistics.get(bestHit.li);
+
+        colliderReservedAnvil = anvilSrc.handler.extractItem(bestAnvil.slot, anvilToTake, false);
+        colliderReservedHitBlock = hitSrc.handler.extractItem(bestHit.slot, hitToTake, false);
+
+        // Track which interfaces the items came from for cleanup later
+        colliderReservedAnvilSource = anvilSrc.pos;
+        colliderReservedHitBlockSource = hitSrc.pos;
+
+        colliderActiveSpeed = bestRecipe.speed();
+        colliderCycleRemaining = t;
+        colliderCooldown = 0;
+
+        // Mark the source interfaces as processing + push targets
+        markLogisticsProcessing(colliderReservedAnvilSource, true);
+        if (!colliderReservedHitBlockSource.equals(colliderReservedAnvilSource)) {
+            markLogisticsProcessing(colliderReservedHitBlockSource, true);
+        }
+        // Broadcast to all nearby interfaces
+        broadcastColliderTargets();
+        broadcastColliderState(true, false);
+
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    /**
+     * Set processing + targets on a specific logistics interface by position.
+     */
+    private void markLogisticsProcessing(BlockPos pos, boolean processing) {
+        if (level == null) return;
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
+            logiBe.setColliderTargetItems(new ArrayList<>(colliderTargetItems));
+            logiBe.setColliderProcessing(processing);
+            logiBe.setChanged();
+        }
+    }
+
+    private void completeColliderCycle() {
+        if (level == null) return;
+        List<IItemHandler> logistics = findLogisticsInterfaces();
+
+        // Find the active recipe to produce outputs
+        List<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = level.getRecipeManager()
+            .getAllRecipesFor(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
+
+        AnvilCollisionCraftRecipe activeRecipe = null;
+        for (var holder : recipes) {
+            AnvilCollisionCraftRecipe recipe = holder.value();
+            if (recipe.outputItems().isEmpty()) continue;
+            if (recipe.speed() != colliderActiveSpeed) continue;
+            Block anvilBlock = Block.byItem(colliderReservedAnvil.getItem());
+            Block hitBlock = Block.byItem(colliderReservedHitBlock.getItem());
+            if (anvilBlock != Blocks.AIR && hitBlock != Blocks.AIR && recipe.anvil()
+                .test(level, anvilBlock.defaultBlockState(), null) && recipe.hitBlock().test(level, hitBlock.defaultBlockState(), null)) {
+                activeRecipe = recipe;
+                break;
+            }
+        }
+
+        // Calculate how many collisions we actually perform
+        int anvilReserved = colliderReservedAnvil.getCount();
+        int hitReserved = colliderReservedHitBlock.getCount();
+        boolean consumeAnvil = activeRecipe != null && activeRecipe.consume();
+        int collisionCount = consumeAnvil ? Math.min(anvilReserved, hitReserved) : hitReserved;
+
+        // Consume/return hit blocks
+        int hitRemaining = hitReserved - collisionCount;
+        if (hitRemaining > 0) {
+            ItemStack hitReturn = colliderReservedHitBlock.copyWithCount(hitRemaining);
+            if (!logistics.isEmpty()) {
+                int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                    int idx = (startIdx + attempt) % logistics.size();
+                    ItemStack remainder = insertIntoHandler(logistics.get(idx), hitReturn);
+                    if (remainder.getCount() < hitReturn.getCount()) {
+                        excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                        if (remainder.isEmpty()) {
+                            hitReturn = ItemStack.EMPTY;
+                            break;
+                        }
+                        hitReturn = remainder;
+                    }
+                }
+            }
+            if (!hitReturn.isEmpty() && logistics.isEmpty()) {
+                dropItemOnGround(hitReturn);
+            }
+        }
+
+        // Consume/return anvils
+        if (consumeAnvil) {
+            int anvilRemaining = anvilReserved - collisionCount;
+            if (anvilRemaining > 0) {
+                ItemStack anvilReturn = colliderReservedAnvil.copyWithCount(anvilRemaining);
+                if (!logistics.isEmpty()) {
+                    int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                    for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                        int idx = (startIdx + attempt) % logistics.size();
+                        ItemStack remainder = insertIntoHandler(logistics.get(idx), anvilReturn);
+                        if (remainder.getCount() < anvilReturn.getCount()) {
+                            excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                            if (remainder.isEmpty()) {
+                                anvilReturn = ItemStack.EMPTY;
+                                break;
+                            }
+                            anvilReturn = remainder;
+                        }
+                    }
+                }
+                if (!anvilReturn.isEmpty() && logistics.isEmpty()) {
+                    dropItemOnGround(anvilReturn);
+                }
+            }
+        } else {
+            if (!colliderReservedAnvil.isEmpty() && !logistics.isEmpty()) {
+                ItemStack anvilReturn = colliderReservedAnvil.copy();
+                int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                    int idx = (startIdx + attempt) % logistics.size();
+                    ItemStack remainder = insertIntoHandler(logistics.get(idx), anvilReturn);
+                    if (remainder.getCount() < anvilReturn.getCount()) {
+                        excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                        if (remainder.isEmpty()) {
+                            anvilReturn = ItemStack.EMPTY;
+                            break;
+                        }
+                        anvilReturn = remainder;
+                    }
+                }
+                if (!anvilReturn.isEmpty()) {
+                    dropItemOnGround(anvilReturn);
+                }
+            } else if (!colliderReservedAnvil.isEmpty()) {
+                dropItemOnGround(colliderReservedAnvil.copy());
+            }
+        }
+
+        // Output products
+        if (activeRecipe != null && level instanceof ServerLevel serverLevel && collisionCount > 0) {
+            for (ChanceItemStack chanceStack : activeRecipe.outputItems()) {
+                for (int c = 0; c < collisionCount; c++) {
+                    ItemStack output = chanceStack.getResult(serverLevel);
+                    if (output.isEmpty()) continue;
+                    int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                    for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                        int idx = (startIdx + attempt) % logistics.size();
+                        ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
+                        if (remainder.getCount() < output.getCount()) {
+                            excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                            if (!remainder.isEmpty()) {
+                                output = remainder;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Clear processing on source interfaces + broadcast idle to all nearby
+        markLogisticsProcessing(colliderReservedAnvilSource, false);
+        if (colliderReservedHitBlockSource != null && !colliderReservedHitBlockSource.equals(colliderReservedAnvilSource)) {
+            markLogisticsProcessing(colliderReservedHitBlockSource, false);
+        }
+        broadcastColliderState(false, false);
+
+        // Reset cycle tracking
+        colliderCooldown = 0;
+        colliderCycleRemaining = 0;
+        colliderReservedAnvil = ItemStack.EMPTY;
+        colliderReservedAnvilSource = null;
+        colliderReservedHitBlock = ItemStack.EMPTY;
+        colliderReservedHitBlockSource = null;
+        colliderActiveSpeed = 0;
+    }
+
+    private void dropItemOnGround(ItemStack stack) {
+        if (level == null || stack.isEmpty()) return;
+        net.minecraft.world.entity.item.ItemEntity entity = new net.minecraft.world.entity.item.ItemEntity(
+            level,
+            worldPosition.getX() + 0.5,
+            worldPosition.getY() + 1,
+            worldPosition.getZ() + 0.5,
+            stack
+        );
+        level.addFreshEntity(entity);
+    }
+
+    private void outputColliderReservedItems() {
+        if (level == null) return;
+        List<IItemHandler> logistics = findLogisticsInterfaces();
+
+        if (!colliderReservedAnvil.isEmpty()) {
+            ItemStack remaining = colliderReservedAnvil.copy();
+            if (!logistics.isEmpty()) {
+                int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                for (int attempt = 0; attempt < logistics.size() && !remaining.isEmpty(); attempt++) {
+                    int idx = (startIdx + attempt) % logistics.size();
+                    remaining = insertIntoHandler(logistics.get(idx), remaining);
+                }
+            }
+            if (!remaining.isEmpty()) {
+                dropItemOnGround(remaining);
+            }
+        }
+
+        if (!colliderReservedHitBlock.isEmpty()) {
+            ItemStack remaining = colliderReservedHitBlock.copy();
+            if (!logistics.isEmpty()) {
+                int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                for (int attempt = 0; attempt < logistics.size() && !remaining.isEmpty(); attempt++) {
+                    int idx = (startIdx + attempt) % logistics.size();
+                    remaining = insertIntoHandler(logistics.get(idx), remaining);
+                }
+            }
+            if (!remaining.isEmpty()) {
+                dropItemOnGround(remaining);
+            }
+        }
+
+        // Clear processing on source interfaces before resetting
+        markLogisticsProcessing(colliderReservedAnvilSource, false);
+        if (colliderReservedHitBlockSource != null && !colliderReservedHitBlockSource.equals(colliderReservedAnvilSource)) {
+            markLogisticsProcessing(colliderReservedHitBlockSource, false);
+        }
+        resetColliderState();
+    }
+
+    private void resetColliderState() {
+        colliderCooldown = 0;
+        colliderCycleRemaining = 0;
+        colliderReservedAnvil = ItemStack.EMPTY;
+        colliderReservedAnvilSource = null;
+        colliderReservedHitBlock = ItemStack.EMPTY;
+        colliderReservedHitBlockSource = null;
+        colliderActiveSpeed = 0;
+        broadcastColliderState(false, false);
     }
 
     // === Eco Station ===
