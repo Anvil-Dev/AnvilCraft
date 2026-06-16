@@ -33,6 +33,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -54,10 +55,28 @@ public class ChargerBlockEntity extends BlockEntity
     @Getter
     @Setter
     private boolean isFeCharging = false;
+    private boolean isFeCharged = false; // FE 充电已完成，等待移出
     private int feCooldown = 0;
     private int signalCache = 0;
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
+
+        @Override
+        public boolean isValid(int index, ItemResource resource) {
+            // 只允许从输入槽(slot 0)放入物品
+            if (index != 0) return false;
+            return super.isValid(index, resource);
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+
+        @Override
+        protected int getCapacity(int index, ItemResource resource) {
+            return this.getSlotLimit(index);
+        }
 
         @Override
         public int extract(int index, ItemResource resource, int maxExtract, TransactionContext transaction) {
@@ -108,7 +127,7 @@ public class ChargerBlockEntity extends BlockEntity
         // 检查FE充电能力
         ItemStack stack = resource.toStack();
         if (stack.isEmpty()) return false;
-        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, null);
+        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
         if (energyHandler == null) return false;
         return energyHandler.getAmountAsInt() < energyHandler.getCapacityAsInt();
     }
@@ -150,7 +169,7 @@ public class ChargerBlockEntity extends BlockEntity
 
         // FE充电：物品可接收FE时开始充电
         ItemStack stack = this.itemHandler.getStacks().get(0).copy();
-        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, null);
+        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
         if (energyHandler != null
             && energyHandler.getAmountAsInt() < energyHandler.getCapacityAsInt()
         ) {
@@ -182,7 +201,8 @@ public class ChargerBlockEntity extends BlockEntity
             return;
         }
 
-        if (this.isFeCharging) {
+        if (this.isFeCharging || this.isFeCharged) {
+            this.isFeCharged = false;
             this.itemHandler.set(2, resource, 1);
         } else {
             ChargerChargingRecipe recipe = this.getItemRecipe(resource);
@@ -241,6 +261,7 @@ public class ChargerBlockEntity extends BlockEntity
         output.putInt("TimeTotalCache", this.timeTotalCache);
         this.itemHandler.serialize(output.child("Depository"));
         output.putBoolean("FeCharging", this.isFeCharging);
+        output.putBoolean("FeCharged", this.isFeCharged);
         output.putInt("FeCooldown", this.feCooldown);
     }
 
@@ -251,6 +272,7 @@ public class ChargerBlockEntity extends BlockEntity
         this.timeTotalCache = input.getIntOr("TimeTotalCache", 0);
         this.itemHandler.deserialize(input.childOrEmpty("Depository"));
         this.isFeCharging = input.getBooleanOr("FeCharging", false);
+        this.isFeCharged = input.getBooleanOr("FeCharged", false);
         this.feCooldown = input.getIntOr("FeCooldown", 0);
     }
 
@@ -382,7 +404,7 @@ public class ChargerBlockEntity extends BlockEntity
                     ItemStack processingStack = this.itemHandler.getStacks().get(1);
                     if (!processingStack.isEmpty()) {
                         EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(
-                            processingStack, null);
+                            processingStack, ItemAccess.forStack(processingStack));
                         if (storage != null) {
                             int powerLevel = this.getFeChargingPowerLevel();
                             if (powerLevel > 0) {
@@ -391,6 +413,7 @@ public class ChargerBlockEntity extends BlockEntity
                                 int remainingFE = storage.getCapacityAsInt() - storage.getAmountAsInt();
                                 if (remainingFE <= 0) {
                                     this.isFeCharging = false;
+                                    this.isFeCharged = true; // 标记充电完成，等待移入输出槽
                                     this.timeLeft = 0;
                                     this.timeTotalCache = 0;
                                 } else {
