@@ -68,7 +68,7 @@ public class DischargerBlockEntity extends BlockEntity
             if (level == null || level.isClientSide()) return;
             DischargerBlockEntity.this.setChanged();
             DischargerBlockEntity.this.updateDisplayItemStack();
-            DischargerBlockEntity.this.level.sendBlockUpdated(
+            level.sendBlockUpdated(
                 DischargerBlockEntity.this.getBlockPos(),
                 DischargerBlockEntity.this.getBlockState(),
                 DischargerBlockEntity.this.getBlockState(),
@@ -410,6 +410,7 @@ public class DischargerBlockEntity extends BlockEntity
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level == null) return;
         FilteredItemStackHandler depository = this.getFilteredItemStackHandler();
         for (int slot = 0; slot < depository.size(); slot++) {
             ItemStack stack = depository.getStacks().get(slot).copy();

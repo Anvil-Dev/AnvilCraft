@@ -69,6 +69,7 @@ public class ItemFEStorage implements EnergyHandler {
      * @deprecated 建议使用 {@link #ItemFEStorage(ItemAccess, int)}
      */
     @Deprecated
+    @SuppressWarnings("DeprecatedIsStillUsed")
     public ItemFEStorage(ItemStack stack, int capacity) {
         TransferPreconditions.checkNonNegative(capacity);
 
@@ -85,6 +86,7 @@ public class ItemFEStorage implements EnergyHandler {
     /**
      * 工厂方法：根据上下文自动选择最佳模式
      */
+    @SuppressWarnings("Deprecation")
     public static ItemFEStorage create(ItemStack stack, @Nullable ItemAccess ctx, int capacity) {
         if (ctx != null) {
             return new ItemFEStorage(ctx, capacity);
@@ -97,6 +99,7 @@ public class ItemFEStorage implements EnergyHandler {
         if (this.itemAccess != null) {
             return (long) this.itemAccess.getAmount() * this.getEnergyFrom(this.itemAccess.getResource());
         }
+        if (this.stack == null) return 0;
         return this.stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
     }
 
@@ -138,14 +141,13 @@ public class ItemFEStorage implements EnergyHandler {
         return this.extractViaJournal(amount, transaction);
     }
 
-    // ===== ItemAccess 模式（推荐）=====
-
     /**
      * 通过 ItemAccess.exchange() 插入能量。
      * 这是 NeoForge 通用 FE 系统的标准模式：创建新的 ItemResource（携带更新后的能量），
      * 然后通过原子交换替换旧物品。其他模组的库存系统可以正确追踪此操作。
      */
     private int insertViaExchange(int amount, TransactionContext transaction) {
+        if (this.itemAccess == null) return 0;
         int accessAmount = this.itemAccess.getAmount();
         if (accessAmount == 0) return 0;
         int amountPerItem = Math.min(this.maxInsert, amount / accessAmount);
@@ -171,6 +173,7 @@ public class ItemFEStorage implements EnergyHandler {
      * 通过 ItemAccess.exchange() 抽取能量。
      */
     private int extractViaExchange(int amount, TransactionContext transaction) {
+        if (this.itemAccess == null) return 0;
         int accessAmount = this.itemAccess.getAmount();
         if (accessAmount == 0) return 0;
         int amountPerItem = Math.min(this.maxExtract, amount / accessAmount);
@@ -191,12 +194,11 @@ public class ItemFEStorage implements EnergyHandler {
         return 0;
     }
 
-    // ===== SnapshotJournal 回退模式 =====
-
     /**
      * 通过 SnapshotJournal 插入能量（回退模式）。
      */
     private int insertViaJournal(int amount, TransactionContext transaction) {
+        if (this.journal == null) return 0;
         int energy = this.getEnergyFromStack();
         int accepted = Math.min(amount, this.capacity - energy);
         if (accepted > 0) {
@@ -210,7 +212,8 @@ public class ItemFEStorage implements EnergyHandler {
      * 通过 SnapshotJournal 抽取能量（回退模式）。
      */
     private int extractViaJournal(int amount, TransactionContext transaction) {
-        int energy = getEnergyFromStack();
+        if (this.journal == null) return 0;
+        int energy = this.getEnergyFromStack();
         int extracted = Math.min(energy, amount);
         if (extracted > 0) {
             this.journal.updateSnapshots(transaction);
@@ -220,10 +223,12 @@ public class ItemFEStorage implements EnergyHandler {
     }
 
     private int getEnergyFromStack() {
+        if (this.stack == null) return 0;
         return this.stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
     }
 
     private void setEnergyToStack(int energy) {
+        if (this.stack == null) return;
         this.stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(energy));
     }
 
@@ -234,12 +239,12 @@ public class ItemFEStorage implements EnergyHandler {
     private class EnergyJournal extends SnapshotJournal<Integer> {
         @Override
         protected Integer createSnapshot() {
-            return getEnergyFromStack();
+            return ItemFEStorage.this.getEnergyFromStack();
         }
 
         @Override
         protected void revertToSnapshot(Integer snapshot) {
-            setEnergyToStack(snapshot);
+            ItemFEStorage.this.setEnergyToStack(snapshot);
         }
     }
 }
