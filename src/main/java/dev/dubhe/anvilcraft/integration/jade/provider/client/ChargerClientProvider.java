@@ -36,7 +36,7 @@ public enum ChargerClientProvider implements IBlockComponentProvider {
                 Component.translatable("tooltip.anvilcraft.charger.jade.working_progress",
                     Component.literal(String.format("%.1f%%", progress * 100))),
                 JadeUI.progressStyle(),
-                BoxStyle.transparent()
+                BoxStyle.nestedBox()
             )));
 
         if (feCharging) {

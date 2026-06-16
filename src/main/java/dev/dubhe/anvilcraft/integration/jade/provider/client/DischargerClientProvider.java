@@ -36,7 +36,7 @@ public enum DischargerClientProvider implements IBlockComponentProvider {
                 Component.translatable("tooltip.anvilcraft.discharger.jade.working_progress",
                     Component.literal(String.format("%.1f%%", progress * 100))),
                 JadeUI.progressStyle(),
-                BoxStyle.transparent()
+                BoxStyle.nestedBox()
             )));
 
         if (feDischarging) {
