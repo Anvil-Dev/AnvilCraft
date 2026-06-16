@@ -231,11 +231,13 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ColoredFallingBlock;
+import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.WallBlock;
@@ -1731,8 +1733,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<Block> FROST_DECO_OUTLINE = REGISTRUM
-        .block("frost_deco_outline", Block::new)
+    public static final BlockEntry<StainedGlassBlock> FROST_DECO_OUTLINE = REGISTRUM
+        .block("frost_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.WHITE, properties))
         .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1851,8 +1853,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<Block> EMBER_DECO_OUTLINE = REGISTRUM
-        .block("ember_deco_outline", Block::new)
+    public static final BlockEntry<StainedGlassBlock> EMBER_DECO_OUTLINE = REGISTRUM
+        .block("ember_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.YELLOW, properties))
         .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1892,8 +1894,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<Block> TRANSCENDENCE_DECO_OUTLINE = REGISTRUM
-        .block("transcendence_deco_outline", Block::new)
+    public static final BlockEntry<StainedGlassBlock> TRANSCENDENCE_DECO_OUTLINE = REGISTRUM
+        .block("transcendence_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.PURPLE, properties))
         .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

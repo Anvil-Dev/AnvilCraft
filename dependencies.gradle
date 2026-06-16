@@ -24,7 +24,6 @@ dependencies {
     compileClasspath(libs.jade)
     runtimeClasspath(libs.jade)
 
-    // Mekanism 用于测试流体系统
+    // Mekanism
     compileClasspath(libs.mekanism)
-    runtimeClasspath(libs.mekanism)
 }
