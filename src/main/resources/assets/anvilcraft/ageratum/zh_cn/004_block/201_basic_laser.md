@@ -73,6 +73,8 @@ items:
 
 # <ref item="anvilcraft:large_laser"/>
 
+<item id="anvilcraft:large_laser"/>
+
 - 耗电量256kW
 - 受到红石信号停用
 - 启用时发射激光[等级: 16, 射程: 128格]

@@ -1,0 +1,18 @@
+{
+    DataVersion: 3955,
+    size: [3, 3, 1],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:spawner", nbt: {Delay: 86s, MaxNearbyEntities: 6s, MaxSpawnDelay: 800s, MinSpawnDelay: 200s, RequiredPlayerRange: 16s, SpawnCount: 4s, SpawnData: {entity: {}}, SpawnPotentials: [], SpawnRange: 4s, id: "minecraft:mob_spawner"}},
+        {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "minecraft:spawner", nbt: {Delay: 309s, MaxNearbyEntities: 6s, MaxSpawnDelay: 800s, MinSpawnDelay: 200s, RequiredPlayerRange: 16s, SpawnCount: 4s, SpawnData: {entity: {}}, SpawnPotentials: [], SpawnRange: 4s, id: "minecraft:mob_spawner"}},
+        {pos: [2, 1, 0], state: "minecraft:anvil{facing:west}"},
+        {pos: [0, 2, 0], state: "minecraft:anvil{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:barrier{waterlogged:false}",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:anvil{facing:west}",
+        "minecraft:spawner"
+    ]
+}

@@ -1,0 +1,27 @@
+{
+    DataVersion: 3955,
+    size: [7, 2, 3],
+    data: [
+        {pos: [0, 0, 1], state: "anvilcraft:raw_silver_block"},
+        {pos: [1, 0, 0], state: "anvilcraft:raw_silver_block"},
+        {pos: [1, 0, 1], state: "anvilcraft:mineral_fountain"},
+        {pos: [1, 0, 2], state: "anvilcraft:raw_silver_block"},
+        {pos: [2, 0, 1], state: "anvilcraft:raw_silver_block"},
+        {pos: [3, 0, 1], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [4, 0, 1], state: "anvilcraft:raw_silver_block"},
+        {pos: [5, 0, 0], state: "anvilcraft:raw_silver_block"},
+        {pos: [5, 0, 1], state: "anvilcraft:mineral_fountain", nbt: {id: "anvilcraft:mineral_fountain", tickCount: -1}},
+        {pos: [5, 0, 2], state: "anvilcraft:raw_silver_block"},
+        {pos: [6, 0, 1], state: "anvilcraft:raw_silver_block"},
+        {pos: [1, 1, 1], state: "minecraft:deepslate{axis:y}"},
+        {pos: [5, 1, 1], state: "anvilcraft:deepslate_silver_ore"}
+    ],
+    entities: [],
+    palette: [
+        "anvilcraft:raw_silver_block",
+        "minecraft:deepslate{axis:y}",
+        "anvilcraft:deepslate_silver_ore",
+        "anvilcraft:arrow{facing:east}",
+        "anvilcraft:mineral_fountain"
+    ]
+}

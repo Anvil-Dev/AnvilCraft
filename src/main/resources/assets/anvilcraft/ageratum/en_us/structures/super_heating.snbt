@@ -1,0 +1,24 @@
+{
+    DataVersion: 3955,
+    size: [3, 4, 1],
+    data: [
+        {pos: [0, 0, 0], state: "anvilcraft:heater{overload:false}", nbt: {id: "anvilcraft:heater"}},
+        {pos: [1, 0, 0], state: "minecraft:grass_block{snowy:false}"},
+        {pos: [2, 0, 0], state: "minecraft:grass_block{snowy:false}"},
+        {pos: [0, 1, 0], state: "minecraft:cauldron"},
+        {pos: [2, 1, 0], state: "anvilcraft:transmission_pole{half:bottom,overload:false,switch:on}", nbt: {id: "anvilcraft:transmission_pole"}},
+        {pos: [0, 3, 0], state: "minecraft:anvil{facing:west}"},
+        {pos: [2, 2, 0], state: "anvilcraft:transmission_pole{half:mid,overload:false,switch:on}", nbt: {id: "anvilcraft:transmission_pole"}},
+        {pos: [2, 3, 0], state: "anvilcraft:transmission_pole{half:top,overload:false,switch:on}", nbt: {id: "anvilcraft:transmission_pole"}}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:grass_block{snowy:false}",
+        "minecraft:cauldron",
+        "minecraft:anvil{facing:west}",
+        "anvilcraft:heater{overload:false}",
+        "anvilcraft:transmission_pole{half:bottom,overload:false,switch:on}",
+        "anvilcraft:transmission_pole{half:mid,overload:false,switch:on}",
+        "anvilcraft:transmission_pole{half:top,overload:false,switch:on}"
+    ]
+}
