@@ -1,0 +1,20 @@
+{
+    DataVersion: 3955,
+    size: [3, 4, 1],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:stonecutter{facing:north}"},
+        {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "minecraft:stonecutter{facing:north}"},
+        {pos: [0, 1, 0], state: "minecraft:cobblestone"},
+        {pos: [0, 2, 0], state: "minecraft:barrier{waterlogged:false}"},
+        {pos: [0, 3, 0], state: "minecraft:anvil{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:cobblestone",
+        "minecraft:barrier{waterlogged:false}",
+        "minecraft:stonecutter{facing:north}",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:anvil{facing:west}"
+    ]
+}
