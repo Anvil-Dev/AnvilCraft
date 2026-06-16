@@ -98,8 +98,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float rot = blockEntity.getRotation() + (blockEntity.getRotation() - blockEntity.getPreRotation()) * partialTick;
         float centerY = blockEntity.isAmplify() ? 6.5f : 4.5f;
         CelestialBodyData bodyData = blockEntity.getCelestialBodyData();
-        boolean isErrorPlanet = bodyData instanceof SpecialCelestialBodyData s
-            && s.specialType().isErrorPlanet();
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
@@ -110,120 +108,64 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         boolean isAnimating = blockEntity.getAnimationTicks() > 0;
         boolean animForward = blockEntity.isAnimationForward();
 
-        // Build unified ring assembly pose from Blockbench animation.
+        // Build ring assembly pose from Blockbench animation, rendering rings
+        // at their respective bone levels so each ring gets a different cumulative
+        // rotation — this keeps the three rings crossed and never coplanar.
         // Bone hierarchy: outout(Y rot) → out(static tilt) → mid(X rot) → in(Z rot)
-        // All ring groups are children of "in", so they share the same final pose.
-        poseStack.scale(4, 4, 4);
+        // Ring attachment: outermost ring → out, middle ring → mid, innermost ring → in
+        poseStack.scale(6, 6, 6);
+
+        // outout + out: root + static tilt (outer bone)
         poseStack.mulPose(Axis.YP.rotationDegrees(-rot));        // outout: Y-axis rotation
         poseStack.mulPose(Axis.XP.rotationDegrees(14.5108f));    // out: static tilt X
         poseStack.mulPose(Axis.YP.rotationDegrees(-3.8411f));    // out: static tilt Y
         poseStack.mulPose(Axis.ZP.rotationDegrees(14.5109f));    // out: static tilt Z
-        poseStack.mulPose(Axis.XP.rotationDegrees(90.0f + rot)); // mid: X rotation (90° offset)
-        poseStack.mulPose(Axis.ZP.rotationDegrees(rot));         // in: Z rotation
 
+        // === Outermost ring — child of "out" ===
         if (blockEntity.isAmplify()) {
-            // Check if Dyson Sphere is active — these rings render with star-synchronous rotation
-            // instead of mechanical rotation, so they are skipped here and rendered later.
-            // Dyson Sphere also hides the outer rings (R5 for small, R6 for both).
-            boolean isDysonSphereR4 = isDysonSphereActive(blockEntity, 4);
             boolean isDysonSphereR5 = isDysonSphereActive(blockEntity, 5);
-            boolean anyDysonSphere = isDysonSphereR4 || isDysonSphereR5;
-
-            // R4 — skip if Dyson Sphere (rendered later with star rotation)
-            if (!isDysonSphereR4) {
-                ModelResourceLocation r4Model = getRing4Model(blockEntity);
-                renderRingMaybe(
-                    r4Model,
-                    4,
-                    bodyData,
-                    prevBody,
-                    isAnimating,
-                    animForward,
-                    animProgress,
-                    poseStack,
-                    multiBufferSource,
-                    packedOverlay,
-                    modelRenderer
-                );
-            }
-            // R5 — hide when any Dyson Sphere is active
+            boolean anyDysonSphere = isDysonSphereActive(blockEntity, 4) || isDysonSphereR5;
             if (!anyDysonSphere) {
-                ModelResourceLocation r5Model = getRing5Model(blockEntity);
-                renderRingMaybe(
-                    r5Model,
-                    5,
-                    bodyData,
-                    prevBody,
-                    isAnimating,
-                    animForward,
-                    animProgress,
-                    poseStack,
-                    multiBufferSource,
-                    packedOverlay,
-                    modelRenderer
-                );
-            }
-            // R6 — hide when any Dyson Sphere is active
-            if (!anyDysonSphere) {
-                renderRingMaybe(
-                    R6,
-                    6,
-                    bodyData,
-                    prevBody,
-                    isAnimating,
-                    animForward,
-                    animProgress,
-                    poseStack,
-                    multiBufferSource,
-                    packedOverlay,
-                    modelRenderer
-                );
+                renderRingMaybe(R6, 6, bodyData, prevBody, isAnimating, animForward, animProgress,
+                    poseStack, multiBufferSource, packedOverlay, modelRenderer);
             }
         } else {
-            // R3
-            renderRingMaybe(
-                R3,
-                3,
-                bodyData,
-                prevBody,
-                isAnimating,
-                animForward,
-                animProgress,
-                poseStack,
-                multiBufferSource,
-                packedOverlay,
-                modelRenderer
-            );
-            // R2 — model may change based on megastructure
+            renderRingMaybe(R3, 3, bodyData, prevBody, isAnimating, animForward, animProgress,
+                poseStack, multiBufferSource, packedOverlay, modelRenderer);
+        }
+
+        // mid: X rotation (middle bone)
+        poseStack.mulPose(Axis.XP.rotationDegrees(90.0f + rot));
+
+        // === Middle ring — child of "mid" ===
+        if (blockEntity.isAmplify()) {
+            boolean anyDysonSphere = isDysonSphereActive(blockEntity, 4)
+                || isDysonSphereActive(blockEntity, 5);
+            if (!anyDysonSphere) {
+                ModelResourceLocation r5Model = getRing5Model(blockEntity);
+                renderRingMaybe(r5Model, 5, bodyData, prevBody, isAnimating, animForward, animProgress,
+                    poseStack, multiBufferSource, packedOverlay, modelRenderer);
+            }
+        } else {
             ModelResourceLocation r2Model = getRing2Model(blockEntity);
-            renderRingMaybe(
-                r2Model,
-                2,
-                bodyData,
-                prevBody,
-                isAnimating,
-                animForward,
-                animProgress,
-                poseStack,
-                multiBufferSource,
-                packedOverlay,
-                modelRenderer
-            );
-            // R1 — model may change based on megastructure
+            renderRingMaybe(r2Model, 2, bodyData, prevBody, isAnimating, animForward, animProgress,
+                poseStack, multiBufferSource, packedOverlay, modelRenderer);
+        }
+
+        // in: Z rotation (inner bone)
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
+
+        // === Innermost ring — child of "in" ===
+        if (blockEntity.isAmplify()) {
+            if (!isDysonSphereActive(blockEntity, 4)) {
+                ModelResourceLocation r4Model = getRing4Model(blockEntity);
+                renderRingMaybe(r4Model, 4, bodyData, prevBody, isAnimating, animForward, animProgress,
+                    poseStack, multiBufferSource, packedOverlay, modelRenderer);
+            }
+        } else {
             ModelResourceLocation r1Model = getRing1Model(blockEntity);
-            renderRingMaybe(
-                r1Model,
-                1,
-                bodyData,
-                prevBody,
-                isAnimating,
-                animForward,
-                animProgress,
-                poseStack,
-                multiBufferSource,
-                packedOverlay,
-                modelRenderer
-            );
+            renderRingMaybe(r1Model, 1, bodyData, prevBody, isAnimating, animForward, animProgress,
+                poseStack, multiBufferSource, packedOverlay, modelRenderer);
         }
         poseStack.popPose();
 
@@ -367,19 +309,18 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float centerY,
         float bodyRot,
         StarData star,
-        float animProgress,
+        float scale,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
         ModelBlockRenderer modelRenderer
     ) {
         if (!renderR4 && !renderR5) return;
-        float scale = animProgress;
         if (scale < 0.001f) return;
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.scale(4, 4, 4);
+        poseStack.scale(6, 6, 6);
         // Apply star's axial tilt and Y rotation — same as star body rendering
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * star.rotationSpeed()));
@@ -397,8 +338,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
      * Determine whether a mechanical ring should be visible for the given body data.
      */
     private static boolean isRingVisible(int ring, @Nullable CelestialBodyData bodyData, boolean isAmplify) {
-        // Error Planet hides all rings
-        if (bodyData instanceof SpecialCelestialBodyData s && s.specialType().isErrorPlanet()) return false;
         if (isAmplify) {
             return switch (ring) {
                 case 4 -> bodyData == null || bodyData.size() < 26;
@@ -523,6 +462,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
         float baseScale = getBodyScale(bodyData);
+        if (bodyData instanceof SpecialCelestialBodyData s && s.specialType().isErrorPlanet()) {
+            baseScale *= 0.25f;
+        }
         float scale = baseScale * animProgress;
         if (scale < 0.001f) {
             poseStack.popPose();
@@ -836,12 +778,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     private float getBodyScale(CelestialBodyData data) {
         int size = data.size();
         if (size <= 20) {
-            // Linear: size 1 → 0.2, size 20 → 1.0
-            return 0.2f + (size - 1) * 0.8f / 19f;
+            // Linear: size 1 → 0.3, size 20 → 1.5
+            return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
         } else {
-            // Quadratic acceleration: size 20 → 1.0, size 64 → 2.63 (was old size-30 max)
+            // Quadratic acceleration: size 20 → 1.5, size 64 → 3.95
             float t = (size - 20) / 44f;
-            return 1.0f + t * t * 1.63f;
+            return 1.5f * (1.0f + t * t * 1.63f);
         }
     }
 
