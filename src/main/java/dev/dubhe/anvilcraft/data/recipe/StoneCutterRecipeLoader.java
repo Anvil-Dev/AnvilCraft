@@ -16,20 +16,84 @@ public class StoneCutterRecipeLoader {
         this.brassSeriesBlockRecipe(provider);
         this.plywoodSeriesBlockRecipe(provider);
 
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModBlocks.INDUCTION_LIGHT), ModBlocks.ARROW, 16);
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModBlocks.INDUCTION_LIGHT), ModBlocks.CHECK_MARK, 16);
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModBlocks.INDUCTION_LIGHT), ModBlocks.CROSS_MARK, 16);
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModBlocks.INDUCTION_LIGHT), ModBlocks.EXCLAMATION_MARK, 16);
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModBlocks.INDUCTION_LIGHT), ModBlocks.QUESTION_MARK, 16);
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.ARROW,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.CHECK_MARK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.CROSS_MARK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.EXCLAMATION_MARK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.QUESTION_MARK,
+            16
+        );
 
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.EMBER_METAL_NUGGET), ModBlocks.EMBER_DECO_BLOCK, 16);
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.EMBER_METAL_NUGGET), ModBlocks.EMBER_DECO_OUTLINE, 16);
-
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.FROST_METAL_NUGGET), ModBlocks.FROST_DECO_BLOCK, 16);
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.FROST_METAL_NUGGET), ModBlocks.FROST_DECO_OUTLINE, 16);
-
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.TRANSCENDIUM_NUGGET), ModBlocks.TRANSCENDENCE_DECO_BLOCK, 16);
-        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.TRANSCENDIUM_NUGGET), ModBlocks.TRANSCENDENCE_DECO_OUTLINE, 16);
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.EMBER_METAL_NUGGET),
+            ModBlocks.EMBER_DECO_BLOCK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.EMBER_METAL_NUGGET),
+            ModBlocks.EMBER_DECO_OUTLINE,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.FROST_METAL_NUGGET),
+            ModBlocks.FROST_DECO_BLOCK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.FROST_METAL_NUGGET),
+            ModBlocks.FROST_DECO_OUTLINE,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+            ModBlocks.TRANSCENDENCE_DECO_BLOCK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+            ModBlocks.TRANSCENDENCE_DECO_OUTLINE,
+            16
+        );
     }
 
     private void bronzeSeriesBlockRecipe(RegistrumRecipeProvider provider) {
@@ -251,15 +315,31 @@ public class StoneCutterRecipeLoader {
             .save(provider, "plywood_slab_from_plywood_block_ccuttting");
     }
 
-    private void stoneCutterRecipe(RegistrumRecipeProvider provider, RecipeCategory recipeCategory, Ingredient ingredient, ItemLike result) {
+    private void stoneCutterRecipe(
+        RegistrumRecipeProvider provider,
+        RecipeCategory recipeCategory,
+        Ingredient ingredient,
+        ItemLike result
+    ) {
         this.stoneCutterRecipe(provider, recipeCategory, ingredient, result, 1);
     }
 
-    private void stoneCutterRecipe(RegistrumRecipeProvider provider, RecipeCategory recipeCategory, Ingredient ingredient, ItemLike result, String path) {
+    private void stoneCutterRecipe(
+        RegistrumRecipeProvider provider,
+        RecipeCategory recipeCategory,
+        Ingredient ingredient, ItemLike result,
+        String path
+    ) {
         this.stoneCutterRecipe(provider, recipeCategory, ingredient, result, 1, path);
     }
 
-    private void stoneCutterRecipe(RegistrumRecipeProvider provider, RecipeCategory recipeCategory, Ingredient ingredient, ItemLike result, int count) {
+    private void stoneCutterRecipe(
+        RegistrumRecipeProvider provider,
+        RecipeCategory recipeCategory,
+        Ingredient ingredient,
+        ItemLike result,
+        int count
+    ) {
         SingleItemRecipeBuilder stonecutting = SingleItemRecipeBuilder.stonecutting(
             ingredient,
             recipeCategory,
@@ -272,7 +352,14 @@ public class StoneCutterRecipeLoader {
         stonecutting.save(provider);
     }
 
-    private void stoneCutterRecipe(RegistrumRecipeProvider provider, RecipeCategory recipeCategory, Ingredient ingredient, ItemLike result, int count, String path) {
+    private void stoneCutterRecipe(
+        RegistrumRecipeProvider provider,
+        RecipeCategory recipeCategory,
+        Ingredient ingredient,
+        ItemLike result,
+        int count,
+        String path
+    ) {
         SingleItemRecipeBuilder stonecutting = SingleItemRecipeBuilder.stonecutting(
             ingredient,
             recipeCategory,
