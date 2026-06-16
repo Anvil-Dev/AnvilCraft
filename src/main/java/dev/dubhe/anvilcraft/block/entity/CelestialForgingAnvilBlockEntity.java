@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
@@ -17,8 +18,10 @@ import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyType;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
+import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import lombok.Getter;
@@ -34,6 +37,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
@@ -44,6 +49,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -53,6 +59,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -62,7 +69,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer, IPowerProducer {
+public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer, IPowerProducer, IDiskCloneable {
     @Getter
     private int preRotation = 0;
     @Getter
@@ -391,6 +398,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     // Track the seed item consumed when the search started (for special body matching)
     @javax.annotation.Nullable
     private Item lastConsumedSeedItem = null;
+    @javax.annotation.Nullable
+    private CompoundTag lastConsumedSeedNbt = null;
 
     // Power grid
     @Setter
@@ -456,12 +465,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             return;
         }
 
-        // Consume seed item (always consumed when search actually starts)
-        if (hasSeedItem && level != null && !level.isClientSide()) {
+        // Capture seed item data but don't consume yet (consumed on successful match)
+        if (hasSeedItem) {
             this.lastConsumedSeedItem = seedStack.getItem();
-            this.anvilInventory.setItem(4, ItemStack.EMPTY);
+            this.lastConsumedSeedNbt = extractSnapshot(seedStack);
         } else {
             this.lastConsumedSeedItem = null;
+            this.lastConsumedSeedNbt = null;
         }
 
         // Only clear the old body once we know the search will actually start
@@ -732,6 +742,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.searchFailed = false;
         this.powerInsufficient = false;
         this.lastConsumedSeedItem = null;
+        this.lastConsumedSeedNbt = null;
 
         // User selections
         this.locked = false;
@@ -768,7 +779,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.bodySeed = level.getRandom().nextLong();
         this.stellarMass = mass;
 
-        // First: check for special celestial body discovery via seed item
+        // First: check for seed item snapshot (disk / singularity crystal)
+        if (lastConsumedSeedNbt != null && lastConsumedSeedNbt.contains("celestialBody")) {
+            applySnapshot(lastConsumedSeedNbt);
+            consumeSeedItem();
+            return;
+        }
+
+        // Second: check for special celestial body discovery via seed item
         if (lastConsumedSeedItem != null) {
             SpecialCelestialBodyData specialBody = tryMatchSpecialCelestialBody(
                 time, space, mass, energy, lastConsumedSeedItem, ((ServerLevel) level).getSeed());
@@ -778,6 +796,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                     this.planetaryResourceSet = specialBody.specialType().generateResources();
                 }
                 addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
+                consumeSeedItem();
                 if (!level.isClientSide()) {
                     this.setChanged();
                     level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -803,6 +822,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.planetaryResourceSet = null;
             this.searchTicksRemaining = 0; // Stop timer on failure
         }
+        consumeSeedItem();
+
         if (!level.isClientSide()) {
             this.setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -814,8 +835,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      * and the consumed seed item. The seed item must be THE effective item for
      * this world seed (using the same pattern as RoyalPreference).
      *
-     * @return SpecialCelestialBodyData if matched, null otherwise
      */
+    private void consumeSeedItem() {
+        if (level == null || level.isClientSide()) return;
+        ItemStack seed = this.anvilInventory.getItem(4);
+        if (!seed.isEmpty()) {
+            this.anvilInventory.setItem(4, ItemStack.EMPTY);
+        }
+    }
+
     @javax.annotation.Nullable
     private SpecialCelestialBodyData tryMatchSpecialCelestialBody(
         int time, int space, int mass, int energy,
@@ -832,6 +860,107 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         return null;
     }
+
+    /**
+     * Load a celestial body from a snapshot (disk / singularity crystal seed item).
+     * The snapshot contains all parameters — anvil counts are ignored for matching.
+     */
+    private void applySnapshot(CompoundTag tag) {
+        if (level == null) return;
+        this.celestialBodyData = CelestialBodyData.fromTag(tag.getCompound("celestialBody"));
+        this.bodySeed = tag.getLong("bodySeed");
+        this.ageAnvilCount = tag.getInt("ageAnvilCount");
+        this.stellarMass = tag.getInt("stellarMass");
+        if (tag.contains("planetaryResources")) {
+            this.planetaryResourceSet = PlanetaryResourceSet.fromTag(tag.getCompound("planetaryResources"));
+        }
+        addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
+        if (!level.isClientSide()) {
+            this.setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    // === IDiskCloneable ===
+
+    @Override
+    public void storeDiskData(CompoundTag tag) {
+        if (celestialBodyData != null) {
+            tag.put("celestialBody", celestialBodyData.toTag());
+            tag.putLong("bodySeed", this.bodySeed);
+            tag.putInt("ageAnvilCount", this.ageAnvilCount);
+            tag.putInt("stellarMass", this.stellarMass);
+            tag.putIntArray("anvilCounts", new int[]{
+                getAnvilCount(0), getAnvilCount(1), getAnvilCount(2), getAnvilCount(3)
+            });
+            tag.putBoolean("isAmplify", this.isAmplify);
+            if (planetaryResourceSet != null) {
+                tag.put("planetaryResources", planetaryResourceSet.toTag());
+            }
+        }
+    }
+
+    @Override
+    public void applyDiskData(CompoundTag tag) {
+        // Disk data is only applied via the seed slot, not via right-click.
+    }
+
+    @Override
+    public InteractionResult useDisk(
+        Level level, Player player, InteractionHand hand,
+        ItemStack itemStack, BlockHitResult hitResult
+    ) {
+        if (!player.getAbilities().mayBuild) return InteractionResult.PASS;
+        if (itemStack.is(ModItems.DISK.get())) {
+            // Only allow storing, not applying
+            if (!DiskItem.hasDataStored(itemStack)) {
+                // Redirect hit to main block position so DiskItem.useOn finds the BlockEntity
+                BlockHitResult mainHit = new BlockHitResult(
+                    hitResult.getLocation(),
+                    hitResult.getDirection(),
+                    this.getBlockPos(),
+                    hitResult.isInside()
+                );
+                return itemStack.useOn(new UseOnContext(level, player, hand, itemStack, mainHit));
+            }
+        }
+        return InteractionResult.PASS;
+    }
+
+    /**
+     * Extract a celestial snapshot from a seed item stack.
+     */
+    @javax.annotation.Nullable
+    public static CompoundTag extractSnapshot(ItemStack stack) {
+        if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
+            return DiskItem.getData(stack).copy();
+        }
+        return loadSnapshotFromStack(stack);
+    }
+
+    /**
+     * Load a celestial snapshot from a disk item's stored data.
+     */
+    @javax.annotation.Nullable
+    public static CompoundTag loadSnapshotFromStack(ItemStack stack) {
+        if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
+            CompoundTag data = DiskItem.getData(stack);
+            if (data.contains("celestialBody")) return data.copy();
+        }
+        return null;
+    }
+
+    /**
+     * Save a snapshot into a disk item.
+     */
+    public static void saveSnapshotToStack(ItemStack stack, CompoundTag snapshot) {
+        if (stack.getItem() instanceof DiskItem) {
+            CompoundTag diskTag = DiskItem.createData(stack);
+            diskTag.merge(snapshot);
+        }
+    }
+
+    // === CFA block interaction ===
 
     @Override
     public void onLoad() {

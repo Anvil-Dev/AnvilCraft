@@ -20,7 +20,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -313,6 +315,27 @@ public class CelestialForgingAnvilBlock
             be.clearPositionDependentData();
         }
         // Don't call super.onRemove() — we handle drops manually above
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
+        BlockPos mainPos = getMainPartPos(pos, state);
+        BlockEntity be = level.getBlockEntity(mainPos);
+        if (be instanceof CelestialForgingAnvilBlockEntity cfaBe) {
+            // Disk right-click: delegate to DiskItem.useOn
+            if (cfaBe.useDisk(level, player, hand, stack, hitResult) == InteractionResult.SUCCESS) {
+                return ItemInteractionResult.SUCCESS;
+            }
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override

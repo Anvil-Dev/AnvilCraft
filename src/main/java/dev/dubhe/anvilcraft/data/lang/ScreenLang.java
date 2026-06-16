@@ -277,10 +277,12 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter");
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock");
         provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first.");
-        provider.add("screen.anvilcraft.cfa.missing_amplifier", "Amplifier missing, celestial body status cannot be synced");
+        provider.add("screen.anvilcraft.cfa.missing_amplifier.line1", "Amplifier missing,");
+        provider.add("screen.anvilcraft.cfa.missing_amplifier.line2", "celestial body status");
+        provider.add("screen.anvilcraft.cfa.missing_amplifier.line3", "cannot be synced");
         provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power");
         provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Search Again");
-        provider.add("screen.anvilcraft.cfa.search_fail", "parameters are unreasonable");
+        provider.add("screen.anvilcraft.cfa.search_fail", "Unreasonable parameters");
         provider.add("screen.anvilcraft.cfa.search_loading", "Searching");
         provider.add("screen.anvilcraft.cfa.search_tooltip", "Search for celestial bodies with this parameter");
         provider.add("screen.anvilcraft.cfa.unlock", "Shift-Click to unlock");
