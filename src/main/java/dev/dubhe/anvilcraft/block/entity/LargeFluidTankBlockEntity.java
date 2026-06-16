@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
-import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
+import dev.dubhe.anvilcraft.api.fluidtank.LargeFluidInfinityTank;
 import dev.dubhe.anvilcraft.block.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -34,7 +34,7 @@ import java.util.Optional;
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
     public static final int CAPACITY = 320 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 12800 * FluidType.BUCKET_VOLUME;
-    protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false) {
+    protected final LargeFluidInfinityTank tank = new LargeFluidInfinityTank(CAPACITY, false) {
         @Override
         public FluidTank readFromNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
             FluidTank tank = super.readFromNBT(lookupProvider, nbt);

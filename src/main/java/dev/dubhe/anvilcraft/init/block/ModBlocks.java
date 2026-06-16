@@ -29,6 +29,8 @@ import dev.dubhe.anvilcraft.block.ControllableSandBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreamBlock;
+import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
+import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.CrushingTableBlock;
 import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
@@ -344,6 +346,30 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
+        .register();
+
+    public static final BlockEntry<CreativeFluidTankBlock> CREATIVE_FLUID_TANK = REGISTRUM
+        .block("creative_fluid_tank", CreativeFluidTankBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties((properties) -> properties
+            .explosionResistance(Float.MAX_VALUE)
+            .isValidSpawn(Blocks::never)
+            .noOcclusion())
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::simple)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<CreativeCrateBlock> CREATIVE_CRATE = REGISTRUM
+        .block("creative_crate", CreativeCrateBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties((properties) -> properties
+            .explosionResistance(Float.MAX_VALUE)
+            .isValidSpawn(Blocks::never)
+            .noOcclusion())
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::simple)
+        .simpleItem()
         .register();
 
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
