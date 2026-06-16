@@ -44,6 +44,7 @@ public final class CelestialRefactorRegistry {
             case StarData ignored -> isLarge ? 5 : 4;
             case GiantPlanetData ignored -> 2;
             case RockyPlanetData ignored -> 1;
+            case SpecialCelestialBodyData ignored -> 0; // No rings for special bodies
         };
         if (amplified) {
             ring = Math.max(ring, 4);
@@ -64,6 +65,7 @@ public final class CelestialRefactorRegistry {
     public static List<CelestialRefactorOption> getOptions(CelestialBodyData body, boolean amplified,
                                                            @Nullable PlanetaryResourceSet resources) {
         if (body == null) return Collections.emptyList();
+        if (body instanceof SpecialCelestialBodyData) return Collections.emptyList();
         int innermostRing = getInnermostRing(body, amplified);
         int maxRing = amplified ? 5 : 2;
         List<CelestialRefactorOption> options = getOptionsForRing(innermostRing, maxRing);
@@ -81,6 +83,13 @@ public final class CelestialRefactorRegistry {
         // Filter stellar_ring_collider: only available for small stellar bodies (size < 26)
         if (!(body instanceof StarData star && star.size() < 26)) {
             options.removeIf(opt -> "stellar_ring_collider".equals(opt.megastructure()));
+        }
+
+        // Filter Dyson Sphere: small for small stars, large for large stars
+        if (body instanceof StarData star) {
+            boolean isLarge = star.size() >= 26;
+            options.removeIf(opt -> "dyson_sphere_small".equals(opt.megastructure()) && isLarge);
+            options.removeIf(opt -> "dyson_sphere_large".equals(opt.megastructure()) && !isLarge);
         }
 
         // Filter eco_station: requires biological resources and no low-level civilization

@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.nbt.CompoundTag;
 
-public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetData, StarData {
+public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetData, StarData, SpecialCelestialBodyData {
 
     CelestialBodyType type();
 
@@ -30,6 +30,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
             case ROCKY_PLANET -> RockyPlanetData.fromTag(tag);
             case GIANT_PLANET -> GiantPlanetData.fromTag(tag);
             case STAR -> StarData.fromTag(tag);
+            case SPECIAL -> SpecialCelestialBodyData.fromTag(tag);
         };
     }
 
@@ -42,6 +43,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
             case ROCKY_PLANET -> CelestialBodyClass.ROCKY_NO_LIQUID;
             case GIANT_PLANET -> CelestialBodyClass.GAS_GIANT;
             case STAR -> CelestialBodyClass.M_MAIN;
+            case SPECIAL -> CelestialBodyClass.LARGE_MOON;
         };
     }
 }

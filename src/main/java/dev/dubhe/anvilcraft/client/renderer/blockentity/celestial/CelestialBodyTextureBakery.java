@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.LiquidCoverage;
 import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.block.entity.celestial.WindSpeed;
@@ -166,6 +167,7 @@ public class CelestialBodyTextureBakery {
     @Nullable
     private static ResourceLocation bakeBody(CelestialBodyData data, String key) {
         if (data instanceof StarData star) return bakeStar(key, star);
+        if (data instanceof SpecialCelestialBodyData special) return bakeSpecial(key, special);
 
         TexSet tex = resolve(data);
         if (tex == null) return null;
@@ -243,6 +245,17 @@ public class CelestialBodyTextureBakery {
         return registerTexture(key, colored);
     }
 
+    /**
+     * Bake a special celestial body — just load the PNG directly without palette coloring.
+     */
+    @Nullable
+    private static ResourceLocation bakeSpecial(String key, SpecialCelestialBodyData special) {
+        String filename = special.specialType().getTextureName() + ".png";
+        NativeImage img = loadImage(filename);
+        if (img == null) return null;
+        return registerTexture(key, img);
+    }
+
     @Nullable
     private static ResourceLocation bakeRing(CelestialBodyData data, String key) {
         String ringFile = switch (data.ringType()) {
@@ -270,6 +283,8 @@ public class CelestialBodyTextureBakery {
     }
 
     private static String cacheKey(CelestialBodyData data) {
+        if (data instanceof SpecialCelestialBodyData s)
+            return "special_" + s.specialType().getName();
         if (data instanceof StarData s)
             return "star_" + s.size() + "_" + s.colorR() + "_" + s.colorG() + "_" + s.colorB();
         if (data instanceof RockyPlanetData rp)

@@ -39,8 +39,8 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             this.addSlot(new CFAAnvilSlot(blockEntity.getAnvilInventory(), i, 9, 38 + i * 18));
         }
 
-        // Seed slot (暂无功能限制)
-        this.addSlot(new Slot(blockEntity.getAnvilInventory(), SEED_SLOT, 9, 121));
+        // Seed slot (single item, consumed on search)
+        this.addSlot(new SeedSlot(blockEntity.getAnvilInventory(), SEED_SLOT, 9, 121));
 
         // Material slot (filtered with stack limit, position matches RF_MAT_X/Y)
         this.addSlot(new CFAMaterialSlot(blockEntity, 267, 121));
@@ -79,7 +79,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
         } else {
-            // From player inventory: try anvil slots, then seed slot, then material slot
+            // From player inventory: try anvil slots, then material slot (seed slot is manual-only)
             boolean moved = false;
             for (int i = 0; i < ANVIL_SLOTS; i++) {
                 Slot anvilSlot = this.slots.get(i);
@@ -378,6 +378,26 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         public int getMaxStackSize() {
             int limit = blockEntity.getMaterialLimit();
             return limit > 0 ? limit : 1;
+        }
+    }
+
+    // === Custom slot for seed items ===
+
+    public static class SeedSlot extends Slot {
+
+        public SeedSlot(net.minecraft.world.Container container, int slot, int x, int y) {
+            super(container, slot, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            // Accept any item — validation happens on search
+            return true;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
         }
     }
 }

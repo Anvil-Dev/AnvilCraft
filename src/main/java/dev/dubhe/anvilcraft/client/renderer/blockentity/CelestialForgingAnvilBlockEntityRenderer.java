@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
@@ -97,6 +98,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float rot = blockEntity.getRotation() + (blockEntity.getRotation() - blockEntity.getPreRotation()) * partialTick;
         float centerY = blockEntity.isAmplify() ? 6.5f : 4.5f;
         CelestialBodyData bodyData = blockEntity.getCelestialBodyData();
+        boolean isErrorPlanet = bodyData instanceof SpecialCelestialBodyData s
+            && s.specialType().isErrorPlanet();
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
@@ -137,8 +140,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             }
             // Z rotation
             poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-            // R5 — hide when any Dyson Sphere is active
-            if (!anyDysonSphere) {
+            // R5 — hide when any Dyson Sphere is active or Error Planet
+            if (!anyDysonSphere && !isErrorPlanet) {
                 ModelResourceLocation r5Model = getRing5Model(blockEntity);
                 modelRenderer.renderModel(
                     poseStack.last(),
@@ -188,19 +191,21 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             );
             // Z rotation
             poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-            // R2 — always visible in non-amplify mode, model may change based on megastructure
-            ModelResourceLocation r2Model = getRing2Model(blockEntity);
-            modelRenderer.renderModel(
-                poseStack.last(),
-                ringConsumer,
-                null,
-                Minecraft.getInstance().getModelManager().getModel(r2Model),
-                0,
-                0,
-                0,
-                LightTexture.FULL_BRIGHT,
-                packedOverlay
-            );
+            // R2 — hide when Error Planet
+            if (!isErrorPlanet) {
+                ModelResourceLocation r2Model = getRing2Model(blockEntity);
+                modelRenderer.renderModel(
+                    poseStack.last(),
+                    ringConsumer,
+                    null,
+                    Minecraft.getInstance().getModelManager().getModel(r2Model),
+                    0,
+                    0,
+                    0,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay
+                );
+            }
             // X rotation
             poseStack.mulPose(Axis.XP.rotationDegrees(rot));
             // R1 — model may change based on megastructure
@@ -391,6 +396,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
      * Determine whether a mechanical ring should be visible for the given body data.
      */
     private static boolean isRingVisible(int ring, @Nullable CelestialBodyData bodyData, boolean isAmplify) {
+        // Error Planet hides all rings
+        if (bodyData instanceof SpecialCelestialBodyData s && s.specialType().isErrorPlanet()) return false;
         if (isAmplify) {
             return switch (ring) {
                 case 4 -> bodyData == null || bodyData.size() < 26;
@@ -519,17 +526,49 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             poseStack.popPose();
             return;
         }
-        poseStack.scale(scale, scale, scale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
-        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
-        poseStack.translate(-0.5, -0.5, -0.5);
 
-        if (bodyData instanceof StarData star) {
-            renderStarBody(star, poseStack, bufferSource, packedOverlay, seed);
+        if (bodyData instanceof SpecialCelestialBodyData special) {
+            poseStack.scale(scale, scale, scale);
+            poseStack.mulPose(Axis.XP.rotationDegrees(special.axialTilt()));
+            poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * special.rotationSpeed()));
+            poseStack.translate(-0.5, -0.5, -0.5);
+            renderSpecialCelestialBody(special, poseStack, bufferSource, packedOverlay);
         } else {
-            renderPlanetBody(bodyData, poseStack, bufferSource, packedOverlay, seed);
+            poseStack.scale(scale, scale, scale);
+            poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
+            poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
+            poseStack.translate(-0.5, -0.5, -0.5);
+
+            if (bodyData instanceof StarData star) {
+                renderStarBody(star, poseStack, bufferSource, packedOverlay, seed);
+            } else {
+                renderPlanetBody(bodyData, poseStack, bufferSource, packedOverlay, seed);
+            }
         }
         poseStack.popPose();
+    }
+
+    /**
+     * Render a special celestial body via its block model.
+     */
+    private void renderSpecialCelestialBody(
+        SpecialCelestialBodyData special,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay
+    ) {
+        BakedModel model = Minecraft.getInstance().getModelManager()
+            .getModel(special.specialType().getModelLocation());
+        if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
+
+        int light = special.specialType().isErrorPlanet()
+            ? LightTexture.FULL_BRIGHT
+            : LightTexture.FULL_BRIGHT;
+        VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
+        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
+            poseStack.last(), consumer, null, model,
+            1.0f, 1.0f, 1.0f, light, packedOverlay
+        );
     }
 
     private void renderCelestialRing(

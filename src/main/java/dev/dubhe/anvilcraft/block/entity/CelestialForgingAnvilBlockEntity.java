@@ -12,6 +12,8 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceGenerator;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyType;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -39,6 +41,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -385,6 +388,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private boolean powerInsufficient = false;
     private static final int SEARCH_TICKS = 200; // 10 second
 
+    // Track the seed item consumed when the search started (for special body matching)
+    @javax.annotation.Nullable
+    private Item lastConsumedSeedItem = null;
+
     // Power grid
     @Setter
     @Nullable
@@ -411,23 +418,29 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.searchFailed = false;
         this.powerInsufficient = false;
 
-        // Server-side parameter pre-check
+        // Check if seed item is present (for pre-check skip and consumption)
+        ItemStack seedStack = this.anvilInventory.getItem(4);
+        boolean hasSeedItem = !seedStack.isEmpty();
+
+        // Server-side parameter pre-check (skip when seed item is present)
         if (level != null && !level.isClientSide()) {
-            var preCheck = CelestialBodyMatcher.match(
-                getAnvilCount(0),
-                getAnvilCount(1),
-                getAnvilCount(2),
-                getAnvilCount(3),
-                this.isAmplify,
-                level.getRandom()
-            );
-            if (preCheck == null) {
-                this.searchFailed = true;
-                this.searching = false;
-                this.searchTicksRemaining = 0;
-                setChanged();
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                return;
+            if (!hasSeedItem) {
+                var preCheck = CelestialBodyMatcher.match(
+                    getAnvilCount(0),
+                    getAnvilCount(1),
+                    getAnvilCount(2),
+                    getAnvilCount(3),
+                    this.isAmplify,
+                    level.getRandom()
+                );
+                if (preCheck == null) {
+                    this.searchFailed = true;
+                    this.searching = false;
+                    this.searchTicksRemaining = 0;
+                    setChanged();
+                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                    return;
+                }
             }
         }
 
@@ -441,6 +454,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
             return;
+        }
+
+        // Consume seed item (always consumed when search actually starts)
+        if (hasSeedItem && level != null && !level.isClientSide()) {
+            this.lastConsumedSeedItem = seedStack.getItem();
+            this.anvilInventory.setItem(4, ItemStack.EMPTY);
+        } else {
+            this.lastConsumedSeedItem = null;
         }
 
         // Only clear the old body once we know the search will actually start
@@ -710,6 +731,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.searchTicksRemaining = 0;
         this.searchFailed = false;
         this.powerInsufficient = false;
+        this.lastConsumedSeedItem = null;
 
         // User selections
         this.locked = false;
@@ -745,6 +767,26 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.ageAnvilCount = time;
         this.bodySeed = level.getRandom().nextLong();
         this.stellarMass = mass;
+
+        // First: check for special celestial body discovery via seed item
+        if (lastConsumedSeedItem != null) {
+            SpecialCelestialBodyData specialBody = tryMatchSpecialCelestialBody(
+                time, space, mass, energy, lastConsumedSeedItem, ((ServerLevel) level).getSeed());
+            if (specialBody != null) {
+                this.celestialBodyData = specialBody;
+                if (!level.isClientSide()) {
+                    this.planetaryResourceSet = specialBody.specialType().generateResources();
+                }
+                addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
+                if (!level.isClientSide()) {
+                    this.setChanged();
+                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                }
+                return;
+            }
+        }
+
+        // Fall back to normal three-step matching
         this.celestialBodyData = CelestialBodyMatcher.match(time, space, mass, energy, this.isAmplify, level.getRandom());
         if (this.celestialBodyData != null) {
             // Generate planetary resources
@@ -765,6 +807,30 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+    }
+
+    /**
+     * Try to match a special (hidden) celestial body based on anvil parameters
+     * and the consumed seed item. The seed item must be THE effective item for
+     * this world seed (using the same pattern as RoyalPreference).
+     *
+     * @return SpecialCelestialBodyData if matched, null otherwise
+     */
+    @javax.annotation.Nullable
+    private SpecialCelestialBodyData tryMatchSpecialCelestialBody(
+        int time, int space, int mass, int energy,
+        Item consumedSeedItem, long worldSeed
+    ) {
+        for (SpecialCelestialBodyType type : SpecialCelestialBodyType.values()) {
+            if (type.getTime() == time
+                && type.getSpace() == space
+                && type.getMass() == mass
+                && type.getEnergy() == energy
+                && type.isEffectiveSeedItem(consumedSeedItem, worldSeed)) {
+                return new SpecialCelestialBodyData(type);
+            }
+        }
+        return null;
     }
 
     @Override

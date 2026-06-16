@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.LiquidCoverage;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
@@ -459,6 +460,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     }
 
     private void renderBodyPreview(GuiGraphics guiGraphics, CelestialBodyData body) {
+        if (body instanceof SpecialCelestialBodyData special) {
+            renderSpecialBodyPreview(guiGraphics, special);
+            return;
+        }
         ResourceLocation tex = CelestialBodyTextureBakery.getOrBakeBody(body);
         if (tex == null) return;
         int size = Math.min(PV_BODY_W, PV_BODY_H) - 16;
@@ -468,10 +473,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float rotY = (previewRotTick * 3f) * (float) Math.PI / 180f;
 
         guiGraphics.pose().pushPose();
-        // Position in preview center, flip Y for GUI coords
         guiGraphics.pose().translate(cx, cy, 100);
         guiGraphics.pose().scale(scale, -scale, scale);
-        // Same rotations as in-world renderer
         guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(body.axialTilt()));
         guiGraphics.pose().mulPose(Axis.YP.rotation(rotY));
         guiGraphics.pose().translate(-0.5, -0.5, -0.5);
@@ -486,6 +489,40 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             CelestialBodyRenderer.renderPlanetBody(guiGraphics.pose(), vc, 0x00F000F0, 0);
         }
 
+        buf.endBatch();
+        guiGraphics.pose().popPose();
+    }
+
+    /**
+     * Render a special celestial body via its block model instead of the UV sphere.
+     */
+    private void renderSpecialBodyPreview(GuiGraphics guiGraphics, SpecialCelestialBodyData special) {
+        if (minecraft == null) return;
+        var modelLoc = special.specialType().getModelLocation();
+        BakedModel model = minecraft.getModelManager().getModel(modelLoc);
+        if (model == minecraft.getModelManager().getMissingModel()) return;
+
+        int size = Math.min(PV_BODY_W, PV_BODY_H) - 16;
+        float baseScale = size * 1.2f;
+        int cx = PV_X + PV_BODY_W / 2;
+        int cy = PV_Y + PV_BODY_H / 2;
+        float rotY = (previewRotTick * 3f) * (float) Math.PI / 180f;
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(cx, cy, 100);
+        guiGraphics.pose().scale(baseScale, -baseScale, baseScale);
+        guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(special.axialTilt()));
+        guiGraphics.pose().mulPose(Axis.YP.rotation(rotY));
+        guiGraphics.pose().translate(-0.5, -0.5, -0.5);
+
+        var modelRenderer = minecraft.getBlockRenderer().getModelRenderer();
+        var buf = guiGraphics.bufferSource();
+        int light = special.specialType().isErrorPlanet() ? LightTexture.FULL_BRIGHT : 0x00F000F0;
+        modelRenderer.renderModel(
+            guiGraphics.pose().last(),
+            buf.getBuffer(RenderType.cutout()),
+            null, model, 1.0f, 1.0f, 1.0f, light, 0
+        );
         buf.endBatch();
         guiGraphics.pose().popPose();
     }
@@ -625,21 +662,70 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private List<Component> buildInfoLines(CelestialBodyData body, int ageAnvilCount, int massAnvilCount,
                                             float offsetAge, float offsetRadius, float offsetMass) {
         List<Component> lines = new ArrayList<>();
-        // Type name: "类型：XXX星"
-        String typeKey = body instanceof RockyPlanetData rp
-            ? rockyTypeKey(rp)
-            : "screen.anvilcraft.cfa.class." + body.bodyClass().name().toLowerCase();
+        boolean isError = body instanceof SpecialCelestialBodyData special
+            && special.specialType().isErrorPlanet();
+        // Type name
+        String typeKey;
+        if (body instanceof RockyPlanetData rp) {
+            typeKey = rockyTypeKey(rp);
+        } else if (body instanceof SpecialCelestialBodyData s) {
+            typeKey = "screen.anvilcraft.cfa.class.special." + s.specialType().getName();
+        } else {
+            typeKey = "screen.anvilcraft.cfa.class." + body.bodyClass().name().toLowerCase();
+        }
         lines.add(Component.translatable("screen.anvilcraft.cfa.type", Component.translatable(typeKey)));
-        // Age (with ±5% display offset applied to the formatted value)
-        lines.add(Component.translatable("screen.anvilcraft.cfa.age",
-            CelestialForgingAnvilMenu.formatAgeOffset(ageAnvilCount, offsetAge)));
-        // Radius (space anvil count = body size; with ±5% display offset)
-        lines.add(Component.translatable("screen.anvilcraft.cfa.radius",
-            CelestialForgingAnvilMenu.formatRadiusOffset(body.size(), offsetRadius)));
-        // Mass (with ±5% display offset)
-        lines.add(Component.translatable("screen.anvilcraft.cfa.mass",
-            CelestialForgingAnvilMenu.formatMassOffset(massAnvilCount, offsetMass)));
+        // Age (Error Planet shows "???")
+        if (isError) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.age", Component.literal("???")));
+        } else {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.age",
+                CelestialForgingAnvilMenu.formatAgeOffset(ageAnvilCount, offsetAge)));
+        }
+        // Radius (Error Planet shows "???")
+        if (isError) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.radius", Component.literal("???")));
+        } else {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.radius",
+                CelestialForgingAnvilMenu.formatRadiusOffset(body.size(), offsetRadius)));
+        }
+        // Mass (Error Planet shows "???")
+        if (isError) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.mass", Component.literal("???")));
+        } else {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.mass",
+                CelestialForgingAnvilMenu.formatMassOffset(massAnvilCount, offsetMass)));
+        }
         switch (body) {
+            case SpecialCelestialBodyData s -> {
+                if (s.specialType().isErrorPlanet()) {
+                    lines.add(Component.translatable("screen.anvilcraft.cfa.temp", Component.literal("???")));
+                    lines.add(Component.translatable("screen.anvilcraft.cfa.atmos", Component.literal("???")));
+                    lines.add(Component.translatable("screen.anvilcraft.cfa.liquid", Component.literal("???")));
+                    lines.add(Component.translatable("screen.anvilcraft.cfa.mag", Component.literal("???")));
+                    lines.add(Component.translatable("screen.anvilcraft.cfa.spin", Component.literal("???")));
+                    lines.add(Component.translatable("screen.anvilcraft.cfa.tilt", Component.literal("???")));
+                } else {
+                    lines.add(Component.translatable(
+                        "screen.anvilcraft.cfa.temp",
+                        Component.translatable("screen.anvilcraft.cfa.temp." + s.temperature().getSerializedName())
+                    ));
+                    lines.add(Component.translatable(
+                        "screen.anvilcraft.cfa.atmos",
+                        Component.translatable(
+                            s.hasAtmosphere()
+                            ? "screen.anvilcraft.cfa.atmos.yes"
+                            : "screen.anvilcraft.cfa.none"
+                        )
+                    ));
+                    lines.add(Component.translatable(
+                        "screen.anvilcraft.cfa.liquid",
+                        Component.translatable("screen.anvilcraft.cfa.liquid." + s.liquidCoverage().getSerializedName())
+                    ));
+                    lines.add(magText(s.magneticFieldStrength()));
+                    lines.add(spinText(s.rotationSpeed()));
+                    lines.add(tiltText(s.axialTilt()));
+                }
+            }
             case StarData s -> {
                 lines.add(this.magText(s.magneticFieldStrength()));
                 lines.add(this.spinText(s.rotationSpeed()));
@@ -900,6 +986,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.renderTooltip(font,
                 Component.translatable("screen.anvilcraft.cfa.refactor_start_tooltip"), x, y);
         }
+        // Seed slot tooltip
+        if (this.hoveredSlot instanceof CelestialForgingAnvilMenu.SeedSlot) {
+            List<Component> seedTooltip = new ArrayList<>();
+            seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.line1"));
+            seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.line2"));
+            guiGraphics.renderTooltip(font, seedTooltip, java.util.Optional.empty(), x, y);
+        }
     }
 
     @Override
@@ -1048,8 +1141,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void performSearch() {
         if (searchState == SearchState.LOADING) return; // already searching
         var be = getMenu().getBlockEntity();
-        // Client-side pre-check: immediate fail if match impossible
-        if (minecraft != null && minecraft.level != null) {
+        // Check if seed item is present — skip diagram pre-check for special body discovery
+        boolean hasSeedItem = !be.getAnvilInventory().getItem(4).isEmpty();
+        // Client-side pre-check: immediate fail if match impossible (skip when seed item present)
+        if (!hasSeedItem && minecraft != null && minecraft.level != null) {
             var preCheck = CelestialBodyMatcher.match(
                 be.getAnvilCount(0), be.getAnvilCount(1), be.getAnvilCount(2), be.getAnvilCount(3),
                 be.isAmplify(), minecraft.level.getRandom()

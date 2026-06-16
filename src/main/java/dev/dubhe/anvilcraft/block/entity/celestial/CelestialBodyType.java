@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 public enum CelestialBodyType implements StringRepresentable {
     ROCKY_PLANET("rocky_planet"),
     GIANT_PLANET("giant_planet"),
-    STAR("star");
+    STAR("star"),
+    SPECIAL("special");
 
     private final String name;
 

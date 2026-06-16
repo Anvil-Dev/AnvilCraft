@@ -56,9 +56,7 @@ public class CapabilitiesEventListener {
         event.registerBlockEntity(
             Capabilities.ItemHandler.BLOCK,
             ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get(),
-            (be, side) -> (side == null || side == be.getBlockState().getValue(
-                net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING))
-                ? be.getItemHandler() : null
+            (be, side) -> be.getItemHandler()
         );
 
         event.registerBlock(
@@ -82,9 +80,7 @@ public class CapabilitiesEventListener {
         event.registerBlockEntity(
             Capabilities.FluidHandler.BLOCK,
             ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get(),
-            (be, side) -> (side == null || side == be.getBlockState().getValue(
-                net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING))
-                ? be.getFluidHandler() : null
+            (be, side) -> be.getFluidHandler()
         );
 
         event.registerItem(

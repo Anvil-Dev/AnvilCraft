@@ -416,5 +416,17 @@ public class ScreenLang {
 
         // Planet resource bar
         provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —");
+
+        // Seed slot tooltip
+        provider.add("screen.anvilcraft.cfa.seed_slot.line1", "Consume all items placed in.");
+        provider.add("screen.anvilcraft.cfa.seed_slot.line2", "If specific item has been consumed, a hidden celestial body will be discovered.");
+
+        // Special celestial body type names
+        provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like");
+        provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.shattered_planet", "Shattered Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.hollow_planet", "Hollow Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.error_planet", "Error Planet");
     }
 }
