@@ -73,6 +73,7 @@ import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
+import dev.dubhe.anvilcraft.block.InstructBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
@@ -2476,10 +2477,48 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
 
-    public static final BlockEntry<ArrowBlock> ARROW = REGISTRUM.block("arrow", ArrowBlock::new)
+    public static final BlockEntry<ArrowBlock> ARROW = REGISTRUM
+        .block("arrow", ArrowBlock::new)
         .initialProperties(() -> Blocks.STONE)
         .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<InstructBlock> CHECK_MARK = REGISTRUM
+        .block("check_mark", InstructBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<InstructBlock> CROSS_MARK = REGISTRUM
+        .block("cross_mark", InstructBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<InstructBlock> EXCLAMATION_MARK = REGISTRUM
+        .block("exclamation_mark", InstructBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<InstructBlock> QUESTION_MARK = REGISTRUM
+        .block("question_mark", InstructBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 
