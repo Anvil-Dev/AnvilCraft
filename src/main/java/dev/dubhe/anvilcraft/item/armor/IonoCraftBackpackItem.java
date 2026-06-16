@@ -61,6 +61,11 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
     private static final Map<UUID, Boolean> FLYING_TRACKER = new HashMap<>();
 
+    /** 玩家退出时清理飞行追踪器，防止内存泄漏 */
+    public static void onPlayerLoggedOut(UUID uuid) {
+        FLYING_TRACKER.remove(uuid);
+    }
+
     public IonoCraftBackpackItem(Properties properties) {
         super(
             properties
