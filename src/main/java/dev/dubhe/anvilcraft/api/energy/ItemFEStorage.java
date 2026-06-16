@@ -97,7 +97,7 @@ public class ItemFEStorage implements EnergyHandler {
     @Override
     public long getAmountAsLong() {
         if (this.itemAccess != null) {
-            return (long) this.itemAccess.getAmount() * this.getEnergyFrom(this.itemAccess.getResource());
+            return (long) this.itemAccess.getAmount() * (long) this.getEnergyFrom(this.itemAccess.getResource());
         }
         if (this.stack == null) return 0;
         return this.stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
@@ -108,7 +108,7 @@ public class ItemFEStorage implements EnergyHandler {
         if (this.itemAccess != null) {
             ItemResource resource = this.itemAccess.getResource();
             if (!resource.is(this.validItem)) return 0;
-            return (long) this.itemAccess.getAmount() * this.capacity;
+            return (long) this.itemAccess.getAmount() * (long) this.capacity;
         }
         return this.capacity;
     }
