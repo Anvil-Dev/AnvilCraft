@@ -34,7 +34,6 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -104,7 +103,7 @@ public class DischargerBlockEntity extends BlockEntity
         // 检查FE放电能力
         ItemStack stack = resource.toStack();
         if (stack.isEmpty()) return false;
-        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
+        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, null);
         if (energyHandler == null) return false;
         return energyHandler.getAmountAsInt() > 0;
     }
@@ -147,7 +146,7 @@ public class DischargerBlockEntity extends BlockEntity
 
         // FE放电：物品有可抽取的FE时开始放电
         ItemStack stack = this.itemHandler.getStacks().get(0).copy();
-        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
+        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, null);
         if (energyHandler != null && energyHandler.getAmountAsInt() > 0) {
             this.isFeDischarging = true;
             this.itemHandler.set(0, ItemResource.EMPTY, 0);
@@ -359,7 +358,7 @@ public class DischargerBlockEntity extends BlockEntity
                 ItemStack processingStack = this.itemHandler.getStacks().get(1);
                 if (!processingStack.isEmpty()) {
                     EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(
-                        processingStack, ItemAccess.forStack(processingStack));
+                        processingStack, null);
                     if (storage != null) {
                         int currentEnergy = storage.getAmountAsInt();
                         if (currentEnergy <= 0) {
