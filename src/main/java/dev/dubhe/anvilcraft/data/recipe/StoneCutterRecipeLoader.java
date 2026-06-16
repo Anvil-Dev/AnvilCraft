@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +21,15 @@ public class StoneCutterRecipeLoader {
         this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModBlocks.INDUCTION_LIGHT), ModBlocks.CROSS_MARK, 16);
         this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModBlocks.INDUCTION_LIGHT), ModBlocks.EXCLAMATION_MARK, 16);
         this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModBlocks.INDUCTION_LIGHT), ModBlocks.QUESTION_MARK, 16);
+
+        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.EMBER_METAL_NUGGET), ModBlocks.EMBER_DECO_BLOCK, 16);
+        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.EMBER_METAL_NUGGET), ModBlocks.EMBER_DECO_OUTLINE, 16);
+
+        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.FROST_METAL_NUGGET), ModBlocks.FROST_DECO_BLOCK, 16);
+        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.FROST_METAL_NUGGET), ModBlocks.FROST_DECO_OUTLINE, 16);
+
+        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.TRANSCENDIUM_NUGGET), ModBlocks.TRANSCENDENCE_DECO_BLOCK, 16);
+        this.stoneCutterRecipe(provider, RecipeCategory.BUILDING_BLOCKS, Ingredient.of(ModItems.TRANSCENDIUM_NUGGET), ModBlocks.TRANSCENDENCE_DECO_OUTLINE, 16);
     }
 
     private void bronzeSeriesBlockRecipe(RegistrumRecipeProvider provider) {

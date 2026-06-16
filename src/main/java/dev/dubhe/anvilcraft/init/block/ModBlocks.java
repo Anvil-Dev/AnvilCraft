@@ -1724,6 +1724,22 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cutFrostMetalStairs)
         .register();
 
+    public static final BlockEntry<Block> FROST_DECO_BLOCK = REGISTRUM
+        .block("frost_deco_block", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<Block> FROST_DECO_OUTLINE = REGISTRUM
+        .block("frost_deco_outline", Block::new)
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<EmberMetalBlock> EMBER_METAL_BLOCK = REGISTRUM.block(
             "ember_metal_block",
             properties -> new EmberMetalBlock(properties, 0.5d)
@@ -1828,6 +1844,22 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cutEmberMetalStairs)
         .register();
 
+    public static final BlockEntry<Block> EMBER_DECO_BLOCK = REGISTRUM
+        .block("ember_deco_block", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<Block> EMBER_DECO_OUTLINE = REGISTRUM
+        .block("ember_deco_outline", Block::new)
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<TranscendiumBlock> TRANSCENDIUM_BLOCK = REGISTRUM.block("transcendium_block", TranscendiumBlock::new)
         .lang("Block of Transcendium")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
@@ -1851,6 +1883,22 @@ public class ModBlocks {
         .tag(ModItemTags.EXPLOSION_PROOF, Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
         .build()
         .recipe(RegistrumBlockRecipeLoader::transcendiumBlock)
+        .register();
+
+    public static final BlockEntry<Block> TRANSCENDENCE_DECO_BLOCK = REGISTRUM
+        .block("transcendence_deco_block", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<Block> TRANSCENDENCE_DECO_OUTLINE = REGISTRUM
+        .block("transcendence_deco_outline", Block::new)
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
         .register();
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRUM.block("heavy_iron_block", Block::new)
