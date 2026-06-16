@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.saved.BetterSavedData;
 import dev.dubhe.anvilcraft.saved.datafixers.DataFixers;
+import dev.dubhe.anvilcraft.util.CodecUtil;
 import dev.dubhe.anvilcraft.util.recover.RecoverEntry;
 import dev.dubhe.anvilcraft.util.recover.RecoverStation;
 import lombok.AccessLevel;
@@ -25,7 +26,7 @@ import java.util.UUID;
 @Getter(AccessLevel.PRIVATE)
 public class Multiphases extends BetterSavedData {
     public static final Codec<Multiphases> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-        Codec.unboundedMap(UUIDUtil.CODEC, Multiphase.CODEC.codec())
+        Codec.unboundedMap(CodecUtil.UUID_CODEC_FROM_STRING, Multiphase.CODEC.codec())
             .fieldOf("multiphases")
             .forGetter(Multiphases::getMultiphases),
         RecoverStation.codec(Multiphase.CODEC)
