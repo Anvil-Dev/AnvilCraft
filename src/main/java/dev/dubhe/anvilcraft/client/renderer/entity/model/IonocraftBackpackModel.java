@@ -12,10 +12,10 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 
 @Getter
-public class IonocraftBackpackModel extends HumanoidModel<HumanoidRenderState> {
+public class IonoCraftBackpackModel extends HumanoidModel<HumanoidRenderState> {
     private final ModelPart root;
 
-    public IonocraftBackpackModel(ModelPart root) {
+    public IonoCraftBackpackModel(ModelPart root) {
         super(root);
         this.root = root.getChild("body");
     }
@@ -23,6 +23,15 @@ public class IonocraftBackpackModel extends HumanoidModel<HumanoidRenderState> {
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = HumanoidModel.createMesh(CubeDeformation.NONE, 0F);
         PartDefinition partdefinition = meshdefinition.getRoot();
+
+        // 清空头、腿、手臂——只保留背包的 body 部分。
+        // hat 必须是 head 的子节点，HumanoidModel 构造函数里 this.hat = this.head.getChild("hat")
+        PartDefinition head = partdefinition.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
+        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("right_arm", CubeListBuilder.create(), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("left_arm", CubeListBuilder.create(), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("right_leg", CubeListBuilder.create(), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("left_leg", CubeListBuilder.create(), PartPose.ZERO);
 
         PartDefinition body = partdefinition.addOrReplaceChild(
             "body",

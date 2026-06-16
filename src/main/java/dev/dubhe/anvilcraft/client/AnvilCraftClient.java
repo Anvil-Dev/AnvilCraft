@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRende
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
+import dev.dubhe.anvilcraft.client.particle.IonoCraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
@@ -78,6 +79,7 @@ public class AnvilCraftClient {
     @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {
         e.registerSpriteSet(ModParticles.PLASMA_JETS.get(), PlasmaJetsParticle.Provider::new);
+        e.registerSpriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), IonoCraftBackpackExhaustParticle.Provider::new);
     }
 
     public static class ItemExtensionImpl implements IClientItemExtensions {

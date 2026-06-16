@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.IInventoryCarriedAware;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import dev.dubhe.anvilcraft.network.IonoCraftBackpackFlyingPacket;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.HashedStack;
@@ -26,9 +27,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,6 +58,8 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     );
 
     private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
+    /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
+    private static final Map<UUID, Boolean> FLYING_TRACKER = new HashMap<>();
 
     public IonoCraftBackpackItem(Properties properties) {
         super(
@@ -184,6 +191,20 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         refreshFlight(player);
 
         ItemStack backpack = getByPlayer(player);
+        boolean nowFlying = !backpack.isEmpty()
+            && player.getAbilities().flying
+            && !player.isCreative()
+            && !player.isSpectator();
+
+        // 飞行状态变化时同步到周边客户端
+        Boolean prevFlying = FLYING_TRACKER.put(player.getUUID(), nowFlying);
+        if (prevFlying == null || prevFlying != nowFlying) {
+            PacketDistributor.sendToPlayersTrackingEntity(
+                player,
+                new IonoCraftBackpackFlyingPacket(player.getId(), nowFlying)
+            );
+        }
+
         if (backpack.isEmpty()) return;
 
         if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {

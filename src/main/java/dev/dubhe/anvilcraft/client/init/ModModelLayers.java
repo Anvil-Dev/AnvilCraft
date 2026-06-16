@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.client.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.CauldronOutletModel;
-import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftBackpackModel;
+import dev.dubhe.anvilcraft.client.renderer.entity.model.IonoCraftBackpackModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.IonocraftModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.MagnetizedNodeModel;
 import dev.dubhe.anvilcraft.client.renderer.entity.model.ThrownHeavyHalberdModel;
@@ -22,7 +22,7 @@ public class ModModelLayers {
     public static final ModelLayerLocation CAULDRON_OUTLET = CauldronOutletModel.LAYER_LOCATION;
 
     @Getter
-    private static IonocraftBackpackModel ionocraftBackpackModel;
+    private static IonoCraftBackpackModel ionocraftBackpackModel;
 
     @SubscribeEvent
     public static void register(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -32,7 +32,7 @@ public class ModModelLayers {
         );
         event.registerLayerDefinition(
             IONOCRAFT_BACKPACK,
-            IonocraftBackpackModel::createBodyLayer
+            IonoCraftBackpackModel::createBodyLayer
         );
         event.registerLayerDefinition(
             THROWN_HEAVY_HALBERD,
@@ -50,6 +50,6 @@ public class ModModelLayers {
 
     @SubscribeEvent
     public static void createModel(EntityRenderersEvent.AddLayers event) {
-        ionocraftBackpackModel = new IonocraftBackpackModel(event.getContext().bakeLayer(IONOCRAFT_BACKPACK));
+        ionocraftBackpackModel = new IonoCraftBackpackModel(event.getContext().bakeLayer(IONOCRAFT_BACKPACK));
     }
 }

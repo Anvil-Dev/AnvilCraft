@@ -94,18 +94,18 @@ public class ItemFEStorage implements EnergyHandler {
 
     @Override
     public long getAmountAsLong() {
-        if (itemAccess != null) {
-            return (long) itemAccess.getAmount() * getEnergyFrom(itemAccess.getResource());
+        if (this.itemAccess != null) {
+            return (long) this.itemAccess.getAmount() * this.getEnergyFrom(this.itemAccess.getResource());
         }
         return this.stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
     }
 
     @Override
     public long getCapacityAsLong() {
-        if (itemAccess != null) {
-            ItemResource resource = itemAccess.getResource();
-            if (!resource.is(validItem)) return 0;
-            return (long) itemAccess.getAmount() * this.capacity;
+        if (this.itemAccess != null) {
+            ItemResource resource = this.itemAccess.getResource();
+            if (!resource.is(this.validItem)) return 0;
+            return (long) this.itemAccess.getAmount() * this.capacity;
         }
         return this.capacity;
     }
@@ -114,7 +114,7 @@ public class ItemFEStorage implements EnergyHandler {
      * 从 ItemResource 读取存储的能量值
      */
     private int getEnergyFrom(ItemResource resource) {
-        if (!resource.is(validItem)) return 0;
+        if (!resource.is(this.validItem)) return 0;
         return resource.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
     }
 
@@ -122,20 +122,20 @@ public class ItemFEStorage implements EnergyHandler {
     public int insert(int amount, TransactionContext transaction) {
         TransferPreconditions.checkNonNegative(amount);
 
-        if (itemAccess != null) {
-            return insertViaExchange(amount, transaction);
+        if (this.itemAccess != null) {
+            return this.insertViaExchange(amount, transaction);
         }
-        return insertViaJournal(amount, transaction);
+        return this.insertViaJournal(amount, transaction);
     }
 
     @Override
     public int extract(int amount, TransactionContext transaction) {
         TransferPreconditions.checkNonNegative(amount);
 
-        if (itemAccess != null) {
-            return extractViaExchange(amount, transaction);
+        if (this.itemAccess != null) {
+            return this.extractViaExchange(amount, transaction);
         }
-        return extractViaJournal(amount, transaction);
+        return this.extractViaJournal(amount, transaction);
     }
 
     // ===== ItemAccess 模式（推荐）=====
@@ -146,22 +146,22 @@ public class ItemFEStorage implements EnergyHandler {
      * 然后通过原子交换替换旧物品。其他模组的库存系统可以正确追踪此操作。
      */
     private int insertViaExchange(int amount, TransactionContext transaction) {
-        int accessAmount = itemAccess.getAmount();
+        int accessAmount = this.itemAccess.getAmount();
         if (accessAmount == 0) return 0;
-        int amountPerItem = Math.min(maxInsert, amount / accessAmount);
+        int amountPerItem = Math.min(this.maxInsert, amount / accessAmount);
         if (amountPerItem == 0) return 0;
 
-        ItemResource accessResource = itemAccess.getResource();
-        if (!accessResource.is(validItem)) return 0;
-        int currentEnergyPerItem = getEnergyFrom(accessResource);
+        ItemResource accessResource = this.itemAccess.getResource();
+        if (!accessResource.is(this.validItem)) return 0;
+        int currentEnergyPerItem = this.getEnergyFrom(accessResource);
 
-        int insertedPerItem = Math.min(amountPerItem, capacity - currentEnergyPerItem);
+        int insertedPerItem = Math.min(amountPerItem, this.capacity - currentEnergyPerItem);
         if (insertedPerItem > 0) {
             ItemResource filledResource = accessResource.with(
                 ModComponents.STORED_ENERGY,
                 new StoredEnergy(currentEnergyPerItem + insertedPerItem));
             if (!filledResource.isEmpty()) {
-                return insertedPerItem * itemAccess.exchange(filledResource, accessAmount, transaction);
+                return insertedPerItem * this.itemAccess.exchange(filledResource, accessAmount, transaction);
             }
         }
         return 0;
@@ -171,13 +171,13 @@ public class ItemFEStorage implements EnergyHandler {
      * 通过 ItemAccess.exchange() 抽取能量。
      */
     private int extractViaExchange(int amount, TransactionContext transaction) {
-        int accessAmount = itemAccess.getAmount();
+        int accessAmount = this.itemAccess.getAmount();
         if (accessAmount == 0) return 0;
-        int amountPerItem = Math.min(maxExtract, amount / accessAmount);
+        int amountPerItem = Math.min(this.maxExtract, amount / accessAmount);
         if (amountPerItem == 0) return 0;
 
-        ItemResource accessResource = itemAccess.getResource();
-        int currentEnergyPerItem = getEnergyFrom(accessResource);
+        ItemResource accessResource = this.itemAccess.getResource();
+        int currentEnergyPerItem = this.getEnergyFrom(accessResource);
 
         int extractedPerItem = Math.min(amountPerItem, currentEnergyPerItem);
         if (extractedPerItem > 0) {
@@ -185,7 +185,7 @@ public class ItemFEStorage implements EnergyHandler {
                 ModComponents.STORED_ENERGY,
                 new StoredEnergy(currentEnergyPerItem - extractedPerItem));
             if (!emptiedResource.isEmpty()) {
-                return extractedPerItem * itemAccess.exchange(emptiedResource, accessAmount, transaction);
+                return extractedPerItem * this.itemAccess.exchange(emptiedResource, accessAmount, transaction);
             }
         }
         return 0;
@@ -197,11 +197,11 @@ public class ItemFEStorage implements EnergyHandler {
      * 通过 SnapshotJournal 插入能量（回退模式）。
      */
     private int insertViaJournal(int amount, TransactionContext transaction) {
-        int energy = getEnergyFromStack();
+        int energy = this.getEnergyFromStack();
         int accepted = Math.min(amount, this.capacity - energy);
         if (accepted > 0) {
             this.journal.updateSnapshots(transaction);
-            setEnergyToStack(energy + accepted);
+            this.setEnergyToStack(energy + accepted);
         }
         return accepted;
     }
@@ -214,7 +214,7 @@ public class ItemFEStorage implements EnergyHandler {
         int extracted = Math.min(energy, amount);
         if (extracted > 0) {
             this.journal.updateSnapshots(transaction);
-            setEnergyToStack(energy - extracted);
+            this.setEnergyToStack(energy - extracted);
         }
         return extracted;
     }
