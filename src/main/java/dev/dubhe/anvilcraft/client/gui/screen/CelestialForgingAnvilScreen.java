@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
@@ -28,15 +29,21 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -269,7 +276,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderRefactorSection(GuiGraphics guiGraphics, int guiLeft, int guiTop, int relX, int relY) {
         // Refresh available options for the locked body
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean isActive = isLocked() && body != null && searchState == SearchState.DONE;
+        boolean isActive = isLocked() && body != null && searchState == SearchState.DONE
+            && getMenu().getBlockEntity().getActiveMegastructureIndex() < 0;
         if (isActive) {
             refactorOptions = CelestialRefactorRegistry.getOptions(body,
                 getMenu().getBlockEntity().isAmplify(),
@@ -459,9 +467,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
     }
 
+    private static final float UI_AXIAL_TILT = 25f;
+
+    private static final ModelResourceLocation UI_STAR_MODEL =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star"));
+
     private void renderBodyPreview(GuiGraphics guiGraphics, CelestialBodyData body) {
-        if (body instanceof SpecialCelestialBodyData special) {
-            renderSpecialBodyPreview(guiGraphics, special);
+        // Complex custom models (shattered, hollow, flesh, intelligence, error)
+        if (body instanceof SpecialCelestialBodyData s && s.specialType().needsCustomModel()) {
+            renderComplexModelPreview(guiGraphics, s);
             return;
         }
         ResourceLocation tex = CelestialBodyTextureBakery.getOrBakeBody(body);
@@ -470,61 +484,164 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float scale = size / 2f;
         int cx = PV_X + PV_BODY_W / 2;
         int cy = PV_Y + PV_BODY_H / 2;
-        float rotY = (previewRotTick * 3f) * (float) Math.PI / 180f;
+        float rotY = (previewRotTick * body.rotationSpeed()) * (float) Math.PI / 180f;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(cx, cy, 100);
         guiGraphics.pose().scale(scale, -scale, scale);
-        guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(body.axialTilt()));
+        guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(UI_AXIAL_TILT));
         guiGraphics.pose().mulPose(Axis.YP.rotation(rotY));
         guiGraphics.pose().translate(-0.5, -0.5, -0.5);
 
-        var buf = guiGraphics.bufferSource();
-        var rt = ModRenderTypes.STAR_CUTOUT.apply(tex);
-        VertexConsumer vc = buf.getBuffer(rt);
-
-        if (body instanceof StarData) {
-            CelestialBodyRenderer.renderStarBody(guiGraphics.pose(), vc, 0x00F000F0, 0);
+        // Star: model loading with color overlay + halo (supports animation)
+        if (body instanceof StarData star) {
+            renderStarPreview(guiGraphics, star);
         } else {
+            var buf = guiGraphics.bufferSource();
+            var rt = ModRenderTypes.STAR_CUTOUT.apply(tex);
+            VertexConsumer vc = buf.getBuffer(rt);
             CelestialBodyRenderer.renderPlanetBody(guiGraphics.pose(), vc, 0x00F000F0, 0);
+            buf.endBatch();
+
+            // Atmosphere
+            Temperature atmosTemp = getUiAtmosphereTemp(body);
+            if (atmosTemp != null) {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0.5, 0.5, 0.5);
+                guiGraphics.pose().scale(1.125f, 1.125f, 1.125f);
+                guiGraphics.pose().translate(-0.5, -0.5, -0.5);
+                CelestialBodyRenderer.renderAtmosphere(
+                    guiGraphics.pose(),
+                    guiGraphics.bufferSource(),
+                    atmosTemp,
+                    LightTexture.FULL_BRIGHT,
+                    0,
+                    getMenu().getBlockEntity().getBlockPos().asLong()
+                );
+                guiGraphics.pose().popPose();
+            }
         }
 
-        buf.endBatch();
+        // Render ring
+        ResourceLocation ringTex = CelestialBodyTextureBakery.getOrBakeRing(body);
+        if (ringTex != null) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0.5, 0.5, 0.5);
+            guiGraphics.pose().scale(1.2f, 1.2f, 1.2f);
+            guiGraphics.pose().translate(-0.5, -0.5, -0.5);
+            var ringConsumer = guiGraphics.bufferSource().getBuffer(RenderType.entityTranslucent(ringTex));
+            CelestialBodyRenderer.renderRing(guiGraphics.pose(), ringConsumer, LightTexture.FULL_BRIGHT, 0);
+            guiGraphics.pose().popPose();
+        }
+
         guiGraphics.pose().popPose();
     }
 
     /**
-     * Render a special celestial body via its block model instead of the UV sphere.
+     * Render a star in the UI: animated base model + color overlay + halo.
      */
-    private void renderSpecialBodyPreview(GuiGraphics guiGraphics, SpecialCelestialBodyData special) {
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    private void renderStarPreview(GuiGraphics guiGraphics, StarData star) {
+        if (minecraft == null) return;
+        BakedModel model = minecraft.getModelManager().getModel(UI_STAR_MODEL);
+        if (model == minecraft.getModelManager().getMissingModel()) return;
+
+        // Animated grayscale star model
+        var buf = guiGraphics.bufferSource();
+        minecraft.getBlockRenderer().getModelRenderer().renderModel(
+            guiGraphics.pose().last(),
+            buf.getBuffer(RenderType.cutout()),
+            null, model, 1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, 0
+        );
+        buf.endBatch();
+
+        // Color overlay — multiplicative blend
+        float[] rgb = CelestialBodyTextureBakery.starColor(star);
+        long seed = getMenu().getBlockEntity().getBlockPos().asLong();
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.5, 0.5, 0.5);
+        guiGraphics.pose().scale(1.005f, 1.005f, 1.005f);
+        guiGraphics.pose().translate(-0.5, -0.5, -0.5);
+        renderStarColorOverlay(guiGraphics, rgb[0], rgb[1], rgb[2]);
+        guiGraphics.pose().popPose();
+
+        // Halo
+        CelestialBodyRenderer.renderStarHalo(guiGraphics.pose(), guiGraphics.bufferSource(), star, LightTexture.FULL_BRIGHT, 0, seed);
+    }
+
+    /**
+     * Renders a multiplicative-blend color overlay for star preview.
+     */
+    private void renderStarColorOverlay(GuiGraphics guiGraphics, float r, float g, float b) {
+        BakedModel cubeModel = minecraft.getBlockRenderer().getBlockModel(Blocks.WHITE_CONCRETE.defaultBlockState());
+        VertexConsumer consumer = guiGraphics.bufferSource().getBuffer(ModRenderTypes.STAR_COLOR_OVERLAY);
+        RandomSource random = RandomSource.create(42L);
+        for (Direction dir : Direction.values()) {
+            for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null)) {
+                consumer.putBulkData(guiGraphics.pose().last(), quad, r, g, b, 1.0f, LightTexture.FULL_BRIGHT, 0);
+            }
+        }
+        for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null)) {
+            consumer.putBulkData(guiGraphics.pose().last(), quad, r, g, b, 1.0f, LightTexture.FULL_BRIGHT, 0);
+        }
+    }
+
+    /**
+     * Render a complex-model celestial body (shattered, hollow, error) via its block model.
+     */
+    private void renderComplexModelPreview(GuiGraphics guiGraphics, SpecialCelestialBodyData special) {
         if (minecraft == null) return;
         var modelLoc = special.specialType().getModelLocation();
         BakedModel model = minecraft.getModelManager().getModel(modelLoc);
         if (model == minecraft.getModelManager().getMissingModel()) return;
 
         int size = Math.min(PV_BODY_W, PV_BODY_H) - 16;
-        float baseScale = size * 1.2f;
+        float scale = size / 2f;
         int cx = PV_X + PV_BODY_W / 2;
         int cy = PV_Y + PV_BODY_H / 2;
-        float rotY = (previewRotTick * 3f) * (float) Math.PI / 180f;
+        float rotY = (previewRotTick * special.rotationSpeed()) * (float) Math.PI / 180f;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(cx, cy, 100);
-        guiGraphics.pose().scale(baseScale, -baseScale, baseScale);
-        guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(special.axialTilt()));
+        guiGraphics.pose().scale(scale, -scale, scale);
+        guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(UI_AXIAL_TILT));
         guiGraphics.pose().mulPose(Axis.YP.rotation(rotY));
         guiGraphics.pose().translate(-0.5, -0.5, -0.5);
 
         var modelRenderer = minecraft.getBlockRenderer().getModelRenderer();
         var buf = guiGraphics.bufferSource();
-        int light = special.specialType().isErrorPlanet() ? LightTexture.FULL_BRIGHT : 0x00F000F0;
         modelRenderer.renderModel(
             guiGraphics.pose().last(),
             buf.getBuffer(RenderType.cutout()),
-            null, model, 1.0f, 1.0f, 1.0f, light, 0
+            null, model, 1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, 0
         );
         buf.endBatch();
+
+        // Atmosphere for complex-model bodies that have it
+        if (special.hasAtmosphere() && special.temperature() != null) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0.5, 0.5, 0.5);
+            guiGraphics.pose().scale(1.125f, 1.125f, 1.125f);
+            guiGraphics.pose().translate(-0.5, -0.5, -0.5);
+            CelestialBodyRenderer.renderAtmosphere(
+                guiGraphics.pose(),
+                guiGraphics.bufferSource(),
+                special.temperature(),
+                LightTexture.FULL_BRIGHT,
+                0,
+                getMenu().getBlockEntity().getBlockPos().asLong()
+            );
+            guiGraphics.pose().popPose();
+        }
+
         guiGraphics.pose().popPose();
+    }
+
+    @org.jetbrains.annotations.Nullable
+    private static Temperature getUiAtmosphereTemp(CelestialBodyData body) {
+        if (body instanceof RockyPlanetData rp && rp.hasAtmosphere()) return rp.temperature();
+        if (body instanceof SpecialCelestialBodyData s && s.hasAtmosphere()) return s.temperature();
+        return null;
     }
 
     private void renderBodyInfo(GuiGraphics guiGraphics, CelestialBodyData body) {

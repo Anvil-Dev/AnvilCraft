@@ -166,7 +166,6 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     private static ResourceLocation bakeBody(CelestialBodyData data, String key) {
-        if (data instanceof StarData star) return bakeStar(key, star);
         if (data instanceof SpecialCelestialBodyData special) return bakeSpecial(key, special);
 
         TexSet tex = resolve(data);
@@ -208,41 +207,6 @@ public class CelestialBodyTextureBakery {
             star.colorG() / 255f,
             star.colorB() / 255f
         };
-    }
-
-    private static NativeImage generateStarPalette(StarData star, int numColors) {
-        NativeImage palette = new NativeImage(numColors, 1, false);
-        float[] base = starColor(star);
-        for (int col = 0; col < numColors; col++) {
-            float brightness = 1f - (float) col / (numColors - 1) * 0.15f;
-            int ir = Math.clamp((int) (base[0] * brightness * 255), 0, 255);
-            int ig = Math.clamp((int) (base[1] * brightness * 255), 0, 255);
-            int ib = Math.clamp((int) (base[2] * brightness * 255), 0, 255);
-            palette.setPixelRGBA(col, 0, (255 << 24) | (ib << 16) | (ig << 8) | ir);
-        }
-        return palette;
-    }
-
-    @SuppressWarnings("checkstyle:NeedBraces")
-    @Nullable
-    private static ResourceLocation bakeStar(String key, StarData star) {
-        NativeImage starImg = loadImage("star.png");
-        if (starImg == null) return null;
-
-        int frameSize = starImg.getWidth();
-        NativeImage frame = new NativeImage(frameSize, frameSize, false);
-        for (int y = 0; y < frameSize; y++)
-            for (int x = 0; x < frameSize; x++)
-                frame.setPixelRGBA(x, y, starImg.getPixelRGBA(x, y));
-        starImg.close();
-
-        int[] refGrays = PaletteColorMapper.extractReferenceGrays(frame);
-        NativeImage palette = generateStarPalette(star, refGrays.length);
-        NativeImage colored = PaletteColorMapper.colorTexture(frame, palette, 0, true);
-        frame.close();
-        palette.close();
-
-        return registerTexture(key, colored);
     }
 
     /**

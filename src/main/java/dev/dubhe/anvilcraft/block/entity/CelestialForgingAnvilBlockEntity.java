@@ -1304,12 +1304,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         CelestialRefactorOption option = options.get(optionIndex);
 
-        // If the same megastructure is already built, block
+        // If any megastructure is already built, block
         if (activeMegastructureIndex >= 0) {
-            var activeOpt = getActiveMegastructureOption();
-            if (activeOpt != null && activeOpt.megastructure().equals(option.megastructure())) {
-                return;
-            }
+            return;
         }
 
         if (!option.needsMaterial()) {

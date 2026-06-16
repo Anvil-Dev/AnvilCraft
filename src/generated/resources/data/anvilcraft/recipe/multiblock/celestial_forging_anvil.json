@@ -1,0 +1,43 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "layers": [
+      [
+        "AAA",
+        "ABA",
+        "AAA"
+      ],
+      [
+        "CCC",
+        "CCC",
+        "CCC"
+      ],
+      [
+        "DED",
+        "E E",
+        "DED"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:transcendium_block"
+      },
+      "B": {
+        "block": "anvilcraft:spacetime_supercomputer"
+      },
+      "C": {
+        "block": "minecraft:gold_block"
+      },
+      "D": {
+        "block": "anvilcraft:confinement_chamber"
+      },
+      "E": {
+        "block": "anvilcraft:negative_matter_block"
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:celestial_forging_anvil"
+  }
+}

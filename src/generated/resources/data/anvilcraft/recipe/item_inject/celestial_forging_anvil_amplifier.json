@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_inject",
+  "block_ingredient": {
+    "blocks": "anvilcraft:giant_anvil"
+  },
+  "block_result": {
+    "block": "anvilcraft:celestial_forging_anvil_amplifier"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:spacetime_supercomputer"
+    }
+  ]
+}

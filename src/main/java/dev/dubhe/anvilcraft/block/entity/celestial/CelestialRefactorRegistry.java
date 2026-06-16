@@ -44,7 +44,7 @@ public final class CelestialRefactorRegistry {
             case StarData ignored -> isLarge ? 5 : 4;
             case GiantPlanetData ignored -> 2;
             case RockyPlanetData ignored -> 1;
-            case SpecialCelestialBodyData ignored -> 0; // No rings for special bodies
+            case SpecialCelestialBodyData s -> s.specialType().isErrorPlanet() ? 0 : 1;
         };
         if (amplified) {
             ring = Math.max(ring, 4);
@@ -65,13 +65,16 @@ public final class CelestialRefactorRegistry {
     public static List<CelestialRefactorOption> getOptions(CelestialBodyData body, boolean amplified,
                                                            @Nullable PlanetaryResourceSet resources) {
         if (body == null) return Collections.emptyList();
-        if (body instanceof SpecialCelestialBodyData) return Collections.emptyList();
+        // Error Planet cannot build megastructures
+        if (body instanceof SpecialCelestialBodyData s && s.specialType().isErrorPlanet()) {
+            return Collections.emptyList();
+        }
         int innermostRing = getInnermostRing(body, amplified);
         int maxRing = amplified ? 5 : 2;
         List<CelestialRefactorOption> options = getOptionsForRing(innermostRing, maxRing);
 
-        // Filter planet_exctractor: rocky planet must have liquid
-        if (body instanceof RockyPlanetData rocky && rocky.liquidCoverage() == LiquidCoverage.NONE) {
+        // Filter planet_exctractor: rocky/special planet must have liquid
+        if (!hasLiquid(body)) {
             options.removeIf(opt -> "planet_exctractor".equals(opt.megastructure()));
         }
 
@@ -108,6 +111,15 @@ public final class CelestialRefactorRegistry {
      * Eco station is only eligible when the planet has biological resources
      * and does NOT have a low-level civilization.
      */
+    private static boolean hasLiquid(CelestialBodyData body) {
+        if (body instanceof RockyPlanetData rocky) return rocky.liquidCoverage() != LiquidCoverage.NONE;
+        if (body instanceof SpecialCelestialBodyData s) {
+            LiquidCoverage lc = s.liquidCoverage();
+            return lc != null && lc != LiquidCoverage.NONE;
+        }
+        return false;
+    }
+
     private static boolean isEcoStationEligible(PlanetaryResourceSet resources) {
         if (resources.hasCivilization()) return false;
         return !resources.getBiologicalItems().isEmpty()

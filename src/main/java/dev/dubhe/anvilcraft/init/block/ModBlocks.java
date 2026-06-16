@@ -1370,6 +1370,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CelestialForgingAnvilAmplifierBlock> CELESTIAL_FORGING_ANVIL_AMPLIFIER = REGISTRUM
         .block("celestial_forging_anvil_amplifier", CelestialForgingAnvilAmplifierBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::cfaAmplifier)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
         .properties((properties) -> properties
@@ -1387,6 +1388,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CelestialForgingAnvilLogisticsInterfaceBlock> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_logistics_interface", CelestialForgingAnvilLogisticsInterfaceBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::cfaLogisticsInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties((properties) -> properties
@@ -1402,6 +1404,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CelestialForgingAnvilFluidInterfaceBlock> CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::cfaFluidInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties((properties) -> properties
@@ -1417,6 +1420,7 @@ public class ModBlocks {
 
     public static final BlockEntry<CelestialForgingAnvilLaserInterfaceBlock> CELESTIAL_FORGING_ANVIL_LASER_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_laser_interface", CelestialForgingAnvilLaserInterfaceBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::cfaLaserInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties((properties) -> properties

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:chute"
+    },
+    "B": {
+      "item": "anvilcraft:magnetic_chute"
+    },
+    "C": {
+      "item": "anvilcraft:spacetime_supercomputer"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "count": 8,
+    "id": "anvilcraft:celestial_forging_anvil_logistics_interface"
+  }
+}

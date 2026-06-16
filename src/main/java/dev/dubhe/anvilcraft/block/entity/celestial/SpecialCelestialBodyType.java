@@ -55,7 +55,7 @@ public enum SpecialCelestialBodyType {
         "planet_flesh",
         Temperature.HOT,
         true,
-        LiquidCoverage.HIGH,
+        LiquidCoverage.NONE,
         2,
         1.0f,
         22f,
@@ -69,7 +69,7 @@ public enum SpecialCelestialBodyType {
         "planet_intelligence",
         Temperature.HOT,
         false,
-        LiquidCoverage.NONE,
+        LiquidCoverage.HIGH,
         1,
         1.0f,
         2.71828f,
@@ -83,7 +83,7 @@ public enum SpecialCelestialBodyType {
         "planet_shattered",
         Temperature.SCORCHED,
         false,
-        LiquidCoverage.NONE,
+        LiquidCoverage.MEDIUM,
         0,
         3.0f,
         0f,
@@ -114,7 +114,7 @@ public enum SpecialCelestialBodyType {
         null,
         -1,
         0f,
-        90f,
+        0f,
         List.of(anvil("creative_generator"), mc("command_block"), mc("structure_block"))
     );
 
@@ -203,6 +203,21 @@ public enum SpecialCelestialBodyType {
     }
 
     /**
+     * Whether this body uses model loading instead of manual cube rendering.
+     * {@link #SHATTERED_PLANET}, {@link #HOLLOW_PLANET}, and {@link #ERROR_PLANET}
+     * have non-cube geometry.
+     * {@link #FLESH_PLANET} and {@link #INTELLIGENT_PLANET} use animated textures
+     * which require block atlas / model loading.
+     */
+    public boolean needsCustomModel() {
+        return this == SHATTERED_PLANET
+            || this == HOLLOW_PLANET
+            || this == ERROR_PLANET
+            || this == FLESH_PLANET
+            || this == INTELLIGENT_PLANET;
+    }
+
+    /**
      * Get the effective seed item for a given world seed.
      */
     public Item getEffectiveSeedItem(long worldSeed) {
@@ -286,7 +301,7 @@ public enum SpecialCelestialBodyType {
 
     private static PlanetaryResourceSet genIntelligentPlanet() {
         PlanetaryResourceSet r = new PlanetaryResourceSet();
-        r.addFluid(fluid(mc("experience"), 100));
+        r.addFluid(fluid(anvil("exp_fluid"), 100));
         return r;
     }
 

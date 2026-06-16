@@ -2041,4 +2041,61 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.WOOL), AnvilCraftDatagen.has(ItemTags.WOOL))
             .save(provider);
     }
+
+    // === Celestial Forging Anvil components ===
+
+    public static <T extends Block> void cfaLogisticsInterface(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.CHUTE)
+            .define('B', ModBlocks.MAGNETIC_CHUTE)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider);
+    }
+
+    public static <T extends Block> void cfaFluidInterface(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.FLUID_TANK)
+            .define('B', ModBlocks.LARGE_FLUID_TANK)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider);
+    }
+
+    public static <T extends Block> void cfaLaserInterface(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.LASER_RECEIVER)
+            .define('B', ModBlocks.RUBY_LASER)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider);
+
+        // Shapeless: spacetime_supercomputer + large_laser → 16
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 16)
+            .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .requires(ModBlocks.LARGE_LASER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider, of("celestial_forging_anvil_laser_interface_from_large_laser"));
+    }
+
+    public static <T extends Block> void cfaAmplifier(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ItemInjectRecipe.builder()
+            .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .inputBlock(ModBlocks.GIANT_ANVIL)
+            .resultBlock(ctx)
+            .save(provider);
+    }
 }

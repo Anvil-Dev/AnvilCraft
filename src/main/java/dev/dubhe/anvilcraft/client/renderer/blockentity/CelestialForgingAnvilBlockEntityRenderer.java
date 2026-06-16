@@ -103,14 +103,23 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.mulPose(Axis.XP.rotationDegrees(rot));
-        VertexConsumer ringConsumer = multiBufferSource.getBuffer(RenderType.cutout());
 
         // Track previous body and animation state for ring fade transitions
         CelestialBodyData prevBody = blockEntity.getAnimationPreviousBodyData();
         float animProgress = blockEntity.getAnimationProgress(partialTick);
         boolean isAnimating = blockEntity.getAnimationTicks() > 0;
         boolean animForward = blockEntity.isAnimationForward();
+
+        // Build unified ring assembly pose from Blockbench animation.
+        // Bone hierarchy: outout(Y rot) → out(static tilt) → mid(X rot) → in(Z rot)
+        // All ring groups are children of "in", so they share the same final pose.
+        poseStack.scale(4, 4, 4);
+        poseStack.mulPose(Axis.YP.rotationDegrees(-rot));        // outout: Y-axis rotation
+        poseStack.mulPose(Axis.XP.rotationDegrees(14.5108f));    // out: static tilt X
+        poseStack.mulPose(Axis.YP.rotationDegrees(-3.8411f));    // out: static tilt Y
+        poseStack.mulPose(Axis.ZP.rotationDegrees(14.5109f));    // out: static tilt Z
+        poseStack.mulPose(Axis.XP.rotationDegrees(90.0f + rot)); // mid: X rotation (90° offset)
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rot));         // in: Z rotation
 
         if (blockEntity.isAmplify()) {
             // Check if Dyson Sphere is active — these rings render with star-synchronous rotation
@@ -120,7 +129,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             boolean isDysonSphereR5 = isDysonSphereActive(blockEntity, 5);
             boolean anyDysonSphere = isDysonSphereR4 || isDysonSphereR5;
 
-            poseStack.scale(4, 4, 4);
             // R4 — skip if Dyson Sphere (rendered later with star rotation)
             if (!isDysonSphereR4) {
                 ModelResourceLocation r4Model = getRing4Model(blockEntity);
@@ -138,25 +146,23 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     modelRenderer
                 );
             }
-            // Z rotation
-            poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-            // R5 — hide when any Dyson Sphere is active or Error Planet
-            if (!anyDysonSphere && !isErrorPlanet) {
+            // R5 — hide when any Dyson Sphere is active
+            if (!anyDysonSphere) {
                 ModelResourceLocation r5Model = getRing5Model(blockEntity);
-                modelRenderer.renderModel(
-                    poseStack.last(),
-                    ringConsumer,
-                    null,
-                    Minecraft.getInstance().getModelManager().getModel(r5Model),
-                    0,
-                    0,
-                    0,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay
+                renderRingMaybe(
+                    r5Model,
+                    5,
+                    bodyData,
+                    prevBody,
+                    isAnimating,
+                    animForward,
+                    animProgress,
+                    poseStack,
+                    multiBufferSource,
+                    packedOverlay,
+                    modelRenderer
                 );
             }
-            // X rotation
-            poseStack.mulPose(Axis.XP.rotationDegrees(rot));
             // R6 — hide when any Dyson Sphere is active
             if (!anyDysonSphere) {
                 renderRingMaybe(
@@ -174,7 +180,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 );
             }
         } else {
-            poseStack.scale(4, 4, 4);
             // R3
             renderRingMaybe(
                 R3,
@@ -189,25 +194,21 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 packedOverlay,
                 modelRenderer
             );
-            // Z rotation
-            poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
-            // R2 — hide when Error Planet
-            if (!isErrorPlanet) {
-                ModelResourceLocation r2Model = getRing2Model(blockEntity);
-                modelRenderer.renderModel(
-                    poseStack.last(),
-                    ringConsumer,
-                    null,
-                    Minecraft.getInstance().getModelManager().getModel(r2Model),
-                    0,
-                    0,
-                    0,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay
-                );
-            }
-            // X rotation
-            poseStack.mulPose(Axis.XP.rotationDegrees(rot));
+            // R2 — model may change based on megastructure
+            ModelResourceLocation r2Model = getRing2Model(blockEntity);
+            renderRingMaybe(
+                r2Model,
+                2,
+                bodyData,
+                prevBody,
+                isAnimating,
+                animForward,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
             // R1 — model may change based on megastructure
             ModelResourceLocation r1Model = getRing1Model(blockEntity);
             renderRingMaybe(
@@ -410,7 +411,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             return switch (ring) {
                 case 1 -> !(bodyData instanceof GiantPlanetData);
                 case 2 -> true;
-                case 3 -> !(bodyData instanceof RockyPlanetData);
+                case 3 -> !(bodyData instanceof RockyPlanetData)
+                && !(bodyData instanceof SpecialCelestialBodyData);
                 default -> false;
             };
         }
@@ -526,32 +528,50 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             poseStack.popPose();
             return;
         }
+        poseStack.scale(scale, scale, scale);
+        poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
+        poseStack.translate(-0.5, -0.5, -0.5);
 
-        if (bodyData instanceof SpecialCelestialBodyData special) {
-            poseStack.scale(scale, scale, scale);
-            poseStack.mulPose(Axis.XP.rotationDegrees(special.axialTilt()));
-            poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * special.rotationSpeed()));
-            poseStack.translate(-0.5, -0.5, -0.5);
-            renderSpecialCelestialBody(special, poseStack, bufferSource, packedOverlay);
-        } else {
-            poseStack.scale(scale, scale, scale);
-            poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
-            poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
-            poseStack.translate(-0.5, -0.5, -0.5);
-
-            if (bodyData instanceof StarData star) {
-                renderStarBody(star, poseStack, bufferSource, packedOverlay, seed);
-            } else {
-                renderPlanetBody(bodyData, poseStack, bufferSource, packedOverlay, seed);
+        // Complex custom models (shattered, hollow, flesh, intelligence, error)
+        if (bodyData instanceof SpecialCelestialBodyData s && s.specialType().needsCustomModel()) {
+            renderComplexModelBody(s, poseStack, bufferSource, packedOverlay);
+            // Atmosphere for complex-model bodies that have it (flesh, intelligence)
+            if (s.hasAtmosphere() && s.temperature() != null) {
+                poseStack.pushPose();
+                poseStack.translate(0.5, 0.5, 0.5);
+                poseStack.scale(1.125f, 1.125f, 1.125f);
+                poseStack.translate(-0.5, -0.5, -0.5);
+                float[] atmosRgb = CelestialBodyRenderer.getAtmosphereColor(s.temperature());
+                renderAtmosphereCube(
+                    poseStack,
+                    bufferSource,
+                    atmosRgb[0],
+                    atmosRgb[1],
+                    atmosRgb[2],
+                    0.2f,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay,
+                    seed
+                );
+                poseStack.popPose();
             }
+        } else if (bodyData instanceof StarData star) {
+            renderStarModel(star, poseStack, bufferSource, packedOverlay, seed);
+        } else {
+            renderPlanetBody(bodyData, poseStack, bufferSource, packedOverlay, seed);
         }
         poseStack.popPose();
     }
 
+    private static final ModelResourceLocation STAR_MODEL =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star"));
+
     /**
-     * Render a special celestial body via its block model.
+     * Render a complex-model celestial body (shattered planet, hollow planet)
+     * via its block model file.
      */
-    private void renderSpecialCelestialBody(
+    private void renderComplexModelBody(
         SpecialCelestialBodyData special,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
@@ -561,14 +581,57 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             .getModel(special.specialType().getModelLocation());
         if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
 
-        int light = special.specialType().isErrorPlanet()
-            ? LightTexture.FULL_BRIGHT
-            : LightTexture.FULL_BRIGHT;
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
         Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
             poseStack.last(), consumer, null, model,
-            1.0f, 1.0f, 1.0f, light, packedOverlay
+            1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay
         );
+    }
+
+    /**
+     * Render a star: animated base model + color-tint overlay + halo.
+     * The block model provides animation (via .mcmeta), the translucent
+     * overlay cube provides the star-specific color from energy anvil count.
+     */
+    private void renderStarModel(
+        StarData star,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        long seed
+    ) {
+        // Animated grayscale star model (block atlas, supports .mcmeta)
+        BakedModel model = Minecraft.getInstance().getModelManager().getModel(STAR_MODEL);
+        if (model != Minecraft.getInstance().getModelManager().getMissingModel()) {
+            VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
+            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
+                poseStack.last(), consumer, null, model,
+                1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay
+            );
+        }
+
+        // Color overlay — multiplicative blend for accurate palette coloring
+        float[] rgb = CelestialBodyTextureBakery.starColor(star);
+        poseStack.pushPose();
+        poseStack.translate(0.5, 0.5, 0.5);
+        poseStack.scale(1.005f, 1.005f, 1.005f);
+        poseStack.translate(-0.5, -0.5, -0.5);
+        renderColorOverlay(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], packedOverlay);
+        poseStack.popPose();
+
+        // Star halo
+        int haloIterations = 10;
+        for (int i = 0; i < haloIterations; i++) {
+            float progress = (float) i / haloIterations;
+            float haloScale = 1.0f + progress * 0.6f;
+            float alpha = (1.2f - 1.125f * progress) / haloIterations;
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            poseStack.scale(haloScale, haloScale, haloScale);
+            poseStack.translate(-0.5, -0.5, -0.5);
+            renderTranslucentCube(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], alpha, LightTexture.FULL_BRIGHT, packedOverlay, seed);
+            poseStack.popPose();
+        }
     }
 
     private void renderCelestialRing(
@@ -601,29 +664,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.popPose();
     }
 
-    private void renderStarBody(StarData star, PoseStack poseStack, MultiBufferSource bufferSource, int packedOverlay, long seed) {
-        ResourceLocation starTexture = CelestialBodyTextureBakery.getOrBakeBody(star);
-        if (starTexture == null) return;
-        VertexConsumer starConsumer = bufferSource.getBuffer(ModRenderTypes.STAR_CUTOUT.apply(starTexture));
-        CelestialBodyRenderer.renderStarBody(poseStack, starConsumer, LightTexture.FULL_BRIGHT, packedOverlay);
-
-        float[] rgb = CelestialBodyTextureBakery.starColor(star);
-        int haloIterations = 10;
-
-        for (int i = 0; i < haloIterations; i++) {
-            float progress = (float) i / haloIterations;
-            // Halved from original (2.0→3.2) to match 1×1 cube (was 2×2)
-            float haloScale = 1.0f + progress * 0.6f;
-            float alpha = (1.2f - 1.125f * progress) / haloIterations;
-            poseStack.pushPose();
-            poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.scale(haloScale, haloScale, haloScale);
-            poseStack.translate(-0.5, -0.5, -0.5);
-            renderTranslucentCube(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], alpha, LightTexture.FULL_BRIGHT, packedOverlay, seed);
-            poseStack.popPose();
-        }
-    }
-
     private void renderPlanetBody(
         CelestialBodyData bodyData,
         PoseStack poseStack,
@@ -637,22 +677,29 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             CelestialBodyRenderer.renderPlanetBody(poseStack, bodyConsumer, LightTexture.FULL_BRIGHT, packedOverlay);
         }
 
-        if (bodyData instanceof RockyPlanetData rp && rp.hasAtmosphere()) {
-            float[] atmosRgb = getAtmosphereColor(rp.temperature());
+        // Atmosphere — for rocky planets and special bodies that have atmosphere
+        boolean hasAtmos;
+        Temperature atmosTemp;
+        if (bodyData instanceof RockyPlanetData rp) {
+            hasAtmos = rp.hasAtmosphere();
+            atmosTemp = rp.temperature();
+        } else if (bodyData instanceof SpecialCelestialBodyData s) {
+            hasAtmos = s.hasAtmosphere();
+            atmosTemp = s.temperature();
+        } else {
+            hasAtmos = false;
+            atmosTemp = null;
+        }
+        if (hasAtmos && atmosTemp != null) {
+            float[] atmosRgb = getAtmosphereColor(atmosTemp);
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.scale(1.125f, 1.125f, 1.125f);
             poseStack.translate(-0.5, -0.5, -0.5);
             renderAtmosphereCube(
-                poseStack,
-                bufferSource,
-                atmosRgb[0],
-                atmosRgb[1],
-                atmosRgb[2],
-                0.2f,
-                LightTexture.FULL_BRIGHT,
-                packedOverlay,
-                seed
+                poseStack, bufferSource,
+                atmosRgb[0], atmosRgb[1], atmosRgb[2],
+                0.2f, LightTexture.FULL_BRIGHT, packedOverlay, seed
             );
             poseStack.popPose();
         }
@@ -670,18 +717,33 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 poseStack.scale(haloScale, haloScale, haloScale);
                 poseStack.translate(-0.5, -0.5, -0.5);
                 renderTranslucentCube(
-                    poseStack,
-                    bufferSource,
-                    rgb[0],
-                    rgb[1],
-                    rgb[2],
-                    alpha,
-                    LightTexture.FULL_BRIGHT,
-                    packedOverlay,
-                    seed
+                    poseStack, bufferSource,
+                    rgb[0], rgb[1], rgb[2],
+                    alpha, LightTexture.FULL_BRIGHT, packedOverlay, seed
                 );
                 poseStack.popPose();
             }
+        }
+    }
+
+    /**
+     * Renders a cube with multiplicative blending ({@code DST_COLOR * SRC_COLOR}),
+     * used for star color overlay to achieve accurate palette-like coloring.
+     */
+    private void renderColorOverlay(
+        PoseStack poseStack, MultiBufferSource bufferSource,
+        float r, float g, float b, int packedOverlay
+    ) {
+        BakedModel cubeModel = blockRenderer.getBlockModel(whiteConcrete);
+        VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.STAR_COLOR_OVERLAY);
+        RandomSource random = RandomSource.create(42L);
+        for (Direction dir : Direction.values()) {
+            for (BakedQuad quad : cubeModel.getQuads(null, dir, random, ModelData.EMPTY, null)) {
+                consumer.putBulkData(poseStack.last(), quad, r, g, b, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
+            }
+        }
+        for (BakedQuad quad : cubeModel.getQuads(null, null, random, ModelData.EMPTY, null)) {
+            consumer.putBulkData(poseStack.last(), quad, r, g, b, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
         }
     }
 
@@ -793,33 +855,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     }
 
     private float[] getAtmosphereColor(Temperature temperature) {
-        return switch (temperature) {
-            case FREEZING -> new float[]{
-                0.4f,
-                0.6f,
-                0.9f
-            };
-            case COLD -> new float[]{
-                0.5f,
-                0.7f,
-                0.9f
-            };
-            case MILD -> new float[]{
-                0.6f,
-                0.8f,
-                1.0f
-            };
-            case HOT -> new float[]{
-                0.9f,
-                0.5f,
-                0.3f
-            };
-            case SCORCHED -> new float[]{
-                1.0f,
-                0.3f,
-                0.1f
-            };
-        };
+        return CelestialBodyRenderer.getAtmosphereColor(temperature);
     }
 
     @Override

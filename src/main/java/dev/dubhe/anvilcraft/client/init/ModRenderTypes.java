@@ -164,10 +164,42 @@ public class ModRenderTypes {
     );
 
     /**
-     * Translucent atmosphere/glow layer that does NOT write depth.
-     * Prevents atmosphere cubes and star halos from occluding CFA rings
-     * and other celestial bodies behind them.
+     * Multiplicative blend render type for star color overlay.
+     * Uses {@code DST_COLOR * SRC_COLOR} so that the grayscale star
+     * animation is multiplied by the star's RGB, producing accurate
+     * palette-like coloring without washing out.
      */
+    public static final RenderType STAR_COLOR_OVERLAY = RenderType.create(
+        "anvilcraft:star_color_overlay",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        786432,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(new RenderStateShard.TransparencyStateShard(
+                "star_multiply",
+                () -> {
+                    RenderSystem.enableBlend();
+                    RenderSystem.blendFuncSeparate(
+                        GlStateManager.SourceFactor.DST_COLOR,
+                        GlStateManager.DestFactor.ZERO,
+                        GlStateManager.SourceFactor.ZERO,
+                        GlStateManager.DestFactor.ONE
+                    );
+                },
+                () -> {
+                    RenderSystem.disableBlend();
+                    RenderSystem.defaultBlendFunc();
+                }
+            ))
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(true)
+    );
+
     public static final RenderType CELESTIAL_ATMOSPHERE = RenderType.create(
         "anvilcraft:celestial_atmosphere",
         DefaultVertexFormat.BLOCK,

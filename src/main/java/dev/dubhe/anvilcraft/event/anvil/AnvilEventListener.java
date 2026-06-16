@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.FrostAnvilBlock;
+import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
@@ -102,7 +103,12 @@ public class AnvilEventListener {
         manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
         boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
         if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
-        context.accept();
+        GiantAnvilBlock.SUPPRESS_DROPS.set(true);
+        try {
+            context.accept();
+        } finally {
+            GiantAnvilBlock.SUPPRESS_DROPS.set(false);
+        }
     }
 
     private static void brokeBlock(Level level, BlockPos pos, AnvilEvent.OnLand event) {
