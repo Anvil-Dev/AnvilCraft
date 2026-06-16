@@ -307,15 +307,18 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.DAMAGED_ANVIL))
             .add(ModBlocks.ROYAL_ANVIL.getKey())
             .add(ModBlocks.EMBER_ANVIL.getKey())
+            .add(ModBlocks.FROST_ANVIL.getKey())
             .add(ModBlocks.TRANSCENDENCE_ANVIL.getKey());
 
         provider.addTag(ModBlockTags.ANVIL_TIER_1)
             .add(ModBlocks.ROYAL_ANVIL.getKey())
             .add(ModBlocks.EMBER_ANVIL.getKey())
+            .add(ModBlocks.FROST_ANVIL.getKey())
             .add(ModBlocks.TRANSCENDENCE_ANVIL.getKey());
 
         provider.addTag(ModBlockTags.ANVIL_TIER_2)
             .add(ModBlocks.EMBER_ANVIL.getKey())
+            .add(ModBlocks.FROST_ANVIL.getKey())
             .add(ModBlocks.TRANSCENDENCE_ANVIL.getKey());
 
         provider.addTag(ModBlockTags.ANVIL_TIER_3)

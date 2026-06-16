@@ -1,0 +1,21 @@
+{
+    DataVersion: 3955,
+    size: [3, 4, 1],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:cobblestone"},
+        {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "minecraft:mossy_cobblestone"},
+        {pos: [0, 1, 0], state: "minecraft:moss_block"},
+        {pos: [2, 1, 0], state: "minecraft:anvil{facing:west}"},
+        {pos: [0, 3, 0], state: "minecraft:anvil{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:cobblestone",
+        "minecraft:mossy_cobblestone",
+        "minecraft:moss_block",
+        "minecraft:barrier{waterlogged:false}",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:anvil{facing:west}"
+    ]
+}

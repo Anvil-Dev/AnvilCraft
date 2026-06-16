@@ -49,6 +49,8 @@ public class SupercriticalNestingShulkerBoxBlock extends BetterBlock implements 
 
     public SupercriticalNestingShulkerBoxBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(this.stateDefinition.any()
+            .setValue(COOLDOWN, false).setValue(SOUNDSETID, 0));
     }
 
     @Override

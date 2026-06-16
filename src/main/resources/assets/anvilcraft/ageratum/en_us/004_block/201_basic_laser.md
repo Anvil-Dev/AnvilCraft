@@ -73,6 +73,8 @@ If the back of <ref item="anvilcraft:ruby_prism"/> also has a <ref item="anvilcr
 
 # <ref item="anvilcraft:large_laser"/>
 
+<item id="anvilcraft:large_laser"/>
+
 - Power consumption: 256kW
 - Disabled by redstone signal
 - When active, emits a laser [Level: 16, Range: 128 blocks]

@@ -1,0 +1,19 @@
+{
+    DataVersion: 3955,
+    size: [3, 3, 1],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:water_cauldron{level:3}"},
+        {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "minecraft:water_cauldron{level:2}"},
+        {pos: [2, 1, 0], state: "minecraft:anvil{facing:west}"},
+        {pos: [0, 2, 0], state: "minecraft:anvil{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:barrier{waterlogged:false}",
+        "minecraft:water_cauldron{level:3}",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:water_cauldron{level:2}",
+        "minecraft:anvil{facing:west}"
+    ]
+}
