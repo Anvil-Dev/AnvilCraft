@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.item;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -139,7 +138,6 @@ public class HeliostatsItem extends PlacementIntervalsBlockItem {
                         blockEntity.setIrritatePos(getData(itemInHand));
                         return InteractionResult.SUCCESS;
                     } else {
-                        AnvilCraft.LOGGER.debug("irritate pos: {}", irritatePos);
                         return InteractionResult.SUCCESS;
                     }
                 }
