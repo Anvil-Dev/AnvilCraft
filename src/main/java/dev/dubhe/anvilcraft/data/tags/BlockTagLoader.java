@@ -100,7 +100,7 @@ public class BlockTagLoader {
             .addElement(findId(Blocks.TRAPPED_CHEST))
             .addElement(findId(Blocks.ENDER_CHEST))
             .addElement(findId(Blocks.BARREL))
-            .addElement(findId(Blocks.COMPARATOR))
+            .addElement(findId(Blocks.COMPOSTER))
             .addElement(findId(Blocks.TNT))
             .addElement(findId(Blocks.BEACON))
             .addElement(ModBlocks.HEAVY_IRON_BLOCK.getId())
