@@ -7,6 +7,7 @@ public class ItemTooltipLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
         ItemTooltipManager.NEED_TOOLTIP_ITEMS.forEach((item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
+        ItemTooltipManager.getShiftMap().forEach((item, s) -> provider.add(ItemTooltipManager.getTranslationKeyShift(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
 
@@ -37,7 +38,7 @@ public class ItemTooltipLang {
 
         provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %ds");
 
-        provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for information");
+        provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for more information");
 
         provider.add(
             "tooltip.anvilcraft.pill_box",

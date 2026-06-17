@@ -180,9 +180,11 @@ public class ClientEventListener {
             AmuletSelectorSupport.render(graphics, x, y);
         } else if (itemStack.is(ModItems.PILL_BOX)) {
             event.setY(y + 13);
+            AnvilCraftClient.pillSelectorSupport.setPillBox(itemStack);
             AnvilCraftClient.pillSelectorSupport.render(graphics, x, y);
         } else {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
+            AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);
         }
     }
 }

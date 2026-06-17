@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AppendCustomHoverTextEvent;
 import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.utility.PillBoxItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
@@ -69,7 +68,6 @@ public class TooltipEventListener {
         stack.addToTooltip(ModComponents.AMULET, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.BOX_CONTENTS, ctx, display, builder, flag);
         stack.addToTooltip(ModComponents.OVER_LIMIT_CONTAINER, ctx, display, builder, flag);
-        TooltipEventListener.addSpecialItemTooltips(stack, ctx, display, builder, flag);
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -89,16 +87,4 @@ public class TooltipEventListener {
         }
     }
 
-    private static void addSpecialItemTooltips(
-        ItemStack stack,
-        Item.TooltipContext ctx,
-        TooltipDisplay display,
-        Consumer<Component> builder,
-        TooltipFlag flag
-    ) {
-        switch (stack.getItem()) {
-            case PillBoxItem _ -> PillBoxItem.appendHoverText(builder, flag);
-            default -> {}
-        }
-    }
 }

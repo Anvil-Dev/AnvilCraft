@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item.utility;
 
-import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
@@ -119,14 +118,4 @@ public class PillBoxItem extends Item {
         return false;
     }
 
-    public static void appendHoverText(Consumer<Component> builder, TooltipFlag flag) {
-        if (flag.hasShiftDown()) {
-            builder.accept(Component.translatable(
-                "tooltip.anvilcraft.pill_box",
-                Component.keybind("key.anvilcraft.use_pill_box")
-            ).withStyle(ChatFormatting.GRAY));
-        } else {
-            builder.accept(ItemTooltipManager.SHIFT_TIP);
-        }
-    }
 }
