@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.FilterMenu;
 import dev.dubhe.anvilcraft.inventory.container.FilterContainer;
-import dev.dubhe.anvilcraft.inventory.tooltip.FilterTooltip;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -16,12 +15,9 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-
-import java.util.Optional;
 
 public class FilterItem extends Item {
     public FilterItem(Properties properties) {
@@ -46,14 +42,6 @@ public class FilterItem extends Item {
         int position = usedHand == InteractionHand.MAIN_HAND ? player.getInventory().getSelectedSlot() : 151;
         ModMenuTypes.open((ServerPlayer) player, new FilterMenuProvider(position));
         return InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
-        if (stack.has(ModComponents.FILTER_CONTENT)) {
-            return Optional.of(new FilterTooltip(stack.get(ModComponents.FILTER_CONTENT)));
-        }
-        return Optional.empty();
     }
 
     public record FilterMenuProvider(int position) implements MenuProvider {
