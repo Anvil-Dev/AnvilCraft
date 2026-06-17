@@ -36,8 +36,7 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.REDSTONE_COMPUTER)
             .icon(ModBlocks.REDSTONE_COMPUTER.asStack())
             .save(provider, "redstone_computer_from_procedural");
-        // 砧子辐照还没人写，我这里先拿中子辐照和砧子反向涂抹代替了
-        // 当然，时空超算应该也还没写完吧，这里先拿物品收集器替代了
+
         ProceduralProcessRecipeBuilder.of(ModBlocks.REDSTONE_COMPUTER.get())
             .addStep(
                 ItemInjectRecipe.builder()
@@ -70,5 +69,36 @@ public class ProceduralProcessRecipeLoader {
             )
             .save(provider, "spacetime_supercomputer_from_redstone_computer");
 
+        ProceduralProcessRecipeBuilder.of(ModBlocks.REDSTONE_COMPUTER.get())
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.REDSTONE_COMPUTER.get())
+                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                ReversedSmearAlikeRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.SPACE)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                ReversedSmearAlikeRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.TIME)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .icon(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack())
+            .loop(3)
+            .multipleLoopFirstStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK)
+                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .save(provider, "spacetime_supercomputer_from_redstone_computer_2");
     }
 }
