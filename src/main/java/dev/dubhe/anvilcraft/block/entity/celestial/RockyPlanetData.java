@@ -12,7 +12,7 @@ public record RockyPlanetData(
     int paletteBaseRow,
     int paletteOverlayRow,
     float axialTilt,
-    float rotationSpeed,
+    int rotationSpeed,
     int magneticFieldStrength
 ) implements CelestialBodyData {
 
@@ -34,7 +34,7 @@ public record RockyPlanetData(
         tag.putInt("paletteBaseRow", paletteBaseRow);
         tag.putInt("paletteOverlayRow", paletteOverlayRow);
         tag.putFloat("axialTilt", axialTilt);
-        tag.putFloat("rotationSpeed", rotationSpeed);
+        tag.putInt("rotationSpeed", rotationSpeed);
         tag.putInt("magneticFieldStrength", magneticFieldStrength);
         return tag;
     }
@@ -52,7 +52,7 @@ public record RockyPlanetData(
             tag.getInt("paletteBaseRow"),
             tag.getInt("paletteOverlayRow"),
             tag.getFloat("axialTilt"),
-            tag.getFloat("rotationSpeed"),
+            tag.getInt("rotationSpeed"),
             mag
         );
     }

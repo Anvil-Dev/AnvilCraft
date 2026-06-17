@@ -3715,7 +3715,7 @@ public class ModBlocks {
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL)
-        .item()
+        .item(dev.dubhe.anvilcraft.item.SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()

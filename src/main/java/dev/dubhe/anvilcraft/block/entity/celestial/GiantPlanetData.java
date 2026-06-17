@@ -11,7 +11,7 @@ public record GiantPlanetData(
     int paletteBaseRow,
     int paletteOverlayRow,
     float axialTilt,
-    float rotationSpeed,
+    int rotationSpeed,
     int magneticFieldStrength,
     boolean brownDwarf
 ) implements CelestialBodyData {
@@ -33,7 +33,7 @@ public record GiantPlanetData(
         tag.putInt("paletteBaseRow", paletteBaseRow);
         tag.putInt("paletteOverlayRow", paletteOverlayRow);
         tag.putFloat("axialTilt", axialTilt);
-        tag.putFloat("rotationSpeed", rotationSpeed);
+        tag.putInt("rotationSpeed", rotationSpeed);
         tag.putInt("magneticFieldStrength", magneticFieldStrength);
         tag.putBoolean("brownDwarf", brownDwarf);
         return tag;
@@ -52,7 +52,7 @@ public record GiantPlanetData(
             tag.getInt("paletteBaseRow"),
             tag.getInt("paletteOverlayRow"),
             tag.getFloat("axialTilt"),
-            tag.getFloat("rotationSpeed"),
+            tag.getInt("rotationSpeed"),
             mag,
             bd
         );

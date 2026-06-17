@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
@@ -78,6 +79,28 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     public static final ModelResourceLocation R5_DYSON_SPHERE = ModelResourceLocation.standalone(AnvilCraft.of(
         "block/celestial_forging_anvil_ring_5_dyson_sphere"));
 
+    // Magnetar Coil megastructure models (replace ring 4 with dual-model)
+    public static final ModelResourceLocation R4_COIL_FIX = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_coil_fix"));
+    public static final ModelResourceLocation R4_COIL_RING = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_coil_ring"));
+
+    // Stellar Evolution Accelerator models
+    public static final ModelResourceLocation R5_STELLAR_EVOLUTION_ACCELERATOR = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_5_stellar_evolution_accelerator"));
+    public static final ModelResourceLocation R6_STELLAR_EVOLUTION_ACCELERATOR = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_6_stellar_evolution_accelerator"));
+
+    // Stellar remnant body models
+    private static final ModelResourceLocation NEUTRON_STAR_MODEL = ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(
+        "anvilcraft",
+        "block/celestial_body/neutron_star"
+    ));
+    private static final ModelResourceLocation BLACK_HOLE_MODEL = ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(
+        "anvilcraft",
+        "block/celestial_body/black_hole"
+    ));
+
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
 
@@ -126,12 +149,35 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             boolean isDysonSphereR5 = isDysonSphereActive(blockEntity, 5);
             boolean anyDysonSphere = isDysonSphereActive(blockEntity, 4) || isDysonSphereR5;
             if (!anyDysonSphere) {
-                renderRingMaybe(R6, 6, bodyData, prevBody, isAnimating, animForward, animProgress,
-                    poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                ModelResourceLocation r6Model = getRing6Model(blockEntity);
+                renderRingMaybe(
+                    r6Model,
+                    6,
+                    bodyData,
+                    prevBody,
+                    isAnimating,
+                    animForward,
+                    animProgress,
+                    poseStack,
+                    multiBufferSource,
+                    packedOverlay,
+                    modelRenderer
+                );
             }
         } else {
-            renderRingMaybe(R3, 3, bodyData, prevBody, isAnimating, animForward, animProgress,
-                poseStack, multiBufferSource, packedOverlay, modelRenderer);
+            renderRingMaybe(
+                R3,
+                3,
+                bodyData,
+                prevBody,
+                isAnimating,
+                animForward,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
         }
 
         // mid: X rotation (middle bone)
@@ -139,17 +185,38 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         // === Middle ring — child of "mid" ===
         if (blockEntity.isAmplify()) {
-            boolean anyDysonSphere = isDysonSphereActive(blockEntity, 4)
-                || isDysonSphereActive(blockEntity, 5);
+            boolean anyDysonSphere = isDysonSphereActive(blockEntity, 4) || isDysonSphereActive(blockEntity, 5);
             if (!anyDysonSphere) {
                 ModelResourceLocation r5Model = getRing5Model(blockEntity);
-                renderRingMaybe(r5Model, 5, bodyData, prevBody, isAnimating, animForward, animProgress,
-                    poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                renderRingMaybe(
+                    r5Model,
+                    5,
+                    bodyData,
+                    prevBody,
+                    isAnimating,
+                    animForward,
+                    animProgress,
+                    poseStack,
+                    multiBufferSource,
+                    packedOverlay,
+                    modelRenderer
+                );
             }
         } else {
             ModelResourceLocation r2Model = getRing2Model(blockEntity);
-            renderRingMaybe(r2Model, 2, bodyData, prevBody, isAnimating, animForward, animProgress,
-                poseStack, multiBufferSource, packedOverlay, modelRenderer);
+            renderRingMaybe(
+                r2Model,
+                2,
+                bodyData,
+                prevBody,
+                isAnimating,
+                animForward,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
         }
 
         // in: Z rotation (inner bone)
@@ -157,15 +224,37 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         // === Innermost ring — child of "in" ===
         if (blockEntity.isAmplify()) {
-            if (!isDysonSphereActive(blockEntity, 4)) {
+            if (!isDysonSphereActive(blockEntity, 4) && !isMagnetarCoilActive(blockEntity)) {
                 ModelResourceLocation r4Model = getRing4Model(blockEntity);
-                renderRingMaybe(r4Model, 4, bodyData, prevBody, isAnimating, animForward, animProgress,
-                    poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                renderRingMaybe(
+                    r4Model,
+                    4,
+                    bodyData,
+                    prevBody,
+                    isAnimating,
+                    animForward,
+                    animProgress,
+                    poseStack,
+                    multiBufferSource,
+                    packedOverlay,
+                    modelRenderer
+                );
             }
         } else {
             ModelResourceLocation r1Model = getRing1Model(blockEntity);
-            renderRingMaybe(r1Model, 1, bodyData, prevBody, isAnimating, animForward, animProgress,
-                poseStack, multiBufferSource, packedOverlay, modelRenderer);
+            renderRingMaybe(
+                r1Model,
+                1,
+                bodyData,
+                prevBody,
+                isAnimating,
+                animForward,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
         }
         poseStack.popPose();
 
@@ -191,12 +280,29 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             }
         }
 
+        // Render Magnetar Coil rings: fix (star-synchronous) + ring (mechanical rotation)
+        if (blockEntity.isAmplify() && isMagnetarCoilActive(blockEntity) && bodyData instanceof StarData star) {
+            float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
+            float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
+            renderMagnetarCoilRings(centerY, rot, bodyRot, star, animProgress, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+        }
+
         // Use effective body data (considers reverse animation where celestialBodyData is already null)
         CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
-        boolean canRender = effectiveBodyData != null && !(effectiveBodyData instanceof StarData && !blockEntity.isAmplifierPresent());
+        // Stellar remnants render even without amplifier present
+        boolean isRemnant = effectiveBodyData instanceof StarData star && (
+            star.bodyClass() == CelestialBodyClass.BLACK_HOLE
+            || star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
+            || star.bodyClass() == CelestialBodyClass.WHITE_DWARF
+        );
+        boolean canRender = effectiveBodyData != null && (
+            isRemnant || !(effectiveBodyData instanceof StarData && !blockEntity.isAmplifierPresent())
+        );
         if (canRender) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
+            // Body scale is driven entirely by StarData.size() which shrinks
+            // during collapse via applyCollapseColor() — no additional pose scaling.
             renderCelestialBody(
                 effectiveBodyData,
                 centerY,
@@ -284,7 +390,22 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 }
             }
         }
+        // Stellar Evolution Accelerator for small stars replaces ring 5
+        if (blockEntity.isAcceleratorActive() && blockEntity.getCelestialBodyData() instanceof StarData star && star.size() < 26) {
+            return R5_STELLAR_EVOLUTION_ACCELERATOR;
+        }
         return R5;
+    }
+
+    /**
+     * Get the appropriate ring 6 model, accounting for megastructures that replace ring 6.
+     */
+    private ModelResourceLocation getRing6Model(CelestialForgingAnvilBlockEntity blockEntity) {
+        // Stellar Evolution Accelerator for large stars replaces ring 6
+        if (blockEntity.isAcceleratorActive() && blockEntity.getCelestialBodyData() instanceof StarData star && star.size() >= 26) {
+            return R6_STELLAR_EVOLUTION_ACCELERATOR;
+        }
+        return R6;
     }
 
     /**
@@ -297,6 +418,16 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (ring == 4) return "dyson_sphere_small".equals(option.megastructure());
         if (ring == 5) return "dyson_sphere_large".equals(option.megastructure());
         return false;
+    }
+
+    /**
+     * Check whether the Magnetar Coil megastructure is active.
+     */
+    private static boolean isMagnetarCoilActive(CelestialForgingAnvilBlockEntity blockEntity) {
+        if (blockEntity.getActiveMegastructureIndex() < 0) return false;
+        var option = blockEntity.getActiveMegastructureOption();
+        if (option == null) return false;
+        return "magnetar_coil".equals(option.megastructure());
     }
 
     /**
@@ -323,7 +454,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.scale(6, 6, 6);
         // Apply star's axial tilt and Y rotation — same as star body rendering
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
-        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * star.rotationSpeed()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
 
         if (renderR4) {
             renderRingCutout(R4_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
@@ -331,6 +462,48 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (renderR5) {
             renderRingCutout(R5_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
         }
+        poseStack.popPose();
+    }
+
+    /**
+     * Render Magnetar Coil rings with two models at the R4 position:
+     * <ul>
+     *   <li>{@code ring_4_coil_ring} — mechanical rotation (same bone hierarchy as original R4 inner ring)</li>
+     *   <li>{@code ring_4_coil_fix} — star-synchronous rotation (like Dyson Sphere, stays still relative to star)</li>
+     * </ul>
+     */
+    private void renderMagnetarCoilRings(
+        float centerY,
+        float rot,
+        float bodyRot,
+        StarData star,
+        float scale,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        ModelBlockRenderer modelRenderer
+    ) {
+        if (scale < 0.001f) return;
+
+        // === Ring model (mechanical rotation, same as original R4 inner ring) ===
+        poseStack.pushPose();
+        poseStack.translate(0.5, centerY, 0.5);
+        poseStack.scale(6, 6, 6);
+        // Apply the full bone hierarchy to position at the "in" bone level
+        poseStack.mulPose(Axis.YP.rotationDegrees(-rot));
+        poseStack.mulPose(Axis.XP.rotationDegrees(14.5108f));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-3.8411f));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(14.5109f));
+        poseStack.mulPose(Axis.XP.rotationDegrees(90.0f + rot));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
+        renderRingCutout(R4_COIL_RING, poseStack, bufferSource, packedOverlay, modelRenderer);
+        poseStack.popPose();
+
+        // === Fix model (completely static, no rotation) ===
+        poseStack.pushPose();
+        poseStack.translate(0.5, centerY, 0.5);
+        poseStack.scale(6, 6, 6);
+        renderRingCutout(R4_COIL_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
     }
 
@@ -350,8 +523,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             return switch (ring) {
                 case 1 -> !(bodyData instanceof GiantPlanetData);
                 case 2 -> true;
-                case 3 -> !(bodyData instanceof RockyPlanetData)
-                && !(bodyData instanceof SpecialCelestialBodyData);
+                case 3 -> !(bodyData instanceof RockyPlanetData) && !(bodyData instanceof SpecialCelestialBodyData);
                 default -> false;
             };
         }
@@ -377,7 +549,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         // Rings 1-3: non-amplify mode, Rings 4-6: amplify mode
         boolean isAmplify = ringIndex >= 4;
         boolean visibleNow = isRingVisible(ringIndex, currBody, isAmplify);
-        // null prevBody means no previous body → all rings were visible
+        // null prevBody: CFA rings exist before the body — all were visible.
+        // Rings that no longer apply fade out; rings that remain stay visible.
         boolean wasVisible = prevBody == null || isRingVisible(ringIndex, prevBody, isAmplify);
 
         if (!isAnimating) {
@@ -430,6 +603,44 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         );
     }
 
+    private void renderBakedModelCutout(
+        ModelResourceLocation modelId,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay
+    ) {
+        renderBakedModel(modelId, poseStack, bufferSource, packedOverlay, RenderType.cutout());
+    }
+
+    /**
+     * Render a baked model with a specified render type.
+     */
+    @SuppressWarnings("checkstyle:Indentation")
+    private void renderBakedModel(
+        ModelResourceLocation modelId,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        RenderType renderType
+    ) {
+        BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelId);
+        if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
+        Minecraft.getInstance()
+            .getBlockRenderer()
+            .getModelRenderer()
+            .renderModel(
+                poseStack.last(),
+                bufferSource.getBuffer(renderType),
+                null,
+                model,
+                1.0f,
+                1.0f,
+                1.0f,
+                LightTexture.FULL_BRIGHT,
+                packedOverlay
+            );
+    }
+
     /**
      * Render a ring model scaled around its center (the model origin, since rings are centered at 0,0,0).
      *
@@ -470,9 +681,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             poseStack.popPose();
             return;
         }
+
         poseStack.scale(scale, scale, scale);
         poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
-        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * CelestialBodyData.getVisualRotationSpeed(bodyData.rotationSpeed())));
         poseStack.translate(-0.5, -0.5, -0.5);
 
         // Complex custom models (shattered, hollow, flesh, intelligence, error)
@@ -506,8 +718,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.popPose();
     }
 
-    private static final ModelResourceLocation STAR_MODEL =
-        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star"));
+    private static final ModelResourceLocation STAR_MODEL = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star"));
+
+    private static ModelResourceLocation getStarModel(StarData star) {
+        if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) return NEUTRON_STAR_MODEL;
+        if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return BLACK_HOLE_MODEL;
+        return STAR_MODEL;
+    }
 
     /**
      * Render a complex-model celestial body (shattered planet, hollow planet)
@@ -519,37 +736,41 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         MultiBufferSource bufferSource,
         int packedOverlay
     ) {
-        BakedModel model = Minecraft.getInstance().getModelManager()
-            .getModel(special.specialType().getModelLocation());
+        BakedModel model = Minecraft.getInstance().getModelManager().getModel(special.specialType().getModelLocation());
         if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
 
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
-        Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
-            poseStack.last(), consumer, null, model,
-            1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay
-        );
+        Minecraft.getInstance()
+            .getBlockRenderer()
+            .getModelRenderer()
+            .renderModel(poseStack.last(), consumer, null, model, 1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
     }
 
     /**
      * Render a star: animated base model + color-tint overlay + halo.
      * The block model provides animation (via .mcmeta), the translucent
      * overlay cube provides the star-specific color from energy anvil count.
+     * Special-cases neutron stars and black holes which use dedicated models.
      */
-    private void renderStarModel(
-        StarData star,
-        PoseStack poseStack,
-        MultiBufferSource bufferSource,
-        int packedOverlay,
-        long seed
-    ) {
+    private void renderStarModel(StarData star, PoseStack poseStack, MultiBufferSource bufferSource, int packedOverlay, long seed) {
+        // Stellar remnants use dedicated models without color overlay or halo
+        if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+            renderBakedModel(getStarModel(star), poseStack, bufferSource, packedOverlay, RenderType.translucent());
+            return;
+        }
+        if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
+            renderBakedModelCutout(getStarModel(star), poseStack, bufferSource, packedOverlay);
+            return;
+        }
+
         // Animated grayscale star model (block atlas, supports .mcmeta)
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(STAR_MODEL);
+        BakedModel model = Minecraft.getInstance().getModelManager().getModel(getStarModel(star));
         if (model != Minecraft.getInstance().getModelManager().getMissingModel()) {
             VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
-            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
-                poseStack.last(), consumer, null, model,
-                1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay
-            );
+            Minecraft.getInstance()
+                .getBlockRenderer()
+                .getModelRenderer()
+                .renderModel(poseStack.last(), consumer, null, model, 1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
         }
 
         // Color overlay — multiplicative blend for accurate palette coloring
@@ -598,7 +819,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
         poseStack.scale(ringScale, ringScale, ringScale);
         poseStack.mulPose(Axis.XP.rotationDegrees(bodyData.axialTilt()));
-        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * bodyData.rotationSpeed()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * CelestialBodyData.getVisualRotationSpeed(bodyData.rotationSpeed())));
         poseStack.translate(-0.5, -0.5, -0.5);
 
         VertexConsumer ringConsumer = bufferSource.getBuffer(RenderType.entityTranslucent(ringTexture));
@@ -639,9 +860,15 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             poseStack.scale(1.125f, 1.125f, 1.125f);
             poseStack.translate(-0.5, -0.5, -0.5);
             renderAtmosphereCube(
-                poseStack, bufferSource,
-                atmosRgb[0], atmosRgb[1], atmosRgb[2],
-                0.2f, LightTexture.FULL_BRIGHT, packedOverlay, seed
+                poseStack,
+                bufferSource,
+                atmosRgb[0],
+                atmosRgb[1],
+                atmosRgb[2],
+                0.2f,
+                LightTexture.FULL_BRIGHT,
+                packedOverlay,
+                seed
             );
             poseStack.popPose();
         }
@@ -659,9 +886,15 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 poseStack.scale(haloScale, haloScale, haloScale);
                 poseStack.translate(-0.5, -0.5, -0.5);
                 renderTranslucentCube(
-                    poseStack, bufferSource,
-                    rgb[0], rgb[1], rgb[2],
-                    alpha, LightTexture.FULL_BRIGHT, packedOverlay, seed
+                    poseStack,
+                    bufferSource,
+                    rgb[0],
+                    rgb[1],
+                    rgb[2],
+                    alpha,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay,
+                    seed
                 );
                 poseStack.popPose();
             }
@@ -672,10 +905,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
      * Renders a cube with multiplicative blending ({@code DST_COLOR * SRC_COLOR}),
      * used for star color overlay to achieve accurate palette-like coloring.
      */
-    private void renderColorOverlay(
-        PoseStack poseStack, MultiBufferSource bufferSource,
-        float r, float g, float b, int packedOverlay
-    ) {
+    private void renderColorOverlay(PoseStack poseStack, MultiBufferSource bufferSource, float r, float g, float b, int packedOverlay) {
         BakedModel cubeModel = blockRenderer.getBlockModel(whiteConcrete);
         VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.STAR_COLOR_OVERLAY);
         RandomSource random = RandomSource.create(42L);
@@ -770,18 +1000,21 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     /**
      * Get the visual scale for a celestial body.
-     * All bodies use the same 16³ cube base and the same scale formula —
-     * only the space anvil count (size) matters for visual size.
-     * Below size 20: linear growth. Above size 20: accelerating (quadratic) growth.
-     * Max size 64 ≈ old size-30 effective scale (2.63), prevents clipping.
      */
     private float getBodyScale(CelestialBodyData data) {
+        // Stellar remnants use fixed scales independent of the stored size
+        if (data instanceof StarData star) {
+            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+                return 1.5f;
+            }
+            if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
+                return 0.8f;
+            }
+        }
         int size = data.size();
         if (size <= 20) {
-            // Linear: size 1 → 0.3, size 20 → 1.5
             return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
         } else {
-            // Quadratic acceleration: size 20 → 1.5, size 64 → 3.95
             float t = (size - 20) / 44f;
             return 1.5f * (1.0f + t * t * 1.63f);
         }

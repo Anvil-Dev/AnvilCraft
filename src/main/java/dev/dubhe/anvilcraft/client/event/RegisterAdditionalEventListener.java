@@ -79,5 +79,7 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/planet_hollow")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/planet_error")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/neutron_star")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/black_hole")));
     }
 }

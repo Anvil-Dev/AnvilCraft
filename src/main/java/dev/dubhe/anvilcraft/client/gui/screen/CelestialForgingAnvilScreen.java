@@ -6,6 +6,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
@@ -165,6 +167,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     // Resource bar scroll
     private int resourceScrollOffset = 0;
 
+    // Local countdown for accelerator progress (client-side, decremented every tick)
+    private int localAcceleratorTicksRemaining = 0;
+
     // Ring scale divisors: larger ring → larger divisor → rendered smaller to match ring 1
     // ring_small parent (rings 1-2): main ring ~8 unit radius
     // ring_big parent (rings 4-5): main ring ~12.75 unit radius (~1.6×)
@@ -172,6 +177,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final float RING2_SCALE_DIV = 1.25f;
     private static final float RING4_SCALE_DIV = 1.60f;
     private static final float RING5_SCALE_DIV = 1.85f;
+    private static final float RING6_SCALE_DIV = 2.10f;
 
     // Refactor state
     private List<CelestialRefactorOption> refactorOptions = List.of();
@@ -212,6 +218,24 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (lockedMsgTick > 0) lockedMsgTick--;
         if (refactorErrorTick > 0) refactorErrorTick--;
         if (unlockWarningTick > 0) unlockWarningTick--;
+
+        // Client-side countdown for accelerator progress display
+        {
+            var beAccel = getMenu().getBlockEntity();
+            if (beAccel.isAcceleratorActive()) {
+                int serverTicks = beAccel.getAcceleratorTicksRemaining();
+                // First time init or server value is strictly ahead (lower)
+                if (localAcceleratorTicksRemaining <= 0 || serverTicks < localAcceleratorTicksRemaining) {
+                    localAcceleratorTicksRemaining = serverTicks;
+                }
+                if (localAcceleratorTicksRemaining > 0) {
+                    localAcceleratorTicksRemaining--;
+                }
+            } else {
+                localAcceleratorTicksRemaining = 0;
+            }
+        }
+
         if (searchState == SearchState.LOADING) {
             var be = getMenu().getBlockEntity();
             CelestialBodyData cur = be.getCelestialBodyData();
@@ -278,14 +302,23 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderRefactorSection(GuiGraphics guiGraphics, int guiLeft, int guiTop, int relX, int relY) {
         // Refresh available options for the locked body
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean isActive = isLocked() && body != null && searchState == SearchState.DONE && getMenu().getBlockEntity()
-                                                                                                .getActiveMegastructureIndex() < 0;
+        boolean hasAcceleratorActive = getMenu().getBlockEntity().isAcceleratorActive();
+        boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
+        // Show options when locked & body present & search done, and accelerator not active
+        boolean isActive = isLocked() && body != null && searchState == SearchState.DONE
+            && !hasAcceleratorActive;
         if (isActive) {
             refactorOptions = CelestialRefactorRegistry.getOptions(
                 body,
                 getMenu().getBlockEntity().isAmplify(),
                 getMenu().getBlockEntity().getPlanetaryResourceSet()
             );
+            // If another megastructure is built, only show the accelerator (which can coexist)
+            if (hasMegastructure) {
+                refactorOptions = refactorOptions.stream()
+                    .filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure()))
+                    .toList();
+            }
         } else {
             refactorOptions = List.of();
         }
@@ -380,6 +413,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             case 2 -> RING2_SCALE_DIV;
             case 4 -> RING4_SCALE_DIV;
             case 5 -> RING5_SCALE_DIV;
+            case 6 -> RING6_SCALE_DIV;
             default -> 1.0f;
         };
         float scale = baseScale / divisor;
@@ -471,6 +505,16 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final float UI_AXIAL_TILT = 25f;
 
     private static final ModelResourceLocation UI_STAR_MODEL = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star"));
+    private static final ModelResourceLocation UI_NEUTRON_STAR_MODEL =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/neutron_star"));
+    private static final ModelResourceLocation UI_BLACK_HOLE_MODEL =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/black_hole"));
+
+    private static ModelResourceLocation getUiStarModel(StarData star) {
+        if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) return UI_NEUTRON_STAR_MODEL;
+        if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return UI_BLACK_HOLE_MODEL;
+        return UI_STAR_MODEL;
+    }
 
     private void renderBodyPreview(GuiGraphics guiGraphics, CelestialBodyData body) {
         // Complex custom models (shattered, hollow, flesh, intelligence, error)
@@ -482,7 +526,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float scale = size / 2f;
         int cx = PV_X + PV_BODY_W / 2;
         int cy = PV_Y + PV_BODY_H / 2;
-        float rotY = (previewRotTick * body.rotationSpeed()) * (float) Math.PI / 180f;
+        float rotY = (previewRotTick * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())) * (float) Math.PI / 180f;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(cx, cy, 100);
@@ -492,7 +536,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guiGraphics.pose().translate(-0.5, -0.5, -0.5);
 
         // Star: model loading with color overlay + halo (120% size)
+        // Neutron stars and black holes use dedicated models without color overlay/halo
         if (body instanceof StarData star) {
+            if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
+                || star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+                renderRemnantModelPreview(guiGraphics, star);
+                guiGraphics.pose().popPose();
+                return;
+            }
             renderStarPreview(guiGraphics, star);
             guiGraphics.pose().popPose();
             return;
@@ -553,7 +604,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     )
     private void renderStarPreview(GuiGraphics guiGraphics, StarData star) {
         if (minecraft == null) return;
-        BakedModel model = minecraft.getModelManager().getModel(UI_STAR_MODEL);
+        BakedModel model = minecraft.getModelManager().getModel(getUiStarModel(star));
         if (model == minecraft.getModelManager().getMissingModel()) return;
 
         var buf = guiGraphics.bufferSource();
@@ -615,7 +666,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float scale = size / 2f;
         int cx = PV_X + PV_BODY_W / 2;
         int cy = PV_Y + PV_BODY_H / 2;
-        float rotY = (previewRotTick * special.rotationSpeed()) * (float) Math.PI / 180f;
+        float rotY = (previewRotTick * CelestialBodyData.getVisualRotationSpeed(special.rotationSpeed())) * (float) Math.PI / 180f;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(cx, cy, 100);
@@ -666,8 +717,48 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         return null;
     }
 
+    /**
+     * Render a neutron star or black hole model in the preview area.
+     * The pose is already set up by the caller — just render the model, no color overlay or halo.
+     */
+    private void renderRemnantModelPreview(GuiGraphics guiGraphics, StarData star) {
+        if (minecraft == null) return;
+        BakedModel model = minecraft.getModelManager().getModel(getUiStarModel(star));
+        if (model == minecraft.getModelManager().getMissingModel()) return;
+
+        // Black hole event horizon is small but accretion disk is large — scale up
+        if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0.5, 0.5, 0.5);
+            guiGraphics.pose().scale(1.5f, 1.5f, 1.5f);
+            guiGraphics.pose().translate(-0.5, -0.5, -0.5);
+        }
+
+        var buf = guiGraphics.bufferSource();
+        minecraft.getBlockRenderer().getModelRenderer().renderModel(
+            guiGraphics.pose().last(),
+            buf.getBuffer(RenderType.cutout()),
+            null,
+            model,
+            1.0f, 1.0f, 1.0f,
+            LightTexture.FULL_BRIGHT,
+            0
+        );
+        buf.endBatch();
+        if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+            guiGraphics.pose().popPose();
+        }
+    }
+
     private void renderBodyInfo(GuiGraphics guiGraphics, CelestialBodyData body) {
         var be = getMenu().getBlockEntity();
+
+        // Show accelerator evolution progress instead of normal body info
+        if (be.isAcceleratorActive()) {
+            renderAcceleratorProgress(guiGraphics, be);
+            return;
+        }
+
         float offsetAge = be.getDisplayOffset(0);
         float offsetRadius = be.getDisplayOffset(1);
         float offsetMass = be.getDisplayOffset(2);
@@ -710,6 +801,56 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int thumbY = PV_INFO_Y + (PV_INFO_H - thumbH) * scrollOffset / maxScroll;
             guiGraphics.fill(sbX, thumbY, sbX + sbW, thumbY + thumbH, 0x80_CCCCCC);
         }
+    }
+
+    /**
+     * Render the stellar evolution accelerator progress in the info panel.
+     */
+    private void renderAcceleratorProgress(GuiGraphics guiGraphics, CelestialForgingAnvilBlockEntity be) {
+        List<Component> lines = new ArrayList<>();
+        int stage = be.getAcceleratorStage();
+        String stageKey = switch (stage) {
+            case 1 -> "screen.anvilcraft.cfa.evolution.stage1";
+            case 2 -> "screen.anvilcraft.cfa.evolution.stage2";
+            case 3 -> "screen.anvilcraft.cfa.evolution.stage3";
+            case 4 -> "screen.anvilcraft.cfa.evolution.stage4";
+            default -> "screen.anvilcraft.cfa.evolution.stage_unknown";
+        };
+        lines.add(Component.translatable(stageKey));
+        // Time remaining (use local countdown that decrements every client tick)
+        int displayTicks = localAcceleratorTicksRemaining > 0 ? localAcceleratorTicksRemaining : be.getAcceleratorTicksRemaining();
+        int secondsRemaining = displayTicks / 20;
+        lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.time_remaining",
+            Component.literal(formatDuration(secondsRemaining))));
+        // Progress bar info
+        if (be.getAcceleratorTicksTotal() > 0) {
+            int pct = (int) ((1.0f - (float) displayTicks / be.getAcceleratorTicksTotal()) * 100);
+            lines.add(Component.literal(pct + "%"));
+        }
+        // Infinite power indicator for Stage 1
+        if (stage == 1 && be.getActiveMegastructureIndex() >= 0) {
+            var opt = be.getActiveMegastructureOption();
+            if (opt != null && (opt.megastructure().contains("dyson_sphere"))) {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
+            }
+        }
+
+        int lineHeight = font.lineHeight + 1;
+        int y = PV_INFO_Y;
+        for (Component line : lines) {
+            guiGraphics.drawString(font, line, PV_INFO_X, y, 0xFFFFFF, false);
+            y += lineHeight;
+        }
+    }
+
+    private static String formatDuration(int totalSeconds) {
+        int hours = totalSeconds / 3600;
+        int minutes = (totalSeconds % 3600) / 60;
+        int seconds = totalSeconds % 60;
+        if (hours > 0) {
+            return String.format("%d:%02d:%02d", hours, minutes, seconds);
+        }
+        return String.format("%d:%02d", minutes, seconds);
     }
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
@@ -976,24 +1117,21 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             case 2 -> "screen.anvilcraft.cfa.mag.weak";
             case 3 -> "screen.anvilcraft.cfa.mag.medium";
             case 4 -> "screen.anvilcraft.cfa.mag.strong";
-            default -> "screen.anvilcraft.cfa.mag.very_strong";
+            case 5 -> "screen.anvilcraft.cfa.mag.very_strong";
+            default -> "screen.anvilcraft.cfa.mag.extreme";
         };
         return Component.translatable("screen.anvilcraft.cfa.mag", Component.translatable(key));
     }
 
-    private Component spinText(float speed) {
-        String key;
-        if (speed <= 0.2f) {
-            key = "screen.anvilcraft.cfa.spin.very_slow";
-        } else if (speed <= 0.6f) {
-            key = "screen.anvilcraft.cfa.spin.slow";
-        } else if (speed <= 1.2f) {
-            key = "screen.anvilcraft.cfa.spin.medium";
-        } else if (speed <= 2.0f) {
-            key = "screen.anvilcraft.cfa.spin.fast";
-        } else {
-            key = "screen.anvilcraft.cfa.spin.very_fast";
-        }
+    private Component spinText(int level) {
+        String key = switch (level) {
+            case 0 -> "screen.anvilcraft.cfa.spin.very_slow";
+            case 1 -> "screen.anvilcraft.cfa.spin.slow";
+            case 2 -> "screen.anvilcraft.cfa.spin.medium";
+            case 3 -> "screen.anvilcraft.cfa.spin.fast";
+            case 4 -> "screen.anvilcraft.cfa.spin.very_fast";
+            default -> "screen.anvilcraft.cfa.spin.super_fast";
+        };
         return Component.translatable("screen.anvilcraft.cfa.spin", Component.translatable(key));
     }
 
@@ -1033,6 +1171,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         if (unlockWarningTick > 0) {
             Component msg = Component.translatable("screen.anvilcraft.cfa.unlock_warning");
+            int w = font.width(msg);
+            guiGraphics.drawString(font, msg, leftPos + (imageWidth - w) / 2, topPos - 12, 0xFF5555, true);
+        }
+        if (getMenu().getBlockEntity().isAcceleratorActive()) {
+            Component msg = Component.translatable("screen.anvilcraft.cfa.evolution_cannot_unlock");
             int w = font.width(msg);
             guiGraphics.drawString(font, msg, leftPos + (imageWidth - w) / 2, topPos - 12, 0xFF5555, true);
         }
@@ -1164,6 +1307,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             return true;
         }
         if (isOverLockButton(relX, relY) && (searchState == SearchState.DONE || searchState == SearchState.LOADING)) {
+            if (getMenu().getBlockEntity().isAcceleratorActive()) {
+                return true;
+            }
             if (isLocked() && !hasShiftDown()) {
                 showUnlockWarning();
                 return true;

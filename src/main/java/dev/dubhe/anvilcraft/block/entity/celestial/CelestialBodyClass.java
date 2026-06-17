@@ -53,7 +53,11 @@ public enum CelestialBodyClass {
     O_SUPERGIANT(0x33CCFF, true, false, true),
 
     // === White dwarf ===
-    WHITE_DWARF(0x666666, true, false, true);
+    WHITE_DWARF(0x666666, true, false, true),
+
+    // === Stellar remnants (special rendering) ===
+    NEUTRON_STAR(0x000001, true, false, false),
+    BLACK_HOLE(0x000002, true, false, false);
 
     private final int rgb;
     /**
@@ -123,10 +127,6 @@ public enum CelestialBodyClass {
      */
     public int step2MatchRgb() {
         return isRockyPlanet() ? ROCKY_LOW_LIQUID.rgb : rgb;
-    }
-
-    public boolean isGiantPlanet() {
-        return this == ICE_GIANT || this == GAS_GIANT;
     }
 
     @Nullable

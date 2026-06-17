@@ -70,14 +70,14 @@ public final class CelestialBodyMatcher {
     /**
      * Maps anvil count (1–64) to 0-indexed diagram x pixel.
      */
-    private static int toX(int count) {
+    public static int toX(int count) {
         return Math.clamp(count - 1, 0, DIAG_SIZE - 1);
     }
 
     /**
      * Maps anvil count (1–64) to 0-indexed diagram y pixel (inverted: bottom→top).
      */
-    private static int toY(int count) {
+    public static int toY(int count) {
         return Math.clamp(DIAG_SIZE - count, 0, DIAG_SIZE - 1);
     }
 
@@ -261,10 +261,11 @@ public final class CelestialBodyMatcher {
         // Get color from star_color_temperature.png at row = energy
         int[] rgb = getStarColorFromTempDiagram(energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
+        int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : randomRotationSpeed(random);
         return new StarData(
             bodyClass,
             size, rgb[0], rgb[1], rgb[2],
-            0f, randomRotationSpeed(random), mag, energy  // stars have no axial tilt
+            0f, rotSpeed, mag, energy  // stars have no axial tilt, black holes don't rotate
         );
     }
 
@@ -308,14 +309,25 @@ public final class CelestialBodyMatcher {
         return 90f * raw * raw;
     }
 
-    private static float randomRotationSpeed(RandomSource random) {
-        // Discrete weighted values: 0.1 (1%), 0.5 (25%), 1.0 (48%), 1.5 (25%), 3.0 (1%)
+    /**
+     * Random rotation speed level (0-5).
+     * <ul>
+     *   <li>0 = Very Slow (1%)</li>
+     *   <li>1 = Slow (25%)</li>
+     *   <li>2 = Medium (48%)</li>
+     *   <li>3 = Fast (25%)</li>
+     *   <li>4 = Very Fast (1%)</li>
+     *   <li>5 = Super Fast (0.1%)</li>
+     * </ul>
+     */
+    private static int randomRotationSpeed(RandomSource random) {
         float f = random.nextFloat();
-        if (f < 0.01f) return 0.1f;
-        if (f < 0.26f) return 0.5f;
-        if (f < 0.74f) return 1.0f;
-        if (f < 0.99f) return 1.5f;
-        return 3.0f;
+        if (f < 0.01f) return 0;
+        if (f < 0.26f) return 1;
+        if (f < 0.74f) return 2;
+        if (f < 0.99f) return 3;
+        if (f < 0.999f) return 4;
+        return 5; // Super Fast
     }
 
     @SuppressWarnings("checkstyle:NeedBraces")
@@ -328,5 +340,77 @@ public final class CelestialBodyMatcher {
         int g = (argb >> 8) & 0xFF;
         int b = (argb >> 16) & 0xFF;
         return new int[] {r, g, b};
+    }
+
+    // === Pixel scanning for stellar evolution accelerator ===
+
+    /**
+     * Count non-black pixels to the right of (x, y) in the age-temp diagram
+     * until hitting a pure black pixel (0x000000) or reaching the right edge.
+     * Starts from x+1 (the current pixel represents the star's current state,
+     * remaining lifetime is counted from the next pixel).
+     * Used to determine remaining main sequence lifetime.
+     */
+    public static int countPixelsRightInAgeTemp(int x, int y) {
+        ensureLoaded();
+        if (ageTempImage == null) return 0;
+        int count = 0;
+        for (int scanX = x + 1; scanX < DIAG_SIZE; scanX++) {
+            int rgb = getRgb(ageTempImage, scanX, y);
+            if (rgb == 0x000000) break;
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Count non-black pixels downward (lower energy, higher PNG Y) from (x, y)
+     * in the age-temp-sp diagram until hitting pure black or reaching the bottom edge.
+     * Starts from y+1 (the current pixel represents the star's current state).
+     * Used to determine remaining giant/supergiant phase lifetime.
+     */
+    public static int countPixelsDownInAgeTempSp(int x, int y) {
+        ensureLoaded();
+        if (ageTempSpImage == null) return 0;
+        int count = 0;
+        for (int scanY = y + 1; scanY < DIAG_SIZE; scanY++) {
+            int rgb = getRgb(ageTempSpImage, x, scanY);
+            if (rgb == 0x000000) break;
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Count the total non-black pixels in the current colored segment of the column
+     * at position x in age-temp-sp. Scans from the first non-black pixel after any
+     * black separator down to the next black separator, counting all colored pixels.
+     * Used to calculate the fraction for giant phase timing.
+     */
+    public static int countTotalColoredPixelsInAgeTempSpColumn(int x, int startY) {
+        ensureLoaded();
+        if (ageTempSpImage == null) return 0;
+        // Scan upward from startY to find the top of this colored segment (first black pixel above)
+        int segmentTop = startY;
+        for (int scanY = startY - 1; scanY >= 0; scanY--) {
+            if (getRgb(ageTempSpImage, x, scanY) == 0x000000) break;
+            segmentTop = scanY;
+        }
+        // Scan downward from segmentTop to count all colored pixels until black
+        int count = 0;
+        for (int scanY = segmentTop; scanY < DIAG_SIZE; scanY++) {
+            int rgb = getRgb(ageTempSpImage, x, scanY);
+            if (rgb == 0x000000) break;
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Get the RGB color from star_color_temperature.png for a given energy anvil count.
+     * Public for use by the stellar evolution accelerator when creating remnants.
+     */
+    public static int[] getStarColor(int energy) {
+        return getStarColorFromTempDiagram(energy);
     }
 }
