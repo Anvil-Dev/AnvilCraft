@@ -59,13 +59,13 @@ public class PillSelectorSupport {
             78, 44,
             78, 44
         );
-        if (contents == null) return;
-        for (int i = 0; i < contents.pills().size(); i++) {
-            ItemStack stack = contents.pills().get(i);
+        if (this.contents == null) return;
+        for (int i = 0; i < this.contents.pills().size(); i++) {
+            ItemStack stack = this.contents.pills().get(i);
             graphics.fakeItem(stack, left + 4 + i % 4 * 18, top + 4 + i / 4 * 18);
             graphics.itemDecorations(Minecraft.getInstance().font, stack, left + 4 + i % 4 * 18, top + 4 + i / 4 * 18);
         }
-        int index = contents.index();
+        int index = this.contents.index();
         if (index >= 0) {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
