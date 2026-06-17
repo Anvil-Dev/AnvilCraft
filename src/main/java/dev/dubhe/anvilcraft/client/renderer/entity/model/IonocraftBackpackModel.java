@@ -24,6 +24,15 @@ public class IonocraftBackpackModel extends HumanoidModel<HumanoidRenderState> {
         MeshDefinition meshdefinition = HumanoidModel.createMesh(CubeDeformation.NONE, 0F);
         PartDefinition partdefinition = meshdefinition.getRoot();
 
+        // 清空头、腿、手臂——只保留背包的 body 部分。
+        // hat 必须是 head 的子节点，HumanoidModel 构造函数里 this.hat = this.head.getChild("hat")
+        PartDefinition head = partdefinition.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
+        head.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("right_arm", CubeListBuilder.create(), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("left_arm", CubeListBuilder.create(), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("right_leg", CubeListBuilder.create(), PartPose.ZERO);
+        partdefinition.addOrReplaceChild("left_leg", CubeListBuilder.create(), PartPose.ZERO);
+
         PartDefinition body = partdefinition.addOrReplaceChild(
             "body",
             CubeListBuilder.create()

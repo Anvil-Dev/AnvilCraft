@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
+import dev.dubhe.anvilcraft.client.support.FilterSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -180,9 +181,16 @@ public class ClientEventListener {
             AmuletSelectorSupport.render(graphics, x, y);
         } else if (itemStack.is(ModItems.PILL_BOX)) {
             event.setY(y + 13);
+            AnvilCraftClient.pillSelectorSupport.setPillBox(itemStack);
             AnvilCraftClient.pillSelectorSupport.render(graphics, x, y);
+        } else if (itemStack.is(ModItems.FILTER)) {
+            event.setY(y + 13);
+            FilterSelectorSupport.setCurrentFilterStack(itemStack);
+            FilterSelectorSupport.render(graphics, x, y);
         } else {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
+            AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);
+            FilterSelectorSupport.setCurrentFilterStack(ItemStack.EMPTY);
         }
     }
 }

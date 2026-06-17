@@ -15,6 +15,9 @@ public class ModParticles {
     public static final Supplier<SimpleParticleType> PLASMA_JETS = REGISTER.register(
         "plasma_jets", () -> new SimpleParticleType(false)
     );
+    public static final Supplier<SimpleParticleType> IONOCRAFT_BACKPACK_EXHAUST = REGISTER.register(
+        "ionocraft_backpack_exhaust", () -> new SimpleParticleType(false)
+    );
 
     public static void register(IEventBus modBus) {
         REGISTER.register(modBus);

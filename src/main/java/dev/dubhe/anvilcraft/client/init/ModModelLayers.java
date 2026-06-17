@@ -12,6 +12,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import org.jspecify.annotations.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ModModelLayers {
@@ -22,6 +23,7 @@ public class ModModelLayers {
     public static final ModelLayerLocation CAULDRON_OUTLET = CauldronOutletModel.LAYER_LOCATION;
 
     @Getter
+    @Nullable
     private static IonocraftBackpackModel ionocraftBackpackModel;
 
     @SubscribeEvent

@@ -1,11 +1,8 @@
 package dev.dubhe.anvilcraft.item.utility;
 
-import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.SlotAccess;
@@ -14,11 +11,9 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class PillBoxItem extends Item {
     public PillBoxItem(Properties properties) {
@@ -119,14 +114,4 @@ public class PillBoxItem extends Item {
         return false;
     }
 
-    public static void appendHoverText(Consumer<Component> builder, TooltipFlag flag) {
-        if (flag.hasShiftDown()) {
-            builder.accept(Component.translatable(
-                "tooltip.anvilcraft.pill_box",
-                Component.keybind("key.anvilcraft.use_pill_box")
-            ).withStyle(ChatFormatting.GRAY));
-        } else {
-            builder.accept(ItemTooltipManager.SHIFT_TIP);
-        }
-    }
 }

@@ -38,6 +38,7 @@ import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -58,9 +59,34 @@ public class DischargerBlockEntity extends BlockEntity
     @Getter
     @Setter
     private boolean isFeDischarging = false;
+    private boolean isFeDischarged = false; // FE 放电已完成，等待移出
     private int signalCache = 0;
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(3) {
+
+        @Override
+        public boolean isValid(int index, ItemResource resource) {
+            // 只允许从输入槽(slot 0)放入物品
+            if (index != 0) return false;
+            return super.isValid(index, resource);
+        }
+
+        @Override
+        public int extract(int index, ItemResource resource, int maxExtract, TransactionContext transaction) {
+            // 漏斗只能从输出槽(slot 2)抽取物品
+            if (index != 2) return 0;
+            return super.extract(index, resource, maxExtract, transaction);
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+
+        @Override
+        protected int getCapacity(int index, ItemResource resource) {
+            return this.getSlotLimit(index);
+        }
 
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
@@ -69,7 +95,7 @@ public class DischargerBlockEntity extends BlockEntity
             if (level == null || level.isClientSide()) return;
             DischargerBlockEntity.this.setChanged();
             DischargerBlockEntity.this.updateDisplayItemStack();
-            DischargerBlockEntity.this.level.sendBlockUpdated(
+            level.sendBlockUpdated(
                 DischargerBlockEntity.this.getBlockPos(),
                 DischargerBlockEntity.this.getBlockState(),
                 DischargerBlockEntity.this.getBlockState(),
@@ -177,6 +203,7 @@ public class DischargerBlockEntity extends BlockEntity
         this.itemHandler.set(1, ItemResource.EMPTY, 0);
         this.powerValue = 0;
         this.isFeDischarging = false;
+        this.isFeDischarged = false;
     }
 
     private void updateDisplayItemStack() {
@@ -221,6 +248,7 @@ public class DischargerBlockEntity extends BlockEntity
         output.putInt("TimeTotalCache", this.timeTotalCache);
         this.itemHandler.serialize(output.child("Depository"));
         output.putBoolean("FeDischarging", this.isFeDischarging);
+        output.putBoolean("FeDischarged", this.isFeDischarged);
     }
 
     @Override
@@ -230,6 +258,7 @@ public class DischargerBlockEntity extends BlockEntity
         this.timeTotalCache = input.getIntOr("TimeTotalCache", 0);
         this.itemHandler.deserialize(input.childOrEmpty("Depository"));
         this.isFeDischarging = input.getBooleanOr("FeDischarging", false);
+        this.isFeDischarged = input.getBooleanOr("FeDischarged", false);
     }
 
     private int getFeDischargingPowerLevel() {
@@ -364,6 +393,7 @@ public class DischargerBlockEntity extends BlockEntity
                         int currentEnergy = storage.getAmountAsInt();
                         if (currentEnergy <= 0) {
                             this.isFeDischarging = false;
+                            this.isFeDischarged = true; // 标记放电完成，等待移入输出槽
                             this.timeLeft = 0;
                             this.timeTotalCache = 0;
                         } else {
@@ -411,6 +441,7 @@ public class DischargerBlockEntity extends BlockEntity
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (this.level == null) return;
         FilteredItemStackHandler depository = this.getFilteredItemStackHandler();
         for (int slot = 0; slot < depository.size(); slot++) {
             ItemStack stack = depository.getStacks().get(slot).copy();

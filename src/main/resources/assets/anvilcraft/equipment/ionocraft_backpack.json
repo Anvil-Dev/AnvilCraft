@@ -1,9 +1,9 @@
 {
   "layers": {
-    "wings": [
+    "humanoid": [
       {
-        "texture": "anvilcraft:ionocraft",
-        "use_player_texture": true
+        "texture": "anvilcraft:ionocraft_backpack",
+        "use_player_texture": false
       }
     ]
   }

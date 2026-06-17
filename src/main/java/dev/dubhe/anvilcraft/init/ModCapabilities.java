@@ -71,25 +71,25 @@ public class ModCapabilities {
         // 武器物品注册 FE ITEM capability
         event.registerItem(
             Capabilities.Energy.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, AnvilRailgunItem.MAX_ENERGY),
+            (stack, ctx) -> ItemFEStorage.create(stack, ctx, AnvilRailgunItem.MAX_ENERGY),
             ModItems.ANVIL_RAILGUN.get()
         );
         event.registerItem(
             Capabilities.Energy.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, SpectralWeaponLauncherItem.MAX_ENERGY),
+            (stack, ctx) -> ItemFEStorage.create(stack, ctx, SpectralWeaponLauncherItem.MAX_ENERGY),
             ModItems.SPECTRAL_WEAPON_LAUNCHER.get()
         );
         // 能量武器平台
         event.registerItem(
             Capabilities.Energy.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, 640000000),
+            (stack, ctx) -> ItemFEStorage.create(stack, ctx, 640000000),
             ModItems.ENERGY_WEAPON_PLATFORM.get()
         );
 
         // 飘升机背包 FE capability
         event.registerItem(
             Capabilities.Energy.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, IonoCraftBackpackItem.MAX_ENERGY),
+            (stack, ctx) -> ItemFEStorage.create(stack, ctx, IonoCraftBackpackItem.MAX_ENERGY),
             ModItems.IONOCRAFT_BACKPACK.get()
         );
 
