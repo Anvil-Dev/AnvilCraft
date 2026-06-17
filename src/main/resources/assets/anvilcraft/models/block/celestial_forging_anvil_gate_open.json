@@ -9,7 +9,7 @@
 		"2": "anvilcraft:block/celestial_forging_anvil_interface",
 		"3": "anvilcraft:block/transcendium_block_outline",
 		"4": "anvilcraft:block/celestial_forging_anvil_gate_inner",
-		"particle": "anvilcraft:block/celestial_forging_anvil_gate"
+		"particle": "anvilcraft:block/celestial_forging_anvil_particle"
 	},
 	"elements": [
 		{
