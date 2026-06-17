@@ -12,10 +12,10 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 
 @Getter
-public class IonoCraftBackpackModel extends HumanoidModel<HumanoidRenderState> {
+public class IonocraftBackpackModel extends HumanoidModel<HumanoidRenderState> {
     private final ModelPart root;
 
-    public IonoCraftBackpackModel(ModelPart root) {
+    public IonocraftBackpackModel(ModelPart root) {
         super(root);
         this.root = root.getChild("body");
     }
