@@ -3,6 +3,7 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
+		"particle": "anvilcraft:block/creative_crate",
 		"all": "anvilcraft:block/creative_crate"
 	},
 	"elements": [

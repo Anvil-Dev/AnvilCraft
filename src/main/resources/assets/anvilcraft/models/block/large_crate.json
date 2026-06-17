@@ -4,10 +4,10 @@
 	"parent": "anvilcraft:block/template_large_block",
 	"texture_size": [64, 64],
 	"textures": {
-		"particle": "anvilcraft:block/large_crate_bottom",
 		"bottom": "anvilcraft:block/large_crate_bottom",
 		"side": "anvilcraft:block/large_crate_side",
-		"top": "anvilcraft:block/large_crate_top"
+		"top": "anvilcraft:block/large_crate_top",
+		"particle": "anvilcraft:block/crate_side"
 	},
 	"elements": [
 		{
