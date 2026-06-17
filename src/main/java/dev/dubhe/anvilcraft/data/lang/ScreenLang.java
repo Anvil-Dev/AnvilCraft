@@ -121,6 +121,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.burning_heater.burn_time", "Remaining Burn Time: %s");
 
         provider.add("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner", "Needs to be placed on the corner of the Celestial Forging Anvil");
+        provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");
 
         provider.add("block.anvilcraft.void_energy_collector.placement_too_close_to_another", "Too close to another void energy collector");

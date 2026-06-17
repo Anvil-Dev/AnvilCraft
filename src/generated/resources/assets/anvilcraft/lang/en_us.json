@@ -388,6 +388,7 @@
   "block.anvilcraft.green_cement_cauldron": "Green Cement Cauldron",
   "block.anvilcraft.gunpowder_block": "Gunpowder Block",
   "block.anvilcraft.heat_collector": "Heat Collector",
+  "block.anvilcraft.heat_collector.placement_too_close_to_another": "Too close to another heat collector",
   "block.anvilcraft.heated_netherite_block": "Heated Block of Netherite",
   "block.anvilcraft.heated_tungsten_block": "Heated Block of Tungsten",
   "block.anvilcraft.heater": "Electric Heater",

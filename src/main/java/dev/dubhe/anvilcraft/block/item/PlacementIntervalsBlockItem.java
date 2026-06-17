@@ -63,14 +63,22 @@ public abstract class PlacementIntervalsBlockItem extends BlockItem {
             clickedPos.offset(getIntervalsRadius(), getIntervalsRadius(), getIntervalsRadius()),
             clickedPos.offset(-getIntervalsRadius(), -getIntervalsRadius(), -getIntervalsRadius())
         );
-        for (BlockPos blockPos: blockPoss) {
+        for (BlockPos blockPos : blockPoss) {
             BlockState blockState = level.getBlockState(blockPos);
             if (blockState.is(this.getBlock())) {
                 if (level.isClientSide() && player instanceof LocalPlayer localPlayer) {
                     if (this.doRangeNoOverlap()) {
-                        localPlayer.displayClientMessage(Component.translatable("screen.anvilcraft.range_no_overlap").withStyle(ChatFormatting.RED), true);
+                        localPlayer.displayClientMessage(
+                            Component.translatable("screen.anvilcraft.range_no_overlap")
+                                .withStyle(ChatFormatting.RED),
+                            true
+                        );
                     } else {
-                        localPlayer.displayClientMessage(Component.translatable("screen.anvilcraft.range_overlap", this.getIntervalsRadius() * 2 + 1).withStyle(ChatFormatting.RED), true);
+                        localPlayer.displayClientMessage(
+                            Component.translatable("screen.anvilcraft.range_overlap",
+                                this.getIntervalsRadius() * 2 + 1).withStyle(ChatFormatting.RED),
+                            true
+                        );
                     }
                 }
                 return false;
