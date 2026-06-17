@@ -145,7 +145,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
             }
             if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS)) {
                 ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
-                for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
+                for (ItemAttributeModifiers.Entry entry : stack.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers()) {
                     if (!entry.matches(Attributes.ATTACK_DAMAGE, BASE_ATTACK_DAMAGE_ID)) {
                         builder.add(entry.attribute(), entry.modifier(), entry.slot());
                     }
@@ -167,7 +167,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
                 stack.set(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
             }
             if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS)) {
-                ItemAttributeModifiers modifiers = stack.getAttributeModifiers()
+                ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS)
                     .withModifierAdded(
                         Attributes.ATTACK_DAMAGE,
                         new AttributeModifier(

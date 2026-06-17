@@ -11,6 +11,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.UUID;
 
 public class CodecUtil {
     public static final Codec<AABB> AABB_CODEC = RecordCodecBuilder.create(ins ->
@@ -26,6 +27,11 @@ public class CodecUtil {
             buf.writeVector3f(aabb.getMaxPosition().toVector3f());
         },
         (buf) -> new AABB(new Vec3(buf.readVector3f()), new Vec3(buf.readVector3f()))
+    );
+
+    public static final Codec<UUID> UUID_CODEC_FROM_STRING = Codec.STRING.xmap(
+        UUID::fromString,
+        UUID::toString
     );
 
     public static <T> MapCodec<EvictingQueue<T>> evictingQueueMapCodec(Codec<T> valueCodec) {
