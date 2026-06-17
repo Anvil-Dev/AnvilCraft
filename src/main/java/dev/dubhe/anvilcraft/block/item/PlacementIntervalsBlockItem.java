@@ -13,9 +13,11 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * 限制方块放置间距的抽象 {@link BlockItem}。
+ *
  * <p>
  * 当玩家尝试放置该方块时，会检查放置点周围指定半径（由 {@link #getIntervalsRadius()} 定义）内
  * 是否已存在同种方块。若已存在，则阻止放置；否则允许放置。
+ *
  * <p>
  * 子类需实现 {@link #getIntervalsRadius()} 以定义有效的放置间距。
  *
@@ -33,6 +35,7 @@ public abstract class PlacementIntervalsBlockItem extends BlockItem {
 
     /**
      * 获取放置间距半径。
+     *
      * <p>
      * 以玩家点击位置为中心，该半径范围内的立方体区域内不允许存在另一个同种方块。
      *
@@ -42,6 +45,7 @@ public abstract class PlacementIntervalsBlockItem extends BlockItem {
 
     /**
      * 判断是否可以在指定上下文中放置该方块。
+     *
      * <p>
      * 除满足 {@link BlockItem#canPlace(BlockPlaceContext, BlockState)} 的条件外，
      * 还需确保放置点周围 {@link #getIntervalsRadius()} 范围内不存在同种方块。
