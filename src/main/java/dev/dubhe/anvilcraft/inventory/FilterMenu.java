@@ -46,7 +46,7 @@ public class FilterMenu extends AbstractContainerMenu {
 
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 6; ++l) {
-                this.addSlot(new FilterSlot(container, l + i * 6, 62 + l * 18, 17 + i * 18));
+                this.addSlot(new FilterSlot(container, l + i * 6, 62 + l * 18, 18 + i * 18));
             }
         }
     }

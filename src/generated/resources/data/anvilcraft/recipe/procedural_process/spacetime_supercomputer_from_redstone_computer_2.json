@@ -57,7 +57,7 @@
             "blocks": "anvilcraft:neutron_irradiator",
             "properties": [
               {
-                "type": "time"
+                "type": "space"
               }
             ]
           }
@@ -79,7 +79,7 @@
             "blocks": "anvilcraft:neutron_irradiator",
             "properties": [
               {
-                "type": "space"
+                "type": "time"
               }
             ]
           }

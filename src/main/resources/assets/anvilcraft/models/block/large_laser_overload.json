@@ -2,6 +2,6 @@
 	"parent": "anvilcraft:block/large_laser",
 	"textures": {
 		"0": "anvilcraft:block/large_laser_overload",
-		"particle": "anvilcraft:block/large_laser_overload"
+		"particle": "anvilcraft:block/ruby_prism_bottom"
 	}
 }
