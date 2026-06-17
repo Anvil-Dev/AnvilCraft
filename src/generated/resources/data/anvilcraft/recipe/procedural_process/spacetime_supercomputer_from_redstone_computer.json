@@ -54,7 +54,12 @@
             "blocks": "anvilcraft:wip_block"
           },
           {
-            "blocks": "anvilcraft:neutron_irradiator"
+            "blocks": "anvilcraft:neutron_irradiator",
+            "properties": [
+              {
+                "type": "time"
+              }
+            ]
           }
         ],
         "result": {
@@ -71,7 +76,12 @@
             "blocks": "anvilcraft:wip_block"
           },
           {
-            "blocks": "anvilcraft:confined_time_anvilon"
+            "blocks": "anvilcraft:neutron_irradiator",
+            "properties": [
+              {
+                "type": "space"
+              }
+            ]
           }
         ],
         "result": {

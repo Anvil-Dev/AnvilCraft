@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.dubhe.anvilcraft.block.state.IrradiatorType;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipeBuilder;
@@ -47,14 +48,13 @@ public class ProceduralProcessRecipeLoader {
             )
             .addStep(
                 ReversedSmearAlikeRecipe.builder()
-                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get())
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.TIME)
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
             .addStep(
                 ReversedSmearAlikeRecipe.builder()
-                    .input(ModBlocks.WIP_BLOCK.get())
-                    .input(ModBlocks.CONFINED_TIME_ANVILON.get())
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.SPACE)
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
