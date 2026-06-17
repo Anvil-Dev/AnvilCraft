@@ -7,7 +7,7 @@
 	"textures": {
 		"0": "anvilcraft:block/celestial_forging_anvil_interface",
 		"3": "anvilcraft:block/transcendium_block_outline",
-		"particle": "anvilcraft:block/celestial_forging_anvil_interface"
+		"particle": "anvilcraft:block/celestial_forging_anvil_particle"
 	},
 	"elements": [
 		{
@@ -307,7 +307,7 @@
 	],
 	"display": {
 		"thirdperson_righthand": {
-			"rotation": [75, 180, 0],
+			"rotation": [75, -180, 0],
 			"translation": [0, 0.5, 0],
 			"scale": [0.375, 0.375, 0.375]
 		},

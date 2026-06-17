@@ -8,7 +8,7 @@
 		"0": "anvilcraft:block/celestial_forging_anvil_gate",
 		"2": "anvilcraft:block/celestial_forging_anvil_interface",
 		"3": "anvilcraft:block/transcendium_block_outline",
-		"particle": "anvilcraft:block/celestial_forging_anvil_gate"
+		"particle": "anvilcraft:block/celestial_forging_anvil_particle"
 	},
 	"elements": [
 		{
@@ -481,7 +481,7 @@
 	],
 	"display": {
 		"thirdperson_righthand": {
-			"rotation": [75, 180, 0],
+			"rotation": [75, -180, 0],
 			"translation": [0, 1.25, 3.25],
 			"scale": [0.2, 0.2, 0.2]
 		},
@@ -491,7 +491,7 @@
 			"scale": [0.2, 0.2, 0.2]
 		},
 		"firstperson_righthand": {
-			"rotation": [0, 180, 0],
+			"rotation": [0, -180, 0],
 			"translation": [3.75, 4, 0],
 			"scale": [0.2, 0.2, 0.2]
 		},
@@ -518,7 +518,7 @@
 			"scale": [0.25, 0.25, 0.25]
 		},
 		"on_shelf": {
-			"rotation": [0, 180, 0],
+			"rotation": [0, -180, 0],
 			"translation": [0, 0, -1.25],
 			"scale": [0.4, 0.4, 0.4]
 		}
