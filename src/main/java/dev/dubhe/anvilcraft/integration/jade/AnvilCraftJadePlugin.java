@@ -39,6 +39,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(SmartBlockPlacerProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(ChargerProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(DischargerProvider.INSTANCE, BlockEntity.class);
+        registration.registerBlockDataProvider(WipBlockProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(CreativeFluidTankProvider.INSTANCE, CreativeFluidTankBlockEntity.class);
         registration.registerBlockDataProvider(CreativeCrateProvider.INSTANCE, CreativeCrateBlockEntity.class);
     }
