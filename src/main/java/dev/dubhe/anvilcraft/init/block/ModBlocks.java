@@ -161,6 +161,7 @@ import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
+import dev.dubhe.anvilcraft.block.item.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
@@ -890,7 +891,8 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<HeatCollectorBlock> HEAT_COLLECTOR = REGISTRUM.block("heat_collector", HeatCollectorBlock::new)
-        .simpleItem()
+        .item(HeatCollectorBlockItem::new)
+        .build()
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

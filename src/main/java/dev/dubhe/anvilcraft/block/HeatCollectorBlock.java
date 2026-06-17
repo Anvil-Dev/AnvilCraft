@@ -73,14 +73,6 @@ public class HeatCollectorBlock extends BaseEntityBlock implements IHammerRemova
     }
 
     @Override
-    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        if (!context.getLevel().isClientSide()) {
-            HeatCollectorManager.checkWhenPlaceCollector(context, context.getClickedPos(), context.getLevel());
-        }
-        return super.getStateForPlacement(context);
-    }
-
-    @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (level.isClientSide() || state.is(oldState.getBlock())) return;
         if (state.getValue(POWERED) && !level.getBlockTicks().hasScheduledTick(pos, this)) {
