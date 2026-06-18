@@ -74,7 +74,7 @@ public class OverseerCommand {
                 continue;
             }
             OverseerBlockEntity overseerBlockEntity = overseerBlockEntityOptional.get();
-            if (!includeInactive && overseerBlockEntity.getLoadLevel() <= 0) continue;
+            if (!includeInactive && overseerBlockEntity.getLoadLevel() < 0) continue;
             MutableComponent component = Component.translatable(
                 "command.anvilcraft.overseer.entry",
                 Component.translatable("chat.coordinates", pos.getX(), pos.getY(), pos.getZ())
