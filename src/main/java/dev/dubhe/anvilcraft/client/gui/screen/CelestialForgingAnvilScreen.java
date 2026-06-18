@@ -606,7 +606,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.pose().translate(0.5, 0.5, 0.5);
             guiGraphics.pose().scale(1.2f, 1.2f, 1.2f);
             guiGraphics.pose().translate(-0.5, -0.5, -0.5);
-            var ringConsumer = guiGraphics.bufferSource().getBuffer(RenderType.entityTranslucent(ringTex));
+            var ringConsumer = guiGraphics.bufferSource().getBuffer(ModRenderTypes.CELESTIAL_RING.apply(ringTex));
             CelestialBodyRenderer.renderRing(guiGraphics.pose(), ringConsumer, LightTexture.FULL_BRIGHT, 0);
             guiGraphics.pose().popPose();
         }
