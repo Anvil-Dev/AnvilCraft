@@ -2,8 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.block.MovingBlockRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
@@ -11,16 +10,16 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * 震波弹跳渲染 —— ModelBlockRenderer.tesselateBlock 直通 SectionCompiler 的光照管线。
+ * 震波弹跳渲染 —— 直接获取原版光照管线。
+ *
+ * <p>
+ * 因为 {@code submitMovingBlock} 会把模型里的 quad 按材质层 (SOLID / CUTOUT / TRANSLUCENT)
+ * 分发到正确的 RenderPipeline，所以同时支持实体方块、裁剪方块以及透明方块。
  */
 @EventBusSubscriber(modid = "anvilcraft", value = Dist.CLIENT)
 public class SeismicBounceRenderEventListener {
-
-    @Nullable
-    private static ModelBlockRenderer blockRenderer;
 
     @SubscribeEvent
     public static void onRender(SubmitCustomGeometryEvent event) {
@@ -31,10 +30,6 @@ public class SeismicBounceRenderEventListener {
         double camY = event.getLevelRenderState().cameraRenderState.pos.y();
         double camZ = event.getLevelRenderState().cameraRenderState.pos.z();
         float partialTick = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-
-        if (blockRenderer == null) {
-            blockRenderer = new ModelBlockRenderer(true, false, mc.getBlockColors());
-        }
 
         var poseStack = event.getPoseStack();
         var nodeCollector = event.getSubmitNodeCollector();
@@ -49,8 +44,14 @@ public class SeismicBounceRenderEventListener {
             BlockState state = mc.level.getBlockState(pos);
             if (state.isAir() || state.getRenderShape() != RenderShape.MODEL) continue;
 
-            var model = mc.getModelManager().getBlockStateModelSet().get(state);
-            long seed = state.getSeed(pos);
+            // 构造 MovingBlockRenderState
+            MovingBlockRenderState renderState = new MovingBlockRenderState();
+            renderState.randomSeedPos = pos;
+            renderState.blockPos = pos;
+            renderState.blockState = state;
+            renderState.biome = mc.level.getBiome(pos);
+            renderState.cardinalLighting = mc.level.cardinalLighting();
+            renderState.lightEngine = mc.level.getLightEngine();
 
             poseStack.pushPose();
             poseStack.translate(pos.getX() - camX, pos.getY() - camY + offsetY, pos.getZ() - camZ);
@@ -58,16 +59,7 @@ public class SeismicBounceRenderEventListener {
             poseStack.scale(1.0005f, 1.000f, 1.0005f);
             poseStack.translate(-0.5, -0.5, -0.5);
 
-            final var finalModel = model;
-            final long finalSeed = seed;
-
-            nodeCollector.submitCustomGeometry(poseStack, RenderTypes.solidMovingBlock(), (pose, consumer) ->
-                blockRenderer.tesselateBlock(
-                    (x, y, z, quad, instance) -> consumer.putBakedQuad(pose, quad, instance),
-                    0, 0, 0,
-                    mc.level, pos, state, finalModel, finalSeed
-                )
-            );
+            nodeCollector.submitMovingBlock(poseStack, renderState);
 
             poseStack.popPose();
         }
