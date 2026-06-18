@@ -50,8 +50,8 @@ public class SeismicBounceManager {
             || state.is(BlockTags.CANDLE_CAKES)
             || state.is(BlockTags.ANVIL)
             || state.is(Blocks.BEDROCK)
-            || state.is(Blocks.REDSTONE_BLOCK)
-            || state.getBlock() instanceof RedStoneWireBlock;
+            || state.is(Blocks.REDSTONE_WIRE)
+            || state.is(Blocks.REPEATER);
     }
 
     @Getter
