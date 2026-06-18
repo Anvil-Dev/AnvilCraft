@@ -366,7 +366,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
                 );
                 if (collectors == null) continue;
                 for (ItemCollectorBlockEntity collector : collectors) {
-                    if (!collector.boundingBox.contains(itemEntity.position())) {
+                    if (!collector.shape().contains(itemEntity.position())) {
                         continue;
                     }
                     TriState state = collector.acceptItemEntity(itemEntity);
