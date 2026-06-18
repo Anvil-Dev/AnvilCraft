@@ -267,26 +267,6 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         private boolean autoOutputting = false;
 
         @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            boolean hasSame = false;
-            int sameSlot = -1;
-            for (int i = 0; i < this.getSlots(); i++) {
-                if (!ItemStack.isSameItemSameComponents(this.getStackInSlot(i), stack)) {
-                    continue;
-                }
-
-                if (hasSame) {
-                    return false;
-                } else {
-                    hasSame = true;
-                    sameSlot = i;
-                }
-            }
-            if (!hasSame) return this.getStackInSlot(slot).isEmpty();
-            return sameSlot == slot;
-        }
-
-        @Override
         public int getSlotLimit(int slot) {
             ItemStack stack = this.getStackInSlot(slot);
             int stackMax = stack.getMaxStackSize();
