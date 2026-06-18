@@ -49,9 +49,7 @@ public record LaserEmitPacket(int level, BlockPos laserPos, @Nullable BlockPos i
         if (laser instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser && this.gamma) {
             cfaLaser.clientUpdateGamma(this.irradiatePos, this.level);
         } else {
-            if (this.irradiatePos != null) {
-                laser.clientUpdate(this.irradiatePos, this.level);
-            }
+            laser.clientUpdate(this.irradiatePos, this.level); // 此处不可听信idea的谗言用if(this.irradiatePos != null)包围，不然激光会不消失
         }
         Minecraft.getInstance().levelRenderer.setBlockDirty(this.laserPos, false);
     }

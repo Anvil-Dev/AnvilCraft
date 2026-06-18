@@ -100,7 +100,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         this.changed = true;
     }
 
-    protected BlockPos getIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
+    private BlockPos getIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
         for (int length = 1; length <= expectedLength; length++) {
             if (!this.canPassThrough(direction, originPos.relative(direction, length))) return originPos.relative(direction, length);
         }
