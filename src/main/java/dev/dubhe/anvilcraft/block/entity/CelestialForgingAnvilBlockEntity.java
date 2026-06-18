@@ -689,7 +689,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      *
      * <p>Strength = gravity at the unified reference radius, in multiples of g⊕:
      * <ul>
-     *   <li>Mass: M/M⊕ = 2^((massAnvilCount - 10) / 2)</li>
+     *   <li>Mass: M/M⊕ = 2^((massAnvilCount - 12) / 2)</li>
      *   <li>Reference radius: R_ref/R⊕ = 5000 × 109 = 545,000</li>
      *   <li>Strength = (M/M⊕) / (R_ref/R⊕)²</li>
      * </ul>
@@ -704,7 +704,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         double newStrength = 0;
         if (shouldHaveGravity) {
-            double massRatio = Math.pow(2, (stellarMass - 10) / 2.0);
+            double massRatio = Math.pow(2, (stellarMass - 12) / 2.0);
             newStrength = massRatio * GRAVITY_STRENGTH_MULTIPLIER / (GRAVITY_REFERENCE_RADIUS_RATIO * GRAVITY_REFERENCE_RADIUS_RATIO);
         } // 引力乘上这个常数得到感官合适的值 ↑
         int newSize = shouldHaveGravity ? celestialBodyData.size() : 0;
