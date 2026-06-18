@@ -142,13 +142,11 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         float damage,
         CallbackInfoReturnable<Boolean> cir
     ) {
-        if (this.getItem().has(ModComponents.ETERNAL)
-            && (
-            source.is(DamageTypeTags.IS_EXPLOSION)
-                || source.is(DamageTypeTags.IS_FIRE)
-                || source.is(DamageTypes.CACTUS)
-                || source.is(DamageTypes.FELL_OUT_OF_WORLD)
-        )) {
+        boolean typeMatches = source.is(DamageTypeTags.IS_EXPLOSION)
+            || source.is(DamageTypeTags.IS_FIRE)
+            || source.is(DamageTypes.CACTUS)
+            || source.is(DamageTypes.FELL_OUT_OF_WORLD);
+        if (this.getItem().has(ModComponents.ETERNAL) && typeMatches) {
             cir.setReturnValue(false);
         }
     }

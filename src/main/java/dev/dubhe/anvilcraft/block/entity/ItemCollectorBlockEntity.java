@@ -220,6 +220,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     public TriState acceptItemEntity(ItemEntity itemEntity) {
+        if (!this.isGridWorking() || getBlockState().getValue(ItemCollectorBlock.POWERED)) {
+            return TriState.FALSE;
+        }
         ItemStack itemStack = itemEntity.getItem();
         ItemResource resource = ItemResource.of(itemStack);
         boolean inserted = false;
@@ -247,6 +250,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         this.flushState(level, blockPos);
         if (this.needFlush) {
             this.setChanged();
+            this.needFlush = false;
         }
         if (this.cooldown.get() != this.oldCooldown) {
             this.oldCooldown = this.cooldown.get();
@@ -352,16 +356,26 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @SuppressWarnings("checkstyle:MissingSwitchDefault")
     public static void poachItemEntity(ItemEntity itemEntity) {
-        Set<ItemCollectorBlockEntity> collectors = POACHING_COLLECTORS.get(
-            itemEntity.level(),
-            ChunkPos.containing(itemEntity.blockPosition())
-        );
-        if (collectors == null) return;
-        for (ItemCollectorBlockEntity collector : collectors) {
-            TriState state = collector.acceptItemEntity(itemEntity);
-            if (state == TriState.TRUE) {
-                break;
+        ChunkPos currentPos = ChunkPos.containing(itemEntity.blockPosition());
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                ChunkPos chunkPos = new ChunkPos(currentPos.x() + x, currentPos.z() + z);
+                Set<ItemCollectorBlockEntity> collectors = POACHING_COLLECTORS.get(
+                    itemEntity.level(),
+                    chunkPos
+                );
+                if (collectors == null) continue;
+                for (ItemCollectorBlockEntity collector : collectors) {
+                    if (!collector.boundingBox.contains(itemEntity.position())) {
+                        continue;
+                    }
+                    TriState state = collector.acceptItemEntity(itemEntity);
+                    if (state == TriState.TRUE) {
+                        break;
+                    }
+                }
             }
         }
+
     }
 }
