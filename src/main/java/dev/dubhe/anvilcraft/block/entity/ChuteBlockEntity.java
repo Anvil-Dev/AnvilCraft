@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -110,10 +111,5 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity implements IConvertab
             }
         }
         AnvilUtil.dropItems(drops, this.level, newBe.getBlockPos().getCenter());
-    }
-
-    @Override
-    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.getLevel(), pos.getCenter());
     }
 }

@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
+import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -23,6 +24,7 @@ public class ServerLifecycleEventListener {
         ModHammerInits.init();
         HammerManager.register();
         LevelLoadManager.notifyServerStarted();
+        ItemCollectorBlockEntity.clearPoachingCollectors();
     }
 
     @SubscribeEvent

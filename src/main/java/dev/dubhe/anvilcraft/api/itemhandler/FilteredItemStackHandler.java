@@ -203,7 +203,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         output.putBoolean("FilterEnabled", this.filterEnabled);
         int slots = this.size();
         output.putInt("Size", slots);
-        ValueOutput.ValueOutputList inventory = output.childrenList("");
+        ValueOutput.ValueOutputList inventory = output.childrenList("Inventory");
         for (int slot = 0; slot < slots; slot++) {
             ValueOutput inventoryEntry = inventory.addChild();
 
@@ -211,7 +211,9 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
 
             ItemStack stack = this.getStackFrom(this.getResource(slot), this.getAmountAsInt(slot));
             inventoryEntry.putBoolean("IsEmptySlot", stack.isEmpty());
-            if (!stack.isEmpty()) inventoryEntry.store("SlotItem", ItemStack.OPTIONAL_CODEC, stack);
+            if (!stack.isEmpty()) {
+                inventoryEntry.store("SlotItem", ItemStack.OPTIONAL_CODEC, stack);
+            }
 
             ItemStack filtering = this.getFilter(slot);
             inventoryEntry.putBoolean("SlotFilterEnabled", !filtering.isEmpty());

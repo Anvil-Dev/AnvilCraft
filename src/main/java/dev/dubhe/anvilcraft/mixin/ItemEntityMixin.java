@@ -122,7 +122,12 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     }
 
     @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
-    private void explosionProof(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
+    private void explosionProof(
+        ServerLevel level,
+        DamageSource source,
+        float damage,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
         if (!this.getItem().isEmpty()
             && this.getItem().is(ModItemTags.EXPLOSION_PROOF)
             && source.is(DamageTypeTags.IS_EXPLOSION)) {
@@ -131,14 +136,19 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     }
 
     @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
-    private void eternalProof(ServerLevel level, DamageSource source, float damage, CallbackInfoReturnable<Boolean> cir) {
+    private void eternalProof(
+        ServerLevel level,
+        DamageSource source,
+        float damage,
+        CallbackInfoReturnable<Boolean> cir
+    ) {
         if (this.getItem().has(ModComponents.ETERNAL)
             && (
-                source.is(DamageTypeTags.IS_EXPLOSION)
+            source.is(DamageTypeTags.IS_EXPLOSION)
                 || source.is(DamageTypeTags.IS_FIRE)
                 || source.is(DamageTypes.CACTUS)
                 || source.is(DamageTypes.FELL_OUT_OF_WORLD)
-            )) {
+        )) {
             cir.setReturnValue(false);
         }
     }
@@ -157,10 +167,15 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/entity/item/ItemEntity;"
-                     + "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V"
+                + "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V"
         )
     )
-    private void replaceTickWhenNeutronium(ItemEntity instance, MoverType moverType, Vec3 vec3, Operation<Void> original) {
+    private void replaceTickWhenNeutronium(
+        ItemEntity instance,
+        MoverType moverType,
+        Vec3 vec3,
+        Operation<Void> original
+    ) {
         ItemStack item = this.getItem();
         if (!item.is(ModItems.NEUTRONIUM_INGOT)) {
             original.call(instance, moverType, vec3);
@@ -260,38 +275,15 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         if (!this.anvilcraft$shouldPoach) return;
         Level level = this.level();
         if (level.isClientSide()) return;
-        Map<ChunkPos, List<ItemCollectorBlockEntity>> map = ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level);
-        if (map == null) return;
-        ChunkPos chunkPos = this.chunkPosition();
-        List<ItemCollectorBlockEntity> list = map.get(chunkPos);
-        if (list == null || list.isEmpty()) return;
-        ItemStack itemStack = this.getItem().copy();
-        boolean flag = false;
-        for (ItemCollectorBlockEntity collector : list) {
-            if (collector.isGridWorking()
-                && !collector.getBlockState().getValue(ItemCollectorBlock.POWERED)
-                && collector.shape().contains(this.position())
-                && !collector.isRemoved()) {
-                int slotIndex = 0;
-                while (!itemStack.isEmpty() && slotIndex < 9) {
-                    itemStack = ItemResourceHelper.insertInto(collector.getItemHandler(), slotIndex++, itemStack);
-                }
-                flag = true;
-                if (itemStack.isEmpty()) break;
-            }
-        }
-        if (!itemStack.isEmpty()) {
-            this.setItem(itemStack);
-        } else if (flag) {
-            this.remove(Entity.RemovalReason.DISCARDED);
-            this.discard();
-            this.anvilcraft$discarded = true;
-        }
+        ItemCollectorBlockEntity.poachItemEntity((ItemEntity) (Object) this);
     }
 
-    @Unique private static final Map<String, Double> MATERIAL_MAP = new HashMap<>();
-    @Unique private static final Map<String, String> SPECIAL_MAP = new HashMap<>();
-    @Unique private static final List<String> SPECIAL_BLACKLIST = List.of("spawn_egg", "waxed");
+    @Unique
+    private static final Map<String, Double> MATERIAL_MAP = new HashMap<>();
+    @Unique
+    private static final Map<String, String> SPECIAL_MAP = new HashMap<>();
+    @Unique
+    private static final List<String> SPECIAL_BLACKLIST = List.of("spawn_egg", "waxed");
 
     static {
         // 1. 定义材质关键词及其减速 (数值越小越慢)
@@ -350,9 +342,9 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         return BlockPos.betweenClosedStream(box).anyMatch(p -> {
             BlockState s = this.level().getBlockState(p);
             return s.is(ModBlockTags.MAGNET)
-                   && !s.getOptionalValue(MagnetBlock.LIT).orElse(false)
-                   && !s.getCollisionShape(this.level(), p).isEmpty()
-                   && s.getCollisionShape(this.level(), p).toAabbs().stream().anyMatch(b -> b.move(p).intersects(box));
+                && !s.getOptionalValue(MagnetBlock.LIT).orElse(false)
+                && !s.getCollisionShape(this.level(), p).isEmpty()
+                && s.getCollisionShape(this.level(), p).toAabbs().stream().anyMatch(b -> b.move(p).intersects(box));
         });
     }
 
@@ -378,7 +370,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 }
             }
         });
-        return result[0] != null && (double) result[1] > 1.0E-7 ? ((Vec3) result[0]).subtract(center).normalize().scale(0.05) : Vec3.ZERO;
+        return result[0] != null && (double) result[1] > 1.0E-7 ? ((Vec3) result[0]).subtract(center).normalize().scale(
+            0.05) : Vec3.ZERO;
     }
 
     @SuppressWarnings({"checkstyle:NeedBraces", "checkstyle:LeftCurly", "checkstyle:OneStatementPerLine"})
@@ -404,7 +397,10 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
                 this.level().setBlockAndUpdate(pos, targetBlock.defaultBlockState());
                 stack.shrink(1);
-                if (stack.isEmpty()) { this.discard(); ci.cancel(); }
+                if (stack.isEmpty()) {
+                    this.discard();
+                    ci.cancel();
+                }
                 return;
             }
             // 2. 吸铁石就要吸铁
@@ -415,7 +411,8 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 return;
             } else {
                 if (this.isNoGravity() && !stack.has(ModComponents.ETERNAL)) this.setNoGravity(false);
-                if (this.anvilcraft$magnetAttraction().lengthSqr() > 0) this.addDeltaMovement(this.anvilcraft$magnetAttraction());
+                if (this.anvilcraft$magnetAttraction().lengthSqr() > 0)
+                    this.addDeltaMovement(this.anvilcraft$magnetAttraction());
             }
         }
         // 3. 涡流减速
