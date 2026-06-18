@@ -508,6 +508,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final ModelResourceLocation UI_STAR_MODEL = ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star"));
     private static final ModelResourceLocation UI_NEUTRON_STAR_MODEL =
         ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/neutron_star"));
+    private static final ModelResourceLocation UI_NEUTRON_STAR_JET_MODEL =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/neutron_star_jet"));
     private static final ModelResourceLocation UI_BLACK_HOLE_MODEL =
         ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/black_hole"));
 
@@ -542,6 +544,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
                 || star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
                 renderRemnantModelPreview(guiGraphics, star);
+                // Render neutron star jet with lighthouse effect
+                if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
+                    renderNeutronStarJetPreview(guiGraphics, star);
+                }
                 guiGraphics.pose().popPose();
                 return;
             }
@@ -749,6 +755,37 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
             guiGraphics.pose().popPose();
         }
+    }
+
+    /**
+     * Render neutron star relativistic jet in the preview window.
+     * Jet rotates at 1.5× body speed and is tilted along the magnetic axis
+     * to produce the classic pulsar lighthouse effect.
+     */
+    private void renderNeutronStarJetPreview(GuiGraphics guiGraphics, StarData star) {
+        if (minecraft == null) return;
+        BakedModel jetModel = minecraft.getModelManager().getModel(UI_NEUTRON_STAR_JET_MODEL);
+        if (jetModel == minecraft.getModelManager().getMissingModel()) return;
+
+        float magneticTilt = star.magneticFieldStrength() >= 5 ? 30f : 20f;
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.5, 0.5, 0.5);
+        guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(magneticTilt));
+        guiGraphics.pose().translate(-0.5, -0.5, -0.5);
+
+        var modelRenderer = minecraft.getBlockRenderer().getModelRenderer();
+        modelRenderer.renderModel(
+            guiGraphics.pose().last(),
+            guiGraphics.bufferSource().getBuffer(RenderType.translucent()),
+            null,
+            jetModel,
+            1.0f, 1.0f, 1.0f,
+            LightTexture.FULL_BRIGHT,
+            0
+        );
+        guiGraphics.bufferSource().endBatch();
+        guiGraphics.pose().popPose();
     }
 
     private void renderBodyInfo(GuiGraphics guiGraphics, CelestialBodyData body) {

@@ -110,6 +110,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         "anvilcraft",
         "block/celestial_body/neutron_star"
     ));
+    private static final ModelResourceLocation NEUTRON_STAR_JET_MODEL =
+        ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(
+        "anvilcraft",
+        "block/celestial_body/neutron_star_jet"
+    ));
     private static final ModelResourceLocation BLACK_HOLE_MODEL = ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(
         "anvilcraft",
         "block/celestial_body/black_hole"
@@ -863,7 +868,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 poseStack.popPose();
             }
         } else if (bodyData instanceof StarData star) {
-            renderStarModel(star, poseStack, bufferSource, packedOverlay, seed);
+            renderStarModel(star, bodyRotation, poseStack, bufferSource, packedOverlay, seed);
         } else {
             renderPlanetBody(bodyData, poseStack, bufferSource, packedOverlay, seed);
         }
@@ -904,7 +909,14 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
      * overlay cube provides the star-specific color from energy anvil count.
      * Special-cases neutron stars and black holes which use dedicated models.
      */
-    private void renderStarModel(StarData star, PoseStack poseStack, MultiBufferSource bufferSource, int packedOverlay, long seed) {
+    private void renderStarModel(
+        StarData star,
+        float bodyRotation,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        long seed
+    ) {
         // Stellar remnants use dedicated models without color overlay or halo
         if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
             renderBakedModel(getStarModel(star), poseStack, bufferSource, packedOverlay, RenderType.translucent());
@@ -912,6 +924,22 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
             renderBakedModelCutout(getStarModel(star), poseStack, bufferSource, packedOverlay);
+
+            // Render relativistic jet along the magnetic axis.
+            // The magnetic axis is tilted from the rotation axis, so as the
+            // body rotates around Y the jet sweeps like a lighthouse (pulsar model).
+            // Jet rotates at 1.5× the body speed for visual separation.
+            float visualSpeed = CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed());
+            float extraJetRotation = bodyRotation * visualSpeed * 0.5f;
+            // Star magneticFieldStrength is 4 (normal) or 5 (magnetar)
+            float magneticTilt = star.magneticFieldStrength() >= 5 ? 30f : 20f;
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            poseStack.mulPose(Axis.YP.rotationDegrees(extraJetRotation));
+            poseStack.mulPose(Axis.XP.rotationDegrees(magneticTilt));
+            poseStack.translate(-0.5, -0.5, -0.5);
+            renderBakedModel(NEUTRON_STAR_JET_MODEL, poseStack, bufferSource, packedOverlay, RenderType.translucent());
+            poseStack.popPose();
             return;
         }
 

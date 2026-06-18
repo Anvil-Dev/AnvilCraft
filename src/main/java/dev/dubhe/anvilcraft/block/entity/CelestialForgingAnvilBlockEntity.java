@@ -1244,6 +1244,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.searching = false;
         }
         this.bodySeed = tag.getLong("bodySeed");
+        // Read accelerator stage BEFORE animation check so skipAnim uses current values
+        this.acceleratorStage = tag.getInt("acceleratorStage");
         // Capture old body data for animation transition detection
         CelestialBodyData oldBodyData = this.celestialBodyData;
         if (tag.contains("celestialBody")) {
@@ -1302,8 +1304,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         // Collider runtime state is not persisted — always start clean on load
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
-        // Accelerator state
-        this.acceleratorStage = tag.getInt("acceleratorStage");
+        // Accelerator state (acceleratorStage already read above)
         this.acceleratorTicksRemaining = tag.getInt("acceleratorTicksRemaining");
         this.acceleratorTicksTotal = tag.getInt("acceleratorTicksTotal");
         this.acceleratorOriginalMass = tag.getInt("acceleratorOriginalMass");
@@ -1385,6 +1386,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.powerInsufficient = tag.getBoolean("powerInsufficient");
         this.bodySeed = tag.getLong("bodySeed");
 
+        // Read accelerator state BEFORE animation check so skipAnim uses current values
+        this.acceleratorStage = tag.getInt("acceleratorStage");
+        this.supernovaFlashTicks = tag.getInt("supernovaFlashTicks");
+        this.collapseAnimTicks = tag.getInt("collapseAnimTicks");
         // Capture old body data for animation transition detection
         CelestialBodyData oldBodyData = this.celestialBodyData;
         if (tag.contains("celestialBody")) {
@@ -1446,12 +1451,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         // Collider runtime state not synced to client
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
-        // Accelerator state (client-side sync)
-        this.acceleratorStage = tag.getInt("acceleratorStage");
+        // Accelerator state (client-side sync — stage/flash/collapse already read above)
         this.acceleratorTicksRemaining = tag.getInt("acceleratorTicksRemaining");
         this.acceleratorTicksTotal = tag.getInt("acceleratorTicksTotal");
-        this.supernovaFlashTicks = tag.getInt("supernovaFlashTicks");
-        this.collapseAnimTicks = tag.getInt("collapseAnimTicks");
     }
 
     private void loadInventory(CompoundTag tag, HolderLookup.Provider registries) {

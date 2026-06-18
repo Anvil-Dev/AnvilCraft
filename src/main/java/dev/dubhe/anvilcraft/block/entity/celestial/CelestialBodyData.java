@@ -42,7 +42,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
             case 2 -> 1.0f;
             case 3 -> 1.5f;
             case 4 -> 3.0f;
-            default -> 10.0f; // 5+ = Super Fast
+            default -> 100.0f; // 5+ = Super Fast
         };
     }
 
