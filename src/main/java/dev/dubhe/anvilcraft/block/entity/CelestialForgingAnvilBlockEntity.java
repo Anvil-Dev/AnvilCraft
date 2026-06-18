@@ -18,13 +18,16 @@ import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyType;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -68,7 +71,10 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer, IPowerProducer, IDiskCloneable {
@@ -127,6 +133,21 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      */
     @Getter
     private boolean penroseSphereLaserActive = false;
+
+    // === Wormhole Stabilizer state ===
+    /**
+     * Hash of the black hole parameters, computed when the stabilizer is built.
+     */
+    @Getter
+    private int wormholeParamsHash = 0;
+    /**
+     * Whether this CFA is currently registered in the wormhole network.
+     */
+    private boolean wormholeRegistered = false;
+    /**
+     * Map from cube part (side center) to the BlockPos of the portal placed there.
+     */
+    private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
 
     // === Temple state ===
     /**
@@ -270,11 +291,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 if ("stellar_ring_collider".equals(option.megastructure())) {
                     return 4000;
                 }
-                // Dyson Sphere / Magnetar Coil: passive, no power consumption
+                // Dyson Sphere / Magnetar Coil / Wormhole Stabilizer: passive, no power consumption
                 if ("dyson_sphere_small".equals(option.megastructure())
                     || "dyson_sphere_large".equals(option.megastructure())
-                    || "magnetar_coil".equals(
-                    option.megastructure())) {
+                    || "magnetar_coil".equals(option.megastructure())
+                    || "wormhole_stabilizer".equals(option.megastructure())) {
                     return 0;
                 }
             }
@@ -639,6 +660,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             serverTickMagnetarCoil();
             serverTickPenroseSphere();
             serverTickMatterDecompressor();
+            serverTickWormholeStabilizer();
         }
 
         // Stellar Evolution Accelerator (runs independently of activeMegastructureIndex)
@@ -705,10 +727,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, centerBox);
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living) {
-                // Insta-kill living entities (mobs, players, etc.) via fire damage
-                living.hurt(level.damageSources().inFire(), 1.0E12f);
+                if (celestialBodyData instanceof StarData star
+                    && star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+                    living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+                } else {
+                    living.hurt(level.damageSources().inFire(), 1.0E12f);
+                }
             } else {
-                // Destroy non-living entities (items, falling blocks, projectiles, etc.)
                 entity.discard();
             }
         }
@@ -885,6 +910,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         // History browsing state
         this.historyBrowseIndex = 0;
         this.historyOriginalEntry = null;
+
+        // Wormhole state
+        this.wormholeParamsHash = 0;
+        this.wormholeRegistered = false;
+        this.portals.clear();
 
         // Multiblock state
         this.isAmplify = false;
@@ -1154,6 +1184,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (level != null && !level.isClientSide()) {
             // Re-register with power grid to ensure CFA is in both producer and consumer sets
             PowerGrid.addComponent(this);
+            // Re-register with wormhole network if wormhole stabilizer is active
+            if (activeMegastructureIndex >= 0 && celestialBodyData instanceof StarData star
+                && star.bodyClass() == CelestialBodyClass.BLACK_HOLE && amplifierPresent) {
+                CelestialRefactorOption option = getActiveMegastructureOption();
+                if (option != null && "wormhole_stabilizer".equals(option.megastructure())) {
+                    wormholeParamsHash = WormholeNetwork.computeParamsHash(star);
+                    WormholeNetwork.get().register(wormholeParamsHash, level, worldPosition);
+                    wormholeRegistered = true;
+                    if (!portals.isEmpty()) {
+                        WormholeNetwork.get().setPortalSides(level.dimension(), worldPosition, portals.keySet());
+                    }
+                }
+            }
             this.setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
@@ -1206,6 +1249,20 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putInt("activeMegastructure", activeMegastructureIndex);
         tag.putBoolean("excavatorLaserActive", excavatorLaserActive);
         tag.putBoolean("penroseSphereLaserActive", penroseSphereLaserActive);
+        // Wormhole stabilizer state
+        tag.putInt("wormholeParamsHash", wormholeParamsHash);
+        if (!portals.isEmpty()) {
+            CompoundTag portalTag = new CompoundTag();
+            for (Map.Entry<Cube323PartHalf, BlockPos> entry : portals.entrySet()) {
+                BlockPos p = entry.getValue();
+                CompoundTag posTag = new CompoundTag();
+                posTag.putInt("x", p.getX());
+                posTag.putInt("y", p.getY());
+                posTag.putInt("z", p.getZ());
+                portalTag.put(entry.getKey().getSerializedName(), posTag);
+            }
+            tag.put("portals", portalTag);
+        }
         // Temple state
         tag.putInt("templeCycleDay", templeCycleDay);
         tag.putLong("templeLastDay", templeLastDay);
@@ -1292,6 +1349,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.activeMegastructureIndex = tag.contains("activeMegastructure") ? tag.getInt("activeMegastructure") : -1;
         this.excavatorLaserActive = tag.getBoolean("excavatorLaserActive");
         this.penroseSphereLaserActive = tag.getBoolean("penroseSphereLaserActive");
+        // Wormhole stabilizer state
+        this.wormholeParamsHash = tag.getInt("wormholeParamsHash");
+        this.wormholeRegistered = false; // Will be re-registered in onLoad/serverTick
+        this.portals.clear();
+        if (tag.contains("portals")) {
+            CompoundTag portalTag = tag.getCompound("portals");
+            for (String key : portalTag.getAllKeys()) {
+                CompoundTag posTag = portalTag.getCompound(key);
+                Cube323PartHalf side = Cube323PartHalf.valueOf(key.toUpperCase());
+                BlockPos pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
+                portals.put(side, pos);
+            }
+        }
         // Temple state
         this.templeCycleDay = tag.getInt("templeCycleDay");
         this.templeLastDay = tag.contains("templeLastDay") ? tag.getLong("templeLastDay") : -1;
@@ -1641,6 +1711,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         // Clear material filter
         this.materialFilter = new ItemStack(Items.BARRIER);
         this.materialLimit = 0;
+        // Clear wormhole stabilizer state
+        if (wormholeRegistered && level != null && !level.isClientSide()) {
+            WormholeNetwork.get().unregister(level, worldPosition);
+            wormholeRegistered = false;
+        }
+        wormholeParamsHash = 0;
+        portals.clear();
         // Re-register with power grid to restore CONSUMER type
         PowerGrid.addComponent(this);
     }
@@ -1674,6 +1751,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         );
         if (activeMegastructureIndex >= options.size()) return null;
         return options.get(activeMegastructureIndex);
+    }
+
+    /**
+     * Get the portals placed on this CFA's sides (unmodifiable).
+     */
+    public Map<Cube323PartHalf, BlockPos> getPortals() {
+        return Collections.unmodifiableMap(portals);
     }
 
     /**
@@ -1724,6 +1808,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             // Consume materials
             contained.shrink(required.getCount());
             activeMegastructureIndex = optionIndex;
+        }
+
+        // Register with wormhole network for wormhole stabilizer
+        if ("wormhole_stabilizer".equals(option.megastructure()) && celestialBodyData instanceof StarData star) {
+            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE && amplifierPresent) {
+                wormholeParamsHash = WormholeNetwork.computeParamsHash(star);
+                WormholeNetwork.get().register(wormholeParamsHash, level, worldPosition);
+                wormholeRegistered = true;
+                // Sync existing portal sides to network
+                if (!portals.isEmpty()) {
+                    WormholeNetwork.get().setPortalSides(level.dimension(), worldPosition, portals.keySet());
+                }
+            }
         }
 
         // Re-register with power grid so the component type change takes effect
@@ -2725,6 +2822,83 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                     }
                 }
             }
+        }
+    }
+
+    // === Wormhole Stabilizer ===
+
+    private void serverTickWormholeStabilizer() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null || !"wormhole_stabilizer".equals(option.megastructure())) return;
+        if (!(celestialBodyData instanceof StarData star) || star.bodyClass() != CelestialBodyClass.BLACK_HOLE) return;
+
+        // Check amplifier requirement
+        if (!amplifierPresent) {
+            if (wormholeRegistered) {
+                WormholeNetwork.get().unregister(level, worldPosition);
+                wormholeRegistered = false;
+                setChanged();
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            }
+            return;
+        }
+
+        // Ensure registered (handles chunk reload, server restart, etc.)
+        if (!wormholeRegistered) {
+            wormholeParamsHash = WormholeNetwork.computeParamsHash(star);
+            WormholeNetwork.get().register(wormholeParamsHash, level, worldPosition);
+            wormholeRegistered = true;
+            if (!portals.isEmpty()) {
+                WormholeNetwork.get().setPortalSides(level.dimension(), worldPosition, portals.keySet());
+            }
+        }
+
+    }
+
+    /**
+     * Register a portal on a specific side of the CFA.
+     *
+     * @return true if successful, false if side already has a portal or invalid side
+     */
+    public boolean addPortal(Cube323PartHalf side, BlockPos portalPos) {
+        if (side != Cube323PartHalf.BOTTOM_N && side != Cube323PartHalf.BOTTOM_S
+            && side != Cube323PartHalf.BOTTOM_E && side != Cube323PartHalf.BOTTOM_W) {
+            return false;
+        }
+        if (portals.containsKey(side)) {
+            return false;
+        }
+        portals.put(side, portalPos);
+
+        // Update wormhole network with portal sides
+        if (wormholeRegistered && level != null && !level.isClientSide()) {
+            WormholeNetwork network = WormholeNetwork.get();
+            network.setPortalSides(level.dimension(), worldPosition, portals.keySet());
+        }
+
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+        return true;
+    }
+
+    /**
+     * Unregister a portal from a specific side.
+     */
+    public void removePortal(Cube323PartHalf side) {
+        portals.remove(side);
+
+        // Update wormhole network
+        if (wormholeRegistered && level != null && !level.isClientSide()) {
+            WormholeNetwork network = WormholeNetwork.get();
+            network.setPortalSides(level.dimension(), worldPosition, portals.keySet());
+        }
+
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 

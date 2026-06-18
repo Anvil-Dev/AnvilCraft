@@ -34,6 +34,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -98,6 +99,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         "block/celestial_forging_anvil_ring_4_matter_decompressor_fix"));
     public static final ModelResourceLocation R4_MATTER_DECOMPRESSOR_RING = ModelResourceLocation.standalone(AnvilCraft.of(
         "block/celestial_forging_anvil_ring_4_matter_decompressor_ring"));
+
+    // Wormhole Stabilizer megastructure model (replaces ring 4)
+    public static final ModelResourceLocation R4_WORMHOLE_STABILIZER = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_wormhole_stabilizer"));
 
     // Stellar Evolution Accelerator models
     public static final ModelResourceLocation R5_STELLAR_EVOLUTION_ACCELERATOR = ModelResourceLocation.standalone(AnvilCraft.of(
@@ -167,7 +172,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (blockEntity.isAmplify()) {
             boolean isDysonSphereR5 = isDysonSphereActive(blockEntity, 5);
             boolean anyDysonSphere = isDysonSphereActive(blockEntity, 4) || isDysonSphereR5;
-            if (!anyDysonSphere) {
+            boolean hideOutermostForPenrose = isPenroseSphereActive(blockEntity) && !blockEntity.isAcceleratorActive();
+            if (!anyDysonSphere && !hideOutermostForPenrose) {
                 ModelResourceLocation r6Model = getRing6Model(blockEntity);
                 renderRingMaybe(
                     r6Model,
@@ -205,7 +211,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         // === Middle ring — child of "mid" ===
         if (blockEntity.isAmplify()) {
             boolean anyDysonSphere = isDysonSphereActive(blockEntity, 4) || isDysonSphereActive(blockEntity, 5);
-            if (!anyDysonSphere) {
+            // Hide ring 5 when Penrose Sphere is active AND ring 5 is the outermost (small star)
+            boolean isSmallStar = bodyData != null && bodyData.size() < 48;
+            boolean hideMiddleForPenrose = isPenroseSphereActive(blockEntity) && isSmallStar && !blockEntity.isAcceleratorActive();
+            if (!anyDysonSphere && !hideMiddleForPenrose) {
                 ModelResourceLocation r5Model = getRing5Model(blockEntity);
                 renderRingMaybe(
                     r5Model,
@@ -419,6 +428,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 }
                 if ("dyson_sphere_small".equals(option.megastructure())) {
                     return R4_DYSON_SPHERE;
+                }
+                if ("wormhole_stabilizer".equals(option.megastructure())) {
+                    if (!blockEntity.isAmplifierPresent()) {
+                        return R4;
+                    }
+                    return R4_WORMHOLE_STABILIZER;
                 }
             }
         }
@@ -671,7 +686,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (isAmplify) {
             return switch (ring) {
                 case 4 -> bodyData == null || bodyData.size() < 48;
-                case 5 -> !(bodyData instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE);
+                case 5 -> true;
                 case 6 -> bodyData == null || bodyData.size() >= 48;
                 default -> false;
             };
@@ -1211,6 +1226,23 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     private float[] getAtmosphereColor(Temperature temperature) {
         return CelestialBodyRenderer.getAtmosphereColor(temperature);
+    }
+
+    @Override
+    public boolean shouldRenderOffScreen(CelestialForgingAnvilBlockEntity blockEntity) {
+        return true;
+    }
+
+    @Override
+    public int getViewDistance() {
+        return 256;
+    }
+
+    @Override
+    public boolean shouldRender(CelestialForgingAnvilBlockEntity blockEntity, Vec3 cameraPos) {
+        return Vec3.atCenterOf(blockEntity.getBlockPos())
+            .multiply(1.0, 0.0, 1.0)
+            .closerThan(cameraPos.multiply(1.0, 0.0, 1.0), this.getViewDistance());
     }
 
     @Override

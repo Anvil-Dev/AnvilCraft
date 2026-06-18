@@ -456,9 +456,23 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean missingAmplifier = body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
-            Component line1 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
-            Component line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
-            Component line3 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line3");
+            // Check if wormhole stabilizer is active — use its specific message
+            var be = getMenu().getBlockEntity();
+            boolean isWormholeActive = be.getActiveMegastructureIndex() >= 0
+                && be.getCelestialBodyData() instanceof StarData star
+                && star.bodyClass() == CelestialBodyClass.BLACK_HOLE;
+            Component line1 = isWormholeActive
+                ? Component.translatable("screen.anvilcraft.cfa.wormhole.amplifier_missing")
+                : Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
+            Component line2;
+            Component line3;
+            if (isWormholeActive) {
+                line2 = Component.empty();
+                line3 = Component.empty();
+            } else {
+                line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
+                line3 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line3");
+            }
             int cx1 = PV_X + (PV_W - font.width(line1)) / 2;
             int cx2 = PV_X + (PV_W - font.width(line2)) / 2;
             int cx3 = PV_X + (PV_W - font.width(line3)) / 2;

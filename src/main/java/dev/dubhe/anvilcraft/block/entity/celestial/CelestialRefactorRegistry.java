@@ -121,6 +121,11 @@ public final class CelestialRefactorRegistry {
             options.removeIf(opt -> "penrose_sphere".equals(opt.megastructure()));
         }
 
+        // Filter wormhole_stabilizer: only available for black holes when amplified
+        if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE && amplified)) {
+            options.removeIf(opt -> "wormhole_stabilizer".equals(opt.megastructure()));
+        }
+
         // Filter matter_decompressor: only available for neutron stars or black holes
         if (!(body instanceof StarData star
             && (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
@@ -205,6 +210,9 @@ public final class CelestialRefactorRegistry {
             options.add(CelestialRefactorOption.withMaterial(4, "matter_decompressor",
                 ringModel(4, "matter_decompressor"), prefix + "matter_decompressor",
                 ModBlocks.SINGULARITY_CRYSTAL.asItem(), 1));
+            options.add(CelestialRefactorOption.withMaterial(4, "wormhole_stabilizer",
+                ringModel(4, "wormhole_stabilizer"), prefix + "wormhole_stabilizer",
+                ModBlocks.NEGATIVE_MATTER_BLOCK.asItem(), 16));
             options.add(CelestialRefactorOption.withMaterial(5, "stellar_evolution_accelerator",
                 ringModel(5, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
                 ModBlocks.CORRUPTED_BEACON.asItem(), 8));

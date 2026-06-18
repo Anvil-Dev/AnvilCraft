@@ -143,10 +143,12 @@ import dev.dubhe.anvilcraft.block.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCutterBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilFluidInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfacePlaceholderBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
@@ -1463,6 +1465,23 @@ public class ModBlocks {
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE)
         .register();
 
+    public static final BlockEntry<CelestialForgingAnvilPortalBlock> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
+        .block("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlock::new)
+        .lang("Celestial Forging Anvil Portal")
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties((properties) -> properties
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .explosionResistance(1200)
+            .emissiveRendering(ModBlocks::always))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item(CelestialForgingAnvilPortalBlockItem::new)
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/celestial_forging_anvil_gate")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE)
+        .recipe(RegistrumBlockRecipeLoader::celestialForgingAnvilPortal)
+        .register();
+
     public static final BlockEntry<VoidEnergyCollectorBlock> VOID_ENERGY_COLLECTOR = REGISTRUM.block(
             "void_energy_collector",
             VoidEnergyCollectorBlock::new
@@ -1772,7 +1791,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StainedGlassBlock> FROST_DECO_OUTLINE = REGISTRUM
         .block("frost_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.WHITE, properties))
-        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1892,7 +1911,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StainedGlassBlock> EMBER_DECO_OUTLINE = REGISTRUM
         .block("ember_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.YELLOW, properties))
-        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1933,7 +1952,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StainedGlassBlock> TRANSCENDENCE_DECO_OUTLINE = REGISTRUM
         .block("transcendence_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.PURPLE, properties))
-        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)

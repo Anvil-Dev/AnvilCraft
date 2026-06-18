@@ -422,6 +422,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere", "Penrose Sphere");
         provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor", "Matter Decompressor");
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_evolution_accelerator", "Stellar Evolution Accelerator");
+        provider.add("screen.anvilcraft.cfa.megastructure.wormhole_stabilizer", "Wormhole Stabilizer");
 
         // Planet resource bar
         provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —");
@@ -451,5 +452,12 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time: %s");
         provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power Output");
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked");
+
+        // Wormhole Stabilizer
+        provider.add("screen.anvilcraft.cfa.wormhole.amplifier_missing", "Amplifier missing, celestial body lost");
+
+        // Portal placement messages
+        provider.add("message.anvilcraft.portal.already_exists", "A portal already exists on this side");
+        provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers");
     }
 }
