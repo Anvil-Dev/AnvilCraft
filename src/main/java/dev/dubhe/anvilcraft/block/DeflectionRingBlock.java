@@ -121,6 +121,9 @@ public class DeflectionRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3
         BlockPos pos,
         CollisionContext context
     ) {
+        if (context.isHoldingItem(state.getBlock().asItem())) {
+            return Shapes.block();
+        }
         return switch (state.getValue(FACING).getAxis()) {
             case Z -> state.getValue(HALF).getOffset().getZ() == 0 ? Shapes.empty() : Shapes.block();
             case X -> state.getValue(HALF).getOffset().getX() == 0 ? Shapes.empty() : Shapes.block();
