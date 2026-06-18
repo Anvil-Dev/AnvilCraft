@@ -533,12 +533,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private static final int GRAVITY_CENTER_Y_OFFSET = 6;
     /**
      * Gravity influence radius (blocks), covers the Ring6 7×7×7 area.
+     * Represents ~2× the largest stellar radius (red supergiant ~2580 R☉).
      */
     private static final int GRAVITY_RADIUS = 4;
     /**
-     * Gravity strength formula scale factor. strength = stellarMass / size * SCALE.
+     * Unified reference physical radius for all bodies' gravity calculation.
+     * 5000 × R☉, and R☉/R⊕ = 109, so R_ref/R⊕ = 545,000.
      */
-    private static final double GRAVITY_STRENGTH_SCALE = 20.0;
+    private static final double GRAVITY_REFERENCE_RADIUS_RATIO = 5000.0 * 109.0;
+    /**
+     * Gameplay multiplier to make gravity perceptible at the block scale.
+     */
+    private static final double GRAVITY_STRENGTH_MULTIPLIER = 10000000.0;
 
     public void startSearch() {
         this.searchFailed = false;
@@ -674,6 +680,20 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
+    /**
+     * Update the gravity source for the current celestial body.
+     *
+     * <p>All bodies share a unified reference radius (5000 R☉ ≈ 2 × red supergiant radius)
+     * that corresponds to the {@link #GRAVITY_RADIUS} boundary in blocks.
+     * Gravity falls off as 1/r² from the source center.
+     *
+     * <p>Strength = gravity at the unified reference radius, in multiples of g⊕:
+     * <ul>
+     *   <li>Mass: M/M⊕ = 2^((massAnvilCount - 10) / 2)</li>
+     *   <li>Reference radius: R_ref/R⊕ = 5000 × 109 = 545,000</li>
+     *   <li>Strength = (M/M⊕) / (R_ref/R⊕)²</li>
+     * </ul>
+     */
     private void updateGravitySource() {
         if (level == null || level.isClientSide()) return;
 
@@ -682,7 +702,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                                     && stellarMass > 0
                                     && celestialBodyData.size() > 0;
 
-        double newStrength = shouldHaveGravity ? (stellarMass / (double) celestialBodyData.size()) * GRAVITY_STRENGTH_SCALE : 0;
+        double newStrength = 0;
+        if (shouldHaveGravity) {
+            double massRatio = Math.pow(2, (stellarMass - 10) / 2.0);
+            newStrength = massRatio * GRAVITY_STRENGTH_MULTIPLIER / (GRAVITY_REFERENCE_RADIUS_RATIO * GRAVITY_REFERENCE_RADIUS_RATIO);
+        } // 引力乘上这个常数得到感官合适的值 ↑
         int newSize = shouldHaveGravity ? celestialBodyData.size() : 0;
 
         BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);

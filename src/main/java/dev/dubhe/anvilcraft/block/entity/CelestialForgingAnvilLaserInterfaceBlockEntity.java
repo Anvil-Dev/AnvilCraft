@@ -1,16 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
-import dev.dubhe.anvilcraft.api.heat.HeatTier;
-import dev.dubhe.anvilcraft.api.heat.HeatTierLine;
-import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
-import dev.dubhe.anvilcraft.init.ModHeaterInfos;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import lombok.Getter;
@@ -21,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -38,8 +31,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 /**
  * Laser interface for the Celestial Forging Anvil.
@@ -65,12 +56,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     private boolean emittingGamma = false;
     @Getter
     private int gammaLevel = 0;
-
-    // GammaActiveCountdown: set to 21 ticks (GRID_TICK+1) in emitGammaLaser,
-    // decremented each non-gamma tick. Ensures HeaterManager.tickAll() sees
-    // the gamma state even if it runs on a later Pre-tick event.
-    @Getter
-    private int gammaActiveCountdown = 0;
 
     // Gamma laser block breaking: required continuous exposure in ticks
     // [disabled, ≥4:3s, ≥8:1s, ≥12:5gt, ≥16:1gt]
@@ -175,7 +160,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void emitGammaLaser(int level) {
         this.emittingGamma = true;
         this.gammaLevel = level;
-        this.gammaActiveCountdown = 21; // persist past one GRID_TICK for heating system
         this.updateLaserLevel(level);
     }
 
@@ -195,7 +179,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         // regardless of active/passive mode or gamma state.
         if (receivedLaserLevel > 0) {
             // Passive: clear emission since we are receiving
-            if (gammaActiveCountdown > 0) gammaActiveCountdown--;
             if (irradiateBlockPos != null) {
                 BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -212,7 +195,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             // Don't reset emittingGamma yet — tickWithGamma needs it for packet sending
         } else if (active) {
             // Emit normal laser when active
-            if (gammaActiveCountdown > 0) gammaActiveCountdown--;
             Direction facing = getFacing();
             // Only emit if not already part of a laser chain
             if (irradiateSelfLaserBlockSet.isEmpty()) {
@@ -220,7 +202,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             }
         } else {
             // Passive: clear laser emission
-            if (gammaActiveCountdown > 0) gammaActiveCountdown--;
             if (irradiateBlockPos != null) {
                 BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -265,12 +246,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
                 );
             }
         }
-        if (level instanceof ServerLevel serverLevel
-            && getIrradiateBlockPos() != null
-            && serverLevel.getBlockState(getIrradiateBlockPos()).is(ModBlockTags.HEATABLE_BLOCKS)
-        ) {
-            HeaterManager.addProducer(this.getBlockPos(), serverLevel, ModHeaterInfos.GAMMA_LASER_EMITTER);
-        }
         this.tickCount++;
     }
 
@@ -306,7 +281,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
      * - Destroys prisms on contact
      * - Block breaking based on level
      * - 16x entity damage
-     * - Special heating pattern for ember metal
+     * - Heats ember metal blocks in a cross-sectional area to overheated state
      */
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void emitGammaLaserBeam(Direction direction) {
@@ -410,19 +385,91 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
                     // ≥16: destroy without drops (entire multipart structure)
                     this.level.destroyBlock(breakPos, false);
                 } else {
-                    // ≥4-15: break with drops at the block position (原地掉落)
+                    // ≥4-15: break with drops at the block position
                     this.level.destroyBlock(this.irradiateBlockPos, true);
                 }
             }
         } else {
-            // Block cannot be broken — reset exposure
             this.gammaExposureTicks = 0;
         }
 
-        // Gamma laser heating: 余烬金属 (ember metal) blocks in front
-        applyGammaHeating(direction);
+        // Gamma laser heating: upgrade wither-immune ember metal blocks in area.
+        // Area size and thickness scale with gamma level:
+        // ≥4: 1×1×1  ≥8: 3×3×1  ≥12: 5×5×2  ≥16: 7×7×3
+        tryHeatEmberMetal(direction);
 
         this.maxTransmissionDistance = originalMaxDistance;
+    }
+
+    /**
+     * Heat all ember metal blocks in a cross-sectional area normal to the beam.
+     * Area scales with gamma level: ≥4→1×1, ≥8→3×3, ≥12→5×5×2, ≥16→7×7×3.
+     */
+    private void tryHeatEmberMetal(Direction direction) {
+        if (this.level == null || gammaLevel < 4) return;
+        if (this.level.getGameTime() % 20 != 0) return;
+
+        int areaSize;
+        int thickness;
+        if (gammaLevel >= 16) {
+            areaSize = 7;
+            thickness = 3;
+        } else if (gammaLevel >= 12) {
+            areaSize = 5;
+            thickness = 2;
+        } else if (gammaLevel >= 8) {
+            areaSize = 3;
+            thickness = 1;
+        } else {
+            areaSize = 1;
+            thickness = 1;
+        }
+
+        int halfSize = areaSize / 2;
+        BlockPos hitPos = this.irradiateBlockPos;
+        if (hitPos == null) return;
+
+        Direction[] perpendiculars = switch (direction.getAxis()) {
+            case X -> new Direction[]{Direction.UP, Direction.NORTH};
+            case Z -> new Direction[]{Direction.UP, Direction.EAST};
+            default -> new Direction[]{Direction.NORTH, Direction.EAST};
+        };
+
+        for (int depth = 0; depth < thickness; depth++) {
+            BlockPos depthPos = hitPos.relative(direction, depth);
+            for (int a = -halfSize; a <= halfSize; a++) {
+                for (int b = -halfSize; b <= halfSize; b++) {
+                    BlockPos target = depthPos
+                        .relative(perpendiculars[0], a)
+                        .relative(perpendiculars[1], b);
+                    tryHeatEmberMetalAt(target);
+                }
+            }
+        }
+    }
+
+    /**
+     * Upgrade or refresh a single ember metal block at the given position.
+     */
+    private void tryHeatEmberMetalAt(BlockPos pos) {
+        BlockState state = this.level.getBlockState(pos);
+
+        if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
+            Block overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
+            this.level.setBlock(pos, overheatedBlock.defaultBlockState(), Block.UPDATE_CLIENTS);
+            if (overheatedBlock instanceof EntityBlock entityBlock) {
+                BlockEntity be = entityBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
+                if (be instanceof HeatableBlockEntity heatable) {
+                    this.level.setBlockEntity(heatable);
+                    heatable.addDurationInTick(80);
+                }
+            }
+        } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
+            BlockEntity be = this.level.getBlockEntity(pos);
+            if (be instanceof HeatableBlockEntity heatable) {
+                heatable.addDurationInTick(80);
+            }
+        }
     }
 
     /**
@@ -460,124 +507,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         if (this.level == null) return false;
         BlockState blockState = this.level.getBlockState(blockPos);
         return blockState.is(BlockTags.REPLACEABLE);
-    }
-
-    /**
-     * Apply gamma laser heating to ember metal blocks in the beam area.
-     * Follows the same pattern as {@code ProduceHeat} recipe outcome:
-     * directly calls {@code HeatableBlockEntity.addDurationInTick()} on each
-     * heatable block in the area. This bypasses the HeaterManager timing
-     * issues — heating is applied immediately every tick.
-     *
-     * <p>
-     * Pattern based on laser level:
-     * ≥4: single block ahead
-     * ≥8: 3×3 area normal to beam
-     * ≥12: 5×5 area, 2 blocks thick
-     * ≥16: 7×7 area, 3 blocks thick
-     */
-    private void applyGammaHeating(Direction direction) {
-        if (level == null || !(level instanceof ServerLevel serverLevel)) return;
-        if (gammaLevel < 4) return;
-
-        java.util.Set<BlockPos> area = computeGammaHeatingArea(direction, gammaLevel, getBlockPos());
-
-        // Determine the target heat tier and per-tick duration from gamma level
-        HeatTierLine line = ModHeaterInfos.GAMMA_LASER_EMITTER.line();
-        HeatTierLine.Point point = line.getPoint(gammaLevel).orElse(null);
-        if (point == null) return;
-        HeatTier targetTier = point.tier();
-        // line duration is per-GRID_TICK (20 ticks); convert to per-real-tick
-        int durationPerTick = Math.max(1, point.duration() / 20);
-
-        for (BlockPos pos : area) {
-            BlockState state = level.getBlockState(pos);
-            if (!state.is(ModBlockTags.HEATABLE_BLOCKS)) continue;
-
-            HeatableBlockEntity heatable = Util.castSafely(level.getBlockEntity(pos), HeatableBlockEntity.class).orElse(null);
-            Optional<ResourceLocation> idOp = HeatRecorder.getId(level, pos, state);
-            if (idOp.isEmpty()) continue;
-            HeatTier currentTier = HeatRecorder.getTier(level, pos, state)
-                .orElseThrow(() -> new IllegalStateException("Unexpected non tier heatable block!"));
-
-            if (targetTier.compareTo(currentTier) > 0) {
-                // Upgrade the block to the target tier
-                Block deltaBlock = HeatRecorder.getHeatableBlock(idOp.get(), targetTier).orElse(null);
-                if (deltaBlock == null) continue;
-                level.setBlockAndUpdate(pos, deltaBlock.defaultBlockState());
-                if (!(deltaBlock instanceof EntityBlock)) continue;
-                BlockEntity deltaBlockEntity = level.getBlockEntity(pos);
-                if (!(deltaBlockEntity instanceof HeatableBlockEntity heatableEntity)) continue;
-                heatable = heatableEntity;
-            } else if (targetTier.compareTo(currentTier) < 0) {
-                // Target tier is lower — skip (let it cool down naturally)
-                continue;
-            }
-            if (heatable == null) continue;
-
-            heatable.addDurationInTick(durationPerTick);
-        }
-    }
-
-    /**
-     * Compute the set of block positions heated by a gamma laser.
-     * Static helper reused by the heater info registration.
-     *
-     * @param direction  the direction the laser is facing
-     * @param gammaLevel the gamma laser level
-     * @param laserPos   the position of the laser block entity
-     * @return the set of positions in the gamma heating area
-     */
-    public static java.util.Set<BlockPos> computeGammaHeatingArea(Direction direction, int gammaLevel, BlockPos laserPos) {
-        if (gammaLevel < 4) return java.util.Set.of();
-
-        int areaSize;
-        int thickness;
-        if (gammaLevel >= 16) {
-            areaSize = 7;
-            thickness = 3;
-        } else if (gammaLevel >= 12) {
-            areaSize = 5;
-            thickness = 2;
-        } else if (gammaLevel >= 8) {
-            areaSize = 3;
-            thickness = 1;
-        } else {
-            areaSize = 1;
-            thickness = 1;
-        }
-
-        int halfSize = areaSize / 2;
-        BlockPos startPos = laserPos.relative(direction);
-
-        Direction[] perpendiculars = switch (direction.getAxis()) {
-            case X -> new Direction[]{
-                Direction.UP,
-                Direction.NORTH
-            };
-            case Z -> new Direction[]{
-                Direction.UP,
-                Direction.EAST
-            };
-            default -> // Y
-            new Direction[]{
-                Direction.NORTH,
-                Direction.EAST
-            };
-        };
-
-        java.util.Set<BlockPos> area = new java.util.HashSet<>();
-        for (int depth = 0; depth < thickness; depth++) {
-            BlockPos depthPos = startPos.relative(direction, depth);
-            for (int a = -halfSize; a <= halfSize; a++) {
-                for (int b = -halfSize; b <= halfSize; b++) {
-                    area.add(depthPos
-                        .relative(perpendiculars[0], a)
-                        .relative(perpendiculars[1], b));
-                }
-            }
-        }
-        return area;
     }
 
     // === NBT persistence ===

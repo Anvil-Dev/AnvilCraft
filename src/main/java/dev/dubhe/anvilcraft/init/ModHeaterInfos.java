@@ -8,14 +8,12 @@ import dev.dubhe.anvilcraft.api.heat.HeaterInfo;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.BlockInfo;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.Optional;
@@ -73,39 +71,6 @@ public class ModHeaterInfos {
             laserEmitter -> Optional.ofNullable(laserEmitter.getIrradiateBlockPos())
                 .map(Set::of)
                 .orElse(Set.of()),
-            HeatTierLine.builder()
-                .addPoint(1, HeatTier.NORMAL)
-                .addPoint(4, HeatTier.HEATED, 2)
-                .addPoint(16, HeatTier.REDHOT, 2)
-                .addPoint(64, HeatTier.GLOWING, 2)
-                .addPoint(HeatTier.INCANDESCENT, 2)
-                .build(),
-            BaseLaserBlockEntity::getLaserLevel
-        )
-    );
-    public static final HeaterInfo<BaseLaserBlockEntity> GAMMA_LASER_EMITTER = HeatRecorder.registerProducerInfo(
-        HeaterInfo.blockEntity(
-            (level, pos) -> {
-                if (!level.isLoaded(pos)) return Optional.empty();
-                return Util.castSafely(level.getBlockEntity(pos), BaseLaserBlockEntity.class);
-            },
-            laserEmitter -> {
-                BlockPos target = laserEmitter.getIrradiateBlockPos();
-                if (target == null) return Set.of();
-                // Gamma laser: heat the full area computed from gamma level and facing.
-                // gammaActiveCountdown persists 21 ticks past last emitGammaLaser call
-                // so that HeaterManager.tickAll() (every 20 ticks on Pre) always sees it.
-                if (laserEmitter instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser
-                    && cfaLaser.getGammaActiveCountdown() > 0
-                    && cfaLaser.getGammaLevel() >= 4) {
-                    return CelestialForgingAnvilLaserInterfaceBlockEntity.computeGammaHeatingArea(
-                        cfaLaser.getFacing(),
-                        cfaLaser.getGammaLevel(),
-                        laserEmitter.getBlockPos()
-                    );
-                }
-                return Set.of(target);
-            },
             HeatTierLine.builder()
                 .addPoint(1, HeatTier.NORMAL)
                 .addPoint(4, HeatTier.HEATED, 2)
