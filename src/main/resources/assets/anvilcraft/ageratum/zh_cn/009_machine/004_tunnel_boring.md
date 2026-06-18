@@ -19,7 +19,7 @@ navigation:
 
 ## 图示
 
-<structure id="../structures/machine/tunnel_boring_3x.snbt"/>
+<structure id="../../structures/machine/tunnel_boring_3x.snbt"/>
 
 <tip>
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
@@ -42,7 +42,7 @@ navigation:
 
 ## 图示
 
-<structure id="../structures/machine/tunnel_boring_7x.snbt"/>
+<structure id="../../structures/machine/tunnel_boring_7x.snbt"/>
 
 <tip>
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度

@@ -21,4 +21,4 @@ items:
   - 搭建3层底座加载7*7的区块
   - 底座中存在至少4个含水方块时，可以产生*随机刻*
 
-<structure id="../structures/overseer.snbt"/>
+<structure id="../../structures/overseer.snbt"/>

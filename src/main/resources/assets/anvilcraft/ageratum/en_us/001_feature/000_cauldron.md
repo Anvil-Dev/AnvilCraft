@@ -12,7 +12,7 @@ navigation:
 
 ## Layer Completion
 
-<structure id="../structures/lava_cauldron.snbt"/>
+<structure id="../../structures/lava_cauldron.snbt"/>
 
 Completes the missing vanilla <ref item="minecraft:cauldron"/> layers.
 

@@ -28,7 +28,7 @@ Right-click a <ref item="minecraft:lightning_rod"/> with <ref item="anvilcraft:t
 
 The default lightning-to-magnet block conversion range is as follows:
 
-<structure id="../structures/lightning_convert_magnets.snbt"/>
+<structure id="../../structures/lightning_convert_magnets.snbt"/>
 
 <row halign="center">
 <recipe id="anvilcraft:magnet_ingot_from_hollow_block"/>

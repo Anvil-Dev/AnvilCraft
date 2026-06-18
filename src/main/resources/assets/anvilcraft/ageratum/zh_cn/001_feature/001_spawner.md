@@ -14,7 +14,7 @@ navigation:
 
 被铁砧砸中的<ref item="minecraft:spawner"/>会立刻尝试一次刷怪
 
-<structure id="../structures/spawner.snbt"/>
+<structure id="../../structures/spawner.snbt"/>
 
 - 铁砧下落高度h决定刷怪概率p: **p = 1 - 1/h** (高度越高，概率越大)
 - *不需要* **周围有玩家** (记得确保区块被加载)

@@ -10,7 +10,7 @@ navigation:
 
 Utilize the [Anvil Block Destruction](../007_struct/000_block_processing.md) feature to automatically produce large amounts of <ref item="minecraft:cobblestone"/>
 
-<structure id="../structures/machine/stone.snbt"/>
+<structure id="../../structures/machine/stone.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height

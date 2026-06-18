@@ -59,7 +59,7 @@ The following block behaviors generate charges:
 
 ## Triboelectric Charge Generation
 
-<structure id="../structures/triboelectric_power.snbt"/>
+<structure id="../../structures/triboelectric_power.snbt"/>
 
 - When <ref item="anvilcraft:magnet_block"/> is pushed or pulled by a piston, if it is adjacent to <ref item="minecraft:copper_block"/>, it generates charges
 - Oxidation of <ref item="minecraft:copper_block"/> reduces the amount of charge generated. The charges per movement are shown in the table below

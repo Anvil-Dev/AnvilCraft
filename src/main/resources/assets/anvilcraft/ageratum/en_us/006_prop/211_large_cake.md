@@ -65,7 +65,7 @@ Right-click with a shovel to eat the entire block
 <recipe id="anvilcraft:block_compress/chocolate_cake_block"/>
 </row>
 
-<structure id="../structures/large_cake.snbt"/>
+<structure id="../../structures/large_cake.snbt"/>
 - Made using the [Multiblock Transformation](../004_block/210_giant_anvil.md#功能) recipe
 
 <tip>

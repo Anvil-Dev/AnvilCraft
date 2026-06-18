@@ -33,7 +33,7 @@ items:
 
 # 高温熔炼
 
-<structure id="../structures/super_heating.snbt"/>
+<structure id="../../structures/super_heating.snbt"/>
 
 高温熔炼是一种加工方法，可以批量处理锅中的原料
 

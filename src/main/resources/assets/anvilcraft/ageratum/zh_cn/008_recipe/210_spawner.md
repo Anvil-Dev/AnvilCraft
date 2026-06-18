@@ -25,7 +25,7 @@ items:
 ## 制作刷怪笼
 
 
-<structure id="../structures/muti_spawner.snbt"/>
+<structure id="../../structures/muti_spawner.snbt"/>
 
 <info>
 制造<ref item="minecraft:spawner"/>，仅接受[多方块转化](../004_block/210_giant_anvil.md#功能)，不接受[多方块合成](../004_block/210_giant_anvil.md#功能)!

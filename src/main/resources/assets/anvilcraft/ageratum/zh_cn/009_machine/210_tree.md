@@ -18,7 +18,7 @@ navigation:
 
 ## 图示
 
-<structure id="../structures/machine/tree.snbt"/>
+<structure id="../../structures/machine/tree.snbt"/>
 
 <tip>
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度

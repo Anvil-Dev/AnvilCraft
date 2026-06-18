@@ -48,7 +48,7 @@ items:
 
 > 合成需要<ref item="anvilcraft:spacetime_supercomputer"/>
 
-<structure id="../structures/forging_stars.nbt"/>
+<structure id="../../structures/forging_stars.nbt"/>
 
 按照正确结构搭建后，<ref item="anvilcraft:celestial_forging_anvil"/>进入*增幅状态*
 
@@ -70,7 +70,7 @@ items:
 2. 参数组会在左上、右上、左下构成3个焦点
 3. 如果三个焦点颜色恰好相同，说明参数组成立，可以绑定到天体
 
-![star-info](../textures/star_info.png)
+![star-info](../../textures/star_info.png)
 
 # 全同天体
 

@@ -51,7 +51,7 @@ Very hard stone, not very useful
 
 ## Ore Generation
 
-<structure id="../structures/mineral_fountain/raw_mineral.snbt"/>
+<structure id="../../structures/mineral_fountain/raw_mineral.snbt"/>
 
 - If all four sides of the <ref item="anvilcraft:mineral_fountain"/> are **the same type of raw ore block**, it will convert the <ref item="minecraft:deepslate"/> above into the corresponding **deepslate ore**
 - There is a chance to instead generate <ref item="anvilcraft:earth_core_shard_ore"/> or <ref item="anvilcraft:void_stone"/>
@@ -70,7 +70,7 @@ Raw ore blocks can be obtained through <ref item="anvilcraft:corrupted_beacon"/>
 
 ## Lava Generation
 
-<structure id="../structures/mineral_fountain/lava.snbt"/>
+<structure id="../../structures/mineral_fountain/lava.snbt"/>
 
 - A <ref item="anvilcraft:mineral_fountain"/> surrounded on all four sides by **lava** can generate **lava**
 
@@ -78,7 +78,7 @@ Raw ore blocks can be obtained through <ref item="anvilcraft:corrupted_beacon"/>
 
 ## Heating
 
-<structure id="../structures/mineral_fountain/heat.snbt"/>
+<structure id="../../structures/mineral_fountain/heat.snbt"/>
 
 - A <ref item="anvilcraft:mineral_fountain"/> surrounded on all four sides by **lava** can heat [heatable blocks](../001_feature/101_heated_block.md) to <color=#aa2222>red-hot level</color>
 
@@ -86,7 +86,7 @@ Raw ore blocks can be obtained through <ref item="anvilcraft:corrupted_beacon"/>
 
 ## Cinerite Generation
 
-<structure id="../structures/mineral_fountain/cinerite.snbt"/>
+<structure id="../../structures/mineral_fountain/cinerite.snbt"/>
 
 - When no other structure conditions are met, the <ref item="anvilcraft:mineral_fountain"/> generates <ref item="anvilcraft:cinerite"/> above it, which can be used for [ore meshing](../008_recipe/001_basic_minerals.md)
 

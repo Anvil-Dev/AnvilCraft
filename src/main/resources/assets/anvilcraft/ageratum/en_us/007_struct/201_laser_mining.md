@@ -14,7 +14,7 @@ navigation:
 
 ## Building the Structure
 
-<structure id="../structures/laser_mining.snbt"/>
+<structure id="../../structures/laser_mining.snbt"/>
 
 - This structure can automatically extract raw ores and store them in the container above
 - The laser can shoot up to 128 blocks, so you can place the laser extraction structure on the surface for greater convenience

@@ -48,7 +48,7 @@ Open the GUI of <ref item="anvilcraft:celestial_forging_anvil"/>. On the left si
 
 > Crafting requires <ref item="anvilcraft:spacetime_supercomputer"/>
 
-<structure id="../structures/forging_stars.nbt"/>
+<structure id="../../structures/forging_stars.nbt"/>
 
 After building the correct structure, <ref item="anvilcraft:celestial_forging_anvil"/> enters *Amplified State*
 
@@ -70,7 +70,7 @@ After building the correct structure, <ref item="anvilcraft:celestial_forging_an
 2. The parameter groups form 3 focal points at the top-left, top-right, and bottom
 3. If the three focal points are exactly the same color, the parameters are valid and the celestial body can be bound
 
-![star-info](../textures/star_info.png)
+![star-info](../../textures/star_info.png)
 
 # Identical Celestial Bodies
 

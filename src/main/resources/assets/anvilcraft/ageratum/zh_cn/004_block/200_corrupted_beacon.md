@@ -34,7 +34,7 @@ items:
 
 ## 功能
 
-<structure id="../structures/corrupted_beacon.snbt"/>
+<structure id="../../structures/corrupted_beacon.snbt"/>
 
 - 此结构可以实现时移操作，此时腐化信标必须是激活状态
 

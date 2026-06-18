@@ -40,7 +40,7 @@ you can produce <ref item="anvilcraft:giant_anvil"/> through **multi-block conve
 
 When <ref item="anvilcraft:giant_anvil"/> strikes <ref item="minecraft:crafting_table"/>, it converts the multi-block structure below, creating new blocks
 
-<structure id="../structures/mutiblock_convert.snbt"/>
+<structure id="../../structures/mutiblock_convert.snbt"/>
 
 <tip>
 If you don't like the look of <ref item="minecraft:crafting_table"/>, try <ref item="anvilcraft:transparent_crafting_table"/>
@@ -69,7 +69,7 @@ If you don't like the look of <ref item="minecraft:crafting_table"/>, try <ref i
 - **Adjacent blocks** determine the shaking work mode
 - **Corner blocks** determine the work type within the mode
 
-<structure id="../structures/giant_anvil_shocking.snbt"/>
+<structure id="../../structures/giant_anvil_shocking.snbt"/>
 
 ### Work Mode: Default
 

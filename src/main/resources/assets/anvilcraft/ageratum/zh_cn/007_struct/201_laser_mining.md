@@ -14,7 +14,7 @@ navigation:
 
 ## 搭建结构
 
-<structure id="../structures/laser_mining.snbt"/>
+<structure id="../../structures/laser_mining.snbt"/>
 
 - 这种结构可以自动提取粗矿，并存放至上方容器内
 - 激光可以射128格，所以可以将激光提取结构放在地表，更方便

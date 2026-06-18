@@ -10,7 +10,7 @@ A machine for producing gravel and sand, with a structure similar to the cobbles
 
 This three-mode sand-crushing machine can be controlled via levers to switch between producing cobblestone, gravel, or sand.
 
-<structure id="../structures/machine/sand.snbt"/>
+<structure id="../../structures/machine/sand.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height

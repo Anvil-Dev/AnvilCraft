@@ -41,5 +41,5 @@ For a 1x1x1 space, the block must be <ref item="anvilcraft:menger_sponge"/>
 During in-game detection, the air portion in the <ref item="anvilcraft:menger_sponge"/> structure can be other blocks, but cannot be <ref item="anvilcraft:menger_sponge"/>
 </info>
 
-<structure id="../structures/menger_sponge_struct.snbt"/>
+<structure id="../../structures/menger_sponge_struct.snbt"/>
 

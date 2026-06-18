@@ -19,7 +19,7 @@ Here is an example of a simple *Tunnel Boring Machine*:
 
 ## Diagram
 
-<structure id="../structures/machine/tunnel_boring_3x.snbt"/>
+<structure id="../../structures/machine/tunnel_boring_3x.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
@@ -42,7 +42,7 @@ Here is a simple approach to excavate a spacious 7x7 cross-section tunnel.
 
 ## Diagram
 
-<structure id="../structures/machine/tunnel_boring_7x.snbt"/>
+<structure id="../../structures/machine/tunnel_boring_7x.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height

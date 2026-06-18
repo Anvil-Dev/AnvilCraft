@@ -65,7 +65,7 @@ items:
 <recipe id="anvilcraft:block_compress/chocolate_cake_block"/>
 </row>
 
-<structure id="../structures/large_cake.snbt"/>
+<structure id="../../structures/large_cake.snbt"/>
 - 使用[多方块转化](../004_block/210_giant_anvil.md#功能)配方制作
 
 <tip>

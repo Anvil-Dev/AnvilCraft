@@ -33,7 +33,7 @@ items:
 
 # Super-Heating
 
-<structure id="../structures/super_heating.snbt"/>
+<structure id="../../structures/super_heating.snbt"/>
 
 Super-Heating is a processing method that can batch-process materials in a cauldron
 

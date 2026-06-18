@@ -18,7 +18,7 @@ Build a **Giant Anvil Tree Farm** like this, and logs will continuously flow int
 
 ## Diagram
 
-<structure id="../structures/machine/tree.snbt"/>
+<structure id="../../structures/machine/tree.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height

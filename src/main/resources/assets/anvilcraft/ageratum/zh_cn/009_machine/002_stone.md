@@ -10,7 +10,7 @@ navigation:
 
 利用[铁砧破坏](../007_struct/000_block_processing.md)的特性，可以自动生产大量<ref item="minecraft:cobblestone"/>
 
-<structure id="../structures/machine/stone.snbt"/>
+<structure id="../../structures/machine/stone.snbt"/>
 
 <tip>
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度

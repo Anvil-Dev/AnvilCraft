@@ -16,7 +16,7 @@ Utilize [Anvil Looting](../001_feature/000_anvil_loot.md) combined with the [Dis
 
 ## Diagram
 
-<structure id="../structures/machine/iron.snbt"/>
+<structure id="../../structures/machine/iron.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height

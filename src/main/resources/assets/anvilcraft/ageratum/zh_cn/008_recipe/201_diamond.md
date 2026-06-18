@@ -22,7 +22,7 @@ navigation:
 <recipe id="anvilcraft:super_heating/diamond"/>
 
 # 更高效的转化路线
-<structure id="../structures/muti_coal_block.snbt"/>
+<structure id="../../structures/muti_coal_block.snbt"/>
 
 - 运用[多方块合成](../004_block/210_giant_anvil.md)的力量
 - 27个 <ref item="minecraft:coal_block"/> ⇒ 1个 <ref item="minecraft:diamond_block"/>，转化率更高
