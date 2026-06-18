@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -118,7 +119,7 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (context.isHoldingItem(state.getBlock().asItem())) {
+        if (context.isHoldingItem(state.getBlock().asItem()) || context.isHoldingItem(ModBlocks.DEFLECTION_RING.asItem())) {
             return Shapes.block();
         }
         return switch (state.getValue(FACING).getAxis()) {
