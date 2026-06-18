@@ -49,4 +49,5 @@ public class ModRenderTypes {
             .withTexture("Sampler0", ModTextureAtlases.LOCATION_LASER)
             .createRenderSetup()
     );
+
 }
