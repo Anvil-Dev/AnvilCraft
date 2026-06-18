@@ -313,7 +313,7 @@ public final class CelestialBodyMatcher {
         CelestialBodyClass bodyClass, int time, int space, int mass, int energy, RandomSource random
     ) {
         return switch (bodyClass) {
-            case LARGE_MOON -> generateLargeMoon(space, random);
+            case LARGE_MOON -> generateLargeMoon(space, energy, random);
             case ROCKY_NO_LIQUID, ROCKY_LOW_LIQUID, ROCKY_MED_LIQUID, ROCKY_HIGH_LIQUID -> generateRockyPlanet(
                 bodyClass, energy, space, random);
             case ICE_GIANT -> generateGiantPlanet(bodyClass, PressureType.ICE, space, random);
@@ -324,12 +324,13 @@ public final class CelestialBodyMatcher {
     }
 
     // === Large Moon ===
-    private static CelestialBodyData generateLargeMoon(int space, RandomSource random) {
+    private static CelestialBodyData generateLargeMoon(int space, int energy, RandomSource random) {
         int size = sizeForSpace(space);
         int mag = random.nextFloat() < 0.5f ? 0 : 1;
+        Temperature temperature = energyToTemperature(energy);
         return new RockyPlanetData(
             CelestialBodyClass.LARGE_MOON,
-            false, LiquidCoverage.NONE, Temperature.FREEZING,
+            false, LiquidCoverage.NONE, temperature,
             RingType.NONE, size,
             random.nextInt(16), 0,
             randomAxialTilt(random), randomRotationSpeed(random), mag

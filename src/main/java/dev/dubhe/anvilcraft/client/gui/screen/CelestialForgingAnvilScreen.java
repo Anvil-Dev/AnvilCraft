@@ -576,12 +576,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
 
         var buf = guiGraphics.bufferSource();
+
+        // Planet body (cutout)
         var rt = ModRenderTypes.STAR_CUTOUT.apply(tex);
         VertexConsumer vc = buf.getBuffer(rt);
         CelestialBodyRenderer.renderPlanetBody(guiGraphics.pose(), vc, 0x00F000F0, 0);
-        buf.endBatch();
 
-        // Atmosphere
+        // Atmosphere (translucent)
         Temperature atmosTemp = getUiAtmosphereTemp(body);
         if (atmosTemp != null) {
             guiGraphics.pose().pushPose();
@@ -590,7 +591,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.pose().translate(-0.5, -0.5, -0.5);
             CelestialBodyRenderer.renderAtmosphere(
                 guiGraphics.pose(),
-                guiGraphics.bufferSource(),
+                buf,
                 atmosTemp,
                 LightTexture.FULL_BRIGHT,
                 0,
@@ -599,17 +600,20 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.pose().popPose();
         }
 
-        // Render ring
+        // Render ring (translucent, depth-tested against planet body)
         ResourceLocation ringTex = CelestialBodyTextureBakery.getOrBakeRing(body);
         if (ringTex != null) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.5, 0.5, 0.5);
             guiGraphics.pose().scale(1.2f, 1.2f, 1.2f);
             guiGraphics.pose().translate(-0.5, -0.5, -0.5);
-            var ringConsumer = guiGraphics.bufferSource().getBuffer(ModRenderTypes.CELESTIAL_RING.apply(ringTex));
+            var ringConsumer = buf.getBuffer(RenderType.entityTranslucent(ringTex));
             CelestialBodyRenderer.renderRing(guiGraphics.pose(), ringConsumer, LightTexture.FULL_BRIGHT, 0);
             guiGraphics.pose().popPose();
         }
+
+        // Flush all layers together — cutout body first, then translucent atmosphere + ring
+        buf.endBatch();
 
         guiGraphics.pose().popPose();
     }
@@ -709,7 +713,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             LightTexture.FULL_BRIGHT,
             0
         );
-        buf.endBatch();
 
         // Atmosphere for complex-model bodies that have it
         if (special.hasAtmosphere() && special.temperature() != null) {
@@ -719,7 +722,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.pose().translate(-0.5, -0.5, -0.5);
             CelestialBodyRenderer.renderAtmosphere(
                 guiGraphics.pose(),
-                guiGraphics.bufferSource(),
+                buf,
                 special.temperature(),
                 LightTexture.FULL_BRIGHT,
                 0,
@@ -727,6 +730,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             );
             guiGraphics.pose().popPose();
         }
+
+        buf.endBatch();
 
         guiGraphics.pose().popPose();
     }
