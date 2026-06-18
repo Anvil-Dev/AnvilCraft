@@ -282,7 +282,9 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
 
     @Override
     public void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity) {
-        if (entity.getStartPos().equals(pos.above())) return;
+        if (entity.getStartPos().equals(pos.above()) && entity.tickCount <= 2) {
+            return;
+        }
         level.setBlockAndUpdate(pos, state.setValue(FACING, entity.getMoveDirection()));
         if (!state.getValue(POWERED)) return;
         level.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get()).ifPresent(ActivatorSlidingRailBlockEntity::startPulse);
