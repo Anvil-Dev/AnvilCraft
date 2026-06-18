@@ -218,7 +218,13 @@ public class BlockTagLoader {
             .add(ModBlocks.TESLA_TOWER.getKey())
             .add(ModBlocks.OVERSEER_BLOCK.getKey())
             .add(ModBlocks.ACCELERATION_RING.getKey())
-            .add(ModBlocks.DEFLECTION_RING.getKey());
+            .add(ModBlocks.DEFLECTION_RING.getKey())
+            .add(ModBlocks.SHULKER_CONTAINER.getKey())
+            .add(ModBlocks.LARGE_FLUID_TANK.getKey())
+            .add(ModBlocks.LARGE_LASER.getKey())
+            .add(ModBlocks.CELESTIAL_FORGING_ANVIL.getKey())
+            .add(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getKey())
+            .add(ModBlocks.TRADING_STATION.getKey());
 
         provider.addTag(ModBlockTags.ANVIL_HAMMER_BLACKLIST)
             .add(findResourceKey(Blocks.NETHER_PORTAL))
