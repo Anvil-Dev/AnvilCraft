@@ -6,6 +6,8 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
+import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
+import dev.dubhe.anvilcraft.block.state.IrradiatorType;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
@@ -186,10 +188,11 @@ public class ReversedSmearAlikeRecipe extends AbstractProcessRecipe<ReversedSmea
          * @param input 输入的上方方块
          * @return 构建器实例
          */
-        public ReversedSmearAlikeRecipe.Builder fakeNeutronIrradiation(Block input) {
+        public ReversedSmearAlikeRecipe.Builder fakeNeutronIrradiation(Block input, IrradiatorType type) {
             this.inputs.add(BlockStatePredicate.builder().of(input).build());
             this.inputs.add(BlockStatePredicate.builder()
                 .of(ModBlocks.NEUTRON_IRRADIATOR.get())
+                .with(NeutronIrradiatorBlock.TYPE, type)
                 .build());
             return this;
         }

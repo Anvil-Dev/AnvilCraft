@@ -39,7 +39,7 @@ public final class CelestialRefactorRegistry {
      * With amplification, the minimum ring is always 4 (stellar-scale).
      */
     public static int getInnermostRing(CelestialBodyData body, boolean amplified) {
-        boolean isLarge = body.size() >= 26;
+        boolean isLarge = body.size() >= 48;
         int ring = switch (body) {
             case StarData ignored -> isLarge ? 5 : 4;
             case GiantPlanetData ignored -> 2;
@@ -83,16 +83,54 @@ public final class CelestialRefactorRegistry {
             options.removeIf(opt -> "giant_planet_exctractor".equals(opt.megastructure()));
         }
 
-        // Filter stellar_ring_collider: only available for small stellar bodies (size < 26)
-        if (!(body instanceof StarData star && star.size() < 26)) {
+        // Filter stellar_ring_collider: only available for small stellar bodies (size < 48)
+        if (!(body instanceof StarData star && star.size() < 48)) {
             options.removeIf(opt -> "stellar_ring_collider".equals(opt.megastructure()));
+        }
+
+        // Filter stellar_evolution_accelerator: not available for stellar remnants
+        if (body instanceof StarData star
+            && (star.bodyClass() == CelestialBodyClass.WHITE_DWARF
+                || star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
+                || star.bodyClass() == CelestialBodyClass.BLACK_HOLE)) {
+            options.removeIf(opt -> "stellar_evolution_accelerator".equals(opt.megastructure()));
+        }
+
+        // Filter magnetar_coil: only available for neutron stars
+        if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.NEUTRON_STAR)) {
+            options.removeIf(opt -> "magnetar_coil".equals(opt.megastructure()));
+        }
+
+        // Filter stellar_evolution_accelerator ring variant by star size:
+        // Small stars use ring 5 model, large stars use ring 6 model.
+        if (body instanceof StarData star) {
+            boolean isLarge = star.size() >= 48;
+            options.removeIf(opt -> "stellar_evolution_accelerator".equals(opt.megastructure())
+                && ((isLarge && opt.ring() == 5) || (!isLarge && opt.ring() == 6)));
         }
 
         // Filter Dyson Sphere: small for small stars, large for large stars
         if (body instanceof StarData star) {
-            boolean isLarge = star.size() >= 26;
+            boolean isLarge = star.size() >= 48;
             options.removeIf(opt -> "dyson_sphere_small".equals(opt.megastructure()) && isLarge);
             options.removeIf(opt -> "dyson_sphere_large".equals(opt.megastructure()) && !isLarge);
+        }
+
+        // Filter penrose_sphere: only available for black holes
+        if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE)) {
+            options.removeIf(opt -> "penrose_sphere".equals(opt.megastructure()));
+        }
+
+        // Filter wormhole_stabilizer: only available for black holes when amplified
+        if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE && amplified)) {
+            options.removeIf(opt -> "wormhole_stabilizer".equals(opt.megastructure()));
+        }
+
+        // Filter matter_decompressor: only available for neutron stars or black holes
+        if (!(body instanceof StarData star
+            && (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
+                || star.bodyClass() == CelestialBodyClass.BLACK_HOLE))) {
+            options.removeIf(opt -> "matter_decompressor".equals(opt.megastructure()));
         }
 
         // Filter eco_station: requires biological resources and no low-level civilization
@@ -162,19 +200,31 @@ public final class CelestialRefactorRegistry {
                 ModBlocks.ACCELERATION_RING.asItem(), 16));
             options.add(CelestialRefactorOption.withMaterial(4, "dyson_sphere_small",
                 ringModel(4, "dyson_sphere"), prefix + "dyson_sphere_small",
-                ModItems.TRANSCENDIUM_INGOT, 16));
-            options.add(CelestialRefactorOption.noMaterial(4, "magnetar_coil",
-                ringModel(4, "coil"), prefix + "magnetar_coil"));
-            options.add(CelestialRefactorOption.noMaterial(4, "penrose_sphere",
-                ringModel(4, "penrose_sphere"), prefix + "penrose_sphere"));
-            options.add(CelestialRefactorOption.noMaterial(4, "matter_decompressor",
-                ringModel(4, "matter_decompressor"), prefix + "matter_decompressor"));
+                ModItems.DYSON_SPHERE_COMPONENT, 16));
+            options.add(CelestialRefactorOption.withMaterial(4, "magnetar_coil",
+                ringModel(4, "coil"), prefix + "magnetar_coil",
+                ModBlocks.DEFLECTION_RING.asItem(), 16));
+            options.add(CelestialRefactorOption.withMaterial(4, "penrose_sphere",
+                ringModel(4, "penrose_sphere"), prefix + "penrose_sphere",
+                ModItems.PENROSE_SPHERE_COMPONENT, 8));
+            options.add(CelestialRefactorOption.withMaterial(4, "matter_decompressor",
+                ringModel(4, "matter_decompressor"), prefix + "matter_decompressor",
+                ModBlocks.SINGULARITY_CRYSTAL.asItem(), 1));
+            options.add(CelestialRefactorOption.withMaterial(4, "wormhole_stabilizer",
+                ringModel(4, "wormhole_stabilizer"), prefix + "wormhole_stabilizer",
+                ModBlocks.NEGATIVE_MATTER_BLOCK.asItem(), 16));
+            options.add(CelestialRefactorOption.withMaterial(5, "stellar_evolution_accelerator",
+                ringModel(5, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
+                ModBlocks.CORRUPTED_BEACON.asItem(), 8));
         }
         if (innermostRing <= 5 && 5 <= maxRing) {
             // Ring 5 megastructures (innermost for large stars)
             options.add(CelestialRefactorOption.withMaterial(5, "dyson_sphere_large",
                 ringModel(5, "dyson_sphere"), prefix + "dyson_sphere_large",
-                ModItems.TRANSCENDIUM_INGOT, 32));
+                ModItems.DYSON_SPHERE_COMPONENT, 32));
+            options.add(CelestialRefactorOption.withMaterial(6, "stellar_evolution_accelerator",
+                ringModel(6, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
+                ModBlocks.CORRUPTED_BEACON.asItem(), 8));
         }
         return options;
     }

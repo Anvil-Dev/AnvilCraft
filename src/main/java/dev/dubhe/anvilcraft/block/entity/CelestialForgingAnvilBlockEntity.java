@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
@@ -17,12 +18,16 @@ import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyType;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,7 +71,10 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer, IPowerProducer, IDiskCloneable {
@@ -119,6 +127,27 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      */
     @Getter
     private boolean excavatorLaserActive = false;
+
+    /**
+     * Whether the Penrose Sphere has valid laser input/output pairs (for model switching).
+     */
+    @Getter
+    private boolean penroseSphereLaserActive = false;
+
+    // === Wormhole Stabilizer state ===
+    /**
+     * Hash of the black hole parameters, computed when the stabilizer is built.
+     */
+    @Getter
+    private int wormholeParamsHash = 0;
+    /**
+     * Whether this CFA is currently registered in the wormhole network.
+     */
+    private boolean wormholeRegistered = false;
+    /**
+     * Map from cube part (side center) to the BlockPos of the portal placed there.
+     */
+    private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
 
     // === Temple state ===
     /**
@@ -182,6 +211,64 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      */
     private final List<ItemStack> colliderTargetItems = new ArrayList<>();
 
+    // === Stellar Evolution Accelerator state ===
+    /**
+     * Current stage: 0=inactive, 1=main seq, 2=giant, 3=supernova, 4=M-dwarf finish, 5=done.
+     */
+    @Getter
+    private int acceleratorStage = 0;
+    /**
+     * Remaining ticks for the current accelerator stage.
+     */
+    @Getter
+    private int acceleratorTicksRemaining = 0;
+    /**
+     * Total ticks for current stage (for UI progress display).
+     */
+    @Getter
+    private int acceleratorTicksTotal = 0;
+    /**
+     * Mass anvil count at the time accelerator was built (for Stage 5 determination).
+     */
+    private int acceleratorOriginalMass = 0;
+    /**
+     * Energy anvil count at accelerator build time.
+     */
+    private int acceleratorOriginalEnergy = 0;
+    /**
+     * Size (space anvil count) at accelerator build time.
+     */
+    private int acceleratorOriginalSize = 0;
+    /**
+     * Whether the Dyson Sphere has already been destroyed during this giant phase.
+     */
+    private boolean acceleratorDysonDestroyed = false;
+    /**
+     * Absolute game tick when Dyson Sphere should be destroyed during giant phase, -1 = not set.
+     */
+    private long acceleratorDysonDestroyTick = -1;
+    /**
+     * Client-side flash timer for supernova rendering.
+     */
+    @Getter
+    private int supernovaFlashTicks = 0;
+    /**
+     * Cached grid consumption from last grid cycle, for infinite power calculation.
+     */
+    private int cachedGridConsumption = 0;
+    /**
+     * Collapse animation ticks before supernova (10 ticks, red→blue).
+     */
+    @Getter
+    private int collapseAnimTicks = 0;
+
+    /**
+     * Whether the stellar evolution accelerator is active (any stage 1-4).
+     */
+    public boolean isAcceleratorActive() {
+        return acceleratorStage >= 1 && acceleratorStage <= 4;
+    }
+
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -204,9 +291,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 if ("stellar_ring_collider".equals(option.megastructure())) {
                     return 4000;
                 }
-                // Dyson Sphere: passive, no power consumption
+                // Dyson Sphere / Magnetar Coil / Wormhole Stabilizer: passive, no power consumption
                 if ("dyson_sphere_small".equals(option.megastructure())
-                    || "dyson_sphere_large".equals(option.megastructure())) {
+                    || "dyson_sphere_large".equals(option.megastructure())
+                    || "magnetar_coil".equals(option.megastructure())
+                    || "wormhole_stabilizer".equals(option.megastructure())) {
                     return 0;
                 }
             }
@@ -215,18 +304,25 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     /**
-     * IPowerProducer: generate power when Dyson Sphere is active.
-     * Power formula: P = (E × R²) / 800 (MW, rounded down), returned in kW (×1000)
+     * IPowerProducer: generate power when Dyson Sphere or Magnetar Coil is active.
+     * Dyson Sphere formula: P = (E × R²) / 800 (MW, rounded down), returned in kW (×1000)
      * E = energy anvil count from celestial body parameters (StarData.energy)
      * R = celestial body size from celestial body parameters (StarData.size)
+     * Magnetar Coil formula: P = ((B-2)^4 × N^2) / 16 (MW, rounded down), returned in kW (×1000)
+     * B = magnetic field strength from celestial body parameters (0-5)
+     * N = rotation speed level from celestial body parameters (0-4)
      */
+    @SuppressWarnings("checkstyle:LocalVariableName")
     @Override
     public int getOutputPower() {
         if (activeMegastructureIndex >= 0 && celestialBodyData instanceof StarData star) {
             CelestialRefactorOption option = getActiveMegastructureOption();
             if (option != null) {
-                if ("dyson_sphere_small".equals(option.megastructure())
-                    || "dyson_sphere_large".equals(option.megastructure())) {
+                if ("dyson_sphere_small".equals(option.megastructure()) || "dyson_sphere_large".equals(option.megastructure())) {
+                    // "Infinite" power: 2× grid consumption, cached from last cycle
+                    if (isAcceleratorActive() && acceleratorStage == 1) {
+                        return Math.max(cachedGridConsumption * 2, cachedGridConsumption + 1);
+                    }
                     int e = star.energy();
                     int r = star.size();
                     if (e > 0 && r > 0) {
@@ -234,6 +330,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                         int powerMW = (e * r * r) / 800;
                         return powerMW * 1000;
                     }
+                }
+                if ("magnetar_coil".equals(option.megastructure())) {
+                    int b = star.magneticFieldStrength();
+                    int n = star.rotationSpeed();
+                    // P = ((B-2)^4 × N^2) / 16 MW
+                    int bMinus2 = b - 2;
+                    int bTerm = bMinus2 * bMinus2 * bMinus2 * bMinus2; // (B-2)^4
+                    int nTerm = n * n; // N^2
+                    int powerMW = (bTerm * nTerm) / 16;
+                    return powerMW * 1000;
                 }
             }
         }
@@ -261,12 +367,27 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             CelestialRefactorOption option = getActiveMegastructureOption();
             if (option != null) {
                 if ("dyson_sphere_small".equals(option.megastructure())
-                    || "dyson_sphere_large".equals(option.megastructure())) {
+                    || "dyson_sphere_large".equals(option.megastructure())
+                    || "magnetar_coil".equals(
+                    option.megastructure())) {
                     return PowerComponentType.PRODUCER;
                 }
             }
         }
         return IPowerConsumer.super.getComponentType();
+    }
+
+    @Override
+    public void gridTick() {
+        // Cache grid consumption for infinite power calculation
+        if (grid != null && isAcceleratorActive() && acceleratorStage == 1 && activeMegastructureIndex >= 0) {
+            var option = getActiveMegastructureOption();
+            if (option != null && (
+                "dyson_sphere_small".equals(option.megastructure()) || "dyson_sphere_large".equals(option.megastructure())
+                )) {
+                this.cachedGridConsumption = grid.getConsume();
+            }
+        }
     }
 
     private boolean hasEnoughPower() {
@@ -361,11 +482,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void configureMaterialSlot(int optionIndex) {
         if (level == null || level.isClientSide()) return;
         if (celestialBodyData == null) return;
-        List<CelestialRefactorOption> options = CelestialRefactorRegistry.getOptions(
-            celestialBodyData,
-            isAmplify,
-            this.planetaryResourceSet
-        );
+        List<CelestialRefactorOption> options = getClientVisibleOptions();
         if (optionIndex < 0 || optionIndex >= options.size()) {
             setMaterialFilter(new ItemStack(net.minecraft.world.item.Items.BARRIER));
             setMaterialLimit(0);
@@ -416,12 +533,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private static final int GRAVITY_CENTER_Y_OFFSET = 6;
     /**
      * Gravity influence radius (blocks), covers the Ring6 7×7×7 area.
+     * Represents ~2× the largest stellar radius (red supergiant ~2580 R☉).
      */
-    private static final int GRAVITY_RADIUS = 3;
+    private static final int GRAVITY_RADIUS = 4;
     /**
-     * Gravity strength formula scale factor. strength = stellarMass / size * SCALE.
+     * Unified reference physical radius for all bodies' gravity calculation.
+     * 5000 × R☉, and R☉/R⊕ = 109, so R_ref/R⊕ = 545,000.
      */
-    private static final double GRAVITY_STRENGTH_SCALE = 20.0;
+    private static final double GRAVITY_REFERENCE_RADIUS_RATIO = 5000.0 * 109.0;
+    /**
+     * Gameplay multiplier to make gravity perceptible at the block scale.
+     */
+    private static final double GRAVITY_STRENGTH_MULTIPLIER = 10000000.0;
 
     public void startSearch() {
         this.searchFailed = false;
@@ -540,16 +663,50 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             serverTickTemple();
             serverTickStellarRingCollider();
             serverTickDysonSphere();
+            serverTickMagnetarCoil();
+            serverTickPenroseSphere();
+            serverTickMatterDecompressor();
+            serverTickWormholeStabilizer();
+        }
+
+        // Stellar Evolution Accelerator (runs independently of activeMegastructureIndex)
+        if (acceleratorStage >= 1) {
+            serverTickAccelerator();
+        }
+
+        // Supernova flash timer
+        if (supernovaFlashTicks > 0) {
+            supernovaFlashTicks--;
         }
     }
 
+    /**
+     * Update the gravity source for the current celestial body.
+     *
+     * <p>All bodies share a unified reference radius (5000 R☉ ≈ 2 × red supergiant radius)
+     * that corresponds to the {@link #GRAVITY_RADIUS} boundary in blocks.
+     * Gravity falls off as 1/r² from the source center.
+     *
+     * <p>Strength = gravity at the unified reference radius, in multiples of g⊕:
+     * <ul>
+     *   <li>Mass: M/M⊕ = 2^((massAnvilCount - 12) / 2)</li>
+     *   <li>Reference radius: R_ref/R⊕ = 5000 × 109 = 545,000</li>
+     *   <li>Strength = (M/M⊕) / (R_ref/R⊕)²</li>
+     * </ul>
+     */
     private void updateGravitySource() {
         if (level == null || level.isClientSide()) return;
 
-        boolean shouldHaveGravity =
-            amplifierPresent && celestialBodyData instanceof StarData && stellarMass > 0 && celestialBodyData.size() > 0;
+        boolean shouldHaveGravity = amplifierPresent
+                                    && celestialBodyData instanceof StarData
+                                    && stellarMass > 0
+                                    && celestialBodyData.size() > 0;
 
-        double newStrength = shouldHaveGravity ? (stellarMass / (double) celestialBodyData.size()) * GRAVITY_STRENGTH_SCALE : 0;
+        double newStrength = 0;
+        if (shouldHaveGravity) {
+            double massRatio = Math.pow(2, (stellarMass - 12) / 2.0);
+            newStrength = massRatio * GRAVITY_STRENGTH_MULTIPLIER / (GRAVITY_REFERENCE_RADIUS_RATIO * GRAVITY_REFERENCE_RADIUS_RATIO);
+        } // 引力乘上这个常数得到感官合适的值 ↑
         int newSize = shouldHaveGravity ? celestialBodyData.size() : 0;
 
         BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
@@ -575,16 +732,32 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
+    /**
+     * Force remove the gravity source. Called when the amplifier is dismantled
+     * to ensure gravity disappears immediately rather than waiting for next tick.
+     */
+    public void removeGravitySource() {
+        if (level == null || level.isClientSide()) return;
+        BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
+        GravityManager.GravitySourceManager.removeSource(level, centerPos);
+        gravitySourceActive = false;
+        currentGravityStrength = 0;
+        currentGravitySize = 0;
+    }
+
     private void destroyEntitiesAtCenter() {
         BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
         AABB centerBox = new AABB(centerPos);
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, centerBox);
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living) {
-                // Insta-kill living entities (mobs, players, etc.) via fire damage
-                living.hurt(level.damageSources().inFire(), 1.0E12f);
+                if (celestialBodyData instanceof StarData star
+                    && star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+                    living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+                } else {
+                    living.hurt(level.damageSources().inFire(), 1.0E12f);
+                }
             } else {
-                // Destroy non-living entities (items, falling blocks, projectiles, etc.)
                 entity.discard();
             }
         }
@@ -649,6 +822,21 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             if (animationTicks == 0 && !animationForward) {
                 animationPreviousBodyData = null;
             }
+        }
+        // Supernova flash countdown (client-side, for rendering)
+        if (supernovaFlashTicks > 0) {
+            supernovaFlashTicks--;
+        }
+        // Collapse animation — during accelerator stage 3, the server syncs every tick
+        // so the client should NOT independently decrement to avoid desync.
+        // Outside stage 3, the client decrements independently as a fallback.
+        if (collapseAnimTicks > 0 && acceleratorStage != 3) {
+            collapseAnimTicks--;
+        }
+        // Update star color locally during collapse so the renderer picks up the
+        // red→blue transition even when no server sync has arrived yet this frame.
+        if (collapseAnimTicks > 0) {
+            updateCollapseColorClient();
         }
     }
 
@@ -728,9 +916,29 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.colliderActiveSpeed = 0;
         this.colliderTargetItems.clear();
 
+        // Matter Decompressor state
+        this.matterDecompressorCounter = 0;
+
+        // Accelerator state
+        this.acceleratorStage = 0;
+        this.acceleratorTicksRemaining = 0;
+        this.acceleratorTicksTotal = 0;
+        this.acceleratorOriginalMass = 0;
+        this.acceleratorOriginalEnergy = 0;
+        this.acceleratorOriginalSize = 0;
+        this.acceleratorDysonDestroyed = false;
+        this.acceleratorDysonDestroyTick = -1;
+        this.supernovaFlashTicks = 0;
+
+
         // History browsing state
         this.historyBrowseIndex = 0;
         this.historyOriginalEntry = null;
+
+        // Wormhole state
+        this.wormholeParamsHash = 0;
+        this.wormholeRegistered = false;
+        this.portals.clear();
 
         // Multiblock state
         this.isAmplify = false;
@@ -789,7 +997,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         // Second: check for special celestial body discovery via seed item
         if (lastConsumedSeedItem != null) {
             SpecialCelestialBodyData specialBody = tryMatchSpecialCelestialBody(
-                time, space, mass, energy, lastConsumedSeedItem, ((ServerLevel) level).getSeed());
+                time,
+                space,
+                mass,
+                energy,
+                lastConsumedSeedItem,
+                ((ServerLevel) level).getSeed()
+            );
             if (specialBody != null) {
                 this.celestialBodyData = specialBody;
                 if (!level.isClientSide()) {
@@ -846,15 +1060,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     @javax.annotation.Nullable
     private SpecialCelestialBodyData tryMatchSpecialCelestialBody(
-        int time, int space, int mass, int energy,
-        Item consumedSeedItem, long worldSeed
+        int time,
+        int space,
+        int mass,
+        int energy,
+        Item consumedSeedItem,
+        long worldSeed
     ) {
         for (SpecialCelestialBodyType type : SpecialCelestialBodyType.values()) {
-            if (type.getTime() == time
-                && type.getSpace() == space
+            if (type.getTime() == time && type.getSpace() == space
                 && type.getMass() == mass
-                && type.getEnergy() == energy
-                && type.isEffectiveSeedItem(consumedSeedItem, worldSeed)) {
+                && type.getEnergy() == energy && type.isEffectiveSeedItem(consumedSeedItem, worldSeed)
+            ) {
                 return new SpecialCelestialBodyData(type);
             }
         }
@@ -890,9 +1107,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             tag.putLong("bodySeed", this.bodySeed);
             tag.putInt("ageAnvilCount", this.ageAnvilCount);
             tag.putInt("stellarMass", this.stellarMass);
-            tag.putIntArray("anvilCounts", new int[]{
-                getAnvilCount(0), getAnvilCount(1), getAnvilCount(2), getAnvilCount(3)
-            });
+            tag.putIntArray(
+                "anvilCounts", new int[]{
+                    getAnvilCount(0),
+                    getAnvilCount(1),
+                    getAnvilCount(2),
+                    getAnvilCount(3)
+                }
+            );
             tag.putBoolean("isAmplify", this.isAmplify);
             if (planetaryResourceSet != null) {
                 tag.put("planetaryResources", planetaryResourceSet.toTag());
@@ -906,10 +1128,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     @Override
-    public InteractionResult useDisk(
-        Level level, Player player, InteractionHand hand,
-        ItemStack itemStack, BlockHitResult hitResult
-    ) {
+    public InteractionResult useDisk(Level level, Player player, InteractionHand hand, ItemStack itemStack, BlockHitResult hitResult) {
         if (!player.getAbilities().mayBuild) return InteractionResult.PASS;
         if (itemStack.is(ModItems.DISK.get())) {
             // Only allow storing, not applying
@@ -939,24 +1158,45 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     /**
-     * Load a celestial snapshot from a disk item's stored data.
+     * Load a celestial snapshot from a disk or singularity crystal.
      */
     @javax.annotation.Nullable
     public static CompoundTag loadSnapshotFromStack(ItemStack stack) {
+        // Disk
         if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
             CompoundTag data = DiskItem.getData(stack);
             if (data.contains("celestialBody")) return data.copy();
+        }
+        // Singularity crystal
+        if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
+            var customData = stack.getOrDefault(
+                net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                net.minecraft.world.item.component.CustomData.EMPTY
+            );
+            CompoundTag tag = customData.copyTag();
+            if (!tag.isEmpty() && tag.contains("celestialSnapshot")) {
+                CompoundTag snapshot = tag.getCompound("celestialSnapshot");
+                if (snapshot.contains("celestialBody")) return snapshot.copy();
+            }
         }
         return null;
     }
 
     /**
-     * Save a snapshot into a disk item.
+     * Save a snapshot into a disk or singularity crystal.
      */
     public static void saveSnapshotToStack(ItemStack stack, CompoundTag snapshot) {
         if (stack.getItem() instanceof DiskItem) {
             CompoundTag diskTag = DiskItem.createData(stack);
             diskTag.merge(snapshot);
+        } else if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
+            var oldCustom = stack.getOrDefault(
+                net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                net.minecraft.world.item.component.CustomData.EMPTY
+            );
+            CompoundTag updated = oldCustom.copyTag();
+            updated.put("celestialSnapshot", snapshot.copy());
+            stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(updated));
         }
     }
 
@@ -968,6 +1208,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (level != null && !level.isClientSide()) {
             // Re-register with power grid to ensure CFA is in both producer and consumer sets
             PowerGrid.addComponent(this);
+            // Re-register with wormhole network if wormhole stabilizer is active
+            if (activeMegastructureIndex >= 0 && celestialBodyData instanceof StarData star
+                && star.bodyClass() == CelestialBodyClass.BLACK_HOLE && amplifierPresent) {
+                CelestialRefactorOption option = getActiveMegastructureOption();
+                if (option != null && "wormhole_stabilizer".equals(option.megastructure())) {
+                    wormholeParamsHash = WormholeNetwork.computeParamsHash(star);
+                    WormholeNetwork.get().register(wormholeParamsHash, level, worldPosition);
+                    wormholeRegistered = true;
+                    if (!portals.isEmpty()) {
+                        WormholeNetwork.get().setPortalSides(level.dimension(), worldPosition, portals.keySet());
+                    }
+                }
+            }
             this.setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
@@ -1019,6 +1272,21 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         tag.putInt("activeMegastructure", activeMegastructureIndex);
         tag.putBoolean("excavatorLaserActive", excavatorLaserActive);
+        tag.putBoolean("penroseSphereLaserActive", penroseSphereLaserActive);
+        // Wormhole stabilizer state
+        tag.putInt("wormholeParamsHash", wormholeParamsHash);
+        if (!portals.isEmpty()) {
+            CompoundTag portalTag = new CompoundTag();
+            for (Map.Entry<Cube323PartHalf, BlockPos> entry : portals.entrySet()) {
+                BlockPos p = entry.getValue();
+                CompoundTag posTag = new CompoundTag();
+                posTag.putInt("x", p.getX());
+                posTag.putInt("y", p.getY());
+                posTag.putInt("z", p.getZ());
+                portalTag.put(entry.getKey().getSerializedName(), posTag);
+            }
+            tag.put("portals", portalTag);
+        }
         // Temple state
         tag.putInt("templeCycleDay", templeCycleDay);
         tag.putLong("templeLastDay", templeLastDay);
@@ -1029,6 +1297,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         // Collider state (runtime only — not persisted)
         tag.putInt("historyBrowseIndex", historyBrowseIndex);
+        // Accelerator state
+        tag.putInt("acceleratorStage", acceleratorStage);
+        tag.putInt("acceleratorTicksRemaining", acceleratorTicksRemaining);
+        tag.putInt("acceleratorTicksTotal", acceleratorTicksTotal);
+        tag.putInt("acceleratorOriginalMass", acceleratorOriginalMass);
+        tag.putInt("acceleratorOriginalEnergy", acceleratorOriginalEnergy);
+        tag.putInt("acceleratorOriginalSize", acceleratorOriginalSize);
+        tag.putBoolean("acceleratorDysonDestroyed", acceleratorDysonDestroyed);
+        tag.putLong("acceleratorDysonDestroyTick", acceleratorDysonDestroyTick);
     }
 
     @Override
@@ -1048,6 +1325,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.searching = false;
         }
         this.bodySeed = tag.getLong("bodySeed");
+        // Read accelerator stage BEFORE animation check so skipAnim uses current values
+        this.acceleratorStage = tag.getInt("acceleratorStage");
         // Capture old body data for animation transition detection
         CelestialBodyData oldBodyData = this.celestialBodyData;
         if (tag.contains("celestialBody")) {
@@ -1056,7 +1335,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.celestialBodyData = null;
         }
         // Detect transitions for animation (client-side only, e.g. singleplayer chunk load)
-        if (level != null && level.isClientSide()) {
+        // Skip animation during accelerator evolution or supernova flash
+        boolean skipAnimLoad = this.acceleratorStage >= 1 || this.supernovaFlashTicks > 0;
+        if (level != null && level.isClientSide() && !skipAnimLoad) {
             boolean hadBody = oldBodyData != null;
             boolean hasBody = this.celestialBodyData != null;
             if (!hadBody && hasBody) {
@@ -1091,6 +1372,20 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         this.activeMegastructureIndex = tag.contains("activeMegastructure") ? tag.getInt("activeMegastructure") : -1;
         this.excavatorLaserActive = tag.getBoolean("excavatorLaserActive");
+        this.penroseSphereLaserActive = tag.getBoolean("penroseSphereLaserActive");
+        // Wormhole stabilizer state
+        this.wormholeParamsHash = tag.getInt("wormholeParamsHash");
+        this.wormholeRegistered = false; // Will be re-registered in onLoad/serverTick
+        this.portals.clear();
+        if (tag.contains("portals")) {
+            CompoundTag portalTag = tag.getCompound("portals");
+            for (String key : portalTag.getAllKeys()) {
+                CompoundTag posTag = portalTag.getCompound(key);
+                Cube323PartHalf side = Cube323PartHalf.valueOf(key.toUpperCase());
+                BlockPos pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
+                portals.put(side, pos);
+            }
+        }
         // Temple state
         this.templeCycleDay = tag.getInt("templeCycleDay");
         this.templeLastDay = tag.contains("templeLastDay") ? tag.getLong("templeLastDay") : -1;
@@ -1103,6 +1398,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         // Collider runtime state is not persisted — always start clean on load
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
+        // Accelerator state (acceleratorStage already read above)
+        this.acceleratorTicksRemaining = tag.getInt("acceleratorTicksRemaining");
+        this.acceleratorTicksTotal = tag.getInt("acceleratorTicksTotal");
+        this.acceleratorOriginalMass = tag.getInt("acceleratorOriginalMass");
+        this.acceleratorOriginalEnergy = tag.getInt("acceleratorOriginalEnergy");
+        this.acceleratorOriginalSize = tag.getInt("acceleratorOriginalSize");
+        this.acceleratorDysonDestroyed = tag.getBoolean("acceleratorDysonDestroyed");
+        this.acceleratorDysonDestroyTick = tag.getLong("acceleratorDysonDestroyTick");
         // Sync to client — important for when loadAdditional is called after onLoad
         // (e.g., BlockItem.updateCustomBlockEntityTag during placement restores saved NBT)
         if (level != null && !level.isClientSide()) {
@@ -1144,6 +1447,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         tag.putInt("activeMegastructure", activeMegastructureIndex);
         tag.putBoolean("excavatorLaserActive", excavatorLaserActive);
+        tag.putBoolean("penroseSphereLaserActive", penroseSphereLaserActive);
         // Temple state (client sync)
         tag.putInt("templeCycleDay", templeCycleDay);
         tag.putLong("templeLastDay", templeLastDay);
@@ -1154,6 +1458,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         // Collider runtime state not synced to client
         tag.putInt("historyBrowseIndex", historyBrowseIndex);
+        // Accelerator state
+        tag.putInt("acceleratorStage", acceleratorStage);
+        tag.putInt("acceleratorTicksRemaining", acceleratorTicksRemaining);
+        tag.putInt("acceleratorTicksTotal", acceleratorTicksTotal);
+        tag.putInt("supernovaFlashTicks", supernovaFlashTicks);
+        tag.putInt("collapseAnimTicks", collapseAnimTicks);
         return tag;
     }
 
@@ -1170,6 +1480,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.powerInsufficient = tag.getBoolean("powerInsufficient");
         this.bodySeed = tag.getLong("bodySeed");
 
+        // Read accelerator state BEFORE animation check so skipAnim uses current values
+        this.acceleratorStage = tag.getInt("acceleratorStage");
+        this.supernovaFlashTicks = tag.getInt("supernovaFlashTicks");
+        this.collapseAnimTicks = tag.getInt("collapseAnimTicks");
         // Capture old body data for animation transition detection
         CelestialBodyData oldBodyData = this.celestialBodyData;
         if (tag.contains("celestialBody")) {
@@ -1178,7 +1492,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.celestialBodyData = null;
         }
         // Detect transitions for animation (client-side only)
-        if (level != null && level.isClientSide()) {
+        // Skip animation during accelerator evolution or supernova flash
+        boolean skipAnim = this.acceleratorStage >= 1 || this.supernovaFlashTicks > 0;
+        if (level != null && level.isClientSide() && !skipAnim) {
             boolean hadBody = oldBodyData != null;
             boolean hasBody = this.celestialBodyData != null;
             if (!hadBody && hasBody) {
@@ -1216,6 +1532,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         this.activeMegastructureIndex = tag.contains("activeMegastructure") ? tag.getInt("activeMegastructure") : -1;
         this.excavatorLaserActive = tag.getBoolean("excavatorLaserActive");
+        this.penroseSphereLaserActive = tag.getBoolean("penroseSphereLaserActive");
         // Temple state (client side)
         this.templeCycleDay = tag.getInt("templeCycleDay");
         this.templeLastDay = tag.contains("templeLastDay") ? tag.getLong("templeLastDay") : -1;
@@ -1228,6 +1545,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         // Collider runtime state not synced to client
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
+        // Accelerator state (client-side sync — stage/flash/collapse already read above)
+        this.acceleratorTicksRemaining = tag.getInt("acceleratorTicksRemaining");
+        this.acceleratorTicksTotal = tag.getInt("acceleratorTicksTotal");
     }
 
     private void loadInventory(CompoundTag tag, HolderLookup.Provider registries) {
@@ -1369,13 +1689,28 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      */
     public void toggleLocked() {
         if (level == null || level.isClientSide()) return;
+        if (isAcceleratorActive()) {
+            // Cannot unlock during stellar evolution
+            return;
+        }
         this.locked = !this.locked;
         if (!this.locked) {
-            // Unlocking: clear megastructure to revert to restriction ring
+            // Unlocking: clear megastructure and accelerator to revert to restriction ring
             clearMegastructure();
+            clearAcceleratorState();
         }
         this.setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+
+    private void clearAcceleratorState() {
+        this.acceleratorStage = 0;
+        this.acceleratorTicksRemaining = 0;
+        this.acceleratorTicksTotal = 0;
+        this.acceleratorDysonDestroyed = false;
+        this.acceleratorDysonDestroyTick = -1;
+        this.collapseAnimTicks = 0;
+
     }
 
     /**
@@ -1384,6 +1719,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private void clearMegastructure() {
         this.activeMegastructureIndex = -1;
         this.excavatorLaserActive = false;
+        this.penroseSphereLaserActive = false;
         // Temple state
         this.templeCycleDay = 0;
         this.templeLastDay = -1;
@@ -1394,11 +1730,36 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         // Clear collider state
         outputColliderReservedItems();
         resetColliderState();
+        // Clear matter decompressor state
+        this.matterDecompressorCounter = 0;
         // Clear material filter
         this.materialFilter = new ItemStack(Items.BARRIER);
         this.materialLimit = 0;
+        // Clear wormhole stabilizer state
+        if (wormholeRegistered && level != null && !level.isClientSide()) {
+            WormholeNetwork.get().unregister(level, worldPosition);
+            wormholeRegistered = false;
+        }
+        wormholeParamsHash = 0;
+        portals.clear();
         // Re-register with power grid to restore CONSUMER type
         PowerGrid.addComponent(this);
+    }
+
+    /**
+     * Get the option list matching what the client sees (applies the same filtering).
+     * When a megastructure is already built, only the accelerator is visible.
+     */
+    private List<CelestialRefactorOption> getClientVisibleOptions() {
+        List<CelestialRefactorOption> options = CelestialRefactorRegistry.getOptions(
+            celestialBodyData,
+            isAmplify,
+            this.planetaryResourceSet
+        );
+        if (activeMegastructureIndex >= 0) {
+            options = options.stream().filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure())).toList();
+        }
+        return options;
     }
 
     /**
@@ -1417,6 +1778,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     /**
+     * Get the portals placed on this CFA's sides (unmodifiable).
+     */
+    public Map<Cube323PartHalf, BlockPos> getPortals() {
+        return Collections.unmodifiableMap(portals);
+    }
+
+    /**
      * Attempt to build a megastructure. Called from the server when the player clicks "Start Refactoring".
      *
      * @param optionIndex the selected refactor option index
@@ -1424,14 +1792,27 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void buildMegastructure(int optionIndex) {
         if (level == null || level.isClientSide()) return;
         if (celestialBodyData == null) return;
-        List<CelestialRefactorOption> options = CelestialRefactorRegistry.getOptions(
-            celestialBodyData,
-            isAmplify,
-            this.planetaryResourceSet
-        );
+        List<CelestialRefactorOption> options = getClientVisibleOptions();
         if (optionIndex < 0 || optionIndex >= options.size()) return;
 
         CelestialRefactorOption option = options.get(optionIndex);
+
+        // Special case: Stellar Evolution Accelerator can coexist with other megastructures
+        if ("stellar_evolution_accelerator".equals(option.megastructure())) {
+            // Check materials
+            if (option.needsMaterial()) {
+                ItemStack contained = materialContainer.getItem(0);
+                ItemStack required = option.material().copyWithCount(option.materialCount());
+                if (!ItemStack.isSameItemSameComponents(contained, required) || contained.getCount() < required.getCount()) {
+                    return;
+                }
+                contained.shrink(required.getCount());
+            }
+            initiateAccelerator();
+            this.setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            return;
+        }
 
         // If any megastructure is already built, block
         if (activeMegastructureIndex >= 0) {
@@ -1451,6 +1832,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             // Consume materials
             contained.shrink(required.getCount());
             activeMegastructureIndex = optionIndex;
+        }
+
+        // Register with wormhole network for wormhole stabilizer
+        if ("wormhole_stabilizer".equals(option.megastructure()) && celestialBodyData instanceof StarData star) {
+            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE && amplifierPresent) {
+                wormholeParamsHash = WormholeNetwork.computeParamsHash(star);
+                WormholeNetwork.get().register(wormholeParamsHash, level, worldPosition);
+                wormholeRegistered = true;
+                // Sync existing portal sides to network
+                if (!portals.isEmpty()) {
+                    WormholeNetwork.get().setPortalSides(level.dimension(), worldPosition, portals.keySet());
+                }
+            }
         }
 
         // Re-register with power grid so the component type change takes effect
@@ -1764,9 +2158,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private static final int COLLIDER_COOLDOWN_TICKS = 10;
     private static final int COLLIDER_MAX_COLLISIONS = 16;
 
-    private record LogisticsRef(IItemHandler handler, BlockPos pos) {}
+    private record LogisticsRef(IItemHandler handler, BlockPos pos) {
+    }
 
-    private record LocatedStack(int li, int slot, ItemStack stack, Block block) {}
+    private record LocatedStack(int li, int slot, ItemStack stack, Block block) {
+    }
 
     private void serverTickStellarRingCollider() {
         if (level == null || level.isClientSide()) return;
@@ -1775,7 +2171,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (!COLLIDER_MEGASTRUCTURE.equals(option.megastructure())) return;
         if (planetaryResourceSet == null) return;
         if (!(celestialBodyData instanceof StarData star)) return;
-        if (star.size() >= 26) return;
+        if (star.size() >= 48) return;
 
         boolean starMissing = !amplifierPresent;
         boolean isProcessing = colliderCycleRemaining > 0 && !powerInsufficient;
@@ -2003,7 +2399,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      * Set processing + targets on a specific logistics interface by position.
      */
     private void markLogisticsProcessing(BlockPos pos, boolean processing) {
-        if (level == null) return;
+        if (level == null || pos == null) return;
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
             logiBe.setColliderTargetItems(new ArrayList<>(colliderTargetItems));
@@ -2230,6 +2626,799 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (!"dyson_sphere_small".equals(name) && !"dyson_sphere_large".equals(name)) return;
         // Dyson Sphere is passive — no per-tick work needed.
         // Power is generated via getOutputPower() called by the power grid during flush().
+    }
+
+    // === Magnetar Coil ===
+
+    /**
+     * Magnetar Coil passive power generation tick.
+     * Works immediately once built — no per-tick work needed.
+     * Power is generated through {@link #getOutputPower()} called by the power grid.
+     * Formula: P = ((B-2)^4 × N^2) / 16 MW
+     * B = magnetic field strength, N = rotation speed level.
+     */
+    private void serverTickMagnetarCoil() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) return;
+        if (!"magnetar_coil".equals(option.megastructure())) return;
+        // Magnetar Coil is passive — no per-tick work needed.
+        // Power is generated via getOutputPower() called by the power grid during flush().
+    }
+
+    // === Penrose Sphere ===
+
+    private static final String PENROSE_SPHERE_MEGASTRUCTURE = "penrose_sphere";
+
+    // === Matter Decompressor ===
+
+    private static final String MATTER_DECOMPRESSOR_MEGASTRUCTURE = "matter_decompressor";
+    /**
+     * Production cycle counter for neutron star matter decompressor.
+     * Increments each tick when active; at 200 (10s) the output is produced,
+     * scaled by gamma laser efficiency.
+     */
+    private int matterDecompressorCounter = 0;
+
+    /**
+     * Penrose Sphere: enhances incoming laser into gamma laser output.
+     * No power consumption. Input laser on one side → gamma laser output from symmetric opposite side.
+     * Laser interface must be active (redstone powered) to emit gamma laser.
+     * Input any level → output same level gamma laser.
+     * Model switches based on whether ANY laser interface has received laser input.
+     */
+    private void serverTickPenroseSphere() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) return;
+        if (!PENROSE_SPHERE_MEGASTRUCTURE.equals(option.megastructure())) return;
+
+        int cx = worldPosition.getX();
+        int cy = worldPosition.getY();
+        int cz = worldPosition.getZ();
+
+        boolean anyLaserInput = false;
+
+        // Process each face for symmetric laser pairs
+        // North face: (-1, cy, -2) ↔ (1, cy, -2), center (0, cy, -2) excluded
+        anyLaserInput |= processPenroseLaserPair(
+            new BlockPos(cx - 1, cy, cz - 2),
+            new BlockPos(cx + 1, cy, cz - 2)
+        );
+        // South face: (-1, cy, +2) ↔ (1, cy, +2), center (0, cy, +2) excluded
+        anyLaserInput |= processPenroseLaserPair(
+            new BlockPos(cx - 1, cy, cz + 2),
+            new BlockPos(cx + 1, cy, cz + 2)
+        );
+        // West face: (-2, cy, -1) ↔ (-2, cy, +1), center (-2, cy, 0) excluded
+        anyLaserInput |= processPenroseLaserPair(
+            new BlockPos(cx - 2, cy, cz - 1),
+            new BlockPos(cx - 2, cy, cz + 1)
+        );
+        // East face: (+2, cy, -1) ↔ (+2, cy, +1), center (+2, cy, 0) excluded
+        anyLaserInput |= processPenroseLaserPair(
+            new BlockPos(cx + 2, cy, cz - 1),
+            new BlockPos(cx + 2, cy, cz + 1)
+        );
+
+        // Update client sync for model: switch on any laser input received
+        if (penroseSphereLaserActive != anyLaserInput) {
+            penroseSphereLaserActive = anyLaserInput;
+            this.setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    /**
+     * Process a Penrose Sphere laser pair. If either interface has received laser input
+     * and the opposite interface is active, emit gamma laser from the active one.
+     *
+     * @param posA first laser interface position
+     * @param posB symmetric partner position
+     * @return true if any laser interface in this pair has received laser input
+     */
+    private boolean processPenroseLaserPair(BlockPos posA, BlockPos posB) {
+        if (level == null) return false;
+        BlockEntity beA = level.getBlockEntity(posA);
+        BlockEntity beB = level.getBlockEntity(posB);
+
+        boolean hasInput = false;
+
+        if (beA instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserA
+            && beB instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserB) {
+
+            // Check A→B: if A has received laser, output gamma from B
+            if (laserA.getReceivedLaserLevel() > 0) {
+                hasInput = true;
+                if (isLaserInterfaceActive(beB)) {
+                    laserB.emitGammaLaser(laserA.getReceivedLaserLevel());
+                }
+            }
+
+            // Check B→A: if B has received laser, output gamma from A
+            if (laserB.getReceivedLaserLevel() > 0) {
+                hasInput = true;
+                if (isLaserInterfaceActive(beA)) {
+                    laserA.emitGammaLaser(laserB.getReceivedLaserLevel());
+                }
+            }
+        } else {
+            // Check individual interfaces for model switching even if partner is missing
+            if (beA instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserA
+                && laserA.getReceivedLaserLevel() > 0) {
+                hasInput = true;
+            }
+            if (beB instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserB
+                && laserB.getReceivedLaserLevel() > 0) {
+                hasInput = true;
+            }
+        }
+
+        return hasInput;
+    }
+
+    /**
+     * Check if a laser interface block entity is in active (redstone powered) state.
+     */
+    private boolean isLaserInterfaceActive(BlockEntity be) {
+        if (be instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserBe) {
+            BlockState state = laserBe.getBlockState();
+            if (state.hasProperty(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
+                return state.getValue(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE);
+            }
+        }
+        return false;
+    }
+
+    // === Matter Decompressor ===
+
+    private static final int MATTER_DECOMPRESSOR_NEUTRON_STAR_INTERVAL = 200; // 10 seconds
+
+    /**
+     * Matter Decompressor: uses gamma laser input to extract matter from stellar remnants.
+     * <ul>
+     *   <li>Neutron Star: produces neutronium ingots every 10s × gamma efficiency</li>
+     *   <li>Black Hole: produces void matter every gt × gamma efficiency</li>
+     * </ul>
+     * No power consumption. Requires gamma laser input via laser interfaces.
+     */
+    private void serverTickMatterDecompressor() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) return;
+        if (!MATTER_DECOMPRESSOR_MEGASTRUCTURE.equals(option.megastructure())) return;
+        if (!(celestialBodyData instanceof StarData star)) return;
+
+        CelestialBodyClass bodyClass = star.bodyClass();
+        if (bodyClass != CelestialBodyClass.NEUTRON_STAR && bodyClass != CelestialBodyClass.BLACK_HOLE) return;
+
+        // Sum gamma laser levels from all connected laser interfaces
+        int totalGammaLevel = 0;
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = findLaserInterfaces();
+        for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : lasers) {
+            if (laser.isReceivedGamma()) {
+                totalGammaLevel += laser.getReceivedLaserLevel();
+            }
+        }
+
+        if (totalGammaLevel <= 0) return;
+        int efficiency = totalGammaLevel;
+
+        if (bodyClass == CelestialBodyClass.BLACK_HOLE) {
+            // Black hole: produce void_matter every tick × efficiency
+            ItemLike voidMatter = dev.dubhe.anvilcraft.init.item.ModItems.VOID_MATTER.get();
+            ItemStack output = new ItemStack(voidMatter, efficiency);
+            List<IItemHandler> logistics = findLogisticsInterfaces();
+            if (!logistics.isEmpty()) {
+                int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                    int idx = (startIdx + attempt) % logistics.size();
+                    IItemHandler handler = logistics.get(idx);
+                    ItemStack remainder = insertIntoHandler(handler, output);
+                    if (remainder.getCount() < output.getCount()) {
+                        excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                        return;
+                    }
+                }
+            }
+        } else {
+            // Neutron star: produce neutronium ingots every 10s (200 ticks) × efficiency.
+            // Neutronium ingots stack to 1, so we produce efficiency individual items
+            // spaced evenly across the interval.
+            matterDecompressorCounter++;
+            int interval = MATTER_DECOMPRESSOR_NEUTRON_STAR_INTERVAL / efficiency;
+            if (interval < 1) interval = 1;
+            if (matterDecompressorCounter >= interval) {
+                matterDecompressorCounter = 0;
+                ItemLike neutroniumIngot = dev.dubhe.anvilcraft.init.item.ModItems.NEUTRONIUM_INGOT.get();
+                ItemStack output = new ItemStack(neutroniumIngot, 1);
+                List<IItemHandler> logistics = findLogisticsInterfaces();
+                if (!logistics.isEmpty()) {
+                    int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                    for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                        int idx = (startIdx + attempt) % logistics.size();
+                        IItemHandler handler = logistics.get(idx);
+                        ItemStack remainder = insertIntoHandler(handler, output);
+                        if (remainder.getCount() < output.getCount()) {
+                            excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // === Wormhole Stabilizer ===
+
+    private void serverTickWormholeStabilizer() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null || !"wormhole_stabilizer".equals(option.megastructure())) return;
+        if (!(celestialBodyData instanceof StarData star) || star.bodyClass() != CelestialBodyClass.BLACK_HOLE) return;
+
+        // Check amplifier requirement
+        if (!amplifierPresent) {
+            if (wormholeRegistered) {
+                WormholeNetwork.get().unregister(level, worldPosition);
+                wormholeRegistered = false;
+                setChanged();
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            }
+            return;
+        }
+
+        // Ensure registered (handles chunk reload, server restart, etc.)
+        if (!wormholeRegistered) {
+            wormholeParamsHash = WormholeNetwork.computeParamsHash(star);
+            WormholeNetwork.get().register(wormholeParamsHash, level, worldPosition);
+            wormholeRegistered = true;
+            if (!portals.isEmpty()) {
+                WormholeNetwork.get().setPortalSides(level.dimension(), worldPosition, portals.keySet());
+            }
+        }
+
+    }
+
+    /**
+     * Register a portal on a specific side of the CFA.
+     *
+     * @return true if successful, false if side already has a portal or invalid side
+     */
+    public boolean addPortal(Cube323PartHalf side, BlockPos portalPos) {
+        if (side != Cube323PartHalf.BOTTOM_N && side != Cube323PartHalf.BOTTOM_S
+            && side != Cube323PartHalf.BOTTOM_E && side != Cube323PartHalf.BOTTOM_W) {
+            return false;
+        }
+        if (portals.containsKey(side)) {
+            return false;
+        }
+        portals.put(side, portalPos);
+
+        // Update wormhole network with portal sides
+        if (wormholeRegistered && level != null && !level.isClientSide()) {
+            WormholeNetwork network = WormholeNetwork.get();
+            network.setPortalSides(level.dimension(), worldPosition, portals.keySet());
+        }
+
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+        return true;
+    }
+
+    /**
+     * Unregister a portal from a specific side.
+     */
+    public void removePortal(Cube323PartHalf side) {
+        portals.remove(side);
+
+        // Update wormhole network
+        if (wormholeRegistered && level != null && !level.isClientSide()) {
+            WormholeNetwork network = WormholeNetwork.get();
+            network.setPortalSides(level.dimension(), worldPosition, portals.keySet());
+        }
+
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    // === Stellar Evolution Accelerator ===
+
+    /**
+     * Initialize the stellar evolution accelerator after materials are consumed.
+     */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    private void initiateAccelerator() {
+        if (!(celestialBodyData instanceof StarData star)) return;
+
+        CelestialBodyClass cls = star.bodyClass();
+        int ageX = CelestialBodyMatcher.toX(ageAnvilCount);
+        int energyY = CelestialBodyMatcher.toY(star.energy());
+
+        this.acceleratorOriginalMass = this.stellarMass;
+        this.acceleratorOriginalEnergy = star.energy();
+        this.acceleratorOriginalSize = star.size();
+        this.acceleratorDysonDestroyed = false;
+        this.acceleratorDysonDestroyTick = -1;
+
+        if (cls.isMainSequence()) {
+            // Stage 1: count pixels right from current position in age_temp
+            int pixelsRight = CelestialBodyMatcher.countPixelsRightInAgeTemp(ageX, energyY);
+            this.acceleratorStage = 1;
+            this.acceleratorTicksRemaining = pixelsRight * 2400; // 2 min per pixel
+            this.acceleratorTicksTotal = acceleratorTicksRemaining;
+        } else {
+            // Started as giant/supergiant: Stage 2 directly
+            initGiantPhase(ageX, energyY);
+        }
+
+        if (level != null) {
+            setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private void initGiantPhase(int ageX, int energyY) {
+        int pixelsDown = CelestialBodyMatcher.countPixelsDownInAgeTempSp(ageX, energyY);
+        int totalPixels = CelestialBodyMatcher.countTotalColoredPixelsInAgeTempSpColumn(ageX, energyY);
+        if (totalPixels <= 0) totalPixels = 1;
+        float fraction = (float) pixelsDown / totalPixels;
+        this.acceleratorStage = 2;
+        this.acceleratorTicksRemaining = Math.max((int) (fraction * 2400), 1);
+        this.acceleratorTicksTotal = acceleratorTicksRemaining;
+
+        // Schedule random Dyson Sphere destruction during giant phase
+        if (isDysonSphereBuilt() && acceleratorTicksRemaining > 20) {
+            long startTick = level.getGameTime();
+            long range = acceleratorTicksRemaining / 2;
+            if (range > 0) {
+                this.acceleratorDysonDestroyTick = startTick + level.getRandom().nextInt((int) range);
+            }
+        }
+
+        if (level != null) {
+            setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private void serverTickAccelerator() {
+        if (level == null || level.isClientSide()) return;
+        if (acceleratorStage < 1 || acceleratorStage > 4) return;
+
+        switch (acceleratorStage) {
+            case 1 -> tickAcceleratorStage1();
+            case 2 -> tickAcceleratorStage2();
+            case 3 -> tickAcceleratorStage3();
+            case 4 -> tickAcceleratorStage4();
+            default -> {
+            }
+        }
+    }
+
+    private void tickAcceleratorStage1() {
+        acceleratorTicksRemaining--;
+        // Sync to client every second for countdown display
+        if (acceleratorTicksRemaining % 20 == 0) {
+            syncAcceleratorToClient();
+        }
+        if (acceleratorTicksRemaining <= 0) {
+            if (celestialBodyData instanceof StarData star && star.bodyClass() == CelestialBodyClass.M_MAIN) {
+                // M-type: skip giant/supernova, go directly to white dwarf
+                transitionToStage4();
+            } else {
+                // Non-M main sequence: go to giant phase
+                transitionToStage2();
+            }
+        }
+    }
+
+    private void tickAcceleratorStage2() {
+        acceleratorTicksRemaining--;
+
+        // Update star visuals: interpolate toward redder color and larger size
+        updateGiantPhaseVisuals();
+
+        // Sync to client every second for countdown and visual updates
+        if (acceleratorTicksRemaining % 20 == 0) {
+            syncAcceleratorToClient();
+        }
+
+        // Check for Dyson Sphere destruction
+        if (!acceleratorDysonDestroyed && acceleratorDysonDestroyTick >= 0 && level.getGameTime() >= acceleratorDysonDestroyTick) {
+            destroyDysonSphere();
+        }
+
+        if (acceleratorTicksRemaining <= 0) {
+            transitionToStage3();
+        }
+    }
+
+    private void syncAcceleratorToClient() {
+        if (level == null || level.isClientSide()) return;
+        setChanged();
+        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+
+    private void tickAcceleratorStage3() {
+        if (collapseAnimTicks > 0) {
+            collapseAnimTicks--;
+            acceleratorTicksRemaining--;
+            updateCollapseColor();
+            // Explosion at the halfway point (tick 5 of 10)
+            if (collapseAnimTicks == 5) {
+                level.explode(
+                    null,
+                    worldPosition.getX() + 0.5,
+                    worldPosition.getY() + 4.0,
+                    worldPosition.getZ() + 0.5,
+                    6.0f,
+                    Level.ExplosionInteraction.BLOCK
+                );
+            }
+            // Sync every tick so client sees the red→blue color transition.
+            // Don't sync when collapseAnimTicks reaches 0 — the next tick will
+            // trigger supernova and sync the remnant body instead, preventing
+            // a one-frame glitch where the old star pops back to full scale.
+            if (collapseAnimTicks > 0) {
+                syncAcceleratorToClient();
+            }
+        } else {
+            triggerSupernova();
+        }
+    }
+
+    private void tickAcceleratorStage4() {
+        // M-dwarf: finishing transition to white dwarf
+        acceleratorTicksRemaining--;
+        if (acceleratorTicksRemaining <= 0) {
+            completeMStarEvolution();
+        }
+    }
+
+    private void updateGiantPhaseVisuals() {
+        if (!(celestialBodyData instanceof StarData star)) return;
+        // Throttle: update every 20 ticks (smooth animation handled client-side)
+        if (level != null && level.getGameTime() % 20 != 0) return;
+
+        float progress = acceleratorTicksTotal > 0 ? (float) acceleratorTicksRemaining / acceleratorTicksTotal : 0f;
+        float t = 1.0f - progress; // 0 at start, 1 at end
+
+        // Size: linearly interpolate from original to max 64
+        int newSize = acceleratorOriginalSize + Math.round((64 - acceleratorOriginalSize) * t);
+        newSize = Math.clamp(newSize, 1, 64);
+
+        // Energy: interpolate float, blend colors between adjacent palette entries
+        int targetEnergy = 38;
+        float floatEnergy = acceleratorOriginalEnergy + (targetEnergy - acceleratorOriginalEnergy) * t;
+        floatEnergy = Math.clamp(floatEnergy, targetEnergy, 64);
+        int[] rgb = getBlendedStarColor(floatEnergy);
+
+        celestialBodyData = new StarData(
+            star.bodyClass(),
+            newSize,
+            rgb[0],
+            rgb[1],
+            rgb[2],
+            star.axialTilt(),
+            star.rotationSpeed(),
+            star.magneticFieldStrength(),
+            star.energy()
+        );
+    }
+
+    /**
+     * Sample the star color palette at a fractional energy value,
+     * blending between the two nearest integer energy entries.
+     * During collapse animation (5 ticks), change star color from red→blue
+     * by sampling up the star color temperature palette.
+     * Server-side collapse color update (called each tick during Stage 3).
+     * Shifts the star color from red (energy=38) to blue (energy=64) as collapseAnimTicks counts down.
+     */
+    private void updateCollapseColor() {
+        if (!(celestialBodyData instanceof StarData star)) return;
+        applyCollapseColor(star);
+    }
+
+    /**
+     * Client-side collapse color update (called each client tick when collapseAnimTicks > 0).
+     * Uses the same color interpolation formula as the server so the red→blue transition
+     * renders correctly even when no server sync has arrived yet this frame.
+     */
+    private void updateCollapseColorClient() {
+        if (!(celestialBodyData instanceof StarData star)) return;
+        applyCollapseColor(star);
+    }
+
+    /**
+     * Apply collapse color and size to the star data based on current collapseAnimTicks.
+     * Uses a fixed per-tick color progression from red (energy=40) to blue-white (energy=62)
+     * over 10 game ticks, while shrinking the star's logical size proportionally.
+     *
+     * <p>
+     * Tick  1 (collapseAnimTicks=9):  energy 40  — deep red
+     * Tick  2 (collapseAnimTicks=8):  energy 42
+     * Tick  3 (collapseAnimTicks=7):  energy 44
+     * Tick  4 (collapseAnimTicks=6):  energy 46
+     * Tick  5 (collapseAnimTicks=5):  energy 48
+     * Tick  6 (collapseAnimTicks=4):  energy 50
+     * Tick  7 (collapseAnimTicks=3):  energy 53
+     * Tick  8 (collapseAnimTicks=2):  energy 56
+     * Tick  9 (collapseAnimTicks=1):  energy 59
+     * Tick 10 (collapseAnimTicks=0):  energy 62  — blue-white (not synced, supernova fires)
+     */
+    private void applyCollapseColor(StarData star) {
+        // Fixed energy progression per collapseAnimTicks value (10→0, 10 ticks total).
+        // Tick  1 = collapseAnimTicks 9: energy 40
+        // Tick  2 = collapseAnimTicks 8: energy 42  ...  Tick 10 = collapseAnimTicks 0: energy 62
+        // collapseAnimTicks 10 is the initial sync frame (star keeps its stage-2 red color, energy~38).
+        int collapseEnergy = switch (collapseAnimTicks) {
+            case 10 -> 38; // initial frame (client-side), star is still red from stage 2
+            case 9 -> 40;
+            case 8 -> 42;
+            case 7 -> 44;
+            case 6 -> 46;
+            case 5 -> 48;
+            case 4 -> 50;
+            case 3 -> 53;
+            case 2 -> 56;
+            case 1 -> 59;
+            default -> 62; // collapseAnimTicks=0 or any unexpected value
+        };
+        int[] rgb = CelestialBodyMatcher.getStarColor(collapseEnergy);
+        // Compute collapse size so that the rendered visual scale decreases
+        // uniformly across all 10 ticks.  getBodyScale() is piecewise non-linear,
+        // so we interpolate in "visual scale" space and invert to get the size.
+        float startScale = visualScale(star.size());
+        float endScale = visualScale(9); // white dwarf equivalent
+        float progress = Math.clamp((10.0f - collapseAnimTicks) / 9.0f, 0.0f, 1.0f);
+        float targetScale = startScale + (endScale - startScale) * progress;
+        int collapseSize = Math.max(9, sizeForVisualScale(targetScale));
+        celestialBodyData = new StarData(
+            star.bodyClass(),
+            collapseSize,
+            rgb[0],
+            rgb[1],
+            rgb[2],
+            star.axialTilt(),
+            star.rotationSpeed(),
+            star.magneticFieldStrength(),
+            star.energy()
+        );
+    }
+
+    /**
+     * Compute the rendered visual scale for a given logical size,
+     * matching {@code getBodyScale()} in the renderer.
+     */
+    private static float visualScale(int size) {
+        if (size <= 20) {
+            return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
+        } else {
+            float t = (size - 20) / 44f;
+            return 1.5f * (1.0f + t * t * 1.63f);
+        }
+    }
+
+    /**
+     * Inverse of {@link #visualScale(int)}: find the logical size that produces
+     * the given visual scale (rounded to nearest integer).
+     */
+    private static int sizeForVisualScale(float scale) {
+        if (scale >= 1.5f) {
+            // size > 20 region: scale = 1.5 * (1 + t² * 1.63), t = (size-20)/44
+            float t = (float) Math.sqrt((scale / 1.5f - 1.0f) / 1.63f);
+            return Math.round(20f + 44f * t);
+        } else {
+            // size ≤ 20 region: scale = 1.5 * (0.2 + (size-1) * 0.8/19)
+            return Math.round(1f + (scale / 1.5f - 0.2f) * 19f / 0.8f);
+        }
+    }
+
+    private static int[] getBlendedStarColor(float energy) {
+        int low = (int) Math.floor(energy);
+        int high = Math.min(low + 1, 64);
+        float frac = energy - low;
+        int[] rgbLow = CelestialBodyMatcher.getStarColor(low);
+        int[] rgbHigh = CelestialBodyMatcher.getStarColor(high);
+        return new int[]{
+            Math.round(rgbLow[0] + (rgbHigh[0] - rgbLow[0]) * frac),
+            Math.round(rgbLow[1] + (rgbHigh[1] - rgbLow[1]) * frac),
+            Math.round(rgbLow[2] + (rgbHigh[2] - rgbLow[2]) * frac)
+        };
+    }
+
+    private void transitionToStage2() {
+        if (!(celestialBodyData instanceof StarData star)) return;
+        int ageX = CelestialBodyMatcher.toX(ageAnvilCount);
+        int energyY = CelestialBodyMatcher.toY(star.energy());
+        initGiantPhase(ageX, energyY);
+    }
+
+    private void transitionToStage3() {
+        this.acceleratorStage = 3;
+        this.collapseAnimTicks = 10;
+        this.acceleratorTicksRemaining = 10;
+        this.acceleratorTicksTotal = 10;
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private void transitionToStage4() {
+        this.acceleratorStage = 4;
+        // M-dwarf: 2 minute transition to white dwarf
+        this.acceleratorTicksRemaining = 2400;
+        this.acceleratorTicksTotal = 2400;
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private boolean isDysonSphereBuilt() {
+        if (activeMegastructureIndex < 0) return false;
+        var option = getActiveMegastructureOption();
+        if (option == null) return false;
+        return "dyson_sphere_small".equals(option.megastructure()) || "dyson_sphere_large".equals(option.megastructure());
+    }
+
+    private void destroyDysonSphere() {
+        if (acceleratorDysonDestroyed) return;
+        acceleratorDysonDestroyed = true;
+        // Clear the Dyson Sphere megastructure but keep accelerator running
+        clearMegastructure();
+        if (level != null) {
+            setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private void triggerSupernova() {
+        if (level == null || level.isClientSide()) return;
+
+        // Create remnant and sync BEFORE explosion (explosion may destroy the CFA block)
+        createRemnant();
+
+        // Clear all megastructures, restore rings
+        clearAllMegastructures();
+
+        this.supernovaFlashTicks = 10;
+
+        setChanged();
+        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    }
+
+    private void createRemnant() {
+        int mass = acceleratorOriginalMass;
+
+        if (mass < 55) {
+            createWhiteDwarfRemnant();
+        } else if (mass <= 58) {
+            createNeutronStarRemnant();
+        } else {
+            createBlackHoleRemnant();
+        }
+        finishAccelerator();
+    }
+
+    private void completeMStarEvolution() {
+        // M-type main sequence: becomes white dwarf without supernova
+        createWhiteDwarfRemnant();
+        finishAccelerator();
+    }
+
+    private void createWhiteDwarfRemnant() {
+        if (!(celestialBodyData instanceof StarData star)) return;
+
+        // White dwarf has only 3 valid (mass, space) pairs: (48,11) (49,10) (50,9)
+        // Pick based on original mass: lower mass → lighter white dwarf
+        int wdMassAnvil;
+        int wdSpaceAnvil;
+        int originalMass = acceleratorOriginalMass;
+        if (originalMass <= 30) {
+            wdMassAnvil = 48;
+            wdSpaceAnvil = 11;
+        } else if (originalMass <= 42) {
+            wdMassAnvil = 49;
+            wdSpaceAnvil = 10;
+        } else {
+            wdMassAnvil = 50;
+            wdSpaceAnvil = 9;
+        }
+
+        int wdEnergy = 47;
+        int[] rgb = CelestialBodyMatcher.getStarColor(wdEnergy);
+        int newMag = Math.min(star.magneticFieldStrength() + 1, 5);
+        int newRotation = Math.min(star.rotationSpeed() + 1, 5);
+        this.ageAnvilCount++;
+        this.stellarMass = wdMassAnvil;
+
+        celestialBodyData = new StarData(
+            CelestialBodyClass.WHITE_DWARF,
+            wdSpaceAnvil,
+            rgb[0],
+            rgb[1],
+            rgb[2],
+            star.axialTilt(),
+            newRotation,
+            newMag,
+            wdEnergy
+        );
+        this.planetaryResourceSet = null;
+    }
+
+    private void createNeutronStarRemnant() {
+        if (!(celestialBodyData instanceof StarData star)) return;
+
+        // Map original mass (55-58) to neutron star mass anvil (50-52)
+        int neutronMass;
+        if (acceleratorOriginalMass <= 55) {
+            neutronMass = 50;
+        } else if (acceleratorOriginalMass <= 56) {
+            neutronMass = 51;
+        } else {
+            neutronMass = 52;
+        }
+
+        int newMag = Math.min(star.magneticFieldStrength() + 2, 6);
+        int newRotation = Math.min(star.rotationSpeed() + 2, 5);
+        this.ageAnvilCount++;
+        this.stellarMass = neutronMass;
+
+        celestialBodyData = new StarData(
+            CelestialBodyClass.NEUTRON_STAR, 1, // "0-spatial-equivalent"
+            255, 255, 255, // Rendered via special model, no color overlay
+            star.axialTilt(), newRotation, newMag, 64
+        );
+        // Stellar remnants have no planetary resources
+        this.planetaryResourceSet = null;
+    }
+
+    private void createBlackHoleRemnant() {
+        if (!(celestialBodyData instanceof StarData star)) return;
+
+        // Map original mass (>=59) to black hole mass anvil (53-59)
+        int bhMass = Math.clamp(53 + (acceleratorOriginalMass - 59), 53, 59);
+
+        int newMag = Math.min(star.magneticFieldStrength() + 2, 6);
+        this.ageAnvilCount++;
+        this.stellarMass = bhMass;
+
+        celestialBodyData = new StarData(
+            CelestialBodyClass.BLACK_HOLE, 1, // "0-spatial-equivalent" (event horizon)
+            0, 0, 0, // Rendered via special model
+            star.axialTilt(), 1, // Slow rotation for accretion disk visual
+            newMag, 64
+        );
+        // Stellar remnants have no planetary resources
+        this.planetaryResourceSet = null;
+    }
+
+    private void finishAccelerator() {
+        this.acceleratorStage = 0;
+        this.acceleratorTicksRemaining = 0;
+        this.acceleratorTicksTotal = 0;
+        this.acceleratorDysonDestroyed = false;
+        this.acceleratorDysonDestroyTick = -1;
+    }
+
+    private void clearAllMegastructures() {
+        // First clear accelerator state
+        this.acceleratorStage = 0;
+        this.acceleratorTicksRemaining = 0;
+        this.acceleratorTicksTotal = 0;
+        this.acceleratorDysonDestroyed = false;
+        this.acceleratorDysonDestroyTick = -1;
+        this.collapseAnimTicks = 0;
+
+        // Then clear normal megastructure
+        clearMegastructure();
     }
 
     // === Eco Station ===

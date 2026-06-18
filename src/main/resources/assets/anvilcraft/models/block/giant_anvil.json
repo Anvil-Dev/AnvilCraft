@@ -1,13 +1,14 @@
 {
+	"format_version": "1.21.11",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "anvilcraft:block/template_large_block",
 	"render_type": "minecraft:cutout",
 	"texture_size": [64, 64],
 	"textures": {
-		"particle": "anvilcraft:block/giant_anvil_side",
 		"side": "anvilcraft:block/giant_anvil_side",
 		"bottom": "anvilcraft:block/giant_anvil_bottom",
-		"top": "anvilcraft:block/giant_anvil_top"
+		"top": "anvilcraft:block/giant_anvil_top",
+		"particle": "anvilcraft:block/polished_heavy_iron_block"
 	},
 	"elements": [
 		{

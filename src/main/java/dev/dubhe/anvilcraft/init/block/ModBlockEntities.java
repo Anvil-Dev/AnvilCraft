@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLogisticsInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
@@ -77,6 +78,7 @@ import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEnti
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilPortalRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
@@ -419,6 +421,15 @@ public class ModBlockEntities {
         .blockEntity("celestial_forging_anvil_laser_interface",
             CelestialForgingAnvilLaserInterfaceBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE)
+        .renderer(() -> LaserBlockRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CelestialForgingAnvilPortalBlockEntity>
+        CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
+        .blockEntity("celestial_forging_anvil_portal",
+            CelestialForgingAnvilPortalBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL)
+        .renderer(() -> CelestialForgingAnvilPortalRenderer::new)
         .register();
 
     public static final BlockEntityEntry<TradingStationBlockEntity> TRADING_STATION = REGISTRUM

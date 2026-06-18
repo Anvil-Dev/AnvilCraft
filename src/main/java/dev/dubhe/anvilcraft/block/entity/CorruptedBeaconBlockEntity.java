@@ -146,8 +146,10 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
             if (!level.isClientSide) {
                 boolean lastHasLevel = lastLevel > 0;
                 boolean shouldLit = blockEntity.levels > 0 && !blockEntity.beamSections.isEmpty();
-                // 根据信标状态变化播放相应的音效和更新方块状态
-                if (!lastHasLevel && shouldLit) {
+                // 获取当前方块状态里实际存储的 LIT 属性值
+                boolean isCurrentlyLit = state.hasProperty(CorruptedBeaconBlock.LIT) && state.getValue(CorruptedBeaconBlock.LIT);
+                // 只有在“应当亮起但目前没亮”，或者“应当熄灭但目前还亮着”的状态切换时才调用 setBeaconStatus
+                if (shouldLit && !isCurrentlyLit) {
                     CorruptedBeaconBlockEntity.setBeaconStatus(level, pos, state, blockEntity, true);
                 } else if (lastHasLevel && !shouldLit) {
                     blockEntity.levels = 0;

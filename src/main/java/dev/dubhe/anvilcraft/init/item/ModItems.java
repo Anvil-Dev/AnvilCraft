@@ -15,7 +15,6 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.AmethystAxeItem;
 import dev.dubhe.anvilcraft.item.AmethystHoeItem;
 import dev.dubhe.anvilcraft.item.AmethystPickaxeItem;
@@ -1027,6 +1026,18 @@ public class ModItems {
         .initialProperties(Item.Properties::new)
         .tag(Tags.Items.NUGGETS)
         .recipe(RegistrumItemRecipeLoader::negativeMatterNugget)
+        .register();
+
+    public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
+        .register();
+
+    public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
         .register();
 
     public static final ItemEntry<SuperHeavyItem> NEUTRONIUM_INGOT = REGISTRUM.item("neutronium_ingot", SuperHeavyItem::new)

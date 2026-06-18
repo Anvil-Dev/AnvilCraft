@@ -302,6 +302,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.mag.medium", "Medium");
         provider.add("screen.anvilcraft.cfa.mag.strong", "Strong");
         provider.add("screen.anvilcraft.cfa.mag.very_strong", "Very Strong");
+        provider.add("screen.anvilcraft.cfa.mag.extreme", "Extreme");
 
         provider.add("screen.anvilcraft.cfa.spin", "Spin: %s");
         provider.add("screen.anvilcraft.cfa.spin.very_slow", "Very Slow");
@@ -309,6 +310,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.spin.medium", "Medium");
         provider.add("screen.anvilcraft.cfa.spin.fast", "Fast");
         provider.add("screen.anvilcraft.cfa.spin.very_fast", "Very Fast");
+        provider.add("screen.anvilcraft.cfa.spin.super_fast", "Super Fast");
 
         provider.add("screen.anvilcraft.cfa.temp", "Temperature: %s");
         provider.add("screen.anvilcraft.cfa.temp.freezing", "Freezing");
@@ -354,6 +356,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.ice_giant", "Ice Giant");
         provider.add("screen.anvilcraft.cfa.class.gas_giant", "Gas Giant");
         provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf");
+
         provider.add("screen.anvilcraft.cfa.class.m_main", "Red Dwarf");
         provider.add("screen.anvilcraft.cfa.class.k_main", "Orange Dwarf");
         provider.add("screen.anvilcraft.cfa.class.g_main", "Yellow Dwarf");
@@ -391,6 +394,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface");
         provider.add("screen.anvilcraft.cfa.interface.empty", "(Empty)");
         provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving: Lv.%s");
+        provider.add("screen.anvilcraft.cfa.laser_interface.received_gamma", "Receiving: Gamma Lv.%s");
+        provider.add("screen.anvilcraft.cfa.laser_interface.emitting", "Emitting: Lv.%s");
+        provider.add("screen.anvilcraft.cfa.laser_interface.emitting_gamma", "Emitting: Gamma Lv.%s");
         provider.add("screen.anvilcraft.cfa.laser_interface.no_laser", "No laser");
         provider.add("screen.anvilcraft.cfa.laser_interface.required", "Required: Lv.%s");
         provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid");
@@ -415,6 +421,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil", "Magnetar Coil");
         provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere", "Penrose Sphere");
         provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor", "Matter Decompressor");
+        provider.add("screen.anvilcraft.cfa.megastructure.stellar_evolution_accelerator", "Stellar Evolution Accelerator");
+        provider.add("screen.anvilcraft.cfa.megastructure.wormhole_stabilizer", "Wormhole Stabilizer");
 
         // Planet resource bar
         provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —");
@@ -430,5 +438,26 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.special.shattered_planet", "Shattered Planet");
         provider.add("screen.anvilcraft.cfa.class.special.hollow_planet", "Hollow Planet");
         provider.add("screen.anvilcraft.cfa.class.special.error_planet", "Error Planet");
+
+        // Stellar remnant type names
+        provider.add("screen.anvilcraft.cfa.class.neutron_star", "Neutron Star");
+        provider.add("screen.anvilcraft.cfa.class.black_hole", "Black Hole");
+
+        // Stellar evolution accelerator stages
+        provider.add("screen.anvilcraft.cfa.evolution.stage1", "Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.stage2", "Giant Phase");
+        provider.add("screen.anvilcraft.cfa.evolution.stage3", "Supernova");
+        provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf");
+        provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage");
+        provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time: %s");
+        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power Output");
+        provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked");
+
+        // Wormhole Stabilizer
+        provider.add("screen.anvilcraft.cfa.wormhole.amplifier_missing", "Amplifier missing, celestial body lost");
+
+        // Portal placement messages
+        provider.add("message.anvilcraft.portal.already_exists", "A portal already exists on this side");
+        provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers");
     }
 }

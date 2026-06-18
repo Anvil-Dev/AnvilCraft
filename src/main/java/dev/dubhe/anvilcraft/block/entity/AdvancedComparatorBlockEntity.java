@@ -70,7 +70,9 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     @Override
     public void saveToItem(ItemStack stack, HolderLookup.Provider registries) {
         CompoundTag data = this.constructDataNbt();
-        BlockItem.setBlockEntityData(stack, this.getType(), data);
+        CompoundTag wrapped = new CompoundTag();
+        wrapped.put("ExtraData", data);
+        BlockItem.setBlockEntityData(stack, this.getType(), wrapped);
         stack.applyComponents(this.collectComponents());
     }
 

@@ -1323,4 +1323,32 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy("hasitem", RegistrumRecipeProvider.has(ingredient))
             .save(provider);
     }
+
+    public static <T extends Item> void dysonSphereComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
+            .pattern("CCC")
+            .pattern("ABA")
+            .define('A', ModItems.EMBER_METAL_INGOT)
+            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('C', ModBlocks.HEAT_COLLECTOR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(ModItems.EMBER_METAL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAT_COLLECTOR.asItem()), AnvilCraftDatagen.has(ModBlocks.HEAT_COLLECTOR))
+            .save(provider);
+    }
+
+    public static <T extends Item> void penroseSphereComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.HELIOSTATS)
+            .define('C', ModBlocks.RUBY_PRISM)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HELIOSTATS.asItem()), AnvilCraftDatagen.has(ModBlocks.HELIOSTATS))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.RUBY_PRISM.asItem()), AnvilCraftDatagen.has(ModBlocks.RUBY_PRISM))
+            .save(provider);
+    }
 }

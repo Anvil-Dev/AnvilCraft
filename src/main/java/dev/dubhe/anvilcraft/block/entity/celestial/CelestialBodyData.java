@@ -17,9 +17,34 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     float axialTilt();
 
-    float rotationSpeed();
+    /**
+     * Rotation speed level (0-5).
+     * <ul>
+     *   <li>0 = Very Slow</li>
+     *   <li>1 = Slow</li>
+     *   <li>2 = Medium</li>
+     *   <li>3 = Fast</li>
+     *   <li>4 = Very Fast</li>
+     *   <li>5 = Super Fast</li>
+     * </ul>
+     */
+    int rotationSpeed();
 
     int magneticFieldStrength();
+
+    /**
+     * Convert rotation speed level to visual rotation multiplier (deg/tick).
+     */
+    static float getVisualRotationSpeed(int level) {
+        return switch (level) {
+            case 0 -> 0.1f;
+            case 1 -> 0.5f;
+            case 2 -> 1.0f;
+            case 3 -> 1.5f;
+            case 4 -> 3.0f;
+            default -> 100.0f; // 5+ = Super Fast
+        };
+    }
 
     CompoundTag toTag();
 

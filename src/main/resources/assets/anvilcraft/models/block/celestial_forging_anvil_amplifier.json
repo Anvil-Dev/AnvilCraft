@@ -7,7 +7,7 @@
 	"textures": {
 		"0": "anvilcraft:block/celestial_forging_anvil_amplifier",
 		"1": "anvilcraft:block/transcendium_block_outline",
-		"particle": "anvilcraft:block/celestial_forging_anvil_amplifier"
+		"particle": "anvilcraft:block/celestial_forging_anvil_particle"
 	},
 	"elements": [
 		{

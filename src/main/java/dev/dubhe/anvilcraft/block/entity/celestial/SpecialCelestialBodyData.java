@@ -37,7 +37,7 @@ public record SpecialCelestialBodyData(SpecialCelestialBodyType specialType) imp
     }
 
     @Override
-    public float rotationSpeed() {
+    public int rotationSpeed() {
         return specialType.getRotationSpeed();
     }
 

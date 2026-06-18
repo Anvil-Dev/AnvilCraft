@@ -24,11 +24,30 @@ public class CfaLaserInterfaceTooltipProvider extends ITooltipProvider.BlockEnti
         int received = laser.getReceivedLaserLevel();
         int required = laser.getRequiredLaserLevel();
         boolean valid = laser.isLaserValid();
+        boolean emittingGamma = laser.isEmittingGamma();
+        int gammaLevel = laser.getGammaLevel();
+        int laserLevel = laser.getLaserLevel();
 
         if (received > 0) {
-            lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.received", received)
-                .withStyle(ChatFormatting.AQUA));
+            if (laser.isReceivedGamma()) {
+                // Receiving gamma laser — purple text
+                lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.received_gamma", received)
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            } else {
+                // Receiving red laser — red text
+                lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.received", received)
+                    .withStyle(ChatFormatting.RED));
+            }
+        } else if (emittingGamma && gammaLevel > 0) {
+            // Emitting gamma laser — purple text
+            lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.emitting_gamma", gammaLevel)
+                .withStyle(ChatFormatting.DARK_PURPLE));
+        } else if (laserLevel > 0) {
+            // Emitting normal (red) laser — red text
+            lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.emitting", laserLevel)
+                .withStyle(ChatFormatting.RED));
         } else {
+            // No laser activity
             lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.no_laser")
                 .withStyle(ChatFormatting.DARK_GRAY));
         }

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "S": {
+      "item": "anvilcraft:spacetime_supercomputer"
+    },
+    "T": {
+      "item": "anvilcraft:transcendium_ingot"
+    }
+  },
+  "pattern": [
+    " T ",
+    "TET",
+    "TST"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:celestial_forging_anvil_portal"
+  }
+}

@@ -2098,4 +2098,30 @@ public class RegistrumBlockRecipeLoader {
             .resultBlock(ctx)
             .save(provider);
     }
+
+    public static <T extends Block> void cfaInterfacePlaceholder(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        SingleItemRecipeBuilder.stonecutting(
+                Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+                RecipeCategory.BUILDING_BLOCKS,
+                ctx.get(),
+                4
+            )
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_NUGGET))
+            .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
+    }
+
+    public static <T extends Block> void celestialForgingAnvilPortal(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
+            .pattern(" T ")
+            .pattern("TET")
+            .pattern("TST")
+            .define('T', ModItems.TRANSCENDIUM_INGOT)
+            .define('E', Items.ENDER_PEARL)
+            .define('S', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider);
+    }
 }

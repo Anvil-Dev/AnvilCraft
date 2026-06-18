@@ -12,10 +12,12 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -241,6 +243,7 @@ public class CelestialForgingAnvilBlock
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
             .ifPresent(be -> {
                 be.setAmplifierPresent(false);
+                be.removeGravitySource(); // immediately remove gravity
                 if (be.getCelestialBodyData() instanceof StarData) {
                     be.setLocked(true);
                     be.getSearchHistory().clear();
@@ -332,6 +335,22 @@ public class CelestialForgingAnvilBlock
         if (be instanceof CelestialForgingAnvilBlockEntity cfaBe) {
             // Disk right-click: delegate to DiskItem.useOn
             if (cfaBe.useDisk(level, player, hand, stack, hitResult) == InteractionResult.SUCCESS) {
+                return ItemInteractionResult.SUCCESS;
+            }
+            // Singularity crystal right-click: store snapshot (apply only via seed slot)
+            if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
+                if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
+                if (!player.getAbilities().mayBuild) return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+                if (player.isShiftKeyDown()) return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+                CompoundTag stored = CelestialForgingAnvilBlockEntity.loadSnapshotFromStack(stack);
+                if (stored != null) {
+                    // Already has data — don't apply here, use seed slot instead
+                    return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+                }
+                CompoundTag tag = new CompoundTag();
+                cfaBe.storeDiskData(tag);
+                CelestialForgingAnvilBlockEntity.saveSnapshotToStack(stack, tag);
+                player.displayClientMessage(Component.translatable("message.anvilcraft.disk.data_stored"), true);
                 return ItemInteractionResult.SUCCESS;
             }
         }
