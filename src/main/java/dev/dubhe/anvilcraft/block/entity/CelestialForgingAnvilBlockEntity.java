@@ -122,6 +122,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Getter
     private boolean excavatorLaserActive = false;
 
+    /**
+     * Whether the Penrose Sphere has valid laser input/output pairs (for model switching).
+     */
+    @Getter
+    private boolean penroseSphereLaserActive = false;
+
     // === Temple state ===
     /**
      * Current position in the 3-day cycle: 0=blessing, 1=blessing, 2=punishment.
@@ -631,6 +637,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             serverTickStellarRingCollider();
             serverTickDysonSphere();
             serverTickMagnetarCoil();
+            serverTickPenroseSphere();
+            serverTickMatterDecompressor();
         }
 
         // Stellar Evolution Accelerator (runs independently of activeMegastructureIndex)
@@ -858,6 +866,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.colliderReservedHitBlockSource = null;
         this.colliderActiveSpeed = 0;
         this.colliderTargetItems.clear();
+
+        // Matter Decompressor state
+        this.matterDecompressorCounter = 0;
 
         // Accelerator state
         this.acceleratorStage = 0;
@@ -1194,6 +1205,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         tag.putInt("activeMegastructure", activeMegastructureIndex);
         tag.putBoolean("excavatorLaserActive", excavatorLaserActive);
+        tag.putBoolean("penroseSphereLaserActive", penroseSphereLaserActive);
         // Temple state
         tag.putInt("templeCycleDay", templeCycleDay);
         tag.putLong("templeLastDay", templeLastDay);
@@ -1277,6 +1289,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         this.activeMegastructureIndex = tag.contains("activeMegastructure") ? tag.getInt("activeMegastructure") : -1;
         this.excavatorLaserActive = tag.getBoolean("excavatorLaserActive");
+        this.penroseSphereLaserActive = tag.getBoolean("penroseSphereLaserActive");
         // Temple state
         this.templeCycleDay = tag.getInt("templeCycleDay");
         this.templeLastDay = tag.contains("templeLastDay") ? tag.getLong("templeLastDay") : -1;
@@ -1339,6 +1352,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         tag.putInt("activeMegastructure", activeMegastructureIndex);
         tag.putBoolean("excavatorLaserActive", excavatorLaserActive);
+        tag.putBoolean("penroseSphereLaserActive", penroseSphereLaserActive);
         // Temple state (client sync)
         tag.putInt("templeCycleDay", templeCycleDay);
         tag.putLong("templeLastDay", templeLastDay);
@@ -1419,6 +1433,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         this.activeMegastructureIndex = tag.contains("activeMegastructure") ? tag.getInt("activeMegastructure") : -1;
         this.excavatorLaserActive = tag.getBoolean("excavatorLaserActive");
+        this.penroseSphereLaserActive = tag.getBoolean("penroseSphereLaserActive");
         // Temple state (client side)
         this.templeCycleDay = tag.getInt("templeCycleDay");
         this.templeLastDay = tag.contains("templeLastDay") ? tag.getLong("templeLastDay") : -1;
@@ -1608,6 +1623,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private void clearMegastructure() {
         this.activeMegastructureIndex = -1;
         this.excavatorLaserActive = false;
+        this.penroseSphereLaserActive = false;
         // Temple state
         this.templeCycleDay = 0;
         this.templeLastDay = -1;
@@ -1618,6 +1634,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         // Clear collider state
         outputColliderReservedItems();
         resetColliderState();
+        // Clear matter decompressor state
+        this.matterDecompressorCounter = 0;
         // Clear material filter
         this.materialFilter = new ItemStack(Items.BARRIER);
         this.materialLimit = 0;
@@ -2030,7 +2048,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (!COLLIDER_MEGASTRUCTURE.equals(option.megastructure())) return;
         if (planetaryResourceSet == null) return;
         if (!(celestialBodyData instanceof StarData star)) return;
-        if (star.size() >= 26) return;
+        if (star.size() >= 48) return;
 
         boolean starMissing = !amplifierPresent;
         boolean isProcessing = colliderCycleRemaining > 0 && !powerInsufficient;
@@ -2503,6 +2521,209 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (!"magnetar_coil".equals(option.megastructure())) return;
         // Magnetar Coil is passive — no per-tick work needed.
         // Power is generated via getOutputPower() called by the power grid during flush().
+    }
+
+    // === Penrose Sphere ===
+
+    private static final String PENROSE_SPHERE_MEGASTRUCTURE = "penrose_sphere";
+
+    // === Matter Decompressor ===
+
+    private static final String MATTER_DECOMPRESSOR_MEGASTRUCTURE = "matter_decompressor";
+    /**
+     * Production cycle counter for neutron star matter decompressor.
+     * Increments each tick when active; at 200 (10s) the output is produced,
+     * scaled by gamma laser efficiency.
+     */
+    private int matterDecompressorCounter = 0;
+
+    /**
+     * Penrose Sphere: enhances incoming laser into gamma laser output.
+     * No power consumption. Input laser on one side → gamma laser output from symmetric opposite side.
+     * Laser interface must be active (redstone powered) to emit gamma laser.
+     * Input any level → output same level gamma laser.
+     * Model switches based on whether ANY laser interface has received laser input.
+     */
+    private void serverTickPenroseSphere() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) return;
+        if (!PENROSE_SPHERE_MEGASTRUCTURE.equals(option.megastructure())) return;
+
+        int cx = worldPosition.getX();
+        int cy = worldPosition.getY();
+        int cz = worldPosition.getZ();
+
+        boolean anyLaserInput = false;
+
+        // Process each face for symmetric laser pairs
+        // North face: (-1, cy, -2) ↔ (1, cy, -2), center (0, cy, -2) excluded
+        anyLaserInput |= processPenroseLaserPair(
+            new BlockPos(cx - 1, cy, cz - 2),
+            new BlockPos(cx + 1, cy, cz - 2)
+        );
+        // South face: (-1, cy, +2) ↔ (1, cy, +2), center (0, cy, +2) excluded
+        anyLaserInput |= processPenroseLaserPair(
+            new BlockPos(cx - 1, cy, cz + 2),
+            new BlockPos(cx + 1, cy, cz + 2)
+        );
+        // West face: (-2, cy, -1) ↔ (-2, cy, +1), center (-2, cy, 0) excluded
+        anyLaserInput |= processPenroseLaserPair(
+            new BlockPos(cx - 2, cy, cz - 1),
+            new BlockPos(cx - 2, cy, cz + 1)
+        );
+        // East face: (+2, cy, -1) ↔ (+2, cy, +1), center (+2, cy, 0) excluded
+        anyLaserInput |= processPenroseLaserPair(
+            new BlockPos(cx + 2, cy, cz - 1),
+            new BlockPos(cx + 2, cy, cz + 1)
+        );
+
+        // Update client sync for model: switch on any laser input received
+        if (penroseSphereLaserActive != anyLaserInput) {
+            penroseSphereLaserActive = anyLaserInput;
+            this.setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    /**
+     * Process a Penrose Sphere laser pair. If either interface has received laser input
+     * and the opposite interface is active, emit gamma laser from the active one.
+     *
+     * @param posA first laser interface position
+     * @param posB symmetric partner position
+     * @return true if any laser interface in this pair has received laser input
+     */
+    private boolean processPenroseLaserPair(BlockPos posA, BlockPos posB) {
+        if (level == null) return false;
+        BlockEntity beA = level.getBlockEntity(posA);
+        BlockEntity beB = level.getBlockEntity(posB);
+
+        boolean hasInput = false;
+
+        if (beA instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserA
+            && beB instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserB) {
+
+            // Check A→B: if A has received laser, output gamma from B
+            if (laserA.getReceivedLaserLevel() > 0) {
+                hasInput = true;
+                if (isLaserInterfaceActive(beB)) {
+                    laserB.emitGammaLaser(laserA.getReceivedLaserLevel());
+                }
+            }
+
+            // Check B→A: if B has received laser, output gamma from A
+            if (laserB.getReceivedLaserLevel() > 0) {
+                hasInput = true;
+                if (isLaserInterfaceActive(beA)) {
+                    laserA.emitGammaLaser(laserB.getReceivedLaserLevel());
+                }
+            }
+        } else {
+            // Check individual interfaces for model switching even if partner is missing
+            if (beA instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserA
+                && laserA.getReceivedLaserLevel() > 0) {
+                hasInput = true;
+            }
+            if (beB instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserB
+                && laserB.getReceivedLaserLevel() > 0) {
+                hasInput = true;
+            }
+        }
+
+        return hasInput;
+    }
+
+    /**
+     * Check if a laser interface block entity is in active (redstone powered) state.
+     */
+    private boolean isLaserInterfaceActive(BlockEntity be) {
+        if (be instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserBe) {
+            BlockState state = laserBe.getBlockState();
+            if (state.hasProperty(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
+                return state.getValue(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE);
+            }
+        }
+        return false;
+    }
+
+    // === Matter Decompressor ===
+
+    private static final int MATTER_DECOMPRESSOR_NEUTRON_STAR_INTERVAL = 200; // 10 seconds
+
+    /**
+     * Matter Decompressor: uses gamma laser input to extract matter from stellar remnants.
+     * <ul>
+     *   <li>Neutron Star: produces neutronium ingots every 10s × gamma efficiency</li>
+     *   <li>Black Hole: produces void matter every gt × gamma efficiency</li>
+     * </ul>
+     * No power consumption. Requires gamma laser input via laser interfaces.
+     */
+    private void serverTickMatterDecompressor() {
+        if (level == null || level.isClientSide()) return;
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) return;
+        if (!MATTER_DECOMPRESSOR_MEGASTRUCTURE.equals(option.megastructure())) return;
+        if (!(celestialBodyData instanceof StarData star)) return;
+
+        CelestialBodyClass bodyClass = star.bodyClass();
+        if (bodyClass != CelestialBodyClass.NEUTRON_STAR && bodyClass != CelestialBodyClass.BLACK_HOLE) return;
+
+        // Sum gamma laser levels from all connected laser interfaces
+        int totalGammaLevel = 0;
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = findLaserInterfaces();
+        for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : lasers) {
+            if (laser.isReceivedGamma()) {
+                totalGammaLevel += laser.getReceivedLaserLevel();
+            }
+        }
+
+        if (totalGammaLevel <= 0) return;
+        int efficiency = totalGammaLevel;
+
+        if (bodyClass == CelestialBodyClass.BLACK_HOLE) {
+            // Black hole: produce void_matter every tick × efficiency
+            ItemLike voidMatter = dev.dubhe.anvilcraft.init.item.ModItems.VOID_MATTER.get();
+            ItemStack output = new ItemStack(voidMatter, efficiency);
+            List<IItemHandler> logistics = findLogisticsInterfaces();
+            if (!logistics.isEmpty()) {
+                int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                    int idx = (startIdx + attempt) % logistics.size();
+                    IItemHandler handler = logistics.get(idx);
+                    ItemStack remainder = insertIntoHandler(handler, output);
+                    if (remainder.getCount() < output.getCount()) {
+                        excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                        return;
+                    }
+                }
+            }
+        } else {
+            // Neutron star: produce neutronium ingots every 10s (200 ticks) × efficiency.
+            // Neutronium ingots stack to 1, so we produce efficiency individual items
+            // spaced evenly across the interval.
+            matterDecompressorCounter++;
+            int interval = MATTER_DECOMPRESSOR_NEUTRON_STAR_INTERVAL / efficiency;
+            if (interval < 1) interval = 1;
+            if (matterDecompressorCounter >= interval) {
+                matterDecompressorCounter = 0;
+                ItemLike neutroniumIngot = dev.dubhe.anvilcraft.init.item.ModItems.NEUTRONIUM_INGOT.get();
+                ItemStack output = new ItemStack(neutroniumIngot, 1);
+                List<IItemHandler> logistics = findLogisticsInterfaces();
+                if (!logistics.isEmpty()) {
+                    int startIdx = excavatorLogisticsRoundRobin % logistics.size();
+                    for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                        int idx = (startIdx + attempt) % logistics.size();
+                        IItemHandler handler = logistics.get(idx);
+                        ItemStack remainder = insertIntoHandler(handler, output);
+                        if (remainder.getCount() < output.getCount()) {
+                            excavatorLogisticsRoundRobin = (idx + 1) % logistics.size();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // === Stellar Evolution Accelerator ===

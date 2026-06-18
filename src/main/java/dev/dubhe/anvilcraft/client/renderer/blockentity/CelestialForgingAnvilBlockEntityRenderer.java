@@ -85,6 +85,20 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     public static final ModelResourceLocation R4_COIL_RING = ModelResourceLocation.standalone(AnvilCraft.of(
         "block/celestial_forging_anvil_ring_4_coil_ring"));
 
+    // Penrose Sphere megastructure models (replace ring 4 with dual-model)
+    public static final ModelResourceLocation R4_PENROSE_SPHERE_FIX = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_penrose_sphere_fix"));
+    public static final ModelResourceLocation R4_PENROSE_SPHERE_LASER = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_penrose_sphere_laser"));
+    public static final ModelResourceLocation R4_PENROSE_SPHERE_LASER_OFF = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_penrose_sphere_laser_off"));
+
+    // Matter Decompressor megastructure models (replace ring 4 with dual-model)
+    public static final ModelResourceLocation R4_MATTER_DECOMPRESSOR_FIX = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_matter_decompressor_fix"));
+    public static final ModelResourceLocation R4_MATTER_DECOMPRESSOR_RING = ModelResourceLocation.standalone(AnvilCraft.of(
+        "block/celestial_forging_anvil_ring_4_matter_decompressor_ring"));
+
     // Stellar Evolution Accelerator models
     public static final ModelResourceLocation R5_STELLAR_EVOLUTION_ACCELERATOR = ModelResourceLocation.standalone(AnvilCraft.of(
         "block/celestial_forging_anvil_ring_5_stellar_evolution_accelerator"));
@@ -224,7 +238,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         // === Innermost ring — child of "in" ===
         if (blockEntity.isAmplify()) {
-            if (!isDysonSphereActive(blockEntity, 4) && !isMagnetarCoilActive(blockEntity)) {
+            if (!isDysonSphereActive(blockEntity, 4) && !isMagnetarCoilActive(blockEntity)
+                && !isPenroseSphereActive(blockEntity)
+                && !isMatterDecompressorActive(blockEntity)) {
                 ModelResourceLocation r4Model = getRing4Model(blockEntity);
                 renderRingMaybe(
                     r4Model,
@@ -280,11 +296,37 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             }
         }
 
+        // Render Penrose Sphere rings: fix (star-synchronous) + laser/off (mechanical rotation)
+        if (blockEntity.isAmplify() && isPenroseSphereActive(blockEntity) && bodyData instanceof StarData star) {
+            float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
+            float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
+            renderPenroseSphereRings(centerY, rot, bodyRot, star, animProgress,
+                blockEntity.isPenroseSphereLaserActive(),
+                poseStack, multiBufferSource, packedOverlay, modelRenderer);
+        }
+
         // Render Magnetar Coil rings: fix (star-synchronous) + ring (mechanical rotation)
         if (blockEntity.isAmplify() && isMagnetarCoilActive(blockEntity) && bodyData instanceof StarData star) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
             renderMagnetarCoilRings(centerY, rot, bodyRot, star, animProgress, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+        }
+
+        // Render Matter Decompressor rings: fix (star-synchronous, like Dyson Sphere) + ring (mechanical rotation)
+        if (blockEntity.isAmplify() && isMatterDecompressorActive(blockEntity) && bodyData instanceof StarData star) {
+            float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
+            float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
+            renderMatterDecompressorRings(
+                centerY,
+                rot,
+                bodyRot,
+                star,
+                animProgress,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
         }
 
         // Use effective body data (considers reverse animation where celestialBodyData is already null)
@@ -391,7 +433,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             }
         }
         // Stellar Evolution Accelerator for small stars replaces ring 5
-        if (blockEntity.isAcceleratorActive() && blockEntity.getCelestialBodyData() instanceof StarData star && star.size() < 26) {
+        if (blockEntity.isAcceleratorActive() && blockEntity.getCelestialBodyData() instanceof StarData star && star.size() < 48) {
             return R5_STELLAR_EVOLUTION_ACCELERATOR;
         }
         return R5;
@@ -402,7 +444,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
      */
     private ModelResourceLocation getRing6Model(CelestialForgingAnvilBlockEntity blockEntity) {
         // Stellar Evolution Accelerator for large stars replaces ring 6
-        if (blockEntity.isAcceleratorActive() && blockEntity.getCelestialBodyData() instanceof StarData star && star.size() >= 26) {
+        if (blockEntity.isAcceleratorActive() && blockEntity.getCelestialBodyData() instanceof StarData star && star.size() >= 48) {
             return R6_STELLAR_EVOLUTION_ACCELERATOR;
         }
         return R6;
@@ -428,6 +470,26 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         var option = blockEntity.getActiveMegastructureOption();
         if (option == null) return false;
         return "magnetar_coil".equals(option.megastructure());
+    }
+
+    /**
+     * Check whether the Penrose Sphere megastructure is active.
+     */
+    private static boolean isPenroseSphereActive(CelestialForgingAnvilBlockEntity blockEntity) {
+        if (blockEntity.getActiveMegastructureIndex() < 0) return false;
+        var option = blockEntity.getActiveMegastructureOption();
+        if (option == null) return false;
+        return "penrose_sphere".equals(option.megastructure());
+    }
+
+    /**
+     * Check whether the Matter Decompressor megastructure is active.
+     */
+    private static boolean isMatterDecompressorActive(CelestialForgingAnvilBlockEntity blockEntity) {
+        if (blockEntity.getActiveMegastructureIndex() < 0) return false;
+        var option = blockEntity.getActiveMegastructureOption();
+        if (option == null) return false;
+        return "matter_decompressor".equals(option.megastructure());
     }
 
     /**
@@ -508,14 +570,104 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     }
 
     /**
+     * Render Penrose Sphere rings with two models at the R4 position:
+     * <ul>
+     *   <li>{@code ring_4_penrose_sphere_laser} / {@code ring_4_penrose_sphere_laser_off} —
+     *   mechanical rotation (same bone hierarchy as original R4 inner ring)</li>
+     *   <li>{@code ring_4_penrose_sphere_fix} — star-synchronous rotation (like Dyson Sphere, stays still relative to the black hole)</li>
+     * </ul>
+     */
+    private void renderPenroseSphereRings(
+        float centerY,
+        float rot,
+        float bodyRot,
+        StarData star,
+        float scale,
+        boolean laserActive,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        ModelBlockRenderer modelRenderer
+    ) {
+        if (scale < 0.001f) return;
+
+        // === Laser/Off model (star-synchronous, reverse Y rotation) ===
+        poseStack.pushPose();
+        poseStack.translate(0.5, centerY, 0.5);
+        poseStack.scale(6, 6, 6);
+        // Same axial tilt as black hole, but rotate in opposite direction
+        poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
+        ModelResourceLocation laserModel = laserActive ? R4_PENROSE_SPHERE_LASER : R4_PENROSE_SPHERE_LASER_OFF;
+        renderRingCutout(laserModel, poseStack, bufferSource, packedOverlay, modelRenderer);
+        poseStack.popPose();
+
+        // === Fix model (star-synchronous rotation, same direction as black hole) ===
+        poseStack.pushPose();
+        poseStack.translate(0.5, centerY, 0.5);
+        poseStack.scale(6, 6, 6);
+        // Apply star's axial tilt and Y rotation (same direction as black hole)
+        poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
+        renderRingCutout(R4_PENROSE_SPHERE_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
+        poseStack.popPose();
+    }
+
+    /**
+     * Render Matter Decompressor rings with two models at the R4 position:
+     * <ul>
+     *   <li>{@code ring_4_matter_decompressor_ring} — mechanical rotation (same bone hierarchy as original R4 inner ring)</li>
+     *   <li>{@code ring_4_matter_decompressor_fix} —
+     *   star-synchronous rotation (like Dyson Sphere, stays still relative to the stellar remnant)</li>
+     * </ul>
+     */
+    private void renderMatterDecompressorRings(
+        float centerY,
+        float rot,
+        float bodyRot,
+        StarData star,
+        float scale,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        ModelBlockRenderer modelRenderer
+    ) {
+        if (scale < 0.001f) return;
+
+        // === Ring model (mechanical rotation, same as original R4 inner ring) ===
+        poseStack.pushPose();
+        poseStack.translate(0.5, centerY, 0.5);
+        poseStack.scale(6, 6, 6);
+        // Apply the full bone hierarchy to position at the "in" bone level
+        poseStack.mulPose(Axis.YP.rotationDegrees(-rot));
+        poseStack.mulPose(Axis.XP.rotationDegrees(14.5108f));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-3.8411f));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(14.5109f));
+        poseStack.mulPose(Axis.XP.rotationDegrees(90.0f + rot));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rot));
+        renderRingCutout(R4_MATTER_DECOMPRESSOR_RING, poseStack, bufferSource, packedOverlay, modelRenderer);
+        poseStack.popPose();
+
+        // === Fix model (star-synchronous rotation, same direction as stellar remnant) ===
+        poseStack.pushPose();
+        poseStack.translate(0.5, centerY, 0.5);
+        poseStack.scale(6, 6, 6);
+        // Apply star's axial tilt and Y rotation (same direction as the body)
+        poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
+        renderRingCutout(R4_MATTER_DECOMPRESSOR_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
+        poseStack.popPose();
+    }
+
+    /**
      * Determine whether a mechanical ring should be visible for the given body data.
      */
     private static boolean isRingVisible(int ring, @Nullable CelestialBodyData bodyData, boolean isAmplify) {
         if (isAmplify) {
             return switch (ring) {
-                case 4 -> bodyData == null || bodyData.size() < 26;
-                case 5 -> true;
-                case 6 -> bodyData != null && bodyData.size() >= 26;
+                case 4 -> bodyData == null || bodyData.size() < 48;
+                case 5 -> !(bodyData instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE);
+                case 6 -> bodyData == null || bodyData.size() >= 48;
                 default -> false;
             };
         } else {

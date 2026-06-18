@@ -55,7 +55,7 @@ public class CelestialForgingAnvilLaserInterfaceBlock extends CelestialForgingAn
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, ACTIVE);
     }
 
     @Override
@@ -68,6 +68,10 @@ public class CelestialForgingAnvilLaserInterfaceBlock extends CelestialForgingAn
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type
     ) {
-        return null; // No ticking needed
+        if (level.isClientSide()) return null;
+        if (type == ModBlockEntities.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.get()) {
+            return (lvl, pos, st, be) -> ((CelestialForgingAnvilLaserInterfaceBlockEntity) be).serverTick();
+        }
+        return null;
     }
 }

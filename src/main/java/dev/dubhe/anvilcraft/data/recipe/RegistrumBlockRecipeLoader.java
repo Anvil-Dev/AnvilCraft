@@ -2098,4 +2098,15 @@ public class RegistrumBlockRecipeLoader {
             .resultBlock(ctx)
             .save(provider);
     }
+
+    public static <T extends Block> void cfaInterfacePlaceholder(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        SingleItemRecipeBuilder.stonecutting(
+                Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+                RecipeCategory.BUILDING_BLOCKS,
+                ctx.get(),
+                4
+            )
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_NUGGET))
+            .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
+    }
 }

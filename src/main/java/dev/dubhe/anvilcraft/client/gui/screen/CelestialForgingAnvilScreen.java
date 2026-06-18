@@ -198,6 +198,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     @Override
     protected void init() {
         super.init();
+        CelestialBodyMatcher.warmup();
         int titleAreaCenter = (3 + 342) / 2 - 1;
         this.titleLabelX = titleAreaCenter - this.font.width(this.title) / 2;
         this.titleLabelY = 2;
@@ -1218,7 +1219,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
+        // Suppress vanilla item tooltip for CFA-specific slots (anvil + seed).
+        // Player inventory slots still get the standard item tooltip.
+        boolean isCfaSlot = this.hoveredSlot instanceof CelestialForgingAnvilMenu.CFAAnvilSlot
+            || this.hoveredSlot instanceof CelestialForgingAnvilMenu.SeedSlot;
+        if (!isCfaSlot) {
+            super.renderTooltip(guiGraphics, x, y);
+        }
         int relX = x - leftPos;
         int relY = y - topPos;
         if (relX >= SB_X && relX < SB_X + SB_W && relY >= SB_Y && relY < SB_Y + SB_H) {
@@ -1270,6 +1277,22 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.line1"));
             seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.line2"));
             guiGraphics.renderTooltip(font, seedTooltip, java.util.Optional.empty(), x, y);
+        }
+        // Anvil slot range tooltip
+        if (this.hoveredSlot instanceof CelestialForgingAnvilMenu.CFAAnvilSlot cfaSlot) {
+            var be = getMenu().getBlockEntity();
+            int[] range = CelestialBodyMatcher.getValidRange(
+                be.getAnvilCount(0),
+                be.getAnvilCount(1),
+                be.getAnvilCount(2),
+                be.getAnvilCount(3),
+                be.isAmplify(),
+                cfaSlot.getSlotIndex()
+            );
+            if (range != null) {
+                String text = range[0] == range[1] ? String.valueOf(range[0]) : range[0] + " - " + range[1];
+                guiGraphics.renderTooltip(font, Component.literal(text), x, y);
+            }
         }
     }
 

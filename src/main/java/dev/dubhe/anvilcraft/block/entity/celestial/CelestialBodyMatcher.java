@@ -6,6 +6,9 @@ import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
 
 /**
  * Three-step celestial body matching engine using diagram PNGs.
@@ -29,6 +32,11 @@ public final class CelestialBodyMatcher {
     private static NativeImage ageRadiusImage;
     private static NativeImage starColorTempImage;
     private static boolean loadAttempted = false;
+
+    // Precomputed valid (time,space,mass,energy) combinations
+    private static BitSet validAmplified;
+    private static BitSet validNormal;
+    private static boolean precomputed = false;
 
     private CelestialBodyMatcher() {
     }
@@ -79,6 +87,146 @@ public final class CelestialBodyMatcher {
      */
     public static int toY(int count) {
         return Math.clamp(DIAG_SIZE - count, 0, DIAG_SIZE - 1);
+    }
+
+    /**
+     * Encode a 4-tuple of anvil counts (1–64) into a single int index for the bitset.
+     */
+    private static int encode(int time, int space, int mass, int energy) {
+        return ((time - 1) << 18) | ((space - 1) << 12) | ((mass - 1) << 6) | (energy - 1);
+    }
+
+    // === Precomputation of all valid combinations ===
+
+    @SuppressWarnings("checkstyle:NeedBraces")
+    private static void ensurePrecomputed() {
+        if (precomputed) return;
+        ensureLoaded();
+        precomputed = true;
+
+        if (massRadiusImage == null) return;
+
+        validAmplified = new BitSet(1 << 24);
+        validNormal = new BitSet(1 << 24);
+
+        for (int mass = 1; mass <= 64; mass++) {
+            int mx = toX(mass);
+            for (int space = 1; space <= 64; space++) {
+                int sy = toY(space);
+                CelestialBodyClass bodyClass = lookupClass(massRadiusImage, mx, sy);
+                if (bodyClass == null) continue;
+
+                int massSpaceBase = ((space - 1) << 12) | ((mass - 1) << 6);
+
+                for (int time = 1; time <= 64; time++) {
+                    int tx = toX(time);
+
+                    boolean step3Ok = !bodyClass.needsStep3() || step3(tx, sy, bodyClass);
+                    if (!step3Ok) continue;
+
+                    int timeBase = ((time - 1) << 18) | massSpaceBase;
+
+                    for (int energy = 1; energy <= 64; energy++) {
+                        int ey = toY(energy);
+                        if (step2(tx, ey, bodyClass)) {
+                            int index = timeBase | (energy - 1);
+                            validAmplified.set(index);
+                            if (!bodyClass.isStellar()) {
+                                validNormal.set(index);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Trigger precomputation early (e.g. when the CFA screen opens) so the first
+     * tooltip query has no delay.
+     */
+    public static void warmup() {
+        ensurePrecomputed();
+    }
+
+    // === Range query for tooltip ===
+
+    /**
+     * Get the valid range [min, max] for one anvil type given partial counts.
+     * Count values of 0 mean "unknown / not placed yet".
+     *
+     * @param time         time anvil count (0 = unknown)
+     * @param space        space anvil count (0 = unknown)
+     * @param mass         mass anvil count (0 = unknown)
+     * @param energy       energy anvil count (0 = unknown)
+     * @param isAmplified  whether amplifier mode is active
+     * @param targetIndex  which anvil type to query (0=time, 1=space, 2=mass, 3=energy)
+     * @return {@code [min, max]} or {@code null} if no valid range exists
+     */
+    public static int @Nullable [] getValidRange(int time, int space, int mass, int energy, boolean isAmplified, int targetIndex) {
+        ensurePrecomputed();
+        BitSet bitset = isAmplified ? validAmplified : validNormal;
+        if (bitset == null) return null;
+
+        int[] counts = {time, space, mass, energy};
+
+        // Fast path: if no other slots have anvils, the full 1–64 range is trivially valid
+        boolean allUnknown = true;
+        for (int i = 0; i < 4; i++) {
+            if (i != targetIndex && counts[i] > 0) {
+                allUnknown = false;
+                break;
+            }
+        }
+        if (allUnknown) return new int[] {1, 64};
+
+        // Collect unknown indices (excluding target)
+        java.util.List<Integer> unknownIndices = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            if (i != targetIndex && counts[i] <= 0) {
+                unknownIndices.add(i);
+            }
+        }
+
+        int min = 65;
+        int max = 0;
+        int[] test = counts.clone();
+
+        for (int candidate = 1; candidate <= 64; candidate++) {
+            test[targetIndex] = candidate;
+            if (anyValid(bitset, test, unknownIndices)) {
+                if (candidate < min) min = candidate;
+                max = candidate;
+            }
+        }
+
+        if (min > max) return null;
+        return new int[] {min, max};
+    }
+
+    /**
+     * Returns true if there exists at least one assignment of the unknown indices
+     * that makes the full 4-tuple valid according to the bitset.
+     */
+    private static boolean anyValid(BitSet bitset, int[] counts, List<Integer> unknownIndices) {
+        if (unknownIndices.isEmpty()) {
+            return bitset.get(encode(counts[0], counts[1], counts[2], counts[3]));
+        }
+        return anyValidRecursive(bitset, counts, unknownIndices, 0);
+    }
+
+    private static boolean anyValidRecursive(BitSet bitset, int[] counts, List<Integer> unknownIndices, int depth) {
+        if (depth == unknownIndices.size()) {
+            return bitset.get(encode(counts[0], counts[1], counts[2], counts[3]));
+        }
+        int idx = unknownIndices.get(depth);
+        for (int val = 1; val <= 64; val++) {
+            counts[idx] = val;
+            if (anyValidRecursive(bitset, counts, unknownIndices, depth + 1)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // === Diagram loading (classloader-based — works server-side) ===

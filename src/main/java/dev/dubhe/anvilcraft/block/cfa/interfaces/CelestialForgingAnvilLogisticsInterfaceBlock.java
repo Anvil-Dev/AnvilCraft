@@ -57,7 +57,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlock extends CelestialForgi
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, ACTIVE);
     }
 
     @Override
@@ -70,7 +70,11 @@ public class CelestialForgingAnvilLogisticsInterfaceBlock extends CelestialForgi
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type
     ) {
-        return null; // No ticking needed
+        if (level.isClientSide()) return null;
+        if (type == ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get()) {
+            return (lvl, pos, st, be) -> ((CelestialForgingAnvilLogisticsInterfaceBlockEntity) be).serverTick();
+        }
+        return null;
     }
 
     @Override

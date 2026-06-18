@@ -1,16 +1,20 @@
 package dev.dubhe.anvilcraft.block.cfa.interfaces;
 
-import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -18,47 +22,33 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class CelestialForgingAnvilInterfaceBlock
+public class CelestialForgingAnvilInterfacePlaceholderBlock
     extends HorizontalDirectionalBlock
     implements IHammerRemovable, IHammerChangeable {
-    public static final BooleanProperty ACTIVE = BlockStateProperties.ENABLED;
-    public static final VoxelShape BASE_NORTH = ShapeUtil.merge(
-        new AABB(0, 0, 2, 16, 4, 16),
-        new AABB(0, 4, 8, 16, 8, 16),
-        new AABB(0, 8, 6, 16, 12, 16),
-        new AABB(7, 2, -1, 9, 3.75, 0),
-        new AABB(3, 0, 0, 13, 1.75, 2),
-        new AABB(5, 0, -2, 11, 1.75, 0),
-        new AABB(7, 0, -4, 9, 1.75, -2)
-    );
 
-    public CelestialForgingAnvilInterfaceBlock(Properties properties) {
+    public CelestialForgingAnvilInterfacePlaceholderBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.getStateDefinition().any()
-            .setValue(FACING, Direction.NORTH)
-            .setValue(ACTIVE, false));
+            .setValue(FACING, Direction.NORTH));
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock,
-                                   BlockPos neighborPos, boolean movedByPiston) {
-        if (!level.isClientSide()) {
-            boolean hasSignal = level.hasNeighborSignal(pos);
-            if (state.getValue(ACTIVE) != hasSignal) {
-                level.setBlock(pos, state.setValue(ACTIVE, hasSignal), 3);
-            }
-        }
+    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+        return simpleCodec(CelestialForgingAnvilInterfacePlaceholderBlock::new);
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
     }
 
     @Override
@@ -72,9 +62,6 @@ public abstract class CelestialForgingAnvilInterfaceBlock
     }
 
     @Override
-    protected abstract void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder);
-
-    @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
         return FACING;
     }
@@ -84,6 +71,42 @@ public abstract class CelestialForgingAnvilInterfaceBlock
         BlockState state = level.getBlockState(blockPos);
         level.setBlockAndUpdate(blockPos, state.cycle(FACING));
         return true;
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack, BlockState state, Level level, BlockPos pos,
+        Player player, InteractionHand hand, BlockHitResult hitResult
+    ) {
+        // If player is holding an interface block item, replace this placeholder with it
+        if (stack.getItem() instanceof CelestialForgingAnvilInterfaceBlockItem interfaceItem) {
+            Block interfaceBlock = interfaceItem.getBlock();
+            if (interfaceBlock instanceof CelestialForgingAnvilInterfaceBlock) {
+                if (level.isClientSide()) {
+                    return ItemInteractionResult.SUCCESS;
+                }
+                Direction facing = state.getValue(FACING);
+                BlockState placementState = interfaceBlock.defaultBlockState()
+                    .setValue(CelestialForgingAnvilInterfaceBlock.FACING, facing)
+                    .setValue(CelestialForgingAnvilInterfaceBlock.ACTIVE, false);
+                level.setBlockAndUpdate(pos, placementState);
+                // Play placement sound
+                SoundType soundType = placementState.getSoundType();
+                level.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS,
+                    (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f);
+                // Consume one interface item if not in creative
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
+                // Return a placeholder item
+                ItemStack placeholderStack = new ItemStack(this);
+                if (!player.getInventory().add(placeholderStack)) {
+                    player.drop(placeholderStack, false);
+                }
+                return ItemInteractionResult.SUCCESS;
+            }
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override

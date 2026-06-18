@@ -419,6 +419,7 @@ public class ModBlockEntities {
         .blockEntity("celestial_forging_anvil_laser_interface",
             CelestialForgingAnvilLaserInterfaceBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE)
+        .renderer(() -> LaserBlockRenderer::new)
         .register();
 
     public static final BlockEntityEntry<TradingStationBlockEntity> TRADING_STATION = REGISTRUM

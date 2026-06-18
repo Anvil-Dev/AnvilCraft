@@ -394,6 +394,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface");
         provider.add("screen.anvilcraft.cfa.interface.empty", "(Empty)");
         provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving: Lv.%s");
+        provider.add("screen.anvilcraft.cfa.laser_interface.received_gamma", "Receiving: Gamma Lv.%s");
+        provider.add("screen.anvilcraft.cfa.laser_interface.emitting", "Emitting: Lv.%s");
+        provider.add("screen.anvilcraft.cfa.laser_interface.emitting_gamma", "Emitting: Gamma Lv.%s");
         provider.add("screen.anvilcraft.cfa.laser_interface.no_laser", "No laser");
         provider.add("screen.anvilcraft.cfa.laser_interface.required", "Required: Lv.%s");
         provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid");
