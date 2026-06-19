@@ -51,11 +51,11 @@ public class CelestialForgingAnvilPortalRenderer implements BlockEntityRenderer<
             default -> 0;
         };
         poseStack.mulPose(Axis.YP.rotationDegrees(yrot));
-        poseStack.translate(-0.5, 0, -0.191);
+        poseStack.translate(-0.5, 0, -0.5);
 
         Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
             poseStack.last(),
-            bufferSource.getBuffer(RenderType.translucent()),
+            bufferSource.getBuffer(RenderType.cutout()),
             null,
             model,
             1.0f, 1.0f, 1.0f,

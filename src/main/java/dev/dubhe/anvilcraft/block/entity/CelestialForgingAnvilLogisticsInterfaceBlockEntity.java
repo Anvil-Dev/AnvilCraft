@@ -36,6 +36,8 @@ import java.util.List;
  */
 public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity {
     private static final int TYPE_COUNT = 16;
+    @Setter
+    private boolean syncing = false; // re-entrancy guard
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(TYPE_COUNT) {
         @Override
@@ -55,6 +57,9 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         @Override
         protected void onContentsChanged(int slot) {
             CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.setChanged();
+            if (!syncing) {
+                CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.triggerWormholeSync(slot);
+            }
         }
     };
 
@@ -96,8 +101,41 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return itemHandler;
     }
 
+    /**
+     * Called from {@code onContentsChanged} when a player inserts or removes items.
+     * Immediately triggers the parent CFA's wormhole sync for this specific interface,
+     * pushing the change to the canonical and to other CFAs in the same tick.
+     */
+    private void triggerWormholeSync(int changedSlot) {
+        if (level == null || level.isClientSide()) return;
+        BlockPos cfaPos = findParentCfa();
+        if (cfaPos == null) return;
+        if (level.getBlockEntity(cfaPos) instanceof CelestialForgingAnvilBlockEntity cfa) {
+            cfa.syncLogisticsOnChange(worldPosition, changedSlot);
+        }
+    }
+
+    /**
+     * Find the parent CFA controller by scanning nearby blocks.
+     */
+    @Nullable
+    private BlockPos findParentCfa() {
+        if (level == null) return null;
+        for (int dx = -5; dx <= 5; dx++) {
+            for (int dz = -5; dz <= 5; dz++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    BlockPos checkPos = worldPosition.offset(dx, dy, dz);
+                    if (level.getBlockEntity(checkPos) instanceof CelestialForgingAnvilBlockEntity) {
+                        return checkPos;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private static final int MAX_EJECT_PER_OP = 64; // Max 1 stack per ejection
-    private static final int EJECT_COOLDOWN = 8;     // 8gt between ejections (like MagneticChute)
+    public static final int EJECT_COOLDOWN = 8;     // 8gt between ejections (like MagneticChute)
 
     @Setter
     private int ejectCooldown = 0;

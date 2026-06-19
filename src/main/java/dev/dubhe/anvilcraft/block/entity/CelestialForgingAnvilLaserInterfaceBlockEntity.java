@@ -1,9 +1,12 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.init.ModHeaterInfos;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
@@ -57,6 +60,10 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Getter
     private int gammaLevel = 0;
 
+    // Wormhole laser output (set by CFA controller's syncWormholeLasers each tick)
+    private int wormholeOutputLevel = 0;
+    private boolean wormholeOutputGamma = false;
+
     // Gamma laser block breaking: required continuous exposure in ticks
     // [disabled, ≥4:3s, ≥8:1s, ≥12:5gt, ≥16:1gt]
     private static final int[] GAMMA_EXPOSURE_TICKS = {
@@ -93,9 +100,30 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         BlockState state = getBlockState();
         if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
             && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
+            if (wormholeOutputLevel > 0) {
+                return wormholeOutputLevel;
+            }
             return 1;
         }
         return 0;
+    }
+
+    /**
+     * Whether this laser interface is in active (redstone-powered) mode.
+     */
+    public boolean isActive() {
+        BlockState state = getBlockState();
+        return state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
+            && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
+    }
+
+    /**
+     * Set the wormhole laser output level and gamma flag.
+     * Called by the CFA controller's {@code syncWormholeLasers()} each tick.
+     */
+    public void setWormholeLaserOutput(int level, boolean gamma) {
+        this.wormholeOutputLevel = level;
+        this.wormholeOutputGamma = gamma;
     }
 
     @Override
@@ -168,6 +196,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     /**
      * Server-side tick called by the block ticker.
      */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public void serverTick() {
         if (level == null || level.isClientSide()) return;
         BlockState state = getBlockState();
@@ -189,12 +218,23 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             clearIrradiateSelfLaserBlockSet();
             updateLaserLevel(0); // clear stale emission level for HUD
         } else if (emittingGamma && gammaLevel > 0) {
-            // Emit gamma laser
+            // Emit gamma laser (Penrose Sphere output)
             Direction facing = getFacing();
             emitGammaLaserBeam(facing);
             // Don't reset emittingGamma yet — tickWithGamma needs it for packet sending
+        } else if (wormholeOutputGamma && wormholeOutputLevel > 0 && active) {
+            // Emit gamma laser via wormhole (summed from passive interfaces across the network).
+            // We borrow gammaLevel for the emission but restore it afterward so Penrose Sphere
+            // state is preserved. emittingGamma is left true so tickWithGamma sends a gamma
+            // packet; it will be reset by the cleanup at the end of serverTick().
+            int savedGammaLevel = this.gammaLevel;
+            this.gammaLevel = wormholeOutputLevel;
+            this.emittingGamma = true;
+            Direction facing = getFacing();
+            emitGammaLaserBeam(facing);
+            this.gammaLevel = savedGammaLevel;
         } else if (active) {
-            // Emit normal laser when active
+            // Emit normal laser when active (includes wormholeOutputLevel via getBaseLaserLevel)
             Direction facing = getFacing();
             // Only emit if not already part of a laser chain
             if (irradiateSelfLaserBlockSet.isEmpty()) {
@@ -219,6 +259,15 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         // Reset gamma emission after packet is sent
         if (emittingGamma) {
             emittingGamma = false;
+        }
+
+        // Register as heat producer if currently hitting a heatable block.
+        // BaseLaserBlockEntity.tick() normally does this, but we override tick()
+        // and only delegate to super on the client, so we must do it here on server.
+        if (level instanceof ServerLevel serverLevel
+            && irradiateBlockPos != null
+            && serverLevel.getBlockState(irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)) {
+            HeaterManager.addProducer(getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
         }
     }
 
@@ -251,15 +300,14 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
     /**
      * Client-side update for normal laser rendering.
-     * Overrides parent to reset gamma flags when a non-gamma packet arrives.
+     * Always calls through to super so that {@code irradiatePos=null} correctly
+     * clears the rendering pipeline (e.g. when redstone is removed).
      */
     @Override
     public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.emittingGamma = false;
         this.gammaLevel = 0;
-        if (irradiateBlockPos != null) {
-            super.clientUpdate(irradiateBlockPos, laserLevel);
-        }
+        super.clientUpdate(irradiateBlockPos, laserLevel);
     }
 
     /**
