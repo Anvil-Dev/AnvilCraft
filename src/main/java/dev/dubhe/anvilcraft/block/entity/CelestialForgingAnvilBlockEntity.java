@@ -8,6 +8,8 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
@@ -155,9 +157,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      */
     private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
     /**
-     * Tracked chunk-loaded connected CFAs, keyed by "dim:x,y,z".
+     * Tracked chunk-loaded connected CFAs, keyed by dimension + position.
      */
-    private final Map<String, dev.dubhe.anvilcraft.api.world.load.LoadChuckData> wormholeLoadedChunks = new HashMap<>();
+    private final Map<WormholeChunkLoadKey, LoadChuckData> wormholeLoadedChunks = new HashMap<>();
+
+    private record WormholeChunkLoadKey(ResourceLocation dimension, BlockPos pos) {}
     // Wormhole canonical interface state is now stored globally in
     // WormholeInterfaceStates (BetterSavedData), shared across the entire network group.
 
@@ -1938,57 +1942,43 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     // === Wormhole interface scanning (public for cross-CFA access) ===
 
     /**
-     * Get all laser interfaces mapped by relative offset from this CFA's controller.
+     * Generic helper: scan adjacent blocks and map any that are instances of the given type
+     * keyed by relative offset from this CFA's controller.
      */
-    public Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> getLaserInterfacesMap() {
-        Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> result = new HashMap<>();
+    private <T extends BlockEntity> Map<BlockPos, T> getInterfacesMap(Class<T> type) {
+        Map<BlockPos, T> result = new HashMap<>();
         if (level == null) return result;
         scanAdjacentBlocks((checkPos) -> {
             BlockEntity be = level.getBlockEntity(checkPos);
-            if (be instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserBe) {
+            if (type.isInstance(be)) {
                 BlockPos relOffset = new BlockPos(
                     checkPos.getX() - worldPosition.getX(), 0,
                     checkPos.getZ() - worldPosition.getZ());
-                result.put(relOffset, laserBe);
+                result.put(relOffset, type.cast(be));
             }
         });
         return result;
+    }
+
+    /**
+     * Get all laser interfaces mapped by relative offset from this CFA's controller.
+     */
+    public Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> getLaserInterfacesMap() {
+        return getInterfacesMap(CelestialForgingAnvilLaserInterfaceBlockEntity.class);
     }
 
     /**
      * Get all logistics interfaces mapped by relative offset from this CFA's controller.
      */
     public Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> getLogisticsInterfacesMap() {
-        Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> result = new HashMap<>();
-        if (level == null) return result;
-        scanAdjacentBlocks((checkPos) -> {
-            BlockEntity be = level.getBlockEntity(checkPos);
-            if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
-                BlockPos relOffset = new BlockPos(
-                    checkPos.getX() - worldPosition.getX(), 0,
-                    checkPos.getZ() - worldPosition.getZ());
-                result.put(relOffset, logiBe);
-            }
-        });
-        return result;
+        return getInterfacesMap(CelestialForgingAnvilLogisticsInterfaceBlockEntity.class);
     }
 
     /**
      * Get all fluid interfaces mapped by relative offset from this CFA's controller.
      */
     public Map<BlockPos, CelestialForgingAnvilFluidInterfaceBlockEntity> getFluidInterfacesMap() {
-        Map<BlockPos, CelestialForgingAnvilFluidInterfaceBlockEntity> result = new HashMap<>();
-        if (level == null) return result;
-        scanAdjacentBlocks((checkPos) -> {
-            BlockEntity be = level.getBlockEntity(checkPos);
-            if (be instanceof CelestialForgingAnvilFluidInterfaceBlockEntity fluidBe) {
-                BlockPos relOffset = new BlockPos(
-                    checkPos.getX() - worldPosition.getX(), 0,
-                    checkPos.getZ() - worldPosition.getZ());
-                result.put(relOffset, fluidBe);
-            }
-        });
-        return result;
+        return getInterfacesMap(CelestialForgingAnvilFluidInterfaceBlockEntity.class);
     }
 
     // === Wormhole content syncing ===
@@ -3168,19 +3158,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         List<WormholeNetwork.Entry> connected = network.getConnected(
             wormholeParamsHash, level.dimension(), worldPosition);
 
-        Set<String> currentKeys = new HashSet<>();
+        Set<WormholeChunkLoadKey> currentKeys = new HashSet<>();
         for (WormholeNetwork.Entry entry : connected) {
             net.minecraft.server.level.ServerLevel targetLevel =
                 level.getServer().getLevel(entry.dimension());
             if (targetLevel == null) continue;
 
-            String key = entry.dimension().location() + ":" + entry.pos().toShortString();
+            WormholeChunkLoadKey key = new WormholeChunkLoadKey(entry.dimension().location(), entry.pos());
             currentKeys.add(key);
 
             if (!wormholeLoadedChunks.containsKey(key)) {
-                var data = dev.dubhe.anvilcraft.api.world.load.LoadChuckData.createLoadChuckData(
+                var data = LoadChuckData.createLoadChuckData(
                     1, entry.pos(), false, targetLevel);
-                dev.dubhe.anvilcraft.api.world.load.LevelLoadManager.register(
+                LevelLoadManager.register(
                     entry.pos(), data, targetLevel);
                 wormholeLoadedChunks.put(key, data);
             }
@@ -3188,16 +3178,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         wormholeLoadedChunks.entrySet().removeIf(e -> {
             if (!currentKeys.contains(e.getKey())) {
-                String key = e.getKey();
-                int lastColon = key.lastIndexOf(':');
-                String[] coords = key.substring(lastColon + 1).split(",");
-                if (coords.length >= 3) {
-                    BlockPos pos = new BlockPos(
-                        Integer.parseInt(coords[0]),
-                        Integer.parseInt(coords[1]),
-                        Integer.parseInt(coords[2]));
-                    dev.dubhe.anvilcraft.api.world.load.LevelLoadManager.unregister(pos, level);
-                }
+                LevelLoadManager.unregister(e.getKey().pos(), level);
                 return true;
             }
             return false;
@@ -3208,16 +3189,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      * Unregister all wormhole chunk loads (called on deactivation).
      */
     private void cleanupWormholeChunkLoading() {
-        for (String key : wormholeLoadedChunks.keySet()) {
-            int lastColon = key.lastIndexOf(':');
-            String[] coords = key.substring(lastColon + 1).split(",");
-            if (coords.length >= 3) {
-                BlockPos pos = new BlockPos(
-                    Integer.parseInt(coords[0]),
-                    Integer.parseInt(coords[1]),
-                    Integer.parseInt(coords[2]));
-                dev.dubhe.anvilcraft.api.world.load.LevelLoadManager.unregister(pos, level);
-            }
+        for (WormholeChunkLoadKey key : wormholeLoadedChunks.keySet()) {
+            LevelLoadManager.unregister(key.pos(), level);
         }
         wormholeLoadedChunks.clear();
     }

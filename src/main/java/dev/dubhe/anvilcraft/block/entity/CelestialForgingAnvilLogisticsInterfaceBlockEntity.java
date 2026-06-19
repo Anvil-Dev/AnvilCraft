@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -116,19 +118,24 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     }
 
     /**
-     * Find the parent CFA controller by scanning nearby blocks.
+     * Find the parent CFA controller by following the FACING direction.
+     * The interface faces AWAY from the CFA, so the adjacent block in the
+     * opposite direction is always a CFA part. From there, HALF offset
+     * navigates to the controller (BOTTOM_CENTER).
      */
     @Nullable
     private BlockPos findParentCfa() {
         if (level == null) return null;
-        for (int dx = -5; dx <= 5; dx++) {
-            for (int dz = -5; dz <= 5; dz++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    BlockPos checkPos = worldPosition.offset(dx, dy, dz);
-                    if (level.getBlockEntity(checkPos) instanceof CelestialForgingAnvilBlockEntity) {
-                        return checkPos;
-                    }
-                }
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof CelestialForgingAnvilInterfaceBlock)) return null;
+        Direction towardsCfa = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING).getOpposite();
+        BlockPos cfaBlockPos = worldPosition.relative(towardsCfa);
+        BlockState cfaState = level.getBlockState(cfaBlockPos);
+        if (cfaState.getBlock() instanceof CelestialForgingAnvilBlock) {
+            Cube323PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
+            BlockPos controllerPos = cfaBlockPos.offset(half.getOffset().multiply(-1));
+            if (level.getBlockEntity(controllerPos) instanceof CelestialForgingAnvilBlockEntity) {
+                return controllerPos;
             }
         }
         return null;
