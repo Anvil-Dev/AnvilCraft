@@ -786,7 +786,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         BakedModel jetModel = minecraft.getModelManager().getModel(UI_NEUTRON_STAR_JET_MODEL);
         if (jetModel == minecraft.getModelManager().getMissingModel()) return;
 
-        float magneticTilt = star.magneticFieldStrength() >= 5 ? 30f : 20f;
+        float magneticTilt = star.magneticFieldStrength() >= 5 ? 15f : 10f;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0.5, 0.5, 0.5);

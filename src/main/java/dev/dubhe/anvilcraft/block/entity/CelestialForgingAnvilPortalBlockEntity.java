@@ -68,16 +68,22 @@ public class CelestialForgingAnvilPortalBlockEntity extends BlockEntity {
         Cube323PartHalf side = findSideFromParent(parent);
         if (side == null) return;
 
-        // Query wormhole network directly to determine if portal should be open
+        // Query wormhole network to determine if portal should be open.
+        // Portal opens only when exactly 2 CFAs in the network group have a portal
+        // on this same side. If there are more (>2), all doors close for security.
         WormholeNetwork network = WormholeNetwork.get();
         int hash = parent.getWormholeParamsHash();
         List<WormholeNetwork.Entry> connected = network.getConnected(
             hash, level.dimension(), parent.getBlockPos()
         );
-        int groupSize = network.getGroupSize(hash);
-        boolean hasMatching = connected.stream()
-            .anyMatch(e -> network.hasPortalAt(e.dimension(), e.pos(), side));
-        boolean shouldBeOpen = groupSize == 2 && hasMatching;
+
+        // Count other CFAs in the group that have a portal on the same side
+        long sameSideCount = connected.stream()
+            .filter(e -> network.hasPortalAt(e.dimension(), e.pos(), side))
+            .count();
+        // Include self (this portal)
+        sameSideCount++;
+        boolean shouldBeOpen = sameSideCount == 2;
 
         BlockState state = getBlockState();
         if (state.getBlock() instanceof CelestialForgingAnvilPortalBlock
@@ -132,9 +138,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BlockEntity {
         List<WormholeNetwork.Entry> connected = network.getConnected(
             parent.getWormholeParamsHash(), level.dimension(), parent.getBlockPos()
         );
-        if (connected.size() != 1) return;
+        // Only teleport if exactly one other CFA has a portal on the same side
+        List<WormholeNetwork.Entry> matching = connected.stream()
+            .filter(e -> network.hasPortalAt(e.dimension(), e.pos(), side))
+            .toList();
+        if (matching.size() != 1) return;
 
-        WormholeNetwork.Entry target = connected.getFirst();
+        WormholeNetwork.Entry target = matching.getFirst();
         if (!network.hasPortalAt(target.dimension(), target.pos(), side)) return;
 
         ServerLevel targetLevel = level.getServer().getLevel(target.dimension());
@@ -178,14 +188,16 @@ public class CelestialForgingAnvilPortalBlockEntity extends BlockEntity {
                 return entry.getKey();
             }
         }
-        // Fallback: compute from position
+        // Fallback: compute from position.
+        // The portal is placed adjacent to the CFA side center, so its offset
+        // from the controller is twice the side center offset (±2 instead of ±1).
         BlockPos cfaPos = parent.getBlockPos();
         int dx = worldPosition.getX() - cfaPos.getX();
         int dz = worldPosition.getZ() - cfaPos.getZ();
-        if (dx == -1 && dz == 0) return Cube323PartHalf.BOTTOM_W;
-        if (dx == 1 && dz == 0) return Cube323PartHalf.BOTTOM_E;
-        if (dx == 0 && dz == -1) return Cube323PartHalf.BOTTOM_N;
-        if (dx == 0 && dz == 1) return Cube323PartHalf.BOTTOM_S;
+        if (dx == -2 && dz == 0) return Cube323PartHalf.BOTTOM_W;
+        if (dx == 2 && dz == 0) return Cube323PartHalf.BOTTOM_E;
+        if (dx == 0 && dz == -2) return Cube323PartHalf.BOTTOM_N;
+        if (dx == 0 && dz == 2) return Cube323PartHalf.BOTTOM_S;
         return null;
     }
 

@@ -411,8 +411,7 @@ public final class CelestialBodyMatcher {
         int[] rgb = getStarColorFromTempDiagram(energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
         int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : randomRotationSpeed(random);
-        // Neutron stars have random axial tilt like planets; other stars don't
-        float axialTilt = bodyClass == CelestialBodyClass.NEUTRON_STAR ? randomAxialTilt(random) : 0f;
+        float axialTilt = 0f;
         return new StarData(
             bodyClass,
             size, rgb[0], rgb[1], rgb[2],

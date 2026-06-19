@@ -35,9 +35,9 @@ public class WormholeNetwork extends BetterSavedData {
     /**
      * A single entry in the wormhole network, identifying one CFA.
      *
-     * @param dimension   the dimension the CFA is in
-     * @param pos         the BOTTOM_CENTER block position of the CFA
-     * @param portalSides which side centers have a Celestial Forging Anvil Portal placed
+     * @param dimension      the dimension the CFA is in
+     * @param pos            the BOTTOM_CENTER block position of the CFA
+     * @param portalSides    which side centers have a Celestial Forging Anvil Portal placed
      */
     public record Entry(ResourceKey<Level> dimension, BlockPos pos, Set<Cube323PartHalf> portalSides) {
 
@@ -194,14 +194,6 @@ public class WormholeNetwork extends BetterSavedData {
         return all.stream()
             .filter(e -> !(e.dimension.equals(selfDim) && e.pos.equals(selfPos)))
             .toList();
-    }
-
-    /**
-     * Get the total number of CFAs in this hash group (including self).
-     */
-    public int getGroupSize(int paramsHash) {
-        List<Entry> entries = network.getOrDefault(paramsHash, List.of());
-        return entries.size();
     }
 
     // ==================== Hash computation ====================
