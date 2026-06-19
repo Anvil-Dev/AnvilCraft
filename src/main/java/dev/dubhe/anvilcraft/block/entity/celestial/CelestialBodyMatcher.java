@@ -492,6 +492,44 @@ public final class CelestialBodyMatcher {
         return new int[] {r, g, b};
     }
 
+    // === Public diagram pixel lookups (for UI guide display) ===
+
+    /**
+     * Get the RGB color from the mass-radius diagram at (mass, space).
+     * Returns 0x000000 for black (no match).
+     */
+    public static int getMassRadiusRgb(int mass, int space) {
+        ensureLoaded();
+        return getRgb(massRadiusImage, toX(mass), toY(space));
+    }
+
+    /**
+     * Get the RGB color from the age-temp diagram at (time, energy).
+     * Returns 0x000000 for black (no match).
+     */
+    public static int getAgeTempRgb(int time, int energy) {
+        ensureLoaded();
+        return getRgb(ageTempImage, toX(time), toY(energy));
+    }
+
+    /**
+     * Get the RGB color from the age-temp-sp diagram at (time, energy).
+     * Returns 0x000000 for black (no match).
+     */
+    public static int getAgeTempSpRgb(int time, int energy) {
+        ensureLoaded();
+        return getRgb(ageTempSpImage, toX(time), toY(energy));
+    }
+
+    /**
+     * Get the RGB color from the age-radius diagram at (time, space).
+     * Returns 0x000000 for black (no match).
+     */
+    public static int getAgeRadiusRgb(int time, int space) {
+        ensureLoaded();
+        return getRgb(ageRadiusImage, toX(time), toY(space));
+    }
+
     // === Pixel scanning for stellar evolution accelerator ===
 
     /**
