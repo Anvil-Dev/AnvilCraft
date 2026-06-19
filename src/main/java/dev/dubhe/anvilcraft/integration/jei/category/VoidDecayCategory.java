@@ -55,13 +55,13 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
     private final Map<VoidDecayRecipe, LevelLike> cache = new HashMap<>();
 
     private static final ImmutableList<BlockPos> CATALYST_POS = ImmutableList.of(
-        new BlockPos(1, 0, 1),
-        new BlockPos(1, 1, 0),
-        new BlockPos(1, 1, 2),
-        new BlockPos(1, 2, 1),
-        new BlockPos(0, 1, 1)
+        new BlockPos(0, -1, 0),
+        new BlockPos(0, 0, -1),
+        new BlockPos(0, 0, 1),
+        new BlockPos(0, 1, 0),
+        new BlockPos(-1, 0, 0)
     );
-    private static final BlockPos CENTER_POS = new BlockPos(1, 1, 1);
+    private static final BlockPos CENTER_POS = new BlockPos(0, 0, 0);
 
     public VoidDecayCategory(IGuiHelper helper) {
         this.slot = JeiRenderHelper.getSlotChoice(helper);
@@ -142,7 +142,7 @@ public class VoidDecayCategory implements IRecipeCategory<VoidDecayRecipe> {
             level = showCase;
         }
 
-        RenderSupport.renderLevelLike(level, graphics, 24, 36, 60, 0.5F);
+        RenderSupport.renderLevelLike(level, graphics, 0, 8, 60, 16, 2f, false);
 
         this.slot.draw(graphics, 7, 83);
         this.slot.draw(graphics, 7, 101);
