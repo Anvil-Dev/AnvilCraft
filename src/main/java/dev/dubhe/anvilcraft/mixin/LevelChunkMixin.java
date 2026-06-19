@@ -60,10 +60,10 @@ public abstract class LevelChunkMixin {
 
     @WrapOperation(
         method = "getBlockEntity("
-                 + "Lnet/minecraft/core/BlockPos;"
-                 + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;"
-                 + ")"
-                 + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
+            + "Lnet/minecraft/core/BlockPos;"
+            + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;"
+            + ")"
+            + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
         at = @At(
             value = "INVOKE",
             target = "Ljava/util/Map;remove(Ljava/lang/Object;)Ljava/lang/Object;",
@@ -84,7 +84,11 @@ public abstract class LevelChunkMixin {
         method = "removeBlockEntity",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;setRemoved()V")
     )
-    private void onRemoveBlockEntity(BlockPos pos, CallbackInfo ci, @Local(name = "removeThis") @Nullable BlockEntity removeThis) {
+    private void onRemoveBlockEntity(
+        BlockPos pos,
+        CallbackInfo ci,
+        @Local(name = "removeThis") @Nullable BlockEntity removeThis
+    ) {
         if (this.getLevel().isClientSide()) return;
         if (removeThis != null) {
             NeoForge.EVENT_BUS.post(new BlockEntityEvent.ServerUnload(this.getLevel(), removeThis));
@@ -109,9 +113,9 @@ public abstract class LevelChunkMixin {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/level/block/entity/BlockEntity;"
-                     + "preRemoveSideEffects("
-                     + "Lnet/minecraft/core/BlockPos;"
-                     + "Lnet/minecraft/world/level/block/state/BlockState;)V"
+                + "preRemoveSideEffects("
+                + "Lnet/minecraft/core/BlockPos;"
+                + "Lnet/minecraft/world/level/block/state/BlockState;)V"
         )
     )
     private void storeValuesIfExtensible(
@@ -119,8 +123,13 @@ public abstract class LevelChunkMixin {
         BlockPos pos,
         BlockState state,
         Operation<Void> original,
-        @Share(namespace = AnvilCraft.MOD_ID, value = "convertable") LocalRef<@Nullable ConvertableBlockEntityEntry<?>> entry
+        @Share(namespace = AnvilCraft.MOD_ID, value = "convertable") LocalRef<@Nullable ConvertableBlockEntityEntry<?>> entry,
+        @Local(argsOnly = true) BlockState newState
     ) {
+        if (newState.isAir()) {
+            original.call(instance, pos, state);
+            return;
+        }
         if (!(instance instanceof IConvertableBlockEntity<?> convertable)) {
             original.call(instance, pos, state);
             return;
@@ -133,7 +142,7 @@ public abstract class LevelChunkMixin {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/level/chunk/LevelChunk;"
-                     + "addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"
+                + "addAndRegisterBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V"
         )
     )
     private void extendEntityIfValid(

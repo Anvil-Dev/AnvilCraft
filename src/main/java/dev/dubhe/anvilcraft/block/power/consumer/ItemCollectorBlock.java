@@ -84,19 +84,6 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     ) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         if (level.getBlockEntity(pos) instanceof ItemCollectorBlockEntity entity) {
-
-            List<ChunkPos> chunkPosList = entity.getPoachingMapPositions(8);
-            for (ChunkPos chunkPos : chunkPosList) {
-                if (
-                    ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.containsKey(level)
-                    && ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level).containsKey(chunkPos)
-                ) {
-                    List<ItemCollectorBlockEntity> list = ItemCollectorBlockEntity.POACHING_COLLECTOR_MAP.get(level).get(chunkPos);
-                    list.remove(entity);
-                }
-            }
-            entity.setRemoved();
-
             Vec3 vec3 = entity.getBlockPos().getCenter();
             ResourceHandler<ItemResource> depository = entity.getItemHandler();
             for (int slot = 0; slot < depository.size(); slot++) {

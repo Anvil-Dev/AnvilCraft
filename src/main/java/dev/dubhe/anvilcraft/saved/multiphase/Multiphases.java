@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.util.recover.RecoverStation;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.neoforged.neoforge.network.PacketDistributor;

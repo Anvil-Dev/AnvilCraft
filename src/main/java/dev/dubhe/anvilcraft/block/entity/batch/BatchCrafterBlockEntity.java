@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -147,6 +148,12 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         }
         level.updateNeighborsAt(this.getBlockPos(), ModBlocks.BATCH_CRAFTER.get());
         return true;
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        Containers.dropContents(this.level, pos, this.getFilteredItemStackHandler().getStacks());
     }
 
     @Nullable

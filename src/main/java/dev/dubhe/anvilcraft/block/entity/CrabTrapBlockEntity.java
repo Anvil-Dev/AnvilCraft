@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.Containers;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,5 +29,11 @@ public class CrabTrapBlockEntity extends BlockEntity implements IItemResourceHan
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.itemHandler.deserialize(input.childOrEmpty("Inventory"));
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        Containers.dropContents(this.level, pos, this.itemHandler.copyToList());
     }
 }

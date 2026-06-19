@@ -467,12 +467,7 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        FilteredItemStackHandler depository = this.getFilteredItemStackHandler();
-        for (int slot = 0; slot < depository.size(); slot++) {
-            ItemStack stack = depository.getStacks().get(slot).copy();
-            if (!stack.isEmpty()) {
-                Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), stack);
-            }
-        }
+        super.preRemoveSideEffects(pos, state);
+        Containers.dropContents(this.level, pos, this.getFilteredItemStackHandler().getStacks());
     }
 }
