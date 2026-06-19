@@ -860,11 +860,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void setAmplify(boolean amplify) {
         if (this.isAmplify != amplify) {
             this.isAmplify = amplify;
-            if (!amplify && celestialBodyData instanceof StarData) {
-                this.locked = true; // Lock when amplifier removed with stellar body
-            }
             if (level != null && !level.isClientSide()) {
-                randomizeBody();
+                if (celestialBodyData instanceof StarData) {
+                    if (!amplify) {
+                        this.locked = true; // Lock when amplifier removed with stellar body
+                    }
+                }
             }
             this.setChanged();
             if (level != null) {
