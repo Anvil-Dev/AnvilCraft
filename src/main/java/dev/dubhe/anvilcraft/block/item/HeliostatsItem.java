@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
-import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.HeliostatsData;
@@ -15,22 +15,25 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class HeliostatsItem extends BlockItem {
+public class HeliostatsItem extends PlacementIntervalsBlockItem {
     public HeliostatsItem(Block block, Properties properties) {
         super(block, properties);
+    }
+
+    @Override
+    public int getIntervalsRadius() {
+        return 1;
     }
 
     /**
@@ -111,23 +114,49 @@ public class HeliostatsItem extends BlockItem {
         return ModBlocks.HELIOSTATS.getDefaultState().getSoundType(world, pos, entity).getPlaceSound();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
-        if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
-            && hasDataStored(context.getItemInHand())) {
-            deleteData(context.getItemInHand());
-            return InteractionResult.SUCCESS;
+        BlockPos clickedPos = context.getClickedPos();
+        ItemStack itemInHand = context.getItemInHand();
+        BlockState blockState = level.getBlockState(clickedPos);
+        Player player = context.getPlayer();
+        if (player == null) {
+            return InteractionResult.PASS;
         }
-        BlockState blockState = level.getBlockState(context.getClickedPos());
-        if (blockState.is(Blocks.NETHERITE_BLOCK)
-            || blockState.getBlock() instanceof HeatableBlock
-        ) {
-            ItemStack stack = context.getItemInHand();
-            if (hasDataStored(stack)) {
-                InteractionResult result = super.useOn(context);
-                if (result != InteractionResult.FAIL) {
+        if (player.isShiftKeyDown()) {
+            if (hasDataStored(itemInHand)) {
+                deleteData(itemInHand);
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        }
+        if (blockState.is(this.getBlock())) {
+            if (hasDataStored(itemInHand)) {
+                if (level.getBlockEntity(clickedPos) instanceof HeliostatsBlockEntity blockEntity) {
+                    BlockPos irritatePos = blockEntity.getIrritatePos();
+                    if (irritatePos == null) {
+                        blockEntity.setIrritatePos(getData(itemInHand));
+                        return InteractionResult.SUCCESS;
+                    } else {
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+            } else {
+                if (level.getBlockEntity(clickedPos) instanceof HeliostatsBlockEntity blockEntity) {
+                    BlockPos irritatePos = blockEntity.getIrritatePos();
+                    if (irritatePos == null) {
+                        return InteractionResult.SUCCESS;
+                    } else {
+                        itemInHand.set(ModComponents.HELIOSTATS_DATA, new HeliostatsData(irritatePos));
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+            }
+        }
+        if (blockState.is(ModBlockTags.HEATABLE_BLOCKS)) {
+            if (hasDataStored(itemInHand)) {
+                InteractionResult interactionResult = super.useOn(context);
+                if (interactionResult != InteractionResult.FAIL) {
                     level.playSound(
                         context.getPlayer(),
                         context.getClickedPos(),
@@ -135,20 +164,21 @@ public class HeliostatsItem extends BlockItem {
                         SoundSource.BLOCKS
                     );
                 }
-                return result;
+                return interactionResult;
             } else {
-                BlockPos clickPos = context.getClickedPos();
-                stack.set(ModComponents.HELIOSTATS_DATA, new HeliostatsData(clickPos));
+                itemInHand.set(ModComponents.HELIOSTATS_DATA, new HeliostatsData(clickedPos));
             }
             return InteractionResult.SUCCESS;
-        } else {
-            return super.useOn(context);
         }
+        return super.useOn(context);
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(
-        Level level, Player player, InteractionHand usedHand) {
+        Level level,
+        Player player,
+        InteractionHand usedHand
+    ) {
         if (!level.isClientSide && player.isShiftKeyDown()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
             if (hasDataStored(itemStack)) {
