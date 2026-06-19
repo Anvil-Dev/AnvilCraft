@@ -410,6 +410,8 @@
   "block.anvilcraft.incandescent_netherite_block": "ǝʇᴉɹǝɥʇǝN ɟo ʞɔoꞁᗺ ʇuǝɔsǝpuɐɔuI",
   "block.anvilcraft.incandescent_tungsten_block": "uǝʇsᵷun⟘ ɟo ʞɔoꞁᗺ ʇuǝɔsǝpuɐɔuI",
   "block.anvilcraft.induction_light": "ʇɥᵷᴉꞀ uoᴉʇɔnpuI",
+  "block.anvilcraft.infinite_collector": "ɹoʇɔǝꞁꞁoƆ ǝʇᴉuᴉɟuI",
+  "block.anvilcraft.infinite_collector.placement_too_close_to_another": "ɹoʇɔǝꞁꞁoɔ ǝʇᴉuᴉɟuᴉ ɹǝɥʇouɐ oʇ ǝsoꞁɔ oo⟘",
   "block.anvilcraft.item_collector": "ɹoʇɔǝꞁꞁoƆ ɯǝʇI",
   "block.anvilcraft.item_detector": "ɹoʇɔǝʇǝᗡ ɯǝʇI",
   "block.anvilcraft.jewelcrafting_table": "ǝꞁqɐ⟘ ᵷuᴉʇɟɐɹƆ ꞁǝʍǝՐ",

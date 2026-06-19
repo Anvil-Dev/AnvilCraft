@@ -410,6 +410,8 @@
   "block.anvilcraft.incandescent_netherite_block": "Incandescent Block of Netherite",
   "block.anvilcraft.incandescent_tungsten_block": "Incandescent Block of Tungsten",
   "block.anvilcraft.induction_light": "Induction Light",
+  "block.anvilcraft.infinite_collector": "Infinite Collector",
+  "block.anvilcraft.infinite_collector.placement_too_close_to_another": "Too close to another infinite collector",
   "block.anvilcraft.item_collector": "Item Collector",
   "block.anvilcraft.item_detector": "Item Detector",
   "block.anvilcraft.jewelcrafting_table": "Jewel Crafting Table",

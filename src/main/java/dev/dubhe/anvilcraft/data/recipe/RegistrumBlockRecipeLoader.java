@@ -2124,4 +2124,19 @@ public class RegistrumBlockRecipeLoader {
                 RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
             .save(provider);
     }
+
+    public static <T extends Block> void infiniteCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern(" C ")
+            .pattern("CHC")
+            .pattern("TTT")
+            .define('C', ModBlocks.CHARGE_COLLECTOR)
+            .define('H', ModBlocks.HEAT_COLLECTOR)
+            .define('T', ModItems.TRANSCENDIUM_INGOT)
+            .unlockedBy("has_charge_collector", AnvilCraftDatagen.has(ModBlocks.CHARGE_COLLECTOR))
+            .unlockedBy("has_heat_collector", AnvilCraftDatagen.has(ModBlocks.HEAT_COLLECTOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
+            .save(provider);
+    }
 }

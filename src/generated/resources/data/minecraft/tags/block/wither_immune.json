@@ -25,6 +25,7 @@
     "anvilcraft:confined_space_anvilon",
     "anvilcraft:confined_mass_anvilon",
     "anvilcraft:confined_energy_anvilon",
-    "anvilcraft:confinement_chamber"
+    "anvilcraft:confinement_chamber",
+    "anvilcraft:infinite_collector"
   ]
 }

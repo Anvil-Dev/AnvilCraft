@@ -124,6 +124,7 @@ public class ScreenLang {
         provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");
 
+        provider.add("block.anvilcraft.infinite_collector.placement_too_close_to_another", "Too close to another infinite collector");
         provider.add("block.anvilcraft.void_energy_collector.placement_too_close_to_another", "Too close to another void energy collector");
 
         provider.add("screen.anvilcraft.active_silencer.title", "Active Silencer");

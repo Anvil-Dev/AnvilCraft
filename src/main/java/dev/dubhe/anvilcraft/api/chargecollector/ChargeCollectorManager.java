@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.chargecollector;
 
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 public class ChargeCollectorManager {
     private static final Map<Level, ChargeCollectorManager> INSTANCES = new HashMap<>();
     private final Map<BlockPos, ChargeCollectorBlockEntity> chargeCollectors = new HashMap<>();
+    private final Map<BlockPos, InfiniteCollectorBlockEntity> infiniteCollectors = new HashMap<>();
 
     @Getter
     private final Level level;
@@ -57,9 +59,15 @@ public class ChargeCollectorManager {
         Collection<Entry> chargeCollectorCollection = this.getNearestChargeCollect(blockPos);
         double surplus = chargeNum;
         for (Entry entry : chargeCollectorCollection) {
-            ChargeCollectorBlockEntity chargeCollectorBlockEntity = entry.getBlockEntity();
-            if (!this.canCollect(chargeCollectorBlockEntity, blockPos)) return;
-            surplus = chargeCollectorBlockEntity.incomingCharge(surplus, blockPos);
+            if (entry.isInfinite()) {
+                InfiniteCollectorBlockEntity ic = entry.getInfiniteCollector();
+                if (!this.canCollect(ic, blockPos)) continue;
+                surplus = ic.incomingCharge(surplus, blockPos);
+            } else {
+                ChargeCollectorBlockEntity cc = entry.getChargeCollector();
+                if (!this.canCollect(cc, blockPos)) continue;
+                surplus = cc.incomingCharge(surplus, blockPos);
+            }
             if (surplus == 0) return;
         }
     }
@@ -79,7 +87,21 @@ public class ChargeCollectorManager {
     }
 
     /**
-     * 获取最近的集电器的List集合(以从近至远排序)
+     * 添加新的无限收集器
+     */
+    public void addInfiniteCollector(InfiniteCollectorBlockEntity blockEntity) {
+        infiniteCollectors.put(blockEntity.getBlockPos(), blockEntity);
+    }
+
+    /**
+     * 删除无限收集器
+     */
+    public void removeInfiniteCollector(InfiniteCollectorBlockEntity blockEntity) {
+        infiniteCollectors.remove(blockEntity.getBlockPos());
+    }
+
+    /**
+     * 获取最近的收集器的List集合(以从近至远排序)
      */
     public List<Entry> getNearestChargeCollect(BlockPos blockPos) {
         List<Entry> distanceList = new ArrayList<>();
@@ -92,7 +114,18 @@ public class ChargeCollectorManager {
                 blockPos.getY(),
                 blockPos.getZ()
             );
-            distanceList.add(new Entry(distance, entry.getValue()));
+            distanceList.add(new Entry(distance, entry.getValue(), null));
+        }
+        for (Map.Entry<BlockPos, InfiniteCollectorBlockEntity> entry : infiniteCollectors.entrySet()) {
+            double distance = Vector3f.distance(
+                entry.getKey().getX(),
+                entry.getKey().getY(),
+                entry.getKey().getZ(),
+                blockPos.getX(),
+                blockPos.getY(),
+                blockPos.getZ()
+            );
+            distanceList.add(new Entry(distance, null, entry.getValue()));
         }
         return distanceList.stream()
             .sorted(Comparator.comparing(Entry::getDistance))
@@ -115,14 +148,38 @@ public class ChargeCollectorManager {
             && blockEntity.getPos().getZ() + 2 >= blockPos.getZ();
     }
 
+    /**
+     * 判断是否能被无限收集器收集
+     *
+     * @param blockEntity 无限收集器方块实体
+     * @param blockPos    电荷的位置
+     * @return 是否能被收集
+     */
+    public boolean canCollect(InfiniteCollectorBlockEntity blockEntity, BlockPos blockPos) {
+        int range = blockEntity.getRange();
+        return blockEntity.getPos().getX() - range <= blockPos.getX()
+            && blockEntity.getPos().getY() - range <= blockPos.getY()
+            && blockEntity.getPos().getZ() - range <= blockPos.getZ()
+            && blockEntity.getPos().getX() + range >= blockPos.getX()
+            && blockEntity.getPos().getY() + range >= blockPos.getY()
+            && blockEntity.getPos().getZ() + range >= blockPos.getZ();
+    }
+
     @Getter
     public static class Entry {
         public final double distance;
-        public final ChargeCollectorBlockEntity blockEntity;
+        public final ChargeCollectorBlockEntity chargeCollector;
+        public final InfiniteCollectorBlockEntity infiniteCollector;
 
-        public Entry(Double distance, ChargeCollectorBlockEntity blockEntity) {
+        public Entry(double distance, ChargeCollectorBlockEntity chargeCollector, InfiniteCollectorBlockEntity infiniteCollector) {
             this.distance = distance;
-            this.blockEntity = blockEntity;
+            this.chargeCollector = chargeCollector;
+            this.infiniteCollector = infiniteCollector;
         }
+
+        public boolean isInfinite() {
+            return this.infiniteCollector != null;
+        }
+
     }
 }
