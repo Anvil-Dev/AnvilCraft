@@ -410,7 +410,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private boolean hasEnoughPower() {
         if (grid == null) return false;
         int required = getInputPower();
-        return required <= 0 || grid.getRemaining() >= required;
+        return required <= 0 || grid.isWorking();
     }
 
     @Getter
