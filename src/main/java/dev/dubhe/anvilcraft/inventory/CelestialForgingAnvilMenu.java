@@ -83,7 +83,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             boolean moved = false;
             for (int i = 0; i < ANVIL_SLOTS; i++) {
                 Slot anvilSlot = this.slots.get(i);
-                if (anvilSlot.mayPlace(stack) && anvilSlot.getItem().isEmpty()) {
+                if (anvilSlot.mayPlace(stack)) {
                     if (this.moveItemStackTo(stack, i, i + 1, false)) {
                         moved = true;
                         break;

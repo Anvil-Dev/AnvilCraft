@@ -912,6 +912,17 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.bodySeed = level.getRandom().nextLong();
         this.stellarMass = mass;
 
+        // Verify seed item is still present — if player removed it during the search,
+        // clear captured data so we fall through to normal matching instead of granting
+        // a special planet without deducting the seed item.
+        if (lastConsumedSeedItem != null || lastConsumedSeedNbt != null) {
+            ItemStack seedStack = this.anvilInventory.getItem(4);
+            if (seedStack.isEmpty()) {
+                this.lastConsumedSeedItem = null;
+                this.lastConsumedSeedNbt = null;
+            }
+        }
+
         // First: check for seed item snapshot (disk / singularity crystal)
         if (lastConsumedSeedNbt != null && lastConsumedSeedNbt.contains("celestialBody")) {
             applySnapshot(lastConsumedSeedNbt);
