@@ -129,7 +129,7 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
     ) {
         LevelLike level = this.cache.get(recipe);
         int layers = recipe.cursedGoldBlockLayers;
-        if (true || level == null) {
+        if (level == null) {
             LevelLike beaconBase = new LevelLike(Objects.requireNonNull(Minecraft.getInstance().level));
 
             for (int i = 0; i < layers; i++) {
