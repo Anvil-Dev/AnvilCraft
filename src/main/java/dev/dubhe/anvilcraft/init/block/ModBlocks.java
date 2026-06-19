@@ -13,6 +13,8 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.FeCollectorBlock;
+import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
+import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -919,6 +921,38 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
+        .register();
+
+    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
+        .block("smart_block_placer", SmartBlockPlacerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(() -> (ctx, generator) -> {
+            Identifier bottom = ctx.getId().withPrefix("block/").withSuffix("_bottom");
+            Identifier off = ctx.getId().withPrefix("block/").withSuffix("_bottom_off");
+            Identifier overload = ctx.getId().withPrefix("block/").withSuffix("_bottom_overload");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatchWrap.initial(SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED)
+                    .select(true, true, BlockModelGenerators.plainVariant(overload))
+                    .select(true, false, BlockModelGenerators.plainVariant(overload))
+                    .select(false, true, BlockModelGenerators.plainVariant(off))
+                    .select(false, false, BlockModelGenerators.plainVariant(bottom))
+                    .dispatch())
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
+        .register();
+
+    public static final BlockEntry<StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::structureScanner)
         .register();
 
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)

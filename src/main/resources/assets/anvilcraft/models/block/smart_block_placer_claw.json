@@ -1,0 +1,78 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"claw1": "anvilcraft:block/crab_claw",
+		"claw2": "anvilcraft:block/crab_claw_in",
+		"claw3": "anvilcraft:block/crab_claw_movable",
+		"claw4": "anvilcraft:block/crab_claw_movable_in",
+		"particle": "anvilcraft:block/smart_block_placer_arms"
+	},
+	"elements": [
+		{
+			"from": [5, 21, -1],
+			"to": [11, 27, 9],
+			"rotation": {"angle": -45, "axis": "x", "origin": [8, 21, 6]},
+			"faces": {
+				"north": {"uv": [10, 0, 16, 6], "texture": "#claw1"},
+				"east": {"uv": [10, 5, 0, 11], "texture": "#claw1"},
+				"south": {"uv": [10, 6, 16, 12], "texture": "#claw1"},
+				"west": {"uv": [0, 5, 10, 11], "texture": "#claw1"},
+				"up": {"uv": [10, 0, 0, 6], "rotation": 270, "texture": "#claw1"},
+				"down": {"uv": [10, 10, 0, 16], "rotation": 90, "texture": "#claw1"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [11, 27, 6],
+			"to": [5, 21, -1],
+			"rotation": {"angle": -45, "axis": "x", "origin": [8, 21, 6]},
+			"faces": {
+				"north": {"uv": [10, 12, 16, 6], "texture": "#claw2"},
+				"east": {"uv": [0, 11, 10, 5], "texture": "#claw2"},
+				"south": {"uv": [10, 6, 16, 0], "texture": "#claw2"},
+				"west": {"uv": [7, 11, 0, 5], "texture": "#claw2"},
+				"up": {"uv": [7, 16, 0, 10], "rotation": 90, "texture": "#claw2"},
+				"down": {"uv": [7, 6, 0, 0], "rotation": 270, "texture": "#claw2"}
+			}
+		},
+		{
+			"from": [5.5, 21.1, -0.9],
+			"to": [10.5, 23.1, 6.1],
+			"rotation": {"angle": -45, "axis": "x", "origin": [8, 21.1, 5.1]},
+			"faces": {
+				"north": {"uv": [7, 0, 12, 2], "texture": "#claw3"},
+				"east": {"uv": [7, 5, 0, 7], "texture": "#claw3"},
+				"south": {"uv": [7, 5, 12, 7], "texture": "#claw3"},
+				"west": {"uv": [0, 5, 7, 7], "texture": "#claw3"},
+				"up": {"uv": [0, 0, 7, 5], "rotation": 90, "texture": "#claw3"},
+				"down": {"uv": [0, 7, 7, 12], "rotation": 270, "texture": "#claw3"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [10.5, 23.1, 4.1],
+			"to": [5.5, 21.1, -0.9],
+			"rotation": {"angle": -45, "axis": "x", "origin": [8, 21.1, 5.1]},
+			"faces": {
+				"north": {"uv": [7, 7, 12, 5], "texture": "#claw4"},
+				"east": {"uv": [0, 7, 5, 5], "texture": "#claw4"},
+				"south": {"uv": [7, 2, 12, 0], "texture": "#claw4"},
+				"west": {"uv": [5, 7, 0, 5], "texture": "#claw4"},
+				"up": {"uv": [0, 12, 5, 7], "rotation": 270, "texture": "#claw4"},
+				"down": {"uv": [0, 5, 5, 0], "rotation": 90, "texture": "#claw4"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 5.1, 9.1],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1, 2, 3]
+		}
+	]
+}

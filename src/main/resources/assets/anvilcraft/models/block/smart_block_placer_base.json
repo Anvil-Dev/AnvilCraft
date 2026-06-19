@@ -1,0 +1,39 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"5": "anvilcraft:block/smart_block_placer_base",
+		"6": "anvilcraft:block/smart_block_placer_sides",
+		"7": "anvilcraft:block/smart_block_placer_top",
+		"particle": "anvilcraft:block/smart_block_placer_arms"
+	},
+	"elements": [
+		{
+			"from": [2, 4, 2],
+			"to": [14, 8, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 6, 8]},
+			"faces": {
+				"north": {"uv": [2, 4, 14, 8], "texture": "#6"},
+				"east": {"uv": [2, 4, 14, 8], "texture": "#6"},
+				"south": {"uv": [2, 4, 14, 8], "texture": "#6"},
+				"west": {"uv": [2, 4, 14, 8], "texture": "#6"},
+				"up": {"uv": [0, 0, 12, 12], "texture": "#7"},
+				"down": {"uv": [2, 2, 14, 14], "rotation": 180, "texture": "#5"}
+			}
+		},
+		{
+			"from": [8, 8, 4],
+			"to": [12, 12, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 10, 8]},
+			"faces": {
+				"north": {"uv": [16, 0, 12, 4], "texture": "#6"},
+				"east": {"uv": [4, 0, 12, 4], "texture": "#6"},
+				"south": {"uv": [12, 0, 16, 4], "texture": "#6"},
+				"west": {"uv": [4, 0, 12, 4], "texture": "#6"},
+				"up": {"uv": [12, 0, 16, 8], "texture": "#7"}
+			}
+		}
+	]
+}
