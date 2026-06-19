@@ -149,10 +149,10 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilFluidInter
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfacePlaceholderBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
-import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
@@ -167,8 +167,8 @@ import dev.dubhe.anvilcraft.block.item.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
-import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
+import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
 import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.block.item.MultiphaseMatterBlockItem;
@@ -4152,7 +4152,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<InfiniteCollectorBlock> INFINITE_COLLECTOR = REGISTRUM.block("infinite_collector", InfiniteCollectorBlock::new)
+    public static final BlockEntry<InfiniteCollectorBlock> INFINITE_COLLECTOR =
+        REGISTRUM.block("infinite_collector", InfiniteCollectorBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p
             .noOcclusion()
