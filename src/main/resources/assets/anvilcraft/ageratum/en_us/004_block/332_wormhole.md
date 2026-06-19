@@ -1,10 +1,12 @@
 ---
 navigation:
-  title: "§5Celestial Forging Anvil: Wormhole (Incomplete)"
+  title: "§5Celestial Forging Anvil: Wormhole"
   icon: "anvilcraft:black_hole"
+items:
+  - anvilcraft:celestial_forging_anvil_portal
 ---
 
-# Wormhole (Incomplete)
+# Wormhole
 
 - Created from <ref item="anvilcraft:celestial_forging_anvil"/>
 - All [Identical Celestial Bodies](331_celestial_forging_anvil.md#identical-celestial-bodies) with *Wormhole* are connected to each other
@@ -17,7 +19,7 @@ navigation:
 # Logistics Transport
 
 - For connected <ref item="anvilcraft:celestial_forging_anvil"/>, the same positions around them can only have the same type of [Interface](331_celestial_forging_anvil.md#using-interfaces) placed
-- At this point, interfaces at the same position share storage, achieving unlimited transport range
+- At this point, interfaces at the same position share storage, achieving wireless transmission
 
 # Entity Teleportation
 

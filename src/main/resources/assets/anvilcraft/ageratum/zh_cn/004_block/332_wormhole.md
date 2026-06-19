@@ -1,10 +1,12 @@
 ---
 navigation:
-  title: "§5锻星砧：虫洞（未完成）"
+  title: "§5锻星砧：虫洞"
   icon: "anvilcraft:black_hole"
+items:
+  - anvilcraft:celestial_forging_anvil_portal
 ---
 
-# 虫洞（未完成）
+# 虫洞
 
 - 创建自<ref item="anvilcraft:celestial_forging_anvil"/>
 - 所有拥有*虫洞*的[全同黑洞](331_celestial_forging_anvil.md#全同天体)会相互连接
@@ -17,7 +19,7 @@ navigation:
 # 物流传输
 
 - 被连接的<ref item="anvilcraft:celestial_forging_anvil"/>，周围的同一个位置，只能放上相同种类的[接口](331_celestial_forging_anvil.md#使用接口)
-- 此时，同位接口之间共享存储，达到无限传输的功能
+- 此时，同位接口之间共享存储，拥有无线传输的功能
 
 # 实体传送
 

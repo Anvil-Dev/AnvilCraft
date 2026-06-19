@@ -143,10 +143,10 @@ Note that even with a level 64 laser input into one interface, it still counts a
 |:-------------------:|:------------------------:|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |    Ring Collider    |        Small star        |   Power 4MW   | Executes [Anvil Impact Crafting](215_large_electromagnet.md#anvil-impact-crafting) recipes. The stronger the star's gravity and magnetic field, the faster it works; the higher the speed required by the recipe, the slower it works |
 |    Dyson Sphere     |           Star           |   Power 4MW   |                                                           Continuously generates power. Power output is positively correlated with the celestial body's *energy* and *size*                                                           |
-|    Magnetar Coil    |       Neutron star       |   Power 4MW   |                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                              |
-|   Penrose Sphere    |        Black hole        |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
-| Matter Decompressor | Neutron star, black hole | *Gamma Laser* |                                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole)                                                                 |
 | Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                    Accelerates stellar evolution                                                                     |
+|    Magnetar Coil    |       Neutron star       |   Power 4MW   |                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                              |
+| Matter Decompressor | Neutron star, black hole | *Gamma Laser* |                                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole)                                                                 |
+|   Penrose Sphere    |        Black hole        |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
 |   Wormhole Stabilizer   |        Black hole        |     None      |                                                                           [Wormhole](332_wormhole.md)                                                                            |
 
 <info>
@@ -155,16 +155,18 @@ Note that even with a level 64 laser input into one interface, it still counts a
 
 <info>
 *Penrose Sphere* input and output [Lasers](201_basic_laser.md#laser) must be grouped on the same side of the forging anvil, using the left and right <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
-That is, input and output cannot use the middle <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
-Lasers on the four sides are independent of each other for input and output
+. Lasers on the four sides are independent of each other for input and output
 </info>
 
 # Stellar Evolution
 
 - Special methods can be used to accelerate the aging of stars
-- During acceleration, if a *Dyson Sphere* exists, it will collect **infinite electrical energy**
 - Some stars will ultimately trigger a *supernova explosion*, destroying their *mega structures* and causing a massive explosion
 - All stars become *stellar remnants* at the end of their life
+
+<info>
+During acceleration, if a *Dyson Sphere* exists, it will collect **infinite electrical energy**
+</info>
 
 ## Stellar Remnants
 
