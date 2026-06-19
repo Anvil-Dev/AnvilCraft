@@ -369,6 +369,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     @Override
+    public int getRange() {
+        return 1;
+    }
+
+    @Override
     public @Nullable PowerGrid getGrid() {
         return this.grid;
     }
@@ -880,100 +885,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             GravityManager.GravitySourceManager.removeSource(level, centerPos);
             gravitySourceActive = false;
         }
-    }
-
-    /**
-     * Clear all data that is tied to the world position, player actions, or multiblock
-     * state. Called in {@code onRemove} so the dropped block item starts fresh, without
-     * carrying stale celestial bodies, megastructures, inventory contents, or runtime
-     * flags from the previous placement.
-     *
-     * <p>
-     * Chunk save/load is unaffected — this is only called when the block is actually
-     * broken.
-     */
-    public void clearPositionDependentData() {
-        // Inventories
-        for (int i = 0; i < anvilInventory.getContainerSize(); i++) {
-            anvilInventory.setItem(i, ItemStack.EMPTY);
-        }
-        materialContainer.setItem(0, ItemStack.EMPTY);
-
-        // Celestial matching results
-        this.celestialBodyData = null;
-        this.planetaryResourceSet = null;
-        this.searchHistory.clear();
-        this.bodySeed = 0;
-        this.stellarMass = 0;
-        this.ageAnvilCount = 0;
-
-        // Megastructure state
-        this.activeMegastructureIndex = -1;
-        this.excavatorLaserActive = false;
-
-        // Temple state
-        this.templeCycleDay = 0;
-        this.templeLastDay = -1;
-        this.templeDemandItem = ItemStack.EMPTY;
-        this.templeDemandCount = 0;
-        this.templeDemandSatisfied = false;
-
-        // Collider state
-        this.colliderCooldown = 0;
-        this.colliderCycleRemaining = 0;
-        this.colliderReservedAnvil = ItemStack.EMPTY;
-        this.colliderReservedAnvilSource = null;
-        this.colliderReservedHitBlock = ItemStack.EMPTY;
-        this.colliderReservedHitBlockSource = null;
-        this.colliderActiveSpeed = 0;
-        this.colliderTargetItems.clear();
-
-        // Matter Decompressor state
-        this.matterDecompressorCounter = 0;
-
-        // Accelerator state
-        this.acceleratorStage = 0;
-        this.acceleratorTicksRemaining = 0;
-        this.acceleratorTicksTotal = 0;
-        this.acceleratorOriginalMass = 0;
-        this.acceleratorOriginalEnergy = 0;
-        this.acceleratorOriginalSize = 0;
-        this.acceleratorDysonDestroyed = false;
-        this.acceleratorDysonDestroyTick = -1;
-        this.supernovaFlashTicks = 0;
-
-
-        // History browsing state
-        this.historyBrowseIndex = 0;
-        this.historyOriginalEntry = null;
-
-        // Wormhole state
-        this.wormholeParamsHash = 0;
-        this.wormholeRegistered = false;
-        this.portals.clear();
-        cleanupWormholeChunkLoading();
-
-        // Multiblock state
-        this.isAmplify = false;
-        this.amplifierPresent = false;
-
-        // Runtime / transient state
-        this.searching = false;
-        this.searchTicksRemaining = 0;
-        this.searchFailed = false;
-        this.powerInsufficient = false;
-        this.lastConsumedSeedItem = null;
-        this.lastConsumedSeedNbt = null;
-
-        // User selections
-        this.locked = false;
-        this.materialFilter = new ItemStack(Items.BARRIER);
-        this.materialLimit = 0;
-
-        // Rotation / animation (cosmetic)
-        this.rotation = 0;
-        this.preRotation = 0;
-        this.bodyRotation = 0;
     }
 
     /**
