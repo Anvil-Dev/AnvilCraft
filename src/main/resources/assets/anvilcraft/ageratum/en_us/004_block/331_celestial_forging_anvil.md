@@ -55,22 +55,13 @@ After building the correct structure, <ref item="anvilcraft:celestial_forging_an
 # Binding a Celestial Body
 
 1. Only specific combinations of celestial parameters can bind to the corresponding celestial body
-2. If the parameter combination is correct, after 10s of searching, a celestial body can be bound
-3. Repeated searching will bind to the same type of celestial body, but the specific material composition will change
+2. Provide sufficient power — 1MW is required, 4MW in *Amplified State*
+3. If the parameter combination is correct, after 10s of searching, a celestial body can be bound
+4. Repeated searching will bind to the same type of celestial body, but the specific material composition will change
 
-## Search Energy Consumption
-
-- During the search, <ref item="anvilcraft:celestial_forging_anvil"/> consumes power
-- Default continuous power consumption is 1MW (=1024kW)
-- In *Amplified State*, power consumption is 4MW
-
-## Determining Celestial Body Type
-
-1. The left, top, right, and bottom axes represent the four parameters of the celestial body
-2. The parameter groups form 3 focal points at the top-left, top-right, and bottom
-3. If the three focal points are exactly the same color, the parameters are valid and the celestial body can be bound
-
-![star-info](../../textures/star_info.png)
+<info>
+For the correct parameter combinations, see [Celestial Types](../001_feature/331_celestial_type.md)
+</info>
 
 # Extracting Celestial Resources
 
@@ -90,13 +81,15 @@ To remove a mega structure, simply unbind and rebind the planet
 <recipe id="anvilcraft:celestial_forging_anvil_logistics_interface"/>
 
 - Can hold 16 types of items, each up to 1 stack
+- When receiving a redstone signal, actively tries to output items forward
 
 ### <ref item="anvilcraft:celestial_forging_anvil_fluid_interface"/>
 
 <recipe id="anvilcraft:celestial_forging_anvil_fluid_interface"/>
 
-- Can hold 4 types of fluids, each up to 80 buckets
 - **Continuous power consumption** 128kW
+- Can hold 4 types of fluids, each up to 80 buckets
+- When receiving a redstone signal, actively tries to output fluid to pipes
 
 ### <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
 
@@ -106,7 +99,7 @@ To remove a mega structure, simply unbind and rebind the planet
 </row>
 
 - Receives lasers
-- Receives redstone signal to switch to attempting laser emission
+- When receiving a redstone signal, actively tries to emit laser forward
 
 ## Maintaining Mega Structures
 
@@ -153,6 +146,8 @@ Note that even with a level 64 laser input into one interface, it still counts a
 |    Magnetar Coil    |       Neutron star       |   Power 4MW   |                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                              |
 |   Penrose Sphere    |        Black hole        |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
 | Matter Decompressor | Neutron star, black hole | *Gamma Laser* |                                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole)                                                                 |
+| Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                    Accelerates stellar evolution                                                                     |
+|   Wormhole Stabilizer   |        Black hole        |     None      |                                                                           [Wormhole](332_wormhole.md)                                                                            |
 
 <info>
 **Small star**: Visually, a celestial body with 3 beam rings
@@ -164,10 +159,25 @@ That is, input and output cannot use the middle <ref item="anvilcraft:celestial_
 Lasers on the four sides are independent of each other for input and output
 </info>
 
-# Other Behavior
+# Stellar Evolution
 
-## Searching for Identical Celestial Bodies
+- Special methods can be used to accelerate the aging of stars
+- During acceleration, if a *Dyson Sphere* exists, it will collect **infinite electrical energy**
+- Some stars will ultimately trigger a *supernova explosion*, destroying their *mega structures* and causing a massive explosion
+- All stars become *stellar remnants* at the end of their life
+
+## Stellar Remnants
+
+The original star's mass determines what type of stellar remnant it becomes
+
+| Mass Anvil Count | Stellar Remnant |
+|:----------------:|:---------------:|
+|      [1,54]      |   White Dwarf   |
+|     [55,58]      |  Neutron Star   |
+|     [59,64]      |   Black Hole    |
+
+# Identical Celestial Bodies
 
 - Right-click <ref item="anvilcraft:celestial_forging_anvil"/> with <ref item="anvilcraft:disk"/> to copy the celestial body data
-- Place this <ref item="anvilcraft:disk"/> into another celestial forging anvil, consuming the <ref item="anvilcraft:disk"/> to search for another celestial body with the exact same parameters
+- Place this <ref item="anvilcraft:disk"/> into another celestial forging anvil, consuming the <ref item="anvilcraft:disk"/> to search for another celestial body with the exact same parameters — they become *Identical Celestial Bodies*
 - For extreme celestial bodies (neutron stars, black holes), use <ref item="anvilcraft:singularity_crystal"/> as the medium instead
