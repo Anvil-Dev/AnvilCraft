@@ -1,5 +1,8 @@
 package dev.dubhe.anvilcraft.integration.jei.category.multiblock;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
@@ -150,9 +153,17 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         }
         final boolean renderAllLayers = level.isAllLayersVisible();
         final int visibleLayer = level.getCurrentVisibleLayer();
-        RenderSupport.renderLevelLike(level, graphics, 45, 50, SCALE_FAC, 2.0F);
+        RenderSupport.renderLevelLike(
+            level,
+            graphics,
+            8,
+            8,
+            80,
+            16,
+            4.0F,
+            false
+        );
         final Minecraft minecraft = Minecraft.getInstance();
-        Matrix3x2fStack pose = graphics.pose();
         int sizeY = level.verticalSize();
         Component component;
         if (renderAllLayers) {
@@ -165,20 +176,37 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             this.layerUpButton(mouseX, mouseY).draw(graphics, 137, 10);
             this.layerDownButton(mouseX, mouseY).draw(graphics, 149, 10);
         }
+
+
+
+        Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
+        pose.translate(129, 51);
         pose.scale(0.03F, 0.03F);
-        this.conversion.draw(graphics, 4300, 1700);
+        this.conversion.draw(graphics);
         pose.popMatrix();
+
+        PoseStack poseStack = new PoseStack();
+        poseStack.mulPose(Axis.XP.rotationDegrees(30));
+        poseStack.mulPose(Axis.YP.rotationDegrees(45));
+        poseStack.scale(0.3f, 0.3f, 0.3f);
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
-        RenderSupport.renderBlock(
+        GuiRenderExtras.tessellateBlock(
             graphics,
             ModBlocks.GIANT_ANVIL.getDefaultState()
                 .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                 .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
-            138,
-            44 + anvilYOffset,
-            5
+            null,
+            null,
+            122,
+            26 + anvilYOffset,
+            122 + 32,
+            26 + anvilYOffset + 32,
+            -1,
+            true,
+            poseStack.last()
         );
+
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);
         int textX = Math.round(WIDTH / 0.8F - minecraft.font.width(component) - 5);
@@ -216,7 +244,10 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> LevelLikeDisplaySupport.asLevelLike(a.value().pattern));
+                LevelLike level = this.cache.computeIfAbsent(
+                    it,
+                    a -> LevelLikeDisplaySupport.asLevelLike(a.value().pattern)
+                );
                 level.setAllLayersVisible(!level.isAllLayersVisible());
             },
             recipe
@@ -227,7 +258,10 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> LevelLikeDisplaySupport.asLevelLike(a.value().pattern));
+                LevelLike level = this.cache.computeIfAbsent(
+                    it,
+                    a -> LevelLikeDisplaySupport.asLevelLike(a.value().pattern)
+                );
                 if (level.isAllLayersVisible()) return;
                 level.nextLayer();
             },
@@ -239,7 +273,10 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> LevelLikeDisplaySupport.asLevelLike(a.value().pattern));
+                LevelLike level = this.cache.computeIfAbsent(
+                    it,
+                    a -> LevelLikeDisplaySupport.asLevelLike(a.value().pattern)
+                );
                 if (level.isAllLayersVisible()) return;
                 level.previousLayer();
             },

@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,8 +57,10 @@ public class RenderSupport {
         GuiGraphicsExtractor graphics,
         int posX,
         int posY,
-        float scale,
-        float rotationSpeed
+        int size,
+        int scale,
+        float rotationSpeed,
+        boolean glitched
     ) {
         Optional<BlockPos> minPos = level.getMinPos();
         Optional<BlockPos> maxPos = level.getMaxPos();
@@ -66,18 +69,19 @@ public class RenderSupport {
         poseStack.last().set(BLOCK_DISPLAY_POSE);
         Minecraft minecraft = Minecraft.getInstance();
         float gameTime = (minecraft.level.getGameTime() + minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
-        poseStack.mulPose(Axis.YP.rotation(gameTime * rotationSpeed));
+        poseStack.mulPose(Axis.YP.rotationDegrees(gameTime * rotationSpeed));
         GuiRenderExtras.submitStructure(
             graphics,
             level,
             minPos.get(),
             maxPos.get(),
-            (float) posX,
-            (float) posY,
-            posX + scale,
-            posY + scale,
+            posX,
+            posY,
+            posX + size,
+            posY + size,
             scale,
             true,
+            glitched,
             poseStack
         );
     }
