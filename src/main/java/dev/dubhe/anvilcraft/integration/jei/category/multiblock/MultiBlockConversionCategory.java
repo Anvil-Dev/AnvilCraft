@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
+import dev.dubhe.anvilcraft.util.RecipeUtil.TagRenderSlot;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -31,9 +32,13 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,6 +57,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         Component.translatable("gui.anvilcraft.category.multiblock.all_layers");
     private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> cacheInput = new HashMap<>();
     private final Map<RecipeHolder<MultiblockConversionRecipe>, LevelLike> cacheOutput = new HashMap<>();
+    private final Map<RecipeHolder<MultiblockConversionRecipe>, List<TagRenderSlot>> tagSlotCache = new HashMap<>();
 
     private static final Comparator<ItemStack> BY_COUNT_DECREASING =
         Comparator.comparing(ItemStack::getCount).thenComparing(ItemStack::getDescriptionId).reversed();
@@ -174,14 +180,35 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             recipe,
             it -> RecipeUtil.asLevelLike(it.value().getOutputPattern())
         );
+        tagSlotCache.computeIfAbsent(
+            recipe,
+            it -> RecipeUtil.getTagRenderSlots(it.value().getInputPattern())
+        );
 
         List<ItemStack> inputItems = recipe.value().getInputPattern().toIngredientList();
         inputItems.sort(BY_COUNT_DECREASING);
 
-        for (int i = 0; i < inputItems.size(); i++) {
-            ItemStack stack = inputItems.get(i);
-            builder.addSlot(RecipeIngredientRole.INPUT, this.inputSlotPosX(i) + 1, this.slotPosY(i) + 1)
+        int inputSlotIndex = 0;
+        for (ItemStack stack : inputItems) {
+            builder.addSlot(RecipeIngredientRole.INPUT, this.inputSlotPosX(inputSlotIndex) + 1, this.slotPosY(inputSlotIndex) + 1)
                 .addItemStack(stack);
+            inputSlotIndex++;
+        }
+
+        var inputTagCounts = recipe.value().getInputPattern().getTagIngredientCounts();
+        for (var entry : inputTagCounts.entrySet()) {
+            TagKey<Block> blockTag = entry.getKey();
+            int count = entry.getValue();
+            TagKey<Item> itemTag = TagKey.create(Registries.ITEM, blockTag.location());
+            var slot = builder.addSlot(
+                RecipeIngredientRole.INPUT, this.inputSlotPosX(inputSlotIndex) + 1, this.slotPosY(inputSlotIndex) + 1
+            );
+            net.minecraft.core.registries.BuiltInRegistries.ITEM.getTag(itemTag).ifPresent(tag -> {
+                tag.stream().forEach(holder -> {
+                    slot.addItemStack(new ItemStack(holder.value(), count));
+                });
+            });
+            inputSlotIndex++;
         }
 
         List<ItemStack> outputItems = recipe.value().getOutputPattern().toIngredientList();
@@ -224,6 +251,11 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             recipe,
             it -> RecipeUtil.asLevelLike(it.value().getOutputPattern())
         );
+        var tagSlots = tagSlotCache.get(recipe);
+        if (tagSlots != null) {
+            int totalSeconds = (int) (System.currentTimeMillis() / 1000);
+            RecipeUtil.cycleTagBlocks(input, tagSlots, totalSeconds);
+        }
         LevelLike rendered = input;
         switch (this.displayMode) {
             case OVERVIEW:

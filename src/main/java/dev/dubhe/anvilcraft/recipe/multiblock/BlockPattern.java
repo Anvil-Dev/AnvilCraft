@@ -124,7 +124,7 @@ public class BlockPattern {
                     char c = s.charAt(i);
                     if (c == ' ') continue;
                     BlockPredicateWithState bySymbol = this.getBySymbol(c);
-                    if (bySymbol != null) {
+                    if (bySymbol != null && bySymbol.getTag() == null) {
                         states.mergeInt(bySymbol.getDefaultState(), 1, Integer::sum);
                     }
                 }
@@ -145,5 +145,28 @@ public class BlockPattern {
             resultList.add(stack);
         });
         return resultList;
+    }
+
+    /**
+     * 获取模式中标签谓词的计数映射。
+     *
+     * @return TagKey 到在模式中出现的次数的映射
+     */
+    public Map<net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block>, Integer> getTagIngredientCounts() {
+        it.unimi.dsi.fastutil.objects.Object2IntMap<net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block>> tagCounts =
+            new it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap<>();
+        for (List<String> layer : this.getLayers()) {
+            for (String s : layer) {
+                for (int i = 0; i < s.length(); i++) {
+                    char c = s.charAt(i);
+                    if (c == ' ') continue;
+                    BlockPredicateWithState bySymbol = this.getBySymbol(c);
+                    if (bySymbol != null && bySymbol.getTag() != null) {
+                        tagCounts.mergeInt(bySymbol.getTag(), 1, Integer::sum);
+                    }
+                }
+            }
+        }
+        return tagCounts;
     }
 }
