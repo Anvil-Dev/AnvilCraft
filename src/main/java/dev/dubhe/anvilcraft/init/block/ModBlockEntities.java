@@ -32,6 +32,7 @@ import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
@@ -94,6 +95,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankBlockEntityRend
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
@@ -242,6 +244,11 @@ public class ModBlockEntities {
         "heat_collector",
         HeatCollectorBlockEntity::createBlockEntity
     ).renderer(() -> HeatCollectorRenderer::new).validBlock(ModBlocks.HEAT_COLLECTOR).register();
+
+    public static final BlockEntityEntry<InfiniteCollectorBlockEntity> INFINITE_COLLECTOR = REGISTRUM.blockEntity(
+        "infinite_collector",
+        InfiniteCollectorBlockEntity::createBlockEntity
+    ).renderer(() -> InfiniteCollectorRenderer::new).validBlock(ModBlocks.INFINITE_COLLECTOR).register();
 
     public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRUM.blockEntity(
         "mineral_fountain",

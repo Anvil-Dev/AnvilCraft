@@ -124,6 +124,7 @@ public class ScreenLang {
         provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");
 
+        provider.add("block.anvilcraft.infinite_collector.placement_too_close_to_another", "Too close to another infinite collector");
         provider.add("block.anvilcraft.void_energy_collector.placement_too_close_to_another", "Too close to another void energy collector");
 
         provider.add("screen.anvilcraft.active_silencer.title", "Active Silencer");
@@ -334,7 +335,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.wind.very_high", "Very High");
 
         provider.add("screen.anvilcraft.cfa.type", "Type: %s");
+        provider.add("screen.anvilcraft.cfa.class.no_match", "Null");
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon");
+        provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet");
         // Rocky planet types — keyed by temperature × liquid × atmosphere
         provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_no_atmos", "Deathly Frozen");
         provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_atmos", "Desolate Frozen");
@@ -353,6 +356,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.cold_ocean", "Frozen Ocean");
         provider.add("screen.anvilcraft.cfa.class.mild_ocean", "Warm Ocean");
         provider.add("screen.anvilcraft.cfa.class.hot_ocean", "Sweltering Ocean");
+
         provider.add("screen.anvilcraft.cfa.class.ice_giant", "Ice Giant");
         provider.add("screen.anvilcraft.cfa.class.gas_giant", "Gas Giant");
         provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf");
@@ -454,10 +458,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked");
 
         // Wormhole Stabilizer
-        provider.add("screen.anvilcraft.cfa.wormhole.amplifier_missing", "Amplifier missing, celestial body lost");
+        provider.add("screen.anvilcraft.cfa.wormhole.missing_amplifier.line1", "Amplifier missing,");
+        provider.add("screen.anvilcraft.cfa.wormhole.missing_amplifier.line2", "wormhole disconnected");
 
         // Portal placement messages
-        provider.add("message.anvilcraft.portal.already_exists", "A portal already exists on this side");
         provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers");
     }
 }

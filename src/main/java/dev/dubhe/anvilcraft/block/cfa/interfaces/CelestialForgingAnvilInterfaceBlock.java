@@ -51,6 +51,13 @@ public abstract class CelestialForgingAnvilInterfaceBlock
     }
 
     @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        if (!level.isClientSide()) {
+            neighborChanged(state, level, pos, state.getBlock(), pos, false);
+        }
+    }
+
+    @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock,
                                    BlockPos neighborPos, boolean movedByPiston) {
         if (!level.isClientSide()) {
@@ -91,28 +98,20 @@ public abstract class CelestialForgingAnvilInterfaceBlock
         BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        // Scan nearby for the controller (BOTTOM_CENTER of anvil)
-        for (int dx = -5; dx <= 5; dx++) {
-            for (int dz = -5; dz <= 5; dz++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    BlockPos checkPos = pos.offset(dx, dy, dz);
-                    BlockState checkState = level.getBlockState(checkPos);
-                    if (
-                        checkState.getBlock() instanceof CelestialForgingAnvilBlock
-                        && checkState.hasProperty(CelestialForgingAnvilBlock.HALF)
-                        && checkState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER
-                    ) {
-                        BlockEntity be = level.getBlockEntity(checkPos);
-                        if (
-                            be instanceof CelestialForgingAnvilBlockEntity cfaBe
-                            && player instanceof ServerPlayer sp
-                        ) {
-                            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-                            ModMenuTypes.open(sp, cfaBe, checkPos);
-                            return InteractionResult.SUCCESS;
-                        }
-                    }
-                }
+        // Interface FACING points away from CFA — follow opposite direction to the adjacent
+        // CFA block, then navigate to controller (BOTTOM_CENTER) via HALF offset.
+        Direction towardsCfa = state.getValue(FACING).getOpposite();
+        BlockPos cfaBlockPos = pos.relative(towardsCfa);
+        BlockState cfaBlockState = level.getBlockState(cfaBlockPos);
+        if (cfaBlockState.getBlock() instanceof CelestialForgingAnvilBlock) {
+            Cube323PartHalf half = cfaBlockState.getValue(CelestialForgingAnvilBlock.HALF);
+            BlockPos controllerPos = cfaBlockPos.offset(half.getOffset().multiply(-1));
+            BlockEntity be = level.getBlockEntity(controllerPos);
+            if (be instanceof CelestialForgingAnvilBlockEntity cfaBe
+                && player instanceof ServerPlayer sp) {
+                if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
+                ModMenuTypes.open(sp, cfaBe, controllerPos);
+                return InteractionResult.SUCCESS;
             }
         }
         return InteractionResult.PASS;

@@ -203,7 +203,7 @@ public final class CelestialRefactorRegistry {
                 ModItems.DYSON_SPHERE_COMPONENT, 16));
             options.add(CelestialRefactorOption.withMaterial(4, "magnetar_coil",
                 ringModel(4, "coil"), prefix + "magnetar_coil",
-                ModBlocks.DEFLECTION_RING.asItem(), 16));
+                ModBlocks.INFINITE_COLLECTOR.asItem(), 4));
             options.add(CelestialRefactorOption.withMaterial(4, "penrose_sphere",
                 ringModel(4, "penrose_sphere"), prefix + "penrose_sphere",
                 ModItems.PENROSE_SPHERE_COMPONENT, 8));

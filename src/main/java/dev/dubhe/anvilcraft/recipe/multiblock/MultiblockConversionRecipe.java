@@ -13,6 +13,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -160,6 +161,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
         return this.inputPattern.getSize();
     }
 
+    @Nullable
     public Block centerOutput() {
         int t = this.getSize() / 2;
         return this.getOutputPattern().getPredicate(t, t, t).getBlock();
@@ -190,7 +192,11 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
                 .append("Symbol('")
                 .append(symbol)
                 .append("', ");
-            if (predicate.getProperties().isEmpty()) {
+            if (predicate.getTag() != null) {
+                codeBuilder.append("BlockPredicateWithState.ofTag(\"")
+                    .append(predicate.getTag().location())
+                    .append("\")");
+            } else if (predicate.getProperties().isEmpty()) {
                 codeBuilder.append("\"")
                     .append(BuiltInRegistries.BLOCK.getKey(predicate.getBlock()))
                     .append("\")");
@@ -224,7 +230,10 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
 
     @Override
     public String getSuggestedName() {
-        return BuiltInRegistries.BLOCK.getKey(this.centerOutput()).getPath();
+        Block center = this.centerOutput();
+        return center != null
+            ? BuiltInRegistries.BLOCK.getKey(center).getPath()
+            : Integer.toHexString(this.hashCode());
     }
 
     public static class Builder extends AbstractRecipeBuilder<MultiblockConversionRecipe> {
@@ -263,6 +272,12 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
             return this.symbol(symbol, BlockPredicateWithState.of(blockName));
         }
 
+        public Builder symbol(char symbol, TagKey<Block> tag) {
+            inputPattern.symbol(symbol, BlockPredicateWithState.of(tag));
+            outputPattern.symbol(symbol, BlockPredicateWithState.of(tag));
+            return this;
+        }
+
         public Builder inputSymbol(char symbol, BlockPredicateWithState predicate) {
             inputPattern.symbol(symbol, predicate);
             return this;
@@ -280,6 +295,11 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
             return this.inputSymbol(symbol, BlockPredicateWithState.of(blockName));
         }
 
+        public Builder inputSymbol(char symbol, TagKey<Block> tag) {
+            inputPattern.symbol(symbol, BlockPredicateWithState.of(tag));
+            return this;
+        }
+
         public Builder outputSymbol(char symbol, BlockPredicateWithState predicate) {
             outputPattern.symbol(symbol, predicate);
             return this;
@@ -295,6 +315,11 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
 
         public Builder outputSymbol(char symbol, String blockName) {
             return this.outputSymbol(symbol, BlockPredicateWithState.of(blockName));
+        }
+
+        public Builder outputSymbol(char symbol, TagKey<Block> tag) {
+            outputPattern.symbol(symbol, BlockPredicateWithState.of(tag));
+            return this;
         }
 
         public Builder modifySpawnerAction(ModifySpawnerAction postAction) {

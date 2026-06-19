@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
+import dev.dubhe.anvilcraft.util.RecipeUtil.TagRenderSlot;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -29,10 +30,14 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -52,6 +57,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
     public static final int SCALE_FAC = 80;
     private final Map<RecipeHolder<MultiblockRecipe>, LevelLike> cache = new HashMap<>();
+    private final Map<RecipeHolder<MultiblockRecipe>, List<TagRenderSlot>> tagSlotCache = new HashMap<>();
 
     private final IDrawable icon;
     private final IDrawable slot;
@@ -121,18 +127,36 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
         cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().getPattern()));
+        tagSlotCache.computeIfAbsent(recipe, it -> RecipeUtil.getTagRenderSlots(it.value().getPattern()));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70)
             .addItemStack(recipe.value().getResult().copy());
 
         List<ItemStack> ingredientList = recipe.value().getPattern().toIngredientList();
         ingredientList.sort(BY_COUNT_DECREASING);
 
-        for (int i = 0; i < ingredientList.size(); i++) {
-            ItemStack stack = ingredientList.get(i);
-            int row = i / 9;
-            int col = i % 9;
+        int slotIndex = 0;
+        for (ItemStack stack : ingredientList) {
+            int row = slotIndex / 9;
+            int col = slotIndex % 9;
             builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, START_HEIGHT + row * 18 + 1)
                 .addItemStack(stack);
+            slotIndex++;
+        }
+
+        var tagCounts = recipe.value().getPattern().getTagIngredientCounts();
+        for (var entry : tagCounts.entrySet()) {
+            TagKey<Block> blockTag = entry.getKey();
+            int count = entry.getValue();
+            TagKey<Item> itemTag = TagKey.create(Registries.ITEM, blockTag.location());
+            int row = slotIndex / 9;
+            int col = slotIndex % 9;
+            var slot = builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, START_HEIGHT + row * 18 + 1);
+            net.minecraft.core.registries.BuiltInRegistries.ITEM.getTag(itemTag).ifPresent(tag -> {
+                tag.stream().forEach(holder -> {
+                    slot.addItemStack(new ItemStack(holder.value(), count));
+                });
+            });
+            slotIndex++;
         }
     }
 
@@ -148,6 +172,11 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         if (level == null) {
             level = RecipeUtil.asLevelLike(recipe.value().pattern);
             cache.put(recipe, level);
+        }
+        var tagSlots = tagSlotCache.get(recipe);
+        if (tagSlots != null) {
+            int totalSeconds = (int) (System.currentTimeMillis() / 1000);
+            RecipeUtil.cycleTagBlocks(level, tagSlots, totalSeconds);
         }
         final boolean renderAllLayers = level.isAllLayersVisible();
         final int visibleLayer = level.getCurrentVisibleLayer();

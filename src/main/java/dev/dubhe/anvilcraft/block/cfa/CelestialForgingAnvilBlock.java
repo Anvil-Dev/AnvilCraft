@@ -311,13 +311,8 @@ public class CelestialForgingAnvilBlock
                 }
                 Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, blockStack);
             }
-
-            // 3. Wipe the block entity so a fresh CFA placed at this position
-            //    starts with a clean slate. Chunk save/load is unaffected —
-            //    saveAdditional/loadAdditional handle that path independently.
-            be.clearPositionDependentData();
         }
-        // Don't call super.onRemove() — we handle drops manually above
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override

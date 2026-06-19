@@ -127,6 +127,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final ResourceLocation TEX_REFACTOR_OPTIONS = SharedTextures.textureGui(BTN_DIR + "refactor_options");
     private static final ResourceLocation TEX_REFACTORING = SharedTextures.textureGui(BTN_DIR + "refactoring");
 
+    // Celestial Maps guide
+    private static final ResourceLocation TEX_CELESTIAL_MAPS = SharedTextures.texture("block/celestial_maps");
+    private static final int MAP_SIZE = 160;
+    private static final int COLOR_TIME = 0xBF_A0FFA0;    // light green, 75% alpha
+    private static final int COLOR_SPACE = 0xBF_00FFFF;   // cyan, 75% alpha
+    private static final int COLOR_MASS = 0xBF_FFFFA0;    // light yellow, 75% alpha
+    private static final int COLOR_ENERGY = 0xBF_FF8080;  // light red, 75% alpha
+
     private static final ItemStack[] GHOST_STACKS = {
         new ItemStack(ModBlocks.CONFINED_TIME_ANVILON.asItem()),
         new ItemStack(ModBlocks.CONFINED_SPACE_ANVILON.asItem()),
@@ -189,6 +197,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private Component refactorErrorMsg = null;
     private int unlockWarningTick = 0;
 
+    // Guide trigger: show celestial maps when anvil counts change
+    private final int[] previousAnvilCounts = new int[4];
+    private boolean guideTriggered = false;
+
     public CelestialForgingAnvilScreen(CelestialForgingAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 344;
@@ -210,12 +222,33 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         } else if (be.getCelestialBodyData() != null && searchState == SearchState.IDLE) {
             searchState = SearchState.DONE;
         }
+
+        // Capture initial anvil counts so guide only triggers on change
+        for (int i = 0; i < 4; i++) {
+            previousAnvilCounts[i] = be.getAnvilCount(i);
+        }
+        guideTriggered = false;
     }
 
     @Override
     protected void containerTick() {
         super.containerTick();
         previewRotTick++;
+
+        // Detect anvil count changes to trigger the celestial maps guide
+        var be = getMenu().getBlockEntity();
+        for (int i = 0; i < 4; i++) {
+            int cur = be.getAnvilCount(i);
+            if (cur != previousAnvilCounts[i]) {
+                guideTriggered = true;
+            }
+            previousAnvilCounts[i] = cur;
+        }
+        // Reset guide trigger when a new search begins
+        if (searchState == SearchState.LOADING) {
+            guideTriggered = false;
+        }
+
         if (lockedMsgTick > 0) lockedMsgTick--;
         if (refactorErrorTick > 0) refactorErrorTick--;
         if (unlockWarningTick > 0) unlockWarningTick--;
@@ -238,7 +271,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
 
         if (searchState == SearchState.LOADING) {
-            var be = getMenu().getBlockEntity();
             CelestialBodyData cur = be.getCelestialBodyData();
             if (be.isPowerInsufficient()) {
                 searchState = SearchState.POWER_FAIL;
@@ -265,27 +297,34 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         renderButton(guiGraphics, btnTex, i + SB_X, j + SB_Y, SB_W, SB_H, hoverSearch);
 
         // Preview area bottom buttons
-        if (searchState == SearchState.DONE || searchState == SearchState.LOADING) {
-            boolean hasPrev = getMenu().getBlockEntity().hasPreviousHistory();
-            boolean hasNext = getMenu().getBlockEntity().hasNextHistory();
-            // Previous button
-            if (hasPrev) {
-                boolean hover = isOverPrevButton(relX, relY);
-                renderButton(guiGraphics, TEX_PREV, i + PV_X + 4, j + PV_BOT_Y + 14, 16, 16, hover);
-            }
-            // Next button
-            if (hasNext) {
-                boolean hover = isOverNextButton(relX, relY);
-                renderButton(guiGraphics, TEX_NEXT, i + PV_X + PV_W - 20, j + PV_BOT_Y + 14, 16, 16, hover);
-            }
-            // Lock button
-            boolean hoverLock = isOverLockButton(relX, relY);
-            ResourceLocation lockTex = isLocked() ? TEX_LOCKED : TEX_UNLOCKED;
-            renderButton(guiGraphics, lockTex, i + PV_X + PV_W / 2 - 8, j + PV_BOT_Y + 14, 16, 16, hoverLock);
-        }
+        renderPreviewBottomButtons(guiGraphics, i, j, relX, relY);
 
         // Refactor section
         renderRefactorSection(guiGraphics, i, j, relX, relY);
+    }
+
+    /**
+     * Render the prev/next/lock buttons below the preview area.
+     * Called from {@link #renderBg} and re-called after guide rendering to stay on top.
+     */
+    private void renderPreviewBottomButtons(GuiGraphics guiGraphics, int guiLeft, int guiTop, int relX, int relY) {
+        if (searchState != SearchState.DONE && searchState != SearchState.LOADING) return;
+        boolean hasPrev = getMenu().getBlockEntity().hasPreviousHistory();
+        boolean hasNext = getMenu().getBlockEntity().hasNextHistory();
+        // Previous button
+        if (hasPrev) {
+            boolean hover = isOverPrevButton(relX, relY);
+            renderButton(guiGraphics, TEX_PREV, guiLeft + PV_X + 4, guiTop + PV_BOT_Y + 14, 16, 16, hover);
+        }
+        // Next button
+        if (hasNext) {
+            boolean hover = isOverNextButton(relX, relY);
+            renderButton(guiGraphics, TEX_NEXT, guiLeft + PV_X + PV_W - 20, guiTop + PV_BOT_Y + 14, 16, 16, hover);
+        }
+        // Lock button
+        boolean hoverLock = isOverLockButton(relX, relY);
+        ResourceLocation lockTex = isLocked() ? TEX_LOCKED : TEX_UNLOCKED;
+        renderButton(guiGraphics, lockTex, guiLeft + PV_X + PV_W / 2 - 8, guiTop + PV_BOT_Y + 14, 16, 16, hoverLock);
     }
 
     /**
@@ -462,12 +501,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 && be.getCelestialBodyData() instanceof StarData star
                 && star.bodyClass() == CelestialBodyClass.BLACK_HOLE;
             Component line1 = isWormholeActive
-                ? Component.translatable("screen.anvilcraft.cfa.wormhole.amplifier_missing")
+                ? Component.translatable("screen.anvilcraft.cfa.wormhole.missing_amplifier.line1")
                 : Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
             Component line2;
             Component line3;
             if (isWormholeActive) {
-                line2 = Component.empty();
+                line2 = Component.translatable("screen.anvilcraft.cfa.wormhole.missing_amplifier.line2");
                 line3 = Component.empty();
             } else {
                 line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
@@ -480,6 +519,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.drawString(font, line1, cx1, cy, 0xFF5555, true);
             guiGraphics.drawString(font, line2, cx2, cy + font.lineHeight + 1, 0xFF5555, true);
             guiGraphics.drawString(font, line3, cx3, cy + (font.lineHeight + 1) * 2, 0xFF5555, true);
+            return;
+        }
+        // When anvil counts change while unlocked and not searching, show the guide.
+        // The guide stays visible until a new search begins (guideTriggered is reset).
+        if (!isLocked() && guideTriggered && searchState != SearchState.LOADING) {
+            renderCelestialMapsGuide(guiGraphics);
             return;
         }
         switch (searchState) {
@@ -515,6 +560,138 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             default -> {
             }
         }
+    }
+
+    /**
+     * Render the celestial maps guide with 4 colored indicator lines.
+     * Each line represents one anvil type and moves based on its count (1-64).
+     * Lines and count labels are hidden when the corresponding count is 0.
+     * Everything is rendered at 50% scale using pose scaling.
+     */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    private void renderCelestialMapsGuide(GuiGraphics guiGraphics) {
+        int previewCenterX = PV_X + PV_W / 2;
+        int previewCenterY = PV_Y + PV_H / 2;
+
+        PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
+        float scale = 0.5f;
+        pose.translate(previewCenterX, previewCenterY, 0);
+        pose.scale(scale, scale, 1.0f);
+        pose.translate(-MAP_SIZE / 2.0f, -MAP_SIZE / 2.0f, 0);
+
+        // Render the celestial maps image at 160x160 (scaled to 80x80 on screen)
+        guiGraphics.blit(TEX_CELESTIAL_MAPS, 0, 0, 0, 0, MAP_SIZE, MAP_SIZE, MAP_SIZE, MAP_SIZE);
+
+        int timeCount = getMenu().getBlockEntity().getAnvilCount(0);
+        int spaceCount = getMenu().getBlockEntity().getAnvilCount(1);
+        int massCount = getMenu().getBlockEntity().getAnvilCount(2);
+        int energyCount = getMenu().getBlockEntity().getAnvilCount(3);
+
+        // Time anvil: light green, vertical, full height (160px), x=12-76 (1-indexed from left)
+        if (timeCount > 0) {
+            int x = 11 + Math.round((timeCount - 1) * 64.0f / 63.0f);
+            guiGraphics.fill(x, 0, x + 2, MAP_SIZE, COLOR_TIME); // 2px → 1px after 0.5x scale
+            String text = String.valueOf(timeCount);
+            int textX = x + 1 - font.width(text) / 2;
+            int textY = -font.lineHeight - 4;
+            guiGraphics.drawString(font, text, textX, textY, COLOR_TIME, false);
+        }
+
+        // Space anvil: cyan, horizontal, full width (160px), y=92-156 (1-indexed from bottom)
+        if (spaceCount > 0) {
+            int y = 160 - Math.round(92 + (spaceCount - 1) * 64.0f / 63.0f) - 2; // -2 scaled px = -1 screen px
+            guiGraphics.fill(0, y, MAP_SIZE, y + 2, COLOR_SPACE); // 2px → 1px after 0.5x scale
+            String text = String.valueOf(spaceCount);
+            int textX = -font.width(text) - 6;
+            int textY = y + 1 - font.lineHeight / 2;
+            guiGraphics.drawString(font, text, textX, textY, COLOR_SPACE, false);
+        }
+
+        // Mass anvil: light yellow, vertical, upper half (80px), x=92-156 (1-indexed from left)
+        if (massCount > 0) {
+            int x = 91 + Math.round((massCount - 1) * 64.0f / 63.0f);
+            guiGraphics.fill(x, 0, x + 2, MAP_SIZE / 2, COLOR_MASS); // upper half, 2px→1px
+            String text = String.valueOf(massCount);
+            int textX = x + 1 - font.width(text) / 2;
+            int textY = -font.lineHeight - 4;
+            guiGraphics.drawString(font, text, textX, textY, COLOR_MASS, false);
+        }
+
+        // Energy anvil: light red, horizontal, left half (80px), y=12-76 (1-indexed from bottom)
+        if (energyCount > 0) {
+            int y = 160 - Math.round(12 + (energyCount - 1) * 64.0f / 63.0f) - 2; // -2 scaled px = -1 screen px
+            guiGraphics.fill(0, y, MAP_SIZE / 2, y + 2, COLOR_ENERGY); // left half, 2px→1px
+            String text = String.valueOf(energyCount);
+            int textX = -font.width(text) - 6;
+            int textY = y + 1 - font.lineHeight / 2;
+            guiGraphics.drawString(font, text, textX, textY, COLOR_ENERGY, false);
+        }
+
+        // Three-step guide text to the right of the map
+        renderGuideStepText(guiGraphics, timeCount, spaceCount, massCount, energyCount);
+
+        pose.popPose();
+    }
+
+    /**
+     * Render the three-step celestial type guide text in the bottom-right of the map.
+     * Rendered inside the 0.5x scaled pose. Coordinates are in the 160×160 image space.
+     */
+    private void renderGuideStepText(
+        GuiGraphics guiGraphics, int time, int space, int mass, int energy
+    ) {
+        int textX = 88; // bottom-right empty area of the map
+        int lineSpacing = font.lineHeight + 5; // scaled units
+        int y0 = 108;
+
+        // Step 1: ↑ type from mass-radius diagram (mass + space)
+        int step1Rgb = CelestialBodyMatcher.getMassRadiusRgb(mass, space);
+        String step1Name = getTypeDisplayName(step1Rgb);
+        drawGuideLine(guiGraphics, "↑" + step1Name, textX, y0, 0xFF_CCCCCC);
+
+        // Step 2: ← type from age-temp diagram (time + energy)
+        // Brown dwarfs use age_temp_sp; everything else uses age_temp
+        CelestialBodyClass step1Class = CelestialBodyClass.fromRgb(step1Rgb);
+        int step2Rgb;
+        if (step1Class != null && step1Class.step2UsesSp()) {
+            step2Rgb = CelestialBodyMatcher.getAgeTempSpRgb(time, energy);
+        } else {
+            step2Rgb = CelestialBodyMatcher.getAgeTempRgb(time, energy);
+        }
+        String step2Name = getTypeDisplayName(step2Rgb);
+        drawGuideLine(guiGraphics, "←" + step2Name, textX, y0 + lineSpacing * 2, 0xFF_CCCCCC);
+
+        // Step 3: ↖ type from age-radius diagram (time + space)
+        int step3Rgb = CelestialBodyMatcher.getAgeRadiusRgb(time, space);
+        String step3Name = getTypeDisplayName(step3Rgb);
+        drawGuideLine(guiGraphics, "↖" + step3Name, textX, y0 + lineSpacing, 0xFF_CCCCCC);
+    }
+
+    /**
+     * Convert a diagram RGB color to a display name via translation keys.
+     * Uses the existing {@code screen.anvilcraft.cfa.class.<name>} key pattern.
+     * Rocky planet subtypes all map to {@code rocky_planet}.
+     */
+    private static String getTypeDisplayName(int rgb) {
+        if (rgb == 0x000000) {
+            return Component.translatable("screen.anvilcraft.cfa.class.no_match").getString();
+        }
+        CelestialBodyClass bodyClass = CelestialBodyClass.fromRgb(rgb);
+        if (bodyClass == null) {
+            return Component.translatable("screen.anvilcraft.cfa.class.no_match").getString();
+        }
+        String key;
+        if (bodyClass.isRockyPlanet()) {
+            key = "screen.anvilcraft.cfa.class.rocky_planet";
+        } else {
+            key = "screen.anvilcraft.cfa.class." + bodyClass.name().toLowerCase();
+        }
+        return Component.translatable(key).getString();
+    }
+
+    private void drawGuideLine(GuiGraphics guiGraphics, String text, int x, int y, int color) {
+        guiGraphics.drawString(font, text, x, y, color, false);
     }
 
     private static final float UI_AXIAL_TILT = 25f;
@@ -786,7 +963,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         BakedModel jetModel = minecraft.getModelManager().getModel(UI_NEUTRON_STAR_JET_MODEL);
         if (jetModel == minecraft.getModelManager().getMissingModel()) return;
 
-        float magneticTilt = star.magneticFieldStrength() >= 5 ? 30f : 20f;
+        float magneticTilt = star.magneticFieldStrength() >= 5 ? 15f : 10f;
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(0.5, 0.5, 0.5);
@@ -1216,6 +1393,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        // Re-render preview buttons on top of the guide map when it's visible
+        if (!isLocked() && guideTriggered && searchState != SearchState.LOADING) {
+            int relX = mouseX - leftPos;
+            int relY = mouseY - topPos;
+            renderPreviewBottomButtons(guiGraphics, leftPos, topPos, relX, relY);
+        }
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         if (lockedMsgTick > 0) {
             Component msg = Component.translatable("screen.anvilcraft.cfa.locked_tooltip");

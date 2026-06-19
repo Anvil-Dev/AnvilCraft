@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.neoforged.neoforge.common.Tags;
 
 public class MultiBlockRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -71,17 +72,11 @@ public class MultiBlockRecipeLoader {
 
         MultiblockRecipe.builder(ModBlocks.LARGE_FLUID_TANK)
             .layer("AAA", "AAA", "AAA")
+            .layer("ABA", "B B", "ABA")
             .layer("AAA", "AAA", "AAA")
-            .layer("AAA", "AAA", "AAA")
-            .symbol('A', ModBlocks.FLUID_TANK)
-            .save(provider, AnvilCraft.of("multiblock/large_fluid_tank_1"));
-
-        MultiblockRecipe.builder(ModBlocks.LARGE_FLUID_TANK)
-            .layer("AAA", "AAA", "AAA")
-            .layer("AAA", "A A", "AAA")
-            .layer("AAA", "AAA", "AAA")
-            .symbol('A', ModBlocks.FLUID_TANK)
-            .save(provider, AnvilCraft.of("multiblock/large_fluid_tank_2"));
+            .symbol('A', ModBlocks.CUT_BRASS_BLOCK)
+            .symbol('B', Tags.Blocks.GLASS_BLOCKS)
+            .save(provider, AnvilCraft.of("multiblock/large_fluid_tank"));
 
         MultiblockRecipe.builder(ModBlocks.MENGER_SPONGE)
             .layer("AAA", "A A", "AAA")

@@ -14,10 +14,14 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -163,7 +167,7 @@ public class RecipeUtil {
             for (int x = size - 1; x >= 0; x--) {
                 for (int z = size - 1; z >= 0; z--) {
                     BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
-                    BlockState state = predicate.getDefaultState();
+                    BlockState state = getStateForRender(predicate);
                     if (state.isAir() && Math.max(levelLike.horizontalSize(), levelLike.verticalSize()) >= size) continue;
                     levelLike.setBlockState(new BlockPos(x, y, z), state);
                 }
@@ -171,5 +175,65 @@ public class RecipeUtil {
         }
 
         return levelLike;
+    }
+
+    /**
+     * 获取用于渲染的 BlockState。标签谓词解析为标签中的第一个方块，方块谓词使用默认状态。
+     */
+    @OnlyIn(Dist.CLIENT)
+    private static BlockState getStateForRender(BlockPredicateWithState predicate) {
+        if (predicate.getTag() != null) {
+            var blocks = BuiltInRegistries.BLOCK.getTag(predicate.getTag())
+                .map(tag -> tag.stream().map(Holder::value).toList())
+                .orElse(List.of());
+            if (!blocks.isEmpty()) {
+                return blocks.getFirst().defaultBlockState();
+            }
+            return Blocks.AIR.defaultBlockState();
+        }
+        return predicate.getDefaultState();
+    }
+
+    /**
+     * 标签渲染槽位：记录需要动态切换方块的模式位置及其可用方块列表。
+     */
+    public record TagRenderSlot(BlockPos pos, List<Block> blocks) {}
+
+    /**
+     * 收集模式中所有标签谓词的位置及其可用方块列表。
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static List<TagRenderSlot> getTagRenderSlots(BlockPattern pattern) {
+        List<TagRenderSlot> slots = new ArrayList<>();
+        int size = pattern.getSize();
+        for (int y = size - 1; y >= 0; y--) {
+            for (int x = size - 1; x >= 0; x--) {
+                for (int z = size - 1; z >= 0; z--) {
+                    BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
+                    if (predicate.getTag() != null) {
+                        var blocks = BuiltInRegistries.BLOCK.getTag(predicate.getTag())
+                            .map(tag -> tag.stream().map(Holder::value).toList())
+                            .orElse(List.of());
+                        if (!blocks.isEmpty()) {
+                            slots.add(new TagRenderSlot(new BlockPos(x, y, z), blocks));
+                        }
+                    }
+                }
+            }
+        }
+        return slots;
+    }
+
+    /**
+     * 根据变体索引更新 LevelLike 中所有标签槽位的方块状态。
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static void cycleTagBlocks(LevelLike level, List<TagRenderSlot> slots, int variantIndex) {
+        if (slots.isEmpty()) return;
+        for (TagRenderSlot slot : slots) {
+            int idx = variantIndex % slot.blocks().size();
+            BlockState state = slot.blocks().get(idx).defaultBlockState();
+            level.setBlockState(slot.pos(), state);
+        }
     }
 }

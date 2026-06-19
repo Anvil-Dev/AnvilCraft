@@ -313,6 +313,7 @@
     "anvilcraft:uranium_pressure_plate",
     "anvilcraft:plutonium_pressure_plate",
     "anvilcraft:brass_pressure_plate",
-    "anvilcraft:bronze_pressure_plate"
+    "anvilcraft:bronze_pressure_plate",
+    "anvilcraft:infinite_collector"
   ]
 }

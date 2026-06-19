@@ -2,12 +2,10 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
-import dev.dubhe.anvilcraft.block.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
@@ -15,7 +13,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.ModifySpawnerAction;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
-import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
@@ -23,6 +20,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.neoforged.neoforge.common.Tags;
 
 public class MultiBlockConversionRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -428,9 +426,10 @@ public class MultiBlockConversionRecipeLoader {
 
         MultiblockConversionRecipe.builder()
             .inputLayer("AAA", "AAA", "AAA")
+            .inputLayer("ABA", "B B", "ABA")
             .inputLayer("AAA", "AAA", "AAA")
-            .inputLayer("AAA", "AAA", "AAA")
-            .inputSymbol('A', ModBlocks.FLUID_TANK)
+            .inputSymbol('A', ModBlocks.CUT_BRASS_BLOCK)
+            .inputSymbol('B', Tags.Blocks.GLASS_BLOCKS)
             .outputLayer("ABC", "DEF", "GHI")
             .outputLayer("JKL", "MNO", "PQR")
             .outputLayer("STU", "VWX", "YZ[")
@@ -542,125 +541,7 @@ public class MultiBlockConversionRecipeLoader {
                 '[', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
                     .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_ES)
             )
-            .save(provider, AnvilCraft.of("multiblock_conversion/large_fluid_tank_1"));
-
-        MultiblockConversionRecipe.builder()
-            .inputLayer("AAA", "AAA", "AAA")
-            .inputLayer("AAA", "A A", "AAA")
-            .inputLayer("AAA", "AAA", "AAA")
-            .inputSymbol('A', ModBlocks.FLUID_TANK)
-            .outputLayer("ABC", "DEF", "GHI")
-            .outputLayer("JKL", "MNO", "PQR")
-            .outputLayer("STU", "VWX", "YZ[")
-            .outputSymbol(
-                'A', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_WN)
-            )
-            .outputSymbol(
-                'B', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_N)
-            )
-            .outputSymbol(
-                'C', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_EN)
-            )
-            .outputSymbol(
-                'D', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_W)
-            )
-            .outputSymbol(
-                'E', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER)
-            )
-            .outputSymbol(
-                'F', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_E)
-            )
-            .outputSymbol(
-                'G', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_WS)
-            )
-            .outputSymbol(
-                'H', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_S)
-            )
-            .outputSymbol(
-                'I', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_ES)
-            )
-            .outputSymbol(
-                'J', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_WN)
-            )
-            .outputSymbol(
-                'K', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_N)
-            )
-            .outputSymbol(
-                'L', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_EN)
-            )
-            .outputSymbol(
-                'M', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_W)
-            )
-            .outputSymbol(
-                'N', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
-            )
-            .outputSymbol(
-                'O', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_E)
-            )
-            .outputSymbol(
-                'P', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_WS)
-            )
-            .outputSymbol(
-                'Q', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_S)
-            )
-            .outputSymbol(
-                'R', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_ES)
-            )
-            .outputSymbol(
-                'S', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_WN)
-            )
-            .outputSymbol(
-                'T', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_N)
-            )
-            .outputSymbol(
-                'U', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_EN)
-            )
-            .outputSymbol(
-                'V', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_W)
-            )
-            .outputSymbol(
-                'W', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_CENTER)
-            )
-            .outputSymbol(
-                'X', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_E)
-            )
-            .outputSymbol(
-                'Y', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_WS)
-            )
-            .outputSymbol(
-                'Z', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_S)
-            )
-            .outputSymbol(
-                '[', BlockPredicateWithState.of(ModBlocks.LARGE_FLUID_TANK)
-                    .hasState(GiantAnvilBlock.HALF, Cube3x3PartHalf.TOP_ES)
-            )
-            .save(provider, AnvilCraft.of("multiblock_conversion/large_fluid_tank_2"));
+            .save(provider, AnvilCraft.of("multiblock_conversion/large_fluid_tank"));
 
 
         MultiblockConversionRecipe.builder()

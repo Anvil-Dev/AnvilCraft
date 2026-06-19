@@ -2,11 +2,14 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
@@ -27,6 +30,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.saved.WormholeInterfaceStates;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import lombok.Getter;
@@ -73,9 +77,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer, IPowerProducer, IDiskCloneable {
     @Getter
@@ -148,6 +156,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      * Map from cube part (side center) to the BlockPos of the portal placed there.
      */
     private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
+    /**
+     * Tracked chunk-loaded connected CFAs, keyed by dimension + position.
+     */
+    private final Map<WormholeChunkLoadKey, LoadChuckData> wormholeLoadedChunks = new HashMap<>();
+
+    private record WormholeChunkLoadKey(ResourceLocation dimension, BlockPos pos) {}
+    // Wormhole canonical interface state is now stored globally in
+    // WormholeInterfaceStates (BetterSavedData), shared across the entire network group.
 
     // === Temple state ===
     /**
@@ -357,6 +373,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     @Override
+    public int getRange() {
+        return 1;
+    }
+
+    @Override
     public @Nullable PowerGrid getGrid() {
         return this.grid;
     }
@@ -393,7 +414,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private boolean hasEnoughPower() {
         if (grid == null) return false;
         int required = getInputPower();
-        return required <= 0 || grid.getRemaining() >= required;
+        return required <= 0 || grid.isWorking();
     }
 
     @Getter
@@ -843,11 +864,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void setAmplify(boolean amplify) {
         if (this.isAmplify != amplify) {
             this.isAmplify = amplify;
-            if (!amplify && celestialBodyData instanceof StarData) {
-                this.locked = true; // Lock when amplifier removed with stellar body
-            }
             if (level != null && !level.isClientSide()) {
-                randomizeBody();
+                if (celestialBodyData instanceof StarData) {
+                    if (!amplify) {
+                        this.locked = true; // Lock when amplifier removed with stellar body
+                    }
+                }
             }
             this.setChanged();
             if (level != null) {
@@ -868,99 +890,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             GravityManager.GravitySourceManager.removeSource(level, centerPos);
             gravitySourceActive = false;
         }
-    }
-
-    /**
-     * Clear all data that is tied to the world position, player actions, or multiblock
-     * state. Called in {@code onRemove} so the dropped block item starts fresh, without
-     * carrying stale celestial bodies, megastructures, inventory contents, or runtime
-     * flags from the previous placement.
-     *
-     * <p>
-     * Chunk save/load is unaffected — this is only called when the block is actually
-     * broken.
-     */
-    public void clearPositionDependentData() {
-        // Inventories
-        for (int i = 0; i < anvilInventory.getContainerSize(); i++) {
-            anvilInventory.setItem(i, ItemStack.EMPTY);
-        }
-        materialContainer.setItem(0, ItemStack.EMPTY);
-
-        // Celestial matching results
-        this.celestialBodyData = null;
-        this.planetaryResourceSet = null;
-        this.searchHistory.clear();
-        this.bodySeed = 0;
-        this.stellarMass = 0;
-        this.ageAnvilCount = 0;
-
-        // Megastructure state
-        this.activeMegastructureIndex = -1;
-        this.excavatorLaserActive = false;
-
-        // Temple state
-        this.templeCycleDay = 0;
-        this.templeLastDay = -1;
-        this.templeDemandItem = ItemStack.EMPTY;
-        this.templeDemandCount = 0;
-        this.templeDemandSatisfied = false;
-
-        // Collider state
-        this.colliderCooldown = 0;
-        this.colliderCycleRemaining = 0;
-        this.colliderReservedAnvil = ItemStack.EMPTY;
-        this.colliderReservedAnvilSource = null;
-        this.colliderReservedHitBlock = ItemStack.EMPTY;
-        this.colliderReservedHitBlockSource = null;
-        this.colliderActiveSpeed = 0;
-        this.colliderTargetItems.clear();
-
-        // Matter Decompressor state
-        this.matterDecompressorCounter = 0;
-
-        // Accelerator state
-        this.acceleratorStage = 0;
-        this.acceleratorTicksRemaining = 0;
-        this.acceleratorTicksTotal = 0;
-        this.acceleratorOriginalMass = 0;
-        this.acceleratorOriginalEnergy = 0;
-        this.acceleratorOriginalSize = 0;
-        this.acceleratorDysonDestroyed = false;
-        this.acceleratorDysonDestroyTick = -1;
-        this.supernovaFlashTicks = 0;
-
-
-        // History browsing state
-        this.historyBrowseIndex = 0;
-        this.historyOriginalEntry = null;
-
-        // Wormhole state
-        this.wormholeParamsHash = 0;
-        this.wormholeRegistered = false;
-        this.portals.clear();
-
-        // Multiblock state
-        this.isAmplify = false;
-        this.amplifierPresent = false;
-
-        // Runtime / transient state
-        this.searching = false;
-        this.searchTicksRemaining = 0;
-        this.searchFailed = false;
-        this.powerInsufficient = false;
-        this.lastConsumedSeedItem = null;
-        this.lastConsumedSeedNbt = null;
-
-        // User selections
-        this.locked = false;
-        this.materialFilter = new ItemStack(Items.BARRIER);
-        this.materialLimit = 0;
-
-        // Rotation / animation (cosmetic)
-        this.rotation = 0;
-        this.preRotation = 0;
-        this.bodyRotation = 0;
     }
 
     /**
@@ -986,6 +915,17 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.ageAnvilCount = time;
         this.bodySeed = level.getRandom().nextLong();
         this.stellarMass = mass;
+
+        // Verify seed item is still present — if player removed it during the search,
+        // clear captured data so we fall through to normal matching instead of granting
+        // a special planet without deducting the seed item.
+        if (lastConsumedSeedItem != null || lastConsumedSeedNbt != null) {
+            ItemStack seedStack = this.anvilInventory.getItem(4);
+            if (seedStack.isEmpty()) {
+                this.lastConsumedSeedItem = null;
+                this.lastConsumedSeedNbt = null;
+            }
+        }
 
         // First: check for seed item snapshot (disk / singularity crystal)
         if (lastConsumedSeedNbt != null && lastConsumedSeedNbt.contains("celestialBody")) {
@@ -1742,6 +1682,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         wormholeParamsHash = 0;
         portals.clear();
+        cleanupWormholeChunkLoading();
         // Re-register with power grid to restore CONSUMER type
         PowerGrid.addComponent(this);
     }
@@ -1995,6 +1936,326 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         // East face (X = 2): 3 positions
         for (int dz = -1; dz <= 1; dz++) {
             consumer.accept(new BlockPos(worldPosition.getX() + 2, y, worldPosition.getZ() + dz));
+        }
+    }
+
+    // === Wormhole interface scanning (public for cross-CFA access) ===
+
+    /**
+     * Generic helper: scan adjacent blocks and map any that are instances of the given type
+     * keyed by relative offset from this CFA's controller.
+     */
+    private <T extends BlockEntity> Map<BlockPos, T> getInterfacesMap(Class<T> type) {
+        Map<BlockPos, T> result = new HashMap<>();
+        if (level == null) return result;
+        scanAdjacentBlocks((checkPos) -> {
+            BlockEntity be = level.getBlockEntity(checkPos);
+            if (type.isInstance(be)) {
+                BlockPos relOffset = new BlockPos(
+                    checkPos.getX() - worldPosition.getX(), 0,
+                    checkPos.getZ() - worldPosition.getZ());
+                result.put(relOffset, type.cast(be));
+            }
+        });
+        return result;
+    }
+
+    /**
+     * Get all laser interfaces mapped by relative offset from this CFA's controller.
+     */
+    public Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> getLaserInterfacesMap() {
+        return getInterfacesMap(CelestialForgingAnvilLaserInterfaceBlockEntity.class);
+    }
+
+    /**
+     * Get all logistics interfaces mapped by relative offset from this CFA's controller.
+     */
+    public Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> getLogisticsInterfacesMap() {
+        return getInterfacesMap(CelestialForgingAnvilLogisticsInterfaceBlockEntity.class);
+    }
+
+    /**
+     * Get all fluid interfaces mapped by relative offset from this CFA's controller.
+     */
+    public Map<BlockPos, CelestialForgingAnvilFluidInterfaceBlockEntity> getFluidInterfacesMap() {
+        return getInterfacesMap(CelestialForgingAnvilFluidInterfaceBlockEntity.class);
+    }
+
+    // === Wormhole content syncing ===
+
+    /**
+     * Called immediately when a player inserts/removes items in a logistics interface.
+     * Pushes the change to the canonical and directly to all connected CFAs' handlers
+     * in the same tick, eliminating the 1-tick delay.
+     */
+    public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
+        if (level == null || level.isClientSide()) return;
+        if (!wormholeRegistered) return;
+
+        Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> localMap = getLogisticsInterfacesMap();
+        CelestialForgingAnvilLogisticsInterfaceBlockEntity localBe = localMap.values().stream()
+            .filter(be -> be.getBlockPos().equals(interfacePos))
+            .findFirst().orElse(null);
+        if (localBe == null) return;
+
+        BlockPos relOffset = new BlockPos(
+            interfacePos.getX() - worldPosition.getX(), 0,
+            interfacePos.getZ() - worldPosition.getZ());
+        IItemHandler localHandler = localBe.getItemHandler();
+        int slots = localHandler.getSlots();
+        UUID uuid = WormholeInterfaceStates.logisticsUuid(
+            wormholeParamsHash, relOffset.getX(), relOffset.getZ());
+        WormholeInterfaceStates states = WormholeInterfaceStates.get();
+        List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
+
+        // Push local change to canonical
+        ItemStack localStack = localHandler.getStackInSlot(changedSlot);
+        ItemStack canonStack = canonical.get(changedSlot).toStack();
+        if (!ItemStack.matches(localStack, canonStack)
+            || localStack.getCount() != canonStack.getCount()) {
+            canonical.set(changedSlot, new UnlimitedItemStack(localStack));
+            states.setDirty();
+        }
+
+        // Push canonical to all connected CFAs' handlers immediately
+        WormholeNetwork network = WormholeNetwork.get();
+        List<WormholeNetwork.Entry> connected = network.getConnected(
+            wormholeParamsHash, level.dimension(), worldPosition);
+        for (WormholeNetwork.Entry entry : connected) {
+            ServerLevel targetLevel = level.getServer().getLevel(entry.dimension());
+            if (targetLevel == null) continue;
+            BlockEntity targetBe = targetLevel.getBlockEntity(entry.pos());
+            if (!(targetBe instanceof CelestialForgingAnvilBlockEntity targetCfa)) continue;
+            Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> remoteMap =
+                targetCfa.getLogisticsInterfacesMap();
+            CelestialForgingAnvilLogisticsInterfaceBlockEntity remoteBe = remoteMap.get(relOffset);
+            if (remoteBe == null || remoteBe == localBe) continue;
+            IItemHandler remoteHandler = remoteBe.getItemHandler();
+            remoteBe.setSyncing(true);
+            try {
+                setHandlerSlot(remoteHandler, changedSlot, canonStack.copy());
+                remoteBe.setEjectCooldown(CelestialForgingAnvilLogisticsInterfaceBlockEntity.EJECT_COOLDOWN);
+            } finally {
+                remoteBe.setSyncing(false);
+            }
+        }
+    }
+
+    /**
+     * Sync logistics interfaces against the global canonical state (tick fallback).
+     * Only pulls — player changes are handled immediately by {@link #syncLogisticsOnChange}.
+     * This catches server restart / chunk reload edge cases.
+     */
+    private void syncWormholeLogistics() {
+        if (level == null || level.isClientSide()) return;
+        if (!wormholeRegistered) return;
+
+        Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> localMap = getLogisticsInterfacesMap();
+        if (localMap.isEmpty()) return;
+
+        WormholeInterfaceStates states = WormholeInterfaceStates.get();
+
+        for (var localEntry : localMap.entrySet()) {
+            BlockPos relOffset = localEntry.getKey();
+            CelestialForgingAnvilLogisticsInterfaceBlockEntity localBe = localEntry.getValue();
+            IItemHandler localHandler = localBe.getItemHandler();
+            int slots = localHandler.getSlots();
+
+            UUID uuid = WormholeInterfaceStates.logisticsUuid(
+                wormholeParamsHash, relOffset.getX(), relOffset.getZ());
+            List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
+
+            for (int slot = 0; slot < slots; slot++) {
+                ItemStack localStack = localHandler.getStackInSlot(slot);
+                ItemStack canonStack = canonical.get(slot).toStack();
+
+                if (ItemStack.matches(localStack, canonStack)
+                    && localStack.getCount() == canonStack.getCount()) continue;
+
+                setHandlerSlot(localHandler, slot, canonStack.copy());
+            }
+        }
+    }
+
+    /**
+     * Replace the contents of a slot in an item handler.
+     */
+    private static void setHandlerSlot(IItemHandler handler, int slot, ItemStack stack) {
+        ItemStack existing = handler.getStackInSlot(slot);
+        if (!existing.isEmpty()) {
+            handler.extractItem(slot, existing.getCount(), false);
+        }
+        if (!stack.isEmpty()) {
+            handler.insertItem(slot, stack, false);
+        }
+    }
+
+    /**
+     * Per-interface-pair snapshot of the last local fluid handler state.
+     * Key: "{uuid}:{relX},{relZ}"
+     */
+    private final Map<String, List<FluidStack>> lastFluidSnapshot = new HashMap<>();
+
+    /**
+     * Sync fluid interfaces against the global canonical state.
+     * Uses a per-tank snapshot to detect player vs canonical changes.
+     */
+    private void syncWormholeFluids() {
+        if (level == null || level.isClientSide()) return;
+        if (!wormholeRegistered) return;
+
+        Map<BlockPos, CelestialForgingAnvilFluidInterfaceBlockEntity> localMap = getFluidInterfacesMap();
+        if (localMap.isEmpty()) return;
+
+        WormholeInterfaceStates states = WormholeInterfaceStates.get();
+
+        for (var localEntry : localMap.entrySet()) {
+            BlockPos relOffset = localEntry.getKey();
+            CelestialForgingAnvilFluidInterfaceBlockEntity localBe = localEntry.getValue();
+            IFluidHandler localHandler = localBe.getFluidHandler();
+            int tanks = localHandler.getTanks();
+
+            UUID uuid = WormholeInterfaceStates.fluidUuid(
+                wormholeParamsHash, relOffset.getX(), relOffset.getZ());
+            String snapKey = uuid + ":" + relOffset.getX() + "," + relOffset.getZ();
+            List<FluidStack> canonical = states.getOrCreateFluidState(uuid, tanks);
+            List<FluidStack> lastLocal = lastFluidSnapshot.computeIfAbsent(snapKey,
+                k -> new ArrayList<>(tanks));
+            while (lastLocal.size() < tanks) lastLocal.add(FluidStack.EMPTY);
+
+            syncFluidTanks(localHandler, canonical, lastLocal, tanks, states);
+        }
+    }
+
+    private void syncFluidTanks(
+        IFluidHandler local, List<FluidStack> canonical,
+        List<FluidStack> lastLocal, int tanks,
+        WormholeInterfaceStates states
+    ) {
+        for (int tank = 0; tank < tanks; tank++) {
+            FluidStack localStack = local.getFluidInTank(tank);
+            FluidStack canonStack = canonical.get(tank);
+            FluidStack prevStack = lastLocal.isEmpty() || tank >= lastLocal.size()
+                ? FluidStack.EMPTY : lastLocal.get(tank);
+
+            if (FluidStack.matches(localStack, canonStack)
+                && localStack.getAmount() == canonStack.getAmount()) {
+                while (lastLocal.size() <= tank) lastLocal.add(FluidStack.EMPTY);
+                lastLocal.set(tank, localStack.copy());
+                continue;
+            }
+
+            boolean localChanged = !FluidStack.matches(localStack, prevStack)
+                || localStack.getAmount() != prevStack.getAmount();
+
+            if (localChanged) {
+                canonical.set(tank, localStack.copy());
+                states.setDirty();
+            } else {
+                setTankContents(local, tank, canonStack);
+            }
+
+            while (lastLocal.size() <= tank) lastLocal.add(FluidStack.EMPTY);
+            lastLocal.set(tank, localStack.copy());
+        }
+    }
+
+    /**
+     * Replace the contents of a fluid tank.
+     */
+    private static void setTankContents(IFluidHandler handler, int tank, FluidStack stack) {
+        FluidStack existing = handler.getFluidInTank(tank);
+        if (!existing.isEmpty()) {
+            handler.drain(existing, IFluidHandler.FluidAction.EXECUTE);
+        }
+        if (!stack.isEmpty()) {
+            handler.fill(stack.copy(), IFluidHandler.FluidAction.EXECUTE);
+        }
+    }
+
+    /**
+     * Sync laser interfaces across wormhole-connected CFAs.
+     *
+     * <p>
+     * For each relative-offset position, all passive (receiving) laser interfaces
+     * across the entire network group have their input laser levels summed.
+     * The total is then split equally (floor division) among the active (emitting)
+     * interfaces at that same offset.
+     *
+     * <p>
+     * <b>Important:</b> Each CFA only modifies its <em>own</em> laser interfaces.
+     * Remote CFAs are read-only sources of input data; their own sync will set
+     * their outputs independently. This avoids cross-CFA race conditions.
+     */
+    private void syncWormholeLasers() {
+        if (level == null || level.isClientSide()) return;
+        if (!wormholeRegistered) return;
+
+        Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> localMap = getLaserInterfacesMap();
+        if (localMap.isEmpty()) return;
+
+        WormholeNetwork network = WormholeNetwork.get();
+        List<WormholeNetwork.Entry> connected = network.getConnected(
+            wormholeParamsHash, level.dimension(), worldPosition);
+
+        for (var localEntry : localMap.entrySet()) {
+            BlockPos relOffset = localEntry.getKey();
+            CelestialForgingAnvilLaserInterfaceBlockEntity localBe = localEntry.getValue();
+
+            // Sum input levels across the network at this offset
+            int totalNormal = 0;
+            int totalGamma = 0;
+            int activeCount = 1; // include self
+
+            // Self: if passive, contribute received level; if active, count as output
+            if (localBe.isActive()) {
+                // Self is active — no input contribution
+            } else {
+                if (localBe.getReceivedLaserLevel() > 0) {
+                    if (localBe.isReceivedGamma()) {
+                        totalGamma += localBe.getReceivedLaserLevel();
+                    } else {
+                        totalNormal += localBe.getReceivedLaserLevel();
+                    }
+                }
+                activeCount = 0; // self is NOT active
+            }
+
+            // Remote CFAs: read their passive input levels and count active outputs
+            for (WormholeNetwork.Entry entry : connected) {
+                ServerLevel targetLevel = level.getServer().getLevel(entry.dimension());
+                if (targetLevel == null) continue;
+                BlockEntity targetBe = targetLevel.getBlockEntity(entry.pos());
+                if (!(targetBe instanceof CelestialForgingAnvilBlockEntity targetCfa)) continue;
+
+                Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> remoteMap =
+                    targetCfa.getLaserInterfacesMap();
+                CelestialForgingAnvilLaserInterfaceBlockEntity remoteBe = remoteMap.get(relOffset);
+                if (remoteBe == null) continue;
+
+                if (remoteBe.isActive()) {
+                    activeCount++;
+                } else if (remoteBe.getReceivedLaserLevel() > 0) {
+                    if (remoteBe.isReceivedGamma()) {
+                        totalGamma += remoteBe.getReceivedLaserLevel();
+                    } else {
+                        totalNormal += remoteBe.getReceivedLaserLevel();
+                    }
+                }
+            }
+
+            // Apply to local interface only
+            if (localBe.isActive()) {
+                int eachNormal = activeCount > 0 ? totalNormal / activeCount : 0;
+                int eachGamma = activeCount > 0 ? totalGamma / activeCount : 0;
+                if (eachGamma > 0) {
+                    localBe.setWormholeLaserOutput(eachGamma, true);
+                } else {
+                    localBe.setWormholeLaserOutput(eachNormal, false);
+                }
+            } else {
+                localBe.setWormholeLaserOutput(0, false);
+            }
         }
     }
 
@@ -2857,11 +3118,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (option == null || !"wormhole_stabilizer".equals(option.megastructure())) return;
         if (!(celestialBodyData instanceof StarData star) || star.bodyClass() != CelestialBodyClass.BLACK_HOLE) return;
 
-        // Check amplifier requirement
+        // Check amplifier requirement — cleanup everything if amplifier missing
         if (!amplifierPresent) {
             if (wormholeRegistered) {
                 WormholeNetwork.get().unregister(level, worldPosition);
                 wormholeRegistered = false;
+                cleanupWormholeChunkLoading();
                 setChanged();
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             }
@@ -2878,6 +3140,59 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         }
 
+        // Manage chunk loading for connected CFAs
+        manageWormholeChunkLoading();
+
+        // Sync content across wormhole-connected interfaces
+        syncWormholeLogistics();
+        syncWormholeFluids();
+        syncWormholeLasers();
+    }
+
+    /**
+     * Force-load 3×3 chunks around each connected CFA using the existing chunk load system.
+     */
+    private void manageWormholeChunkLoading() {
+        if (level == null || level.isClientSide()) return;
+        WormholeNetwork network = WormholeNetwork.get();
+        List<WormholeNetwork.Entry> connected = network.getConnected(
+            wormholeParamsHash, level.dimension(), worldPosition);
+
+        Set<WormholeChunkLoadKey> currentKeys = new HashSet<>();
+        for (WormholeNetwork.Entry entry : connected) {
+            net.minecraft.server.level.ServerLevel targetLevel =
+                level.getServer().getLevel(entry.dimension());
+            if (targetLevel == null) continue;
+
+            WormholeChunkLoadKey key = new WormholeChunkLoadKey(entry.dimension().location(), entry.pos());
+            currentKeys.add(key);
+
+            if (!wormholeLoadedChunks.containsKey(key)) {
+                var data = LoadChuckData.createLoadChuckData(
+                    1, entry.pos(), false, targetLevel);
+                LevelLoadManager.register(
+                    entry.pos(), data, targetLevel);
+                wormholeLoadedChunks.put(key, data);
+            }
+        }
+
+        wormholeLoadedChunks.entrySet().removeIf(e -> {
+            if (!currentKeys.contains(e.getKey())) {
+                LevelLoadManager.unregister(e.getKey().pos(), level);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Unregister all wormhole chunk loads (called on deactivation).
+     */
+    private void cleanupWormholeChunkLoading() {
+        for (WormholeChunkLoadKey key : wormholeLoadedChunks.keySet()) {
+            LevelLoadManager.unregister(key.pos(), level);
+        }
+        wormholeLoadedChunks.clear();
     }
 
     /**

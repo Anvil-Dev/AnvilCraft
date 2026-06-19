@@ -83,7 +83,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             boolean moved = false;
             for (int i = 0; i < ANVIL_SLOTS; i++) {
                 Slot anvilSlot = this.slots.get(i);
-                if (anvilSlot.mayPlace(stack) && anvilSlot.getItem().isEmpty()) {
+                if (anvilSlot.mayPlace(stack)) {
                     if (this.moveItemStackTo(stack, i, i + 1, false)) {
                         moved = true;
                         break;
@@ -261,8 +261,8 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "32 R☉", "40.3 R☉", "50.8 R☉", "64 R☉",
         "80.6 R☉", "102 R☉", "128 R☉", "161 R☉",
         "203 R☉", "256 R☉", "323 R☉", "406 R☉",
-        "512 R☉", "645 R☉", "813 R☉", "1000 R☉",
-        "1260 R☉", "1590 R☉", "2000 R☉", "2520 R☉"
+        "512 R☉", "645 R☉", "813 R☉", "1k R☉",
+        "1.26k R☉", "1.59k R☉", "2k R☉", "2.52k R☉"
     };
 
     // Mass: 40 M⊕ + 24 M☉
@@ -274,9 +274,9 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "5.66 M⊕", "8 M⊕", "11.3 M⊕", "16 M⊕",
         "22.6 M⊕", "32 M⊕", "45.3 M⊕", "64 M⊕",
         "90.5 M⊕", "128 M⊕", "181 M⊕", "256 M⊕",
-        "362 M⊕", "512 M⊕", "724 M⊕", "1000 M⊕",
-        "1410 M⊕", "2000 M⊕", "2820 M⊕", "4000 M⊕",
-        "5660 M⊕", "8000 M⊕", "11300 M⊕", "16000 M⊕",
+        "362 M⊕", "512 M⊕", "724 M⊕", "1k M⊕",
+        "1.41k M⊕", "2k M⊕", "2.82k M⊕", "4k M⊕",
+        "5.66k M⊕", "8k M⊕", "11.3k M⊕", "16k M⊕",
         "0.063 M☉", "0.088 M☉", "0.125 M☉", "0.177 M☉",
         "0.25 M☉", "0.35 M☉", "0.5 M☉", "0.7 M☉",
         "1 M☉", "1.41 M☉", "2 M☉", "2.82 M☉",
@@ -363,10 +363,17 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     /**
      * Extract the numeric part from a table entry (e.g. "2.52 My" → offset(2.52)),
      * apply the offset, format to 3 significant figures, and reattach the unit.
+     * Handles entries with "k" suffix (e.g. "2.52k R☉" → 2520).
      */
     private static String applyOffset(String entry, float offset) {
         int spaceIdx = entry.indexOf(' ');
-        double value = Double.parseDouble(entry.substring(0, spaceIdx));
+        String numStr = entry.substring(0, spaceIdx);
+        double multiplier = 1.0;
+        if (numStr.endsWith("k")) {
+            numStr = numStr.substring(0, numStr.length() - 1);
+            multiplier = 1000.0;
+        }
+        double value = Double.parseDouble(numStr) * multiplier;
         double offsetValue = value * (1.0 + offset);
         String unit = entry.substring(spaceIdx + 1);
         return format3SigFig(offsetValue) + " " + unit;

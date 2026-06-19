@@ -411,8 +411,7 @@ public final class CelestialBodyMatcher {
         int[] rgb = getStarColorFromTempDiagram(energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
         int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : randomRotationSpeed(random);
-        // Neutron stars have random axial tilt like planets; other stars don't
-        float axialTilt = bodyClass == CelestialBodyClass.NEUTRON_STAR ? randomAxialTilt(random) : 0f;
+        float axialTilt = 0f;
         return new StarData(
             bodyClass,
             size, rgb[0], rgb[1], rgb[2],
@@ -491,6 +490,44 @@ public final class CelestialBodyMatcher {
         int g = (argb >> 8) & 0xFF;
         int b = (argb >> 16) & 0xFF;
         return new int[] {r, g, b};
+    }
+
+    // === Public diagram pixel lookups (for UI guide display) ===
+
+    /**
+     * Get the RGB color from the mass-radius diagram at (mass, space).
+     * Returns 0x000000 for black (no match).
+     */
+    public static int getMassRadiusRgb(int mass, int space) {
+        ensureLoaded();
+        return getRgb(massRadiusImage, toX(mass), toY(space));
+    }
+
+    /**
+     * Get the RGB color from the age-temp diagram at (time, energy).
+     * Returns 0x000000 for black (no match).
+     */
+    public static int getAgeTempRgb(int time, int energy) {
+        ensureLoaded();
+        return getRgb(ageTempImage, toX(time), toY(energy));
+    }
+
+    /**
+     * Get the RGB color from the age-temp-sp diagram at (time, energy).
+     * Returns 0x000000 for black (no match).
+     */
+    public static int getAgeTempSpRgb(int time, int energy) {
+        ensureLoaded();
+        return getRgb(ageTempSpImage, toX(time), toY(energy));
+    }
+
+    /**
+     * Get the RGB color from the age-radius diagram at (time, space).
+     * Returns 0x000000 for black (no match).
+     */
+    public static int getAgeRadiusRgb(int time, int space) {
+        ensureLoaded();
+        return getRgb(ageRadiusImage, toX(time), toY(space));
     }
 
     // === Pixel scanning for stellar evolution accelerator ===

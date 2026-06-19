@@ -73,6 +73,7 @@ import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
+import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.block.InstructBlock;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
@@ -148,10 +149,10 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilFluidInter
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfacePlaceholderBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
-import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
@@ -167,6 +168,7 @@ import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
+import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
 import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.block.item.MultiphaseMatterBlockItem;
@@ -4148,6 +4150,30 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
         })
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<InfiniteCollectorBlock> INFINITE_COLLECTOR =
+        REGISTRUM.block("infinite_collector", InfiniteCollectorBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(p -> p
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .lightLevel(state -> 7)
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0F, 1200.0F)
+        )
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            Tags.Blocks.NEEDS_NETHERITE_TOOL
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item(InfiniteCollectorBlockItem::new)
+        .properties(Item.Properties::fireResistant)
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::infiniteCollector)
         .register();
 
     public static void register() {

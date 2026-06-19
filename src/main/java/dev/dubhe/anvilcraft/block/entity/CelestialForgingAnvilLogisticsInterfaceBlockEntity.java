@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -36,6 +38,8 @@ import java.util.List;
  */
 public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity {
     private static final int TYPE_COUNT = 16;
+    @Setter
+    private boolean syncing = false; // re-entrancy guard
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(TYPE_COUNT) {
         @Override
@@ -55,6 +59,9 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         @Override
         protected void onContentsChanged(int slot) {
             CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.setChanged();
+            if (!syncing) {
+                CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.triggerWormholeSync(slot);
+            }
         }
     };
 
@@ -96,8 +103,46 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return itemHandler;
     }
 
+    /**
+     * Called from {@code onContentsChanged} when a player inserts or removes items.
+     * Immediately triggers the parent CFA's wormhole sync for this specific interface,
+     * pushing the change to the canonical and to other CFAs in the same tick.
+     */
+    private void triggerWormholeSync(int changedSlot) {
+        if (level == null || level.isClientSide()) return;
+        BlockPos cfaPos = findParentCfa();
+        if (cfaPos == null) return;
+        if (level.getBlockEntity(cfaPos) instanceof CelestialForgingAnvilBlockEntity cfa) {
+            cfa.syncLogisticsOnChange(worldPosition, changedSlot);
+        }
+    }
+
+    /**
+     * Find the parent CFA controller by following the FACING direction.
+     * The interface faces AWAY from the CFA, so the adjacent block in the
+     * opposite direction is always a CFA part. From there, HALF offset
+     * navigates to the controller (BOTTOM_CENTER).
+     */
+    @Nullable
+    private BlockPos findParentCfa() {
+        if (level == null) return null;
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof CelestialForgingAnvilInterfaceBlock)) return null;
+        Direction towardsCfa = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING).getOpposite();
+        BlockPos cfaBlockPos = worldPosition.relative(towardsCfa);
+        BlockState cfaState = level.getBlockState(cfaBlockPos);
+        if (cfaState.getBlock() instanceof CelestialForgingAnvilBlock) {
+            Cube323PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
+            BlockPos controllerPos = cfaBlockPos.offset(half.getOffset().multiply(-1));
+            if (level.getBlockEntity(controllerPos) instanceof CelestialForgingAnvilBlockEntity) {
+                return controllerPos;
+            }
+        }
+        return null;
+    }
+
     private static final int MAX_EJECT_PER_OP = 64; // Max 1 stack per ejection
-    private static final int EJECT_COOLDOWN = 8;     // 8gt between ejections (like MagneticChute)
+    public static final int EJECT_COOLDOWN = 8;     // 8gt between ejections (like MagneticChute)
 
     @Setter
     private int ejectCooldown = 0;

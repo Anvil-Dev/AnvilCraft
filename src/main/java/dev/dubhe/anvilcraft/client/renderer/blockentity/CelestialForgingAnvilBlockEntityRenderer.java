@@ -288,7 +288,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
         poseStack.popPose();
 
-        // Render Dyson Sphere rings with star-synchronous rotation
+        // Render Dyson Sphere rings with star-synchronous rotation.
+        // The Dyson Sphere models replace the inner ring(s); the outer ring
+        // (R5 for small stars, R6 for large stars) is also rendered here with
+        // star-synchronous rotation instead of being hidden.
         if (blockEntity.isAmplify()) {
             boolean isDysonSphereR4 = isDysonSphereActive(blockEntity, 4);
             boolean isDysonSphereR5 = isDysonSphereActive(blockEntity, 5);
@@ -307,6 +310,29 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     packedOverlay,
                     modelRenderer
                 );
+                // Render the outer ring with star-synchronous rotation (like a real Dyson Sphere)
+                boolean isSmallStar = bodyData.size() < 48;
+                if (isDysonSphereR4 && isSmallStar) {
+                    // Small star: R5 is the outer ring
+                    poseStack.pushPose();
+                    poseStack.translate(0.5, centerY, 0.5);
+                    poseStack.scale(6, 6, 6);
+                    poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
+                    poseStack.mulPose(
+                        Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
+                    renderRingCutout(R5, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                    poseStack.popPose();
+                } else if (isDysonSphereR5 && !isSmallStar) {
+                    // Large star: R6 is the outer ring
+                    poseStack.pushPose();
+                    poseStack.translate(0.5, centerY, 0.5);
+                    poseStack.scale(6, 6, 6);
+                    poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
+                    poseStack.mulPose(
+                        Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
+                    renderRingCutout(R6, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                    poseStack.popPose();
+                }
             }
         }
 
@@ -371,6 +397,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             );
             renderCelestialRing(effectiveBodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay, animProgress);
         }
+
     }
 
     /**
@@ -947,7 +974,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             float visualSpeed = CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed());
             float extraJetRotation = bodyRotation * visualSpeed * 0.5f;
             // Star magneticFieldStrength is 4 (normal) or 5 (magnetar)
-            float magneticTilt = star.magneticFieldStrength() >= 5 ? 30f : 20f;
+            float magneticTilt = star.magneticFieldStrength() >= 5 ? 15f : 10f;
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.mulPose(Axis.YP.rotationDegrees(extraJetRotation));
