@@ -2,10 +2,8 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
-import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
@@ -21,9 +19,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -35,8 +31,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
@@ -665,17 +659,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewWindowY + this.previewWindowHeight
         );
 
-        int centerX = this.previewWindowX + this.previewWindowWidth / 2;
-        int centerY = this.previewWindowY + this.previewWindowHeight / 2 + 5;
-
         // 构建并渲染 LevelLike 预览
         LevelLike previewLevelLike = this.getOrCreateCachedPreviewLevelLike();
         if (previewLevelLike != null) {
             this.renderPreviewWithFixedSize(
                 previewLevelLike,
                 graphics,
-                centerX,
-                centerY,
                 80.0f,
                 this.previewRotationX,
                 this.previewRotationY,
@@ -686,7 +675,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
 
         // 渲染放置范围边框
-        this.renderPlacementRangeBox(graphics, centerX, centerY);
+        this.renderPlacementRangeBox(graphics);
 
         graphics.disableScissor();
     }
@@ -749,8 +738,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private void renderPreviewWithFixedSize(
         LevelLike level,
         GuiGraphicsExtractor graphics,
-        int posX,
-        int posY,
         float scale,
         float rotationX,
         float rotationY,
@@ -764,29 +751,26 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         PoseStack poseStack = new PoseStack();
 
-        // 1. 平移到预览窗口中心
-        poseStack.translate(posX, posY, 100);
-
-        // 2. 缩放
+        // 1. 缩放
         float scaleX = scale / (sizeX * Mth.SQRT_OF_TWO);
         float scaleY = scale / (float) sizeY;
         float finalScale = Math.min(scaleY, scaleX);
         poseStack.scale(-finalScale, -finalScale, -finalScale);
 
-        // 3. 平移到中心
+        // 2. 平移到块网格中心
         poseStack.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
 
-        // 4. 应用X轴旋转
+        // 3. 应用X轴旋转
         poseStack.mulPose(Axis.XP.rotationDegrees(rotationX));
 
-        // 5. Y轴旋转
+        // 4. Y轴旋转
         float offsetX = (float) -sizeX / 2 + 0.05f;
         float offsetZ = (float) -sizeX / 2 + 1;
         poseStack.translate(-offsetX, 0, -offsetZ);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
         poseStack.translate(offsetX, 0, offsetZ);
 
-        // 6. Z偏移
+        // 5. Z偏移
         poseStack.translate(0, 0, zoffset);
 
         GuiRenderExtras.submitStructure(
@@ -806,39 +790,24 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     /**
-     * 渲染放置范围边框
+     * 渲染放置范围边框（通过 GUI 提取系统绘制 2D 边框）
      */
-    private void renderPlacementRangeBox(GuiGraphicsExtractor graphics, int posX, int posY) {
-        if (this.minecraft.level == null) return;
+    private void renderPlacementRangeBox(GuiGraphicsExtractor graphics) {
+        // 在预览窗口四周绘制 2D 边框
+        int x0 = this.previewWindowX;
+        int y0 = this.previewWindowY;
+        int x1 = this.previewWindowX + this.previewWindowWidth;
+        int y1 = this.previewWindowY + this.previewWindowHeight;
+        int borderColor = 0x88FFAA00;
 
-        MultiBufferSource.BufferSource buffers = this.minecraft.renderBuffers().bufferSource();
-
-        PoseStack poseStack = new PoseStack();
-
-        int sizeX = 5;
-        int sizeY = 5;
-
-        // 和预览保持相同的变换
-        poseStack.translate(posX, posY, 100);
-        float scaleX = 80.0f / (sizeX * Mth.SQRT_OF_TWO);
-        float scaleY = 80.0f / (float) sizeY;
-        float scale = Math.min(scaleY, scaleX);
-        poseStack.scale(-scale, -scale, -scale);
-        poseStack.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
-        poseStack.mulPose(Axis.XP.rotationDegrees(this.previewRotationX));
-        float offsetX = (float) -sizeX / 2 + 0.05f;
-        float offsetZ = (float) -sizeX / 2 + 1;
-        poseStack.translate(-offsetX, 0, -offsetZ);
-        poseStack.mulPose(Axis.YP.rotationDegrees(this.previewRotationY + 45));
-        poseStack.translate(offsetX, 0, offsetZ);
-        poseStack.translate(0, 0, -0.5f);
-
-        // 5x5x5 放置范围的边框
-        VoxelShape borderShape = Shapes.create(0.0, 0.0, 0.0, sizeX, sizeY, sizeX);
-        VertexConsumer consumer = buffers.getBuffer(RenderTypes.LINES);
-        TooltipRenderHelper.renderOutline(poseStack, consumer, 0, 0, 0, BlockPos.ZERO, borderShape, 0xFFFFAA00);
-
-        buffers.endBatch(RenderTypes.LINES);
+        // 上
+        graphics.fill(x0 - 1, y0 - 1, x1 + 1, y0, borderColor);
+        // 下
+        graphics.fill(x0 - 1, y1, x1 + 1, y1 + 1, borderColor);
+        // 左
+        graphics.fill(x0 - 1, y0, x0, y1, borderColor);
+        // 右
+        graphics.fill(x1, y0, x1 + 1, y1, borderColor);
     }
 
     @Override
@@ -935,59 +904,53 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 previewLevelLike.setBlockState(new BlockPos(bp.x(), renderY, bp.z() + 1), rotatedState);
             }
         } else {
-            // 普通模式：显示当前世界中的方块
-            BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
+            // 普通模式：显示 UI 中的选区模式（不读取世界方块）
+            // 每层使用不同颜色的染色玻璃方便区分
+            BlockState[] layerColors = {
+                net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState(),
+                net.minecraft.world.level.block.Blocks.LIGHT_GRAY_STAINED_GLASS.defaultBlockState(),
+                net.minecraft.world.level.block.Blocks.GRAY_STAINED_GLASS.defaultBlockState(),
+                net.minecraft.world.level.block.Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
+                net.minecraft.world.level.block.Blocks.BLUE_STAINED_GLASS.defaultBlockState(),
+            };
+
+            // 在预览中添加放置器自身的模型（固定在网格后方 Z=0，X 居中）
+            int placerX = 2;
+            int placerZ = 0;
+            // 放置器与最近层同 Y，位于网格后方 Z=0
+            // 正放：与 layer 0（最下层，previewY=4）同层
+            // 倒挂：与 layer 4（最上层，previewY=0）同层
+            int placerY = upsideDown ? 0 : 4;
+            // 使用显式的放置器方块状态（不依赖世界状态）
+            previewLevelLike.setBlockState(
+                new BlockPos(placerX, placerY, placerZ),
+                blockState.getBlock().defaultBlockState()
+                    .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+                    .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
+            );
 
             for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {
-                int previewY = entry.getKey();
+                int layer = entry.getKey();
 
-                if (!this.showAllLayers && previewY != this.currentViewLayer) continue;
+                if (!this.showAllLayers && layer != this.currentViewLayer) continue;
+
+                BlockState glassColor = layerColors[layer % layerColors.length];
+
+                // 变换链中 scale(-finalScale) + PiP 的 Y 翻转导致 LevelLike 的 Y 轴在屏幕上反转
+                // 所以需要反转 Y：layer 0（世界最下层）→ previewY=4（屏幕最下层）
+                int previewY = 4 - layer;
 
                 for (int posIndex : entry.getValue()) {
                     int row = posIndex / 5;
                     int previewX = posIndex % 5;
 
-                    int worldX;
-                    int worldY;
-                    int worldZ;
-
-                    if (upsideDown) {
-                        worldY = basePos.getY() + previewY;
-                    } else {
-                        worldY = basePos.getY() - previewY;
-                    }
-
-                    // 根据朝向计算世界坐标
-                    switch (facing) {
-                        case NORTH -> {
-                            worldX = basePos.getX() + previewX;
-                            worldZ = basePos.getZ() + row;
-                        }
-                        case SOUTH -> {
-                            worldX = basePos.getX() - previewX;
-                            worldZ = basePos.getZ() - row;
-                        }
-                        case WEST -> {
-                            worldX = basePos.getX() + row;
-                            worldZ = basePos.getZ() - previewX;
-                        }
-                        case EAST -> {
-                            worldX = basePos.getX() - row;
-                            worldZ = basePos.getZ() + previewX;
-                        }
-                        default -> {
-                            worldX = basePos.getX() + previewX;
-                            worldZ = basePos.getZ() + row;
-                        }
-                    }
-
-                    BlockPos worldPos = new BlockPos(worldX, worldY, worldZ);
-                    BlockState worldState = level.getBlockState(worldPos);
-
                     // 在预览坐标系中：col=X, layer=Y, row=Z
                     int previewZ = row + 1;
 
-                    previewLevelLike.setBlockState(new BlockPos(previewX, previewY, previewZ), worldState);
+                    previewLevelLike.setBlockState(
+                        new BlockPos(previewX, previewY, previewZ),
+                        glassColor
+                    );
                 }
             }
         }
