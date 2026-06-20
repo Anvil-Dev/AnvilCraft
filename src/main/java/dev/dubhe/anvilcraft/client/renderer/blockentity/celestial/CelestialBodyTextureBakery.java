@@ -214,7 +214,7 @@ public class CelestialBodyTextureBakery {
      */
     @Nullable
     private static ResourceLocation bakeSpecial(String key, SpecialCelestialBodyData special) {
-        String filename = special.specialType().getTextureName() + ".png";
+        String filename = special.textureName() + ".png";
         NativeImage img = loadImage(filename);
         if (img == null) return null;
         return registerTexture(key, img);
@@ -248,7 +248,7 @@ public class CelestialBodyTextureBakery {
 
     private static String cacheKey(CelestialBodyData data) {
         if (data instanceof SpecialCelestialBodyData s)
-            return "special_" + s.specialType().getName();
+            return "special_" + s.name();
         if (data instanceof StarData s)
             return "star_" + s.size() + "_" + s.colorR() + "_" + s.colorG() + "_" + s.colorB();
         if (data instanceof RockyPlanetData rp)

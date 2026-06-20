@@ -223,6 +223,8 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     @Getter @Setter
     private int templeDemandCount = 0;
     @Getter @Setter
+    private int templeDemandProgress = 0;
+    @Getter @Setter
     private boolean templeDemandSatisfied = false;
 
     // === Collider target items display (pushed by CFA controller) ===
@@ -242,6 +244,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
             tag.put("templeDemandItem", templeDemandItem.save(registries));
         }
         tag.putInt("templeDemandCount", templeDemandCount);
+        tag.putInt("templeDemandProgress", templeDemandProgress);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         if (!colliderTargetItems.isEmpty()) {
             ListTag list = new ListTag();
@@ -270,6 +273,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
             this.templeDemandItem = ItemStack.EMPTY;
         }
         this.templeDemandCount = tag.getInt("templeDemandCount");
+        this.templeDemandProgress = tag.getInt("templeDemandProgress");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         this.colliderTargetItems.clear();
         if (tag.contains("colliderTargetItems")) {
@@ -290,6 +294,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
             tag.put("templeDemandItem", templeDemandItem.save(registries));
         }
         tag.putInt("templeDemandCount", templeDemandCount);
+        tag.putInt("templeDemandProgress", templeDemandProgress);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         if (!colliderTargetItems.isEmpty()) {
             ListTag list = new ListTag();
@@ -318,6 +323,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
             this.templeDemandItem = ItemStack.EMPTY;
         }
         this.templeDemandCount = tag.getInt("templeDemandCount");
+        this.templeDemandProgress = tag.getInt("templeDemandProgress");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         this.colliderTargetItems.clear();
         if (tag.contains("colliderTargetItems")) {

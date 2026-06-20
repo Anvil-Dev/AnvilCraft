@@ -329,8 +329,12 @@ public class CelestialForgingAnvilBlock
         BlockEntity be = level.getBlockEntity(mainPos);
         if (be instanceof CelestialForgingAnvilBlockEntity cfaBe) {
             // Disk right-click: delegate to DiskItem.useOn
-            if (cfaBe.useDisk(level, player, hand, stack, hitResult) == InteractionResult.SUCCESS) {
+            InteractionResult diskResult = cfaBe.useDisk(level, player, hand, stack, hitResult);
+            if (diskResult == InteractionResult.SUCCESS) {
                 return ItemInteractionResult.SUCCESS;
+            }
+            if (diskResult == InteractionResult.FAIL) {
+                return ItemInteractionResult.FAIL;
             }
             // Singularity crystal right-click: store snapshot (apply only via seed slot)
             if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {

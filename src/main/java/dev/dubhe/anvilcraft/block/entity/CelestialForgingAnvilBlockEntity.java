@@ -18,7 +18,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceGenerator;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
-import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyType;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
@@ -35,6 +35,7 @@ import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -185,6 +186,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      */
     @Getter
     private int templeDemandCount = 0;
+    /**
+     * Cumulative count of items already offered toward the current demand.
+     * Resets when a new demand is picked or the demand is satisfied.
+     */
+    @Getter
+    private int templeDemandProgress = 0;
     /**
      * Whether the current day's demand has been satisfied.
      */
@@ -688,6 +695,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             serverTickPenroseSphere();
             serverTickMatterDecompressor();
             serverTickWormholeStabilizer();
+            // Sync laser requirements to connected laser interfaces for tooltip display
+            syncLaserRequirements();
         }
 
         // Stellar Evolution Accelerator (runs independently of activeMegastructureIndex)
@@ -947,7 +956,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             if (specialBody != null) {
                 this.celestialBodyData = specialBody;
                 if (!level.isClientSide()) {
-                    this.planetaryResourceSet = specialBody.specialType().generateResources();
+                    ResourceLocation recipeId = ResourceLocation.parse(specialBody.recipeId());
+                    level.getRecipeManager().byKey(recipeId).ifPresent(holder -> {
+                        if (holder.value() instanceof SpecialCelestialBodyRecipe recipe) {
+                            this.planetaryResourceSet = recipe.generateResources();
+                        }
+                    });
                 }
                 addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
                 consumeSeedItem();
@@ -1007,12 +1021,23 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         Item consumedSeedItem,
         long worldSeed
     ) {
-        for (SpecialCelestialBodyType type : SpecialCelestialBodyType.values()) {
-            if (type.getTime() == time && type.getSpace() == space
-                && type.getMass() == mass
-                && type.getEnergy() == energy && type.isEffectiveSeedItem(consumedSeedItem, worldSeed)
+        if (level == null) return null;
+        List<SpecialCelestialBodyRecipe> recipes = level.getRecipeManager()
+            .getAllRecipesFor(ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get())
+            .stream().map(RecipeHolder::value).toList();
+        for (SpecialCelestialBodyRecipe recipe : recipes) {
+            if (recipe.time() == time && recipe.space() == space
+                && recipe.mass() == mass && recipe.energy() == energy
+                && recipe.isEffectiveSeedItem(consumedSeedItem, worldSeed)
             ) {
-                return new SpecialCelestialBodyData(type);
+                // Find the recipe holder to get the full ID
+                return level.getRecipeManager()
+                    .getAllRecipesFor(ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get())
+                    .stream()
+                    .filter(h -> h.value() == recipe)
+                    .findFirst()
+                    .map(h -> SpecialCelestialBodyData.fromRecipe(recipe, h.id().toString()))
+                    .orElse(null);
             }
         }
         return null;
@@ -1073,6 +1098,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (itemStack.is(ModItems.DISK.get())) {
             // Only allow storing, not applying
             if (!DiskItem.hasDataStored(itemStack)) {
+                // Extreme bodies (black hole / neutron star) require a singularity crystal
+                if (celestialBodyData instanceof StarData star && star.bodyClass().isExtreme()) {
+                    player.displayClientMessage(
+                        Component.translatable("message.anvilcraft.disk.extreme_body_requires_crystal")
+                            .withStyle(ChatFormatting.RED),
+                        true
+                    );
+                    return InteractionResult.FAIL;
+                }
                 // Redirect hit to main block position so DiskItem.useOn finds the BlockEntity
                 BlockHitResult mainHit = new BlockHitResult(
                     hitResult.getLocation(),
@@ -1127,6 +1161,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
      */
     public static void saveSnapshotToStack(ItemStack stack, CompoundTag snapshot) {
         if (stack.getItem() instanceof DiskItem) {
+            // Extreme bodies (black hole / neutron star) cannot be stored on disks
+            if (snapshot.contains("celestialBody")) {
+                CompoundTag bodyTag = snapshot.getCompound("celestialBody");
+                String bodyClass = bodyTag.getString("bodyClass");
+                if ("BLACK_HOLE".equals(bodyClass) || "NEUTRON_STAR".equals(bodyClass)) {
+                    return; // silently reject — extreme bodies require singularity crystal
+                }
+            }
             CompoundTag diskTag = DiskItem.createData(stack);
             diskTag.merge(snapshot);
         } else if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
@@ -1234,6 +1276,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             tag.put("templeDemand", templeDemandItem.save(registries));
         }
         tag.putInt("templeDemandCount", templeDemandCount);
+        tag.putInt("templeDemandProgress", templeDemandProgress);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         // Collider state (runtime only — not persisted)
         tag.putInt("historyBrowseIndex", historyBrowseIndex);
@@ -1335,6 +1378,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.templeDemandItem = ItemStack.EMPTY;
         }
         this.templeDemandCount = tag.getInt("templeDemandCount");
+        this.templeDemandProgress = tag.getInt("templeDemandProgress");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         // Collider runtime state is not persisted — always start clean on load
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
@@ -1395,6 +1439,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             tag.put("templeDemand", templeDemandItem.save(registries));
         }
         tag.putInt("templeDemandCount", templeDemandCount);
+        tag.putInt("templeDemandProgress", templeDemandProgress);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         // Collider runtime state not synced to client
         tag.putInt("historyBrowseIndex", historyBrowseIndex);
@@ -1482,6 +1527,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.templeDemandItem = ItemStack.EMPTY;
         }
         this.templeDemandCount = tag.getInt("templeDemandCount");
+        this.templeDemandProgress = tag.getInt("templeDemandProgress");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         // Collider runtime state not synced to client
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
@@ -1665,6 +1711,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeLastDay = -1;
         this.templeDemandItem = ItemStack.EMPTY;
         this.templeDemandCount = 0;
+        this.templeDemandProgress = 0;
         this.templeDemandSatisfied = false;
         pushTempleDemandToLogistics(); // clear demand display
         // Clear collider state
@@ -1898,6 +1945,47 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         });
         return result;
+    }
+
+    /**
+     * Sync laser requirements to all connected laser interfaces based on the active megastructure.
+     * This enables the laser interface tooltip to show "Required: Lv.X" / "Required: Gamma Lv.X"
+     * and the ✓/✗ valid status.
+     */
+    private void syncLaserRequirements() {
+        CelestialRefactorOption option = getActiveMegastructureOption();
+        if (option == null) {
+            clearAllLaserRequirements();
+            return;
+        }
+
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = findLaserInterfaces();
+        String megastructure = option.megastructure();
+
+        if ("planet_excavator".equals(megastructure)) {
+            // Planet Excavator: requires Lv.16 regular (red) laser from 1-4 interfaces
+            for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : lasers) {
+                laser.setLaserRequirement(EXCAVATOR_LASER_THRESHOLD, false);
+            }
+        } else if (MATTER_DECOMPRESSOR_MEGASTRUCTURE.equals(megastructure)) {
+            // Matter Decompressor: requires gamma laser input (any level)
+            for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : lasers) {
+                laser.setLaserRequirement(1, true);
+            }
+        } else {
+            // Other megastructures don't require laser input
+            clearAllLaserRequirements();
+        }
+    }
+
+    /**
+     * Clear laser requirements on all connected laser interfaces.
+     */
+    private void clearAllLaserRequirements() {
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = findLaserInterfaces();
+        for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : lasers) {
+            laser.setLaserRequirement(0, false);
+        }
     }
 
     private List<IItemHandler> findLogisticsInterfaces() {
@@ -3828,6 +3916,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             templeLastDay = currentDay;
             templeCycleDay = (templeCycleDay + 1) % 3;
             templeDemandSatisfied = false;
+            templeDemandProgress = 0;
             // Pick new demand from recipes
             TempleDemandRecipe.Category cat = templeCycleDay == TEMPLE_CYCLE_PUNISHMENT
                                               ? TempleDemandRecipe.Category.PUNISHMENT
@@ -3879,6 +3968,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
                 logiBe.setTempleDemandItem(templeDemandSatisfied ? ItemStack.EMPTY : templeDemandItem);
                 logiBe.setTempleDemandCount(templeDemandSatisfied ? 0 : templeDemandCount);
+                logiBe.setTempleDemandProgress(templeDemandSatisfied ? 0 : templeDemandProgress);
                 logiBe.setTempleDemandSatisfied(templeDemandSatisfied);
                 logiBe.setChanged();
             }
@@ -3887,17 +3977,35 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     private TempleDemandResult pickTempleDemand(TempleDemandRecipe.Category category) {
         if (level == null) return TempleDemandResult.EMPTY;
-        var recipes = level.getRecipeManager()
+
+        List<TempleDemandRecipe.Entry> candidates = new ArrayList<>();
+
+        // 1. Collect from global TempleDemandRecipe (matches all bodies)
+        var globalRecipes = level.getRecipeManager()
             .getAllRecipesFor(dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes.TEMPLE_DEMAND_TYPE.get())
             .stream()
             .map(RecipeHolder::value)
             .toList();
-
-        List<TempleDemandRecipe.Entry> candidates = new ArrayList<>();
-        for (var recipe : recipes) {
+        for (var recipe : globalRecipes) {
             if (recipe.category() == category) {
                 candidates.addAll(recipe.entries());
             }
+        }
+
+        // 2. If this is a special body, also collect from its recipe's temple demands
+        if (celestialBodyData instanceof SpecialCelestialBodyData s && !s.isErrorPlanet()) {
+            ResourceLocation recipeId = ResourceLocation.parse(s.recipeId());
+            level.getRecipeManager().byKey(recipeId).ifPresent(holder -> {
+                if (holder.value() instanceof SpecialCelestialBodyRecipe specialRecipe) {
+                    List<SpecialCelestialBodyRecipe.DemandEntry> demands =
+                        category == TempleDemandRecipe.Category.BLESSING
+                            ? specialRecipe.templeBlessings()
+                            : specialRecipe.templePunishments();
+                    for (var d : demands) {
+                        candidates.add(new TempleDemandRecipe.Entry(d.id(), d.count()));
+                    }
+                }
+            });
         }
         if (candidates.isEmpty()) return TempleDemandResult.EMPTY;
 
@@ -3909,22 +4017,30 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     /**
      * Try to consume the demanded items from any connected logistics interface.
+     * Uses a cumulative progress counter so that items offered in multiple batches
+     * (e.g. 64 steak at a time for a 256-steak demand) are tracked across ticks.
      */
     private boolean trySatisfyDemand() {
         if (templeDemandItem.isEmpty() || templeDemandCount <= 0) return false;
+        if (templeDemandProgress >= templeDemandCount) return true;
         List<IItemHandler> logistics = findLogisticsInterfaces();
         if (logistics.isEmpty()) return false;
 
-        int remaining = templeDemandCount;
+        int needed = templeDemandCount - templeDemandProgress;
         for (IItemHandler handler : logistics) {
-            for (int slot = 0; slot < handler.getSlots() && remaining > 0; slot++) {
+            for (int slot = 0; slot < handler.getSlots() && needed > 0; slot++) {
                 ItemStack contained = handler.getStackInSlot(slot);
                 if (ItemStack.isSameItemSameComponents(contained, templeDemandItem)) {
-                    ItemStack extracted = handler.extractItem(slot, remaining, false);
-                    remaining -= extracted.getCount();
+                    ItemStack extracted = handler.extractItem(slot, needed, false);
+                    int taken = extracted.getCount();
+                    templeDemandProgress += taken;
+                    needed -= taken;
                 }
             }
-            if (remaining <= 0) return true;
+            if (needed <= 0) {
+                setChanged();
+                return true;
+            }
         }
         return false;
     }

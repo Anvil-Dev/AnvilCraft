@@ -14,6 +14,8 @@ import java.util.List;
 
 /**
  * Data generation loader for temple demand recipes.
+ * These are global fallback demands that apply to all bodies without
+ * body-specific demands defined in their SpecialCelestialBodyRecipe.
  */
 public class TempleDemandRecipeLoader {
 
@@ -35,11 +37,11 @@ public class TempleDemandRecipeLoader {
         var recipe = new TempleDemandRecipe(
             TempleDemandRecipe.Category.BLESSING,
             List.of(
-                new TempleDemandRecipe.Entry("minecraft:bread", 1024),          // 16 stacks
-                new TempleDemandRecipe.Entry("minecraft:cooked_beef", 256),     // 4 stacks
-                new TempleDemandRecipe.Entry("minecraft:cooked_cod", 256),      // 4 stacks
-                new TempleDemandRecipe.Entry("anvilcraft:butter_bread_roll", 256), // 4 stacks
-                new TempleDemandRecipe.Entry("minecraft:cookie", 64)            // 1 stack (chocolate)
+                new TempleDemandRecipe.Entry("minecraft:bread", 1024),
+                new TempleDemandRecipe.Entry("minecraft:cooked_beef", 256),
+                new TempleDemandRecipe.Entry("minecraft:cooked_cod", 256),
+                new TempleDemandRecipe.Entry("anvilcraft:butter_bread_roll", 256),
+                new TempleDemandRecipe.Entry("minecraft:cookie", 64)
             )
         );
         saveRecipe(provider, "blessing", recipe);
@@ -51,7 +53,7 @@ public class TempleDemandRecipeLoader {
             List.of(
                 new TempleDemandRecipe.Entry("anvilcraft:topaz", 1),
                 new TempleDemandRecipe.Entry("minecraft:lava_bucket", 1),
-                new TempleDemandRecipe.Entry("minecraft:tnt", 1024)  // 16 stacks
+                new TempleDemandRecipe.Entry("minecraft:tnt", 1024)
             )
         );
         saveRecipe(provider, "punishment", recipe);

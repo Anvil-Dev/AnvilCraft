@@ -108,6 +108,14 @@ public enum CelestialBodyClass {
     }
 
     /**
+     * Whether this is an extreme compact object (black hole or neutron star)
+     * that requires a singularity crystal to store.
+     */
+    public boolean isExtreme() {
+        return this == BLACK_HOLE || this == NEUTRON_STAR;
+    }
+
+    /**
      * Planetary bodies (including brown dwarf, excluding large moon).
      */
     public boolean isPlanetary() {

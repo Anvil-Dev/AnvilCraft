@@ -712,7 +712,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private void renderBodyPreview(GuiGraphics guiGraphics, CelestialBodyData body) {
         // Complex custom models (shattered, hollow, flesh, intelligence, error)
-        if (body instanceof SpecialCelestialBodyData s && s.specialType().needsCustomModel()) {
+        if (body instanceof SpecialCelestialBodyData s && s.needsCustomModel()) {
             renderComplexModelPreview(guiGraphics, s);
             return;
         }
@@ -860,7 +860,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
      */
     private void renderComplexModelPreview(GuiGraphics guiGraphics, SpecialCelestialBodyData special) {
         if (minecraft == null) return;
-        var modelLoc = special.specialType().getModelLocation();
+        var modelLoc = special.getModelLocation();
         BakedModel model = minecraft.getModelManager().getModel(modelLoc);
         if (model == minecraft.getModelManager().getMissingModel()) return;
 
@@ -1175,13 +1175,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float offsetMass
     ) {
         List<Component> lines = new ArrayList<>();
-        boolean isError = body instanceof SpecialCelestialBodyData special && special.specialType().isErrorPlanet();
+        boolean isError = body instanceof SpecialCelestialBodyData special && special.isErrorPlanet();
         // Type name
         String typeKey;
         if (body instanceof RockyPlanetData rp) {
             typeKey = rockyTypeKey(rp);
         } else if (body instanceof SpecialCelestialBodyData s) {
-            typeKey = "screen.anvilcraft.cfa.class.special." + s.specialType().getName();
+            typeKey = "screen.anvilcraft.cfa.class.special." + s.name();
         } else {
             typeKey = "screen.anvilcraft.cfa.class." + body.bodyClass().name().toLowerCase();
         }
@@ -1215,7 +1215,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         switch (body) {
             case SpecialCelestialBodyData s -> {
-                if (s.specialType().isErrorPlanet()) {
+                if (s.isErrorPlanet()) {
                     lines.add(Component.translatable("screen.anvilcraft.cfa.temp", Component.literal("???")));
                     lines.add(Component.translatable("screen.anvilcraft.cfa.atmos", Component.literal("???")));
                     lines.add(Component.translatable("screen.anvilcraft.cfa.liquid", Component.literal("???")));
@@ -1774,14 +1774,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         var be = getMenu().getBlockEntity();
         CelestialRefactorOption option = refactorOptions.get(selectedRefactorIndex);
-        // Only block if the SAME megastructure is already built
-        if (be.getActiveMegastructureIndex() >= 0) {
-            var activeOption = be.getActiveMegastructureOption();
-            if (activeOption != null && activeOption.megastructure().equals(option.megastructure())) {
-                showRefactorError(Component.translatable("screen.anvilcraft.cfa.already_built"));
-                return;
-            }
-        }
         if (option.needsMaterial()) {
             // Check the material slot (slot index = anvil slots count = 5, which is slot 5 in the container)
             // The material slot is the CFA's materialContainer, mapped in the menu

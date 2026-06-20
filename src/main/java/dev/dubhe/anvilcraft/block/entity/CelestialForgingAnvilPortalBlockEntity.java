@@ -91,23 +91,21 @@ public class CelestialForgingAnvilPortalBlockEntity extends BlockEntity {
             level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, shouldBeOpen), 3);
         }
 
-        // Detect entities pressed against the portal slab and teleport them.
+        // Detect entities in the portal block and teleport them.
+        // Use the full block AABB (not just the 2px slab) so that minecarts
+        // and other entities passing through the center of the block are detected.
+        // The portal collision shape is empty so entities move through freely.
         // Leave detection: entities no longer touching are removed from the set,
         // so the next touch triggers another teleport.
         if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
-            AABB slabAABB = state.getShape(level, worldPosition).bounds().move(worldPosition);
-            Direction facing = state.getValue(CelestialForgingAnvilPortalBlock.FACING);
-            AABB detectionBox = slabAABB.expandTowards(
-                facing.getStepX() * 0.05,
-                facing.getStepY() * 0.05,
-                facing.getStepZ() * 0.05
-            );
+            AABB detectionBox = new AABB(worldPosition);
             List<Entity> entities = level.getEntitiesOfClass(Entity.class, detectionBox);
 
             for (Entity entity : entities) {
-                if (!touchingEntities.contains(entity.getUUID())) {
+                UUID uuid = entity.getUUID();
+                if (!touchingEntities.contains(uuid)) {
                     tryTouchTeleport(entity);
-                    touchingEntities.add(entity.getUUID());
+                    touchingEntities.add(uuid);
                 }
             }
 
@@ -121,13 +119,14 @@ public class CelestialForgingAnvilPortalBlockEntity extends BlockEntity {
     }
 
     /**
-     * when an entity overlaps the 2px portal slab collision shape.
+     * when an entity overlaps the portal block.
      * Checks {@link #touchingEntities} to ensure teleport fires only once
-     * per touch — subsequent ticks while still inside the slab are skipped.
-     * The BE tick clears the tracking when the entity leaves the slab.
+     * per touch — subsequent ticks while still inside the block are skipped.
+     * The BE tick clears the tracking when the entity leaves the block.
      */
     public void tryTouchTeleport(Entity entity) {
-        if (touchingEntities.contains(entity.getUUID())) return;
+        UUID uuid = entity.getUUID();
+        if (touchingEntities.contains(uuid)) return;
 
         CelestialForgingAnvilBlockEntity parent = findParentCfa();
         if (parent == null) return;
@@ -178,7 +177,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BlockEntity {
             Set.of(), targetYRot, entity.getXRot());
         entity.setDeltaMovement(momentum);
 
-        touchingEntities.add(entity.getUUID());
+        touchingEntities.add(uuid);
     }
 
     @Nullable
