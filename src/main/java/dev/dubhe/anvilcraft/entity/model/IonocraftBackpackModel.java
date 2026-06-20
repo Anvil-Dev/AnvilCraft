@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.entity.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import lombok.Getter;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -18,6 +20,11 @@ public class IonocraftBackpackModel extends HumanoidModel<LivingEntity> {
     public IonocraftBackpackModel(ModelPart root) {
         super(root);
         this.root = root.getChild("body");
+    }
+
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
+        this.body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 
     public static LayerDefinition createBodyLayer() {
