@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
 public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
@@ -44,11 +45,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
             StorageScreen.CAPACITY,
-            this.leftPos,
+            this.leftPos + 106,
             this.topPos,
             0,
             0,
-            194 * this.menu.getState().get,
+            Mth.ceil(194 * this.menu.getState().getFullness()),
             13,
             194,
             13

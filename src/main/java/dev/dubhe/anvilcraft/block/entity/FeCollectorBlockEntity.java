@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
@@ -30,7 +31,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
-public class FeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
+public class FeCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IEnergyHandlerHolder {
     public static final int MAX_ENERGY = 1_000_000;
     static final int FE_PER_TICK = 10_000;
     public static final int PRODUCE_THRESHOLD = 400_000;
@@ -115,8 +116,9 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             : new Direction[]{Direction.NORTH, Direction.SOUTH};
     }
 
+    @Override
     @Nullable
-    public EnergyHandler getEnergyStorage(@Nullable Direction side) {
+    public EnergyHandler getEnergyHandler(@Nullable Direction side) {
         if (side == null) return new FeEnergyStore(null);
         for (Direction d : this.getConnectedSides()) {
             if (d == side) return new FeEnergyStore(side);

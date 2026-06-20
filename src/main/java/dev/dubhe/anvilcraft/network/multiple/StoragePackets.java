@@ -6,7 +6,6 @@ import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.saved.storage.network.MenuState;
-import dev.dubhe.anvilcraft.saved.storage.network.ServerState;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -34,6 +33,28 @@ import java.util.function.Function;
 public class StoragePackets {
     private static <T extends IPacket> CustomPacketPayload.Type<T> of(String id) {
         return IPacket.type(AnvilCraft.of("storage_" + id));
+    }
+
+    public record SyncSlots(UUID id, IntList slots) implements IServerboundPacket {
+        public static final Type<SyncSlots> TYPE = StoragePackets.of("sync_slots");
+        public static final StreamCodec<ByteBuf, SyncSlots> STREAM_CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC,
+            SyncSlots::id,
+            ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list())
+                .map(IntArrayList::new, Function.identity()),
+            SyncSlots::slots,
+            SyncSlots::new
+        );
+
+        @Override
+        public Type<SyncSlots> type() {
+            return SyncSlots.TYPE;
+        }
+
+        @Override
+        public void handleOnServer(Player player) {
+            MenuState.get(this.id).sync(this.slots);
+        }
     }
 
     public record Sync2CFull(
@@ -92,13 +113,17 @@ public class StoragePackets {
         }
     }
 
+    public static void sync(ServerPlayer player, UUID id, RegistryAccess registries) {
+        new FullSyncer(player, MenuState.get(id), registries).sync();
+    }
+
     public static class FullSyncer {
         /// 单个包的最大容量
         private static final int UNCOMPRESSED_PACKET_LIMIT = 512 * 1024;
         /// 包的初始缓冲区大小
         private static final int INITIAL_BUFFER_CAPACITY = 2 * 1024;
         private final ServerPlayer player;
-        private final ServerState state;
+        private final MenuState state;
         private final RegistryAccess registries;
 
         private final List<Sync2CFull> packets = new ArrayList<>();
@@ -108,14 +133,10 @@ public class StoragePackets {
         @Nullable
         private RegistryFriendlyByteBuf buf;
 
-        private FullSyncer(ServerPlayer player, ServerState state, RegistryAccess registries) {
+        private FullSyncer(ServerPlayer player, MenuState state, RegistryAccess registries) {
             this.player = player;
             this.state = state;
             this.registries = registries;
-        }
-
-        public static void sync(ServerPlayer player, ServerState state, RegistryAccess registries) {
-            new FullSyncer(player, state, registries).sync();
         }
 
         private void sync() {
@@ -250,13 +271,17 @@ public class StoragePackets {
         }
     }
 
+    public static void syncIncremental(ServerPlayer player, UUID id, RegistryAccess registries) {
+        new IncrementalSyncer(player, MenuState.get(id), registries).sync();
+    }
+
     public static class IncrementalSyncer {
         /// 单个包的最大容量
         private static final int UNCOMPRESSED_PACKET_LIMIT = 512 * 1024;
         /// 包的初始缓冲区大小
         private static final int INITIAL_BUFFER_CAPACITY = 2 * 1024;
         private final ServerPlayer player;
-        private final ServerState state;
+        private final MenuState state;
         private final RegistryAccess registries;
 
         private final List<Sync2CIncremental> packets = new ArrayList<>();
@@ -265,14 +290,10 @@ public class StoragePackets {
         @Nullable
         private RegistryFriendlyByteBuf buf;
 
-        private IncrementalSyncer(ServerPlayer player, ServerState state, RegistryAccess registries) {
+        private IncrementalSyncer(ServerPlayer player, MenuState state, RegistryAccess registries) {
             this.player = player;
             this.state = state;
             this.registries = registries;
-        }
-
-        public static void sync(ServerPlayer player, ServerState state, RegistryAccess registries) {
-            new IncrementalSyncer(player, state, registries).sync();
         }
 
         private void sync() {
@@ -337,25 +358,24 @@ public class StoragePackets {
         }
     }
 
-    public record SyncSlots(UUID id, IntList slots) implements IServerboundPacket {
-        public static final Type<SyncSlots> TYPE = StoragePackets.of("sync_slots");
-        public static final StreamCodec<ByteBuf, SyncSlots> STREAM_CODEC = StreamCodec.composite(
+    public record SyncFullness(UUID id, double fullness) implements IServerboundPacket {
+        public static final Type<SyncFullness> TYPE = StoragePackets.of("sync_fullness");
+        public static final StreamCodec<ByteBuf, SyncFullness> STREAM_CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC,
-            SyncSlots::id,
-            ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list())
-                .map(IntArrayList::new, Function.identity()),
-            SyncSlots::slots,
-            SyncSlots::new
+            SyncFullness::id,
+            ByteBufCodecs.DOUBLE,
+            SyncFullness::fullness,
+            SyncFullness::new
         );
 
         @Override
-        public Type<SyncSlots> type() {
-            return SyncSlots.TYPE;
+        public Type<SyncFullness> type() {
+            return SyncFullness.TYPE;
         }
 
         @Override
         public void handleOnServer(Player player) {
-            MenuState.get(this.id).sync(this.slots);
+            MenuState.get(this.id).setFullness(this.fullness);
         }
     }
 }

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.container.storage;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.network.multiple.StoragePackets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -59,6 +60,7 @@ public class CrateBlock extends Block implements EntityBlock {
         if (blockEntity instanceof CrateBlockEntity entity) {
             if (player instanceof ServerPlayer serverPlayer) {
                 if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
+                StoragePackets.sync(serverPlayer, entity.getId(), serverPlayer.registryAccess());
                 ModMenuTypes.open(serverPlayer, entity, pos);
                 return InteractionResult.SUCCESS_SERVER;
             } else {

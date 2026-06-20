@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.network.multiple.StoragePackets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -230,6 +231,7 @@ public class ShulkerContainerBlock
         if (blockEntity instanceof ShulkerContainerBlockEntity entity) {
             if (player instanceof ServerPlayer serverPlayer) {
                 if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
+                StoragePackets.sync(serverPlayer, entity.getId(), serverPlayer.registryAccess());
                 ModMenuTypes.open(serverPlayer, entity, pos);
                 return InteractionResult.SUCCESS_SERVER;
             } else {

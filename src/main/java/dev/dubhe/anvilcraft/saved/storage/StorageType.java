@@ -9,6 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Locale;
+import java.util.UUID;
 
 public enum StorageType implements StringRepresentable {
     CRATE,
@@ -58,12 +59,21 @@ public enum StorageType implements StringRepresentable {
         };
     }
 
-    public BaseStorage newInstance() {
+    public BaseStorage newInstance(UUID id) {
         return switch (this) {
-            case CRATE -> new CrateStorage();
-            case LARGE_CRATE -> new LargeCrateStorage();
-            case SHULKER_CONTAINER -> new ShulkerContainerStorage();
-            case HYPERDIMENSION -> new HyperdimensionStorage();
+            case CRATE -> new CrateStorage(id);
+            case LARGE_CRATE -> new LargeCrateStorage(id);
+            case SHULKER_CONTAINER -> new ShulkerContainerStorage(id);
+            case HYPERDIMENSION -> new HyperdimensionStorage(id);
+        };
+    }
+
+    public Class<? extends BaseStorage> clazz() {
+        return switch (this) {
+            case CRATE -> CrateStorage.class;
+            case LARGE_CRATE -> LargeCrateStorage.class;
+            case SHULKER_CONTAINER -> ShulkerContainerStorage.class;
+            case HYPERDIMENSION -> HyperdimensionStorage.class;
         };
     }
 

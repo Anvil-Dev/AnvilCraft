@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.network.multiple.StoragePackets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -105,6 +106,7 @@ public class HyperdimensionStorageStationBlock
         if (blockEntity instanceof HyperdimensionStorageStationBlockEntity entity) {
             if (player instanceof ServerPlayer serverPlayer) {
                 if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
+                StoragePackets.sync(serverPlayer, entity.getId(), serverPlayer.registryAccess());
                 ModMenuTypes.open(serverPlayer, entity, pos);
                 return InteractionResult.SUCCESS_SERVER;
             } else {

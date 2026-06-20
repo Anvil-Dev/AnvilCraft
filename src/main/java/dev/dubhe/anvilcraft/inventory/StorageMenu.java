@@ -33,7 +33,7 @@ public class StorageMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int slotIndex) {
-        return null;
+        return this.getSlot(slotIndex).getItem();
     }
 
     @Override

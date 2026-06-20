@@ -12,6 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class EnergyWeaponPlatformItem extends Item {
+    public static final int STORED_ENERGY = 640_000_000;
+
     public EnergyWeaponPlatformItem(Properties properties) {
         super(properties);
     }

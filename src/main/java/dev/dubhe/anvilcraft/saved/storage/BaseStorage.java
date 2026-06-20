@@ -2,13 +2,18 @@ package dev.dubhe.anvilcraft.saved.storage;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.saved.BetterSavedData;
+import dev.dubhe.anvilcraft.saved.storage.network.MenuState;
+import it.unimi.dsi.fastutil.ints.IntObjectBiConsumer;
 import lombok.Getter;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+import java.util.UUID;
 
 @Getter
 public abstract class BaseStorage extends BetterSavedData {
@@ -17,9 +22,23 @@ public abstract class BaseStorage extends BetterSavedData {
     public static final StreamCodec<RegistryFriendlyByteBuf, BaseStorage> STREAM_CODEC = StorageType.STREAM_CODEC
         .<RegistryFriendlyByteBuf>cast()
         .dispatch(StorageType::find, StorageType::streamCodec);
-    private final TypeLimitItemStacksResourceHandler items = this.constructItemHandler();
+    private final UUID id;
+    private final TypeLimitItemStacksResourceHandler items = this.constructItemHandler(this::onContentsChanged);
 
-    protected abstract TypeLimitItemStacksResourceHandler constructItemHandler();
+    protected BaseStorage(UUID id) {
+        this.id = id;
+    }
+
+    protected abstract TypeLimitItemStacksResourceHandler constructItemHandler(
+        IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged
+    );
+
+    protected void onContentsChanged(int index, UnlimitedItemStack original) {
+        MenuState state = MenuState.get(this.id);
+        state.getChanges().put(index, original);
+        state.setFullness(this.items.getFullness());
+        Storages.get().setDirty();
+    }
 
     protected <T extends BaseStorage> T sync(TypeLimitItemStacksResourceHandler items) {
         this.items.sync(items);

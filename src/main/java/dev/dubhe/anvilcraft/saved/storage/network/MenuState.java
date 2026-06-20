@@ -1,8 +1,11 @@
 package dev.dubhe.anvilcraft.saved.storage.network;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +14,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /// 双端界面状态，用于同步双端界面数据
+@Getter
+@Setter
 public class MenuState {
     private static final Map<UUID, MenuState> STATES = new HashMap<>();
 
@@ -25,11 +30,26 @@ public class MenuState {
     private final UUID id;
     private final IntList slots;
     private final ArrayList<UnlimitedItemStack> mapping;
+    private final Map<Integer, UnlimitedItemStack> changes;
+    private double fullness;
 
     public MenuState(UUID id) {
         this.id = id;
         this.slots = new IntArrayList();
         this.mapping = new ArrayList<>();
+        this.changes = new HashMap<>();
+    }
+
+    /// 获取服务端需要更新的列表
+    ///
+    /// **注意：不允许在客户端调用该方法**
+    ///
+    /// @return 服务端需要更新的列表
+    public Map<Integer, UnlimitedItemStack> getChanges() {
+        if (!Util.isServer()) {
+            throw new IllegalStateException("Cannot invoke MenuState#getChanges in clientside.");
+        }
+        return this.changes;
     }
 
     public void sync(IntList slots) {
