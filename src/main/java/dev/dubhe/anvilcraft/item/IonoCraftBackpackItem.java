@@ -21,7 +21,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.Inventory;
+
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -274,29 +274,6 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
 
         if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {
             addEnergy(backpack, -FLIGHT_CONSUMPTION);
-        }
-        capacitorTick(holder, backpack);
-    }
-
-    private static void capacitorTick(IDynamicPowerComponentHolder holder, ItemStack backpack) {
-        if (!(holder instanceof ServerPlayer player)) return;
-        // 背包已满电时跳过，不浪费电容器
-        if (getEnergyStored(backpack) >= MAX_ENERGY) return;
-        Inventory inventory = player.getInventory();
-
-        int slot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
-        if (slot >= 0) {
-            inventory.removeItem(slot, 1);
-            inventory.placeItemBackInInventory(ModItems.CAPACITOR_EMPTY.asStack());
-            addEnergy(backpack, 8_000_000);
-            return;
-        }
-
-        slot = inventory.findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
-        if (slot >= 0) {
-            inventory.removeItem(slot, 1);
-            inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
-            addEnergy(backpack, 160_000_000);
         }
     }
 
