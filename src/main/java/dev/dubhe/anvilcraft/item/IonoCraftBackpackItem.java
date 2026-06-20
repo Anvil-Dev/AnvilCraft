@@ -280,6 +280,8 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
 
     private static void capacitorTick(IDynamicPowerComponentHolder holder, ItemStack backpack) {
         if (!(holder instanceof ServerPlayer player)) return;
+        // 背包已满电时跳过，不浪费电容器
+        if (getEnergyStored(backpack) >= MAX_ENERGY) return;
         Inventory inventory = player.getInventory();
 
         int slot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
