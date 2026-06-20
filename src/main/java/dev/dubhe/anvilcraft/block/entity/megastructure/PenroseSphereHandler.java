@@ -26,6 +26,14 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
         if (option == null || !name().equals(option.megastructure())) return;
+        if (!be.isAmplifierPresent()) {
+            if (laserActive) {
+                laserActive = false;
+                be.setChanged();
+                be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+            }
+            return;
+        }
 
         int cx = be.getBlockPos().getX();
         int cy = be.getBlockPos().getY();

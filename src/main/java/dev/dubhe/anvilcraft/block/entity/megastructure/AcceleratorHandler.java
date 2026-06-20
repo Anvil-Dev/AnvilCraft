@@ -42,6 +42,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+        if (!be.isAmplifierPresent()) return;
         if (stage < 1 || stage > 4) return;
 
         switch (stage) {

@@ -495,23 +495,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean missingAmplifier = body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
-            // Check if wormhole stabilizer is active — use its specific message
-            var be = getMenu().getBlockEntity();
-            boolean isWormholeActive = be.getActiveMegastructureIndex() >= 0
-                && be.getCelestialBodyData() instanceof StarData star
-                && star.bodyClass() == CelestialBodyClass.BLACK_HOLE;
-            Component line1 = isWormholeActive
-                ? Component.translatable("screen.anvilcraft.cfa.wormhole.missing_amplifier.line1")
-                : Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
-            Component line2;
-            Component line3;
-            if (isWormholeActive) {
-                line2 = Component.translatable("screen.anvilcraft.cfa.wormhole.missing_amplifier.line2");
-                line3 = Component.empty();
-            } else {
-                line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
-                line3 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line3");
-            }
+            Component line1 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
+            Component line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
+            Component line3 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line3");
             int cx1 = PV_X + (PV_W - font.width(line1)) / 2;
             int cx2 = PV_X + (PV_W - font.width(line2)) / 2;
             int cx3 = PV_X + (PV_W - font.width(line3)) / 2;
@@ -777,14 +763,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.pose().popPose();
         }
 
-        // Render ring (translucent, depth-tested against planet body)
+        // Render ring (translucent)
         ResourceLocation ringTex = CelestialBodyTextureBakery.getOrBakeRing(body);
         if (ringTex != null) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.5, 0.5, 0.5);
             guiGraphics.pose().scale(1.2f, 1.2f, 1.2f);
             guiGraphics.pose().translate(-0.5, -0.5, -0.5);
-            var ringConsumer = buf.getBuffer(RenderType.entityTranslucent(ringTex));
+            var ringConsumer = buf.getBuffer(ModRenderTypes.CELESTIAL_RING.apply(ringTex));
             CelestialBodyRenderer.renderRing(guiGraphics.pose(), ringConsumer, LightTexture.FULL_BRIGHT, 0);
             guiGraphics.pose().popPose();
         }

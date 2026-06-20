@@ -19,6 +19,7 @@ public class MagnetarCoilHandler extends BaseMegastructureHandler {
     @SuppressWarnings("checkstyle:LocalVariableName")
     @Override
     public int getOutputPower(CelestialForgingAnvilBlockEntity be) {
+        if (!be.isAmplifierPresent()) return 0;
         if (!(be.getCelestialBodyData() instanceof StarData star)) return 0;
         int b = star.magneticFieldStrength();
         int n = star.rotationSpeed();

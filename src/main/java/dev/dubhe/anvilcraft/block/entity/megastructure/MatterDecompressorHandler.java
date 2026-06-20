@@ -24,6 +24,7 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+        if (!be.isAmplifierPresent()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
         if (option == null || !name().equals(option.megastructure())) return;
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;

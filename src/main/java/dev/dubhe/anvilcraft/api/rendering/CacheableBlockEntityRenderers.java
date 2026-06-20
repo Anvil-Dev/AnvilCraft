@@ -28,5 +28,6 @@ public class CacheableBlockEntityRenderers {
         RENDERERS.put(ModBlockEntities.RUBY_PRISM.get(), laserRenderer);
         RENDERERS.put(ModBlockEntities.LARGE_LASER.get(), laserRenderer);
         RENDERERS.put(ModBlockEntities.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.get(), laserRenderer);
+        RENDERERS.put(ModBlockEntities.CELESTIAL_FORGING_ANVIL_PORTAL.get(), laserRenderer);
     }
 }

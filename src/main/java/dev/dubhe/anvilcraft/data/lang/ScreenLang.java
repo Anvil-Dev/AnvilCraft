@@ -458,10 +458,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power Output"); // 无限发电中
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked"); // 天体正在演化，无法解锁
 
-        // Wormhole Stabilizer
-        provider.add("screen.anvilcraft.cfa.wormhole.missing_amplifier.line1", "Amplifier missing,"); // 缺少增幅器，虫洞已断开连接
-        provider.add("screen.anvilcraft.cfa.wormhole.missing_amplifier.line2", "wormhole disconnected"); // 滚木
-
         // Portal placement messages
         provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers"); // 传送门只能放置在锻星砧侧面的中心位置
     }

@@ -25,6 +25,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     @Override
     public int getOutputPower(CelestialForgingAnvilBlockEntity be) {
+        if (!be.isAmplifierPresent()) return 0;
         if (!(be.getCelestialBodyData() instanceof StarData star)) return 0;
         if (be.isAcceleratorActive() && be.getAcceleratorStage() == 1) {
             return Math.max(cachedGridConsumption * 2, cachedGridConsumption + 1);

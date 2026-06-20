@@ -371,15 +371,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         // Use effective body data (considers reverse animation where celestialBodyData is already null)
         CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
-        // Stellar remnants render even without amplifier present
-        boolean isRemnant = effectiveBodyData instanceof StarData star && (
-            star.bodyClass() == CelestialBodyClass.BLACK_HOLE
-            || star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
-            || star.bodyClass() == CelestialBodyClass.WHITE_DWARF
-        );
-        boolean canRender = effectiveBodyData != null && (
-            isRemnant || !(effectiveBodyData instanceof StarData && !blockEntity.isAmplifierPresent())
-        );
+        boolean canRender = effectiveBodyData != null
+            && (effectiveBodyData instanceof StarData ? blockEntity.isAmplifierPresent() : true);
         if (canRender) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
@@ -447,19 +440,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             var option = blockEntity.getActiveMegastructureOption();
             if (option != null) {
                 if ("stellar_ring_collider".equals(option.megastructure())) {
-                    // When amplifier is missing, the star is not rendered — collider is off
-                    if (!blockEntity.isAmplifierPresent()) {
-                        return R4;
-                    }
                     return R4_COLLIDER;
                 }
                 if ("dyson_sphere_small".equals(option.megastructure())) {
                     return R4_DYSON_SPHERE;
                 }
                 if ("wormhole_stabilizer".equals(option.megastructure())) {
-                    if (!blockEntity.isAmplifierPresent()) {
-                        return R4;
-                    }
                     return R4_WORMHOLE_STABILIZER;
                 }
             }

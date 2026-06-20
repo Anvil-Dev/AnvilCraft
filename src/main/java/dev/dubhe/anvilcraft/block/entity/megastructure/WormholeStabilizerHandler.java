@@ -40,9 +40,11 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     @Nullable
     private UUID bodyUuid = null;
     private boolean registered = false;
+    private boolean justReconnected = false;
     private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
     private final Map<WormholeChunkLoadKey, LoadChuckData> loadedChunks = new HashMap<>();
     private final Map<String, List<FluidStack>> lastFluidSnapshot = new HashMap<>();
+    private final Map<UUID, List<UnlimitedItemStack>> lastSeenItems = new HashMap<>();
 
     private record WormholeChunkLoadKey(ResourceLocation dimension, BlockPos pos) {
     }
@@ -82,6 +84,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             if (registered) {
                 WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
                 registered = false;
+                clearLocalInterfaces(be);
                 cleanupWormholeChunkLoading(be.getLevel());
                 be.setChanged();
                 be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
@@ -93,6 +96,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             this.bodyUuid = uuid;
             WormholeNetwork.get().register(uuid, be.getLevel(), be.getBlockPos());
             registered = true;
+            justReconnected = true;
             if (!portals.isEmpty()) {
                 WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), portals.keySet());
             }
@@ -246,10 +250,25 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         loadedChunks.clear();
     }
 
+    /**
+     * Bidirectional sync for logistics interfaces.
+     *
+     * <p>Uses a "last seen" snapshot per slot to determine who changed:
+     * <ul>
+     *   <li>On reconnect ({@link #justReconnected}): local changes always win —
+     *       items placed during disconnect are adopted into canonical</li>
+     *   <li>Normal operation: local changed & canonical unchanged → update canonical</li>
+     *   <li>Normal operation: canonical changed & local unchanged → update local</li>
+     *   <li>Both changed → canonical wins (set by syncLogisticsOnChange with intent)</li>
+     * </ul>
+     */
     private void syncWormholeLogistics(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide() || !registered || bodyUuid == null) return;
         Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> localMap = getLogisticsInterfacesMap(be);
         if (localMap.isEmpty()) return;
+
+        boolean isReconnect = justReconnected;
+        justReconnected = false;
 
         WormholeInterfaceStates states = WormholeInterfaceStates.get();
         for (var localEntry : localMap.entrySet()) {
@@ -260,12 +279,72 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
             UUID uuid = WormholeInterfaceStates.logisticsUuid(bodyUuid, relOffset.getX(), relOffset.getZ());
             List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
+            List<UnlimitedItemStack> lastSeen = lastSeenItems.computeIfAbsent(uuid, k -> {
+                List<UnlimitedItemStack> init = new ArrayList<>(slots);
+                // On reconnect, seed lastSeen from canonical so only real local
+                // changes (items placed during disconnect) appear as changes.
+                // In normal operation, seed from canonical for the same reason.
+                for (int i = 0; i < slots; i++) init.add(canonical.get(i).copy());
+                return init;
+            });
+            while (lastSeen.size() < slots) lastSeen.add(UnlimitedItemStack.EMPTY);
 
             for (int slot = 0; slot < slots; slot++) {
                 ItemStack localStack = localHandler.getStackInSlot(slot);
                 ItemStack canonStack = canonical.get(slot).toStack();
-                if (ItemStack.matches(localStack, canonStack) && localStack.getCount() == canonStack.getCount()) continue;
-                setHandlerSlot(localHandler, slot, canonStack.copy());
+
+                boolean localVsCanonMismatch = !ItemStack.matches(localStack, canonStack)
+                    || localStack.getCount() != canonStack.getCount();
+
+                if (!localVsCanonMismatch) {
+                    // Already in sync — update lastSeen and move on
+                    lastSeen.set(slot, new UnlimitedItemStack(localStack));
+                    continue;
+                }
+
+                // Conflict: both sides have different non-empty items.
+                // Don't auto-resolve — keep both where they are until a player
+                // interacts with one of the interfaces (syncLogisticsOnChange).
+                if (!localStack.isEmpty() && !canonStack.isEmpty()) {
+                    lastSeen.set(slot, new UnlimitedItemStack(localStack));
+                    continue;
+                }
+
+                if (isReconnect) {
+                    // On reconnect: local was modified during disconnect.
+                    // If only local has items → adopt into canonical.
+                    // If only canonical has items → push canonical to local.
+                    if (!localStack.isEmpty()) {
+                        canonical.set(slot, new UnlimitedItemStack(localStack));
+                        states.setDirty();
+                    } else {
+                        setHandlerSlot(localHandler, slot, canonStack.copy());
+                    }
+                    lastSeen.set(slot, new UnlimitedItemStack(localHandler.getStackInSlot(slot)));
+                    continue;
+                }
+
+                // Normal operation: compare with lastSeen
+                ItemStack lastStack = lastSeen.get(slot).toStack();
+                boolean localChanged = !ItemStack.matches(localStack, lastStack)
+                                    || localStack.getCount() != lastStack.getCount();
+                boolean canonChanged = !ItemStack.matches(canonStack, lastStack)
+                                     || canonStack.getCount() != lastStack.getCount();
+
+                if (!localChanged && !canonChanged) continue;
+
+                if (localChanged && !canonChanged) {
+                    // Local changed while canonical didn't → push local to canonical
+                    canonical.set(slot, new UnlimitedItemStack(localStack));
+                    states.setDirty();
+                } else {
+                    // Canonical changed (or both changed) → canonical is authoritative
+                    if (!ItemStack.matches(localStack, canonStack) || localStack.getCount() != canonStack.getCount()) {
+                        setHandlerSlot(localHandler, slot, canonStack.copy());
+                    }
+                }
+
+                lastSeen.set(slot, new UnlimitedItemStack(localHandler.getStackInSlot(slot)));
             }
         }
     }
@@ -363,6 +442,42 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
                 localBe.setWormholeLaserOutput(eachGamma > 0 ? eachGamma : eachNormal, eachGamma > 0);
             } else {
                 localBe.setWormholeLaserOutput(0, false);
+            }
+        }
+    }
+
+    /**
+     * Clear all local logistics and fluid interfaces when the amplifier is removed.
+     * Pre-existing items are discarded (they're still frozen on the amplifier side
+     * at canonical). Items placed during the subsequent disconnect period are
+     * handled by the reconnect conflict logic in {@link #syncWormholeLogistics}.
+     */
+    private void clearLocalInterfaces(CelestialForgingAnvilBlockEntity be) {
+        if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+
+        Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> logisticsMap = getLogisticsInterfacesMap(be);
+        for (var entry : logisticsMap.entrySet()) {
+            CelestialForgingAnvilLogisticsInterfaceBlockEntity localBe = entry.getValue();
+            IItemHandler handler = localBe.getItemHandler();
+            int slots = handler.getSlots();
+            for (int slot = 0; slot < slots; slot++) {
+                ItemStack stack = handler.getStackInSlot(slot);
+                if (!stack.isEmpty()) {
+                    handler.extractItem(slot, stack.getCount(), false);
+                }
+            }
+        }
+
+        Map<BlockPos, CelestialForgingAnvilFluidInterfaceBlockEntity> fluidMap = getFluidInterfacesMap(be);
+        for (var entry : fluidMap.entrySet()) {
+            CelestialForgingAnvilFluidInterfaceBlockEntity localBe = entry.getValue();
+            IFluidHandler handler = localBe.getFluidHandler();
+            int tanks = handler.getTanks();
+            for (int tank = 0; tank < tanks; tank++) {
+                FluidStack stack = handler.getFluidInTank(tank);
+                if (!stack.isEmpty()) {
+                    handler.drain(stack, IFluidHandler.FluidAction.EXECUTE);
+                }
             }
         }
     }
