@@ -75,6 +75,8 @@
     "anvilcraft:celestial_forging_anvil_logistics_interface",
     "anvilcraft:celestial_forging_anvil_fluid_interface",
     "anvilcraft:celestial_forging_anvil_laser_interface",
+    "anvilcraft:celestial_forging_anvil_interface_placeholder",
+    "anvilcraft:celestial_forging_anvil_portal",
     "anvilcraft:void_energy_collector",
     "anvilcraft:magnetoelectric_core",
     "anvilcraft:propel_piston",
@@ -311,6 +313,8 @@
     "anvilcraft:uranium_pressure_plate",
     "anvilcraft:plutonium_pressure_plate",
     "anvilcraft:brass_pressure_plate",
+    "anvilcraft:bronze_pressure_plate",
+    "anvilcraft:infinite_collector"
     "anvilcraft:bronze_pressure_plate",
     "anvilcraft:pipe_straight",
     "anvilcraft:pipe_corner",

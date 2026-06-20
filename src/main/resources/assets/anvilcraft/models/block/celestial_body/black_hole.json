@@ -2,7 +2,7 @@
 	"format_version": "1.21.11",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
-	"render_type": "minecraft:cutout",
+	"render_type": "minecraft:translucent",
 	"textures": {
 		"0": "anvilcraft:block/celestial_body/black_hole",
 		"1": "anvilcraft:block/celestial_body/black_hole_inner",

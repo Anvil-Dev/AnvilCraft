@@ -43,6 +43,7 @@ public class OtherLang {
         provider.add("enchantment.anvilcraft.smelting", "Smelting");
         provider.add("enchantment.anvilcraft.disintegration", "Disintegration");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
+        provider.add("death.attack.anvilcraft.gamma_laser", "%1$s was shattered into dust by gamma lasers");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.plasma_jets", "%1$s tried to high-five the plasma jets. They did not high-five back.");

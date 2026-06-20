@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,open=false": { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "facing=north,open=true":  { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "facing=south,open=false": { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 180 },
+    "facing=south,open=true":  { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 180 },
+    "facing=west,open=false":  { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 270 },
+    "facing=west,open=true":   { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 270 },
+    "facing=east,open=false":  { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 90 },
+    "facing=east,open=true":   { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 90 }
+  }
+}

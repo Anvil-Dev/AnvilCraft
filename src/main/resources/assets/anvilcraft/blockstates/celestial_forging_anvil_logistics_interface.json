@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=north": {
+    "facing=north,enabled=false": {
       "model": "anvilcraft:block/celestial_forging_anvil_logistics_interface"
     },
-    "facing=east": {
+    "facing=east,enabled=false": {
       "model": "anvilcraft:block/celestial_forging_anvil_logistics_interface",
       "y": 90
     },
-    "facing=south": {
+    "facing=south,enabled=false": {
       "model": "anvilcraft:block/celestial_forging_anvil_logistics_interface",
       "y": 180
     },
-    "facing=west": {
+    "facing=west,enabled=false": {
       "model": "anvilcraft:block/celestial_forging_anvil_logistics_interface",
+      "y": 270
+    },
+    "facing=north,enabled=true": {
+      "model": "anvilcraft:block/celestial_forging_anvil_logistics_interface_active"
+    },
+    "facing=east,enabled=true": {
+      "model": "anvilcraft:block/celestial_forging_anvil_logistics_interface_active",
+      "y": 90
+    },
+    "facing=south,enabled=true": {
+      "model": "anvilcraft:block/celestial_forging_anvil_logistics_interface_active",
+      "y": 180
+    },
+    "facing=west,enabled=true": {
+      "model": "anvilcraft:block/celestial_forging_anvil_logistics_interface_active",
       "y": 270
     }
   }

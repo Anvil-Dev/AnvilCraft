@@ -83,7 +83,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             boolean moved = false;
             for (int i = 0; i < ANVIL_SLOTS; i++) {
                 Slot anvilSlot = this.slots.get(i);
-                if (anvilSlot.mayPlace(stack) && anvilSlot.getItem().isEmpty()) {
+                if (anvilSlot.mayPlace(stack)) {
                     if (this.moveItemStackTo(stack, i, i + 1, false)) {
                         moved = true;
                         break;
@@ -231,96 +231,161 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         );
     }
 
-    // === Parameter calculation methods ===
+    // === Precomputed display tables (matching user presets, 1–64 anvil counts) ===
+
+    // Age: 27 My + 30 By + 7 Ty
+    private static final String[] AGE_TABLE = {
+        "2 My", "2.52 My", "3.18 My", "4 My", "5.04 My", "6.35 My", "8 My", "10.1 My",
+        "12.7 My", "16 My", "20.2 My", "25.4 My", "32 My", "40.3 My", "50.8 My", "64 My",
+        "80.6 My", "102 My", "128 My", "161 My", "203 My", "256 My", "323 My", "406 My",
+        "512 My", "645 My", "813 My", "1 By", "1.26 By", "1.59 By", "2 By", "2.52 By",
+        "3.18 By", "4 By", "5.04 By", "6.335 By", "8 By", "10.1 By", "12.7 By", "16 By",
+        "20.2 By", "25.4 By", "32 By", "40.3 By", "50.8 By", "64 By", "80.6 By", "102 By",
+        "128 By", "161 By", "203 By", "256 By", "323 By", "406 By", "512 By", "645 By",
+        "813 By", "1 Ty", "1.26 Ty", "1.59 Ty", "2 Ty", "2.52 Ty", "3.18 Ty", "4 Ty"
+    };
+
+    // Radius: 20 R⊕ + 44 R☉
+    private static final String[] RADIUS_TABLE = {
+        "0.125 R⊕", "0.158 R⊕", "0.198 R⊕", "0.25 R⊕",
+        "0.32 R⊕", "0.4 R⊕", "0.5 R⊕", "0.63 R⊕",
+        "0.79 R⊕", "1 R⊕", "1.26 R⊕", "1.59 R⊕",
+        "2 R⊕", "2.52 R⊕", "3.18 R⊕", "4 R⊕",
+        "5.04 R⊕", "6.35 R⊕", "8 R⊕", "10.1 R⊕",
+        "0.125 R☉", "0.158 R☉", "0.198 R☉", "0.25 R☉",
+        "0.32 R☉", "0.4 R☉", "0.5 R☉", "0.63 R☉",
+        "0.79 R☉", "1 R☉", "1.26 R☉", "1.59 R☉",
+        "2 R☉", "2.52 R☉", "3.18 R☉", "4 R☉",
+        "5.04 R☉", "6.35 R☉", "8 R☉", "10.1 R☉",
+        "12.7 R☉", "16 R☉", "20.2 R☉", "25.4 R☉",
+        "32 R☉", "40.3 R☉", "50.8 R☉", "64 R☉",
+        "80.6 R☉", "102 R☉", "128 R☉", "161 R☉",
+        "203 R☉", "256 R☉", "323 R☉", "406 R☉",
+        "512 R☉", "645 R☉", "813 R☉", "1k R☉",
+        "1.26k R☉", "1.59k R☉", "2k R☉", "2.52k R☉"
+    };
+
+    // Mass: 40 M⊕ + 24 M☉
+    private static final String[] MASS_TABLE = {
+        "0.022 M⊕", "0.031 M⊕", "0.044 M⊕", "0.063 M⊕",
+        "0.088 M⊕", "0.125 M⊕", "0.177 M⊕", "0.25 M⊕",
+        "0.35 M⊕", "0.5 M⊕", "0.7 M⊕", "1 M⊕",
+        "1.41 M⊕", "2 M⊕", "2.82 M⊕", "4 M⊕",
+        "5.66 M⊕", "8 M⊕", "11.3 M⊕", "16 M⊕",
+        "22.6 M⊕", "32 M⊕", "45.3 M⊕", "64 M⊕",
+        "90.5 M⊕", "128 M⊕", "181 M⊕", "256 M⊕",
+        "362 M⊕", "512 M⊕", "724 M⊕", "1k M⊕",
+        "1.41k M⊕", "2k M⊕", "2.82k M⊕", "4k M⊕",
+        "5.66k M⊕", "8k M⊕", "11.3k M⊕", "16k M⊕",
+        "0.063 M☉", "0.088 M☉", "0.125 M☉", "0.177 M☉",
+        "0.25 M☉", "0.35 M☉", "0.5 M☉", "0.7 M☉",
+        "1 M☉", "1.41 M☉", "2 M☉", "2.82 M☉",
+        "4 M☉", "5.66 M☉", "8 M☉", "11.3 M☉",
+        "16 M☉", "22.6 M☉", "32 M☉", "45.3 M☉",
+        "64 M☉", "90.5 M☉", "128 M☉", "181 M☉"
+    };
+
+    // Temperature: 24 ℃ + 40 K
+    private static final String[] TEMPERATURE_TABLE = {
+        "-223 ℃", "-217 ℃", "-210 ℃", "-202 ℃",
+        "-194 ℃", "-184 ℃", "-173 ℃", "-161 ℃",
+        "-147 ℃", "-132 ℃", "-114 ℃", "-95 ℃",
+        "-73 ℃", "-49 ℃", "-21 ℃", "10 ℃",
+        "44 ℃", "83 ℃", "127 ℃", "176 ℃",
+        "231 ℃", "293 ℃", "362 ℃", "440 ℃",
+        "800 K", "898 K", "1010 K", "1130 K",
+        "1270 K", "1430 K", "1600 K", "1800 K",
+        "2020 K", "2260 K", "2540 K", "2850 K",
+        "3200 K", "3590 K", "4030 K", "4530 K",
+        "5080 K", "5700 K", "6400 K", "7180 K",
+        "8060 K", "9050 K", "10200 K", "11400 K",
+        "12800 K", "14400 K", "16100 K", "18100 K",
+        "20300 K", "22800 K", "25600 K", "28700 K",
+        "32300 K", "36200 K", "40600 K", "45600 K",
+        "51200 K", "57500 K", "64500 K", "72400 K"
+    };
+
+    // === Parameter calculation methods (lookup from presets) ===
 
     public static String formatAge(int count) {
         if (count == 0) return "---";
-        double my = 2.0 * Math.pow(2.0, (count - 1) / 3.0);
-        if (my >= 1024.0 * 1024.0) {
-            return format3SigFig(my / (1024.0 * 1024.0)) + " Ty";
-        } else if (my >= 1024.0) {
-            return format3SigFig(my / 1024.0) + " By";
-        } else {
-            return format3SigFig(my) + " My";
-        }
+        if (count >= 1 && count <= 64) return AGE_TABLE[count - 1];
+        return "---";
     }
 
     public static String formatRadius(int count) {
         if (count == 0) return "---";
-        double earthR = 0.125 * Math.pow(2.0, (count - 1) / 3.0);
-        if (earthR >= 12.7) {
-            return format3SigFig(earthR * 0.125 / 12.7) + " R☉";
-        } else {
-            return format3SigFig(earthR) + " R⊕";
-        }
+        if (count >= 1 && count <= 64) return RADIUS_TABLE[count - 1];
+        return "---";
     }
 
     public static String formatMass(int count) {
         if (count == 0) return "---";
-        double earthM = 0.022 * Math.pow(2.0, (count - 1) / 2.0);
-        if (earthM >= 22600.0) {
-            return format3SigFig(earthM * 0.063 / 22600.0) + " M☉";
-        } else {
-            return format3SigFig(earthM) + " M⊕";
-        }
+        if (count >= 1 && count <= 64) return MASS_TABLE[count - 1];
+        return "---";
     }
 
     public static String formatTemperature(int count) {
         if (count == 0) return "---";
-        double kelvin = 50.0 * Math.pow(2.0, (count - 1) / 6.0);
-        if (kelvin < 800.0) {
-            return format3SigFig(kelvin - 273.0) + " ℃";
-        } else {
-            return format3SigFig(kelvin) + " K";
-        }
+        if (count >= 1 && count <= 64) return TEMPERATURE_TABLE[count - 1];
+        return "---";
     }
 
+    // === Offset methods: look up the preset value, offset the number, reformat ===
+
     /**
-     * Format age with a proportional offset applied to the raw value before unit conversion.
+     * Format age with a proportional offset applied to the displayed value.
      */
     public static String formatAgeOffset(int count, float offset) {
         if (count == 0) return "---";
-        double my = 2.0 * Math.pow(2.0, (count - 1) / 3.0) * (1.0 + offset);
-        if (my >= 1024.0 * 1024.0) {
-            return format3SigFig(my / (1024.0 * 1024.0)) + " Ty";
-        } else if (my >= 1024.0) {
-            return format3SigFig(my / 1024.0) + " By";
-        } else {
-            return format3SigFig(my) + " My";
-        }
+        if (count >= 1 && count <= 64) return applyOffset(AGE_TABLE[count - 1], offset);
+        return "---";
     }
 
     /**
-     * Format radius with a proportional offset applied to the raw value before unit conversion.
+     * Format radius with a proportional offset applied to the displayed value.
      */
     public static String formatRadiusOffset(int count, float offset) {
         if (count == 0) return "---";
-        double earthR = 0.125 * Math.pow(2.0, (count - 1) / 3.0) * (1.0 + offset);
-        if (earthR >= 12.7) {
-            return format3SigFig(earthR * 0.125 / 12.7) + " R☉";
-        } else {
-            return format3SigFig(earthR) + " R⊕";
-        }
+        if (count >= 1 && count <= 64) return applyOffset(RADIUS_TABLE[count - 1], offset);
+        return "---";
     }
 
     /**
-     * Format mass with a proportional offset applied to the raw value before unit conversion.
+     * Format mass with a proportional offset applied to the displayed value.
      */
     public static String formatMassOffset(int count, float offset) {
         if (count == 0) return "---";
-        double earthM = 0.022 * Math.pow(2.0, (count - 1) / 2.0) * (1.0 + offset);
-        if (earthM >= 22600.0) {
-            return format3SigFig(earthM * 0.063 / 22600.0) + " M☉";
-        } else {
-            return format3SigFig(earthM) + " M⊕";
-        }
+        if (count >= 1 && count <= 64) return applyOffset(MASS_TABLE[count - 1], offset);
+        return "---";
     }
 
+    /**
+     * Extract the numeric part from a table entry (e.g. "2.52 My" → offset(2.52)),
+     * apply the offset, format to 3 significant figures, and reattach the unit.
+     * Handles entries with "k" suffix (e.g. "2.52k R☉" → 2520).
+     */
+    private static String applyOffset(String entry, float offset) {
+        int spaceIdx = entry.indexOf(' ');
+        String numStr = entry.substring(0, spaceIdx);
+        double multiplier = 1.0;
+        if (numStr.endsWith("k")) {
+            numStr = numStr.substring(0, numStr.length() - 1);
+            multiplier = 1000.0;
+        }
+        double value = Double.parseDouble(numStr) * multiplier;
+        double offsetValue = value * (1.0 + offset);
+        String unit = entry.substring(spaceIdx + 1);
+        return format3SigFig(offsetValue) + " " + unit;
+    }
+
+    /**
+     * Format to 3 significant figures, without trailing zeros.
+     */
     @SuppressWarnings("MalformedFormatString")
-    static String format3SigFig(double value) {
+    private static String format3SigFig(double value) {
         if (Math.abs(value) < 1e-9) return "0";
         int pow = (int) Math.floor(Math.log10(Math.abs(value)));
-        // For values >= 1000, round to nearest 10^(pow-2) for true 3 sig figs
         if (pow >= 3) {
             double scale = Math.pow(10, pow - 2);
             double rounded = Math.round(value / scale) * scale;
@@ -328,7 +393,12 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         }
         int digits = Math.max(0, 2 - pow);
         if (digits > 6) digits = 6;
-        return String.format(Locale.US, "%." + digits + "f", value);
+        String formatted = String.format(Locale.US, "%." + digits + "f", value);
+        if (formatted.contains(".")) {
+            formatted = formatted.replaceAll("0+$", "");
+            formatted = formatted.replaceAll("\\.$", "");
+        }
+        return formatted;
     }
 
     // === Custom slot for confined anvils ===

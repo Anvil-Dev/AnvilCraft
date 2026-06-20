@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:transcendium_nugget"
+  },
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:celestial_forging_anvil_interface_placeholder"
+  }
+}

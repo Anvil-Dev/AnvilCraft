@@ -8,9 +8,9 @@
         "AAA"
       ],
       [
-        "AAA",
-        "AAA",
-        "AAA"
+        "ABA",
+        "B B",
+        "ABA"
       ],
       [
         "AAA",
@@ -20,7 +20,10 @@
     ],
     "symbols": {
       "A": {
-        "block": "anvilcraft:fluid_tank"
+        "block": "anvilcraft:cut_brass_block"
+      },
+      "B": {
+        "tag": "c:glass_blocks"
       }
     }
   },

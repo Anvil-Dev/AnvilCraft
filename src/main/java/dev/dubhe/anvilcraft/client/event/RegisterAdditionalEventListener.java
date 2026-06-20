@@ -29,6 +29,7 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/laser")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/axis")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/advanced_comparator_indicator")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/infinite_collector_head")));
         event.register(CelestialForgingAnvilBlockEntityRenderer.R1);
         event.register(CelestialForgingAnvilBlockEntityRenderer.R2);
         event.register(CelestialForgingAnvilBlockEntityRenderer.R3);
@@ -79,5 +80,12 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/planet_hollow")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/planet_error")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/star")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/neutron_star")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/neutron_star_jet")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/black_hole")));
+
+        // Celestial Forging Anvil Portal models
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_gate")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_forging_anvil_gate_open")));
     }
 }

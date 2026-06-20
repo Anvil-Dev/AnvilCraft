@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLogisticsInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
@@ -31,6 +32,7 @@ import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
@@ -79,6 +81,7 @@ import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEnti
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilPortalRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
@@ -94,6 +97,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankBlockEntityRend
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
@@ -242,6 +246,11 @@ public class ModBlockEntities {
         "heat_collector",
         HeatCollectorBlockEntity::createBlockEntity
     ).renderer(() -> HeatCollectorRenderer::new).validBlock(ModBlocks.HEAT_COLLECTOR).register();
+
+    public static final BlockEntityEntry<InfiniteCollectorBlockEntity> INFINITE_COLLECTOR = REGISTRUM.blockEntity(
+        "infinite_collector",
+        InfiniteCollectorBlockEntity::createBlockEntity
+    ).renderer(() -> InfiniteCollectorRenderer::new).validBlock(ModBlocks.INFINITE_COLLECTOR).register();
 
     public static final BlockEntityEntry<MineralFountainBlockEntity> MINERAL_FOUNTAIN = REGISTRUM.blockEntity(
         "mineral_fountain",
@@ -421,6 +430,15 @@ public class ModBlockEntities {
         .blockEntity("celestial_forging_anvil_laser_interface",
             CelestialForgingAnvilLaserInterfaceBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE)
+        .renderer(() -> LaserBlockRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CelestialForgingAnvilPortalBlockEntity>
+        CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
+        .blockEntity("celestial_forging_anvil_portal",
+            CelestialForgingAnvilPortalBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL)
+        .renderer(() -> CelestialForgingAnvilPortalRenderer::new)
         .register();
 
     public static final BlockEntityEntry<TradingStationBlockEntity> TRADING_STATION = REGISTRUM

@@ -156,7 +156,12 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
             codeBuilder.append("    .symbol(");
             codeBuilder.append("'").append(symbol).append("'");
             codeBuilder.append(", ");
-            if (predicate.getProperties().isEmpty()) {
+            if (predicate.getTag() != null) {
+                codeBuilder.append("BlockPredicateWithState.ofTag(\"");
+                codeBuilder.append(predicate.getTag().location());
+                codeBuilder.append("\")");
+                codeBuilder.append(")");
+            } else if (predicate.getProperties().isEmpty()) {
                 codeBuilder.append("\"");
                 codeBuilder.append(BuiltInRegistries.BLOCK.getKey(predicate.getBlock()));
                 codeBuilder.append("\"");

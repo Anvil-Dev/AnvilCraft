@@ -34,7 +34,7 @@ public enum SpecialCelestialBodyType {
         true,
         LiquidCoverage.MEDIUM,
         2,
-        1.0f,
+        2,
         0f,
         List.of(
             mc("grass_block"),
@@ -57,7 +57,7 @@ public enum SpecialCelestialBodyType {
         true,
         LiquidCoverage.NONE,
         2,
-        1.0f,
+        2,
         22f,
         List.of(anvil("rotten_flesh_block"), mc("bone_block"))
     ), INTELLIGENT_PLANET(
@@ -71,7 +71,7 @@ public enum SpecialCelestialBodyType {
         false,
         LiquidCoverage.HIGH,
         1,
-        1.0f,
+        2,
         2.71828f,
         List.of(anvil("spacetime_supercomputer"))
     ), SHATTERED_PLANET(
@@ -85,7 +85,7 @@ public enum SpecialCelestialBodyType {
         false,
         LiquidCoverage.MEDIUM,
         0,
-        3.0f,
+        4,
         0f,
         List.of(mc("magma_block"), mc("netherrack"), mc("blackstone"), mc("basalt"), anvil("earth_core_shard_block"))
     ), HOLLOW_PLANET(
@@ -99,7 +99,7 @@ public enum SpecialCelestialBodyType {
         false,
         LiquidCoverage.NONE,
         3,
-        3.0f,
+        4,
         45f,
         List.of(anvil("negative_matter_block"))
     ), ERROR_PLANET(
@@ -113,7 +113,7 @@ public enum SpecialCelestialBodyType {
         false,
         null,
         -1,
-        0f,
+        0,
         0f,
         List.of(anvil("creative_generator"), mc("command_block"), mc("structure_block"))
     );
@@ -138,7 +138,7 @@ public enum SpecialCelestialBodyType {
     @Getter
     private final int magneticFieldStrength;
     @Getter
-    private final float rotationSpeed;
+    private final int rotationSpeed;
     @Getter
     private final float axialTilt;
     @Getter
@@ -155,7 +155,7 @@ public enum SpecialCelestialBodyType {
         boolean hasAtmosphere,
         @Nullable LiquidCoverage liquidCoverage,
         int magneticFieldStrength,
-        float rotationSpeed,
+        int rotationSpeed,
         float axialTilt,
         List<ResourceLocation> possibleSeedItems
     ) {

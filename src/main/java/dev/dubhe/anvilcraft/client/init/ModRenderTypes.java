@@ -24,6 +24,7 @@ import static net.minecraft.client.renderer.RenderStateShard.COLOR_WRITE;
 import static net.minecraft.client.renderer.RenderStateShard.CULL;
 import static net.minecraft.client.renderer.RenderStateShard.LIGHTMAP;
 import static net.minecraft.client.renderer.RenderStateShard.NO_CULL;
+import static net.minecraft.client.renderer.RenderStateShard.NO_DEPTH_TEST;
 import static net.minecraft.client.renderer.RenderStateShard.NO_TRANSPARENCY;
 import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
 import static net.minecraft.client.renderer.RenderStateShard.RENDERTYPE_CUTOUT_SHADER;
@@ -244,6 +245,36 @@ public class ModRenderTypes {
                 .createCompositeState(true);
             return RenderType.create(
                 "entity_cutout",
+                DefaultVertexFormat.BLOCK,
+                VertexFormat.Mode.QUADS,
+                1536,
+                true,
+                false,
+                compositeState
+            );
+        }
+    );
+
+    /**
+     * Translucent render type for celestial rings in UI previews.
+     * Depth test is disabled so the ring always renders on top of the
+     * celestial body and the UI background — matching the expected
+     * visual where rings surround the planet.
+     */
+    public static final Function<ResourceLocation, RenderType> CELESTIAL_RING = Util.memoize(
+        (resourceLocation) -> {
+            RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
+                .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+                .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setDepthTestState(NO_DEPTH_TEST)
+                .setCullState(NO_CULL)
+                .setLightmapState(LIGHTMAP)
+                .setOverlayState(OVERLAY)
+                .setWriteMaskState(COLOR_WRITE)
+                .createCompositeState(true);
+            return RenderType.create(
+                "anvilcraft:celestial_ring",
                 DefaultVertexFormat.BLOCK,
                 VertexFormat.Mode.QUADS,
                 1536,

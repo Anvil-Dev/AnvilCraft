@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -44,6 +45,10 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     public MultiblockBuilder symbol(char symbol, String block) {
         return symbol(symbol, BlockPredicateWithState.of(block));
+    }
+
+    public MultiblockBuilder symbol(char symbol, TagKey<Block> tag) {
+        return symbol(symbol, BlockPredicateWithState.of(tag));
     }
 
     @Override
