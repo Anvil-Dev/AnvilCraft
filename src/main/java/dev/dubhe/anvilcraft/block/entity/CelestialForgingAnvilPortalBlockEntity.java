@@ -72,7 +72,8 @@ public class CelestialForgingAnvilPortalBlockEntity extends BlockEntity {
         // Portal opens only when exactly 2 CFAs in the network group have a portal
         // on this same side. If there are more (>2), all doors close for security.
         WormholeNetwork network = WormholeNetwork.get();
-        int hash = parent.getWormholeParamsHash();
+        UUID hash = parent.getWormholeParamsHash();
+        if (hash == null) return;
         List<WormholeNetwork.Entry> connected = network.getConnected(
             hash, level.dimension(), parent.getBlockPos()
         );

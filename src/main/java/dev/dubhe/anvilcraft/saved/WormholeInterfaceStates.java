@@ -61,19 +61,19 @@ public class WormholeInterfaceStates extends BetterSavedData {
 
     /**
      * Generate a deterministic UUID for an interface pair.
-     * Same (paramsHash, relX, relZ, type) always produces the same UUID.
+     * Uses the black hole's body UUID so only CFA copies from the same source share state.
      */
-    public static UUID interfaceUuid(int paramsHash, int relX, int relZ, String type) {
-        String input = "wormhole:" + paramsHash + ":" + relX + ":" + relZ + ":" + type;
+    public static UUID interfaceUuid(UUID bodyUuid, int relX, int relZ, String type) {
+        String input = "wormhole:" + bodyUuid + ":" + relX + ":" + relZ + ":" + type;
         return UUID.nameUUIDFromBytes(input.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static UUID logisticsUuid(int paramsHash, int relX, int relZ) {
-        return interfaceUuid(paramsHash, relX, relZ, TYPE_LOGISTICS);
+    public static UUID logisticsUuid(UUID bodyUuid, int relX, int relZ) {
+        return interfaceUuid(bodyUuid, relX, relZ, TYPE_LOGISTICS);
     }
 
-    public static UUID fluidUuid(int paramsHash, int relX, int relZ) {
-        return interfaceUuid(paramsHash, relX, relZ, TYPE_FLUID);
+    public static UUID fluidUuid(UUID bodyUuid, int relX, int relZ) {
+        return interfaceUuid(bodyUuid, relX, relZ, TYPE_FLUID);
     }
 
     // ==================== Item state access ====================

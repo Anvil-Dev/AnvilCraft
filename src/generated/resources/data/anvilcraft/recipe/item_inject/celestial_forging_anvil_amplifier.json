@@ -10,5 +10,11 @@
     {
       "items": "anvilcraft:spacetime_supercomputer"
     }
+  ],
+  "results": [
+    {
+      "count": 3,
+      "id": "anvilcraft:celestial_forging_anvil_amplifier"
+    }
   ]
 }

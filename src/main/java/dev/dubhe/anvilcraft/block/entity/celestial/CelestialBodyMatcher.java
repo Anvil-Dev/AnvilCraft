@@ -415,7 +415,8 @@ public final class CelestialBodyMatcher {
         return new StarData(
             bodyClass,
             size, rgb[0], rgb[1], rgb[2],
-            axialTilt, rotSpeed, mag, energy
+            axialTilt, rotSpeed, mag, energy,
+            null
         );
     }
 
