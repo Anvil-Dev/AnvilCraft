@@ -4231,6 +4231,7 @@ public class ModBlocks {
             });
         })
         .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::pump)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

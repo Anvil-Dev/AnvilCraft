@@ -1366,18 +1366,4 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Item> void pump(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)
-            .pattern("PIP")
-            .pattern("P P")
-            .pattern("   ")
-            .define('P', Blocks.PISTON)
-            .define('I', Items.IRON_BLOCK)
-            .group(ctx.getId().toString())
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(Items.PISTON),
-                RegistrumRecipeProvider.has(Items.PISTON)
-            )
-            .save(provider);
-    }
 }

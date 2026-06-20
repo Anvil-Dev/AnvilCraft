@@ -102,6 +102,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
@@ -495,6 +496,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<PumpBlockEntity> PUMP = REGISTRUM
         .blockEntity("pump", PumpBlockEntity::create)
         .validBlock(ModBlocks.PUMP)
+        .renderer(() -> PumpBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<WipBlockEntity> WIP_BLOCK = REGISTRUM

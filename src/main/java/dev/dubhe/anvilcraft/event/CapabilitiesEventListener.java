@@ -71,7 +71,8 @@ public class CapabilitiesEventListener {
             ModBlockEntities.FLUID_TANK.get(),
             ModBlockEntities.LARGE_FLUID_TANK.get(),
             ModBlockEntities.CREATIVE_FLUID_TANK.get(),
-            ModBlockEntities.PIPE_NODE.get()
+            ModBlockEntities.PIPE_NODE.get(),
+            ModBlockEntities.PUMP.get()
         ).forEach(type -> event.registerBlockEntity(
             Capabilities.FluidHandler.BLOCK,
             type,

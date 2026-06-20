@@ -6,10 +6,15 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.PumpBlockEntity;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -71,7 +76,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         return simpleCodec(PumpBlock::new);
     }
 
-    /** 放置时根据玩家视线和 Shift 计算朝向 */
+    /** 放置时根据玩家视线和 Shift 计算朝向，并对接管道 */
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -104,7 +109,53 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
             };
         };
 
+        // 对着管道开口放置时：背向放置（输出口背离管道）
+        BlockPos targetPos = context.getClickedPos().relative(context.getClickedFace().getOpposite());
+        BlockState targetState = context.getLevel().getBlockState(targetPos);
+        if (targetState.getBlock() instanceof PipeBlock) {
+            orientation = orientation.opposite();
+        }
+
         return defaultBlockState().setValue(ORIENTATION, orientation);
+    }
+
+    /** 放置后将侧面连接的直管转为三通节点 */
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (level.isClientSide) return;
+
+        for (Direction dir : Direction.values()) {
+            BlockPos neighborPos = pos.relative(dir);
+            BlockState neighborState = level.getBlockState(neighborPos);
+            if (neighborState.getBlock() instanceof PipeStraightBlock) {
+                Direction.Axis pipeAxis = neighborState.getValue(PipeBlock.AXIS);
+                // 泵贴在直管侧面 → 将直管转为三通节点
+                if (dir.getAxis() != pipeAxis) {
+                    convertPipeToNode(level, neighborPos, neighborState, dir.getOpposite());
+                }
+            }
+        }
+    }
+
+    /** 将直管转为三通节点，保留原有两端的连接并添加新方向 */
+    private void convertPipeToNode(Level level, BlockPos pos, BlockState state, Direction newDirection) {
+        Direction.Axis axis = state.getValue(PipeBlock.AXIS);
+        Direction startDir = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
+        Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
+
+        BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+            .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
+        nodeState = nodeState.setValue(
+            PipeBlock.getPropertyForDirection(startDir),
+            PipeNodeBlock.evaluateNeighbor(level, pos, startDir));
+        nodeState = nodeState.setValue(
+            PipeBlock.getPropertyForDirection(endDir),
+            PipeNodeBlock.evaluateNeighbor(level, pos, endDir));
+        nodeState = nodeState.setValue(
+            PipeBlock.getPropertyForDirection(newDirection),
+            PipeBlock.NodePipe.PIPE);
+        level.setBlockAndUpdate(pos, nodeState);
     }
 
     /** 红石信号更新 */

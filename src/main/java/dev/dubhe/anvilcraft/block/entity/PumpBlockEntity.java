@@ -1,18 +1,24 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.PumpBlock;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
+import dev.dubhe.anvilcraft.block.state.Orientation;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,13 +36,20 @@ import org.jetbrains.annotations.Nullable;
  */
 @Getter
 @Setter
-public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerConsumer {
+public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerConsumer, IFluidHandlerHolder {
 
     private static final int PUMP_POWER = 32;   // 32 kW 电力消耗
     private static final int PUMP_HEAD = 10;    // 10 米扬程
 
     private PowerGrid grid;
     private boolean working;
+
+    /** 上 tick 实际传输的流体量（mB），用于客户端活塞动画速度 */
+    @Getter
+    private int lastTransferAmount;
+
+    /** 重入防护：防止 IFluidHandler relay 时无限递归 */
+    private boolean transferring;
 
     public PumpBlockEntity(BlockEntityType<? extends PumpBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -66,33 +79,137 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
         return getBlockPos();
     }
 
+    // ---- IFluidHandlerHolder ----
+
+    @Override
+    public IFluidHandler getFluidHandler() {
+        return new PumpFluidHandler();
+    }
+
+    /**
+     * 获取相邻方块在指定侧面的 IFluidHandler。
+     *
+     * @param side 泵朝向该邻居的方向
+     */
+    @Nullable
+    private IFluidHandler getNeighborFluidHandler(Direction side) {
+        if (level == null) return null;
+        BlockPos neighborPos = getBlockPos().relative(side);
+        return level.getCapability(Capabilities.FluidHandler.BLOCK, neighborPos, side.getOpposite());
+    }
+
+    /**
+     * 泵的无缓存流体处理器。
+     * <ul>
+     *   <li>工作中：drain 从输入端邻居抽取，fill 向输出端邻居注入</li>
+     *   <li>关闭/过载：容量为 0，阻塞所有流体</li>
+     * </ul>
+     */
+    private class PumpFluidHandler implements IFluidHandler {
+
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return FluidStack.EMPTY;
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            if (!working) return 0;
+            return PUMP_HEAD * 50; // 500 mB/tick = 10m × 50 mB/tick/m
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return working;
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            if (!working || transferring) return 0;
+            BlockState state = getBlockState();
+            if (!(state.getBlock() instanceof PumpBlock)) return 0;
+            Direction outputDir = state.getValue(PumpBlock.ORIENTATION).getDirection();
+            IFluidHandler output = getNeighborFluidHandler(outputDir);
+            if (output == null) return 0;
+
+            transferring = true;
+            try {
+                return output.fill(resource, action);
+            } finally {
+                transferring = false;
+            }
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            if (!working || transferring) return FluidStack.EMPTY;
+            BlockState state = getBlockState();
+            if (!(state.getBlock() instanceof PumpBlock)) return FluidStack.EMPTY;
+            Direction inputDir = state.getValue(PumpBlock.ORIENTATION).getDirection().getOpposite();
+            IFluidHandler input = getNeighborFluidHandler(inputDir);
+            if (input == null) return FluidStack.EMPTY;
+
+            transferring = true;
+            try {
+                return input.drain(resource, action);
+            } finally {
+                transferring = false;
+            }
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            if (!working || transferring) return FluidStack.EMPTY;
+            BlockState state = getBlockState();
+            if (!(state.getBlock() instanceof PumpBlock)) return FluidStack.EMPTY;
+            Direction inputDir = state.getValue(PumpBlock.ORIENTATION).getDirection().getOpposite();
+            IFluidHandler input = getNeighborFluidHandler(inputDir);
+            if (input == null) return FluidStack.EMPTY;
+
+            transferring = true;
+            try {
+                return input.drain(maxDrain, action);
+            } finally {
+                transferring = false;
+            }
+        }
+    }
+
     // ---- NBT ----
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putBoolean("Working", working);
+        tag.putInt("LastTransferAmount", lastTransferAmount);
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         working = tag.getBoolean("Working");
+        lastTransferAmount = tag.getInt("LastTransferAmount");
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putBoolean("Working", working);
+        tag.putInt("LastTransferAmount", lastTransferAmount);
         return tag;
     }
 
     // ---- Tick ----
 
     /**
-     * Per-tick：刷新电力/红石/过载状态，更新 heightBonus。
+     * Per-tick：刷新电力/红石/过载状态，更新 heightBonus，并执行主动流体中转。
      * <ul>
-     *   <li>正常工作 → heightBonus = +PUMP_HEAD（输入端），-PUMP_HEAD（输出端）</li>
+     *   <li>正常工作 → heightBonus = +PUMP_HEAD，主动从输入端抽流体注入输出端</li>
      *   <li>关闭/过载 → heightBonus = 0（阻塞流体）</li>
      * </ul>
      */
@@ -112,7 +229,44 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
             if (!level.isClientSide()) entity.sendUpdate();
         }
 
-        // 设置等效高度偏移：工作中时提供 ±PUMP_HEAD 的扬程，否则为 0
+        // 设置等效高度偏移：工作中时提供 PUMP_HEAD 的扬程，否则为 0
         entity.heightBonus = entity.working ? PUMP_HEAD : 0;
+
+        // 主动流体中转：从输入端抽取流体，注入输出端
+        int transferred = 0;
+        if (entity.working && !entity.transferring) {
+            Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
+            Direction outputDir = orientation.getDirection();
+            Direction inputDir = outputDir.getOpposite();
+
+            IFluidHandler inputHandler = entity.getNeighborFluidHandler(inputDir);
+            IFluidHandler outputHandler = entity.getNeighborFluidHandler(outputDir);
+
+            if (inputHandler != null && outputHandler != null) {
+                int maxTransfer = PUMP_HEAD * 50; // 500 mB/tick
+                entity.transferring = true;
+                try {
+                    FluidStack drained = inputHandler.drain(maxTransfer, IFluidHandler.FluidAction.SIMULATE);
+                    if (!drained.isEmpty()) {
+                        int filled = outputHandler.fill(drained, IFluidHandler.FluidAction.SIMULATE);
+                        if (filled > 0) {
+                            FluidStack toMove = drained.copyWithAmount(filled);
+                            inputHandler.drain(toMove, IFluidHandler.FluidAction.EXECUTE);
+                            outputHandler.fill(toMove, IFluidHandler.FluidAction.EXECUTE);
+                            transferred = filled;
+                        }
+                    }
+                } finally {
+                    entity.transferring = false;
+                }
+            }
+        }
+
+        // 同步传输量到客户端（用于活塞动画速度）
+        if (entity.lastTransferAmount != transferred) {
+            entity.lastTransferAmount = transferred;
+            entity.setChanged();
+            if (!level.isClientSide()) entity.sendUpdate();
+        }
     }
 }
