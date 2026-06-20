@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.LightTexture;
@@ -1485,6 +1486,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                         Component.literal(String.valueOf(option.materialCount()))
                     ));
                 }
+                if (hasShiftDown()) {
+                    tooltipLines.add(Component.translatable(option.displayName() + ".description").withStyle(ChatFormatting.DARK_GRAY));
+                } else {
+                    tooltipLines.add(Component.translatable(
+                        "tooltip.anvilcraft.press_key",
+                        Component.literal("Shift").withStyle(ChatFormatting.DARK_GRAY)
+                    ).withStyle(ChatFormatting.DARK_GRAY));
+                }
                 guiGraphics.renderTooltip(font, tooltipLines, java.util.Optional.empty(), x, y);
             }
         }
@@ -1499,8 +1508,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         // Seed slot tooltip
         if (this.hoveredSlot instanceof CelestialForgingAnvilMenu.SeedSlot) {
             List<Component> seedTooltip = new ArrayList<>();
-            seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.line1"));
-            seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.line2"));
+            seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.title"));
+            if (hasShiftDown()) {
+                seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.description").withStyle(ChatFormatting.DARK_GRAY));
+            } else {
+                seedTooltip.add(Component.translatable(
+                    "tooltip.anvilcraft.press_key",
+                    Component.literal("[Shift]").withStyle(ChatFormatting.DARK_GRAY)
+                ).withStyle(ChatFormatting.DARK_GRAY));
+            }
             guiGraphics.renderTooltip(font, seedTooltip, java.util.Optional.empty(), x, y);
         }
         // Anvil slot range tooltip
