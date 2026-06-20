@@ -800,6 +800,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewWindowY + this.previewWindowHeight,
             1.0f,
             true,
+            false,
             poseStack
         );
     }

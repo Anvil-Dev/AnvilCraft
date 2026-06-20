@@ -107,7 +107,8 @@ public class StructureDiskPreviewSupport {
 
         // 渲染3D预览
         RenderSupport.renderLevelLike(
-            cache.levelLike, graphics, previewX + previewSize / 2, previewY + previewSize / 2, 60.0f, 2.0f
+            cache.levelLike, graphics, previewX + previewSize / 2, previewY + previewSize / 2,
+            previewSize, 2, 0.0f, false
         );
     }
 

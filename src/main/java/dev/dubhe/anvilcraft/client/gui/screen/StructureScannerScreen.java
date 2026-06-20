@@ -626,6 +626,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.previewWindowY + this.previewWindowHeight,
             1.0f,
             true,
+            false,
             poseStack
         );
     }
