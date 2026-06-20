@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:planet_resource",
+  "category": "giant_item",
+  "giant": {
+    "entries": [
+      {
+        "id": "minecraft:ice",
+        "weight": 50
+      },
+      {
+        "id": "minecraft:packed_ice",
+        "weight": 30
+      },
+      {
+        "id": "minecraft:blue_ice",
+        "weight": 20
+      }
+    ],
+    "pressure_type": "ice"
+  }
+}

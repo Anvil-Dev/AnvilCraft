@@ -4,13 +4,16 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 
 import java.util.OptionalDouble;
+import java.util.function.Function;
 
 import static dev.dubhe.anvilcraft.client.init.ModRenderTargets.LASER_TARGET;
 import static dev.dubhe.anvilcraft.client.init.ModRenderTargets.LINE_BLOOM_TARGET;
@@ -21,7 +24,9 @@ import static net.minecraft.client.renderer.RenderStateShard.COLOR_WRITE;
 import static net.minecraft.client.renderer.RenderStateShard.CULL;
 import static net.minecraft.client.renderer.RenderStateShard.LIGHTMAP;
 import static net.minecraft.client.renderer.RenderStateShard.NO_CULL;
+import static net.minecraft.client.renderer.RenderStateShard.NO_TRANSPARENCY;
 import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
+import static net.minecraft.client.renderer.RenderStateShard.RENDERTYPE_CUTOUT_SHADER;
 import static net.minecraft.client.renderer.RenderStateShard.RENDERTYPE_LINES_SHADER;
 import static net.minecraft.client.renderer.RenderStateShard.RENDERTYPE_TRANSLUCENT_SHADER;
 import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TARGET;
@@ -158,6 +163,59 @@ public class ModRenderTypes {
             .createCompositeState(true)
     );
 
+    /**
+     * Multiplicative blend render type for star color overlay.
+     * Uses {@code DST_COLOR * SRC_COLOR} so that the grayscale star
+     * animation is multiplied by the star's RGB, producing accurate
+     * palette-like coloring without washing out.
+     */
+    public static final RenderType STAR_COLOR_OVERLAY = RenderType.create(
+        "anvilcraft:star_color_overlay",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        786432,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(new RenderStateShard.TransparencyStateShard(
+                "star_multiply",
+                () -> {
+                    RenderSystem.enableBlend();
+                    RenderSystem.blendFuncSeparate(
+                        GlStateManager.SourceFactor.DST_COLOR,
+                        GlStateManager.DestFactor.ZERO,
+                        GlStateManager.SourceFactor.ZERO,
+                        GlStateManager.DestFactor.ONE
+                    );
+                },
+                () -> {
+                    RenderSystem.disableBlend();
+                    RenderSystem.defaultBlendFunc();
+                }
+            ))
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(true)
+    );
+
+    public static final RenderType CELESTIAL_ATMOSPHERE = RenderType.create(
+        "anvilcraft:celestial_atmosphere",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        786432,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(true)
+    );
+
     public static final RenderType BEACON_GLASS = RenderType.create(
         "anvilcraft:beacon_glass",
         DefaultVertexFormat.BLOCK,
@@ -173,6 +231,27 @@ public class ModRenderTypes {
             .setOutputState(TRANSLUCENT_TARGET)
             .setWriteMaskState(COLOR_WRITE)
             .createCompositeState(true)
+    );
+
+    public static final Function<ResourceLocation, RenderType> STAR_CUTOUT = Util.memoize(
+        (resourceLocation) -> {
+            RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
+                .setShaderState(RENDERTYPE_CUTOUT_SHADER)
+                .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
+                .setTransparencyState(NO_TRANSPARENCY)
+                .setLightmapState(LIGHTMAP)
+                .setOverlayState(OVERLAY)
+                .createCompositeState(true);
+            return RenderType.create(
+                "entity_cutout",
+                DefaultVertexFormat.BLOCK,
+                VertexFormat.Mode.QUADS,
+                1536,
+                true,
+                false,
+                compositeState
+            );
+        }
     );
 
     private static <T> T supplyNothing() {

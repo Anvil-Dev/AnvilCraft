@@ -70,6 +70,8 @@ public class SharedTextures {
     // MISC
     public static final ResourceLocation BOX_SELECTION = textureGui("misc/box_selection");
 
+    public static final ResourceLocation SCROLLER_SPRITE = ResourceLocation.withDefaultNamespace("widget/scroller");
+
     public static ResourceLocation texture(String path) {
         return AnvilCraft.of("textures/" + path + ".png");
     }

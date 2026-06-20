@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.AdvancedComparatorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.CelestialForgingAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
@@ -34,6 +35,7 @@ import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
+import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
@@ -66,6 +68,10 @@ import net.minecraft.world.MenuProvider;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 public class ModMenuTypes {
+    public static final MenuEntry<CelestialForgingAnvilMenu> CFA = REGISTRUM
+        .menu("celestial_forging_anvil", CelestialForgingAnvilMenu::new, () -> CelestialForgingAnvilScreen::new)
+        .register();
+
     public static final MenuEntry<BatchCrafterMenu> BATCH_CRAFTER = REGISTRUM
         .menu("batch_crafter", BatchCrafterMenu::new, () -> BatchCrafterScreen::new)
         .register();

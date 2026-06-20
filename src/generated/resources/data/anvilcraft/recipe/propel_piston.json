@@ -25,7 +25,7 @@
   ],
   "result": {
     "components": {
-      "anvilcraft:stored_energy": 4000
+      "anvilcraft:stored_energy": 8000000
     },
     "count": 1,
     "id": "anvilcraft:propel_piston"

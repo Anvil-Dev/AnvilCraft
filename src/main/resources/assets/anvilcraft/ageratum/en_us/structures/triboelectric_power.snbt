@@ -1,0 +1,38 @@
+{
+    DataVersion: 3955,
+    size: [9, 1, 4],
+    data: [
+        {pos: [0, 0, 1], state: "minecraft:smooth_stone"},
+        {pos: [0, 0, 2], state: "minecraft:piston{extended:false,facing:east}"},
+        {pos: [1, 0, 0], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [1, 0, 1], state: "anvilcraft:block_comparator{facing:east,powered:false,precise:false}"},
+        {pos: [2, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [2, 0, 3], state: "minecraft:copper_block"},
+        {pos: [3, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [3, 0, 3], state: "minecraft:copper_block"},
+        {pos: [4, 0, 1], state: "anvilcraft:charge_collector{powered:false}", nbt: {ChargeCount: 20.0d, Charges: [I; 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25], InputCooldownCount: 1, OutputCooldownCount: 7, Power: 21, id: "anvilcraft:charge_collector"}},
+        {pos: [4, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [4, 0, 3], state: "minecraft:copper_block"},
+        {pos: [5, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [5, 0, 3], state: "minecraft:copper_block"},
+        {pos: [6, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [6, 0, 3], state: "minecraft:copper_block"},
+        {pos: [7, 0, 0], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [7, 0, 1], state: "anvilcraft:block_comparator{facing:west,powered:false,precise:false}"},
+        {pos: [7, 0, 2], state: "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}"},
+        {pos: [8, 0, 1], state: "minecraft:smooth_stone"},
+        {pos: [8, 0, 2], state: "minecraft:piston{extended:false,facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:smooth_stone",
+        "minecraft:copper_block",
+        "minecraft:piston{extended:false,facing:west}",
+        "minecraft:piston{extended:false,facing:east}",
+        "anvilcraft:hollow_magnet_block{lit:false,waterlogged:false}",
+        "anvilcraft:block_comparator{facing:east,powered:false,precise:false}",
+        "anvilcraft:block_comparator{facing:west,powered:false,precise:false}",
+        "minecraft:moving_piston{facing:east,type:normal}",
+        "anvilcraft:charge_collector{powered:false}"
+    ]
+}

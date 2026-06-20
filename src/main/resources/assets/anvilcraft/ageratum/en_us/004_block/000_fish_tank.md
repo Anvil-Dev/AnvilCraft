@@ -19,7 +19,7 @@ items:
 
 # Other Functions
 
-<item id="minecraft:water_bucket"/>
+<item id="minecraft:tropical_fish_bucket"/>
 
 - Special: Right-click the bottom half of the fish tank with a tropical fish bucket or water bucket to insert/remove tropical fish
 - Can be worn on the head to gain temporary Water Breathing effect

@@ -1,0 +1,403 @@
+package dev.dubhe.anvilcraft.inventory;
+
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import lombok.Getter;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
+import java.util.Objects;
+
+@Getter
+public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
+    static final int ANVIL_SLOTS = 4;
+    private static final int SEED_SLOT = 4;
+    static final int MATERIAL_SLOT = 5;
+    private final CelestialForgingAnvilBlockEntity blockEntity;
+
+    // Slot indices: 0=time, 1=space, 2=mass, 3=energy, 4=seed, 5=material
+
+    public CelestialForgingAnvilMenu(
+        @Nullable MenuType<?> menuType, int containerId, Inventory inventory,
+        CelestialForgingAnvilBlockEntity blockEntity
+    ) {
+        super(menuType, containerId);
+        this.blockEntity = blockEntity;
+
+        // 4 confined anvil slots
+        for (int i = 0; i < ANVIL_SLOTS; i++) {
+            this.addSlot(new CFAAnvilSlot(blockEntity.getAnvilInventory(), i, 9, 38 + i * 18));
+        }
+
+        // Seed slot (single item, consumed on search)
+        this.addSlot(new SeedSlot(blockEntity.getAnvilInventory(), SEED_SLOT, 9, 121));
+
+        // Material slot (filtered with stack limit, position matches RF_MAT_X/Y)
+        this.addSlot(new CFAMaterialSlot(blockEntity, 267, 121));
+
+        // Player inventory (3 rows x 9 columns)
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                this.addSlot(new Slot(inventory, col + row * 9 + 9, 92 + col * 18, 125 + row * 18));
+            }
+        }
+
+        // Player hotbar
+        for (int col = 0; col < 9; col++) {
+            this.addSlot(new Slot(inventory, col, 92 + col * 18, 183));
+        }
+    }
+
+    public CelestialForgingAnvilMenu(
+        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData
+    ) {
+        this(menuType, containerId, inventory,
+            (CelestialForgingAnvilBlockEntity) Objects.requireNonNull(
+                inventory.player.level().getBlockEntity(extraData.readBlockPos())));
+    }
+
+    @Override
+    public ItemStack quickMoveStack(Player player, int index) {
+        Slot slot = this.slots.get(index);
+        if (!slot.hasItem()) return ItemStack.EMPTY;
+        ItemStack stack = slot.getItem();
+        ItemStack copy = stack.copy();
+
+        if (index <= SEED_SLOT || index == MATERIAL_SLOT) {
+            // From anvil/seed/material slot to player inventory
+            if (!this.moveItemStackTo(stack, MATERIAL_SLOT + 1, this.slots.size(), true)) {
+                return ItemStack.EMPTY;
+            }
+        } else {
+            // From player inventory: try anvil slots, then material slot (seed slot is manual-only)
+            boolean moved = false;
+            for (int i = 0; i < ANVIL_SLOTS; i++) {
+                Slot anvilSlot = this.slots.get(i);
+                if (anvilSlot.mayPlace(stack) && anvilSlot.getItem().isEmpty()) {
+                    if (this.moveItemStackTo(stack, i, i + 1, false)) {
+                        moved = true;
+                        break;
+                    }
+                }
+            }
+            if (!moved) {
+                Slot matSlot = this.slots.get(MATERIAL_SLOT);
+                if (matSlot.mayPlace(stack)) {
+                    this.moveItemStackTo(stack, MATERIAL_SLOT, MATERIAL_SLOT + 1, false);
+                }
+            }
+            return ItemStack.EMPTY;
+        }
+
+        if (stack.isEmpty()) {
+            slot.setByPlayer(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
+
+        return copy;
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == 0) {
+            blockEntity.startSearch();
+            return true;
+        }
+        // Scroll wheel anvil transfer: id 1-4 = add, 5-8 = remove
+        if (id >= 1 && id <= 8) {
+            int slot = (id - 1) % 4;
+            boolean add = id <= 4;
+            handleAnvilTransfer(slot, add);
+            return true;
+        }
+        // Refactor option selected: id 9+
+        if (id >= 9 && id < 100) {
+            int optionIndex = id - 9;
+            blockEntity.configureMaterialSlot(optionIndex);
+            return true;
+        }
+        // Build megastructure request: id 100+
+        if (id >= 100 && id < 200) {
+            int optionIndex = id - 100;
+            blockEntity.buildMegastructure(optionIndex);
+            return true;
+        }
+        // Lock toggle: id 200
+        if (id == 200) {
+            blockEntity.toggleLocked();
+            return true;
+        }
+        // History browse prev: id 201
+        if (id == 201) {
+            blockEntity.browseHistoryPrev();
+            return true;
+        }
+        // History browse next: id 202
+        if (id == 202) {
+            blockEntity.browseHistoryNext();
+            return true;
+        }
+        return super.clickMenuButton(player, id);
+    }
+
+    private static final Item[] ANVIL_ITEMS = {
+        ModBlocks.CONFINED_TIME_ANVILON.asItem(),
+        ModBlocks.CONFINED_SPACE_ANVILON.asItem(),
+        ModBlocks.CONFINED_MASS_ANVILON.asItem(),
+        ModBlocks.CONFINED_ENERGY_ANVILON.asItem(),
+    };
+
+    private void handleAnvilTransfer(int slot, boolean add) {
+        Slot targetSlot = this.slots.get(slot);
+        Item targetItem = ANVIL_ITEMS[slot];
+        if (add) {
+            // Add from player inventory to anvil slot
+            if (targetSlot.getItem().getCount() >= targetSlot.getMaxStackSize()) return;
+            for (int i = ANVIL_SLOTS + 1; i < this.slots.size(); i++) {
+                Slot invSlot = this.slots.get(i);
+                if (invSlot.getItem().is(targetItem)) {
+                    invSlot.remove(1);
+                    if (targetSlot.getItem().isEmpty()) {
+                        targetSlot.set(new ItemStack(targetItem));
+                    } else {
+                        targetSlot.getItem().grow(1);
+                    }
+                    targetSlot.setChanged();
+                    return;
+                }
+            }
+        } else {
+            // Remove from anvil slot to player inventory
+            if (targetSlot.getItem().isEmpty()) return;
+            ItemStack toMove = targetSlot.getItem().copyWithCount(1);
+            for (int i = this.slots.size() - 1; i >= ANVIL_SLOTS + 1; i--) {
+                Slot invSlot = this.slots.get(i);
+                ItemStack invStack = invSlot.getItem();
+                if (invStack.isEmpty()) {
+                    invSlot.set(toMove);
+                    targetSlot.remove(1);
+                    invSlot.setChanged();
+                    targetSlot.setChanged();
+                    return;
+                }
+                if (ItemStack.isSameItemSameComponents(invStack, toMove)
+                    && invStack.getCount() < invSlot.getMaxStackSize()) {
+                    invStack.grow(1);
+                    targetSlot.remove(1);
+                    invSlot.setChanged();
+                    targetSlot.setChanged();
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        // Reset material slot filter when the UI closes so it always
+        // starts as the barrier ghost on the next open.
+        if (!player.level().isClientSide()) {
+            blockEntity.setMaterialFilter(new ItemStack(Items.BARRIER));
+            blockEntity.setMaterialLimit(0);
+            blockEntity.setChanged();
+            // Push to clients so the next UI open sees the barrier ghost
+            var level = blockEntity.getLevel();
+            if (level != null) {
+                var state = blockEntity.getBlockState();
+                level.sendBlockUpdated(blockEntity.getBlockPos(), state, state, 3);
+            }
+        }
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        // noinspection DataFlowIssue
+        return stillValid(
+            ContainerLevelAccess.create(this.blockEntity.getLevel(), blockEntity.getBlockPos()),
+            player,
+            ModBlocks.CELESTIAL_FORGING_ANVIL.get()
+        );
+    }
+
+    // === Parameter calculation methods ===
+
+    public static String formatAge(int count) {
+        if (count == 0) return "---";
+        double my = 2.0 * Math.pow(2.0, (count - 1) / 3.0);
+        if (my >= 1024.0 * 1024.0) {
+            return format3SigFig(my / (1024.0 * 1024.0)) + " Ty";
+        } else if (my >= 1024.0) {
+            return format3SigFig(my / 1024.0) + " By";
+        } else {
+            return format3SigFig(my) + " My";
+        }
+    }
+
+    public static String formatRadius(int count) {
+        if (count == 0) return "---";
+        double earthR = 0.125 * Math.pow(2.0, (count - 1) / 3.0);
+        if (earthR >= 12.7) {
+            return format3SigFig(earthR * 0.125 / 12.7) + " R☉";
+        } else {
+            return format3SigFig(earthR) + " R⊕";
+        }
+    }
+
+    public static String formatMass(int count) {
+        if (count == 0) return "---";
+        double earthM = 0.022 * Math.pow(2.0, (count - 1) / 2.0);
+        if (earthM >= 22600.0) {
+            return format3SigFig(earthM * 0.063 / 22600.0) + " M☉";
+        } else {
+            return format3SigFig(earthM) + " M⊕";
+        }
+    }
+
+    public static String formatTemperature(int count) {
+        if (count == 0) return "---";
+        double kelvin = 50.0 * Math.pow(2.0, (count - 1) / 6.0);
+        if (kelvin < 800.0) {
+            return format3SigFig(kelvin - 273.0) + " ℃";
+        } else {
+            return format3SigFig(kelvin) + " K";
+        }
+    }
+
+    /**
+     * Format age with a proportional offset applied to the raw value before unit conversion.
+     */
+    public static String formatAgeOffset(int count, float offset) {
+        if (count == 0) return "---";
+        double my = 2.0 * Math.pow(2.0, (count - 1) / 3.0) * (1.0 + offset);
+        if (my >= 1024.0 * 1024.0) {
+            return format3SigFig(my / (1024.0 * 1024.0)) + " Ty";
+        } else if (my >= 1024.0) {
+            return format3SigFig(my / 1024.0) + " By";
+        } else {
+            return format3SigFig(my) + " My";
+        }
+    }
+
+    /**
+     * Format radius with a proportional offset applied to the raw value before unit conversion.
+     */
+    public static String formatRadiusOffset(int count, float offset) {
+        if (count == 0) return "---";
+        double earthR = 0.125 * Math.pow(2.0, (count - 1) / 3.0) * (1.0 + offset);
+        if (earthR >= 12.7) {
+            return format3SigFig(earthR * 0.125 / 12.7) + " R☉";
+        } else {
+            return format3SigFig(earthR) + " R⊕";
+        }
+    }
+
+    /**
+     * Format mass with a proportional offset applied to the raw value before unit conversion.
+     */
+    public static String formatMassOffset(int count, float offset) {
+        if (count == 0) return "---";
+        double earthM = 0.022 * Math.pow(2.0, (count - 1) / 2.0) * (1.0 + offset);
+        if (earthM >= 22600.0) {
+            return format3SigFig(earthM * 0.063 / 22600.0) + " M☉";
+        } else {
+            return format3SigFig(earthM) + " M⊕";
+        }
+    }
+
+    @SuppressWarnings("MalformedFormatString")
+    static String format3SigFig(double value) {
+        if (Math.abs(value) < 1e-9) return "0";
+        int pow = (int) Math.floor(Math.log10(Math.abs(value)));
+        // For values >= 1000, round to nearest 10^(pow-2) for true 3 sig figs
+        if (pow >= 3) {
+            double scale = Math.pow(10, pow - 2);
+            double rounded = Math.round(value / scale) * scale;
+            return String.format(Locale.US, "%.0f", rounded);
+        }
+        int digits = Math.max(0, 2 - pow);
+        if (digits > 6) digits = 6;
+        return String.format(Locale.US, "%." + digits + "f", value);
+    }
+
+    // === Custom slot for confined anvils ===
+
+    public static class CFAAnvilSlot extends Slot {
+
+        public CFAAnvilSlot(net.minecraft.world.Container container, int slot, int x, int y) {
+            super(container, slot, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return switch (this.getSlotIndex()) {
+                case 0 -> stack.is(ModBlocks.CONFINED_TIME_ANVILON.asItem());
+                case 1 -> stack.is(ModBlocks.CONFINED_SPACE_ANVILON.asItem());
+                case 2 -> stack.is(ModBlocks.CONFINED_MASS_ANVILON.asItem());
+                case 3 -> stack.is(ModBlocks.CONFINED_ENERGY_ANVILON.asItem());
+                default -> false;
+            };
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 64;
+        }
+    }
+
+    // === Custom slot for building material ===
+
+    public static class CFAMaterialSlot extends Slot {
+
+        private final CelestialForgingAnvilBlockEntity blockEntity;
+
+        public CFAMaterialSlot(CelestialForgingAnvilBlockEntity blockEntity, int x, int y) {
+            super(blockEntity.getMaterialContainer(), 0, x, y);
+            this.blockEntity = blockEntity;
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            ItemStack filter = blockEntity.getMaterialFilter();
+            if (filter.isEmpty() || filter.is(Items.BARRIER)) return false;
+            return ItemStack.isSameItemSameComponents(filter, stack);
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            int limit = blockEntity.getMaterialLimit();
+            return limit > 0 ? limit : 1;
+        }
+    }
+
+    // === Custom slot for seed items ===
+
+    public static class SeedSlot extends Slot {
+
+        public SeedSlot(net.minecraft.world.Container container, int slot, int x, int y) {
+            super(container, slot, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            // Accept any item — validation happens on search
+            return true;
+        }
+
+        @Override
+        public int getMaxStackSize() {
+            return 1;
+        }
+    }
+}

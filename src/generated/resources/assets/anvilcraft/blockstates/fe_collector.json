@@ -1,0 +1,18 @@
+{
+  "variants": {
+    "axis=x,powered=false": {
+      "model": "anvilcraft:block/fe_collector_base"
+    },
+    "axis=x,powered=true": {
+      "model": "anvilcraft:block/fe_collector_base"
+    },
+    "axis=z,powered=false": {
+      "model": "anvilcraft:block/fe_collector_base",
+      "y": 90
+    },
+    "axis=z,powered=true": {
+      "model": "anvilcraft:block/fe_collector_base",
+      "y": 90
+    }
+  }
+}

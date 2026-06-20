@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:planet_resource",
+  "category": "giant_fluid",
+  "giant": {
+    "entries": [
+      {
+        "id": "anvilcraft:hydrogen",
+        "weight": 80
+      },
+      {
+        "id": "anvilcraft:helium",
+        "weight": 10
+      },
+      {
+        "id": "minecraft:water",
+        "weight": 10
+      }
+    ],
+    "pressure_type": "ice"
+  }
+}

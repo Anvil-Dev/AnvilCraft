@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -78,7 +79,7 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
             && !state.getValue(OVERLOAD)
             && !entity.isSteppingCarefully()
             && entity instanceof LivingEntity) {
-            entity.hurt(level.damageSources().hotFloor(), 4.0F);
+            entity.hurt(ModDamageTypes.heaterBurn(level), 4.0F);
         }
         super.stepOn(level, pos, state, entity);
     }

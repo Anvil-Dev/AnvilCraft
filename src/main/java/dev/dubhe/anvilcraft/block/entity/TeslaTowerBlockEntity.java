@@ -10,11 +10,13 @@ import dev.dubhe.anvilcraft.api.taslatower.IsEntityIdFilter;
 import dev.dubhe.anvilcraft.api.taslatower.IsFriendlyFilter;
 import dev.dubhe.anvilcraft.api.taslatower.IsOnVehicleFilter;
 import dev.dubhe.anvilcraft.api.taslatower.IsPetFilter;
+import dev.dubhe.anvilcraft.api.taslatower.IsPlayerFilter;
 import dev.dubhe.anvilcraft.api.taslatower.IsPlayerIdFilter;
 import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
@@ -32,7 +34,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -45,6 +51,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +64,9 @@ public class TeslaTowerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable {
     private final ArrayList<Pair<TeslaFilter, String>> whiteList = new ArrayList<>();
     private int tickCount = 0;
+    private int flashTimer = 0;
+    @Getter
+    private long lastStrikeTime = 0;
     @Setter
     @Getter
     private @Nullable PowerGrid grid;
@@ -105,6 +115,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
+        tag.putLong("LastStrikeTime", this.lastStrikeTime);
         if (this.targetEntityUUID != null) {
             tag.putUUID("TargetEntityUUID", this.targetEntityUUID);
         }
@@ -128,6 +139,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
+        this.lastStrikeTime = tag.getLong("LastStrikeTime");
         if (tag.contains("TargetEntityUUID")) {
             this.targetEntityUUID = tag.getUUID("TargetEntityUUID");
         } else {
@@ -177,11 +189,22 @@ public class TeslaTowerBlockEntity extends BlockEntity
         this.flushState(this.level, getBlockPos().above(2));
         this.flushState(this.level, getBlockPos().above(3));
         if (this.level.isClientSide()) return;
+        if (this.flashTimer > 0) {
+            this.flashTimer--;
+            if (this.flashTimer == 0) {
+                this.targetEntity = null;
+                this.targetEntityUUID = null;
+                this.targetLightningRod = null;
+                this.setChanged();
+                this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+            }
+        }
         if (state.getValue(TeslaTowerBlock.OVERLOAD) || state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF) {
             final boolean hasChanged = this.targetEntity != null || this.targetEntityUUID != null || this.targetLightningRod != null;
             this.targetEntity = null;
             this.targetEntityUUID = null;
             this.targetLightningRod = null;
+            this.flashTimer = 0;
             if (hasChanged) {
                 this.setChanged();
                 this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
@@ -207,6 +230,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         }
         Optional<LivingEntity> target = this.level.getEntitiesOfClass(LivingEntity.class, aabb)
             .stream()
+            .filter(LivingEntity::isAlive)
             .filter(it -> this.whiteList.stream().noneMatch(it2 -> it2.left().match(it, it2.right())))
             .min((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()));
         if (target.isPresent()) {
@@ -217,8 +241,28 @@ public class TeslaTowerBlockEntity extends BlockEntity
             }
             this.targetEntity = targetEntity;
             this.targetEntityUUID = targetEntity.getUUID();
+            this.lastStrikeTime = this.level.getGameTime();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
-            this.targetEntity.hurt(this.level.damageSources().lightningBolt(), 5.0F);
+            if (this.level instanceof ServerLevel serverLevel) {
+                LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(serverLevel);
+                if (lightningBolt != null) {
+                    lightningBolt.moveTo(targetEntity.position());
+                    lightningBolt.setDamage(lightningBolt.getDamage() * 2);
+                    if (!EventHooks.onEntityStruckByLightning(targetEntity, lightningBolt)) {
+                        targetEntity.thunderHit(serverLevel, lightningBolt);
+                    }
+                    if (!targetEntity.isAlive() || targetEntity.isRemoved()) {
+                        AABB area = new AABB(targetEntity.blockPosition()).inflate(1.0);
+                        LivingEntity converted = this.level.getEntitiesOfClass(LivingEntity.class, area,
+                            e -> e != targetEntity && e.isAlive()).stream().findFirst().orElse(targetEntity);
+                        this.targetEntity = converted;
+                        this.targetEntityUUID = converted.getUUID();
+                        this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+                    }
+                }
+            }
+            this.flashTimer = 5;
+            this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         } else {
             ArrayList<BlockPos> lightningRods = new ArrayList<>();
             BlockPos.betweenClosedStream(aabb)
@@ -235,12 +279,15 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 return;
             }
             this.targetLightningRod = targetLightningRod;
+            this.lastStrikeTime = this.level.getGameTime();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
             ((LightningRodBlock) Blocks.LIGHTNING_ROD).onLightningStrike(
                 this.level.getBlockState(targetLightningRod),
                 this.level,
                 targetLightningRod
             );
+            this.flashTimer = 5;
+            this.level.playSound(null, getBlockPos(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
         }
     }
 
@@ -251,11 +298,12 @@ public class TeslaTowerBlockEntity extends BlockEntity
     }
 
     public void initWhiteList(Player player) {
+        this.whiteList.add(Pair.of(new IsPlayerFilter(), ""));
         this.whiteList.add(Pair.of(new IsPlayerIdFilter(), player.getName().getString()));
         this.whiteList.add(Pair.of(new IsPetFilter(), ""));
         this.whiteList.add(Pair.of(new HasCustomNameFilter(), ""));
-        this.whiteList.add(Pair.of(new IsEntityIdFilter(), Component.translatable("entity.minecraft.villager").getString()));
-        this.whiteList.add(Pair.of(new IsEntityIdFilter(), Component.translatable("entity.minecraft.wandering_trader").getString()));
+        this.whiteList.add(Pair.of(new IsEntityIdFilter(), "minecraft:villager"));
+        this.whiteList.add(Pair.of(new IsEntityIdFilter(), "minecraft:wandering_trader"));
         this.whiteList.add(Pair.of(new IsFriendlyFilter(), ""));
         this.whiteList.add(Pair.of(new IsOnVehicleFilter(), ""));
     }

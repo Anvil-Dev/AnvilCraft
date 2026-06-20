@@ -15,6 +15,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -247,7 +248,10 @@ public class FilteredItemStackHandler extends ItemStackHandler {
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         if (!tag.contains("Inventory")) return;
         this.filterEnabled = tag.getBoolean("FilterEnabled");
-        ListTag inventory = (ListTag) tag.get("Inventory");
+        // 先清空所有插槽，防止标记为空的插槽残留旧数据
+        Collections.fill(this.stacks, ItemStack.EMPTY);
+        Tag inventoryTag = tag.get("Inventory");
+        if (!(inventoryTag instanceof ListTag inventory)) return;
         int size = tag.getInt("Size");
         for (Tag entry : inventory) {
             CompoundTag inventoryEntry = (CompoundTag) entry;

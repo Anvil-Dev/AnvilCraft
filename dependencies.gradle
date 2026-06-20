@@ -23,4 +23,7 @@ dependencies {
     // Jade
     compileClasspath(libs.jade)
     runtimeClasspath(libs.jade)
+
+    // Mekanism
+    compileClasspath(libs.mekanism)
 }

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
+import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -42,6 +44,50 @@ public class BlockEventListener {
         InteractionHand hand = event.getHand();
         if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
             if (!AnvilHammerItem.dropAnvil(event.getEntity(), event.getLevel(), event.getPos())) {
+                event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void clickCreativeCrateEvent(PlayerInteractEvent.LeftClickBlock event) {
+        Level level = event.getLevel();
+        Player player = event.getEntity();
+        BlockPos pos = event.getPos();
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof CreativeCrateBlockEntity creativeCrateBlockEntity)) {
+            return;
+        }
+        ItemStack stackInSlot = creativeCrateBlockEntity.getItemStackHandler().getStackInSlot(0);
+        if (player.isCreative()) {
+            if (!stackInSlot.isEmpty()) {
+                if (!player.addItem(stackInSlot.copyWithCount(1))) {
+                    Block.popResource(level, BlockPos.containing(player.position()), stackInSlot.copyWithCount(1));
+                }
+                creativeCrateBlockEntity.getItemStackHandler().setStackInSlot(0, ItemStack.EMPTY);
+                if (level.isClientSide()) {
+                    event.setCanceled(true);
+                }
+                event.setCanceled(true);
+            }
+        } else {
+            if (!stackInSlot.isEmpty()) {
+                if (player.isShiftKeyDown()) {
+                    if (!player.addItem(stackInSlot.copyWithCount(stackInSlot.getMaxStackSize()))) {
+                        Block.popResource(
+                            level,
+                            BlockPos.containing(player.position()),
+                            stackInSlot.copyWithCount(stackInSlot.getMaxStackSize())
+                        );
+                    }
+                } else {
+                    if (!player.addItem(stackInSlot.copyWithCount(1))) {
+                        Block.popResource(level, BlockPos.containing(player.position()), stackInSlot.copyWithCount(1));
+                    }
+                }
+                if (level.isClientSide()) {
+                    event.setCanceled(true);
+                }
                 event.setCanceled(true);
             }
         }

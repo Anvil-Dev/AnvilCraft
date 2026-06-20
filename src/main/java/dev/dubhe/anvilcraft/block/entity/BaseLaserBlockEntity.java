@@ -163,11 +163,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             );
         }
         if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
-            if (
-                this.irradiateBlockPos != null
-                && this.level.getBlockEntity(this.irradiateBlockPos) instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity
-            ) {
-                lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
+            if (this.irradiateBlockPos != null) {
+                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
+                if (oldBe instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity) {
+                    lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
+                } else if (oldBe instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser) {
+                    cfaLaser.resetLaser();
+                }
             }
         }
         if (
@@ -185,6 +187,12 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                     }
                 }
             }
+        }
+        // CFA laser interface receives laser level
+        if (this.level.getBlockEntity(tempIrradiateBlockPos)
+            instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser) {
+            this.updateLaserLevel(this.calculateLaserLevel());
+            cfaLaser.onLaserReceived(this.laserLevel);
         }
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);
 
@@ -340,8 +348,12 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         if (this.level == null) return;
         if (this.irradiateBlockPos == null) return;
         if (!this.level.isLoaded(this.irradiateBlockPos)) return;
-        if (!(this.level.getBlockEntity(this.irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)) return;
-        irradiateBlockEntity.onCancelingIrradiation(this);
+        BlockEntity targetBe = this.level.getBlockEntity(this.irradiateBlockPos);
+        if (targetBe instanceof BaseLaserBlockEntity irradiateBlockEntity) {
+            irradiateBlockEntity.onCancelingIrradiation(this);
+        } else if (targetBe instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser) {
+            cfaLaser.resetLaser();
+        }
         if (this.level.isClientSide()) {
             CacheableBERenderingPipeline.getInstance().update(this);
         }

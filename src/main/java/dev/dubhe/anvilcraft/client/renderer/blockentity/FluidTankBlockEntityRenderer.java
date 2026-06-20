@@ -18,11 +18,10 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.FluidTankRenderUtil;
-import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 public class FluidTankBlockEntityRenderer implements BlockEntityRenderer<FluidTankBlockEntity> {
     public FluidTankBlockEntityRenderer(BlockEntityRendererProvider.Context ignore) {
@@ -38,7 +37,8 @@ public class FluidTankBlockEntityRenderer implements BlockEntityRenderer<FluidTa
          * // Uncomment to allow the liquid to rotate with the tank ms.pushPose(); ms.translate(0.5, 0.5, 0.5);
          * FacingToRotation.get(tank.getForward(), tank.getUp()).push(ms); ms.translate(-0.5, -0.5, -0.5);
          */
-        float fill = Math.min((float) tank.getTank().getFluid().getAmount() / tank.getTank().getCapacity(), 1);
+        float fill = (float) tank.getTank().getFluid().getAmount() / tank.getTank().getCapacity();
+        fill = Mth.clamp(fill, 0, 1);
 
         FluidTankRenderUtil.drawFluidInTank(
             ms,

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_induction_light": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:induction_light"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:exclamation_mark"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_induction_light"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:exclamation_mark"
+    ]
+  }
+}

@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,6 +47,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -56,6 +58,12 @@ import net.neoforged.neoforge.common.util.DeferredSoundType;
 import org.jetbrains.annotations.Nullable;
 
 public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements Fallable, IHammerRemovable {
+    /**
+     * When set to true, the Giant Anvil will not drop items when blocks are removed.
+     * Used during recipe processing to prevent the anvil from dropping when replaced.
+     */
+    public static final ThreadLocal<Boolean> SUPPRESS_DROPS = ThreadLocal.withInitial(() -> false);
+
     public static final SoundType SOUND_TYPE = new DeferredSoundType(
         0.55F, 0.45F,
         () -> SoundEvents.ANVIL_BREAK,
@@ -281,7 +289,8 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             }
         }
 
-        level.playSound(null, belowPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 0.55f, level.random.nextFloat() * 0.1F + 0.55f);
+        level.playSound(null, belowPos, ModSoundEvents.GIANT_ANVIL_LAND.get(),
+            SoundSource.BLOCKS, 0.55f, level.random.nextFloat() * 0.1F + 0.55f);
     }
 
     @Override
@@ -409,6 +418,15 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             (syncId, inventory, player) ->
                 new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
             CONTAINER_TITLE);
+    }
+
+    @Override
+    public java.util.List<net.minecraft.world.item.ItemStack> getDrops(
+        BlockState state,
+        LootParams.Builder params
+    ) {
+        if (SUPPRESS_DROPS.get()) return java.util.List.of();
+        return super.getDrops(state, params);
     }
 
     @Override

@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:temple_demand",
+  "category": "blessing",
+  "entries": [
+    {
+      "count": 1024,
+      "id": "minecraft:bread"
+    },
+    {
+      "count": 256,
+      "id": "minecraft:cooked_beef"
+    },
+    {
+      "count": 256,
+      "id": "minecraft:cooked_cod"
+    },
+    {
+      "count": 256,
+      "id": "anvilcraft:butter_bread_roll"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:cookie"
+    }
+  ]
+}

@@ -12,9 +12,12 @@ import lombok.NoArgsConstructor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,8 +62,16 @@ public class TradingStationMessageManager extends BetterSavedData {
             pos,
             new Date().getTime()
         );
-        server.sendSystemMessage(message.getRealTimeMessage(id -> ComponentUtil.findPlayerName(server.getProfileCache(), id)));
-        if (server.getPlayerList().getPlayer(owner) != null) return;
+        Component realTime = message.getRealTimeMessage(id -> ComponentUtil.findPlayerName(
+            Objects.requireNonNull(server.getProfileCache()),
+            id
+        ));
+        server.sendSystemMessage(realTime);
+        PlayerList players = server.getPlayerList();
+        for (ServerPlayer player : players.getPlayers()) {
+            player.sendSystemMessage(realTime);
+        }
+        if (players.getPlayer(owner) != null) return;
         this.messages.add(message);
     }
 
@@ -76,18 +88,26 @@ public class TradingStationMessageManager extends BetterSavedData {
         TradingStationBlockEntity be = beOp.get();
         UUID owner = be.getOwner();
         if (owner == null) return;
+        PlayerList players = server.getPlayerList();
         TradingStationNonPlayerBreakMessage message = new TradingStationNonPlayerBreakMessage(
             owner,
             level.dimension(),
             pos,
             new Date().getTime(),
-            Lists.transform(server.getPlayerList().getPlayers(), sp -> sp.getGameProfile().getId()),
+            Lists.transform(players.getPlayers(), sp -> sp.getGameProfile().getId()),
             Optional.ofNullable(level.getNearestPlayer(TargetingConditions.DEFAULT, pos.getX(), pos.getY(), pos.getZ()))
                 .map(p -> p.getGameProfile().getId())
                 .orElse(null)
         );
-        server.sendSystemMessage(message.getRealTimeMessage(id -> ComponentUtil.findPlayerName(server.getProfileCache(), id)));
-        if (server.getPlayerList().getPlayer(owner) != null) return;
+        Component realTime = message.getRealTimeMessage(id -> ComponentUtil.findPlayerName(
+            Objects.requireNonNull(server.getProfileCache()),
+            id
+        ));
+        server.sendSystemMessage(realTime);
+        for (ServerPlayer player : players.getPlayers()) {
+            player.sendSystemMessage(realTime);
+        }
+        if (players.getPlayer(owner) != null) return;
         this.messages.add(message);
     }
 
@@ -95,14 +115,17 @@ public class TradingStationMessageManager extends BetterSavedData {
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         // 事件从PlayerList发出，而它有一个server变量
         // 这说明服务器已经初始化，所以我们可以放心的拿到服务器实例
-        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        MinecraftServer server = Objects.requireNonNull(ServerLifecycleHooks.getCurrentServer());
         TradingStationMessageManager manager = TradingStationMessageManager.get();
         Player player = event.getEntity();
         UUID playerId = player.getGameProfile().getId();
         for (Iterator<ITradingStationMessage> iterator = manager.messages.iterator(); iterator.hasNext(); ) {
             ITradingStationMessage message = iterator.next();
             if (!message.owner().equals(playerId)) continue;
-            player.sendSystemMessage(message.getOwnerMessage(id -> ComponentUtil.findPlayerName(server.getProfileCache(), id)));
+            player.sendSystemMessage(message.getOwnerMessage(id -> ComponentUtil.findPlayerName(
+                Objects.requireNonNull(server.getProfileCache()),
+                id
+            )));
             iterator.remove();
         }
     }
@@ -114,11 +137,10 @@ public class TradingStationMessageManager extends BetterSavedData {
 
     @Override
     public void read(CompoundTag nbt, HolderLookup.Provider registries) {
-
     }
 
     @Override
     public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries) {
-        return null;
+        return new CompoundTag();
     }
 }

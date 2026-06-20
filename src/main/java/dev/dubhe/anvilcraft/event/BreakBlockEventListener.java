@@ -1,6 +1,11 @@
 package dev.dubhe.anvilcraft.event;
 
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -24,5 +29,23 @@ public class BreakBlockEventListener {
             event.getPos().getCenter(),
             event.getState()
         );
+    }
+
+    @SubscribeEvent
+    public static void preventTradingStationBreak(BlockEvent.BreakEvent event) {
+        Player player = event.getPlayer();
+        if (!(player.level() instanceof ServerLevel level)) return;
+        BlockPos pos = event.getPos();
+        if (!level.getBlockState(pos).is(ModBlocks.TRADING_STATION)) return;
+        if (
+            level.getBlockEntity(pos, ModBlockEntities.TRADING_STATION.get()).filter(be -> be.isOwner(player)).isEmpty()
+            && !player.isShiftKeyDown()
+        ) {
+            player.displayClientMessage(
+                Component.translatable("screen.anvilcraft.tooltip.trading_station.break_failed").withStyle(ChatFormatting.RED),
+                true
+            );
+            event.setCanceled(true);
+        }
     }
 }

@@ -57,6 +57,33 @@ public class FormattingUtil {
     }
 
     /**
+     * 将tick数格式化为时间字符串，只显示到秒（向上取整），不显示 tick/gt。
+     * 始终显示为 "Xm Xs" 格式。
+     * <table>
+     *     <tr><th>tick数</th><th>显示效果</th></tr>
+     *     <tr><td>0gt</td><td>0m 0s</td></tr>
+     *     <tr><td>1gt</td><td>0m 1s</td></tr>
+     *     <tr><td>30gt</td><td>0m 2s</td></tr>
+     *     <tr><td>100gt</td><td>0m 5s</td></tr>
+     *     <tr><td>1199gt</td><td>1m 0s</td></tr>
+     *     <tr><td>1200gt</td><td>1m 0s</td></tr>
+     *     <tr><td>1500gt</td><td>1m 15s</td></tr>
+     *     <tr><td>1635gt</td><td>1m 22s</td></tr>
+     * </table>
+     *
+     * @param total 总tick数
+     * @return 格式化后的时间字符串
+     */
+    public static String toFormattedTime(int total) {
+        if (total <= 0) return "0m 0s";
+        // 向上取整到秒
+        int totalSeconds = (total + 19) / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        return "%dm %ds".formatted(minutes, seconds);
+    }
+
+    /**
      * 对应表：
      * <table>
      *     <tr><th>tick数</th><th>阈值</th><th>显示效果</th></tr>
@@ -112,6 +139,8 @@ public class FormattingUtil {
      * 根据进度生成一个给定长度的进度条
      *
      * @param progress 进度，0-1
+     * @param length   进度条长度
+     * @param format   文本格式
      * @return 进度条文本
      */
     public static Component toShadeProgress(double progress, int length, ChatFormatting... format) {

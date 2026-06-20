@@ -34,7 +34,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
@@ -99,7 +98,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     public void setRecipe(
         IRecipeLayoutBuilder builder,
         RecipeHolder<AnvilCollisionCraftRecipe> recipeHolder,
-        IFocusGroup focuses) {
+        IFocusGroup focuses
+    ) {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
         // 将此配方需要的铁砧加入输入槽
         builder.addInputSlot(21, 24).addIngredients(
@@ -159,7 +159,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         IRecipeSlotsView recipeSlotsView,
         GuiGraphics guiGraphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
 
         // explosion
@@ -228,9 +229,11 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     PoseStack pose = guiGraphics.pose();
                     pose.pushPose();
                     pose.scale(0.8f, 0.8f, 1.0f);
-                    guiGraphics.drawString(Minecraft.getInstance().font,
+                    guiGraphics.drawString(
+                        Minecraft.getInstance().font,
                         Component.translatable("gui.anvilcraft.category.anvil_collision.maxcount", blockTransform.maxCount()),
-                        135, 75, 0xFF000000, false);
+                        135, 75, 0xFF000000, false
+                    );
                     pose.popPose();
                 }
             }
@@ -269,9 +272,11 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     PoseStack pose = guiGraphics.pose();
                     pose.pushPose();
                     pose.scale(0.8f, 0.8f, 1.0f);
-                    guiGraphics.drawString(Minecraft.getInstance().font,
+                    guiGraphics.drawString(
+                        Minecraft.getInstance().font,
                         Component.translatable("gui.anvilcraft.category.anvil_collision.maxcount", blockTransform.maxCount()),
-                        135, 75, 0xFF000000, false);
+                        135, 75, 0xFF000000, false
+                    );
                     pose.popPose();
                 }
             }
@@ -303,12 +308,16 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         }
         pose.pushPose();
         pose.scale(0.8f, 0.8f, 1.0f);
-        guiGraphics.drawString(Minecraft.getInstance().font,
+        guiGraphics.drawString(
+            Minecraft.getInstance().font,
             Component.translatable("gui.anvilcraft.category.anvil_collision.consume", recipe.consume()),
-            0, 65, 0xFF000000, false);
-        guiGraphics.drawString(Minecraft.getInstance().font,
+            0, 65, 0xFF000000, false
+        );
+        guiGraphics.drawString(
+            Minecraft.getInstance().font,
             Component.translatable("gui.anvilcraft.category.anvil_collision.speed", recipe.speed()),
-            0, 75, 0xFF000000, false);
+            0, 75, 0xFF000000, false
+        );
         pose.popPose();
     }
 
@@ -318,7 +327,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         RecipeHolder<AnvilCollisionCraftRecipe> recipeHolder,
         IRecipeSlotsView recipeSlotsView,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         IRecipeCategory.super.getTooltip(tooltip, recipeHolder, recipeSlotsView, mouseX, mouseY);
         ResourceLocation id = getRegistryName(recipeHolder);
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
@@ -359,9 +369,5 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(ModBlocks.ACCELERATION_RING.asStack(), AnvilCraftJeiPlugin.ANVIL_COLLISION);
         registration.addRecipeCatalyst(ModBlocks.DEFLECTION_RING.asStack(), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), AnvilCraftJeiPlugin.ANVIL_COLLISION);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.TRANSCENDENCE_ANVIL), AnvilCraftJeiPlugin.ANVIL_COLLISION);
     }
 }

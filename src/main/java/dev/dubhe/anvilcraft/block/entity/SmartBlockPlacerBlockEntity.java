@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
+import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
 import dev.dubhe.anvilcraft.block.OverseerBlock;
@@ -25,6 +26,7 @@ import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.StructureBookUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -112,8 +114,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockStateProperties.BED_PART,
         BlockStateProperties.HANGING,
         BlockStateProperties.BELL_ATTACHMENT,
-        // 门的手动开启状态（不是红石激活）
+        // 门的手动开启状态和铰链方向
         BlockStateProperties.OPEN,
+        BlockStateProperties.DOOR_HINGE,
         // 中继器的挡位
         BlockStateProperties.DELAY,
         // 比较器的模式
@@ -141,8 +144,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         TeslaTowerBlock.HALF,
         OverseerBlock.HALF,
         LargeCakeBlock.HALF,
-        AccelerationRingBlock.HALF
+        AccelerationRingBlock.HALF,
+        DeflectionRingBlock.HALF
     );
+
+    // 基于属性名称的白名单集合（按名称匹配而非对象相等，解决不同方块同名Property非同一实例的问题）
+    private static final Set<String> INHERITED_PROPERTY_NAMES =
+        INHERITED_PROPERTIES.stream().map(Property::getName).collect(ImmutableSet.toImmutableSet());
 
     // 标记当前是否有方块正在被智能放置器移动
     private static final ThreadLocal<Boolean> IS_BEING_MOVED_BY_PLACER = ThreadLocal.withInitial(() -> false);
@@ -236,8 +244,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private float[] clientRetractStartAngles = new float[4];
     private float clientRetractStartProgress = 0f;
 
+    // 客户端收回音效播放标记（防止同一动画周期内重复播放）
+    private boolean retractSoundPlayed = false;
+
     // 比较器信号状态
     private int lastComparatorSignal = 0;
+
+    // 穿梭进度：记录预期邻居放置到的目标位置，邻居完成放置后触发进度
+    @Nullable
+    private BlockPos expectedShuttleTarget = null;
 
 
     @SuppressWarnings("checkstyle:EmptyLineSeparator")
@@ -310,6 +325,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         loadLayerPositions(tag);
         // 加载Disk物品栏
         this.diskInventory.fromTag(tag.getList("diskInventory", Tag.TAG_COMPOUND), provider);
+        // 同步 lastDiskItem 缓存以匹配实际库存状态，防止后续取出蓝图时检测不到变化
+        this.lastDiskItem = this.diskInventory.getItem(0).copy();
         // 加载书物品栏
         this.bookInventory.fromTag(tag.getList("bookInventory", Tag.TAG_COMPOUND), provider);
         // 加载输出书物品栏
@@ -596,11 +613,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
             // 获取旋转后的结构数据
             StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
-            int totalBlocks = rotatedData.blocks.size();
-
-            if (totalBlocks == 0) {
-                return 0;
-            }
 
             // 获取所有位置
             Direction facing = this.getFacing(this.getBlockPos(), this.level);
@@ -611,8 +623,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 return 0;
             }
 
-            // 获取有序索引列表
+            // 获取有序索引列表（只包含主体部件，多方块结构的次要部件已被过滤）
             List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+            int totalBlocks = orderedIndices.size();
+
+            if (totalBlocks == 0) {
+                return 0;
+            }
 
             // 计算已放置的方块数量
             int placedCount = 0;
@@ -894,6 +911,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.currentPlacementIndex = 0;
             }
 
+            // 停止工作时清除穿梭预期标记
+            this.expectedShuttleTarget = null;
+
             // 断电时也更新缺失方块信息（清空显示）
             if (!level.isClientSide) {
                 this.updateMissingBlockInfo(level, pos);
@@ -920,6 +940,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.clientAnimationStartTime = 0;
             this.clientLastTargetPos = null;
             this.clientIsRetracting = false;
+            this.retractSoundPlayed = false;
         }
 
         this.lastPlaceCooldown = this.placeCooldown;
@@ -1147,6 +1168,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             for (int i = 0; i < orderedIndices.size(); i++) {
                 int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
                 int index = orderedIndices.get(orderIndex);
+
+                // 跳过多方块方块的次要部件
+                if (this.loadedStructure != null && index < this.loadedStructure.blocks.size()
+                    && StructureLoadUtil.isMultiblockSecondaryPart(
+                        this.loadedStructure.blocks.get(index).state())) {
+                    continue;
+                }
+
                 BlockPos targetPos = allPositions.get(index);
 
                 // 检查目标位置是否可以放置（蓝图模式：只检查是否有方块，不检查状态）
@@ -1202,6 +1231,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             for (int i = 0; i < orderedIndices.size(); i++) {
                 int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
                 int index = orderedIndices.get(orderIndex);
+
+                // 跳过多方块方块的次要部件
+                if (this.loadedStructure != null && index < this.loadedStructure.blocks.size()
+                    && StructureLoadUtil.isMultiblockSecondaryPart(
+                        this.loadedStructure.blocks.get(index).state())) {
+                    continue;
+                }
+
                 BlockPos targetPos = allPositions.get(index);
 
                 // 检查目标位置是否可以放置（蓝图模式：只检查是否有方块，不检查状态）
@@ -1392,9 +1429,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return false;
         }
 
-        // 检查是否还有空位（按有序索引遍历）
+        // 检查是否还有空位（按有序索引遍历，跳过次要部件）
         List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
+            // 跳过多方块方块的次要部件
+            if (index < rotatedData.blocks.size()
+                && StructureLoadUtil.isMultiblockSecondaryPart(
+                    rotatedData.blocks.get(index).state())) {
+                continue;
+            }
             BlockPos targetPos = allPositions.get(index);
             // 蓝图模式：只检查位置是否为空（是否有方块）
             BlockState targetState = level.getBlockState(targetPos);
@@ -1432,9 +1475,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return false;
         }
 
-        // 检查是否还有可放置的蓝图位置
+        // 检查是否还有可放置的蓝图位置（跳过次要部件）
         List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
+            // 跳过多方块方块的次要部件
+            if (index < rotatedData.blocks.size()
+                && StructureLoadUtil.isMultiblockSecondaryPart(
+                    rotatedData.blocks.get(index).state())) {
+                continue;
+            }
             BlockPos targetPos = allPositions.get(index);
             // 蓝图模式：只检查位置是否为空（是否有方块）
             BlockState targetState = level.getBlockState(targetPos);
@@ -1687,10 +1736,87 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的红石信号更新状态
                 level.neighborChanged(targetPos, stateToPlace.getBlock(), targetPos);
 
+                // 检查是否是穿梭进度的回程：放置到了预期的穿梭目标位置
+                if (targetPos.equals(this.expectedShuttleTarget)) {
+                    TriggerUtil.placerShuttle(level, targetPos);
+                    this.expectedShuttleTarget = null;
+                }
+
+                // 检测穿梭行为：当前放置器的目标位置是否是另一个放置器的源位置
+                checkAndTriggerShuttle(level, targetPos);
+
                 this.currentHeldBlock = ItemStack.EMPTY;
                 return false;
             }
         );
+    }
+
+    /**
+     * 检测并触发穿梭进度：双向判定两个放置器是否在来回移动同一个方块
+     * 条件1：邻居放置器的源位置 == 当前放置器的目标位置
+     * 条件2：当前放置器的源位置在邻居放置器的目标点位中
+     */
+    private void checkAndTriggerShuttle(Level level, BlockPos targetPos) {
+        // 计算当前放置器的源位置
+        BlockPos myPos = this.getBlockPos();
+        BlockState myState = level.getBlockState(myPos);
+        Direction myFacing = myState.getValue(HorizontalDirectionalBlock.FACING);
+        BlockPos mySource = myPos.relative(myFacing.getOpposite());
+
+        for (Direction dir : Direction.values()) {
+            BlockPos neighborPos = targetPos.relative(dir);
+            BlockEntity neighborEntity = level.getBlockEntity(neighborPos);
+            if (neighborEntity instanceof SmartBlockPlacerBlockEntity neighborPlacer) {
+                // 邻居放置器必须处于MOVE模式（非蓝图、非pickup）且已设置点位
+                boolean isBlueprint = neighborPlacer.loadedStructure != null
+                    && !neighborPlacer.loadedStructure.isEmpty();
+                if (isBlueprint || neighborPlacer.isPickupMode
+                    || neighborPlacer.layerPositions.isEmpty()) {
+                    continue;
+                }
+                BlockState neighborState = level.getBlockState(neighborPos);
+                Direction neighborFacing = neighborState.getValue(HorizontalDirectionalBlock.FACING);
+                BlockPos neighborSource = neighborPos.relative(neighborFacing.getOpposite());
+
+                // 条件1：邻居的源位置 == 当前的目标位置
+                if (!neighborSource.equals(targetPos)) {
+                    continue;
+                }
+
+                // 条件2：当前放置器的源位置在邻居的目标点位中
+                if (!isMySourceInNeighborTargets(level, neighborPlacer,
+                    neighborPos, neighborFacing, mySource)) {
+                    continue;
+                }
+
+                // 双向匹配，在邻居放置器上设置预期目标，等邻居完成放置时触发
+                neighborPlacer.expectedShuttleTarget = mySource;
+                return;
+            }
+        }
+    }
+
+    /**
+     * 检查指定位置是否在邻居放置器的目标点位中
+     */
+    private boolean isMySourceInNeighborTargets(Level level,
+                                                 SmartBlockPlacerBlockEntity neighborPlacer,
+                                                 BlockPos neighborPos, Direction neighborFacing,
+                                                 BlockPos mySource) {
+        BlockPos basePos = neighborPos.relative(neighborFacing.getOpposite(), -4);
+        boolean upsideDown = level.getBlockState(neighborPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+
+        for (var entry : neighborPlacer.layerPositions.entrySet()) {
+            int layer = entry.getKey();
+            for (int position : entry.getValue()) {
+                BlockPos neighborTarget = calculateTargetPosition(
+                    basePos, neighborFacing, position / 5, position % 5, layer, upsideDown);
+                if (neighborTarget.equals(mySource)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -1734,6 +1860,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             Block requiredBlock = getRequiredBlockForPosition(index);
             if (requiredBlock == null) {
                 continue;
+            }
+
+            // 跳过多方块方块的次要部件（部件会在主体部件放置时自动创建并修正朝向）
+            if (this.loadedStructure != null && index < this.loadedStructure.blocks.size()) {
+                BlockState originalState = this.loadedStructure.blocks.get(index).state();
+                if (StructureLoadUtil.isMultiblockSecondaryPart(originalState)) {
+                    continue;
+                }
             }
 
             // 先获取物品，用于后续的位置检查
@@ -1806,9 +1940,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 continue;
             }
 
+            // 多方块方块使用蓝图中的朝向进行放置，确保所有部件位置正确
+            Direction placementFacing = facing;
+            if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
+                Direction desiredFacing = extractDesiredHorizontalFacing(blueprintState);
+                if (desiredFacing != null) {
+                    placementFacing = desiredFacing;
+                }
+            }
+
             // 放置方块
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
-                level, targetPos, facing, upsideDown, extractedBlockItemObj, extractedItem);
+                level, targetPos, placementFacing, upsideDown, extractedBlockItemObj, extractedItem);
 
             if (!placeSuccess) {
                 // 放置失败，回滚物品
@@ -1820,7 +1963,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
 
             // 放置成功后，修正方块的朝向为蓝图中的朝向
-            this.applyBlueprintBlockFacing(level, targetPos, index);
+            if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
+                // 多方块方块：应用蓝图状态到所有部件（包括 setPlacedBy 创建的次要部件）
+                applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
+            } else {
+                this.applyBlueprintBlockFacing(level, targetPos, index);
+            }
 
             // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的状态更新
             level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), targetPos);
@@ -1903,6 +2051,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 continue;
             }
 
+            // 跳过多方块方块的次要部件（部件会在主体部件放置时自动创建并修正朝向）
+            if (this.loadedStructure != null && index < this.loadedStructure.blocks.size()) {
+                BlockState originalState = this.loadedStructure.blocks.get(index).state();
+                if (StructureLoadUtil.isMultiblockSecondaryPart(originalState)) {
+                    continue;
+                }
+            }
+
             // 检查源方块是否与蓝图需要的方块匹配
             if (!sourceState.is(requiredBlock)) {
                 // Stop mode：源方块与蓝图不匹配，停止在当前位置
@@ -1919,9 +2075,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.currentHeldBlock = sourceItem.copy();
             this.onChanged();
 
+            // 获取蓝图中的目标状态（已经包含旋转、倒挂和状态过滤处理）
+            BlockState blueprintState = getBlueprintBlockState(index, level);
+
+            // 多方块方块使用蓝图中的朝向进行放置，确保所有部件位置正确
+            Direction placementFacing = facing;
+            if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
+                Direction desiredFacing = extractDesiredHorizontalFacing(blueprintState);
+                if (desiredFacing != null) {
+                    placementFacing = desiredFacing;
+                }
+            }
+
             // 使用 FakePlayer 放置方块
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
-                level, targetPos, facing, upsideDown,
+                level, targetPos, placementFacing, upsideDown,
                 (BlockItem) sourceItem.getItem(), sourceItem
             );
 
@@ -1933,12 +2101,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 return;
             }
 
-            // 放置成功后，修正方块的朝向为蓝图中的朝向
-            this.applyBlueprintBlockFacing(level, targetPos, index);
-
-            // 获取蓝图中的目标状态（已经包含旋转、倒挂和状态过滤处理）
-            BlockState blueprintState = getBlueprintBlockState(index, level);
-
             // 先删除源方块
             IS_BEING_MOVED_BY_PLACER.set(true);
             try {
@@ -1947,8 +2109,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 IS_BEING_MOVED_BY_PLACER.set(false);
             }
 
-            // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向），只更新客户端
-            level.setBlock(targetPos, blueprintState, Block.UPDATE_CLIENTS);
+            // 放置成功后，修正方块的朝向为蓝图中的朝向
+            if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
+                // 多方块方块：应用蓝图状态到所有部件（包括 setPlacedBy 创建的次要部件）
+                applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
+            } else {
+                this.applyBlueprintBlockFacing(level, targetPos, index);
+                // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向），只更新客户端
+                level.setBlock(targetPos, blueprintState, Block.UPDATE_CLIENTS);
+            }
 
             if (sourceBlockEntityData != null) {
                 BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
@@ -2380,10 +2549,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return List.of();
         }
 
-        // 创建索引列表
+        // 创建索引列表，过滤掉多方块方块的次要部件
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < rotatedData.blocks.size(); i++) {
-            indices.add(i);
+            // 跳过多方块方块的次要部件，它们会在主体部件放置时自动创建
+            if (!StructureLoadUtil.isMultiblockSecondaryPart(rotatedData.blocks.get(i).state())) {
+                indices.add(i);
+            }
         }
 
         // 按方块坐标的 y → z(降序) → x(降序) 排序
@@ -2723,18 +2895,80 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     /**
+     * 从方块状态中提取期望的水平朝向（用于多方块方块放置时的朝向控制）
+     *
+     * @param state 蓝图旋转后的方块状态
+     * @return 水平朝向，如果没有水平朝向属性则返回 null
+     */
+    @Nullable
+    private static Direction extractDesiredHorizontalFacing(BlockState state) {
+        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            return state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        }
+        if (state.hasProperty(BlockStateProperties.FACING)) {
+            Direction f = state.getValue(BlockStateProperties.FACING);
+            if (f.getAxis() != Direction.Axis.Y) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 应用蓝图状态到多方块结构的所有部件
+     * 在主体部件通过 FakePlayer 放置（setPlacedBy 创建所有次要部件）后调用，
+     * 将蓝图中所有部件的正确朝向和属性应用到已放置的方块上
+     *
+     * @param level         世界
+     * @param allPositions  所有蓝图位置列表
+     * @param rotatedData   旋转后的结构数据
+     * @param mainIndex     主体部件在结构数据中的索引
+     * @param placedBlock   已放置的方块类型
+     */
+    private void applyMultiBlockBlueprintStates(
+        Level level,
+        List<BlockPos> allPositions,
+        StructureLoadUtil.StructureData rotatedData,
+        int mainIndex,
+        Block placedBlock
+    ) {
+        // 首先应用主体部件自身的蓝图状态
+        BlockPos mainPos = allPositions.get(mainIndex);
+        this.applyBlueprintBlockFacing(level, mainPos, mainIndex);
+
+        // 遍历结构数据中的所有方块，找到属于同一多方块结构的其他部件并应用状态
+        for (int i = 0; i < rotatedData.blocks.size(); i++) {
+            if (i == mainIndex) continue;
+
+            Block otherBlock = rotatedData.blocks.get(i).state().getBlock();
+            if (otherBlock != placedBlock) continue;
+
+            BlockPos otherWorldPos = allPositions.get(i);
+            BlockState otherWorldState = level.getBlockState(otherWorldPos);
+
+            // 确认该位置已被 setPlacedBy 填充了正确的方块类型
+            if (otherWorldState.getBlock() == placedBlock) {
+                this.applyBlueprintBlockFacing(level, otherWorldPos, i);
+            }
+        }
+    }
+
+    /**
      * 应用白名单过滤：只保留白名单中的状态属性，其他属性重置为默认值
+     * 使用属性名称进行匹配（而非对象相等），确保不同方块中同名属性（如 "half"）都能正确保留
      *
      * @param state 原始方块状态
      * @return 过滤后的方块状态
      */
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private BlockState applyWhitelistFilter(BlockState state) {
         BlockState resultState = state.getBlock().defaultBlockState();
 
-        // 遍历白名单中的属性，如果在当前状态中存在，则复制到结果状态
-        for (Property<?> property : INHERITED_PROPERTIES) {
-            if (state.hasProperty(property)) {
-                resultState = setAllowedValue(property, resultState, state);
+        // 遍历状态的属性，按名称匹配白名单（解决不同方块同名Property对象不同的问题）
+        for (Property<?> property : state.getProperties()) {
+            if (INHERITED_PROPERTY_NAMES.contains(property.getName())) {
+                resultState = setAllowedValue(
+                    (Property) property, resultState, state);
             }
         }
 
@@ -3414,6 +3648,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     public void setPickupMode(boolean pickupMode) {
         this.isPickupMode = pickupMode;
+        this.expectedShuttleTarget = null;
         this.onChanged();
     }
 
@@ -3423,6 +3658,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     public void togglePosition(int layer, int position, boolean selected) {
+        this.expectedShuttleTarget = null;
         Set<Integer> positions = layerPositions.computeIfAbsent(layer, k -> new HashSet<>());
         if (selected) {
             positions.add(position);
@@ -3523,6 +3759,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.currentPlacementIndex = tag.getInt("currentPlacementIndex");
         this.isPickupMode = tag.getBoolean("isPickupMode");
         this.loadLayerPositions(tag);
+        this.expectedShuttleTarget = null;
         this.onChanged();
     }
 

@@ -1,0 +1,117 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"head": "anvilcraft:block/infinite_collector_head"
+	},
+	"elements": [
+		{
+			"from": [-3, -3, -3],
+			"to": [3, 3, 3],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [2, 2, 6, 6], "texture": "#head"},
+				"east": {"uv": [2, 2, 6, 6], "texture": "#head"},
+				"south": {"uv": [2, 2, 6, 6], "texture": "#head"},
+				"west": {"uv": [2, 2, 6, 6], "texture": "#head"},
+				"up": {"uv": [2, 2, 6, 6], "texture": "#head"},
+				"down": {"uv": [2, 2, 6, 6], "texture": "#head"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [3.5, 3.5, 3.5],
+			"to": [-3.5, -3.5, -3.5],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [3, 3, 5, 5], "rotation": 180, "texture": "#head"},
+				"east": {"uv": [3, 3, 5, 5], "rotation": 180, "texture": "#head"},
+				"south": {"uv": [3, 3, 5, 5], "rotation": 180, "texture": "#head"},
+				"west": {"uv": [3, 3, 5, 5], "rotation": 180, "texture": "#head"},
+				"up": {"uv": [3, 3, 5, 5], "rotation": 180, "texture": "#head"},
+				"down": {"uv": [3, 3, 5, 5], "rotation": 180, "texture": "#head"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [4, 4, 4],
+			"to": [-4, -4, -4],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [13, 9, 15, 11], "rotation": 180, "texture": "#head"},
+				"east": {"uv": [13, 9, 15, 11], "rotation": 180, "texture": "#head"},
+				"south": {"uv": [13, 9, 15, 11], "rotation": 180, "texture": "#head"},
+				"west": {"uv": [13, 9, 15, 11], "rotation": 180, "texture": "#head"},
+				"up": {"uv": [13, 9, 15, 11], "rotation": 180, "texture": "#head"},
+				"down": {"uv": [13, 9, 15, 11], "rotation": 180, "texture": "#head"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [3.25, 3.25, 3.25],
+			"to": [-3.25, -3.25, -3.25],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"east": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"south": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"west": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"up": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"down": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [3.75, 3.75, 3.75],
+			"to": [-3.75, -3.75, -3.75],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"east": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"south": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"west": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"up": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"},
+				"down": {"uv": [13, 13, 15, 15], "rotation": 180, "texture": "#head"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [4.25, 4.25, 4.25],
+			"to": [-4.25, -4.25, -4.25],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [13, 5, 15, 7], "rotation": 180, "texture": "#head"},
+				"east": {"uv": [13, 5, 15, 7], "rotation": 180, "texture": "#head"},
+				"south": {"uv": [13, 5, 15, 7], "rotation": 180, "texture": "#head"},
+				"west": {"uv": [13, 5, 15, 7], "rotation": 180, "texture": "#head"},
+				"up": {"uv": [13, 5, 15, 7], "rotation": 180, "texture": "#head"},
+				"down": {"uv": [13, 5, 15, 7], "rotation": 180, "texture": "#head"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [4.5, 4.5, 4.5],
+			"to": [-4.5, -4.5, -4.5],
+			"shade": false,
+			"faces": {
+				"north": {"uv": [13, 1, 15, 3], "rotation": 180, "texture": "#head"},
+				"east": {"uv": [13, 1, 15, 3], "rotation": 180, "texture": "#head"},
+				"south": {"uv": [13, 1, 15, 3], "rotation": 180, "texture": "#head"},
+				"west": {"uv": [13, 1, 15, 3], "rotation": 180, "texture": "#head"},
+				"up": {"uv": [13, 1, 15, 3], "rotation": 180, "texture": "#head"},
+				"down": {"uv": [13, 1, 15, 3], "rotation": 180, "texture": "#head"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 11, 8],
+			"scope": 0,
+			"color": 0,
+			"shade": false,
+			"children": [0, 1, 2, 3, 4, 5, 6]
+		}
+	]
+}

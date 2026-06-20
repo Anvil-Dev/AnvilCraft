@@ -152,4 +152,12 @@ public class TriggerUtil {
             }
         }
     }
+
+    public static void placerShuttle(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.PLACER_SHUTTLE.get().trigger(player);
+            }
+        }
+    }
 }

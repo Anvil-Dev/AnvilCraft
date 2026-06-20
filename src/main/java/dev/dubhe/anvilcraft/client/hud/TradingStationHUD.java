@@ -45,7 +45,7 @@ public class TradingStationHUD {
         boolean noRequesting = request.isEmpty();
         if (noProviding && noRequesting) return;
         int left = (mc.getWindow().getGuiScaledWidth() - 84) / 2;
-        int top = (mc.getWindow().getGuiScaledHeight() - 26) / 7 * 5;
+        int top = (mc.getWindow().getGuiScaledHeight() - 26) / 28 * 21;
         graphics.blit(TradingStationHUD.HUD, left, top, 0, 0, 41, 26, 64, 64);
         graphics.blit(TradingStationHUD.HUD, left + 42, top, 0, 26, 42, 26, 64, 64);
         TradingStationHUD.renderItem(graphics, mc.font, request, left + 4, top + 4);

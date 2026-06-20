@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/block_devourer",
+  "criteria": {
+    "placer_shuttle": {
+      "trigger": "anvilcraft:placer_shuttle"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.placer_shuttle.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:smart_block_placer"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.placer_shuttle.title"
+    }
+  },
+  "requirements": [
+    [
+      "placer_shuttle"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

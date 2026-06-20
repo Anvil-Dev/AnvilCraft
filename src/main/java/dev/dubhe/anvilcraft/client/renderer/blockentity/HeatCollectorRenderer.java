@@ -7,7 +7,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 
 public class HeatCollectorRenderer extends PowerProducerRenderer<HeatCollectorBlockEntity> {
     public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(
-        AnvilCraft.of("block/heat_collector_cube")
+        AnvilCraft.of("block/heat_collector_head")
     );
 
     public HeatCollectorRenderer(BlockEntityRendererProvider.Context context) {

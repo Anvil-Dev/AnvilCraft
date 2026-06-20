@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:induction_light"
+  },
+  "result": {
+    "count": 16,
+    "id": "anvilcraft:question_mark"
+  }
+}

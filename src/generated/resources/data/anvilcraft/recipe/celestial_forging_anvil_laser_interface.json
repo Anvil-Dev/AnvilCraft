@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:laser_receiver"
+    },
+    "B": {
+      "item": "anvilcraft:ruby_laser"
+    },
+    "C": {
+      "item": "anvilcraft:spacetime_supercomputer"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "count": 8,
+    "id": "anvilcraft:celestial_forging_anvil_laser_interface"
+  }
+}

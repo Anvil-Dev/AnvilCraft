@@ -45,6 +45,7 @@ public class BlockTagLoader {
             .addTag(BlockTags.DOORS)
             .addTag(BlockTags.BUTTONS)
             .addTag(BlockTags.PRESSURE_PLATES)
+            .addTag(BlockTags.FENCE_GATES)
             .add(findResourceKey(Blocks.BELL))
             .add(findResourceKey(Blocks.REDSTONE_LAMP))
             .add(findResourceKey(Blocks.RAIL))
@@ -95,6 +96,15 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.ANVIL))
             .add(findResourceKey(Blocks.CHIPPED_ANVIL))
             .add(findResourceKey(Blocks.DAMAGED_ANVIL))
+            .add(findResourceKey(Blocks.FURNACE))
+            .add(findResourceKey(Blocks.BLAST_FURNACE))
+            .add(findResourceKey(Blocks.SMOKER))
+            .add(findResourceKey(Blocks.CHEST))
+            .add(findResourceKey(Blocks.TRAPPED_CHEST))
+            .add(findResourceKey(Blocks.BARREL))
+            .add(findResourceKey(Blocks.COMPOSTER))
+            .add(findResourceKey(Blocks.TNT))
+            .add(findResourceKey(Blocks.BEACON))
             .add(ModBlocks.HEAVY_IRON_BLOCK.getKey())
             .add(ModBlocks.HEAVY_IRON_BEAM.getKey())
             .add(ModBlocks.HEAVY_IRON_COLUMN.getKey())
@@ -111,6 +121,7 @@ public class BlockTagLoader {
             .addTag(BlockTags.CAMPFIRES)
             .add(findResourceKey(Blocks.MAGMA_BLOCK))
             .add(ModBlocks.HEATER.getKey())
+            .add(ModBlocks.BURNING_HEATER.getKey())
             .add(ModBlocks.CORRUPTED_BEACON.getKey());
 
         provider.addTag(ModBlockTags.BLOCK_DEVOURER_CHAIN_DEVOURING)
@@ -303,15 +314,18 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.DAMAGED_ANVIL))
             .add(ModBlocks.ROYAL_ANVIL.getKey())
             .add(ModBlocks.EMBER_ANVIL.getKey())
+            .add(ModBlocks.FROST_ANVIL.getKey())
             .add(ModBlocks.TRANSCENDENCE_ANVIL.getKey());
 
         provider.addTag(ModBlockTags.ANVIL_TIER_1)
             .add(ModBlocks.ROYAL_ANVIL.getKey())
             .add(ModBlocks.EMBER_ANVIL.getKey())
+            .add(ModBlocks.FROST_ANVIL.getKey())
             .add(ModBlocks.TRANSCENDENCE_ANVIL.getKey());
 
         provider.addTag(ModBlockTags.ANVIL_TIER_2)
             .add(ModBlocks.EMBER_ANVIL.getKey())
+            .add(ModBlocks.FROST_ANVIL.getKey())
             .add(ModBlocks.TRANSCENDENCE_ANVIL.getKey());
 
         provider.addTag(ModBlockTags.ANVIL_TIER_3)

@@ -146,7 +146,7 @@ public class AnvilCraftServerConfig {
 
         @Comment("Energy efficiency of energy converters (1 kW => xx FE/t)")
         @BoundedDiscrete(min = 1, max = 1000)
-        public int powerConverterEfficiency = 80;
+        public int powerConverterEfficiency = 100;
 
         @Comment("Power loss of energy converters")
         public double powerConverterLoss = 0.1;
@@ -166,4 +166,24 @@ public class AnvilCraftServerConfig {
 
     @Comment("The max size of the entries in multiphases' recover station")
     public int multiphaseRecoverMaxSize = 20;
+
+    public static class SpacetimeSupercomputerCommand {
+        @Comment("Allow /locate biome command")
+        public boolean allowLocateBiomeCommand = true;
+
+        @Comment("Allow /locate structure command")
+        public boolean allowLocateStructureCommand = true;
+
+        @Comment("Allow /locate poi command")
+        public boolean allowLocatePoiCommand = true;
+
+        @Comment("Allow /time add command")
+        public boolean allowTimeAddCommand = true;
+
+        @Comment("Allow /tick  sprint command")
+        public boolean allowTickSprintCommand = true;
+    }
+
+    @CollapsibleObject
+    public SpacetimeSupercomputerCommand spacetimeSupercomputerCommand = new SpacetimeSupercomputerCommand();
 }

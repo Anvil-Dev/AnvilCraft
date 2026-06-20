@@ -12,7 +12,6 @@ public class BlockSmearRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.COBBLESTONE, Blocks.MOSSY_COBBLESTONE);
         blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS);
-        blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
 
         for (Holder<Block> holder : BuiltInRegistries.BLOCK.holders().toList()) {
             HoneycombItem.getWaxed(holder.value().defaultBlockState())

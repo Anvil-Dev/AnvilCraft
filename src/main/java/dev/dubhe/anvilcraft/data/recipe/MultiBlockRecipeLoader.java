@@ -259,5 +259,16 @@ public class MultiBlockRecipeLoader {
                 .hasState("facing", "west")
             )
             .save(provider);
+
+        MultiblockRecipe.builder("anvilcraft:celestial_forging_anvil", 1)
+            .layer("AAA", "ABA", "AAA")
+            .layer("CCC", "CCC", "CCC")
+            .layer("DED", "E E", "DED")
+            .symbol('A', "anvilcraft:transcendium_block")
+            .symbol('B', "anvilcraft:spacetime_supercomputer")
+            .symbol('C', "minecraft:gold_block")
+            .symbol('D', "anvilcraft:confinement_chamber")
+            .symbol('E', "anvilcraft:negative_matter_block")
+            .save(provider);
     }
 }

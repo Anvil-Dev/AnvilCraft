@@ -9,12 +9,14 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.FrostAnvilBlock;
+import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -74,7 +76,9 @@ public class AnvilEventListener {
             brokeBlock(level, hitBlockPos, event);
             return;
         }
-        handleNeoAnvilRecipe(event);
+        if (!ProceduralProcessStepManager.checkAnyMatches(event)) {
+            handleNeoAnvilRecipe(event);
+        }
         for (IAnvilBehavior behavior : IAnvilBehavior.findMatching(hitBlockState)) {
             if (behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event)) {
                 return;
@@ -99,7 +103,12 @@ public class AnvilEventListener {
         manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
         boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
         if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
-        context.accept();
+        GiantAnvilBlock.SUPPRESS_DROPS.set(true);
+        try {
+            context.accept();
+        } finally {
+            GiantAnvilBlock.SUPPRESS_DROPS.set(false);
+        }
     }
 
     private static void brokeBlock(Level level, BlockPos pos, AnvilEvent.OnLand event) {

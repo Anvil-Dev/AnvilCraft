@@ -19,7 +19,7 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
 
     @Override
     protected MapCodec<? extends DirectionalBlock> codec() {
-        return Block.simpleCodec(BlockDevourerBlock::new);
+        return Block.simpleCodec(ArrowBlock::new);
     }
 
     @Override

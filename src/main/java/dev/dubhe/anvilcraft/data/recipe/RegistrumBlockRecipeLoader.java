@@ -38,6 +38,17 @@ public class RegistrumBlockRecipeLoader {
     public static <T extends Block> void recipe(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
     }
 
+    public static <T extends Block> void feCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)
+            .pattern("ABA")
+            .pattern("AAA")
+            .define('A', Items.COPPER_INGOT)
+            .define('B', ModBlocks.CHARGE_COLLECTOR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(Items.COPPER_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FE_COLLECTOR), AnvilCraftDatagen.has(ModBlocks.FE_COLLECTOR))
+            .save(provider);
+    }
+
     public static <T extends Block> void expCollectorBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
@@ -508,25 +519,37 @@ public class RegistrumBlockRecipeLoader {
     }
 
     public static <T extends Block> void powerConverterSmall(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 9)
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 64)
             .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
             .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_big"));
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_MIDDLE), RecipeCategory.MISC, ctx.get(), 3)
-            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_MIDDLE), RecipeCategory.MISC, ctx.get(), 8)
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE))
             .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName() + "_from_middle"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 64)
+            .requires(ModBlocks.POWER_CONVERTER_BIG)
+            .unlockedBy("has_big", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
+            .save(provider, AnvilCraft.of(ctx.getName() + "_from_big"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
+            .requires(ModBlocks.POWER_CONVERTER_MIDDLE)
+            .unlockedBy("has_middle", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE))
+            .save(provider, AnvilCraft.of(ctx.getName() + "_from_middle"));
     }
 
     public static <T extends Block> void powerConverterMiddle(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("A")
-            .pattern("A")
-            .pattern("A")
-            .define('A', ModBlocks.POWER_CONVERTER_SMALL)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL), AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL))
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModBlocks.POWER_CONVERTER_SMALL, 8)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL),
+                AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL)
+            )
             .save(provider, ctx.getId() + "_from_small");
-        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 3)
-            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 8)
+            .unlockedBy("has_big", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
             .save(provider, AnvilCraft.of("stonecutting/" + ctx.getName()));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 8)
+            .requires(ModBlocks.POWER_CONVERTER_BIG)
+            .unlockedBy("has_big", AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_BIG))
+            .save(provider, AnvilCraft.of(ctx.getName() + "_from_big"));
     }
 
     public static <T extends Block> void powerConverterBig(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -540,24 +563,18 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             )
             .save(provider);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("A")
-            .pattern("A")
-            .pattern("A")
-            .define('A', ModBlocks.POWER_CONVERTER_MIDDLE)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModBlocks.POWER_CONVERTER_MIDDLE, 8)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
                 AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
             )
             .save(provider, ctx.getId() + "_from_middle");
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModBlocks.POWER_CONVERTER_SMALL)
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModBlocks.POWER_CONVERTER_SMALL, 64)
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
-                AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
+                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL),
+                AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL)
             )
             .save(provider, ctx.getId() + "_from_small");
     }
@@ -1029,7 +1046,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void propelPiston(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ItemStack itemStack = new ItemStack(ctx.get());
-        itemStack.set(ModComponents.STORED_ENERGY, 4000);
+        itemStack.set(ModComponents.STORED_ENERGY, 8000000);
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, itemStack)
             .pattern("CDC")
             .pattern("ABA")
@@ -1984,6 +2001,22 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void redstoneComputer(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get())
+            .pattern("BDB")
+            .pattern("BPB")
+            .pattern("BIB")
+            .define('B', ModItems.CIRCUIT_BOARD)
+            .define('P', ModItems.PROCESSOR)
+            .define('I', Items.IRON_BLOCK)
+            .define('D', ModItems.DISK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_BLOCK), AnvilCraftDatagen.has(Items.IRON_BLOCK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PROCESSOR), AnvilCraftDatagen.has(ModItems.PROCESSOR))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DISK), AnvilCraftDatagen.has(ModItems.DISK))
+            .save(provider);
+    }
+
     public static <T extends Block> void copperPressurePlate(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ResourceLocation location1 = BuiltInRegistries.ITEM.getKey(Items.COPPER_INGOT);
         ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 1)
@@ -2006,6 +2039,63 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.PLANKS), AnvilCraftDatagen.has(ItemTags.PLANKS))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.STICK), AnvilCraftDatagen.has(Items.STICK))
             .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.WOOL), AnvilCraftDatagen.has(ItemTags.WOOL))
+            .save(provider);
+    }
+
+    // === Celestial Forging Anvil components ===
+
+    public static <T extends Block> void cfaLogisticsInterface(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.CHUTE)
+            .define('B', ModBlocks.MAGNETIC_CHUTE)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider);
+    }
+
+    public static <T extends Block> void cfaFluidInterface(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.FLUID_TANK)
+            .define('B', ModBlocks.LARGE_FLUID_TANK)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider);
+    }
+
+    public static <T extends Block> void cfaLaserInterface(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.LASER_RECEIVER)
+            .define('B', ModBlocks.RUBY_LASER)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider);
+
+        // Shapeless: spacetime_supercomputer + large_laser → 16
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 16)
+            .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .requires(ModBlocks.LARGE_LASER)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
+            .save(provider, of("celestial_forging_anvil_laser_interface_from_large_laser"));
+    }
+
+    public static <T extends Block> void cfaAmplifier(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ItemInjectRecipe.builder()
+            .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .inputBlock(ModBlocks.GIANT_ANVIL)
+            .resultBlock(ctx)
             .save(provider);
     }
 }

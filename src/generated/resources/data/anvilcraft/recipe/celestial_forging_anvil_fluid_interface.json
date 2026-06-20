@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:fluid_tank"
+    },
+    "B": {
+      "item": "anvilcraft:large_fluid_tank"
+    },
+    "C": {
+      "item": "anvilcraft:spacetime_supercomputer"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "count": 8,
+    "id": "anvilcraft:celestial_forging_anvil_fluid_interface"
+  }
+}

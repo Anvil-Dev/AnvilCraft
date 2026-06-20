@@ -24,6 +24,7 @@ public class ModAdvancements {
     public static final AdvancementHolder CRAB_CLAW;
     public static final AdvancementHolder PLACER;
     public static final AdvancementHolder DEVOURER;
+    public static final AdvancementHolder PLACER_SHUTTLE;
 
     public static final AdvancementHolder GEODE;
     public static final AdvancementHolder AMETHYST_PICKAXE;
@@ -137,6 +138,19 @@ public class ModAdvancements {
             )
             .devourerDevour("devourer_devour_devourer", ModBlocks.BLOCK_DEVOURER)
             .build("block_devourer");
+        PLACER_SHUTTLE = clawLine.next()
+            .display(
+                ModBlocks.SMART_BLOCK_PLACER.asItem(),
+                Component.translatable("advancements.anvilcraft.placer_shuttle.title"),
+                Component.translatable("advancements.anvilcraft.placer_shuttle.description"),
+                null,
+                AdvancementType.GOAL,
+                true,
+                true,
+                false
+            )
+            .placerShuttle("placer_shuttle")
+            .build("placer_shuttle");
 
         AdvancementLineHelper geodeLine = mainLine.createBranch();
         GEODE = geodeLine.next()

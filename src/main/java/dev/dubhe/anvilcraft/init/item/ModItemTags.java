@@ -165,9 +165,12 @@ public class ModItemTags {
     public static final TagKey<Item> RESONATOR = bind("tools/resonator");
     public static final TagKey<Item> UNCHARGED_NEUTRONIUM_INGOTS = bind("uncharged_neutronium_ingots");
     public static final TagKey<Item> HEATABLE_BLOCKS = bind("heatable_blocks");
+    public static final TagKey<Item> HEATERS = bind("heaters");
+    public static final TagKey<Item> HEATERS_C = bindC("heaters");
     public static final TagKey<Item> LEVITATIONALS = bind("levitationals");
     public static final TagKey<Item> RADIATIONS = bind("radiations");
     public static final TagKey<Item> DISALLOW_HAND_INSERT_INTO_TANK = bind("disallow_hand_insert_into_tank");
+    public static final TagKey<Item> POWER_CONVERTER = bind("power_converter");
 
     public static final TagKey<Item> COMPRESS_ITEM = bind("compress_item");
     public static final TagKey<Item> SUPER_HEATING_BOOST_PRODUCTION = bind("super_heating_boost_production");
@@ -177,6 +180,11 @@ public class ModItemTags {
     public static final TagKey<Item> CURIOS_CHARM = bindCurios("charm");
 
     public static final TagKey<Item> TOTEM = bind("totem");
+
+    // Planet resource tags
+    public static final TagKey<Item> NON_PLANETARY_MINERALS = bind("non_planetary_minerals");
+    public static final TagKey<Item> NON_PLANETARY_MOB_DROPS = bind("non_planetary_mob_drops");
+    public static final TagKey<Item> TIER_1_GEM_AMULETS = bind("tier_1_gem_amulets");
 
     public static final Object2ObjectMap<Color, TagKey<Item>> DYED_COLORS = initDyedTags();
 

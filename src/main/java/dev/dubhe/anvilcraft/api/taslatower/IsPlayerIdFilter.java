@@ -25,7 +25,12 @@ public class IsPlayerIdFilter extends TeslaFilter {
     }
 
     @Override
+    public Component getTitle(String arg) {
+        return Component.literal(arg);
+    }
+
+    @Override
     public String tooltip(String arg) {
-        return arg;
+        return Component.translatable("screen.anvilcraft.tesla_tower.filter.is_player_id").getString();
     }
 }

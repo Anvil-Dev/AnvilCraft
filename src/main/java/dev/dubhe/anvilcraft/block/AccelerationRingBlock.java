@@ -118,6 +118,9 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (context.isHoldingItem(state.getBlock().asItem())) {
+            return Shapes.block();
+        }
         return switch (state.getValue(FACING).getAxis()) {
             case Z -> switch (state.getValue(HALF)) {
                 case MID_CENTER, MID_S, MID_N -> Shapes.empty();

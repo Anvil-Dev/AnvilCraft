@@ -22,6 +22,20 @@ public class AnvilCraftClientConfig {
     @Comment("Do not render power component tooltip when jade present")
     public boolean doNotShowTooltipWhenJadePresent = true;
 
+    @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
+    public boolean groundHeaveParticlesEnabled = true;
+
+    @Comment("Number of particles per block spawned by ground heave effect")
+    @BoundedDiscrete(max = 5, min = 0)
+    public int groundHeaveParticleCount = 1;
+
+    @Comment("Probability (0.0-1.0) each block spawns ground heave particles")
+    @BoundedDiscrete(max = 1, min = 0)
+    public double groundHeaveParticleChance = 0.8;
+
+    @Comment("Enable redstone EMP particle effects")
+    public boolean redstoneEmpParticlesEnabled = true;
+
     @Comment("Render lines between power transmitters")
     public boolean renderPowerTransmitterLines = true;
 
@@ -33,6 +47,9 @@ public class AnvilCraftClientConfig {
 
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
+
+    @Comment("Enable exhaust particles when flying with Ionocraft Backpack")
+    public boolean ionoCraftBackpackExhaustParticlesEnabled = true;
 
     @CollapsibleObject
     public IonoCraftBackpackHud ionoCraftBackpackHud = new IonoCraftBackpackHud();

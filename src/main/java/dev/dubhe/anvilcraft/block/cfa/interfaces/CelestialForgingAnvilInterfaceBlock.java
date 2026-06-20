@@ -3,18 +3,27 @@ package dev.dubhe.anvilcraft.block.cfa.interfaces;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,5 +69,37 @@ public abstract class CelestialForgingAnvilInterfaceBlock
         BlockState state = level.getBlockState(blockPos);
         level.setBlockAndUpdate(blockPos, state.cycle(FACING));
         return true;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(
+        BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
+    ) {
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+        // Scan nearby for the controller (BOTTOM_CENTER of anvil)
+        for (int dx = -5; dx <= 5; dx++) {
+            for (int dz = -5; dz <= 5; dz++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    BlockPos checkPos = pos.offset(dx, dy, dz);
+                    BlockState checkState = level.getBlockState(checkPos);
+                    if (
+                        checkState.getBlock() instanceof CelestialForgingAnvilBlock
+                        && checkState.hasProperty(CelestialForgingAnvilBlock.HALF)
+                        && checkState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER
+                    ) {
+                        BlockEntity be = level.getBlockEntity(checkPos);
+                        if (
+                            be instanceof CelestialForgingAnvilBlockEntity cfaBe
+                            && player instanceof ServerPlayer sp
+                        ) {
+                            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
+                            ModMenuTypes.open(sp, cfaBe, checkPos);
+                            return InteractionResult.SUCCESS;
+                        }
+                    }
+                }
+            }
+        }
+        return InteractionResult.PASS;
     }
 }

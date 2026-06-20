@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -260,15 +262,26 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         // 检测是否需要开始收回动画
         boolean wasWorkingLastFrame = entity.getClientAnimationStartTime() != 0;
         boolean shouldStartRetract = wasWorkingLastFrame && !isWorking && !entity.isClientIsRetracting();
-        if (shouldStartRetract && entity.getLevel() != null) {
+        net.minecraft.world.level.Level retractLevel = entity.getLevel();
+        if (shouldStartRetract && retractLevel != null) {
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
             if (animStartTime != 0 && animTargetPos != null) {
+                if (!entity.isRetractSoundPlayed()) {
+                    retractLevel.playLocalSound(
+                        entity.getBlockPos(),
+                        ModSoundEvents.SMART_BLOCK_PLACER_RETRACT.get(),
+                        SoundSource.BLOCKS,
+                        0.4f,
+                        1.3f,
+                        false
+                    );
+                }
                 entity.setClientIsRetracting(true);
-                entity.setClientRetractStartTime(entity.getLevel().getGameTime());
+                entity.setClientRetractStartTime(retractLevel.getGameTime());
                 
-                long elapsedTicks = entity.getLevel().getGameTime() - animStartTime;
+                long elapsedTicks = retractLevel.getGameTime() - animStartTime;
                 float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME
                     .getAnimationDurationTicks());
                 float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
@@ -284,8 +297,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             entity.setClientIsRetracting(false);
         }
         
-        if (entity.isClientIsRetracting() && entity.getLevel() != null) {
-            long currentTime = entity.getLevel().getGameTime();
+        net.minecraft.world.level.Level retractAnimLevel = entity.getLevel();
+        if (entity.isClientIsRetracting() && retractAnimLevel != null) {
+            long currentTime = retractAnimLevel.getGameTime();
             long elapsedRetractTicks = currentTime - entity.getClientRetractStartTime();
             
             float startProgress = entity.getClientRetractStartProgress();
@@ -314,8 +328,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     entity.setClientLastTargetPos(null);
                 }
             }
-        } else if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && entity.getLevel() != null) {
-            long currentTime = entity.getLevel().getGameTime();
+        } else if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && retractAnimLevel != null) {
+            long currentTime = retractAnimLevel.getGameTime();
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
             
@@ -330,6 +344,16 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
                     if (targetPos == null || targetPos.equals(animTargetPos)) {
                         if (!entity.isClientIsRetracting()) {
+                            if (!entity.isRetractSoundPlayed()) {
+                                entity.getLevel().playLocalSound(
+                                    entity.getBlockPos(),
+                                    ModSoundEvents.SMART_BLOCK_PLACER_RETRACT.get(),
+                                    SoundSource.BLOCKS,
+                                    0.4f,
+                                    1.3f,
+                                    false
+                                );
+                            }
                             entity.setClientIsRetracting(true);
                             entity.setClientRetractStartTime(currentTime);
                             
@@ -343,8 +367,29 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                             entity.setClientLastTargetPos(null);
                         }
                     } else {
+                        if (entity.getLevel() != null) {
+                            entity.getLevel().playLocalSound(
+                                entity.getBlockPos(),
+                                ModSoundEvents.SMART_BLOCK_PLACER_EXTEND.get(),
+                                SoundSource.BLOCKS,
+                                0.4f,
+                                1.3f,
+                                false
+                            );
+                            if (entity.getLevel().random.nextFloat() < 0.6f) {
+                                entity.getLevel().playLocalSound(
+                                    entity.getBlockPos(),
+                                    ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
+                                    SoundSource.BLOCKS,
+                                    0.4f,
+                                    1.5f,
+                                    false
+                                );
+                            }
+                        }
                         entity.setClientAnimationStartTime(currentTime);
                         entity.setClientLastTargetPos(targetPos);
+                        entity.setRetractSoundPlayed(false);
                         animStartTime = currentTime;
                         animTargetPos = targetPos;
                     }
@@ -353,9 +398,28 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             
             if (animStartTime == 0 && hasValidWorkItem) {
                 BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
-                if (targetPos != null) {
+                if (targetPos != null && entity.getLevel() != null) {
+                    entity.getLevel().playLocalSound(
+                        entity.getBlockPos(),
+                        ModSoundEvents.SMART_BLOCK_PLACER_EXTEND.get(),
+                        SoundSource.BLOCKS,
+                        0.4f,
+                        1.3f,
+                        false
+                    );
+                    if (entity.getLevel().random.nextFloat() < 0.6f) {
+                        entity.getLevel().playLocalSound(
+                            entity.getBlockPos(),
+                            ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
+                            SoundSource.BLOCKS,
+                            0.4f,
+                            1.5f,
+                            false
+                        );
+                    }
                     entity.setClientAnimationStartTime(currentTime);
                     entity.setClientLastTargetPos(targetPos);
+                    entity.setRetractSoundPlayed(false);
                     animStartTime = currentTime;
                     animTargetPos = targetPos;
                 }
@@ -373,6 +437,19 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     );
                 } else {
                     animationProgress = 1.0f;
+                }
+
+                // 进入阶段4（收回阶段）时播放收回音效
+                if (!entity.isRetractSoundPlayed() && animationProgress >= 0.7f && entity.getLevel() != null) {
+                    entity.getLevel().playLocalSound(
+                        entity.getBlockPos(),
+                        ModSoundEvents.SMART_BLOCK_PLACER_RETRACT.get(),
+                        SoundSource.BLOCKS,
+                        0.8f,
+                        1.3f,
+                        false
+                    );
+                    entity.setRetractSoundPlayed(true);
                 }
 
                 float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(

@@ -1,0 +1,20 @@
+{
+    DataVersion: 3955,
+    size: [3, 2, 2],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:cauldron"},
+        {pos: [0, 0, 1], state: "minecraft:dispenser{facing:north,triggered:false}", nbt: {Items: [{Slot: 0b, count: 1, id: "minecraft:water_bucket"}], id: "minecraft:dispenser"}},
+        {pos: [1, 0, 0], state: "anvilcraft:arrow{facing:east}"},
+        {pos: [2, 0, 0], state: "minecraft:water_cauldron{level:3}"},
+        {pos: [2, 0, 1], state: "minecraft:dispenser{facing:north,triggered:false}", nbt: {Items: [{Slot: 0b, count: 1, id: "minecraft:bucket"}], id: "minecraft:dispenser"}},
+        {pos: [1, 1, 0], state: "anvilcraft:arrow{facing:west}"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:cauldron",
+        "anvilcraft:arrow{facing:east}",
+        "minecraft:water_cauldron{level:3}",
+        "anvilcraft:arrow{facing:west}",
+        "minecraft:dispenser{facing:north,triggered:false}"
+    ]
+}
