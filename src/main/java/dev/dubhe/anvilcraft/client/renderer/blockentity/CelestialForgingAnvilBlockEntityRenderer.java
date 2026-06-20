@@ -872,7 +872,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
         float baseScale = getBodyScale(bodyData);
-        if (bodyData instanceof SpecialCelestialBodyData s && s.specialType().isErrorPlanet()) {
+        if (bodyData instanceof SpecialCelestialBodyData s && s.isErrorPlanet()) {
             baseScale *= 0.25f;
         }
         float scale = baseScale * animProgress;
@@ -887,7 +887,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(-0.5, -0.5, -0.5);
 
         // Complex custom models (shattered, hollow, flesh, intelligence, error)
-        if (bodyData instanceof SpecialCelestialBodyData s && s.specialType().needsCustomModel()) {
+        if (bodyData instanceof SpecialCelestialBodyData s && s.needsCustomModel()) {
             renderComplexModelBody(s, poseStack, bufferSource, packedOverlay);
             // Atmosphere for complex-model bodies that have it (flesh, intelligence)
             if (s.hasAtmosphere() && s.temperature() != null) {
@@ -935,7 +935,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         MultiBufferSource bufferSource,
         int packedOverlay
     ) {
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(special.specialType().getModelLocation());
+        BakedModel model = Minecraft.getInstance().getModelManager().getModel(special.getModelLocation());
         if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
 
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
@@ -967,21 +967,22 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
             renderBakedModelCutout(getStarModel(star), poseStack, bufferSource, packedOverlay);
 
-            // Render relativistic jet along the magnetic axis.
-            // The magnetic axis is tilted from the rotation axis, so as the
-            // body rotates around Y the jet sweeps like a lighthouse (pulsar model).
-            // Jet rotates at 1.5× the body speed for visual separation.
-            float visualSpeed = CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed());
-            float extraJetRotation = bodyRotation * visualSpeed * 0.5f;
-            // Star magneticFieldStrength is 4 (normal) or 5 (magnetar)
-            float magneticTilt = star.magneticFieldStrength() >= 5 ? 15f : 10f;
-            poseStack.pushPose();
-            poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.mulPose(Axis.YP.rotationDegrees(extraJetRotation));
-            poseStack.mulPose(Axis.XP.rotationDegrees(magneticTilt));
-            poseStack.translate(-0.5, -0.5, -0.5);
-            renderBakedModel(NEUTRON_STAR_JET_MODEL, poseStack, bufferSource, packedOverlay, RenderType.translucent());
-            poseStack.popPose();
+            // Render relativistic jet along the magnetic axis — only for Super Fast pulsars.
+            // Rotation speed 5+ = Super Fast (≥100× visual multiplier), which produces
+            // the extreme magnetic field needed for observable relativistic jets.
+            if (star.rotationSpeed() >= 5) {
+                float visualSpeed = CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed());
+                float extraJetRotation = bodyRotation * visualSpeed * 0.5f;
+                // Star magneticFieldStrength is 4 (normal) or 5 (magnetar)
+                float magneticTilt = star.magneticFieldStrength() >= 5 ? 15f : 10f;
+                poseStack.pushPose();
+                poseStack.translate(0.5, 0.5, 0.5);
+                poseStack.mulPose(Axis.YP.rotationDegrees(extraJetRotation));
+                poseStack.mulPose(Axis.XP.rotationDegrees(magneticTilt));
+                poseStack.translate(-0.5, -0.5, -0.5);
+                renderBakedModel(NEUTRON_STAR_JET_MODEL, poseStack, bufferSource, packedOverlay, RenderType.translucent());
+                poseStack.popPose();
+            }
             return;
         }
 

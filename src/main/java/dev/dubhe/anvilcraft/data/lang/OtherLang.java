@@ -33,6 +33,8 @@ public class OtherLang {
         provider.add("message.anvilcraft.disk.data_incompatible", "This block is incompatible with data stored in disk");
         provider.add("message.anvilcraft.disk.data_cleared", "Cleared data stored in disk");
         provider.add("message.anvilcraft.disk.data_stored", "Stored setting of block into disk");
+        provider.add("message.anvilcraft.disk.extreme_body_requires_crystal",
+            "Extreme celestial bodies can only be stored in Singularity Crystal"); // 极端天体的数据只能被存储在奇点晶体中
         provider.add("message.anvilcraft.chute.cannot_place", "Chute cannot face this direction");
         provider.add("message.anvilcraft.structure_scanner.no_disk", "Please insert a structure disk to save the structure!");
         provider.add("message.anvilcraft.structure_scanner.output_not_empty", "Output slot is not empty, please take the item first!");

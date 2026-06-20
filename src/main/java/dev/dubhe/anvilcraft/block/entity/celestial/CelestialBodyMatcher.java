@@ -428,7 +428,7 @@ public final class CelestialBodyMatcher {
         return Math.clamp(space, 1, 64);
     }
 
-    private static Temperature energyToTemperature(int energy) {
+    public static Temperature energyToTemperature(int energy) {
         if (energy <= 12) return Temperature.FREEZING;
         if (energy <= 15) return Temperature.COLD;
         if (energy == 16) return Temperature.MILD;

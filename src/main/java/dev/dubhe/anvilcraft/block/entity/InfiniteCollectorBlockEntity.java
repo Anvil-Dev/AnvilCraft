@@ -20,7 +20,7 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IHeatCollector {
-    public static final int BASE_OUTPUT_POWER = 256000;
+    public static final int BASE_OUTPUT_POWER = 256;
     public static final int RANGE = 3;
 
     @Getter

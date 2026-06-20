@@ -1,0 +1,48 @@
+{
+  "type": "anvilcraft:special_celestial_body",
+  "axial_tilt": 0.0,
+  "energy": 27,
+  "has_atmosphere": false,
+  "liquid_coverage": "medium",
+  "magnetic_field": 0,
+  "mass": 13,
+  "name": "shattered_planet",
+  "needs_custom_model": true,
+  "resources": {
+    "fluids": [
+      {
+        "id": "minecraft:lava",
+        "weight": 100
+      }
+    ],
+    "minerals": [
+      {
+        "id": "anvilcraft:raw_tungsten",
+        "weight": 30
+      },
+      {
+        "id": "minecraft:raw_gold",
+        "weight": 30
+      },
+      {
+        "id": "anvilcraft:raw_silver",
+        "weight": 30
+      },
+      {
+        "id": "anvilcraft:earth_core_shard",
+        "weight": 10
+      }
+    ]
+  },
+  "rotation_speed": 4,
+  "seed_items": [
+    "minecraft:magma_block",
+    "minecraft:netherrack",
+    "minecraft:blackstone",
+    "minecraft:basalt",
+    "anvilcraft:earth_core_shard_block"
+  ],
+  "space": 9,
+  "texture": "planet_shattered",
+  "time": 13
+}
