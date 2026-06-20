@@ -79,7 +79,6 @@ public class IonoCraftBackpackClientHandler {
         double cosYaw = Math.cos(yawRad);
         double sinYaw = Math.sin(yawRad);
 
-        double backX = sinYaw;
         double backZ = -cosYaw;
 
         double[][] exhausts = {{SIDE_OFFSET, BACK_OFFSET}, {-SIDE_OFFSET, BACK_OFFSET}};
@@ -88,7 +87,7 @@ public class IonoCraftBackpackClientHandler {
             double sideComp = exhaust[0];
             double backComp = exhaust[1];
 
-            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * backX;
+            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * sinYaw;
             double worldZ = player.getZ() + sideComp * (-sinYaw) + backComp * backZ;
             double worldY = player.getY() + Y_OFFSET;
 
