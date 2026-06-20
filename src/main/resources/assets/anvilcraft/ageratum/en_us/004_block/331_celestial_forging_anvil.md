@@ -139,15 +139,15 @@ Note that even with a level 64 laser input into one interface, it still counts a
 - Can be built when in *Amplified State*
 - Generally only one mega structure can be built at a time
 
-|   Mega Structure    |  Construction Condition  |     Input     |                                                                                                             Output/Effect                                                                                                             |
-|:-------------------:|:------------------------:|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|    Ring Collider    |        Small star        |   Power 4MW   | Executes [Anvil Impact Crafting](215_large_electromagnet.md#anvil-impact-crafting) recipes. The stronger the star's gravity and magnetic field, the faster it works; the higher the speed required by the recipe, the slower it works |
-|    Dyson Sphere     |           Star           |   Power 4MW   |                                                           Continuously generates power. Power output is positively correlated with the celestial body's *energy* and *size*                                                           |
-| Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                    Accelerates stellar evolution                                                                     |
-|    Magnetar Coil    |       Neutron star       |   Power 4MW   |                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                              |
-| Matter Decompressor | Neutron star, black hole | *Gamma Laser* |                                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole)                                                                 |
-|   Penrose Sphere    |        Black hole        |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
-|   Wormhole Stabilizer   |        Black hole        |     None      |                                                                           [Wormhole](332_wormhole.md)                                                                            |
+|        Mega Structure         |    Construction Condition    |     Input     |                                                                                                             Output/Effect                                                                                                             |
+|:-----------------------------:|:----------------------------:|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|         Ring Collider         |          Small star          |   Power 4MW   | Executes [Anvil Impact Crafting](215_large_electromagnet.md#anvil-impact-crafting) recipes. The stronger the star's gravity and magnetic field, the faster it works; the higher the speed required by the recipe, the slower it works |
+|         Dyson Sphere          |             Star             |   Power 4MW   |                                                           Continuously generates power. Power output is positively correlated with the celestial body's *energy* and *size*                                                           |
+| Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                                                     Accelerates stellar evolution                                                                                                     |
+|         Magnetar Coil         |         Neutron star         |   Power 4MW   |                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                              |
+|      Matter Decompressor      |   Neutron star, black hole   | *Gamma Laser* |                                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole)                                                                 |
+|        Penrose Sphere         |          Black hole          |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
+|      Wormhole Stabilizer      |          Black hole          |     None      |                                                                                                      [Wormhole](332_wormhole.md)                                                                                                      |
 
 <info>
 **Small star**: Visually, a celestial body with 3 beam rings
@@ -183,3 +183,21 @@ The original star's mass determines what type of stellar remnant it becomes
 - Right-click <ref item="anvilcraft:celestial_forging_anvil"/> with <ref item="anvilcraft:disk"/> to copy the celestial body data
 - Place this <ref item="anvilcraft:disk"/> into another celestial forging anvil, consuming the <ref item="anvilcraft:disk"/> to search for another celestial body with the exact same parameters — they become *Identical Celestial Bodies*
 - For extreme celestial bodies (neutron stars, black holes), use <ref item="anvilcraft:singularity_crystal"/> as the medium instead
+
+# Hidden Celestial Bodies
+
+- By consuming specific seed items and inputting specific parameters, hidden celestial bodies can be discovered
+- Some planets have more than one corresponding seed item, but **only one randomly selected one** takes effect per save
+
+| Hidden Celestial Body | Anvil Parameters | Seed Items                                                                                                                                                                                                                                                                   |
+|:---------------------:|:----------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Overworld-like Planet | (32, 14, 20, 16) | <ref item="minecraft:grass_block"/>, <ref item="minecraft:podzol"/>, <ref item="minecraft:podzol"/>, <ref item="minecraft:dirt"/>, <ref item="minecraft:coarse_dirt"/>, <ref item="minecraft:rooted_dirt"/>, <ref item="minecraft:moss_block"/>, <ref item="minecraft:mud"/> |
+|     Flesh Planet      | (40, 10, 9, 17)  | <ref item="anvilcraft:rotten_flesh_block"/>, <ref item="minecraft:bone_block"/>                                                                                                                                                                                              |
+|  Intelligent Planet   | (58, 12, 12, 18) | <ref item="anvilcraft:spacetime_supercomputer"/>                                                                                                                                                                                                                             |
+|   Shattered Planet    | (13, 9, 13, 27)  | <ref item="minecraft:magma_block"/>, <ref item="minecraft:netherrack"/>, <ref item="minecraft:blackstone"/>, <ref item="minecraft:basalt"/>, <ref item="anvilcraft:earth_core_shard_block"/>                                                                                 |
+|     Hollow Planet     | (60, 10, 1, 17)  | <ref item="anvilcraft:negative_matter_block"/>                                                                                                                                                                                                                               |
+|     Error Planet      | (64, 64, 64, 64) | <ref item="anvilcraft:creative_generator"/>, <ref item="minecraft:command_block"/>, <ref item="minecraft:structure_block"/>                                                                                                                                                  |
+
+<info>
+Planets with abnormal data from old version upgrades, or planets forcibly assigned data that cannot be rendered, all become Error Planets
+</info>

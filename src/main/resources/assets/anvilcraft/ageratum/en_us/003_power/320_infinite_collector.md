@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "§6Infinite Collector"
+  title: "§5Infinite Collector"
   icon: "anvilcraft:infinite_collector"
 items:
   - anvilcraft:infinite_collector

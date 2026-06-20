@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "§6无上限能量收集器"
+  title: "§5无上限能量收集器"
   icon: "anvilcraft:infinite_collector"
 items:
   - anvilcraft:infinite_collector
