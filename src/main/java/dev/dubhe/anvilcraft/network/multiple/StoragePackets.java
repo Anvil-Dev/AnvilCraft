@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.saved.storage.network.MenuState;
+import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -53,7 +53,7 @@ public class StoragePackets {
 
         @Override
         public void handleOnServer(Player player) {
-            MenuState.get(this.id).sync(this.slots);
+            StorageMenuState.get(this.id).sync(this.slots);
         }
     }
 
@@ -109,12 +109,12 @@ public class StoragePackets {
 
         @Override
         public void handleOnClient(Player player) {
-            MenuState.get(this.id).sync(this.head, this.stacks);
+            StorageMenuState.get(this.id).sync(this.head, this.stacks);
         }
     }
 
     public static void sync(ServerPlayer player, UUID id, RegistryAccess registries) {
-        new FullSyncer(player, MenuState.get(id), registries).sync();
+        new FullSyncer(player, StorageMenuState.get(id), registries).sync();
     }
 
     public static class FullSyncer {
@@ -123,7 +123,7 @@ public class StoragePackets {
         /// 包的初始缓冲区大小
         private static final int INITIAL_BUFFER_CAPACITY = 2 * 1024;
         private final ServerPlayer player;
-        private final MenuState state;
+        private final StorageMenuState state;
         private final RegistryAccess registries;
 
         private final List<Sync2CFull> packets = new ArrayList<>();
@@ -133,7 +133,7 @@ public class StoragePackets {
         @Nullable
         private RegistryFriendlyByteBuf buf;
 
-        private FullSyncer(ServerPlayer player, MenuState state, RegistryAccess registries) {
+        private FullSyncer(ServerPlayer player, StorageMenuState state, RegistryAccess registries) {
             this.player = player;
             this.state = state;
             this.registries = registries;
@@ -267,12 +267,12 @@ public class StoragePackets {
 
         @Override
         public void handleOnClient(Player player) {
-            MenuState.get(this.id).sync(this.stacks);
+            StorageMenuState.get(this.id).sync(this.stacks);
         }
     }
 
     public static void syncIncremental(ServerPlayer player, UUID id, RegistryAccess registries) {
-        new IncrementalSyncer(player, MenuState.get(id), registries).sync();
+        new IncrementalSyncer(player, StorageMenuState.get(id), registries).sync();
     }
 
     public static class IncrementalSyncer {
@@ -281,7 +281,7 @@ public class StoragePackets {
         /// 包的初始缓冲区大小
         private static final int INITIAL_BUFFER_CAPACITY = 2 * 1024;
         private final ServerPlayer player;
-        private final MenuState state;
+        private final StorageMenuState state;
         private final RegistryAccess registries;
 
         private final List<Sync2CIncremental> packets = new ArrayList<>();
@@ -290,7 +290,7 @@ public class StoragePackets {
         @Nullable
         private RegistryFriendlyByteBuf buf;
 
-        private IncrementalSyncer(ServerPlayer player, MenuState state, RegistryAccess registries) {
+        private IncrementalSyncer(ServerPlayer player, StorageMenuState state, RegistryAccess registries) {
             this.player = player;
             this.state = state;
             this.registries = registries;
@@ -375,7 +375,7 @@ public class StoragePackets {
 
         @Override
         public void handleOnServer(Player player) {
-            MenuState.get(this.id).setFullness(this.fullness);
+            StorageMenuState.get(this.id).setFullness(this.fullness);
         }
     }
 }

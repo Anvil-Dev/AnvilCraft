@@ -4,8 +4,8 @@ import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import dev.dubhe.anvilcraft.saved.BetterSavedData;
-import dev.dubhe.anvilcraft.saved.storage.network.MenuState;
 import it.unimi.dsi.fastutil.ints.IntObjectBiConsumer;
 import lombok.Getter;
 import net.minecraft.core.RegistryAccess;
@@ -34,7 +34,7 @@ public abstract class BaseStorage extends BetterSavedData {
     );
 
     protected void onContentsChanged(int index, UnlimitedItemStack original) {
-        MenuState state = MenuState.get(this.id);
+        StorageMenuState state = StorageMenuState.get(this.id);
         state.getChanges().put(index, original);
         state.setFullness(this.items.getFullness());
         Storages.get().setDirty();

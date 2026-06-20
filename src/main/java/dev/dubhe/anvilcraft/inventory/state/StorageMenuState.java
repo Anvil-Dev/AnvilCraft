@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.saved.storage.network;
+package dev.dubhe.anvilcraft.inventory.state;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
@@ -16,15 +16,15 @@ import java.util.UUID;
 /// 双端界面状态，用于同步双端界面数据
 @Getter
 @Setter
-public class MenuState {
-    private static final Map<UUID, MenuState> STATES = new HashMap<>();
+public class StorageMenuState {
+    private static final Map<UUID, StorageMenuState> STATES = new HashMap<>();
 
-    public static MenuState get(UUID id) {
-        return MenuState.STATES.computeIfAbsent(id, MenuState::new);
+    public static StorageMenuState get(UUID id) {
+        return StorageMenuState.STATES.computeIfAbsent(id, StorageMenuState::new);
     }
 
     public static void clear() {
-        MenuState.STATES.clear();
+        StorageMenuState.STATES.clear();
     }
 
     private final UUID id;
@@ -33,7 +33,7 @@ public class MenuState {
     private final Map<Integer, UnlimitedItemStack> changes;
     private double fullness;
 
-    public MenuState(UUID id) {
+    public StorageMenuState(UUID id) {
         this.id = id;
         this.slots = new IntArrayList();
         this.mapping = new ArrayList<>();
@@ -47,7 +47,7 @@ public class MenuState {
     /// @return 服务端需要更新的列表
     public Map<Integer, UnlimitedItemStack> getChanges() {
         if (!Util.isServer()) {
-            throw new IllegalStateException("Cannot invoke MenuState#getChanges in clientside.");
+            throw new IllegalStateException("Cannot invoke StorageMenuState#getChanges in clientside.");
         }
         return this.changes;
     }

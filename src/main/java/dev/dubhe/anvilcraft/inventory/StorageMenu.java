@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.inventory;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
-import dev.dubhe.anvilcraft.saved.storage.network.MenuState;
+import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,7 +17,7 @@ import org.jspecify.annotations.Nullable;
 @Getter
 public class StorageMenu extends AbstractContainerMenu {
     private final StorageBlockEntity be;
-    private final MenuState state;
+    private final StorageMenuState state;
     private final Player player;
 
     public StorageMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inv, @Nullable RegistryFriendlyByteBuf buf) {
@@ -27,7 +27,7 @@ public class StorageMenu extends AbstractContainerMenu {
     public StorageMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inv, BlockEntity be) {
         super(menuType, containerId);
         this.be = Util.cast(be);
-        this.state = MenuState.get(this.be.getId());
+        this.state = StorageMenuState.get(this.be.getId());
         this.player = inv.player;
     }
 
