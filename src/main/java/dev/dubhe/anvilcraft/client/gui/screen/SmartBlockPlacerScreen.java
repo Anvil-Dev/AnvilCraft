@@ -616,7 +616,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.renderPreview(graphics);
 
         // 渲染结构信息
-        this.renderStructureInfo(graphics);
+        this.renderStructureInfo(graphics, mouseX, mouseY);
 
         // 收集并渲染所有tooltip
         List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
@@ -629,6 +629,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 mouseY
             ));
         }
+
+        // 收集缺失方块图标的tooltip
+        this.collectMissingBlockItemTooltip(tooltipsToRender, mouseX, mouseY);
 
         for (TooltipRenderInfo info : tooltipsToRender) {
             graphics.setTooltipForNextFrame(
@@ -665,54 +668,135 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     }
 
     /**
-     * 渲染结构名称（带滚动效果）
+     * 渲染结构名称（带滚动效果，仅鼠标悬停时滚动）
      */
-    private void renderStructureInfo(GuiGraphicsExtractor graphics) {
+    private void renderStructureInfo(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        var blockEntity = this.menu.getBlockEntity();
+        if (blockEntity == null) return;
+
+        String structureName = blockEntity.getLoadedStructureName();
+        if (!structureName.isEmpty()) {
+            // 检测名称是否变化，重置滚动时间
+            if (!structureName.equals(this.lastRenderedStructureName)) {
+                this.lastRenderedStructureName = structureName;
+                this.structureNameScrollTime = 0;
+            }
+
+            int textX = this.structureInfoBaseX;
+            int textY = this.structureInfoBaseY;
+
+            // 渲染"加载："标签（绿色）
+            Component loadedText = Component.translatable("screen.anvilcraft.smart_block_placer.structure.loaded");
+            graphics.text(this.font, loadedText, textX, textY, 0xFF00AA00, false);
+
+            // 渲染结构名（蓝色，换行显示，仅鼠标悬停时滚动）
+            int nameX = textX;
+            int nameY = textY + 10;
+            int maxWidth = 80;
+            int textWidth = this.font.width(structureName);
+
+            // 检测鼠标是否悬停在结构名区域
+            boolean isHovered = mouseX >= nameX && mouseX <= nameX + maxWidth
+                && mouseY >= nameY && mouseY <= nameY + this.font.lineHeight;
+
+            if (textWidth > maxWidth) {
+                int scrollSpeed = 2;
+                int totalScrollDistance = textWidth + 20;
+
+                int scrollOffset;
+                if (isHovered) {
+                    // 鼠标悬停时滚动
+                    scrollOffset = (int) (this.structureNameScrollTime * scrollSpeed) % totalScrollDistance;
+                } else {
+                    // 鼠标未悬停，显示开头
+                    scrollOffset = 0;
+                }
+
+                graphics.enableScissor(nameX, nameY, nameX + maxWidth, nameY + this.font.lineHeight);
+                graphics.text(this.font, structureName, nameX - scrollOffset, nameY, 0xFF5555FF, false);
+
+                if (scrollOffset > textWidth) {
+                    int secondTextX = nameX - scrollOffset + textWidth + 20;
+                    graphics.text(this.font, structureName, secondTextX, nameY, 0xFF5555FF, false);
+                }
+                graphics.disableScissor();
+            } else {
+                graphics.text(this.font, structureName, nameX, nameY, 0xFF5555FF, false);
+            }
+
+            // 渲染缺失方块信息
+            ItemStack missingItem = blockEntity.getMissingBlockItem();
+            if (!missingItem.isEmpty()) {
+                Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
+                int missingY = textY + 20;
+                graphics.text(this.font, missingText, textX, missingY, 0xFFFF5555, false);
+                // 渲染缺失方块图标
+                graphics.item(missingItem, textX + this.font.width(missingText) + 4, missingY - 2);
+            }
+        } else if (blockEntity.hasInvalidStructure() && !blockEntity.getDiskInventory().getItem(0).isEmpty()) {
+            // 磁盘存在但结构数据无效
+            int textX = this.structureInfoBaseX;
+            int textY = this.structureInfoBaseY;
+            int maxWidth = 80;
+            Component invalidText = Component.translatable("screen.anvilcraft.smart_block_placer.no_structure_record");
+            int textWidth = this.font.width(invalidText);
+
+            // 检测鼠标是否悬停
+            boolean isHovered = mouseX >= textX && mouseX <= textX + maxWidth
+                && mouseY >= textY && mouseY <= textY + this.font.lineHeight;
+
+            if (textWidth > maxWidth) {
+                int scrollSpeed = 2;
+                int totalScrollDistance = textWidth + 20;
+
+                int scrollOffset;
+                if (isHovered) {
+                    scrollOffset = (int) (this.structureNameScrollTime * scrollSpeed) % totalScrollDistance;
+                } else {
+                    scrollOffset = 0;
+                }
+
+                graphics.enableScissor(textX, textY, textX + maxWidth, textY + this.font.lineHeight);
+                graphics.text(this.font, invalidText, textX - scrollOffset, textY, 0xFFFF5555, false);
+
+                if (scrollOffset > textWidth) {
+                    int secondTextX = textX - scrollOffset + textWidth + 20;
+                    graphics.text(this.font, invalidText, secondTextX, textY, 0xFFFF5555, false);
+                }
+                graphics.disableScissor();
+            } else {
+                graphics.text(this.font, invalidText, textX, textY, 0xFFFF5555, false);
+            }
+        }
+    }
+
+    /**
+     * 收集缺失方块图标的tooltip
+     */
+    private void collectMissingBlockItemTooltip(List<TooltipRenderInfo> tooltips, int mouseX, int mouseY) {
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity == null) return;
 
         String structureName = blockEntity.getLoadedStructureName();
         if (structureName.isEmpty()) return;
 
-        // 检测名称是否变化，重置滚动时间
-        if (!structureName.equals(this.lastRenderedStructureName)) {
-            this.lastRenderedStructureName = structureName;
-            this.structureNameScrollTime = 0;
+        ItemStack missingItem = blockEntity.getMissingBlockItem();
+        if (missingItem.isEmpty()) return;
+
+        int textX = this.structureInfoBaseX;
+        int textY = this.structureInfoBaseY;
+        Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
+        int iconX = textX + this.font.width(missingText) + 4;
+        int iconY = textY + 18;
+
+        if (mouseX >= iconX && mouseX < iconX + 16 && mouseY >= iconY && mouseY < iconY + 16) {
+            tooltips.add(new TooltipRenderInfo(
+                this.font,
+                this.getTooltipFromContainerItem(missingItem),
+                mouseX,
+                mouseY
+            ));
         }
-
-        int maxWidth = 90;
-        int textWidth = this.font.width(structureName);
-
-        // 设置裁剪区域
-        graphics.enableScissor(
-            this.structureInfoBaseX,
-            this.structureInfoBaseY,
-            this.structureInfoBaseX + maxWidth,
-            this.structureInfoBaseY + this.font.lineHeight
-        );
-
-        if (textWidth <= maxWidth) {
-            // 名称足够短，直接居中显示
-            int textX = this.structureInfoBaseX + (maxWidth - textWidth) / 2;
-            graphics.text(this.font, structureName, textX, this.structureInfoBaseY, 0xFF404040, false);
-        } else {
-            // 名称太长，滚动显示
-            int scrollSpeed = 2;
-            int totalScrollDistance = textWidth + 20;
-            int scrollOffset = (int) (this.structureNameScrollTime * scrollSpeed) % totalScrollDistance;
-            int textX = this.structureInfoBaseX - scrollOffset;
-
-            // 绘制滚动文本
-            graphics.text(this.font, structureName, textX, this.structureInfoBaseY, 0xFF404040, false);
-
-            // 如果滚动到末尾，在后面的间隙处开始显示下一个循环
-            if (scrollOffset > textWidth) {
-                int secondTextX = textX + textWidth + 20;
-                graphics.text(this.font, structureName, secondTextX, this.structureInfoBaseY, 0xFF404040, false);
-            }
-        }
-
-        graphics.disableScissor();
     }
 
     /**

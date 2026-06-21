@@ -409,18 +409,18 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         
         this.lastScanTick = this.level.getGameTime();
         this.setChanged();
-        
-        // 每扫描一层就同步到客户端
-        if (this.level != null && !this.level.isClientSide()) {
-            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
-        }
-        
+
         // 移动到下一层
         this.currentScanLayer++;
-        
-        // 检查是否完成所有层
+
+        // 检查是否完成所有层（在发送同步包之前更新状态）
         if (this.currentScanLayer >= rangeY) {
             this.isScanning = false;
+        }
+
+        // 每扫描一层就同步到客户端（此时 isScanning 已处于最终状态）
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
     }
     

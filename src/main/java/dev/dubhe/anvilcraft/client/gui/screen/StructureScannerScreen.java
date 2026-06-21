@@ -365,6 +365,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         boolean newIsScanComplete = blockEntity.isScanComplete();
         if (newIsScanComplete != this.cachedIsScanComplete) {
             this.cachedIsScanComplete = newIsScanComplete;
+            // 扫描完成状态变化时也失效预览缓存
+            this.cachedPreviewLevelLike = null;
         }
 
         boolean newHasStartedScanning = blockEntity.hasStartedScanning();
@@ -439,7 +441,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
             case LARGE_STRUCTURE, UNKNOWN_BLOCKS, TOO_LARGE -> {
                 boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE;
-                int iconColor = isWarning ? 0xFFFFFF55 : 0xFFFF5555;
+                int iconColor = isWarning ? 0xFFFFAA00 : 0xFFFF3333;
                 float iconScale = 1.5f;
 
                 graphics.pose().pushMatrix();
@@ -614,7 +616,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             return null;
         }
 
-        if (this.cachedPreviewFacing == facing) {
+        if (this.cachedPreviewLevelLike != null && this.cachedPreviewFacing == facing) {
             return this.cachedPreviewLevelLike;
         }
 
@@ -819,6 +821,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         if (this.isScanMode) {
             ClientPacketDistributor.sendToServer(new StructureScannerActionPacket(Action.START));
+
+            // 立即失效预览缓存，确保扫描完成后重新构建预览
+            this.cachedPreviewLevelLike = null;
+            this.cachedScannedBlocksSize = -1;
 
             this.isScanMode = false;
             this.modeToggleButton.setSelected(false);
