@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -175,7 +176,7 @@ public class StructureBookUtil {
         Map<Block, Integer> placedBlocks = new LinkedHashMap<>();
 
         Direction facing = level.getBlockState(placerPos).getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
-        boolean upsideDown = level.getBlockState(placerPos).getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
+        boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
         // 使用 buildBlueprintPositions 获取所有实际位置
         List<net.minecraft.core.BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(

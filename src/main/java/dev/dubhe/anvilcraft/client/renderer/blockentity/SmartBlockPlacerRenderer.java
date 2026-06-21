@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.SmartBlockPlacerRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
@@ -187,7 +187,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 float cosUpperArm = (clampedDist * clampedDist + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH)
                     / (2 * clampedDist * UPPER_ARM_LENGTH);
                 cosUpperArm = Math.max(-1.0f, Math.min(1.0f, cosUpperArm));
-                float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));                upperArmAngle = -(180f - upperArmAngleFromTarget - elevationAngle) * 0.6f + 20f;
+                float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));
+                upperArmAngle = -(180f - upperArmAngleFromTarget - elevationAngle) * 0.6f + 20f;
                 forearmAngle = forearmAngleFromUpper * 0.8f - 10f;
             }
 

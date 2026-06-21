@@ -4,8 +4,8 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
-import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
 import dev.dubhe.anvilcraft.constant.Constant;
@@ -30,7 +30,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
@@ -113,11 +112,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean cachedPickupMode = true;
     private boolean cachedBlueprintMode = false;
     private @Nullable UUID cachedStructureUuid = null;
-    private final long cachedGameTimeBlockType = -1;
 
     private long structureNameScrollTime = 0;
     private String lastRenderedStructureName = "";
-    private final boolean isStructureNameHovered = false;
 
     private int structureInfoBaseX;
     private int structureInfoBaseY;
@@ -221,7 +218,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.showAllLayers ? LAYER_ALL : LAYER_SINGLE,
             16,
             32,
-            (btn) -> this.onLayerModeButtonClick(),
+            _ -> this.onLayerModeButtonClick(),
             List.of(this.getLayerModeTooltip())
         );
         this.layerModeButton.setSelected(this.showAllLayers);
@@ -240,7 +237,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.isPickupMode ? PICKUP_MODE : MOVE_MODE,
             16,
             32,
-            (btn) -> this.onOperationModeButtonClick(),
+            _ -> this.onOperationModeButtonClick(),
             List.of(this.getOperationModeTooltip())
         );
         this.operationModeButton.setSelected(this.isPickupMode);
@@ -265,7 +262,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             SKIP_MISSING,
             16,
             48,
-            (btn) -> this.onSkipMissingButtonClick(),
+            _ -> this.onSkipMissingButtonClick(),
             List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.skip"))
         );
         this.skipMissingButton.setSelected(this.isSkipMissingMode);
@@ -279,7 +276,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             STOP_MISSING,
             16,
             48,
-            (btn) -> this.onStopMissingButtonClick(),
+            _ -> this.onStopMissingButtonClick(),
             List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.stop"))
         );
         this.stopMissingButton.setSelected(!this.isSkipMissingMode);
@@ -383,7 +380,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         TriStateButton button = new TriStateButton(
             xpos, ypos, 16, 16,
             POSITION_SELECT, 16, 48,
-            (btn) -> this.onPositionButtonClick(row, col, positionIndex, tooltipSelected, tooltipUnselected),
+            (_) -> this.onPositionButtonClick(row, col, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
         button.setSelected(selected);
@@ -690,13 +687,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             graphics.text(this.font, loadedText, textX, textY, 0xFF00AA00, false);
 
             // 渲染结构名（蓝色，换行显示，仅鼠标悬停时滚动）
-            int nameX = textX;
             int nameY = textY + 10;
             int maxWidth = 80;
             int textWidth = this.font.width(structureName);
 
             // 检测鼠标是否悬停在结构名区域
-            boolean isHovered = mouseX >= nameX && mouseX <= nameX + maxWidth
+            boolean isHovered = mouseX >= textX && mouseX <= textX + maxWidth
                 && mouseY >= nameY && mouseY <= nameY + this.font.lineHeight;
 
             if (textWidth > maxWidth) {
@@ -712,16 +708,16 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                     scrollOffset = 0;
                 }
 
-                graphics.enableScissor(nameX, nameY, nameX + maxWidth, nameY + this.font.lineHeight);
-                graphics.text(this.font, structureName, nameX - scrollOffset, nameY, 0xFF5555FF, false);
+                graphics.enableScissor(textX, nameY, textX + maxWidth, nameY + this.font.lineHeight);
+                graphics.text(this.font, structureName, textX - scrollOffset, nameY, 0xFF5555FF, false);
 
                 if (scrollOffset > textWidth) {
-                    int secondTextX = nameX - scrollOffset + textWidth + 20;
+                    int secondTextX = textX - scrollOffset + textWidth + 20;
                     graphics.text(this.font, structureName, secondTextX, nameY, 0xFF5555FF, false);
                 }
                 graphics.disableScissor();
             } else {
-                graphics.text(this.font, structureName, nameX, nameY, 0xFF5555FF, false);
+                graphics.text(this.font, structureName, textX, nameY, 0xFF5555FF, false);
             }
 
             // 渲染缺失方块信息
@@ -944,7 +940,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         BlockState blockState = level.getBlockState(placerPos);
         if (!(blockState.getBlock() instanceof SmartBlockPlacerBlock)) return null;
 
-        Direction facing = blockState.getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = blockState.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
         if (this.isBlueprintMode) {
@@ -999,44 +994,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
 
         return previewLevelLike;
-    }
-
-    /**
-     * 为预览旋转方块状态
-     */
-    private BlockState rotateStructureForPreview(BlockState state) {
-        // 桌面预览统一朝北显示
-        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-            Direction rotatedFacing = switch (blockFacing) {
-                case SOUTH -> Direction.NORTH;
-                case WEST -> Direction.EAST;
-                case EAST -> Direction.WEST;
-                default -> blockFacing;
-            };
-            return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
-        }
-        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
-            Direction rotatedFacing = switch (blockFacing) {
-                case SOUTH -> Direction.NORTH;
-                case WEST -> Direction.EAST;
-                case EAST -> Direction.WEST;
-                default -> blockFacing;
-            };
-            return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
-        }
-        if (state.hasProperty(BlockStateProperties.FACING)) {
-            Direction blockFacing = state.getValue(BlockStateProperties.FACING);
-            Direction rotatedFacing = switch (blockFacing) {
-                case SOUTH -> Direction.NORTH;
-                case WEST -> Direction.EAST;
-                case EAST -> Direction.WEST;
-                default -> blockFacing;
-            };
-            return state.setValue(BlockStateProperties.FACING, rotatedFacing);
-        }
-        return state;
     }
 
     /**

@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
-import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
+import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -538,18 +538,14 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.previewWindowY + this.previewWindowHeight
         );
 
-        this.renderPreviewContent(
-            graphics,
-            this.previewWindowX + this.previewWindowWidth / 2,
-            this.previewWindowY + this.previewWindowHeight / 2 + 5
-        );
+        this.renderPreviewContent(graphics);
 
         graphics.disableScissor();
     }
 
     /// 渲染3D预览内容
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
-    private void renderPreviewContent(GuiGraphicsExtractor graphics, int posX, int posY) {
+    private void renderPreviewContent(GuiGraphicsExtractor graphics) {
         if (this.minecraft.level == null) return;
         if (this.cachedBlockEntity == null) return;
 

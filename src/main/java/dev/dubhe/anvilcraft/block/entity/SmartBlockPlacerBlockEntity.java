@@ -8,8 +8,8 @@ import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.cake.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
@@ -1720,7 +1720,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 // 空位或其他情况：提取容器中的第一个方块物品
                 return Objects.requireNonNull(this.preExtractBlockItemFromContainer(level, placerPos));
             },
-            (blockItem, _, targetPos, extractionResult) -> {
+            (blockItem, _, targetPos, _) -> {
                 BlockState newState = level.getBlockState(targetPos);
                 
                 // 关键修复：基于放置后的方块状态判断是否可堆叠，而不是基于预提取的物品
@@ -1774,9 +1774,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.executeUnifiedBlockOperation(
             level, facing, upsideDown,
             () -> this.buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
-            (index) -> sourceItem,  // 忽略 index，总是源方块
+            _ -> sourceItem,  // 忽略 index，总是源方块
             () -> sourceItem,
-            (blockItem, blockItemObj, targetPos) -> {
+            (_, _, targetPos) -> {
                 BlockState stateToPlace = sourceState;
 
                 // 侦测器不继承POWERED状态
@@ -3775,7 +3775,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     public void togglePosition(int layer, int position, boolean selected) {
         this.expectedShuttleTarget = null;
-        Set<Integer> positions = this.layerPositions.computeIfAbsent(layer, k -> new HashSet<>());
+        Set<Integer> positions = this.layerPositions.computeIfAbsent(layer, _ -> new HashSet<>());
         if (selected) {
             positions.add(position);
         } else {

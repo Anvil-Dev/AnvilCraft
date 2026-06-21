@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.power.consumer;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
@@ -37,7 +37,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("NullableProblems")
 public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -138,13 +137,13 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         BlockEntityType<T> type
     ) {
         if (level.isClientSide()) {
-            return (level1, pos, state1, entity) -> {
+            return (_, _, _, entity) -> {
                 if (entity instanceof SmartBlockPlacerBlockEntity be) {
                     be.tickClient();
                 }
             };
         } else {
-            return (level1, pos, state1, entity) -> {
+            return (level1, pos, _, entity) -> {
                 if (entity instanceof SmartBlockPlacerBlockEntity be) {
                     be.tickServer(level1, pos);
                 }
