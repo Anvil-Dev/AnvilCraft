@@ -962,9 +962,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
             var rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(structure);
             for (var bp : rotatedData.blocks) {
-                BlockState rotatedState = this.rotateStructureForPreview(bp.state());
                 int renderY = bp.y();
-                previewLevelLike.setBlockState(new BlockPos(bp.x(), renderY - 2, bp.z() + 1), rotatedState);
+                previewLevelLike.setBlockState(new BlockPos(bp.x(), renderY - 2, bp.z() + 1), bp.state());
             }
         } else {
             // 普通模式：显示 UI 中的选区模式（不读取世界方块）

@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.StructureBookUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -895,7 +896,54 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public static StructureLoadUtil.StructureData rotateStructureDataStatic(
         StructureLoadUtil.StructureData originalData
     ) {
-        return originalData;
+        Direction scannerFacing = originalData.diskData.direction();
+
+        if (scannerFacing == Direction.NORTH) {
+            return originalData;
+        }
+
+        StructureLoadUtil.StructureData result = new StructureLoadUtil.StructureData(originalData.diskData);
+        for (var bp : originalData.blocks) {
+            BlockState rotatedState = rotateBlockStateForPreview(bp.state(), scannerFacing);
+            result.blocks.add(new StructureLoadUtil.BlockPosition(bp.x(), bp.y(), bp.z(), rotatedState));
+        }
+
+        return result;
+    }
+
+    /**
+     * 根据 Scanner 朝向旋转方块状态（与 StructureScannerScreen 保持一致）
+     */
+    private static BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
+        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+            Direction rotatedFacing = rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
+        }
+
+        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
+            Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
+            Direction rotatedFacing = rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
+        }
+
+        if (state.hasProperty(BlockStateProperties.FACING)) {
+            Direction blockFacing = state.getValue(BlockStateProperties.FACING);
+            if (blockFacing == Direction.UP || blockFacing == Direction.DOWN) return state;
+            Direction rotatedFacing = rotateDirectionForPreview(blockFacing, scannerFacing);
+            return state.setValue(BlockStateProperties.FACING, rotatedFacing);
+        }
+
+        return state;
+    }
+
+    private static Direction rotateDirectionForPreview(Direction blockFacing, Direction scannerFacing) {
+        return switch (scannerFacing) {
+            case SOUTH -> blockFacing.getOpposite();
+            case WEST -> blockFacing.getClockWise();
+            case EAST -> blockFacing.getCounterClockWise();
+            default -> blockFacing;
+        };
     }
 
     public void tickServer(Level level, BlockPos pos) {
@@ -1772,8 +1820,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
                 // 检查是否是穿梭进度的回程：放置到了预期的穿梭目标位置
                 if (targetPos.equals(this.expectedShuttleTarget)) {
-                    // TriggerUtil.placerShuttle(level, targetPos);
-                    // TODO: 需要添加 placerShuttle 触发器
+                    TriggerUtil.placerShuttle(level, targetPos);
                     this.expectedShuttleTarget = null;
                 }
 
