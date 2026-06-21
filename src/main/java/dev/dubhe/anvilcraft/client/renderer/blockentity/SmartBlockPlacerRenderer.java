@@ -564,9 +564,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         // 渲染钳子中的方块
         if (clawOpen && state.isHasHeldItem()) {
             poseStack.pushPose();
-            poseStack.translate(0.5, 0.96, 0.1);
+            poseStack.translate(0.50, 0.94, 0.19);
             poseStack.mulPose(Axis.XP.rotationDegrees(-40));
-            poseStack.scale(0.65f, 0.65f, 0.65f);
+            poseStack.scale(0.9f, 0.9f, 0.9f);
             state.getHeldItem().item.submit(poseStack, collector, light, overlay, 0);
             poseStack.popPose();
         }
