@@ -24,10 +24,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -100,12 +100,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     @Nullable
     private RenderTarget previewFbo;
     private float previewRotationY = 45.0f;
-    private float previewRotationX = -30.0f;
-    private static final float MIN_ROTATION_X = -60.0f;
-    private static final float MAX_ROTATION_X = 0.0f;
-    private static final float ROTATION_SENSITIVITY = 0.5f;
-
-    private static final int PREVIEW_BLOCK_SWITCH_INTERVAL = 80;
+    private float previewRotationX = 30.0f;
 
     @Nullable
     private LevelLike cachedPreviewLevelLike = null;
@@ -520,9 +515,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             float deltaX = currentMouseX - this.lastMouseX;
             float deltaY = currentMouseY - this.lastMouseY;
 
-            this.previewRotationY += deltaX * ROTATION_SENSITIVITY;
-            this.previewRotationX -= deltaY * ROTATION_SENSITIVITY;
-            this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
+            this.previewRotationY += deltaX * 1;
+            this.previewRotationX += deltaY * 1;
+            this.previewRotationX = Math.clamp(this.previewRotationX, -60, 60);
 
             this.lastMouseX = currentMouseX;
             this.lastMouseY = currentMouseY;
@@ -651,33 +646,19 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity == null) return;
 
-        // 使用 scissor 裁剪预览窗口区域
-        graphics.enableScissor(
-            this.previewWindowX,
-            this.previewWindowY,
-            this.previewWindowX + this.previewWindowWidth,
-            this.previewWindowY + this.previewWindowHeight
-        );
-
         // 构建并渲染 LevelLike 预览
         LevelLike previewLevelLike = this.getOrCreateCachedPreviewLevelLike();
         if (previewLevelLike != null) {
             this.renderPreviewWithFixedSize(
                 previewLevelLike,
                 graphics,
-                80.0f,
                 this.previewRotationX,
-                this.previewRotationY,
-                5,
-                5,
-                -0.5f
+                this.previewRotationY
             );
         }
 
         // 渲染放置范围边框
-        this.renderPlacementRangeBox(graphics);
-
-        graphics.disableScissor();
+        // this.renderPlacementRangeBox(graphics);
     }
 
     /**
@@ -738,12 +719,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private void renderPreviewWithFixedSize(
         LevelLike level,
         GuiGraphicsExtractor graphics,
-        float scale,
         float rotationX,
-        float rotationY,
-        int sizeX,
-        int sizeY,
-        float zoffset
+        float rotationY
     ) {
         var minPos = level.getMinPos();
         var maxPos = level.getMaxPos();
@@ -751,27 +728,10 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         PoseStack poseStack = new PoseStack();
 
-        // 1. 缩放
-        float scaleX = scale / (sizeX * Mth.SQRT_OF_TWO);
-        float scaleY = scale / (float) sizeY;
-        float finalScale = Math.min(scaleY, scaleX);
-        poseStack.scale(-finalScale, -finalScale, -finalScale);
-
-        // 2. 平移到块网格中心
-        poseStack.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
-
-        // 3. 应用X轴旋转
         poseStack.mulPose(Axis.XP.rotationDegrees(rotationX));
+        poseStack.mulPose(Axis.YP.rotationDegrees(rotationY));
 
-        // 4. Y轴旋转
-        float offsetX = (float) -sizeX / 2 + 0.05f;
-        float offsetZ = (float) -sizeX / 2 + 1;
-        poseStack.translate(-offsetX, 0, -offsetZ);
-        poseStack.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
-        poseStack.translate(offsetX, 0, offsetZ);
-
-        // 5. Z偏移
-        poseStack.translate(0, 0, zoffset);
+        poseStack.translate(-2, 0, -2);
 
         GuiRenderExtras.submitStructure(
             graphics,
@@ -782,7 +742,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewWindowY,
             this.previewWindowX + this.previewWindowWidth,
             this.previewWindowY + this.previewWindowHeight,
-            1.0f,
+            10,
             true,
             false,
             poseStack
@@ -907,25 +867,18 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             // 普通模式：显示 UI 中的选区模式（不读取世界方块）
             // 每层使用不同颜色的染色玻璃方便区分
             BlockState[] layerColors = {
-                net.minecraft.world.level.block.Blocks.WHITE_STAINED_GLASS.defaultBlockState(),
-                net.minecraft.world.level.block.Blocks.LIGHT_GRAY_STAINED_GLASS.defaultBlockState(),
-                net.minecraft.world.level.block.Blocks.GRAY_STAINED_GLASS.defaultBlockState(),
-                net.minecraft.world.level.block.Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
-                net.minecraft.world.level.block.Blocks.BLUE_STAINED_GLASS.defaultBlockState(),
+                Blocks.WHITE_STAINED_GLASS.defaultBlockState(),
+                Blocks.LIGHT_GRAY_STAINED_GLASS.defaultBlockState(),
+                Blocks.GRAY_STAINED_GLASS.defaultBlockState(),
+                Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
+                Blocks.BLUE_STAINED_GLASS.defaultBlockState(),
             };
 
-            // 在预览中添加放置器自身的模型（固定在网格后方 Z=0，X 居中）
-            int placerX = 2;
-            int placerZ = 0;
-            // 放置器与最近层同 Y，位于网格后方 Z=0
-            // 正放：与 layer 0（最下层，previewY=4）同层
-            // 倒挂：与 layer 4（最上层，previewY=0）同层
-            int placerY = upsideDown ? 0 : 4;
-            // 使用显式的放置器方块状态（不依赖世界状态）
+            int placerY = upsideDown ? 4 : 0;
             previewLevelLike.setBlockState(
-                new BlockPos(placerX, placerY, placerZ),
+                new BlockPos(2, placerY - 2, -2),
                 blockState.getBlock().defaultBlockState()
-                    .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+                    .setValue(HorizontalDirectionalBlock.FACING, Direction.SOUTH)
                     .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
             );
 
@@ -936,19 +889,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
                 BlockState glassColor = layerColors[layer % layerColors.length];
 
-                // 变换链中 scale(-finalScale) + PiP 的 Y 翻转导致 LevelLike 的 Y 轴在屏幕上反转
-                // 所以需要反转 Y：layer 0（世界最下层）→ previewY=4（屏幕最下层）
-                int previewY = 4 - layer;
-
                 for (int posIndex : entry.getValue()) {
                     int row = posIndex / 5;
                     int previewX = posIndex % 5;
-
-                    // 在预览坐标系中：col=X, layer=Y, row=Z
                     int previewZ = row + 1;
 
                     previewLevelLike.setBlockState(
-                        new BlockPos(previewX, previewY, previewZ),
+                        new BlockPos(previewX, layer - 2, previewZ),
                         glassColor
                     );
                 }
