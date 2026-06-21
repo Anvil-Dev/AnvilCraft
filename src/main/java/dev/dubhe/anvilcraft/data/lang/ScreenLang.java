@@ -70,10 +70,10 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.grid_information.title", "Power Grid Stats:");
         provider.add("tooltip.anvilcraft.grid_information.producer_stats", "Power Producer Stats:");
         provider.add("tooltip.anvilcraft.grid_information.consumer_stats", "Power Consumer Stats:");
-        provider.add("tooltip.anvilcraft.grid_information.output_power", "  Power Generation: %d");
-        provider.add("tooltip.anvilcraft.grid_information.input_power", "  Power Consumption: %d");
-        provider.add("tooltip.anvilcraft.grid_information.total_consumed", "  Total Consumption: %d");
-        provider.add("tooltip.anvilcraft.grid_information.total_generated", "  Total Generation: %d");
+        provider.add("tooltip.anvilcraft.grid_information.output_power", "  Power Generation: %s");
+        provider.add("tooltip.anvilcraft.grid_information.input_power", "  Power Consumption: %s");
+        provider.add("tooltip.anvilcraft.grid_information.total_consumed", "  Total Consumption: %s");
+        provider.add("tooltip.anvilcraft.grid_information.total_generated", "  Total Generation: %s");
         provider.add("tooltip.anvilcraft.grid_information.utilization", "  Power Utilization: %s");
         provider.add("tooltip.anvilcraft.grid_information.overloaded1", "It appears that this grid is overloaded.");
         provider.add("tooltip.anvilcraft.grid_information.overloaded2", "Add more sources or remove the components");
@@ -470,7 +470,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf"); // 红矮星阶段
         provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage"); // ？？？
         provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time: %s"); // 剩余时间:
-        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power Output"); // 无限发电中
+        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power"); // 无限发电中
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked"); // 天体正在演化，无法解锁
 
         // Portal placement messages

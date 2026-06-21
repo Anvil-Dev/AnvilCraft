@@ -313,24 +313,24 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 // Render the outer ring with star-synchronous rotation (like a real Dyson Sphere)
                 boolean isSmallStar = bodyData.size() < 48;
                 if (isDysonSphereR4 && isSmallStar) {
-                    // Small star: R5 is the outer ring
+                    // Small star: R5 is the outer ring (may be replaced by accelerator model)
                     poseStack.pushPose();
                     poseStack.translate(0.5, centerY, 0.5);
                     poseStack.scale(6, 6, 6);
                     poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
                     poseStack.mulPose(
                         Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
-                    renderRingCutout(R5, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                    renderRingCutout(getRing5Model(blockEntity), poseStack, multiBufferSource, packedOverlay, modelRenderer);
                     poseStack.popPose();
                 } else if (isDysonSphereR5 && !isSmallStar) {
-                    // Large star: R6 is the outer ring
+                    // Large star: R6 is the outer ring (may be replaced by accelerator model)
                     poseStack.pushPose();
                     poseStack.translate(0.5, centerY, 0.5);
                     poseStack.scale(6, 6, 6);
                     poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
                     poseStack.mulPose(
                         Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
-                    renderRingCutout(R6, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                    renderRingCutout(getRing6Model(blockEntity), poseStack, multiBufferSource, packedOverlay, modelRenderer);
                     poseStack.popPose();
                 }
             }

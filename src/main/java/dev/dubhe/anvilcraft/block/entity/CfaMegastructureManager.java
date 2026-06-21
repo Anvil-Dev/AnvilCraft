@@ -216,6 +216,14 @@ public class CfaMegastructureManager {
         return handler != null ? handler.getOutputPower(be) : 0;
     }
 
+    public boolean isInfinitePower(CelestialForgingAnvilBlockEntity be) {
+        if (!be.isAcceleratorActive() || be.getAcceleratorStage() != 1 || !be.isAmplifierPresent()) {
+            return false;
+        }
+        CelestialRefactorOption option = getActiveOption(be);
+        return option != null && option.megastructure().contains("dyson_sphere");
+    }
+
     public PowerComponentType getComponentType(CelestialForgingAnvilBlockEntity be) {
         IMegastructureHandler handler = getActiveHandler(be);
         if (handler != null) {

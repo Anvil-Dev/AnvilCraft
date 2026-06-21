@@ -40,6 +40,9 @@ public class PowerGrid {
 
     @Getter
     private int consume = 0; // 耗电功率
+
+    @Getter
+    private boolean hasInfinitePower = false; // 是否有无限电力（如戴森球加速期间）
     @Getter
     final Set<IPowerComponent> components = Collections.synchronizedSet(new HashSet<>());
     final Set<IPowerProducer> producers = Collections.synchronizedSet(new HashSet<>()); // 发电机
@@ -153,8 +156,10 @@ public class PowerGrid {
     public boolean flush() {
         final int oldGenerate = this.generate;
         final int oldConsume = this.consume;
+        final boolean oldInfinitePower = this.hasInfinitePower;
         this.generate = 0;
         this.consume = 0;
+        this.hasInfinitePower = false;
         for (IPowerTransmitter transmitter : transmitters) {
             if (checkRemove(transmitter)) {
                 return true;
@@ -165,6 +170,9 @@ public class PowerGrid {
                 return true;
             }
             this.generate += producer.getOutputPower();
+            if (producer.isInfinitePower()) {
+                this.hasInfinitePower = true;
+            }
         }
         for (IPowerConsumer consumer : this.consumers) {
             if (checkRemove(consumer)) {
@@ -187,7 +195,7 @@ public class PowerGrid {
             }
         }
 
-        if (this.consume != oldConsume || this.generate != oldGenerate) {
+        if (this.consume != oldConsume || this.generate != oldGenerate || this.hasInfinitePower != oldInfinitePower) {
             this.changed = true;
         }
         return false;

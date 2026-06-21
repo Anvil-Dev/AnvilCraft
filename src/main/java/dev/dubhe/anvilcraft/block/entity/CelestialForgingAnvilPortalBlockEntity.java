@@ -207,10 +207,43 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         // on this same side. If there are more (>2), all doors close for security.
         WormholeNetwork network = WormholeNetwork.get();
         UUID hash = parent.getWormholeParamsHash();
-        if (hash == null) return;
+        if (hash == null) {
+            // No wormhole identity — close portal and clean up laser
+            if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+                level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
+                touchingEntities.clear();
+            }
+            if (wormholeLaserLevel > 0) {
+                if (irradiateBlockPos != null) {
+                    BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
+                    if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
+                        lastIrradiated.onCancelingIrradiation(this);
+                    }
+                    updateIrradiateBlockPos(null);
+                }
+                clearIrradiateSelfLaserBlockSet();
+                updateLaserLevel(0);
+                wormholeLaserLevel = 0;
+                wormholeLaserGamma = false;
+                this.emittingGamma = false;
+                this.gammaLevel = 0;
+                this.gammaIrradiatingPos = null;
+                this.gammaExposureTicks = 0;
+                this.setChanged();
+                sendLaserPackets();
+            }
+            return;
+        }
         List<WormholeNetwork.Entry> connected = network.getConnected(
             hash, level.dimension(), parent.getBlockPos()
         );
+
+        // Ensure this portal's side is registered in the wormhole network.
+        // After a megastructure clear + rebuild, portal sides may be missing
+        // from the network because onClear() cleared the local portal map.
+        if (!network.hasPortalAt(level.dimension(), parent.getBlockPos(), side)) {
+            parent.addPortal(side, worldPosition);
+        }
 
         // Count other CFAs in the group that have a portal on the same side
         long sameSideCount = connected.stream()

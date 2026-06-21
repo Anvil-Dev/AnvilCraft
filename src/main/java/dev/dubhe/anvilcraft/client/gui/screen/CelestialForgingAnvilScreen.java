@@ -1048,16 +1048,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int pct = (int) ((1.0f - (float) displayTicks / be.getAcceleratorTicksTotal()) * 100);
             lines.add(Component.literal(pct + "%"));
         }
-        // Infinite power indicator for Stage 1
-        if (stage == 1 && be.getActiveMegastructureIndex() >= 0) {
-            var opt = be.getActiveMegastructureOption();
-            if (opt != null && (opt.megastructure().contains("dyson_sphere"))) {
-                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
-            }
+        // Infinite power indicator — only when Dyson Sphere is providing infinite power
+        if (be.isInfinitePower()) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
         }
 
         int lineHeight = font.lineHeight + 1;
-        int y = PV_INFO_Y;
+        int y = PV_INFO_Y + 10;
         for (Component line : lines) {
             guiGraphics.drawString(font, line, PV_INFO_X, y, 0xFFFFFF, false);
             y += lineHeight;
