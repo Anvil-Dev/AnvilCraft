@@ -20,9 +20,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -39,16 +43,21 @@ import org.jetbrains.annotations.Nullable;
  * 12 向放置（{@link Orientation}），铁砧锤右键反转方向，红石可关闭。
  */
 public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable, IHammerChangeable {
-
     public static final EnumProperty<Orientation> ORIENTATION = EnumProperty.create("orientation", Orientation.class);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    /** 主体碰撞箱 — 沿 Z 轴延伸（NORTH_UP / SOUTH_UP） */
+    /**
+     * 主体碰撞箱 — 沿 Z 轴延伸（NORTH_UP / SOUTH_UP）
+     */
     private static final VoxelShape SHAPE_Z = box(3, 3, 0, 13, 13, 16);
-    /** 主体碰撞箱 — 沿 X 轴延伸（WEST_UP / EAST_UP） */
+    /**
+     * 主体碰撞箱 — 沿 X 轴延伸（WEST_UP / EAST_UP）
+     */
     private static final VoxelShape SHAPE_X = box(0, 3, 3, 16, 13, 13);
-    /** 主体碰撞箱 — 沿 Y 轴延伸（UP_* / DOWN_*） */
+    /**
+     * 主体碰撞箱 — 沿 Y 轴延伸（UP_* / DOWN_*）
+     */
     private static final VoxelShape SHAPE_Y = box(3, 0, 3, 13, 16, 13);
 
     public PumpBlock(Properties properties) {
@@ -69,7 +78,9 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         return RenderShape.MODEL;
     }
 
-    /** 根据朝向返回旋转后的主体碰撞箱 */
+    /**
+     * 根据朝向返回旋转后的主体碰撞箱
+     */
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
         return switch (state.getValue(ORIENTATION).getDirection().getAxis()) {
@@ -84,7 +95,9 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         return simpleCodec(PumpBlock::new);
     }
 
-    /** 放置时根据玩家视线和 Shift 计算朝向。默认输出端朝向目标方块，Shift 反向（输出端指向玩家） */
+    /**
+     * 放置时根据玩家视线和 Shift 计算朝向。默认输出端朝向目标方块，Shift 反向（输出端指向玩家）
+     */
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -120,7 +133,9 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         return defaultBlockState().setValue(ORIENTATION, orientation);
     }
 
-    /** 放置后将侧面连接的直管转为三通节点 */
+    /**
+     * 放置后将侧面连接的直管转为三通节点
+     */
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
@@ -139,27 +154,26 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         }
     }
 
-    /** 将直管转为三通节点，保留原有两端的连接并添加新方向 */
+    /**
+     * 将直管转为三通节点，保留原有两端的连接并添加新方向
+     */
     private void convertPipeToNode(Level level, BlockPos pos, BlockState state, Direction newDirection) {
         Direction.Axis axis = state.getValue(PipeBlock.AXIS);
         Direction startDir = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
         Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
 
-        BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+        BlockState nodeState = ModBlocks.PIPE_NODE.get()
+            .defaultBlockState()
             .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
-        nodeState = nodeState.setValue(
-            PipeBlock.getPropertyForDirection(startDir),
-            PipeNodeBlock.evaluateNeighbor(level, pos, startDir));
-        nodeState = nodeState.setValue(
-            PipeBlock.getPropertyForDirection(endDir),
-            PipeNodeBlock.evaluateNeighbor(level, pos, endDir));
-        nodeState = nodeState.setValue(
-            PipeBlock.getPropertyForDirection(newDirection),
-            PipeBlock.NodePipe.PIPE);
+        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(startDir), PipeNodeBlock.evaluateNeighbor(level, pos, startDir));
+        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(endDir), PipeNodeBlock.evaluateNeighbor(level, pos, endDir));
+        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(newDirection), PipeBlock.NodePipe.PIPE);
         level.setBlockAndUpdate(pos, nodeState);
     }
 
-    /** 红石信号更新 */
+    /**
+     * 红石信号更新
+     */
     @Override
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
         if (level.isClientSide) return;
@@ -169,7 +183,9 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         }
     }
 
-    /** 铁砧锤反转方向 */
+    /**
+     * 铁砧锤反转方向
+     */
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
@@ -190,5 +206,12 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     @Override
     public @Nullable PumpBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.PUMP.get().create(pos, state);
+    }
+
+    @Override
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (level.isClientSide()) return null;
+        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.PUMP.get(), PumpBlockEntity::tick);
     }
 }

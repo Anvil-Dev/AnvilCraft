@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.PumpBlock;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
@@ -19,7 +18,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * 泵的 BlockEntity。消费 32kW 电力，提供输入端 +10 / 输出端 -10 的等效高度偏移。
@@ -41,14 +41,18 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     private static final int PUMP_POWER = 32;   // 32 kW 电力消耗
     private static final int PUMP_HEAD = 10;    // 10 米扬程
 
-    private PowerGrid grid;
+    private @Nullable PowerGrid grid;
     private boolean working;
 
-    /** 上 tick 实际传输的流体量（mB），用于客户端活塞动画速度 */
+    /**
+     * 上 tick 实际传输的流体量（mB），用于客户端活塞动画速度
+     */
     @Getter
     private int lastTransferAmount;
 
-    /** 重入防护：防止 IFluidHandler relay 时无限递归 */
+    /**
+     * 重入防护：防止 IFluidHandler relay 时无限递归
+     */
     private boolean transferring;
 
     public PumpBlockEntity(BlockEntityType<? extends PumpBlockEntity> type, BlockPos pos, BlockState state) {
@@ -62,11 +66,6 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     @Override
     public int getInputPower() {
         return PUMP_POWER;
-    }
-
-    @Override
-    public PowerComponentType getComponentType() {
-        return PowerComponentType.CONSUMER;
     }
 
     @Override
@@ -99,10 +98,17 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     }
 
     /**
+     * 泵是否能实际泵送流体（启用 + 电网有电）
+     */
+    private boolean canPump() {
+        return working && grid != null && grid.isWorking();
+    }
+
+    /**
      * 泵的无缓存流体处理器。
      * <ul>
-     *   <li>工作中：drain 从输入端邻居抽取，fill 向输出端邻居注入</li>
-     *   <li>关闭/过载：容量为 0，阻塞所有流体</li>
+     *   <li>能泵送时：drain 从输入端邻居抽取，fill 向输出端邻居注入</li>
+     *   <li>关闭/过载/无电：容量为 0，阻塞所有流体</li>
      * </ul>
      */
     private class PumpFluidHandler implements IFluidHandler {
@@ -119,18 +125,18 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
 
         @Override
         public int getTankCapacity(int tank) {
-            if (!working) return 0;
+            if (!canPump()) return 0;
             return PUMP_HEAD * 50; // 500 mB/tick = 10m × 50 mB/tick/m
         }
 
         @Override
         public boolean isFluidValid(int tank, FluidStack stack) {
-            return working;
+            return canPump();
         }
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
-            if (!working || transferring) return 0;
+            if (!canPump() || transferring) return 0;
             BlockState state = getBlockState();
             if (!(state.getBlock() instanceof PumpBlock)) return 0;
             Direction outputDir = state.getValue(PumpBlock.ORIENTATION).getDirection();
@@ -147,7 +153,7 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
 
         @Override
         public FluidStack drain(FluidStack resource, FluidAction action) {
-            if (!working || transferring) return FluidStack.EMPTY;
+            if (!canPump() || transferring) return FluidStack.EMPTY;
             BlockState state = getBlockState();
             if (!(state.getBlock() instanceof PumpBlock)) return FluidStack.EMPTY;
             Direction inputDir = state.getValue(PumpBlock.ORIENTATION).getDirection().getOpposite();
@@ -164,7 +170,7 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
 
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
-            if (!working || transferring) return FluidStack.EMPTY;
+            if (!canPump() || transferring) return FluidStack.EMPTY;
             BlockState state = getBlockState();
             if (!(state.getBlock() instanceof PumpBlock)) return FluidStack.EMPTY;
             Direction inputDir = state.getValue(PumpBlock.ORIENTATION).getDirection().getOpposite();
@@ -209,33 +215,42 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     /**
      * Per-tick：刷新电力/红石/过载状态，更新 heightBonus，并执行主动流体中转。
      * <ul>
-     *   <li>正常工作 → heightBonus = +PUMP_HEAD，主动从输入端抽流体注入输出端</li>
-     *   <li>关闭/过载 → heightBonus = 0（阻塞流体）</li>
+     *   <li>红石信号 / 电网过载 → working=false（阻塞流体，停动画）</li>
+     *   <li>正常启用 + 电网供电 → 实际泵送 + heightBonus</li>
+     *   <li>启用但电网未供电 → 仅动画运行（活塞运动），不泵送</li>
      * </ul>
      */
     public static void tick(Level level, BlockPos pos, BlockState state, PumpBlockEntity entity) {
         if (level.isClientSide) return;
 
-        boolean powered = state.getValue(PumpBlock.POWERED);
-        boolean overload = state.getValue(PumpBlock.OVERLOAD);
-
+        // 刷新电网过载状态到 blockstate
         entity.flushState(level, pos);
+        // flushState 通过 setBlockAndUpdate 修改了 blockstate，需重读
+        BlockState updatedState = level.getBlockState(pos);
 
+        boolean powered = updatedState.getValue(PumpBlock.POWERED);
+        boolean overload = updatedState.getValue(PumpBlock.OVERLOAD);
+
+        // working = 泵处于启用状态（控制动画和流体开关）
         boolean wasWorking = entity.working;
-        entity.working = !powered && !overload && entity.grid != null && entity.grid.isWorking();
+        entity.working = !powered && !overload;
 
         if (entity.working != wasWorking) {
             entity.setChanged();
             if (!level.isClientSide()) entity.sendUpdate();
         }
 
-        // 设置等效高度偏移：工作中时提供 PUMP_HEAD 的扬程，否则为 0
-        entity.heightBonus = entity.working ? PUMP_HEAD : 0;
+        // 电网是否能提供足够功率
+        boolean gridPowered = entity.grid != null && entity.grid.isWorking();
+
+        // 实际泵送需要启用状态 + 电网供电
+        boolean canPump = entity.working && gridPowered;
+        entity.heightBonus = canPump ? PUMP_HEAD : 0;
 
         // 主动流体中转：从输入端抽取流体，注入输出端
         int transferred = 0;
-        if (entity.working && !entity.transferring) {
-            Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
+        if (canPump && !entity.transferring) {
+            Orientation orientation = updatedState.getValue(PumpBlock.ORIENTATION);
             Direction outputDir = orientation.getDirection();
             Direction inputDir = outputDir.getOpposite();
 
