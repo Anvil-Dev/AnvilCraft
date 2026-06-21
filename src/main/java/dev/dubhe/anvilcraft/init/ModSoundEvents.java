@@ -43,7 +43,6 @@ public class ModSoundEvents {
     public static final Supplier<SoundEvent> SMART_BLOCK_PLACER_EXTEND = REGISTER.register(
         "smart_block_placer_extend", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("smart_block_placer_extend"))
     );
-
     public static final Supplier<SoundEvent> SMART_BLOCK_PLACER_RETRACT = REGISTER.register(
         "smart_block_placer_retract", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("smart_block_placer_retract"))
     );

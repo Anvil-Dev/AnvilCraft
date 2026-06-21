@@ -1,0 +1,63 @@
+{
+"format_version": "1.9.0",
+"credit": "Made by XeKr with Blockbench",
+"parent": "minecraft:block/cube",
+"render_type": "minecraft:cutout",
+"textures": {
+"4": "anvilcraft:block/smart_block_placer_arms",
+"6": "anvilcraft:block/smart_block_placer_sides",
+"particle": "anvilcraft:block/smart_block_placer_arms"
+},
+"elements": [
+{
+"from": [3, 19, 7],
+"to": [12, 21, 9],
+"rotation": {"angle": 45, "axis": "x", "origin": [7, 10, 8]},
+"faces": {
+"north": {"uv": [3, 4, 13, 6], "texture": "#6"},
+"east": {"uv": [1, 0, 3, 2], "rotation": 90, "texture": "#6"},
+"south": {"uv": [3, 4, 13, 6], "texture": "#6"},
+"west": {"uv": [1, 0, 3, 2], "texture": "#6"},
+"up": {"uv": [3, 4, 13, 6], "texture": "#6"},
+"down": {"uv": [3, 6, 13, 4], "texture": "#6"}
+}
+},
+{
+"from": [8, 15, 7],
+"to": [11, 19, 17],
+"rotation": {"angle": 22.5, "axis": "x", "origin": [11, 17, 15]},
+"faces": {
+"north": {"uv": [13, 2, 16, 6], "texture": "#4"},
+"east": {"uv": [9, 6, 13, 16], "rotation": 90, "texture": "#4"},
+"south": {"uv": [13, 2, 16, 6], "texture": "#4"},
+"west": {"uv": [9, 6, 13, 16], "rotation": 90, "texture": "#4"},
+"up": {"uv": [13, 6, 16, 16], "texture": "#4"},
+"down": {"uv": [13, 6, 16, 16], "texture": "#4"}
+}
+},
+{
+"from": [6, 15, 3],
+"to": [10, 19, 7],
+"rotation": {"angle": 22.5, "axis": "x", "origin": [11, 17, 15]},
+"faces": {
+"north": {"uv": [9, 1, 13, 5], "texture": "#4"},
+"east": {"uv": [9, 6, 13, 10], "rotation": 90, "texture": "#4"},
+"west": {"uv": [9, 6, 13, 10], "rotation": 270, "texture": "#4"},
+"up": {"uv": [9, 12, 13, 16], "texture": "#4"},
+"down": {"uv": [9, 12, 13, 16], "rotation": 180, "texture": "#4"}
+}
+},
+{
+"from": [5, 15, 7],
+"to": [8, 19, 9],
+"rotation": {"angle": 22.5, "axis": "x", "origin": [11, 17, 15]},
+"faces": {
+"north": {"uv": [9, 6, 13, 9], "rotation": 90, "texture": "#4"},
+"south": {"uv": [9, 13, 13, 16], "rotation": 90, "texture": "#4"},
+"west": {"uv": [3, 11, 5, 15], "texture": "#4"},
+"up": {"uv": [12, 2, 14, 5], "rotation": 90, "texture": "#4"},
+"down": {"uv": [12, 2, 14, 5], "rotation": 90, "texture": "#4"}
+}
+}
+]
+}

@@ -11,8 +11,6 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
-import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -102,6 +100,7 @@ import dev.dubhe.anvilcraft.block.power.consumer.DischargerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
@@ -109,6 +108,7 @@ import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.power.generator.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.ChargerBlock;
 import dev.dubhe.anvilcraft.block.power.generator.CreativeGeneratorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.HeatCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
@@ -157,6 +157,7 @@ import dev.dubhe.anvilcraft.block.utility.redstone.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.ItemDetectorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.PulseGeneratorBlock;
+import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.workstation.ConfinementChamberBlock;
 import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.workstation.CrushingTableBlock;
@@ -168,6 +169,7 @@ import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.workstation.SpaceOvercompressorBlock;
 import dev.dubhe.anvilcraft.block.workstation.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
@@ -589,6 +591,7 @@ public class ModBlocks {
         .properties(properties -> properties.isValidSpawn(Blocks::never)
             .noOcclusion()
             .lightLevel(state -> state.getValue(IPowerConsumer.OVERLOAD) ? 0 : 15))
+        .lang("Electric Heater")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -919,6 +922,38 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
+        .register();
+
+    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
+        .block("smart_block_placer", SmartBlockPlacerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(() -> (ctx, generator) -> {
+            Identifier bottom = ctx.getId().withPrefix("block/").withSuffix("_bottom");
+            Identifier off = ctx.getId().withPrefix("block/").withSuffix("_bottom_off");
+            Identifier overload = ctx.getId().withPrefix("block/").withSuffix("_bottom_overload");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatchWrap.initial(SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED)
+                    .select(true, true, BlockModelGenerators.plainVariant(overload))
+                    .select(true, false, BlockModelGenerators.plainVariant(overload))
+                    .select(false, true, BlockModelGenerators.plainVariant(off))
+                    .select(false, false, BlockModelGenerators.plainVariant(bottom))
+                    .dispatch())
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
+        .register();
+
+    public static final BlockEntry<StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::structureScanner)
         .register();
 
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)
