@@ -2,8 +2,14 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
@@ -44,14 +50,13 @@ public class SeismicBounceRenderEventListener {
             BlockState state = mc.level.getBlockState(pos);
             if (state.isAir() || state.getRenderShape() != RenderShape.MODEL) continue;
 
-            // 构造 MovingBlockRenderState
-            MovingBlockRenderState renderState = new MovingBlockRenderState();
-            renderState.randomSeedPos = pos;
-            renderState.blockPos = pos;
-            renderState.blockState = state;
-            renderState.biome = mc.level.getBiome(pos);
-            renderState.cardinalLighting = mc.level.cardinalLighting();
-            renderState.lightEngine = mc.level.getLightEngine();
+            BlockModelResolver blockModelResolver = mc.getBlockModelResolver();
+            BlockModelRenderState modelRenderState = new BlockModelRenderState();
+            blockModelResolver.update(
+                modelRenderState,
+                state,
+                BlockDisplayContext.create()
+            );
 
             poseStack.pushPose();
             poseStack.translate(pos.getX() - camX, pos.getY() - camY + offsetY, pos.getZ() - camZ);
@@ -59,7 +64,13 @@ public class SeismicBounceRenderEventListener {
             poseStack.scale(1.0005f, 1.000f, 1.0005f);
             poseStack.translate(-0.5, -0.5, -0.5);
 
-            nodeCollector.submitMovingBlock(poseStack, renderState);
+            modelRenderState.submit(
+                poseStack,
+                nodeCollector,
+                LevelRenderer.getLightCoords(LevelRenderer.BrightnessGetter.DEFAULT, mc.level, state, pos.above()),
+                OverlayTexture.NO_OVERLAY,
+                0
+            );
 
             poseStack.popPose();
         }
