@@ -65,8 +65,10 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         // 应用与 blockstate 相同的旋转，使活塞坐标系与模型对齐
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(orientation.getYRotation()));
-        poseStack.mulPose(Axis.XP.rotationDegrees(orientation.getXRotation()));
+        // blockstate Y+ 方向与 JOML 相反，需取反
+        // 顺序：先 X 后 Y（mulPose 后乘，先 Y 则 X 对向量先生效）
+        poseStack.mulPose(Axis.YP.rotationDegrees(-orientation.getYRotation()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(-orientation.getXRotation()));
         poseStack.translate(-0.5, -0.5, -0.5);
 
         poseStack.translate(0, -2.0f / 16.0f, 0);
