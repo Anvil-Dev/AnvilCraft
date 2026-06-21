@@ -31,7 +31,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         ModelResourceLocation.standalone(AnvilCraft.of("block/pump_piston_2"));
 
     /** 活塞最大位移（单位：方块，2/16 = 2 像素） */
-    private static final float MAX_PISTON_OFFSET = 2.0f / 16.0f;
+    private static final float MAX_PISTON_OFFSET = 1.5f / 16.0f;
 
     /** 最大传输速率（mB/tick），用于归一化动画速度 */
     private static final float MAX_TRANSFER_RATE = 500.0f;
@@ -73,34 +73,24 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
 
         poseStack.translate(0, -2.0f / 16.0f, 0);
 
-        // 活塞模型沿 +Z 方向运动（模型空间中输出方向 = +Z）
+        // 活塞沿 Y 轴正弦/余弦交替运动，无死区
+        float angle = cycle * 2.0f * (float) Math.PI;
+        float piston1Offset = (float) Math.sin(angle) * MAX_PISTON_OFFSET;
+
         BakedModel piston1 = Minecraft.getInstance().getModelManager().getModel(PUMP_PISTON_1);
-        // 活塞 1：峰值在 cycle=0.25（上顶点）
-        float piston1Offset = sinPulse(cycle, 0.25f) * MAX_PISTON_OFFSET;
         poseStack.pushPose();
         poseStack.translate(0, piston1Offset, 0);
         renderPistonModel(poseStack, buffer, piston1, packedLight, packedOverlay);
         poseStack.popPose();
 
+        float piston2Offset = (float) Math.cos(angle) * MAX_PISTON_OFFSET;
         BakedModel piston2 = Minecraft.getInstance().getModelManager().getModel(PUMP_PISTON_2);
-        // 活塞 2：峰值在 cycle=0.75（上顶点），与活塞 1 错开半周期
-        float piston2Offset = sinPulse(cycle, 0.75f) * MAX_PISTON_OFFSET;
         poseStack.pushPose();
         poseStack.translate(0, piston2Offset, 0);
         renderPistonModel(poseStack, buffer, piston2, packedLight, packedOverlay);
         poseStack.popPose();
 
         poseStack.popPose();
-    }
-
-    /**
-     * 正弦脉冲：在 phase 处达到最大值 1，phase±0.25 处为 0。
-     */
-    private static float sinPulse(float cycle, float phase) {
-        float dist = Math.abs(cycle - phase);
-        if (dist > 0.5f) dist = 1.0f - dist;
-        if (dist > 0.25f) return 0f;
-        return (float) Math.sin(dist / 0.25f * Math.PI);
     }
 
     private void renderPistonModel(
