@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.item;
+package dev.dubhe.anvilcraft.block.item;
 
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.world.effect.MobEffectInstance;

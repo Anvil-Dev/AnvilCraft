@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
+import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -135,10 +136,7 @@ import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings({
-    "unused",
-    "CodeBlock2Expr"
-})
+@SuppressWarnings({"unused", "CodeBlock2Expr"})
 public class ModItems {
     static {
         REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_TOOL.getKey());
@@ -158,45 +156,40 @@ public class ModItems {
     public static final ItemEntry<GeodeItem> GEODE = REGISTRUM.item("geode", GeodeItem::new).register();
     public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRUM.item("amethyst_pickaxe", AmethystPickaxeItem::new)
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(Enchantments.FORTUNE, 3))
-        .recipe(RegistrumItemRecipeLoader.pickaxe(
-            Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getProvider())
+        .recipe(RegistrumItemRecipeLoader.pickaxe(Items.AMETHYST_SHARD, (ctx, provider) ->
+            enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES, Tags.Items.MINING_TOOL_TOOLS)
         .register();
     public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRUM.item("amethyst_axe", AmethystAxeItem::new)
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.FELLING_KEY, 1))
-        .recipe(RegistrumItemRecipeLoader.axe(
-            Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getProvider())
+        .recipe(RegistrumItemRecipeLoader.axe(Items.AMETHYST_SHARD, (ctx, provider) ->
+            enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRUM.item("amethyst_hoe", AmethystHoeItem::new)
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.HARVEST_KEY, 1))
-        .recipe(RegistrumItemRecipeLoader.hoe(
-            Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, provider.getProvider())
+        .recipe(RegistrumItemRecipeLoader.hoe(Items.AMETHYST_SHARD, (ctx, provider) ->
+            enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.HOES)
         .register();
     public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRUM.item("amethyst_sword", AmethystSwordItem::new)
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.BEHEADING_KEY, 1))
-        .recipe(RegistrumItemRecipeLoader.sword(
-            Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getProvider())
+        .recipe(RegistrumItemRecipeLoader.sword(Items.AMETHYST_SHARD, (ctx, provider) ->
+            enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRUM.item("amethyst_shovel", AmethystShovelItem::new)
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(Enchantments.EFFICIENCY, 3))
-        .recipe(RegistrumItemRecipeLoader.shovel(
-            Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getProvider())
+        .recipe(RegistrumItemRecipeLoader.shovel(Items.AMETHYST_SHARD, (ctx, provider) ->
+            enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getProvider())
         ))
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.SHOVELS)
@@ -231,10 +224,8 @@ public class ModItems {
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
-    public static final ItemEntry<FrostMetalPickaxeItem> FROST_METAL_PICKAXE = REGISTRUM.item(
-            "frost_metal_pickaxe",
-            FrostMetalPickaxeItem::new
-        )
+    public static final ItemEntry<FrostMetalPickaxeItem> FROST_METAL_PICKAXE = REGISTRUM
+        .item("frost_metal_pickaxe", FrostMetalPickaxeItem::new)
         .recipe(RegistrumItemRecipeLoader::frostMetalPickaxe)
         .model((ctx, provider) -> provider.handheld(ctx)).tag(ItemTags.PICKAXES, Tags.Items.MINING_TOOL_TOOLS)
         .register();
@@ -243,10 +234,7 @@ public class ModItems {
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
-    public static final ItemEntry<FrostMetalShovelItem> FROST_METAL_SHOVEL = REGISTRUM.item(
-            "frost_metal_shovel",
-            FrostMetalShovelItem::new
-        )
+    public static final ItemEntry<FrostMetalShovelItem> FROST_METAL_SHOVEL = REGISTRUM.item("frost_metal_shovel", FrostMetalShovelItem::new)
         .recipe(RegistrumItemRecipeLoader::frostMetalShovel)
         .model((ctx, provider) -> provider.handheld(ctx)).tag(ItemTags.SHOVELS)
         .register();
@@ -260,10 +248,8 @@ public class ModItems {
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
-    public static final ItemEntry<EmberMetalPickaxeItem> EMBER_METAL_PICKAXE = REGISTRUM.item(
-            "ember_metal_pickaxe",
-            EmberMetalPickaxeItem::new
-        )
+    public static final ItemEntry<EmberMetalPickaxeItem> EMBER_METAL_PICKAXE = REGISTRUM
+        .item("ember_metal_pickaxe", EmberMetalPickaxeItem::new)
         .recipe(RegistrumItemRecipeLoader::emberMetalPickaxe)
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.PICKAXES, ModItemTags.EXPLOSION_PROOF, ItemTags.CLUSTER_MAX_HARVESTABLES, Tags.Items.MINING_TOOL_TOOLS)
@@ -273,10 +259,7 @@ public class ModItems {
         .model((ctx, provider) -> provider.handheld(ctx))
         .tag(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
-    public static final ItemEntry<EmberMetalShovelItem> EMBER_METAL_SHOVEL = REGISTRUM.item(
-            "ember_metal_shovel",
-            EmberMetalShovelItem::new
-        )
+    public static final ItemEntry<EmberMetalShovelItem> EMBER_METAL_SHOVEL = REGISTRUM.item("ember_metal_shovel", EmberMetalShovelItem::new)
         .recipe(RegistrumItemRecipeLoader::emberMetalShovel)
         .model((ctx, provider) -> provider.handheld(ctx)).tag(ItemTags.SHOVELS)
         .register();
@@ -297,28 +280,20 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::anvilHammer)
         .register();
 
-    public static final ItemEntry<RoyalAnvilHammerItem> ROYAL_ANVIL_HAMMER = REGISTRUM.item(
-            "royal_anvil_hammer",
-            RoyalAnvilHammerItem::new
-        )
+    public static final ItemEntry<RoyalAnvilHammerItem> ROYAL_ANVIL_HAMMER = REGISTRUM.item("royal_anvil_hammer", RoyalAnvilHammerItem::new)
         .recipe(RegistrumItemRecipeLoader::royalAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
         .properties(properties -> properties.durability(150))
         .model(DataGenUtil::noExtraModelOrState)
         .register();
-    public static final ItemEntry<EmberAnvilHammerItem> EMBER_ANVIL_HAMMER = REGISTRUM.item(
-            "ember_anvil_hammer",
-            EmberAnvilHammerItem::new
-        )
+    public static final ItemEntry<EmberAnvilHammerItem> EMBER_ANVIL_HAMMER = REGISTRUM.item("ember_anvil_hammer", EmberAnvilHammerItem::new)
         .recipe(RegistrumItemRecipeLoader::emberAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
         .properties(properties -> properties.durability(2031))
         .model(DataGenUtil::noExtraModelOrState)
         .register();
-    public static final ItemEntry<TranscendenceAnvilHammerItem> TRANSCENDENCE_ANVIL_HAMMER = REGISTRUM.item(
-            "transcendence_anvil_hammer",
-            TranscendenceAnvilHammerItem::new
-        )
+    public static final ItemEntry<TranscendenceAnvilHammerItem> TRANSCENDENCE_ANVIL_HAMMER = REGISTRUM
+        .item("transcendence_anvil_hammer", TranscendenceAnvilHammerItem::new)
         .recipe(RegistrumItemRecipeLoader::transcendenceAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
         .properties(properties -> properties.durability(3156))
@@ -330,122 +305,123 @@ public class ModItems {
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::dragonRod)
         .register();
-    public static final ItemEntry<DragonRodItem> ROYAL_DRAGON_ROD = REGISTRUM.item(
-            "royal_dragon_rod",
-            properties -> new DragonRodItem(properties, 6)
-        )
+    public static final ItemEntry<DragonRodItem> ROYAL_DRAGON_ROD = REGISTRUM
+        .item("royal_dragon_rod", properties -> new DragonRodItem(properties, 6))
         .properties(properties -> properties.durability(150))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::royalDragonRod)
         .register();
-    public static final ItemEntry<DragonRodItem> EMBER_DRAGON_ROD = REGISTRUM.item(
-            "ember_dragon_rod",
-            properties -> new DragonRodItem(properties, 9)
-        )
+    public static final ItemEntry<DragonRodItem> EMBER_DRAGON_ROD = REGISTRUM
+        .item("ember_dragon_rod", properties -> new DragonRodItem(properties, 9))
         .properties(properties -> properties.durability(2031).fireResistant().component(ModComponents.FIRE_REFORGING, Unit.INSTANCE))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD, ModItemTags.EXPLOSION_PROOF)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::emberDragonRod)
         .register();
-    public static final ItemEntry<DragonRodItem> TRANSCENDENCE_DRAGON_ROD = REGISTRUM.item(
-            "transcendence_dragon_rod",
-            properties -> new DragonRodItem(properties, 13)
-        )
+    public static final ItemEntry<DragonRodItem> TRANSCENDENCE_DRAGON_ROD = REGISTRUM
+        .item("transcendence_dragon_rod", properties -> new DragonRodItem(properties, 13))
         .properties(properties -> properties.durability(3156)
             .fireResistant()
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
             .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
-            .component(ModComponents.PROVIDENCE, Providence.INSTANCE))
+            .component(ModComponents.PROVIDENCE, Providence.INSTANCE)
+        )
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::transcendenceDragonRod)
         .register();
-    public static final ItemEntry<FrostMetalHeavyHalberdItem> FROST_METAL_HEAVY_HALBERD = REGISTRUM.item(
-        "frost_metal_heavy_halberd",
-        FrostMetalHeavyHalberdItem::new
-    ).tag(
-        ItemTags.DURABILITY_ENCHANTABLE,
-        ItemTags.MACE_ENCHANTABLE,
-        ItemTags.TRIDENT_ENCHANTABLE,
-        ItemTags.SWORD_ENCHANTABLE,
-        ModItemTags.HEAVY_HALBERD,
-        ModItemTags.EXPLOSION_PROOF
-    ).model(DataGenUtil::noExtraModelOrState).register();
-    public static final ItemEntry<EmberMetalHeavyHalberdItem> EMBER_METAL_HEAVY_HALBERD = REGISTRUM.item(
-        "ember_metal_heavy_halberd",
-        EmberMetalHeavyHalberdItem::new
-    ).tag(
-        ItemTags.DURABILITY_ENCHANTABLE,
-        ItemTags.MACE_ENCHANTABLE,
-        ItemTags.TRIDENT_ENCHANTABLE,
-        ItemTags.SWORD_ENCHANTABLE,
-        ModItemTags.HEAVY_HALBERD,
-        ModItemTags.EXPLOSION_PROOF
-    ).model(DataGenUtil::noExtraModelOrState).register();
-    public static final ItemEntry<TranscendenceHeavyHalberdItem> TRANSCENDENCE_HEAVY_HALBERD = REGISTRUM.item(
-        "transcendence_heavy_halberd",
-        TranscendenceHeavyHalberdItem::new
-    ).tag(
-        ItemTags.DURABILITY_ENCHANTABLE,
-        ItemTags.MACE_ENCHANTABLE,
-        ItemTags.TRIDENT_ENCHANTABLE,
-        ItemTags.SWORD_ENCHANTABLE,
-        ModItemTags.HEAVY_HALBERD,
-        ModItemTags.EXPLOSION_PROOF
-    ).model(DataGenUtil::noExtraModelOrState).register();
-    public static final ItemEntry<FrostMetalResonatorItem> FROST_METAL_RESONATOR = REGISTRUM.item(
-        "frost_metal_resonator",
-        FrostMetalResonatorItem::new
-    ).tag(
-        ItemTags.DURABILITY_ENCHANTABLE,
-        ItemTags.MINING_ENCHANTABLE,
-        ItemTags.MINING_LOOT_ENCHANTABLE,
-        ModItemTags.RESONATOR,
-        ModItemTags.EXPLOSION_PROOF
-    ).model(DataGenUtil::noExtraModelOrState).register();
-    public static final ItemEntry<EmberMetalResonatorItem> EMBER_METAL_RESONATOR = REGISTRUM.item(
-        "ember_metal_resonator",
-        EmberMetalResonatorItem::new
-    ).tag(
-        ItemTags.DURABILITY_ENCHANTABLE,
-        ItemTags.MINING_ENCHANTABLE,
-        ItemTags.MINING_LOOT_ENCHANTABLE,
-        ModItemTags.RESONATOR,
-        ModItemTags.EXPLOSION_PROOF
-    ).model(DataGenUtil::noExtraModelOrState).register();
-    public static final ItemEntry<TranscendenceResonatorItem> TRANSCENDENCE_RESONATOR = REGISTRUM.item(
-        "transcendence_resonator",
-        TranscendenceResonatorItem::new
-    ).tag(
-        ItemTags.DURABILITY_ENCHANTABLE,
-        ItemTags.MINING_ENCHANTABLE,
-        ItemTags.MINING_LOOT_ENCHANTABLE,
-        ModItemTags.RESONATOR,
-        ModItemTags.EXPLOSION_PROOF
-    ).model(DataGenUtil::noExtraModelOrState).register();
-    public static final ItemEntry<MultitoolItem> MULTITOOL_ITEM = REGISTRUM.item("multitool", MultitoolItem::new).tag(
-        Tags.Items.TOOLS,
-        Tags.Items.TOOLS_IGNITER,
-        Tags.Items.TOOLS_SHEAR,
-        Tags.Items.TOOLS_BRUSH,
-        Tags.Items.TOOLS_FISHING_ROD,
-        Tags.Items.ENCHANTABLES,
-        ItemTags.CREEPER_IGNITERS,
-        ItemTags.VANISHING_ENCHANTABLE,
-        ItemTags.DURABILITY_ENCHANTABLE,
-        ItemTags.MINING_ENCHANTABLE,
-        ItemTags.FISHING_ENCHANTABLE,
-        ItemTags.STRIDER_TEMPT_ITEMS
-    ).properties((properties) -> properties.durability(2031).fireResistant()
-    ).model(DataGenUtil::noExtraModelOrState).register();
+    public static final ItemEntry<FrostMetalHeavyHalberdItem> FROST_METAL_HEAVY_HALBERD = REGISTRUM
+        .item("frost_metal_heavy_halberd", FrostMetalHeavyHalberdItem::new)
+        .tag(
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.MACE_ENCHANTABLE,
+            ItemTags.TRIDENT_ENCHANTABLE,
+            ItemTags.SWORD_ENCHANTABLE,
+            ModItemTags.HEAVY_HALBERD,
+            ModItemTags.EXPLOSION_PROOF
+        )
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+    public static final ItemEntry<EmberMetalHeavyHalberdItem> EMBER_METAL_HEAVY_HALBERD = REGISTRUM
+        .item("ember_metal_heavy_halberd", EmberMetalHeavyHalberdItem::new)
+        .tag(
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.MACE_ENCHANTABLE,
+            ItemTags.TRIDENT_ENCHANTABLE,
+            ItemTags.SWORD_ENCHANTABLE,
+            ModItemTags.HEAVY_HALBERD,
+            ModItemTags.EXPLOSION_PROOF
+        )
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+    public static final ItemEntry<TranscendenceHeavyHalberdItem> TRANSCENDENCE_HEAVY_HALBERD = REGISTRUM
+        .item("transcendence_heavy_halberd", TranscendenceHeavyHalberdItem::new)
+        .tag(
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.MACE_ENCHANTABLE,
+            ItemTags.TRIDENT_ENCHANTABLE,
+            ItemTags.SWORD_ENCHANTABLE,
+            ModItemTags.HEAVY_HALBERD,
+            ModItemTags.EXPLOSION_PROOF
+        )
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+    public static final ItemEntry<FrostMetalResonatorItem> FROST_METAL_RESONATOR = REGISTRUM
+        .item("frost_metal_resonator", FrostMetalResonatorItem::new)
+        .tag(
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.MINING_ENCHANTABLE,
+            ItemTags.MINING_LOOT_ENCHANTABLE,
+            ModItemTags.RESONATOR,
+            ModItemTags.EXPLOSION_PROOF
+        )
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+    public static final ItemEntry<EmberMetalResonatorItem> EMBER_METAL_RESONATOR = REGISTRUM
+        .item("ember_metal_resonator", EmberMetalResonatorItem::new)
+        .tag(
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.MINING_ENCHANTABLE,
+            ItemTags.MINING_LOOT_ENCHANTABLE,
+            ModItemTags.RESONATOR,
+            ModItemTags.EXPLOSION_PROOF
+        )
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+    public static final ItemEntry<TranscendenceResonatorItem> TRANSCENDENCE_RESONATOR = REGISTRUM
+        .item("transcendence_resonator", TranscendenceResonatorItem::new)
+        .tag(
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.MINING_ENCHANTABLE,
+            ItemTags.MINING_LOOT_ENCHANTABLE,
+            ModItemTags.RESONATOR,
+            ModItemTags.EXPLOSION_PROOF
+        )
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
+    public static final ItemEntry<MultitoolItem> MULTITOOL_ITEM = REGISTRUM.item("multitool", MultitoolItem::new)
+        .tag(
+            Tags.Items.TOOLS,
+            Tags.Items.TOOLS_IGNITER,
+            Tags.Items.TOOLS_SHEAR,
+            Tags.Items.TOOLS_BRUSH,
+            Tags.Items.TOOLS_FISHING_ROD,
+            Tags.Items.ENCHANTABLES,
+            ItemTags.CREEPER_IGNITERS,
+            ItemTags.VANISHING_ENCHANTABLE,
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.MINING_ENCHANTABLE,
+            ItemTags.FISHING_ENCHANTABLE,
+            ItemTags.STRIDER_TEMPT_ITEMS
+        )
+        .properties((properties) -> properties.durability(2031).fireResistant())
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
 
     public static final ItemEntry<? extends SpectralSlingshotItem> SPECTRAL_SLINGSHOT = REGISTRUM
         .item("spectral_slingshot", SpectralSlingshotItem::new)
-        .tag(
-            ItemTags.DURABILITY_ENCHANTABLE,
-            ItemTags.CROSSBOW_ENCHANTABLE
-        )
+        .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.CROSSBOW_ENCHANTABLE)
         .properties((properties) -> properties.durability(1561))
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::spectralSlingshot)
@@ -462,10 +438,7 @@ public class ModItems {
         .item("spectral_weapon_launcher", SpectralWeaponLauncherItem::new)
         .properties(properties -> properties.stacksTo(1))
         .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
-        .tag(
-            ItemTags.DURABILITY_ENCHANTABLE,
-            ItemTags.CROSSBOW_ENCHANTABLE
-        )
+        .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.CROSSBOW_ENCHANTABLE)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
@@ -502,10 +475,10 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::ionocraft)
         .register();
 
-    public static final ItemEntry<? extends IonoCraftBackpackItem> IONOCRAFT_BACKPACK = REGISTRUM.item(
-            "ionocraft_backpack",
-            IonoCraftBackpackItem::new
-        ).initialProperties(() -> new Item.Properties().durability(ArmorItem.Type.CHESTPLATE.getDurability(15))).model((ctx, prov) -> {
+    public static final ItemEntry<? extends IonoCraftBackpackItem> IONOCRAFT_BACKPACK = REGISTRUM
+        .item("ionocraft_backpack", IonoCraftBackpackItem::new)
+        .initialProperties(() -> new Item.Properties().durability(ArmorItem.Type.CHESTPLATE.getDurability(15)))
+        .model((ctx, prov) -> {
             ItemModelBuilder offModel = prov.getBuilder(prov.name(ctx.lazy()))
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
                 .texture("layer0", "item/ionocraft_backpack_off");
@@ -514,59 +487,62 @@ public class ModItems {
                 .predicate(AnvilCraft.of("flight_time"), 0)
                 .model(new ModelFile.UncheckedModelFile(offModel.getUncheckedLocation()))
                 .end();
-        }).tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), (ctx, modifier) -> {
+        }
+        ).tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), (ctx, modifier) -> {
             modifier.accept(ctx.get().getDefaultInstance());
             ItemStack full = new ItemStack(ctx.get());
             full.set(ModComponents.STORED_ENERGY, IonoCraftBackpackItem.MAX_ENERGY);
             modifier.accept(full);
-        }).tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
+        })
+        .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();
     // 升级锻造模板
-    public static final ItemEntry<RoyalSteelUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM.item(
-        "royal_steel_upgrade_smithing_template",
-        RoyalSteelUpgradeTemplateItem::new
-    ).lang("Smithing Template").tag(ModItemTags.TEMPLATES).register();
-    public static final ItemEntry<FrostMetalUpgradeTemplateItem> FROST_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM.item(
-        "frost_metal_upgrade_smithing_template",
-        FrostMetalUpgradeTemplateItem::new
-    ).lang("Smithing Template").tag(ModItemTags.TEMPLATES).register();
-    public static final ItemEntry<EmberMetalUpgradeTemplateItem> EMBER_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM.item(
-        "ember_metal_upgrade_smithing_template",
-        EmberMetalUpgradeTemplateItem::new
-    ).lang("Smithing Template").tag(ModItemTags.TEMPLATES).register();
-    public static final ItemEntry<TranscendiumUpgradeTemplateItem> TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE = REGISTRUM.item(
-        "transcendium_upgrade_smithing_template",
-        TranscendiumUpgradeTemplateItem::new
-    ).lang("Smithing Template").tag(ModItemTags.TEMPLATES).register();
+    public static final ItemEntry<RoyalSteelUpgradeTemplateItem> ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
+        .item("royal_steel_upgrade_smithing_template", RoyalSteelUpgradeTemplateItem::new)
+        .lang("Smithing Template")
+        .tag(ModItemTags.TEMPLATES)
+        .register();
+    public static final ItemEntry<FrostMetalUpgradeTemplateItem> FROST_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
+        .item("frost_metal_upgrade_smithing_template", FrostMetalUpgradeTemplateItem::new)
+        .lang("Smithing Template")
+        .tag(ModItemTags.TEMPLATES)
+        .register();
+    public static final ItemEntry<EmberMetalUpgradeTemplateItem> EMBER_METAL_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
+        .item("ember_metal_upgrade_smithing_template", EmberMetalUpgradeTemplateItem::new)
+        .lang("Smithing Template").tag(ModItemTags.TEMPLATES)
+        .register();
+    public static final ItemEntry<TranscendiumUpgradeTemplateItem> TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
+        .item("transcendium_upgrade_smithing_template", TranscendiumUpgradeTemplateItem::new)
+        .lang("Smithing Template")
+        .tag(ModItemTags.TEMPLATES)
+        .register();
 
-    public static final ItemEntry<PermutationTemplateItem> PERMUTATION_TEMPLATE_ITEM = REGISTRUM.item(
-            "permutation_smithing_template",
-            PermutationTemplateItem::new
-        ).recipe(RegistrumItemRecipeLoader::permutationTemplateItem)
+    public static final ItemEntry<PermutationTemplateItem> PERMUTATION_TEMPLATE_ITEM = REGISTRUM
+        .item("permutation_smithing_template", PermutationTemplateItem::new)
+        .recipe(RegistrumItemRecipeLoader::permutationTemplateItem)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.TEMPLATES, ModItemTags.EXPLOSION_PROOF)
         .register();
-    public static final ItemEntry<DeformationTemplateItem> DEFORMATION_TEMPLATE_ITEM = REGISTRUM.item(
-            "deformation_smithing_template",
-            DeformationTemplateItem::new
-        ).recipe(RegistrumItemRecipeLoader::deformationTemplateItem)
+    public static final ItemEntry<DeformationTemplateItem> DEFORMATION_TEMPLATE_ITEM = REGISTRUM
+        .item("deformation_smithing_template", DeformationTemplateItem::new)
+        .recipe(RegistrumItemRecipeLoader::deformationTemplateItem)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ModItemTags.TEMPLATES, ModItemTags.EXPLOSION_PROOF)
         .register();
 
-    public static final ItemEntry<TwoToOneTemplateItem> TWO_TO_ONE_SMITHING_TEMPLATE = REGISTRUM.item(
-        "two_to_one_smithing_template",
-        TwoToOneTemplateItem::new
-    ).lang("Two to One Smithing Template").tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES).register();
-    public static final ItemEntry<FourToOneTemplateItem> FOUR_TO_ONE_SMITHING_TEMPLATE = REGISTRUM.item(
-        "four_to_one_smithing_template",
-        FourToOneTemplateItem::new
-    ).lang("Four to One Smithing Template").tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES).register();
-    public static final ItemEntry<EightToOneTemplateItem> EIGHT_TO_ONE_SMITHING_TEMPLATE = REGISTRUM.item(
-        "eight_to_one_smithing_template",
-        EightToOneTemplateItem::new
-    ).lang("Eight to One Smithing Template").tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES).register();
+    public static final ItemEntry<TwoToOneTemplateItem> TWO_TO_ONE_SMITHING_TEMPLATE = REGISTRUM
+        .item("two_to_one_smithing_template", TwoToOneTemplateItem::new)
+        .lang("Two to One Smithing Template")
+        .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES).register();
+    public static final ItemEntry<FourToOneTemplateItem> FOUR_TO_ONE_SMITHING_TEMPLATE = REGISTRUM
+        .item("four_to_one_smithing_template", FourToOneTemplateItem::new)
+        .lang("Four to One Smithing Template")
+        .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES).register();
+    public static final ItemEntry<EightToOneTemplateItem> EIGHT_TO_ONE_SMITHING_TEMPLATE = REGISTRUM
+        .item("eight_to_one_smithing_template", EightToOneTemplateItem::new)
+        .lang("Eight to One Smithing Template")
+        .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES).register();
 
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
         .properties(p -> p.stacksTo(1))
@@ -706,11 +682,10 @@ public class ModItems {
         "abnormal", () -> ModAmuletTypes.ABNORMAL, // TODO: 修改配方
         builder -> builder.requires(ModItems.CURSED_GOLD_INGOT, 1).requires(ModItems.LEVITATION_POWDER, 16)
     );
-    public static final ItemEntry<? extends BigAmuletItem> GEM_AMULET = createBigAmuletItem("gem", () -> ModAmuletTypes.GEM).register();
-    public static final ItemEntry<? extends BigAmuletItem> NATURE_AMULET = createBigAmuletItem(
-        "nature",
-        () -> ModAmuletTypes.NATURE
-    ).register();
+    public static final ItemEntry<? extends BigAmuletItem> GEM_AMULET = createBigAmuletItem("gem", () -> ModAmuletTypes.GEM)
+        .register();
+    public static final ItemEntry<? extends BigAmuletItem> NATURE_AMULET = createBigAmuletItem("nature", () -> ModAmuletTypes.NATURE)
+        .register();
 
     public static final ItemEntry<CapacitorItem> CAPACITOR = REGISTRUM.item("capacitor", CapacitorItem::new)
         .model(DataGenUtil::noExtraModelOrState)
@@ -995,10 +970,7 @@ public class ModItems {
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::multiphaseMatter)
         .register();
-    public static final ItemEntry<HeavyHalberdCoreItem> HEAVY_HALBERD_CORE = REGISTRUM.item(
-            "heavy_halberd_core",
-            HeavyHalberdCoreItem::new
-        )
+    public static final ItemEntry<HeavyHalberdCoreItem> HEAVY_HALBERD_CORE = REGISTRUM.item("heavy_halberd_core", HeavyHalberdCoreItem::new)
         .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::heavyHalberdCore)
@@ -1009,10 +981,9 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::resonatorCore)
         .register();
 
-    public static final ItemEntry<MultiphaseTranscendiumItem> MULTIPHASE_TRANSCENDIUM = REGISTRUM.item(
-            "multiphase_transcendium",
-            MultiphaseTranscendiumItem::new
-        ).properties(Item.Properties::fireResistant)
+    public static final ItemEntry<MultiphaseTranscendiumItem> MULTIPHASE_TRANSCENDIUM = REGISTRUM
+        .item("multiphase_transcendium", MultiphaseTranscendiumItem::new)
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::multiphaseTranscendium)
         .register();
@@ -1051,19 +1022,13 @@ public class ModItems {
         .properties((properties) -> properties.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::stableNeutroniumIngot)
         .register();
-    public static final ItemEntry<SuperHeavyItem> CHARGED_NEUTRONIUM_INGOT = REGISTRUM.item(
-            "charged_neutronium_ingot",
-            SuperHeavyItem::new
-        )
+    public static final ItemEntry<SuperHeavyItem> CHARGED_NEUTRONIUM_INGOT = REGISTRUM.item("charged_neutronium_ingot", SuperHeavyItem::new)
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .properties((properties) -> properties.stacksTo(1))
         .register();
 
-    public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM.item(
-            "exp_bucket",
-            p -> new BucketItem(ModFluids.EXP_FLUID.get(), p)
-        )
+    public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM.item("exp_bucket", p -> new BucketItem(ModFluids.EXP_FLUID.get(), p))
         .tag(ModItemTags.EXP_BUCKETS, Tags.Items.BUCKETS)
         .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
@@ -1076,6 +1041,27 @@ public class ModItems {
         .register();
 
     public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = registerAllCementBuckets();
+
+    public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRUM.item(
+            "melt_gem_bucket",
+            p -> new BucketItem(ModFluids.MELT_GEM.get(), p)
+        )
+        .tag(Tags.Items.BUCKETS)
+        .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucket)
+        .register();
+
+    static {
+        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
+    }
+
+    public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
+        .model((ctx, provider) -> provider
+            .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/pipe"))
+        )
+        .recipe(RegistrumItemRecipeLoader::pipe)
+        .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
+        .register();
 
     private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
         Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectOpenHashMap<>();
@@ -1093,11 +1079,6 @@ public class ModItems {
             .model(ModelProviderUtil::bucket)
             .register();
     }
-
-    public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRUM.item(
-        "melt_gem_bucket",
-        p -> new BucketItem(ModFluids.MELT_GEM.get(), p)
-    ).tag(Tags.Items.BUCKETS).properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET)).model(ModelProviderUtil::bucket).register();
 
     public static void register() {
     }
