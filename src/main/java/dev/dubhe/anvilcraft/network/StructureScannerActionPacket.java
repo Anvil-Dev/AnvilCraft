@@ -1,46 +1,74 @@
 package dev.dubhe.anvilcraft.network;
 
+import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
+import dev.dubhe.anvilcraft.util.StructureSaveUtil;
+import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.Optional;
+
 /**
  * Structure Scanner 统一网络包
- * 动作类型: "start" - 开始扫描
- *          "stop" - 停止扫描
- *          "rangeChange" - 范围变更（格式: "rangeX:5"）
+ * Structure Scanner unified network packet.
  */
-public record StructureScannerActionPacket(String action, int value, String name) implements IServerboundPacket {
+public record StructureScannerActionPacket(
+    Action action,
+    int value,
+    Optional<String> name,
+    RangeAxis rangeAxis
+) implements IServerboundPacket {
     public static final Type<StructureScannerActionPacket> TYPE = IPacket.type(
         AnvilCraft.of("structure_scanner_action")
     );
-    
+
     public static final StreamCodec<ByteBuf, StructureScannerActionPacket> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.STRING_UTF8,
+        StreamCodecUtil.enumStreamCodec(Action.class),
         StructureScannerActionPacket::action,
         ByteBufCodecs.INT,
         StructureScannerActionPacket::value,
-        ByteBufCodecs.STRING_UTF8,
+        ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8),
         StructureScannerActionPacket::name,
+        StreamCodecUtil.enumStreamCodec(RangeAxis.class),
+        StructureScannerActionPacket::rangeAxis,
         StructureScannerActionPacket::new
     );
 
-    // 便捷构造函数
-    public StructureScannerActionPacket(String action) {
-        this(action, 0, "");
+    public StructureScannerActionPacket(Action action) {
+        this(action, 0, Optional.empty(), RangeAxis.NONE);
     }
-    
-    // 便捷构造函数（用于confirm动作）
-    public StructureScannerActionPacket(String action, String name) {
-        this(action, 0, name);
+
+    public StructureScannerActionPacket(Action action, String name) {
+        this(action, 0, Optional.ofNullable(name), RangeAxis.NONE);
+    }
+
+    public StructureScannerActionPacket(Action action, int value, RangeAxis rangeAxis) {
+        this(action, value, Optional.empty(), rangeAxis);
+    }
+
+    public enum Action {
+        START,
+        STOP,
+        RANGE_CHANGE,
+        CONFIRM
+    }
+
+    public enum RangeAxis {
+        NONE,
+        X,
+        Y,
+        Z
     }
 
     @Override
@@ -48,6 +76,7 @@ public record StructureScannerActionPacket(String action, int value, String name
         return TYPE;
     }
 
+    @SuppressWarnings("checkstyle:MissingSwitchDefault")
     @Override
     public void handleOnServer(Player player) {
         if (!(player.containerMenu instanceof StructureScannerMenu menu)) {
@@ -57,110 +86,114 @@ public record StructureScannerActionPacket(String action, int value, String name
         if (blockEntity == null) {
             return;
         }
-        
+
         switch (this.action) {
-            case "start" -> {
+            case START -> {
                 blockEntity.startScanning();
                 // 同步范围到客户端
                 this.syncRangeToClient(player, blockEntity);
             }
-            case "stop" -> {
+            case STOP -> {
                 blockEntity.stopScanning();
                 // 同步范围到客户端
                 this.syncRangeToClient(player, blockEntity);
             }
-            case "rangeChange" -> {
-                // name 格式: "rangeX", "rangeY", "rangeZ"
-                boolean validRange = switch (this.name) {
-                    case "rangeX" -> validateAndApplyRange(blockEntity.getRangeX(), this.value);
-                    case "rangeY" -> validateAndApplyRange(blockEntity.getRangeY(), this.value);
-                    case "rangeZ" -> validateAndApplyRange(blockEntity.getRangeZ(), this.value);
-                    default -> false;
+            case RANGE_CHANGE -> {
+                boolean validRange = switch (this.rangeAxis) {
+                    case X -> validateAndApplyRange(blockEntity.getRangeX(), this.value);
+                    case Y -> validateAndApplyRange(blockEntity.getRangeY(), this.value);
+                    case Z -> validateAndApplyRange(blockEntity.getRangeZ(), this.value);
+                    case NONE -> false;
                 };
-                
+
                 if (!validRange) {
                     AnvilCraft.LOGGER.warn(
                         "Player {} sent invalid range value: {} for {} (valid range: 0-{})",
                         player.getName().getString(),
                         this.value,
-                        this.name,
-                        this.name.startsWith("range") ? getRangeCount(blockEntity, this.name) - 1 : 0
+                        this.rangeAxis,
+                        this.rangeAxis != RangeAxis.NONE ? getRangeCount(blockEntity, this.rangeAxis) - 1 : 0
                     );
                     return;
                 }
-                
+
                 // 同步范围到客户端
                 this.syncRangeToClient(player, blockEntity);
             }
-            case "confirm" -> {
+            case CONFIRM -> {
                 // 检查是否放入了结构磁盘
                 if (blockEntity.isDiskEmpty()) {
                     player.sendSystemMessage(
-                        net.minecraft.network.chat.Component.translatable(
+                        Component.translatable(
                             "message.anvilcraft.structure_scanner.no_disk"
-                        ).withStyle(net.minecraft.ChatFormatting.RED)
+                        ).withStyle(ChatFormatting.RED)
                     );
                     return;
                 }
-                
+
                 // 检查输出槽位是否为空
                 if (blockEntity.hasOutput()) {
                     player.sendSystemMessage(
-                        net.minecraft.network.chat.Component.translatable(
+                        Component.translatable(
                             "message.anvilcraft.structure_scanner.output_not_empty"
-                        ).withStyle(net.minecraft.ChatFormatting.RED)
+                        ).withStyle(ChatFormatting.RED)
                     );
                     return;
                 }
-                
+
                 // 保存结构文件(成功或失败都不会发送聊天消息,仅记录到服务器日志)
-                String structureName = this.name.isEmpty() ? "structure_" + System.currentTimeMillis() : this.name;
-                dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(
+                String structureName = this.name.orElse("");
+                if (structureName.isEmpty()) {
+                    structureName = "structure_" + System.currentTimeMillis();
+                }
+                StructureSaveUtil.saveStructureToDisk(
                     player.level(), blockEntity, structureName
                 );
             }
-            default -> {}
         }
     }
-    
+
     private void syncRangeToClient(Player player, StructureScannerBlockEntity blockEntity) {
         if (player instanceof ServerPlayer serverPlayer) {
-            PacketDistributor.sendToPlayer(serverPlayer, new StructureScannerRangeSyncPacket(
-                blockEntity.getRangeX().index(),
-                blockEntity.getRangeY().index(),
-                blockEntity.getRangeZ().index()
-            ));
+            PacketDistributor.sendToPlayer(
+                serverPlayer,
+                new StructureScannerRangeSyncPacket(
+                    blockEntity.getRangeX().index(),
+                    blockEntity.getRangeY().index(),
+                    blockEntity.getRangeZ().index()
+                )
+            );
         }
     }
-    
+
     /**
      * Validate and apply range value with bounds checking
-     * 
+     *
      * @param range The WatchableCyclingValue to update
      * @param value The index value from client
      * @return true if value was valid and applied, false otherwise
      */
     private static boolean validateAndApplyRange(
-        dev.dubhe.anvilcraft.util.WatchableCyclingValue<?> range, 
+        WatchableCyclingValue<?> range,
         int value
     ) {
         // Bounds check: 0 <= value < count
         if (value < 0 || value >= range.count()) {
             return false;
         }
-        
+
         range.fromIndex(value);
         return true;
     }
-    
+
     /**
-     * Get the count of valid values for a range name
+     * Get the count of valid values for a range axis
      */
-    private static int getRangeCount(StructureScannerBlockEntity blockEntity, String name) {
-        return switch (name) {
-            case "rangeX" -> blockEntity.getRangeX().count();
-            case "rangeY" -> blockEntity.getRangeY().count();
-            case "rangeZ" -> blockEntity.getRangeZ().count();
+    private static int getRangeCount(StructureScannerBlockEntity blockEntity, RangeAxis rangeAxis) {
+        return switch (rangeAxis) {
+            case X -> blockEntity.getRangeX().count();
+            case Y -> blockEntity.getRangeY().count();
+            case Z -> blockEntity.getRangeZ().count();
             default -> 0;
         };
     }

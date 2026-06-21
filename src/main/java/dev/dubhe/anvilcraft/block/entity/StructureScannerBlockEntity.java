@@ -5,26 +5,30 @@ import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
+import dev.dubhe.anvilcraft.util.StructureSaveUtil;
 import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -228,7 +232,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     /**
      * 缓存的方块数据
      */
-    public record CachedBlockData(int x, int y, int z, net.minecraft.world.level.block.state.BlockState state) {}
+    public record CachedBlockData(int x, int y, int z, BlockState state) {}
     
     /**
      * 是否正在扫描或已完成扫描
@@ -293,7 +297,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     }
     
     @SuppressWarnings("unused")
-    public void tickServer(net.minecraft.world.level.Level level, BlockPos pos) {
+    public void tickServer(Level level, BlockPos pos) {
         // 每2 tick扫描一层
         if (this.isScanning && level.getGameTime() - this.lastScanTick >= 2) {
             this.scanNextLayer();
@@ -370,7 +374,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
         
         // 保存结构到磁盘
-        dev.dubhe.anvilcraft.util.StructureSaveUtil.saveStructureToDisk(
+        StructureSaveUtil.saveStructureToDisk(
             this.level, this, this.autoSaveStructureName
         );
         
@@ -395,7 +399,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         for (int x = 0; x < rangeX; x++) {
             for (int z = 1; z < rangeZ + 1; z++) {
                 BlockPos worldPos = this.calculateWorldPos(x, this.currentScanLayer, z - 1, halfRangeX);
-                net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
+                BlockState blockState = this.level.getBlockState(worldPos);
                 
                 if (!blockState.isAir()) {
                     this.scannedBlocks.add(new CachedBlockData(x, this.currentScanLayer, z, blockState));
@@ -429,7 +433,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
             return scannerPos;
         }
         var blockState = this.level.getBlockState(scannerPos);
-        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        Direction scannerFacing = blockState.getValue(HorizontalDirectionalBlock.FACING);
         boolean upsideDown = false;
         if (blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)) {
             upsideDown = blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
@@ -458,8 +462,12 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     @Override
     public void setDirection(Direction direction) {
         if (this.level != null) {
-            this.level.setBlock(this.getBlockPos(), 
-                this.getBlockState().setValue(StructureScannerBlock.FACING, direction), 3);
+            this.level.setBlock(
+                this.getBlockPos(),
+                this.getBlockState()
+                    .setValue(StructureScannerBlock.FACING, direction),
+                3
+            );
         }
     }
 
@@ -514,111 +522,68 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = super.getUpdateTag(provider);
-        this.saveAdditionalData(tag);
-        return tag;
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+        output.store(super.getUpdateTag(provider));
+        this.saveAdditionalData(output);
+        return output.buildResult();
     }
 
-    private void saveAdditionalData(CompoundTag tag) {
-        // 序列化 handler 数据（使用 ItemStack CODEC）
-        {
-            ListTag diskItems = new ListTag();
-            ItemStack diskStack = this.itemHandler.getStacks().getFirst();
-            if (!diskStack.isEmpty()) {
-                diskItems.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, diskStack).result().orElse(new CompoundTag()));
-            }
-            tag.put("diskItems", diskItems);
-        }
-        {
-            ListTag outputItems = new ListTag();
-            ItemStack outputStack = this.itemHandler.getStacks().getLast();
-            if (!outputStack.isEmpty()) {
-                outputItems.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, outputStack).result().orElse(new CompoundTag()));
-            }
-            tag.put("outputItems", outputItems);
-        }
-        tag.putInt("rangeX", this.rangeX.index());
-        tag.putInt("rangeY", this.rangeY.index());
-        tag.putInt("rangeZ", this.rangeZ.index());
-        tag.putBoolean("isScanning", this.isScanning);
-        tag.putInt("currentScanLayer", this.currentScanLayer);
+    private void saveAdditionalData(ValueOutput output) {
+        ValueOutput child = output.child("Inventory");
+        this.itemHandler.serialize(child);
+        output.putInt("rangeX", this.rangeX.index());
+        output.putInt("rangeY", this.rangeY.index());
+        output.putInt("rangeZ", this.rangeZ.index());
+        output.putBoolean("isScanning", this.isScanning);
+        output.putInt("currentScanLayer", this.currentScanLayer);
         if (!this.scannedBlocks.isEmpty()) {
-            ListTag blocksTag = new ListTag();
+            ValueOutput.ValueOutputList blocks = output.childrenList("scannedBlocks");
             for (CachedBlockData data : this.scannedBlocks) {
-                CompoundTag blockTag = new CompoundTag();
-                blockTag.putInt("x", data.x());
-                blockTag.putInt("y", data.y());
-                blockTag.putInt("z", data.z());
-                blockTag.put("state", net.minecraft.nbt.NbtUtils.writeBlockState(data.state()));
-                blocksTag.add(blockTag);
+                ValueOutput blockOutput = blocks.addChild();
+                blockOutput.putInt("x", data.x());
+                blockOutput.putInt("y", data.y());
+                blockOutput.putInt("z", data.z());
+                blockOutput.store("state", BlockState.CODEC, data.state());
             }
-            tag.put("scannedBlocks", blocksTag);
         }
-        tag.putBoolean("pendingAutoSave", this.pendingAutoSave);
-        tag.putString("autoSaveStructureName", this.autoSaveStructureName);
+        output.putBoolean("pendingAutoSave", this.pendingAutoSave);
+        output.putString("autoSaveStructureName", this.autoSaveStructureName);
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        CompoundTag tag = new CompoundTag();
-        this.saveAdditionalData(tag);
-        output.store("ScannerData", CompoundTag.CODEC, tag);
-    }
-
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        this.saveAdditionalData(tag);
+        this.saveAdditionalData(output);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        CompoundTag tag = input.read("ScannerData", CompoundTag.CODEC).orElse(new CompoundTag());
-        this.loadScannerData(tag);
+        this.loadScannerData(input);
     }
 
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        this.loadScannerData(tag);
-    }
-
-    private void loadScannerData(CompoundTag tag) {
+    private void loadScannerData(ValueInput input) {
         // 反序列化到 handler
-        if (tag.contains("diskItems")) {
-            ListTag diskItems = tag.getListOrEmpty("diskItems");
-            if (!diskItems.isEmpty()) {
-                ItemStack stack = ItemStack.CODEC.parse(NbtOps.INSTANCE, diskItems.getCompoundOrEmpty(0)).result().orElse(ItemStack.EMPTY);
-                this.itemHandler.getStacks().set(0, stack);
-            }
-        }
-        if (tag.contains("outputItems")) {
-            ListTag outputItems = tag.getListOrEmpty("outputItems");
-            if (!outputItems.isEmpty()) {
-                ItemStack stack = ItemStack.CODEC.parse(
-                    NbtOps.INSTANCE, outputItems.getCompoundOrEmpty(0)).result().orElse(ItemStack.EMPTY);
-                this.itemHandler.getStacks().set(1, stack);
-            }
-        }
-        this.rangeX.fromIndex(tag.getIntOr("rangeX", 0));
-        this.rangeY.fromIndex(tag.getIntOr("rangeY", 0));
-        this.rangeZ.fromIndex(tag.getIntOr("rangeZ", 0));
-        this.isScanning = tag.getBooleanOr("isScanning", false);
-        this.currentScanLayer = tag.getIntOr("currentScanLayer", 0);
+        input.child("Inventory").ifPresent(this.itemHandler::deserialize);
+        this.rangeX.fromIndex(input.getIntOr("rangeX", 0));
+        this.rangeY.fromIndex(input.getIntOr("rangeY", 0));
+        this.rangeZ.fromIndex(input.getIntOr("rangeZ", 0));
+        this.isScanning = input.getBooleanOr("isScanning", false);
+        this.currentScanLayer = input.getIntOr("currentScanLayer", 0);
         this.scannedBlocks.clear();
-        if (tag.contains("scannedBlocks") && this.level != null) {
-            ListTag blocksTag = tag.getListOrEmpty("scannedBlocks");
-            for (int i = 0; i < blocksTag.size(); i++) {
-                CompoundTag blockTag = blocksTag.getCompoundOrEmpty(i);
-                int x = blockTag.getIntOr("x", 0);
-                int y = blockTag.getIntOr("y", 0);
-                int z = blockTag.getIntOr("z", 0);
-                net.minecraft.world.level.block.state.BlockState state = net.minecraft.nbt.NbtUtils.readBlockState(
-                    this.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BLOCK),
-                    blockTag.getCompoundOrEmpty("state")
-                );
-                this.scannedBlocks.add(new CachedBlockData(x, y, z, state));
-            }
+        for (ValueInput blockInput : input.childrenListOrEmpty("scannedBlocks")) {
+            int x = blockInput.getIntOr("x", 0);
+            int y = blockInput.getIntOr("y", 0);
+            int z = blockInput.getIntOr("z", 0);
+            blockInput.read("state", BlockState.CODEC)
+                .ifPresent(state -> this.scannedBlocks.add(new CachedBlockData(x, y, z, state)));
         }
-        this.pendingAutoSave = tag.getBooleanOr("pendingAutoSave", false);
-        this.autoSaveStructureName = tag.getStringOr("autoSaveStructureName", "");
+        this.pendingAutoSave = input.getBooleanOr("pendingAutoSave", false);
+        this.autoSaveStructureName = input.getStringOr("autoSaveStructureName", "");
+    }
+
+    @Override
+    public void handleUpdateTag(ValueInput input) {
+        super.handleUpdateTag(input);
     }
 }

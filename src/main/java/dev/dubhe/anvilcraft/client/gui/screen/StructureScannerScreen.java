@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
@@ -16,6 +17,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.network.StructureScannerActionPacket;
+import dev.dubhe.anvilcraft.network.StructureScannerActionPacket.Action;
+import dev.dubhe.anvilcraft.network.StructureScannerActionPacket.RangeAxis;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -60,9 +63,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     // 预览旋转角度
     private float previewRotationY = 45.0f;
-    private float previewRotationX = -30.0f;
+    private float previewRotationX = 30.0f;
     private static final float MIN_ROTATION_X = -60.0f;
-    private static final float MAX_ROTATION_X = 0.0f;
+    private static final float MAX_ROTATION_X = 60.0f;
     private static final float ROTATION_SENSITIVITY = 0.5f;
 
     // 鼠标拖拽状态
@@ -126,7 +129,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (blockEntity != null) {
                 blockEntity.getRangeX().previous();
                 ClientPacketDistributor.sendToServer(
-                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeX().index(), "rangeX"));
+                    new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeX().index(), RangeAxis.X));
             }
         }
         ));
@@ -137,7 +140,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (blockEntity != null) {
                 blockEntity.getRangeX().next();
                 ClientPacketDistributor.sendToServer(
-                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeX().index(), "rangeX"));
+                    new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeX().index(), RangeAxis.X));
             }
         }
         ));
@@ -156,7 +159,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (blockEntity != null) {
                 blockEntity.getRangeZ().previous();
                 ClientPacketDistributor.sendToServer(
-                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeZ().index(), "rangeZ")
+                    new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeZ().index(), RangeAxis.Z)
                 );
             }
         }
@@ -168,7 +171,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (blockEntity != null) {
                 blockEntity.getRangeZ().next();
                 ClientPacketDistributor.sendToServer(
-                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeZ().index(), "rangeZ")
+                    new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeZ().index(), RangeAxis.Z)
                 );
             }
         }
@@ -188,7 +191,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (blockEntity != null) {
                 blockEntity.getRangeY().previous();
                 ClientPacketDistributor.sendToServer(
-                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeY().index(), "rangeY")
+                    new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeY().index(), RangeAxis.Y)
                 );
             }
         }
@@ -200,7 +203,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (blockEntity != null) {
                 blockEntity.getRangeY().next();
                 ClientPacketDistributor.sendToServer(
-                    new StructureScannerActionPacket("rangeChange", blockEntity.getRangeY().index(), "rangeY")
+                    new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeY().index(), RangeAxis.Y)
                 );
             }
         }
@@ -215,7 +218,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             REDO_TEXTURE,
             16,
             32,
-            (btn) -> this.onModeToggleClick(),
+            (_) -> this.onModeToggleClick(),
             List.of()
         );
         this.modeToggleButton.setSelected(false);
@@ -231,7 +234,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             16,
             16,
             32,
-            (btn) -> this.onConfirmClick()
+            (_) -> this.onConfirmClick()
         );
         this.addRenderableWidget(confirmButton);
 
@@ -413,7 +416,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         graphics.pose().pushMatrix();
         graphics.pose().translate(infoX, infoY);
         graphics.pose().scale(0.75f, 0.75f);
-        graphics.text(this.font, Component.translatable("screen.anvilcraft.structure_scanner.info_title"), 0, 0, 0xFFFFFF, false);
+        graphics.text(this.font, Component.translatable("screen.anvilcraft.structure_scanner.info_title"), 0, 0, 0xFFFFFFFF, false);
         graphics.pose().popMatrix();
 
         int statusY = infoY + 10;
@@ -428,7 +431,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                         Component.translatable("screen.anvilcraft.structure_scanner.ready"),
                         0,
                         0,
-                        0x40FF40,
+                        0xFF40FF40,
                         false
                     );
                     graphics.pose().popMatrix();
@@ -436,7 +439,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
             case LARGE_STRUCTURE, UNKNOWN_BLOCKS, TOO_LARGE -> {
                 boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE;
-                int iconColor = isWarning ? 0xFFFF55 : 0xFF5555;
+                int iconColor = isWarning ? 0xFFFFFF55 : 0xFFFF5555;
                 float iconScale = 1.5f;
 
                 graphics.pose().pushMatrix();
@@ -555,41 +558,24 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         // 构建并渲染 LevelLike（使用缓存）
         LevelLike previewLevelLike = this.buildPreviewLevelLike(facing);
         if (previewLevelLike != null) {
-            int rangeX = this.cachedRangeX;
-            int rangeY = this.cachedRangeY;
-
-            int sizeX = Math.max(1, rangeX);
-            int sizeY = Math.max(1, rangeY);
-
             this.renderPreviewWithFixedSize(
                 previewLevelLike,
                 graphics,
-                posX,
-                posY,
-                80.0f,
                 this.previewRotationX,
-                this.previewRotationY + this.getFacingYawOffset(facing),
-                sizeX,
-                sizeY
+                this.previewRotationY + this.getFacingYawOffset(facing)
             );
         }
 
-        // 渲染边框
-        this.renderScannerBorder(graphics, posX, posY, facing);
+        // TODO: 渲染边框
+        // this.renderScannerBorder(graphics, posX, posY, facing);
     }
 
     /// 以固定大小渲染 LevelLike 预览
-    @SuppressWarnings("checkstyle:ParameterName")
     private void renderPreviewWithFixedSize(
         LevelLike level,
         GuiGraphicsExtractor graphics,
-        int posX,
-        int posY,
-        float scale,
         float rotationX,
-        float rotationY,
-        int sizeX,
-        int sizeY
+        float rotationY
     ) {
         var minPos = level.getMinPos();
         var maxPos = level.getMaxPos();
@@ -597,23 +583,14 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         PoseStack poseStack = new PoseStack();
 
-        poseStack.translate(posX, posY, 100);
-
-        float scaleX = scale / (sizeX * Mth.SQRT_OF_TWO);
-        float scaleY = scale / (float) sizeY;
-        float finalScale = Math.min(scaleY, scaleX);
-        poseStack.scale(-finalScale, -finalScale, -finalScale);
-
-        poseStack.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
         poseStack.mulPose(Axis.XP.rotationDegrees(rotationX));
 
-        float offsetX = (float) -sizeX / 2 + 0.05f;
-        float offsetZ = (float) -sizeX / 2 + 1;
-        poseStack.translate(-offsetX, 0, -offsetZ);
         poseStack.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
-        poseStack.translate(offsetX, 0, offsetZ);
 
-        poseStack.translate(0, 0, (float) -0.5);
+        poseStack.translate(-this.cachedRangeX / 2f + 1, -this.cachedRangeY / 2f + 1, -this.cachedRangeZ / 2f);
+
+        int maxSize = Math.max(1, Math.max(this.cachedRangeX, Math.max(this.cachedRangeY, this.cachedRangeZ)));
+        float scale = 55.0f / maxSize;
 
         GuiRenderExtras.submitStructure(
             graphics,
@@ -624,7 +601,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.previewWindowY,
             this.previewWindowX + this.previewWindowWidth,
             this.previewWindowY + this.previewWindowHeight,
-            1.0f,
+            scale,
             true,
             false,
             poseStack
@@ -648,8 +625,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         int rangeY = this.cachedRangeY;
 
         boolean upsideDown = false;
-        if (this.cachedBlockEntity.getBlockState().hasProperty(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN)) {
-            upsideDown = this.cachedBlockEntity.getBlockState().getValue(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN);
+        if (this.cachedBlockEntity.getBlockState().hasProperty(StructureScannerBlock.UPSIDE_DOWN)) {
+            upsideDown = this.cachedBlockEntity.getBlockState().getValue(StructureScannerBlock.UPSIDE_DOWN);
         }
 
         // Scanner在预览中的位置：X居中，Y=0，Z=0
@@ -661,7 +638,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             new BlockPos(scannerX, scannerY, scannerZ),
             ModBlocks.STRUCTURE_SCANNER.get().defaultBlockState()
                 .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
-                .setValue(dev.dubhe.anvilcraft.block.StructureScannerBlock.UPSIDE_DOWN, upsideDown)
+                .setValue(StructureScannerBlock.UPSIDE_DOWN, upsideDown)
         );
 
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = this.cachedBlockEntity.getScannedBlocks();
@@ -816,7 +793,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             float deltaY = currentMouseY - this.lastMouseY;
 
             this.previewRotationY += deltaX * ROTATION_SENSITIVITY;
-            this.previewRotationX -= deltaY * ROTATION_SENSITIVITY;
+            this.previewRotationX += deltaY * ROTATION_SENSITIVITY;
             this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
 
             this.lastMouseX = currentMouseX;
@@ -841,13 +818,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         if (blockEntity == null) return;
 
         if (this.isScanMode) {
-            ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("start"));
+            ClientPacketDistributor.sendToServer(new StructureScannerActionPacket(Action.START));
 
             this.isScanMode = false;
             this.modeToggleButton.setSelected(false);
             this.modeToggleButton.setTexture(STOP_TEXTURE);
         } else {
-            ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("stop"));
+            ClientPacketDistributor.sendToServer(new StructureScannerActionPacket(Action.STOP));
 
             this.isScanMode = true;
             this.modeToggleButton.setSelected(true);
@@ -867,7 +844,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             structureName = "structure_" + System.currentTimeMillis();
         }
 
-        ClientPacketDistributor.sendToServer(new StructureScannerActionPacket("confirm", structureName));
+        ClientPacketDistributor.sendToServer(new StructureScannerActionPacket(Action.CONFIRM, structureName));
     }
 
     private void onNameInputChanged(String text) {
