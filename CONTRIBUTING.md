@@ -9,10 +9,14 @@
     - [HERE TO VIEW](https://gist.github.com/Gu-ZT/2410fd75cf9b5da09d0b77a57c1caaf7)
     - `Settings` -> `Editor` -> `Color Scheme` -> `Import Scheme`
 3. Add `CheckStyle-IDEA` plugin (optional)
+    - [HERE TO VIEW](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea)
     - `Plugins` -> `Marketplace`
     - Search for `CheckStyle-IDEA` plugin, made by `Jamie Shiell` and apply it
     - `Settings` -> `Tools` -> `CheckStyle` -> `Configuration File` -> `+`/`Add` -> Choose the `style.xml` file in the root folder of this project
     - `Settings` -> `Tools` -> `CheckStyle` -> `Configuration File` -> Uncheck other entries except the entry added before
+4. Add `Minecraft Development` plugin (recommended)
+    - [HERE TO VIEW](https://plugins.jetbrains.com/plugin/8327-minecraft-development)
+    - `Plugins` -> `Marketplace` -> Search for `Minecraft Development` and apply it
 
 ## Development environment setup
 
