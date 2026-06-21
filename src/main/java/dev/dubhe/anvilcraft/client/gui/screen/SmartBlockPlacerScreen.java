@@ -89,6 +89,9 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
     private boolean isBlueprintMode = false;
 
+    private boolean showPreviewConcrete = false;
+    private int previewSwapTimer = 0;
+
     private int previewWindowX;
     private int previewWindowY;
     private final int previewWindowWidth = 112;
@@ -731,7 +734,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         poseStack.mulPose(Axis.XP.rotationDegrees(rotationX));
         poseStack.mulPose(Axis.YP.rotationDegrees(rotationY));
 
-        poseStack.translate(-2, 0, -2);
+        poseStack.translate(-2, 0, -4);
 
         GuiRenderExtras.submitStructure(
             graphics,
@@ -743,7 +746,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewWindowX + this.previewWindowWidth,
             this.previewWindowY + this.previewWindowHeight,
             10,
-            true,
+            false,
             false,
             poseStack
         );
@@ -776,6 +779,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 更新结构名称滚动时间
         this.structureNameScrollTime++;
+
+        // 预览方块颜色切换（每80tick=4秒互换）
+        this.previewSwapTimer++;
+        if (this.previewSwapTimer >= 80) {
+            this.previewSwapTimer = 0;
+            this.showPreviewConcrete = !this.showPreviewConcrete;
+            this.cachedPreviewLevelLike = null;
+        }
 
         // 检查结构数据变化，使预览缓存失效
         var blockEntity = this.menu.getBlockEntity();
@@ -857,28 +868,32 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             var structure = blockEntity.getLoadedStructure();
             if (structure == null || structure.isEmpty()) return previewLevelLike;
 
+            int placerY = upsideDown ? 4 : 0;
+            previewLevelLike.setBlockState(
+                new BlockPos(2, placerY - 2, 7),
+                blockState.getBlock().defaultBlockState()
+                    .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+                    .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
+            );
+
             var rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(structure);
             for (var bp : rotatedData.blocks) {
                 BlockState rotatedState = this.rotateStructureForPreview(bp.state());
                 int renderY = bp.y();
-                previewLevelLike.setBlockState(new BlockPos(bp.x(), renderY, bp.z() + 1), rotatedState);
+                previewLevelLike.setBlockState(new BlockPos(bp.x(), renderY - 2, bp.z() + 1), rotatedState);
             }
         } else {
             // 普通模式：显示 UI 中的选区模式（不读取世界方块）
-            // 每层使用不同颜色的染色玻璃方便区分
-            BlockState[] layerColors = {
-                Blocks.WHITE_STAINED_GLASS.defaultBlockState(),
-                Blocks.LIGHT_GRAY_STAINED_GLASS.defaultBlockState(),
-                Blocks.GRAY_STAINED_GLASS.defaultBlockState(),
-                Blocks.CYAN_STAINED_GLASS.defaultBlockState(),
-                Blocks.BLUE_STAINED_GLASS.defaultBlockState(),
-            };
+            // 黄绿色玻璃和黄绿色混凝土每4s互换
+            BlockState glassBlock = this.showPreviewConcrete
+                ? Blocks.LIME_CONCRETE.defaultBlockState()
+                : Blocks.LIME_STAINED_GLASS.defaultBlockState();
 
             int placerY = upsideDown ? 4 : 0;
             previewLevelLike.setBlockState(
-                new BlockPos(2, placerY - 2, -2),
+                new BlockPos(2, placerY - 2, 7),
                 blockState.getBlock().defaultBlockState()
-                    .setValue(HorizontalDirectionalBlock.FACING, Direction.SOUTH)
+                    .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
                     .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
             );
 
@@ -887,8 +902,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
                 if (!this.showAllLayers && layer != this.currentViewLayer) continue;
 
-                BlockState glassColor = layerColors[layer % layerColors.length];
-
                 for (int posIndex : entry.getValue()) {
                     int row = posIndex / 5;
                     int previewX = posIndex % 5;
@@ -896,7 +909,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
                     previewLevelLike.setBlockState(
                         new BlockPos(previewX, layer - 2, previewZ),
-                        glassColor
+                        glassBlock
                     );
                 }
             }

@@ -591,6 +591,7 @@ public class ModBlocks {
         .properties(properties -> properties.isValidSpawn(Blocks::never)
             .noOcclusion()
             .lightLevel(state -> state.getValue(IPowerConsumer.OVERLOAD) ? 0 : 15))
+        .lang("Electric Heater")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
