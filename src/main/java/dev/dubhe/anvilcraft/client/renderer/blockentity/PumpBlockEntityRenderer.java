@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.PumpBlock;
 import dev.dubhe.anvilcraft.block.entity.PumpBlockEntity;
@@ -10,8 +11,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -53,47 +54,43 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         BlockState state = blockEntity.getBlockState();
         if (!(state.getBlock() instanceof PumpBlock)) return;
 
-        Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
-        Direction outputDir = orientation.getDirection();
-
         // 动画速度与传输量正相关
         float speed = blockEntity.getLastTransferAmount() / MAX_TRANSFER_RATE;
-        if (speed < 0.05f) speed = 1.0f; // 最慢也有基础动画
+        if (speed < 0.05f) speed = 1.0f;
 
         long gameTime = blockEntity.getLevel().getGameTime();
         float cycle = ((gameTime + partialTick) * speed) % 20.0f / 20.0f;
 
-        // 沿输出方向平移并渲染
-        float dx = outputDir.getStepX();
-        float dy = outputDir.getStepY();
-        float dz = outputDir.getStepZ();
-
-        // 注意：活塞模型设计在 NORTH_UP 方向（Y 旋转 180°），需匹配 blockstate 的旋转
-        // 这里的平移是相对于泵主体的局部空间，沿输出方向运动
-
-        // 活塞 1：峰值在 cycle = 0.25（上顶点）
-        float piston1Offset = sinPulse(cycle, 0.25f) * MAX_PISTON_OFFSET;
-
+        Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
+        // 应用与 blockstate 相同的旋转，使活塞坐标系与模型对齐
         poseStack.pushPose();
-        poseStack.translate(dx * piston1Offset, dy * piston1Offset, dz * piston1Offset);
-        renderPistonModel(poseStack, buffer, PUMP_PISTON_1, packedLight, packedOverlay);
+        poseStack.translate(0.5, 0.5, 0.5);
+        poseStack.mulPose(Axis.YP.rotationDegrees(orientation.getYRotation()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(orientation.getXRotation()));
+        poseStack.translate(-0.5, -0.5, -0.5);
+
+        // 活塞模型沿 +Z 方向运动（模型空间中输出方向 = +Z）
+        BakedModel piston1 = Minecraft.getInstance().getModelManager().getModel(PUMP_PISTON_1);
+        // 活塞 1：峰值在 cycle=0.25（上顶点）
+        float piston1Offset = sinPulse(cycle, 0.25f) * MAX_PISTON_OFFSET;
+        poseStack.pushPose();
+        poseStack.translate(0, 0, piston1Offset);
+        renderPistonModel(poseStack, buffer, piston1, packedLight, packedOverlay);
         poseStack.popPose();
 
-        // 活塞 2：峰值在 cycle = 0.75（上顶点），与活塞 1 错开半周期
+        BakedModel piston2 = Minecraft.getInstance().getModelManager().getModel(PUMP_PISTON_2);
+        // 活塞 2：峰值在 cycle=0.75（上顶点），与活塞 1 错开半周期
         float piston2Offset = sinPulse(cycle, 0.75f) * MAX_PISTON_OFFSET;
-
         poseStack.pushPose();
-        poseStack.translate(dx * piston2Offset, dy * piston2Offset, dz * piston2Offset);
-        renderPistonModel(poseStack, buffer, PUMP_PISTON_2, packedLight, packedOverlay);
+        poseStack.translate(0, 0, piston2Offset);
+        renderPistonModel(poseStack, buffer, piston2, packedLight, packedOverlay);
+        poseStack.popPose();
+
         poseStack.popPose();
     }
 
     /**
      * 正弦脉冲：在 phase 处达到最大值 1，phase±0.25 处为 0。
-     *
-     * @param cycle 当前周期位置 [0, 1)
-     * @param phase 峰值相位 [0, 1)
-     * @return 脉冲高度 [0, 1]
      */
     private static float sinPulse(float cycle, float phase) {
         float dist = Math.abs(cycle - phase);
@@ -105,7 +102,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
     private void renderPistonModel(
         PoseStack poseStack,
         MultiBufferSource buffer,
-        ModelResourceLocation modelLocation,
+        BakedModel model,
         int packedLight,
         int packedOverlay
     ) {
@@ -116,7 +113,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
                 poseStack.last(),
                 buffer.getBuffer(RenderType.cutout()),
                 null,
-                Minecraft.getInstance().getModelManager().getModel(modelLocation),
+                model,
                 1.0f, 1.0f, 1.0f,
                 packedLight,
                 packedOverlay
