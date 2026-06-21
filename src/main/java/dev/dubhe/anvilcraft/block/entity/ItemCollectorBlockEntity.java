@@ -61,6 +61,12 @@ public class ItemCollectorBlockEntity extends BlockEntity
     IItemResourceHandlerHolder {
 
     private static final Table<Level, ChunkPos, Set<ItemCollectorBlockEntity>> POACHING_COLLECTORS = HashBasedTable.create();
+    public static final int[][] POWER_CONSUMPTION = {
+        {8, 12, 20, 32},
+        {5, 8, 12, 20},
+        {3, 5, 8, 12},
+        {2, 3, 5, 8}
+    };
 
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>(
         "rangeRadius", _ -> this.setChanged(),
@@ -115,20 +121,13 @@ public class ItemCollectorBlockEntity extends BlockEntity
         return this.getBlockPos();
     }
 
-    private static final Map<Integer, Map<Integer, Integer>> POWER_CONSUMPTION = Map.of(
-        0,
-        Map.of(1, 8, 2, 12, 4, 20, 8, 32),
-        2,
-        Map.of(1, 5, 2, 8, 4, 12, 8, 20),
-        10,
-        Map.of(1, 3, 2, 5, 4, 8, 8, 12),
-        60,
-        Map.of(1, 2, 2, 3, 4, 5, 8, 8)
-    );
+    public int getPowerConsumption() {
+        return POWER_CONSUMPTION[this.cooldown.index()][this.rangeRadius.index()];
+    }
 
     @Override
     public int getInputPower() {
-        int power = ItemCollectorBlockEntity.POWER_CONSUMPTION.get(this.cooldown.get()).get(this.rangeRadius.get());
+        int power = getPowerConsumption();
         if (level == null) return power;
         return getBlockState().getValue(ItemCollectorBlock.POWERED) ? 0 : power;
     }
