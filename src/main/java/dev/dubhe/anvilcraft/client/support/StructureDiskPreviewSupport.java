@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.support;
 
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.LevelLike;
@@ -8,10 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
@@ -24,6 +22,7 @@ import java.util.UUID;
  * 管理结构磁盘的缓存和3D预览渲染
  */
 public class StructureDiskPreviewSupport {
+    private static final int PREVIEW_SIZE = 80;
 
     /**
      * 预览缓存：使用StructureUUID作为key
@@ -79,9 +78,8 @@ public class StructureDiskPreviewSupport {
         PreviewCache cache = getOrCreateCache(diskStack, minecraft.level);
         if (cache == null || cache.structureData.isEmpty()) return;
 
-        int previewSize = 80;
-        int previewX = mouseX - previewSize / 2;
-        int previewY = mouseY - previewSize - 16;
+        int previewX = mouseX - PREVIEW_SIZE / 2;
+        int previewY = mouseY - PREVIEW_SIZE - 16;
 
         int screenWidth = minecraft.getWindow().getGuiScaledWidth();
 
@@ -89,26 +87,31 @@ public class StructureDiskPreviewSupport {
             previewY = mouseY + 30;
         }
 
-        if (previewX + previewSize > screenWidth) {
-            previewX = screenWidth - previewSize - 5;
+        if (previewX + PREVIEW_SIZE > screenWidth) {
+            previewX = screenWidth - PREVIEW_SIZE - 5;
         }
         if (previewX < 0) {
             previewX = 5;
         }
 
         // 渲染背景（轻微透明）
-        graphics.fill(previewX - 2, previewY - 2, previewX + previewSize + 2, previewY + previewSize + 2, 0xF0100010);
+        graphics.fill(previewX - 2, previewY - 2, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 2, 0xF0100010);
 
         // 渲染边框
-        graphics.fill(previewX - 2, previewY - 2, previewX + previewSize + 2, previewY - 1, 0x505000ff);
-        graphics.fill(previewX - 2, previewY + previewSize + 2, previewX + previewSize + 2, previewY + previewSize + 3, 0x505000ff);
-        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + previewSize + 3, 0x505000ff);
-        graphics.fill(previewX + previewSize + 1, previewY - 1, previewX + previewSize + 2, previewY + previewSize + 3, 0x505000ff);
+        graphics.fill(previewX - 2, previewY - 2, previewX + PREVIEW_SIZE + 2, previewY - 1, 0x505000ff);
+        graphics.fill(previewX - 2, previewY + PREVIEW_SIZE + 2, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 3, 0x505000ff);
+        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + PREVIEW_SIZE + 3, 0x505000ff);
+        graphics.fill(previewX + PREVIEW_SIZE + 1, previewY - 1, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 3, 0x505000ff);
 
         // 渲染3D预览
+        int maxDim = Math.max(cache.structureData.diskData.sizeX(),
+            Math.max(cache.structureData.diskData.sizeY(),
+                cache.structureData.diskData.sizeZ()));
+        int scale = Math.max(1, 30 / maxDim);
+
         RenderSupport.renderLevelLike(
-            cache.levelLike, graphics, previewX + previewSize / 2, previewY + previewSize / 2,
-            previewSize, 2, 0.0f, false
+            cache.levelLike, graphics, previewX, previewY,
+            PREVIEW_SIZE, scale, 2.0f, false
         );
     }
 
@@ -162,27 +165,27 @@ public class StructureDiskPreviewSupport {
 
         LevelLike levelLike = new LevelLike(minecraft.level);
 
-        Direction scannerFacingValue = data.diskData.direction();
+        // 使用统一的旋转逻辑，与服务端放置和智能放置器预览保持一致
+        StructureLoadUtil.StructureData rotatedData =
+            SmartBlockPlacerBlockEntity.rotateStructureDataStatic(data);
 
-        int rotationSteps = switch (scannerFacingValue) {
-            case Direction.NORTH -> 0;
-            case Direction.SOUTH -> 2;
-            case Direction.WEST -> 1;
-            case Direction.EAST -> 3;
-            default -> 0;
-        };
+        // 计算旋转后结构的中心
+        int sizeX = data.diskData.sizeX();
+        int sizeY = data.diskData.sizeY();
+        int sizeZ = data.diskData.sizeZ();
+        int offsetX = sizeX / 2;
+        int offsetY = sizeY / 2;
+        int offsetZ = sizeZ / 2;
 
-        Rotation rotation = switch (rotationSteps) {
-            case 1 -> Rotation.CLOCKWISE_90;
-            case 2 -> Rotation.CLOCKWISE_180;
-            case 3 -> Rotation.COUNTERCLOCKWISE_90;
-            default -> Rotation.NONE;
-        };
-
-        for (StructureLoadUtil.BlockPosition blockPos : data.blocks) {
-            BlockState rotatedState = blockPos.state().rotate(rotation);
-            BlockPos pos = new BlockPos(blockPos.x(), blockPos.y(), blockPos.z());
-            levelLike.setBlockState(pos, rotatedState);
+        for (StructureLoadUtil.BlockPosition blockPos : rotatedData.blocks) {
+            levelLike.setBlockState(
+                new BlockPos(
+                    blockPos.x() - offsetX,
+                    blockPos.y() - offsetY,
+                    blockPos.z() - offsetZ
+                ),
+                blockPos.state()
+            );
         }
 
         return levelLike;
