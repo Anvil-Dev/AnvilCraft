@@ -13,8 +13,10 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PowerGridSupport {
@@ -28,30 +30,45 @@ public class PowerGridSupport {
     public static void submitPowerGridBounds(PoseStack poseStack, SubmitNodeCollector nodeCollector, Vec3 camera) {
         if (Minecraft.getInstance().level == null) return;
         String level = Minecraft.getInstance().level.dimension().identifier().toString();
-        nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
-            for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
-                if (!grid.shouldRender(camera)) continue;
-                if (!grid.getLevel().equals(level)) continue;
-                for (Line line : grid.getPowerGridBoundLines()) {
-                    line.render(pose, buffer, camera, grid.getColor());
+        nodeCollector.submitCustomGeometry(
+            poseStack, RenderTypes.lines(), (pose, buffer) -> {
+                for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
+                    if (!grid.shouldRender(camera)) continue;
+                    if (!grid.getLevel().equals(level)) continue;
+                    for (Line line : grid.getPowerGridBoundLines()) {
+                        line.render(pose, buffer, camera, grid.getColor());
+                    }
                 }
             }
-        });
+        );
     }
 
     public static void submitEnhancedTransmitterLine(Vec3 camera) {
         if (!RenderState.isEnhancedRenderingAvailable() || !RenderState.isBloomEffectEnabled()) return;
         if (!AnvilCraftClient.CONFIG.renderPowerTransmitterLines) return;
         if (Minecraft.getInstance().level == null) return;
+        String level = Minecraft.getInstance().level.dimension().identifier().toString();
+        List<SimplePowerGrid> gridToRender = new ArrayList<>();
+        for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
+            if (!grid.shouldRender(camera)) continue;
+            if (!grid.getLevel().equals(level)) continue;
+            if (grid.getPowerTransmitterLines().isEmpty()) continue;
+            gridToRender.add(grid);
+        }
+        if (gridToRender.isEmpty()) return;
         ALRPostEffects.getBloomPostEffect().drawBloomed(((nodeCollector, poseStack1) -> {
-            String level = Minecraft.getInstance().level.dimension().identifier().toString();
-            nodeCollector.submitCustomGeometry(poseStack1, ModRenderTypes.LINE_BLOOM, (pose, buffer) -> {
-                for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
-                    if (!grid.shouldRender(camera)) continue;
-                    if (!grid.getLevel().equals(level)) continue;
-                    grid.getPowerTransmitterLines().forEach(it -> it.render(pose, buffer, camera, Constant.TRANSMITTER_LINE_COLOR));
+            nodeCollector.submitCustomGeometry(
+                poseStack1, ModRenderTypes.LINE_BLOOM, (pose, buffer) -> {
+                    for (SimplePowerGrid grid : gridToRender) {
+                        grid.getPowerTransmitterLines().forEach(it -> it.render(
+                            pose,
+                            buffer,
+                            camera,
+                            Constant.TRANSMITTER_LINE_COLOR
+                        ));
+                    }
                 }
-            });
+            );
         }));
     }
 
@@ -60,13 +77,20 @@ public class PowerGridSupport {
         if (!AnvilCraftClient.CONFIG.renderPowerTransmitterLines) return;
         if (Minecraft.getInstance().level == null) return;
         String level = Minecraft.getInstance().level.dimension().identifier().toString();
-        nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
-            for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
-                if (!grid.shouldRender(camera)) continue;
-                if (!grid.getLevel().equals(level)) continue;
-                grid.getPowerTransmitterLines().forEach(it -> it.render(pose, buffer, camera, Constant.TRANSMITTER_LINE_COLOR));
+        nodeCollector.submitCustomGeometry(
+            poseStack, RenderTypes.lines(), (pose, buffer) -> {
+                for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
+                    if (!grid.shouldRender(camera)) continue;
+                    if (!grid.getLevel().equals(level)) continue;
+                    grid.getPowerTransmitterLines().forEach(it -> it.render(
+                        pose,
+                        buffer,
+                        camera,
+                        Constant.TRANSMITTER_LINE_COLOR
+                    ));
+                }
             }
-        });
+        );
     }
 
     public static void clearAllGrid() {
