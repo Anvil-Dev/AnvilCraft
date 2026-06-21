@@ -44,8 +44,12 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    /** 主体碰撞箱，匹配模型元素 1/2/7：x[3,13] y[3,13] z[0,16] */
-    private static final VoxelShape SHAPE = box(3, 3, 0, 13, 13, 16);
+    /** 主体碰撞箱 — 沿 Z 轴延伸（NORTH_UP / SOUTH_UP） */
+    private static final VoxelShape SHAPE_Z = box(3, 3, 0, 13, 13, 16);
+    /** 主体碰撞箱 — 沿 X 轴延伸（WEST_UP / EAST_UP） */
+    private static final VoxelShape SHAPE_X = box(0, 3, 3, 16, 13, 13);
+    /** 主体碰撞箱 — 沿 Y 轴延伸（UP_* / DOWN_*） */
+    private static final VoxelShape SHAPE_Y = box(3, 0, 3, 13, 16, 13);
 
     public PumpBlock(Properties properties) {
         super(properties);
@@ -65,10 +69,14 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         return RenderShape.MODEL;
     }
 
-    /** 仅主体部分的碰撞箱 */
+    /** 根据朝向返回旋转后的主体碰撞箱 */
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return SHAPE;
+        return switch (state.getValue(ORIENTATION).getDirection().getAxis()) {
+            case X -> SHAPE_X;
+            case Y -> SHAPE_Y;
+            default -> SHAPE_Z;
+        };
     }
 
     @Override
