@@ -63,11 +63,6 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         long gameTime = blockEntity.getLevel().getGameTime();
         float cycle = ((gameTime + partialTick) * speed) % 20.0f / 20.0f;
 
-        // 活塞 1：峰值在 cycle = 0.25（上顶点）
-        float piston1Offset = sinPulse(cycle, 0.25f) * MAX_PISTON_OFFSET;
-        // 活塞 2：峰值在 cycle = 0.75（上顶点），与活塞 1 错开半周期
-        float piston2Offset = sinPulse(cycle, 0.75f) * MAX_PISTON_OFFSET;
-
         // 沿输出方向平移并渲染
         float dx = outputDir.getStepX();
         float dy = outputDir.getStepY();
@@ -76,10 +71,16 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         // 注意：活塞模型设计在 NORTH_UP 方向（Y 旋转 180°），需匹配 blockstate 的旋转
         // 这里的平移是相对于泵主体的局部空间，沿输出方向运动
 
+        // 活塞 1：峰值在 cycle = 0.25（上顶点）
+        float piston1Offset = sinPulse(cycle, 0.25f) * MAX_PISTON_OFFSET;
+
         poseStack.pushPose();
         poseStack.translate(dx * piston1Offset, dy * piston1Offset, dz * piston1Offset);
         renderPistonModel(poseStack, buffer, PUMP_PISTON_1, packedLight, packedOverlay);
         poseStack.popPose();
+
+        // 活塞 2：峰值在 cycle = 0.75（上顶点），与活塞 1 错开半周期
+        float piston2Offset = sinPulse(cycle, 0.75f) * MAX_PISTON_OFFSET;
 
         poseStack.pushPose();
         poseStack.translate(dx * piston2Offset, dy * piston2Offset, dz * piston2Offset);
