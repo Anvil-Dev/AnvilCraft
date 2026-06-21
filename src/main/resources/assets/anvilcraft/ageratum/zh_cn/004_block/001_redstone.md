@@ -7,6 +7,7 @@ items:
   - anvilcraft:pulse_generator
   - anvilcraft:item_detector
   - anvilcraft:advanced_comparator
+  - anvilcraft:redstone_computer
 ---
 
 # 额外红石元件
@@ -71,8 +72,10 @@ items:
 - 从上往下<color=#999922>第二个按钮</color>可启用反转模式：在原来不输出信号的时候输出信号，反之亦然
 - 从上往下<color=#999922>第三个按钮</color>启用后，将两侧收到的红石信号作为阈值(不分左右，高者为上阈值)
 
+# <ref item="anvilcraft:redstone_computer"/>
 
+<recipe id="anvilcraft:redstone_computer"/>
 
-
+- 输出三个输入端的信号强度之和，最高不超过15
 
 

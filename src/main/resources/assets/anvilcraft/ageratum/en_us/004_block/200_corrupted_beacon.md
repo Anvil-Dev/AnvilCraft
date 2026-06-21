@@ -34,7 +34,7 @@ items:
 
 ## Function
 
-<structure id="../structures/corrupted_beacon.snbt"/>
+<structure id="../../structures/corrupted_beacon.snbt"/>
 
 - This structure enables time-warp operations; the corrupted beacon must be in an active state
 

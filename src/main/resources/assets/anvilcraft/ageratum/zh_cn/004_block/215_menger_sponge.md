@@ -42,4 +42,4 @@ items:
 游戏内判定时，<ref item="anvilcraft:menger_sponge"/>结构中的空气部分可以是其他方块，但不能是<ref item="anvilcraft:menger_sponge"/>
 </info>
 
-<structure id="../structures/menger_sponge_struct.snbt"/>
+<structure id="../../structures/menger_sponge_struct.snbt"/>

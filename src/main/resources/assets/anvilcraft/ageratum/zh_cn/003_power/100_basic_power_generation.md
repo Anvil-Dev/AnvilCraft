@@ -59,7 +59,7 @@ items:
 
 ## 摩擦生产电荷
 
-<structure id="../structures/triboelectric_power.snbt"/>
+<structure id="../../structures/triboelectric_power.snbt"/>
 
 - <ref item="anvilcraft:magnet_block"/>被活塞推拉时，如果紧贴着<ref item="minecraft:copper_block"/>，可以产生电荷
 - <ref item="minecraft:copper_block"/>生锈会使电荷生产量减少，每次移动产生的电荷见下表

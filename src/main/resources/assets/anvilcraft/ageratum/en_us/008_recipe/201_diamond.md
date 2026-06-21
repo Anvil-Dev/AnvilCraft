@@ -22,7 +22,7 @@ navigation:
 <recipe id="anvilcraft:super_heating/diamond"/>
 
 # More Efficient Conversion Route
-<structure id="../structures/muti_coal_block.snbt"/>
+<structure id="../../structures/muti_coal_block.snbt"/>
 
 - Harness the power of [Multiblock Crafting](../004_block/210_giant_anvil.md)
 - 27 <ref item="minecraft:coal_block"/> => 1 <ref item="minecraft:diamond_block"/>, with a higher conversion rate

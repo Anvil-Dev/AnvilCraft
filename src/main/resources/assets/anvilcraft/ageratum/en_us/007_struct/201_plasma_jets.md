@@ -16,7 +16,7 @@ navigation:
 
 ## Structure
 
-<structure id="../structures/plasma_jets.snbt"/>
+<structure id="../../structures/plasma_jets.snbt"/>
 
 - Requires a [burning cauldron](../002_material/201_oil.md)
 - A working <ref item="anvilcraft:heater"/> beneath the cauldron

@@ -12,7 +12,7 @@ navigation:
 
 ## Diagram
 
-<structure id="../structures/machine/mesh.snbt"/>
+<structure id="../../structures/machine/mesh.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height

@@ -14,7 +14,7 @@ You can further expand upon this foundation.
 
 ## Diagram
 
-<structure id="../structures/machine/piezoelectric_crystal_0.snbt"/>
+<structure id="../../structures/machine/piezoelectric_crystal_0.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
@@ -35,7 +35,7 @@ Output: 15kW per anvil; 150kW total
 
 ## Diagram
 
-<structure id="../structures/machine/piezoelectric_crystal_1.snbt"/>
+<structure id="../../structures/machine/piezoelectric_crystal_1.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height

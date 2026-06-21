@@ -40,7 +40,7 @@ you can produce <ref item="anvilcraft:giant_anvil"/> through **multi-block conve
 
 When <ref item="anvilcraft:giant_anvil"/> strikes <ref item="minecraft:crafting_table"/>, it converts the multi-block structure below, creating new blocks
 
-<structure id="../structures/mutiblock_convert.snbt"/>
+<structure id="../../structures/mutiblock_convert.snbt"/>
 
 <tip>
 If you don't like the look of <ref item="minecraft:crafting_table"/>, try <ref item="anvilcraft:transparent_crafting_table"/>
@@ -65,24 +65,11 @@ If you don't like the look of <ref item="minecraft:crafting_table"/>, try <ref i
 
 ### Definitions
 
-- For convenience, blocks adjacent to <ref item="anvilcraft:heavy_iron_block"/>
-  are called "adjacent blocks", and blocks in the multi-block structure not adjacent to <ref item="anvilcraft:heavy_iron_block"/> are called "corner blocks"
+- For convenience, blocks adjacent to <ref item="anvilcraft:heavy_iron_block"/> are called "adjacent blocks", and blocks in the multi-block structure not adjacent to <ref item="anvilcraft:heavy_iron_block"/> are called "corner blocks"
 - **Adjacent blocks** determine the shaking work mode
 - **Corner blocks** determine the work type within the mode
 
-<structure id="../structures/giant_anvil_shocking.snbt"/>
-
-[//]: # (    <DiamondAnnotation pos="0.5 0.5 0.5" color="#ff0000">)
-
-[//]: # (        Corner Block)
-
-[//]: # (    </DiamondAnnotation>)
-
-[//]: # (    <DiamondAnnotation pos="1.5 0.5 0.5" color="#ffff00">)
-
-[//]: # (        Adjacent Block)
-
-[//]: # (    </DiamondAnnotation>)
+<structure id="../../structures/giant_anvil_shocking.snbt"/>
 
 ### Work Mode: Default
 

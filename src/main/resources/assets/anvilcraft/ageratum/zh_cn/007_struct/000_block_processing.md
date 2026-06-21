@@ -18,7 +18,7 @@ navigation:
 
 # 方块 + 切石机：方块破坏
 
-<structure id="../structures/break.snbt"/>
+<structure id="../../structures/break.snbt"/>
 
 - 可以破坏无法被普通TNT爆炸破坏的方块，如<ref item="minecraft:obsidian"/>，但是普通铁砧将固定损坏一个耐久等级。
 - 为了防止方块破坏后铁砧掉在切石机上变为掉落物，你需要控制<ref item="anvilcraft:magnet_block"/>收回铁砧的时间。
@@ -26,7 +26,7 @@ navigation:
 
 # 单方块处理：方块粉碎
 
-<structure id="../structures/block_crush.snbt"/>
+<structure id="../../structures/block_crush.snbt"/>
 
 - <ref item="minecraft:cobblestone"/> → <ref item="minecraft:gravel"/> → <ref item="minecraft:sand"/>
 - <ref item="minecraft:polished_granite"/> → <ref item="minecraft:granite"/> → <ref item="minecraft:red_sand"/>
@@ -35,7 +35,7 @@ navigation:
 
 # 双方块处理：方块压合
 
-<structure id="../structures/press.snbt"/>
+<structure id="../../structures/press.snbt"/>
 
 - 苔藓块 + 泥土 → 草方块
 - 树叶 + 泥土 → 灰化土
@@ -50,7 +50,7 @@ navigation:
 
 上方的方块不消耗，转化下方的方块
 
-<structure id="../structures/smear.snbt"/>
+<structure id="../../structures/smear.snbt"/>
 
 - 苔藓块 + 圆石 → 苔石
 - 苔藓块 + 石砖 → 苔石砖

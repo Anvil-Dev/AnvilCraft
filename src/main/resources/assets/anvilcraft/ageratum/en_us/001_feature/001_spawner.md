@@ -14,7 +14,7 @@ navigation:
 
 When an anvil hits a <ref item="minecraft:spawner"/>, it will immediately attempt to spawn a mob.
 
-<structure id="../structures/spawner.snbt"/>
+<structure id="../../structures/spawner.snbt"/>
 
 - The anvil's drop height h determines the spawn probability p: **p = 1 - 1/h** (higher heights yield higher probability)
 - Does *not* require **players nearby** (make sure the chunk is loaded)

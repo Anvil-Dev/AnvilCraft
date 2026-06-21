@@ -18,7 +18,7 @@ navigation:
 
 使用<ref item="anvilcraft:lead_block"/>让<ref item="minecraft:vault"/>忘记自己曾被打开
 
-<structure id="../structures/vault.snbt"/>
+<structure id="../../structures/vault.snbt"/>
 
 然后对着一个<ref item="minecraft:vault"/>重复使用<ref item="minecraft:trial_key"/>，获得大量奖励，有机会获得<ref item="minecraft:ominous_bottle"/>
 

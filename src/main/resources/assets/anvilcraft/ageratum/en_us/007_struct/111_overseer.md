@@ -21,4 +21,4 @@ items:
   - 3-layer base loads a 7x7 chunk area
   - When the base contains at least 4 waterlogged blocks, it can generate *random ticks*
 
-<structure id="../structures/overseer.snbt"/>
+<structure id="../../structures/overseer.snbt"/>

@@ -1,7 +1,16 @@
 {
   "values": [
-    "anvilcraft:neutron_irradiator",
     "anvilcraft:transcendence_anvil",
-    "anvilcraft:transcendium_block"
+    "anvilcraft:celestial_forging_anvil",
+    "anvilcraft:celestial_forging_anvil_portal",
+    "anvilcraft:transcendium_block",
+    "anvilcraft:confined_time_anvilon",
+    "anvilcraft:confined_space_anvilon",
+    "anvilcraft:confined_mass_anvilon",
+    "anvilcraft:confined_energy_anvilon",
+    "anvilcraft:confined_neutronium_ingot",
+    "anvilcraft:confinement_chamber",
+    "anvilcraft:singularity_crystal",
+    "anvilcraft:infinite_collector"
   ]
 }

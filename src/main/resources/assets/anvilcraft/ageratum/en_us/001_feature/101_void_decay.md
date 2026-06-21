@@ -28,5 +28,5 @@ navigation:
    - Zinc, Tin, Lead Ores
    - Various Infested Stone
 
-<structure id="../structures/void_decay.snbt"/>
+<structure id="../../structures/void_decay.snbt"/>
 

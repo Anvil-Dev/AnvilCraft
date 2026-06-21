@@ -49,7 +49,7 @@ Colliding the <ref item="anvilcraft:giant_anvil"/> at different speeds with the 
 
 ## Anvilon Irradiation
 
-<structure id="../structures/anvilon_irradiator.nbt"/>
+<structure id="../../structures/anvilon_irradiator.nbt"/>
 
 When there are 6 identical anvilons in the eight surrounding blocks of a 3x3 area on the same horizontal level as the <ref item="anvilcraft:neutron_irradiator"/>, it transforms into the corresponding "Anvilon Irradiator"
 

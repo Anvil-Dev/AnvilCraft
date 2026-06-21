@@ -18,7 +18,7 @@ Enter the trial chamber, challenge the monsters within, and earn generous reward
 
 Use <ref item="anvilcraft:lead_block"/> to make <ref item="minecraft:vault"/> forget it has ever been opened
 
-<structure id="../structures/vault.snbt"/>
+<structure id="../../structures/vault.snbt"/>
 
 Then repeatedly use <ref item="minecraft:trial_key"/> on a <ref item="minecraft:vault"/> to obtain a large number of rewards, with a chance to get <ref item="minecraft:ominous_bottle"/>
 

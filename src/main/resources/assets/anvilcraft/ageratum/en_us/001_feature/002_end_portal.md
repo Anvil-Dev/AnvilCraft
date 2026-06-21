@@ -23,7 +23,7 @@ items:
 Don't worry about the departure of vanilla sand dupers — coming up next: [Better Sand Duper](../009_machine/003_sand.md)
 </info>
 
-<structure id="../structures/end_portal.snbt"/>
+<structure id="../../structures/end_portal.snbt"/>
 
 ## End Dust
 

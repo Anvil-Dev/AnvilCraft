@@ -14,7 +14,7 @@ navigation:
 
 ## 图示
 
-<structure id="../structures/machine/piezoelectric_crystal_0.snbt"/>
+<structure id="../../structures/machine/piezoelectric_crystal_0.snbt"/>
 
 <tip>
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
@@ -35,7 +35,7 @@ navigation:
 
 ## 图示
 
-<structure id="../structures/machine/piezoelectric_crystal_1.snbt"/>
+<structure id="../../structures/machine/piezoelectric_crystal_1.snbt"/>
 
 <tip>
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
