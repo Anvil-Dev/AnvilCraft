@@ -69,12 +69,14 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         poseStack.mulPose(Axis.XP.rotationDegrees(orientation.getXRotation()));
         poseStack.translate(-0.5, -0.5, -0.5);
 
+        poseStack.translate(0, -2.0f / 16.0f, 0);
+
         // 活塞模型沿 +Z 方向运动（模型空间中输出方向 = +Z）
         BakedModel piston1 = Minecraft.getInstance().getModelManager().getModel(PUMP_PISTON_1);
         // 活塞 1：峰值在 cycle=0.25（上顶点）
         float piston1Offset = sinPulse(cycle, 0.25f) * MAX_PISTON_OFFSET;
         poseStack.pushPose();
-        poseStack.translate(0, 0, piston1Offset);
+        poseStack.translate(0, piston1Offset, 0);
         renderPistonModel(poseStack, buffer, piston1, packedLight, packedOverlay);
         poseStack.popPose();
 
@@ -82,7 +84,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         // 活塞 2：峰值在 cycle=0.75（上顶点），与活塞 1 错开半周期
         float piston2Offset = sinPulse(cycle, 0.75f) * MAX_PISTON_OFFSET;
         poseStack.pushPose();
-        poseStack.translate(0, 0, piston2Offset);
+        poseStack.translate(0, piston2Offset, 0);
         renderPistonModel(poseStack, buffer, piston2, packedLight, packedOverlay);
         poseStack.popPose();
 
