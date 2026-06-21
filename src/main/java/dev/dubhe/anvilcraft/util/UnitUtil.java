@@ -5,6 +5,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 public class UnitUtil {
+    public static final String INFINITE_POWER = "∞";
+
     public static Component energyUnit(int energy, boolean original) {
         if (original) {
             return Component.literal(String.valueOf(energy)).withStyle(ChatFormatting.GOLD)
@@ -30,7 +32,10 @@ public class UnitUtil {
         }
     }
 
-    public static String electricityUnit(int amount, boolean original) {
+    public static String electricityUnit(int amount, boolean original, boolean infinite) {
+        if (infinite) {
+            return INFINITE_POWER;
+        }
         if (original) {
             return amount + " kW";
         }

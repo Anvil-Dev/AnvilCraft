@@ -27,7 +27,7 @@ items:
 # 冲压
 下方是<ref item="anvilcraft:stamping_platform"/>时，执行**物品冲压**操作，产物会从平台前掉出
 
-<structure id="../structures/item_stamping.snbt"/>
+<structure id="../../structures/item_stamping.snbt"/>
 
 - 铁锭→铁压力板
 - 金锭→金压力板
@@ -41,7 +41,7 @@ items:
 # 粉碎
 下方是<ref item="anvilcraft:crushing_table"/>时，执行**物品粉碎**操作，原料放在平台上，产物从下方掉出
 
-<structure id="../structures/item_crush.snbt"/>
+<structure id="../../structures/item_crush.snbt"/>
 
 - 可以回收工具、武器和盔甲并分解出原料，远多于熔炼得到的
 - 处理头颅：骷髅头颅 → 64骨粉；苦力怕的头 → 64火药
@@ -53,7 +53,7 @@ items:
 
 下方是<ref item="minecraft:cauldron"/>时，执行**物品压缩**操作，原料和产物都在锅中
 
-<structure id="../structures/item_compress.snbt"/>
+<structure id="../../structures/item_compress.snbt"/>
 
 - 如果物品有2x2或3x3的合成配方则会被执行，例如9铁粒→铁锭；9铁锭→铁块；4线→羊毛
 - 如果一个物品既可以2x2合成又可以3x3合成，则执行3x3合成
@@ -63,7 +63,7 @@ items:
 
 下方是<ref item="minecraft:iron_trapdoor"/>时，执行**物品分解**操作，原料置于铁活版门上，产物出现在铁活版门下
 
-<structure id="../structures/unpack.snbt"/>
+<structure id="../../structures/unpack.snbt"/>
 
 - 如果物品有1→n的合成配方则会被执行，例如1铁锭→9铁粒
 - 额外地，原版可以通过打破方块来分解的也可执行，数量按最大来
@@ -74,7 +74,7 @@ items:
 
 下方是<ref item="minecraft:scaffolding"/>时，执行**物品过筛**操作，原料置于脚手架上，产物出现在脚手架下
 
-<structure id="../structures/mesh.snbt"/>
+<structure id="../../structures/mesh.snbt"/>
 
 <recipe id="anvilcraft:mesh/gravel"/>
 
@@ -86,7 +86,7 @@ items:
 
 下方是装水<ref item="minecraft:cauldron"/>时，执行**物品膨发**操作，原料和产物都在锅中，消耗一层水
 
-<structure id="../structures/bulging.snbt"/>
+<structure id="../../structures/bulging.snbt"/>
 
 - 铜制方块→锈蚀铜制方块
 - 泥土→黏土
@@ -100,7 +100,7 @@ items:
 
 下方是<ref item="minecraft:cauldron"/>和<ref item="minecraft:campfire"/>时， 执行**物品膨发**操作，原料和产物都在锅中，有的配方需要水
 
-<structure id="../structures/cooking.snbt"/>
+<structure id="../../structures/cooking.snbt"/>
 
 - 自动兼容所有烟熏炉配方和营火配方，此时不需要水
 

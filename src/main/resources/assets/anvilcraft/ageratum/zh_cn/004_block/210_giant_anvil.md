@@ -40,7 +40,7 @@ items:
 
 <ref item="anvilcraft:giant_anvil"/>砸中<ref item="minecraft:crafting_table"/>时，对下方多方块结构进行转化，生成新的方块
 
-<structure id="../structures/mutiblock_convert.snbt"/>
+<structure id="../../structures/mutiblock_convert.snbt"/>
 
 <tip>
 如果觉得<ref item="minecraft:crafting_table"/>不好看，可以试试<ref item="anvilcraft:transparent_crafting_table"/>
@@ -65,24 +65,11 @@ items:
 
 ### 定义
 
-- 方便起见，我们将与<ref item="anvilcraft:heavy_iron_block"/>
-  相邻的方块称为“邻块”，多方块结构中不与<ref item="anvilcraft:heavy_iron_block"/>相邻的方块称为“角块”
+- 方便起见，我们将与<ref item="anvilcraft:heavy_iron_block"/>相邻的方块称为“邻块”，多方块结构中不与<ref item="anvilcraft:heavy_iron_block"/>相邻的方块称为“角块”
 - **邻块**决定撼地的工作模式
 - **角块**决定模式的工作类型
 
-<structure id="../structures/giant_anvil_shocking.snbt"/>
-
-[//]: # (    <DiamondAnnotation pos="0.5 0.5 0.5" color="#ff0000">)
-
-[//]: # (        角块)
-
-[//]: # (    </DiamondAnnotation>)
-
-[//]: # (    <DiamondAnnotation pos="1.5 0.5 0.5" color="#ffff00">)
-
-[//]: # (        邻块)
-
-[//]: # (    </DiamondAnnotation>)
+<structure id="../../structures/giant_anvil_shocking.snbt"/>
 
 ### 工作模式：默认
 
@@ -100,13 +87,13 @@ items:
 - <ref item="anvilcraft:giant_anvil"/>落点高度越高，**撼地**造成的伤害越高
 - **角块**决定伤害类型，对应关系如下：
 
-|                       角块                       |     伤害类型      |
-|:----------------------------------------------:|:-------------:|
+|                     角块                     |     伤害类型      |
+|:------------------------------------------:|:-------------:|
 |    <ref item="anvilcraft:ruby_block"/>     |     火焰伤害      |
 |  <ref item="anvilcraft:sapphire_block"/>   |     冰冻伤害      |
 |    <ref item="anvilcraft:topaz_block"/>    |     雷电伤害      |
 | <ref item="anvilcraft:void_matter_block"/> |     虚空伤害      |
-|                       其他                       | 摔落伤害(可以穿靴子避免) |
+|                     其他                     | 摔落伤害(可以穿靴子避免) |
 
 ### 工作模式：破坏
 
@@ -114,8 +101,8 @@ items:
 - 属于[铁砧挖掘](../001_feature/000_anvil_destroy.md)，铁砧类型会决定不同的破坏效果
 - **角块**决定破坏哪类方块：
 
-|                      角块                      | 方块类型                                             |
-|:--------------------------------------------:|:-------------------------------------------------|
+|                    角块                    | 方块类型                                             |
+|:----------------------------------------:|:-------------------------------------------------|
 |     <ref item="minecraft:obsidian"/>     | 任意方块                                             |
 |   <ref item="minecraft:grass_block"/>    | 花、草、菌、灌木、藤蔓、农作物和雪片                               |
 |    <ref item="minecraft:hay_block"/>     | 收割并补种包括小麦、南瓜、浆果、可可豆与下界疣等农作物。可以操作高于工作平面的相连原木上的可可豆 |

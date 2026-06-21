@@ -31,25 +31,32 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
             IElementHelper elementHelper = IElementHelper.get();
             int generate = serverData.getInt("generate");
             int consume = serverData.getInt("consume");
+            boolean infinitePower = serverData.getBoolean("infinitePower");
 
-            int color;
-            float percent = (float) consume / generate;
-            if (percent < 0.75) {
-                color = 0xFFFFD700;
+            if (infinitePower) {
+                tooltip.add(Component.translatable("tooltip.anvilcraft.jade.power_information",
+                    UnitUtil.INFINITE_POWER));
             } else {
-                color = 0xFFFF0000;
-            }
+                int color;
+                float percent = (float) consume / generate;
+                if (percent < 0.75) {
+                    color = 0xFFFFD700;
+                } else {
+                    color = 0xFFFF0000;
+                }
 
-            tooltip.add(elementHelper.progress(
-                percent,
-                Component.translatable("tooltip.anvilcraft.jade.power_information", UnitUtil.electricityUnit(consume, generate, original)),
-                elementHelper.progressStyle().color(color).textColor(-1),
-                Util.make(STYLE, boxStyle -> {
-                    boxStyle.borderColor = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};
-                    boxStyle.borderWidth = 1.0f;
-                    boxStyle.bgColor = 0xFF32CD32;
-                }),
-                true));
+                tooltip.add(elementHelper.progress(
+                    percent,
+                    Component.translatable("tooltip.anvilcraft.jade.power_information",
+                        UnitUtil.electricityUnit(consume, generate, original)),
+                    elementHelper.progressStyle().color(color).textColor(-1),
+                    Util.make(STYLE, boxStyle -> {
+                        boxStyle.borderColor = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};
+                        boxStyle.borderWidth = 1.0f;
+                        boxStyle.bgColor = 0xFF32CD32;
+                    }),
+                    true));
+            }
         }
     }
 
@@ -62,6 +69,7 @@ public enum PowerBlockProvider implements IBlockComponentProvider, IServerDataPr
             }
             compoundTag.putInt("generate", powerGrid.getGenerate());
             compoundTag.putInt("consume", powerGrid.getConsume());
+            compoundTag.putBoolean("infinitePower", powerGrid.isHasInfinitePower());
         }
     }
 

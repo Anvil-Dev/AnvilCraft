@@ -10,7 +10,7 @@ navigation:
 
 接下来这台三模式砸沙机，可以控制拉杆切换产出圆石、沙砾还是沙子
 
-<structure id="../structures/machine/sand.snbt"/>
+<structure id="../../structures/machine/sand.snbt"/>
 
 <tip>
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度

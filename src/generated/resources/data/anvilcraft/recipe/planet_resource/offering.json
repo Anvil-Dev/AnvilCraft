@@ -4,7 +4,7 @@
   "offering": {
     "entries": [
       {
-        "id": "minecraft:emerald_block",
+        "id": "anvilcraft:gem_block_random",
         "weight": 50
       },
       {

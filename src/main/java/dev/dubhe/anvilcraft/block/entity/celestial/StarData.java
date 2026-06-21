@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.nbt.CompoundTag;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public record StarData(
     CelestialBodyClass bodyClass,
@@ -11,7 +14,8 @@ public record StarData(
     float axialTilt,
     int rotationSpeed,
     int magneticFieldStrength,
-    int energy
+    int energy,
+    @Nullable UUID bodyUuid
 ) implements CelestialBodyData {
 
     @Override
@@ -22,6 +26,22 @@ public record StarData(
     @Override
     public RingType ringType() {
         return RingType.NONE;
+    }
+
+    /**
+     * Create a copy with a new body UUID, preserving all other fields.
+     */
+    public StarData withBodyUuid(UUID uuid) {
+        return new StarData(bodyClass, size, colorR, colorG, colorB, axialTilt, rotationSpeed, magneticFieldStrength, energy, uuid);
+    }
+
+    /**
+     * Derive a reproducible UUID from the bodySeed. The same bodySeed always
+     * produces the same UUID, which enables singularity crystal copies to share
+     * the wormhole identity of the original discovery.
+     */
+    public static UUID uuidFromBodySeed(long bodySeed) {
+        return new UUID(bodySeed, bodySeed);
     }
 
     @Override
@@ -37,6 +57,9 @@ public record StarData(
         tag.putInt("rotationSpeed", rotationSpeed);
         tag.putInt("magneticFieldStrength", magneticFieldStrength);
         tag.putInt("energy", energy);
+        if (bodyUuid != null) {
+            tag.putUUID("bodyUuid", bodyUuid);
+        }
         return tag;
     }
 
@@ -54,6 +77,7 @@ public record StarData(
         int mag = tag.contains("magneticFieldStrength") ? tag.getInt("magneticFieldStrength") : 0;
         int energy = tag.contains("energy") ? tag.getInt("energy") : 0;
         int rotSpeed = tag.contains("rotationSpeed") ? tag.getInt("rotationSpeed") : 0;
-        return new StarData(cls, size, r, g, b, tag.getFloat("axialTilt"), rotSpeed, mag, energy);
+        UUID uuid = tag.contains("bodyUuid") ? tag.getUUID("bodyUuid") : null;
+        return new StarData(cls, size, r, g, b, tag.getFloat("axialTilt"), rotSpeed, mag, energy, uuid);
     }
 }

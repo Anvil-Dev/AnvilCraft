@@ -44,13 +44,13 @@ items:
 运用原版的堆叠TNT加速，水流防爆等机制，配合精妙的红石时序，可以制作不需要电的铁砧加速器，但较有挑战性
 </tip>
 
-<structure id="../structures/accelerate_machine.snbt"/>
+<structure id="../../structures/accelerate_machine.snbt"/>
 
 ## 撞击室
 
 - 撞击会产生一场大爆炸，一个由防爆方块组成的撞击室是必需的
 
-<structure id="../structures/collision_room.snbt"/>
+<structure id="../../structures/collision_room.snbt"/>
 
 ## 控制速度
 

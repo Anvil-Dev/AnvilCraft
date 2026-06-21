@@ -23,7 +23,7 @@ items:
 不必担心原版刷沙机的离去，正在赶来的是：[更好的刷沙机](../009_machine/003_sand.md)
 </info>
 
-<structure id="../structures/end_portal.snbt"/>
+<structure id="../../structures/end_portal.snbt"/>
 
 ## 末地尘
 

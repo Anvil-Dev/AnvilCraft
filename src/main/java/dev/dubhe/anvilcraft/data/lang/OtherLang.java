@@ -33,6 +33,8 @@ public class OtherLang {
         provider.add("message.anvilcraft.disk.data_incompatible", "This block is incompatible with data stored in disk");
         provider.add("message.anvilcraft.disk.data_cleared", "Cleared data stored in disk");
         provider.add("message.anvilcraft.disk.data_stored", "Stored setting of block into disk");
+        provider.add("message.anvilcraft.disk.extreme_body_requires_crystal",
+            "Extreme celestial bodies can only be stored in Singularity Crystal"); // 极端天体的数据只能被存储在奇点晶体中
         provider.add("message.anvilcraft.chute.cannot_place", "Chute cannot face this direction");
         provider.add("message.anvilcraft.structure_scanner.no_disk", "Please insert a structure disk to save the structure!");
         provider.add("message.anvilcraft.structure_scanner.output_not_empty", "Output slot is not empty, please take the item first!");
@@ -43,7 +45,7 @@ public class OtherLang {
         provider.add("enchantment.anvilcraft.smelting", "Smelting");
         provider.add("enchantment.anvilcraft.disintegration", "Disintegration");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
-        provider.add("death.attack.anvilcraft.gamma_laser", "%1$s was shattered into dust by gamma lasers");
+        provider.add("death.attack.anvilcraft.gamma_laser", "%1$s want to be Hulk, but he's not Bruce Banner.");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.plasma_jets", "%1$s tried to high-five the plasma jets. They did not high-five back.");

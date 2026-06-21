@@ -27,10 +27,18 @@ public class CfaLogisticsInterfaceTooltipProvider extends ITooltipProvider.Block
         if (!demandItem.isEmpty() && !logistics.isTempleDemandSatisfied()) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.temple_demand")
                 .withStyle(ChatFormatting.GOLD));
-            lines.add(Component.literal(" · ")
-                .append(demandItem.getHoverName())
-                .append(Component.literal(" ×" + logistics.getTempleDemandCount()))
-                .withStyle(ChatFormatting.YELLOW));
+            int progress = logistics.getTempleDemandProgress();
+            if (progress > 0) {
+                lines.add(Component.literal(" · ")
+                    .append(demandItem.getHoverName())
+                    .append(Component.literal(" " + progress + "/" + logistics.getTempleDemandCount()))
+                    .withStyle(ChatFormatting.YELLOW));
+            } else {
+                lines.add(Component.literal(" · ")
+                    .append(demandItem.getHoverName())
+                    .append(Component.literal(" ×" + logistics.getTempleDemandCount()))
+                    .withStyle(ChatFormatting.YELLOW));
+            }
             lines.add(Component.literal(""));
         }
 

@@ -17,6 +17,13 @@ public interface IPowerProducer extends IPowerComponent {
         return 0;
     }
 
+    /**
+     * Whether this producer is generating infinite power (e.g. Dyson Sphere during stellar acceleration).
+     */
+    default boolean isInfinitePower() {
+        return false;
+    }
+
     @Override
     default PowerComponentType getComponentType() {
         return PowerComponentType.PRODUCER;

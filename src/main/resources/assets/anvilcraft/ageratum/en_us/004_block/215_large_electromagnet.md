@@ -44,13 +44,13 @@ Using the power of large electromagnets, build a ring accelerator. Make anvils c
 Using vanilla mechanics like stacked TNT acceleration, water blast protection, and precise redstone timing, you can create an anvil accelerator that requires no electricity, though it is quite challenging
 </tip>
 
-<structure id="../structures/accelerate_machine.snbt"/>
+<structure id="../../structures/accelerate_machine.snbt"/>
 
 ## Impact Chamber
 
 - The impact produces a large explosion; an impact chamber made of blast-proof blocks is necessary
 
-<structure id="../structures/collision_room.snbt"/>
+<structure id="../../structures/collision_room.snbt"/>
 
 ## Speed Control
 

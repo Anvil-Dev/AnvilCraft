@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity.celestial;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.LiquidCoverage;
@@ -73,7 +74,7 @@ public class CelestialBodyTextureBakery {
         if (data instanceof RockyPlanetData rp) return resolveRocky(rp);
         if (data instanceof GiantPlanetData gp) {
             if (gp.brownDwarf()) return new TexSet("planet_giant.png",
-                gp.windSpeed() == WindSpeed.VERY_HIGH ? "planet_giant_overlay_0.png" : "planet_giant_overlay_1.png",
+                gp.windSpeed() == WindSpeed.VERY_HIGH ? "planet_giant_overlay_1.png" : "planet_giant_overlay_0.png",
                 "planet_mix_color_scorched.png");
             return resolveGiant(gp);
         }
@@ -159,9 +160,12 @@ public class CelestialBodyTextureBakery {
     }
 
     private static TexSet resolveGiant(GiantPlanetData gp) {
+        String palette = gp.bodyClass() == CelestialBodyClass.ICE_GIANT
+            ? "planet_giant_color_1.png"
+            : "planet_giant_color_0.png";
         return new TexSet("planet_giant.png",
-            gp.windSpeed() == WindSpeed.VERY_HIGH ? "planet_giant_overlay_0.png" : "planet_giant_overlay_1.png",
-            "planet_giant_color.png");
+            gp.windSpeed() == WindSpeed.VERY_HIGH ? "planet_giant_overlay_1.png" : "planet_giant_overlay_0.png",
+            palette);
     }
 
     @Nullable
@@ -214,7 +218,7 @@ public class CelestialBodyTextureBakery {
      */
     @Nullable
     private static ResourceLocation bakeSpecial(String key, SpecialCelestialBodyData special) {
-        String filename = special.specialType().getTextureName() + ".png";
+        String filename = special.textureName() + ".png";
         NativeImage img = loadImage(filename);
         if (img == null) return null;
         return registerTexture(key, img);
@@ -248,7 +252,7 @@ public class CelestialBodyTextureBakery {
 
     private static String cacheKey(CelestialBodyData data) {
         if (data instanceof SpecialCelestialBodyData s)
-            return "special_" + s.specialType().getName();
+            return "special_" + s.name();
         if (data instanceof StarData s)
             return "star_" + s.size() + "_" + s.colorR() + "_" + s.colorG() + "_" + s.colorB();
         if (data instanceof RockyPlanetData rp)

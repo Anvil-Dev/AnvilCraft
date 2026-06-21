@@ -2096,6 +2096,7 @@ public class RegistrumBlockRecipeLoader {
             .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .inputBlock(ModBlocks.GIANT_ANVIL)
             .resultBlock(ctx)
+            .result(ctx.get(), 3)
             .save(provider);
     }
 

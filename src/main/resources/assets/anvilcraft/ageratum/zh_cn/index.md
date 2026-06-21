@@ -5,7 +5,7 @@ navigation:
   position: -1
 ---
 
-![Logo](textures/logo.png)
+![Logo](../textures/logo.png)
 
 # 介绍
 

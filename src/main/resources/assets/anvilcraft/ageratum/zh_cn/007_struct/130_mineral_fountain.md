@@ -51,7 +51,7 @@ items:
 
 ## 产矿
 
-<structure id="../structures/mineral_fountain/raw_mineral.snbt"/>
+<structure id="../../structures/mineral_fountain/raw_mineral.snbt"/>
 
 - 如果<ref item="anvilcraft:mineral_fountain"/>的四面都是**同种粗矿块**，则将上方<ref item="minecraft:deepslate"/>转化为对应的**深层矿**
 - 有概率转而生成<ref item="anvilcraft:earth_core_shard_ore"/>或<ref item="anvilcraft:void_stone"/>
@@ -70,7 +70,7 @@ items:
 
 ## 产熔岩
 
-<structure id="../structures/mineral_fountain/lava.snbt"/>
+<structure id="../../structures/mineral_fountain/lava.snbt"/>
 
 - 四周被**熔岩**环绕的<ref item="anvilcraft:mineral_fountain"/>可以生成**熔岩**
 
@@ -78,7 +78,7 @@ items:
 
 ## 加热
 
-<structure id="../structures/mineral_fountain/heat.snbt"/>
+<structure id="../../structures/mineral_fountain/heat.snbt"/>
 
 - 四周被**熔岩**环绕的<ref item="anvilcraft:mineral_fountain"/>可以将[可加热方块](../001_feature/101_heated_block.md)加热到<color=#aa2222>红热等级</color>
 

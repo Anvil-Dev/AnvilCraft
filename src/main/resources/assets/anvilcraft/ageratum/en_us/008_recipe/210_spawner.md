@@ -25,7 +25,7 @@ items:
 ## Creating Spawners
 
 
-<structure id="../structures/muti_spawner.snbt"/>
+<structure id="../../structures/muti_spawner.snbt"/>
 
 <info>
 Crafting <ref item="minecraft:spawner"/> only accepts [Multiblock Conversion](../004_block/210_giant_anvil.md#function), not [Multiblock Crafting](../004_block/210_giant_anvil.md#function)!

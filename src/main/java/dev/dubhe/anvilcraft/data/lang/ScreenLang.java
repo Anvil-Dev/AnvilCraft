@@ -70,10 +70,10 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.grid_information.title", "Power Grid Stats:");
         provider.add("tooltip.anvilcraft.grid_information.producer_stats", "Power Producer Stats:");
         provider.add("tooltip.anvilcraft.grid_information.consumer_stats", "Power Consumer Stats:");
-        provider.add("tooltip.anvilcraft.grid_information.output_power", "  Power Generation: %d");
-        provider.add("tooltip.anvilcraft.grid_information.input_power", "  Power Consumption: %d");
-        provider.add("tooltip.anvilcraft.grid_information.total_consumed", "  Total Consumption: %d");
-        provider.add("tooltip.anvilcraft.grid_information.total_generated", "  Total Generation: %d");
+        provider.add("tooltip.anvilcraft.grid_information.output_power", "  Power Generation: %s");
+        provider.add("tooltip.anvilcraft.grid_information.input_power", "  Power Consumption: %s");
+        provider.add("tooltip.anvilcraft.grid_information.total_consumed", "  Total Consumption: %s");
+        provider.add("tooltip.anvilcraft.grid_information.total_generated", "  Total Generation: %s");
         provider.add("tooltip.anvilcraft.grid_information.utilization", "  Power Utilization: %s");
         provider.add("tooltip.anvilcraft.grid_information.overloaded1", "It appears that this grid is overloaded.");
         provider.add("tooltip.anvilcraft.grid_information.overloaded2", "Add more sources or remove the components");
@@ -120,6 +120,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.burning_heater.state.lit", "State: Lit");
         provider.add("tooltip.anvilcraft.burning_heater.burn_time", "Remaining Burn Time: %s");
 
+        provider.add("block.anvilcraft.celestial_forging_anvil.placement_too_close_to_another", "Too close to another Celestial Forging Anvil"); // 距离另一个锻星砧太近
         provider.add("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner", "Needs to be placed on the corner of the Celestial Forging Anvil");
         provider.add("block.anvilcraft.heat_collector.placement_too_close_to_another", "Too close to another heat collector");
         provider.add("tooltip.anvilcraft.heat_collector.not_work", "Heat Collector is not working");
@@ -273,195 +274,206 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.trading_station.output_allow", "Allow automatically outputting");
         provider.add("screen.anvilcraft.trading_station.output_not_allow", "Disallow automatically outputting");
 
-        // Celestial Forging Anvil
-        provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil");
-        provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter");
-        provider.add("screen.anvilcraft.cfa.lock", "Click to lock");
-        provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first.");
-        provider.add("screen.anvilcraft.cfa.missing_amplifier.line1", "Amplifier missing,");
-        provider.add("screen.anvilcraft.cfa.missing_amplifier.line2", "celestial body status");
-        provider.add("screen.anvilcraft.cfa.missing_amplifier.line3", "cannot be synced");
-        provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power");
-        provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Search Again");
-        provider.add("screen.anvilcraft.cfa.search_fail", "Unreasonable parameters");
-        provider.add("screen.anvilcraft.cfa.search_loading", "Searching");
-        provider.add("screen.anvilcraft.cfa.search_tooltip", "Search for celestial bodies with this parameter");
-        provider.add("screen.anvilcraft.cfa.unlock", "Shift-Click to unlock");
-        provider.add("screen.anvilcraft.cfa.unlock_warning", "Unlock will delete the megastructure, Shift-Click to confirm");
-        provider.add("screen.anvilcraft.cfa.radius", "Radius: %s");
-        provider.add("screen.anvilcraft.cfa.age", "Age: %s");
-        provider.add("screen.anvilcraft.cfa.mass", "Mass: %s");
-        provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt: %s");
+        // Celestial Forging Anvil (所有冒号后面都要带空格，中文也是！)
+        provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil"); // 锻星砧
+        provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter"); // 天体参数
+        provider.add("screen.anvilcraft.cfa.lock", "Click to lock"); // 点击锁定
+        provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first."); // 需要先解锁才可操作，如果你不是锻星砧拥有者，请询问拥有者后操作
+        provider.add("screen.anvilcraft.cfa.missing_amplifier.line1", "Amplifier missing,"); // 滚木
+        provider.add("screen.anvilcraft.cfa.missing_amplifier.line2", "celestial body status"); // 缺少增幅器，天体状态暂无法同步
+        provider.add("screen.anvilcraft.cfa.missing_amplifier.line3", "cannot be synced"); // 滚木
+        provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power"); // 电力不足
+        provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Search Again"); // 再次搜索
+        provider.add("screen.anvilcraft.cfa.search_fail", "Unreasonable parameters"); // 参数不合理，无法搜索
+        provider.add("screen.anvilcraft.cfa.search_loading", "Searching"); // 参数合理，搜索中
+        provider.add("screen.anvilcraft.cfa.search_tooltip", "Search for celestial bodies with this parameter"); // 搜索该参数的天体
+        provider.add("screen.anvilcraft.cfa.unlock", "Shift-Click to unlock"); // 按住Shift点击以解锁
+        provider.add("screen.anvilcraft.cfa.unlock_warning", "Unlock will delete the megastructure, Shift-Click to confirm"); // 解锁会删除已建造的巨构，按住Shift点击确认解锁
+        provider.add("screen.anvilcraft.cfa.radius", "Radius: %s"); // 半径: %s
+        provider.add("screen.anvilcraft.cfa.age", "Age: %s"); // 年龄: %s
+        provider.add("screen.anvilcraft.cfa.mass", "Mass: %s"); // 质量: %s
+        provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt: %s"); // 自转轴倾角: %s
 
-        provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere: %s");
-        provider.add("screen.anvilcraft.cfa.atmos.yes", "Yes");
-        provider.add("screen.anvilcraft.cfa.none", "None");
+        provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere: %s"); // 大气: %s
+        provider.add("screen.anvilcraft.cfa.atmos.yes", "Yes"); // 有
+        provider.add("screen.anvilcraft.cfa.none", "None"); // 无
 
-        provider.add("screen.anvilcraft.cfa.mag", "Magnetic Field: %s");
-        provider.add("screen.anvilcraft.cfa.mag.very_weak", "Very Weak");
-        provider.add("screen.anvilcraft.cfa.mag.weak", "Weak");
-        provider.add("screen.anvilcraft.cfa.mag.medium", "Medium");
-        provider.add("screen.anvilcraft.cfa.mag.strong", "Strong");
-        provider.add("screen.anvilcraft.cfa.mag.very_strong", "Very Strong");
-        provider.add("screen.anvilcraft.cfa.mag.extreme", "Extreme");
+        provider.add("screen.anvilcraft.cfa.mag", "Magnetic Field: %s"); // 磁场: %s
+        provider.add("screen.anvilcraft.cfa.mag.very_weak", "Very Weak"); // 几乎没有
+        provider.add("screen.anvilcraft.cfa.mag.weak", "Weak"); // 弱
+        provider.add("screen.anvilcraft.cfa.mag.medium", "Medium"); // 中等
+        provider.add("screen.anvilcraft.cfa.mag.strong", "Strong"); // 强
+        provider.add("screen.anvilcraft.cfa.mag.very_strong", "Very Strong"); // 非常强
+        provider.add("screen.anvilcraft.cfa.mag.extreme", "Extreme"); // 极端强
 
-        provider.add("screen.anvilcraft.cfa.spin", "Spin: %s");
-        provider.add("screen.anvilcraft.cfa.spin.very_slow", "Very Slow");
-        provider.add("screen.anvilcraft.cfa.spin.slow", "Slow");
-        provider.add("screen.anvilcraft.cfa.spin.medium", "Medium");
-        provider.add("screen.anvilcraft.cfa.spin.fast", "Fast");
-        provider.add("screen.anvilcraft.cfa.spin.very_fast", "Very Fast");
-        provider.add("screen.anvilcraft.cfa.spin.super_fast", "Super Fast");
+        provider.add("screen.anvilcraft.cfa.spin", "Spin: %s"); // 自转速度: %s
+        provider.add("screen.anvilcraft.cfa.spin.very_slow", "Very Slow"); // 非常慢
+        provider.add("screen.anvilcraft.cfa.spin.slow", "Slow"); // 慢
+        provider.add("screen.anvilcraft.cfa.spin.medium", "Medium"); // 中等
+        provider.add("screen.anvilcraft.cfa.spin.fast", "Fast"); // 快
+        provider.add("screen.anvilcraft.cfa.spin.very_fast", "Very Fast"); // 非常快
+        provider.add("screen.anvilcraft.cfa.spin.super_fast", "Super Fast"); // 极端快
 
-        provider.add("screen.anvilcraft.cfa.temp", "Temperature: %s");
-        provider.add("screen.anvilcraft.cfa.temp.freezing", "Freezing");
-        provider.add("screen.anvilcraft.cfa.temp.cold", "Cold");
-        provider.add("screen.anvilcraft.cfa.temp.mild", "Mild");
-        provider.add("screen.anvilcraft.cfa.temp.hot", "Hot");
-        provider.add("screen.anvilcraft.cfa.temp.scorched", "Scorched");
+        provider.add("screen.anvilcraft.cfa.temp", "Temperature: %s"); // 表面温度: %s
+        provider.add("screen.anvilcraft.cfa.temp.freezing", "Freezing"); // 极寒
+        provider.add("screen.anvilcraft.cfa.temp.cold", "Cold"); // 寒冷
+        provider.add("screen.anvilcraft.cfa.temp.mild", "Mild"); // 温和
+        provider.add("screen.anvilcraft.cfa.temp.hot", "Hot"); // 炎热
+        provider.add("screen.anvilcraft.cfa.temp.scorched", "Scorched"); // 焦土
 
-        provider.add("screen.anvilcraft.cfa.liquid", "Liquid Coverage: %s");
-        provider.add("screen.anvilcraft.cfa.liquid.none", "None");
-        provider.add("screen.anvilcraft.cfa.liquid.low", "Low");
-        provider.add("screen.anvilcraft.cfa.liquid.medium", "Medium");
-        provider.add("screen.anvilcraft.cfa.liquid.high", "High");
+        provider.add("screen.anvilcraft.cfa.liquid", "Liquid Coverage: %s"); // 液体覆盖率: %s
+        provider.add("screen.anvilcraft.cfa.liquid.none", "None"); // 无
+        provider.add("screen.anvilcraft.cfa.liquid.low", "Low"); // 低
+        provider.add("screen.anvilcraft.cfa.liquid.medium", "Medium"); // 中
+        provider.add("screen.anvilcraft.cfa.liquid.high", "High"); // 高
 
-        provider.add("screen.anvilcraft.cfa.pressure", "Pressure Type: %s");
-        provider.add("screen.anvilcraft.cfa.pressure.gas", "Gas");
-        provider.add("screen.anvilcraft.cfa.pressure.ice", "Ice");
+        provider.add("screen.anvilcraft.cfa.pressure", "Pressure Type: %s"); // 压力类型: %s
+        provider.add("screen.anvilcraft.cfa.pressure.gas", "Gas"); // 气体
+        provider.add("screen.anvilcraft.cfa.pressure.ice", "Ice"); // 冰
 
-        provider.add("screen.anvilcraft.cfa.wind", "Wind Speed: %s");
-        provider.add("screen.anvilcraft.cfa.wind.high", "High");
-        provider.add("screen.anvilcraft.cfa.wind.very_high", "Very High");
+        provider.add("screen.anvilcraft.cfa.wind", "Wind Speed: %s"); // 风速: %s
+        provider.add("screen.anvilcraft.cfa.wind.high", "High"); // 高
+        provider.add("screen.anvilcraft.cfa.wind.very_high", "Very High"); // 非常高
 
-        provider.add("screen.anvilcraft.cfa.type", "Type: %s");
-        provider.add("screen.anvilcraft.cfa.class.no_match", "Null");
-        provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon");
-        provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet");
+        provider.add("screen.anvilcraft.cfa.type", "Type: %s"); // 天体类型: %s
+        provider.add("screen.anvilcraft.cfa.class.no_match", "Null"); // ？？？
+        provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon"); // 大型卫星
+        provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet"); // 岩石行星
         // Rocky planet types — keyed by temperature × liquid × atmosphere
-        provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_no_atmos", "Deathly Frozen");
-        provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_atmos", "Desolate Frozen");
-        provider.add("screen.anvilcraft.cfa.class.freezing_liquid", "Frozen Planet");
-        provider.add("screen.anvilcraft.cfa.class.scorched_no_liquid_no_atmos", "Deathly Scorched");
-        provider.add("screen.anvilcraft.cfa.class.scorched_no_liquid_atmos", "Desolate Scorched");
-        provider.add("screen.anvilcraft.cfa.class.scorched_liquid", "Lava Planet");
-        provider.add("screen.anvilcraft.cfa.class.deathly_planet", "Deathly Planet");
-        provider.add("screen.anvilcraft.cfa.class.desert_planet", "Desert Planet");
-        provider.add("screen.anvilcraft.cfa.class.cold_riverbank", "Frozen Riverbank");
-        provider.add("screen.anvilcraft.cfa.class.mild_riverbank", "Warm Riverbank");
-        provider.add("screen.anvilcraft.cfa.class.hot_riverbank", "Sweltering Riverbank");
-        provider.add("screen.anvilcraft.cfa.class.cold_land_ocean", "Frozen Land-Ocean");
-        provider.add("screen.anvilcraft.cfa.class.mild_land_ocean", "Warm Land-Ocean");
-        provider.add("screen.anvilcraft.cfa.class.hot_land_ocean", "Sweltering Land-Ocean");
-        provider.add("screen.anvilcraft.cfa.class.cold_ocean", "Frozen Ocean");
-        provider.add("screen.anvilcraft.cfa.class.mild_ocean", "Warm Ocean");
-        provider.add("screen.anvilcraft.cfa.class.hot_ocean", "Sweltering Ocean");
+        provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_no_atmos", "Deathly Frozen"); // 死寂冻土
+        provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_atmos", "Desolate Frozen"); // 荒原冻土
+        provider.add("screen.anvilcraft.cfa.class.freezing_liquid", "Frozen Planet"); // 冰封星球
+        provider.add("screen.anvilcraft.cfa.class.scorched_no_liquid_no_atmos", "Deathly Scorched"); // 死寂焦土
+        provider.add("screen.anvilcraft.cfa.class.scorched_no_liquid_atmos", "Desolate Scorched"); // 荒原焦土
+        provider.add("screen.anvilcraft.cfa.class.scorched_liquid", "Lava Planet"); // 熔岩星球
+        provider.add("screen.anvilcraft.cfa.class.deathly_planet", "Deathly Planet"); // 死寂星球
+        provider.add("screen.anvilcraft.cfa.class.desert_planet", "Desert Planet"); // 荒漠星球
+        provider.add("screen.anvilcraft.cfa.class.cold_riverbank", "Frozen Riverbank"); // 冰原河滩
+        provider.add("screen.anvilcraft.cfa.class.mild_riverbank", "Warm Riverbank"); // 温和河滩
+        provider.add("screen.anvilcraft.cfa.class.hot_riverbank", "Sweltering Riverbank"); // 炎热河滩
+        provider.add("screen.anvilcraft.cfa.class.cold_land_ocean", "Frozen Land-Ocean"); // 冰原海陆
+        provider.add("screen.anvilcraft.cfa.class.mild_land_ocean", "Warm Land-Ocean"); // 温和海陆
+        provider.add("screen.anvilcraft.cfa.class.hot_land_ocean", "Sweltering Land-Ocean"); // 炎热海陆
+        provider.add("screen.anvilcraft.cfa.class.cold_ocean", "Frozen Ocean"); // 冰封海洋
+        provider.add("screen.anvilcraft.cfa.class.mild_ocean", "Warm Ocean"); // 温和海洋
+        provider.add("screen.anvilcraft.cfa.class.hot_ocean", "Sweltering Ocean"); // 过热海洋
 
-        provider.add("screen.anvilcraft.cfa.class.ice_giant", "Ice Giant");
-        provider.add("screen.anvilcraft.cfa.class.gas_giant", "Gas Giant");
+        provider.add("screen.anvilcraft.cfa.class.ice_giant", "Ice Giant"); // 冰巨行星
+        provider.add("screen.anvilcraft.cfa.class.gas_giant", "Gas Giant"); // 气体巨星
         provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf");
 
-        provider.add("screen.anvilcraft.cfa.class.m_main", "Red Dwarf");
-        provider.add("screen.anvilcraft.cfa.class.k_main", "Orange Dwarf");
-        provider.add("screen.anvilcraft.cfa.class.g_main", "Yellow Dwarf");
-        provider.add("screen.anvilcraft.cfa.class.f_main", "F-type Star");
-        provider.add("screen.anvilcraft.cfa.class.a_main", "A-type Star");
-        provider.add("screen.anvilcraft.cfa.class.b_main", "B-type Star");
-        provider.add("screen.anvilcraft.cfa.class.o_main", "O-type Star");
-        provider.add("screen.anvilcraft.cfa.class.m_giant", "Red Giant");
-        provider.add("screen.anvilcraft.cfa.class.k_giant", "Orange Giant");
-        provider.add("screen.anvilcraft.cfa.class.g_giant", "Yellow Giant");
-        provider.add("screen.anvilcraft.cfa.class.f_giant", "Yellow-White Giant");
-        provider.add("screen.anvilcraft.cfa.class.a_giant", "White Giant");
-        provider.add("screen.anvilcraft.cfa.class.b_giant", "Blue-White Giant");
-        provider.add("screen.anvilcraft.cfa.class.o_giant", "Blue Giant");
-        provider.add("screen.anvilcraft.cfa.class.m_supergiant", "Red Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.k_supergiant", "Orange Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.g_supergiant", "Yellow Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.f_supergiant", "Yellow Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.a_supergiant", "White Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.b_supergiant", "Blue Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.o_supergiant", "Blue Supergiant");
-        provider.add("screen.anvilcraft.cfa.class.white_dwarf", "White Dwarf");
+        provider.add("screen.anvilcraft.cfa.class.m_main", "M-Star"); // Red Dwarf 红矮星
+        provider.add("screen.anvilcraft.cfa.class.k_main", "K-Star"); // Orange Dwarf 橙矮星
+        provider.add("screen.anvilcraft.cfa.class.g_main", "G-Star"); // Yellow Dwarf 黄矮星
+        provider.add("screen.anvilcraft.cfa.class.f_main", "F-Star"); // Yellow-White Main 黄白主序星
+        provider.add("screen.anvilcraft.cfa.class.a_main", "A-Star"); // White Main 白主序星
+        provider.add("screen.anvilcraft.cfa.class.b_main", "B-Star"); // Blue-White Main 蓝主序星
+        provider.add("screen.anvilcraft.cfa.class.o_main", "O-Star"); // Blue Main 蓝主序星
+        provider.add("screen.anvilcraft.cfa.class.m_giant", "M-Giant"); // Red Giant 红巨星
+        provider.add("screen.anvilcraft.cfa.class.k_giant", "K-Giant"); // Orange Giant 橙巨星
+        provider.add("screen.anvilcraft.cfa.class.g_giant", "G-Giant"); // Yellow Giant 黄巨星
+        provider.add("screen.anvilcraft.cfa.class.f_giant", "F-Giant"); // Yellow-White Giant 黄白巨星
+        provider.add("screen.anvilcraft.cfa.class.a_giant", "A-Giant"); // White Giant 白巨星
+        provider.add("screen.anvilcraft.cfa.class.b_giant", "B-Giant"); // Blue-White Giant 蓝白巨星
+        provider.add("screen.anvilcraft.cfa.class.o_giant", "O-Giant"); // Blue Giant 蓝巨星
+        provider.add("screen.anvilcraft.cfa.class.m_supergiant", "M-Supergiant"); // Red Supergiant 红超巨星
+        provider.add("screen.anvilcraft.cfa.class.k_supergiant", "K-Supergiant"); // Orange Supergiant 橙超巨星
+        provider.add("screen.anvilcraft.cfa.class.g_supergiant", "G-Supergiant"); // Yellow Supergiant 黄超巨星
+        provider.add("screen.anvilcraft.cfa.class.f_supergiant", "F-Supergiant"); // Yellow-White Supergiant 黄白超巨星
+        provider.add("screen.anvilcraft.cfa.class.a_supergiant", "A-Supergiant"); // White Supergiant 白超巨星
+        provider.add("screen.anvilcraft.cfa.class.b_supergiant", "B-Supergiant"); // Blue-White Supergiant 蓝白超巨星
+        provider.add("screen.anvilcraft.cfa.class.o_supergiant", "O-Supergiant"); // Blue Supergiant 蓝超巨星
+        provider.add("screen.anvilcraft.cfa.class.white_dwarf", "White Dwarf"); // 白矮星
 
         // Celestial Restriction Ring Refactor
-        provider.add("screen.anvilcraft.cfa.refactor_title", "Refactor");
-        provider.add("screen.anvilcraft.cfa.need_lock", "Need to lock");
-        provider.add("screen.anvilcraft.cfa.no_refactor_option", "No refactoring option selected");
-        provider.add("screen.anvilcraft.cfa.insufficient_materials", "Insufficient building materials");
-        provider.add("screen.anvilcraft.cfa.material_required", "Requires: %s × %s");
-        provider.add("screen.anvilcraft.cfa.refactor_materials", "Refactor materials");
-        provider.add("screen.anvilcraft.cfa.refactor_start_tooltip", "Refactor Celestial Restriction into a selected megastructure");
+        provider.add("screen.anvilcraft.cfa.refactor_title", "Refactor"); // 束星环重构
+        provider.add("screen.anvilcraft.cfa.need_lock", "Need to lock"); // 需要先锁定搜索结果
+        provider.add("screen.anvilcraft.cfa.no_refactor_option", "No refactoring option selected"); // 未选择再构选项
+        provider.add("screen.anvilcraft.cfa.insufficient_materials", "Insufficient building materials"); // 建材不足
+        provider.add("screen.anvilcraft.cfa.material_required", "Requires: %s × %s"); // 需求: %s × %s
+        provider.add("screen.anvilcraft.cfa.refactor_materials", "Refactor materials"); // 重构建材
+        provider.add("screen.anvilcraft.cfa.refactor_start_tooltip", "Refactor Celestial Restriction into a selected megastructure"); // 将束星环重构为选择的巨构
         // CFA Interface tooltips
-        provider.add("screen.anvilcraft.cfa.logistics_interface.title", "Logistics Interface");
-        provider.add("screen.anvilcraft.cfa.fluid_interface.title", "Fluid Interface");
-        provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface");
-        provider.add("screen.anvilcraft.cfa.interface.empty", "(Empty)");
-        provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving: Lv.%s");
-        provider.add("screen.anvilcraft.cfa.laser_interface.received_gamma", "Receiving: Gamma Lv.%s");
-        provider.add("screen.anvilcraft.cfa.laser_interface.emitting", "Emitting: Lv.%s");
-        provider.add("screen.anvilcraft.cfa.laser_interface.emitting_gamma", "Emitting: Gamma Lv.%s");
-        provider.add("screen.anvilcraft.cfa.laser_interface.no_laser", "No laser");
-        provider.add("screen.anvilcraft.cfa.laser_interface.required", "Required: Lv.%s");
-        provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid");
-        provider.add("screen.anvilcraft.cfa.laser_interface.invalid", "✗ Invalid");
-        provider.add("screen.anvilcraft.cfa.already_built", "This megastructure already exists");
+        provider.add("screen.anvilcraft.cfa.logistics_interface.title", "Logistics Interface"); // 物流接口
+        provider.add("screen.anvilcraft.cfa.fluid_interface.title", "Fluid Interface"); // 流体接口
+        provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface"); // 激光接口
+        provider.add("screen.anvilcraft.cfa.interface.empty", "(Empty)"); // (空)
+        provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving: Lv.%s"); // 接收激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.received_gamma", "Receiving: Gamma Lv.%s"); // 接收伽马激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.emitting", "Emitting: Lv.%s"); // 发射激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.emitting_gamma", "Emitting: Gamma Lv.%s"); // 发射伽马激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.no_laser", "(No laser)"); // (无激光)
+        provider.add("screen.anvilcraft.cfa.laser_interface.required", "Required: Lv.%s+"); // 需求激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.required_gamma", "Required: Gamma Lv.%s+"); // 需求伽马激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid"); // ✓ 达成
+        provider.add("screen.anvilcraft.cfa.laser_interface.invalid", "✗ Invalid"); // ✗ 未达成
 
         // CFA interface HUD tooltip (displayed on logistics interface)
-        provider.add("screen.anvilcraft.cfa.temple_demand", "◇ Temple Demand ◇");
-        provider.add("screen.anvilcraft.cfa.collider_targets", "◇ Collider Targets ◇");
-        provider.add("screen.anvilcraft.cfa.collider_processing", "◇ Processing");
-        provider.add("screen.anvilcraft.cfa.collider_star_missing", "! Star Missing !");
+        provider.add("screen.anvilcraft.cfa.temple_demand", "◇ Temple Demand ◇"); // ◇ 神庙需求 ◇
+        provider.add("screen.anvilcraft.cfa.collider_targets", "◇ Collider Targets ◇"); // ◇ 可撞击的物品 ◇
+        provider.add("screen.anvilcraft.cfa.collider_processing", "◇ Processing"); // ◇ 正在加工
+        provider.add("screen.anvilcraft.cfa.collider_star_missing", "! Star Missing !"); // ! 天体丢失 !
 
         // Megastructure names (English) — 11 unique megastructures
-        provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator", "Planet Excavator");
-        provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor", "Planet Exctractor");
-        provider.add("screen.anvilcraft.cfa.megastructure.eco_station", "Ecological Station");
-        provider.add("screen.anvilcraft.cfa.megastructure.temple", "Temple");
-        provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor", "Giant Planet Exctractor");
-        provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider", "Stellar Ring Collider");
-        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small", "Dyson Sphere");
-        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large", "Dyson Sphere");
-        provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil", "Magnetar Coil");
-        provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere", "Penrose Sphere");
-        provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor", "Matter Decompressor");
-        provider.add("screen.anvilcraft.cfa.megastructure.stellar_evolution_accelerator", "Stellar Evolution Accelerator");
-        provider.add("screen.anvilcraft.cfa.megastructure.wormhole_stabilizer", "Wormhole Stabilizer");
+        provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator", "Planet Excavator"); // 行星开采器
+        provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor", "Planet Exctractor"); // 行星抽取器
+        provider.add("screen.anvilcraft.cfa.megastructure.eco_station", "Ecological Station"); // 生态站
+        provider.add("screen.anvilcraft.cfa.megastructure.temple", "Temple"); // 神庙
+        provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor", "Giant Planet Exctractor"); // 巨行星抽取器
+        provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider", "Stellar Ring Collider"); // 星环对撞机
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small", "Dyson Sphere"); // 小戴森球
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large", "Dyson Sphere"); // 大戴森球
+        provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil", "Magnetar Coil"); // 磁星线圈
+        provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere", "Penrose Sphere"); // 彭罗斯球
+        provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor", "Matter Decompressor"); // 物质解压器
+        provider.add("screen.anvilcraft.cfa.megastructure.stellar_evolution_accelerator", "Stellar Evolution Accelerator"); // 恒星演化加速器
+        provider.add("screen.anvilcraft.cfa.megastructure.wormhole_stabilizer", "Wormhole Stabilizer"); // 虫洞稳定器
+
+        // Megastructure descriptions (Shift-expanded tooltips)
+        provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator.description", "Excavating mineral resources on the planet, and this may damage the planet's ecology");
+        provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor.description", "Extracting fluid resources from the planet, and this may damage the planet's ecology");
+        provider.add("screen.anvilcraft.cfa.megastructure.eco_station.description", "Cultivate creatures on the planet and harvest biological resources");
+        provider.add("screen.anvilcraft.cfa.megastructure.temple.description", "Bestow blessings or mete out punishments to inferior civilization, and reap the resources they offer in homage");
+        provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor.description", "Extracting resources from the atmosphere of giant planet. In addition to gases and liquids, solid products may also be produced");
+        provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider.description", "Utilizing the gravitational and magnetic fields of star to accelerate the anvil to higher speeds or to frequently impact and manufacture items in batches");
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small.description", "Collecting light energy from star, generate a large amount of electricity");
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large.description", "Collecting light energy from star, generate a large amount of electricity");
+        provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil.description", "Generate electricity by utilizing the rapidly changing magnetic field of a magnetar");
+        provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere.description", "Utilize the ergosphere generated by the high-speed rotation of a black hole to enhance laser energy");
+        provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor.description", "Extract matter from the interior of neutron stars or within the event horizon of black holes by activating the exotic gravitational field with gamma laser");
+        provider.add("screen.anvilcraft.cfa.megastructure.stellar_evolution_accelerator.description", "Accelerate the stellar evolution until the end of its lifespan, which may trigger a supernova explosion and give birth to extreme celestial bodys");
+        provider.add("screen.anvilcraft.cfa.megastructure.wormhole_stabilizer.description", "By stabilizing the energy of black holes with negative matter, wormholes can be established between multiple identical black holes to enable the transmission of matter and energy");
 
         // Planet resource bar
-        provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —");
+        provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —"); // — 天体资源 —
 
         // Seed slot tooltip
-        provider.add("screen.anvilcraft.cfa.seed_slot.line1", "Consume all items placed in.");
-        provider.add("screen.anvilcraft.cfa.seed_slot.line2", "If specific item has been consumed, a hidden celestial body will be discovered.");
+        provider.add("screen.anvilcraft.cfa.seed_slot.title", "Seed Item"); // 种子物品
+        provider.add("screen.anvilcraft.cfa.seed_slot.description", "Consume all items placed in. If specific item has been consumed, a hidden celestial body will be discovered.");
 
         // Special celestial body type names
-        provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like");
-        provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet");
-        provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet");
-        provider.add("screen.anvilcraft.cfa.class.special.shattered_planet", "Shattered Planet");
-        provider.add("screen.anvilcraft.cfa.class.special.hollow_planet", "Hollow Planet");
-        provider.add("screen.anvilcraft.cfa.class.special.error_planet", "Error Planet");
+        provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like"); // 类主世界
+        provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet"); // 血肉星球
+        provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet"); // 智慧星球
+        provider.add("screen.anvilcraft.cfa.class.special.shattered_planet", "Shattered Planet"); // 破碎星球
+        provider.add("screen.anvilcraft.cfa.class.special.hollow_planet", "Hollow Planet"); // 中空星球
+        provider.add("screen.anvilcraft.cfa.class.special.error_planet", "Error Planet"); // 错误星球
 
         // Stellar remnant type names
-        provider.add("screen.anvilcraft.cfa.class.neutron_star", "Neutron Star");
-        provider.add("screen.anvilcraft.cfa.class.black_hole", "Black Hole");
+        provider.add("screen.anvilcraft.cfa.class.neutron_star", "Neutron Star"); // 中子星
+        provider.add("screen.anvilcraft.cfa.class.black_hole", "Black Hole"); // 黑洞
 
         // Stellar evolution accelerator stages
-        provider.add("screen.anvilcraft.cfa.evolution.stage1", "Main Sequence");
-        provider.add("screen.anvilcraft.cfa.evolution.stage2", "Giant Phase");
-        provider.add("screen.anvilcraft.cfa.evolution.stage3", "Supernova");
-        provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf");
-        provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage");
-        provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time: %s");
-        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power Output");
-        provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked");
-
-        // Wormhole Stabilizer
-        provider.add("screen.anvilcraft.cfa.wormhole.missing_amplifier.line1", "Amplifier missing,");
-        provider.add("screen.anvilcraft.cfa.wormhole.missing_amplifier.line2", "wormhole disconnected");
+        provider.add("screen.anvilcraft.cfa.evolution.stage1", "Main Sequence"); // 主序星阶段
+        provider.add("screen.anvilcraft.cfa.evolution.stage2", "Giant Phase"); // 巨星阶段
+        provider.add("screen.anvilcraft.cfa.evolution.stage3", "Supernova"); // 超新星爆发
+        provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf"); // 红矮星阶段
+        provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage"); // ？？？
+        provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time: %s"); // 剩余时间:
+        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power"); // 无限发电中
+        provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked"); // 天体正在演化，无法解锁
 
         // Portal placement messages
-        provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers");
+        provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers"); // 传送门只能放置在锻星砧侧面的中心位置
     }
 }

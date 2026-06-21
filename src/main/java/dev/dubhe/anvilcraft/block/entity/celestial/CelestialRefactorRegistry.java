@@ -44,7 +44,7 @@ public final class CelestialRefactorRegistry {
             case StarData ignored -> isLarge ? 5 : 4;
             case GiantPlanetData ignored -> 2;
             case RockyPlanetData ignored -> 1;
-            case SpecialCelestialBodyData s -> s.specialType().isErrorPlanet() ? 0 : 1;
+            case SpecialCelestialBodyData s -> s.isErrorPlanet() ? 0 : 1;
         };
         if (amplified) {
             ring = Math.max(ring, 4);
@@ -66,7 +66,7 @@ public final class CelestialRefactorRegistry {
                                                            @Nullable PlanetaryResourceSet resources) {
         if (body == null) return Collections.emptyList();
         // Error Planet cannot build megastructures
-        if (body instanceof SpecialCelestialBodyData s && s.specialType().isErrorPlanet()) {
+        if (body instanceof SpecialCelestialBodyData s && s.isErrorPlanet()) {
             return Collections.emptyList();
         }
         int innermostRing = getInnermostRing(body, amplified);

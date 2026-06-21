@@ -14,7 +14,7 @@ If you need higher efficiency, you can simply extend it, or design your own more
 
 ## Diagram
 
-<structure id="../structures/machine/crush.snbt"/>
+<structure id="../../structures/machine/crush.snbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height

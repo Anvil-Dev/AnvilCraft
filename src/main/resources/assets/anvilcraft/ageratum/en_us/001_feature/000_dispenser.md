@@ -12,7 +12,7 @@ navigation:
 
 ## Cauldron Interaction
 
-<structure id="../structures/dispenser.snbt"/>
+<structure id="../../structures/dispenser.snbt"/>
 
 <ref item="minecraft:dispenser"/> can now use Water Bottles, Empty Bottles, Lava Buckets, Powder Snow Buckets, Water Buckets, and Empty Buckets to interact with <ref item="minecraft:cauldron"/>.
 

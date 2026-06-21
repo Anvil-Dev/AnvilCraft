@@ -25,6 +25,13 @@ import java.util.List;
  * <p>
  * Each recipe has a category ({@code blessing} or {@code punishment}) and
  * a list of weighted entries. The temple randomly picks one entry per day.
+ * </p>
+ *
+ * <p>
+ * For body-specific demands, use the {@code temple_blessings} and
+ * {@code temple_punishments} fields in
+ * {@link SpecialCelestialBodyRecipe} instead.
+ * </p>
  */
 public record TempleDemandRecipe(
     Category category,
