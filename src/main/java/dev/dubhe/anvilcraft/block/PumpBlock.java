@@ -76,7 +76,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         return simpleCodec(PumpBlock::new);
     }
 
-    /** 放置时根据玩家视线和 Shift 计算朝向，并对接管道 */
+    /** 放置时根据玩家视线和 Shift 计算朝向。默认输入端朝向目标方块，Shift 反向 */
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -85,7 +85,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         Player player = context.getPlayer();
         boolean shiftDown = player != null && player.isShiftKeyDown();
 
-        // 背向放置：shift 反转
+        // 按住 Shift 反向放置（输出端朝向目标方块）
         if (shiftDown) horizontalDir = horizontalDir.getOpposite();
 
         Orientation orientation = switch (lookDir) {
@@ -108,13 +108,6 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
                 default -> Orientation.NORTH_UP;
             };
         };
-
-        // 对着管道开口放置时：背向放置（输出口背离管道）
-        BlockPos targetPos = context.getClickedPos().relative(context.getClickedFace().getOpposite());
-        BlockState targetState = context.getLevel().getBlockState(targetPos);
-        if (targetState.getBlock() instanceof PipeBlock) {
-            orientation = orientation.opposite();
-        }
 
         return defaultBlockState().setValue(ORIENTATION, orientation);
     }
