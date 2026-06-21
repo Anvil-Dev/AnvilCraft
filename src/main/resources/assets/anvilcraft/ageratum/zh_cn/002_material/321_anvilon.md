@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "§5钚"
+  title: "§5砧子"
   icon: "anvilcraft:confinement_chamber"
 items:
   - anvilcraft:confinement_chamber
