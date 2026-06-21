@@ -729,13 +729,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (level != null && !level.isClientSide()) {
+        if (level != null && !level.isClientSide() && !PowerGrid.isServerClosing) {
             if (gravitySourceActive) {
                 BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
                 GravityManager.GravitySourceManager.removeSource(level, centerPos);
                 gravitySourceActive = false;
             }
-            // Unregister wormhole and clear megastructures so connected portals close
+            // Unregister wormhole and clear megastructures so connected portals close.
+            // Skip during server shutdown to avoid accessing saved data during save.
             megastructureManager.clearAllMegastructures(this);
         }
     }

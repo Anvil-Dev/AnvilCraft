@@ -113,6 +113,14 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         return 0;
     }
 
+    @Override
+    public void syncTo(ServerPlayer player) {
+        PacketDistributor.sendToPlayer(
+            player,
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+        );
+    }
+
     /**
      * Whether this laser interface is in active (redstone-powered) mode.
      */

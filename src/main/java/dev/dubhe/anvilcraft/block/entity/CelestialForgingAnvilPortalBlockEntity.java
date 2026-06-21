@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -17,6 +18,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -66,6 +68,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     /**
      * Gamma rendering state for client-side laser beam color.
      */
+    @Getter
     private boolean emittingGamma = false;
     private int gammaLevel = 0;
 
@@ -81,8 +84,12 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         Integer.MAX_VALUE, 60, 20, 5, 1
     };
 
-    public boolean isEmittingGamma() {
-        return emittingGamma;
+    @Override
+    public void syncTo(ServerPlayer player) {
+        PacketDistributor.sendToPlayer(
+            player,
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+        );
     }
 
     public CelestialForgingAnvilPortalBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
