@@ -60,9 +60,6 @@ public class SeismicBounceRenderEventListener {
 
             poseStack.pushPose();
             poseStack.translate(pos.getX() - camX, pos.getY() - camY + offsetY, pos.getZ() - camZ);
-            poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.scale(1.0005f, 1.000f, 1.0005f);
-            poseStack.translate(-0.5, -0.5, -0.5);
 
             modelRenderState.submit(
                 poseStack,
