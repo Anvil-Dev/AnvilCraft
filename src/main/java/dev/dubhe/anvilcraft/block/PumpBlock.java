@@ -44,8 +44,8 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    /** 主体碰撞箱 [5,5,5]→[11,11,11]（6x6x6 中心体） */
-    private static final VoxelShape SHAPE = box(5, 5, 5, 11, 11, 11);
+    /** 主体碰撞箱，匹配模型元素 1/2/7：x[3,13] y[3,13] z[0,16] */
+    private static final VoxelShape SHAPE = box(3, 3, 0, 13, 13, 16);
 
     public PumpBlock(Properties properties) {
         super(properties);
