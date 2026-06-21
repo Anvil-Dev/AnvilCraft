@@ -62,7 +62,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     private final int previewWindowHeight = 88;
 
     // 预览旋转角度
-    private float previewRotationY = 45.0f;
+    private float previewRotationY = 225.0f;
     private float previewRotationX = 30.0f;
     private static final float MIN_ROTATION_X = -60.0f;
     private static final float MAX_ROTATION_X = 60.0f;
@@ -564,7 +564,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
                 previewLevelLike,
                 graphics,
                 this.previewRotationX,
-                this.previewRotationY + this.getFacingYawOffset(facing)
+                this.previewRotationY
             );
         }
 
@@ -587,9 +587,9 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         poseStack.mulPose(Axis.XP.rotationDegrees(rotationX));
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(rotationY + 45));
+        poseStack.mulPose(Axis.YP.rotationDegrees(rotationY));
 
-        poseStack.translate(-this.cachedRangeX / 2f + 1, -this.cachedRangeY / 2f + 1, -this.cachedRangeZ / 2f);
+        poseStack.translate(-this.cachedRangeX / 2f + 0.5f, -this.cachedRangeY / 2f + 1, -this.cachedRangeZ / 2f);
 
         int maxSize = Math.max(1, Math.max(this.cachedRangeX, Math.max(this.cachedRangeY, this.cachedRangeZ)));
         float scale = 55.0f / maxSize;

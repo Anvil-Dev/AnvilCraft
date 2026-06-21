@@ -238,8 +238,9 @@ public class ScreenLang {
 
         // Structure Scanner
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
-        provider.add("screen.anvilcraft.structure_scanner.ready", "Structure scan ready");
+        provider.add("screen.anvilcraft.structure_scanner.ready", "Ready");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks", "Structure contains multiblock blocks, cannot be recognized by Smart Block Placer");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.too_large", "Structure is too large to save");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.unknown_blocks", "Structure contains unknown blocks");
     }
