@@ -1,6 +1,7 @@
 {
   "values": [
     "anvilcraft:transcendence_anvil",
+    "anvilcraft:infinite_collector",
     "anvilcraft:shulker_container",
     "anvilcraft:frost_metal_block",
     "anvilcraft:cut_frost_metal_block",
@@ -16,7 +17,6 @@
     "anvilcraft:confined_neutronium_ingot",
     "anvilcraft:confinement_chamber",
     "anvilcraft:singularity_crystal",
-    "anvilcraft:infinite_collector",
     "anvilcraft:ember_metal_pickaxe",
     "anvilcraft:ember_dragon_rod",
     "anvilcraft:frost_metal_heavy_halberd",

@@ -5,6 +5,13 @@
     "anvilcraft:ember_grindstone",
     "anvilcraft:ember_smithing_table",
     "anvilcraft:transcendence_anvil",
+    "anvilcraft:infinite_collector",
+    "anvilcraft:celestial_forging_anvil",
+    "anvilcraft:celestial_forging_anvil_amplifier",
+    "anvilcraft:celestial_forging_anvil_logistics_interface",
+    "anvilcraft:celestial_forging_anvil_fluid_interface",
+    "anvilcraft:celestial_forging_anvil_interface_placeholder",
+    "anvilcraft:celestial_forging_anvil_portal",
     "anvilcraft:ember_metal_block",
     "anvilcraft:cut_ember_metal_block",
     "anvilcraft:cut_ember_metal_pillar",
@@ -18,7 +25,6 @@
     "anvilcraft:confined_space_anvilon",
     "anvilcraft:confined_mass_anvilon",
     "anvilcraft:confined_energy_anvilon",
-    "anvilcraft:confinement_chamber",
-    "anvilcraft:infinite_collector"
+    "anvilcraft:confinement_chamber"
   ]
 }

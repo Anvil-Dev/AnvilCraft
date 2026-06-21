@@ -1,0 +1,21 @@
+{
+  "type": "anvilcraft:special_celestial_body",
+  "axial_tilt": 0.0,
+  "energy": 64,
+  "has_atmosphere": false,
+  "liquid_coverage": "none",
+  "magnetic_field": -1,
+  "mass": 64,
+  "name": "error_planet",
+  "needs_custom_model": true,
+  "resources": {},
+  "rotation_speed": 0,
+  "seed_items": [
+    "anvilcraft:creative_generator",
+    "minecraft:command_block",
+    "minecraft:structure_block"
+  ],
+  "space": 64,
+  "texture": "planet_error",
+  "time": 64
+}

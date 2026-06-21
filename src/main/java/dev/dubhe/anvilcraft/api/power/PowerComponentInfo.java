@@ -15,7 +15,8 @@ public record PowerComponentInfo(
     int stores,
     int capacity,
     int range,
-    PowerComponentType type
+    PowerComponentType type,
+    boolean infinitePower
 ) {
     public static final Codec<PowerComponentInfo> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         BlockPos.CODEC
@@ -38,7 +39,10 @@ public record PowerComponentInfo(
             .forGetter(PowerComponentInfo::range),
         PowerComponentType.CODEC
             .fieldOf("type")
-            .forGetter(PowerComponentInfo::type)
+            .forGetter(PowerComponentInfo::type),
+        Codec.BOOL
+            .fieldOf("infinitePower")
+            .forGetter(PowerComponentInfo::infinitePower)
     ).apply(ins, PowerComponentInfo::new));
     public static final StreamCodec<ByteBuf, PowerComponentInfo> STREAM_CODEC = StreamCodecUtil.composite(
         BlockPos.STREAM_CODEC,
@@ -46,15 +50,17 @@ public record PowerComponentInfo(
         ByteBufCodecs.VAR_INT,
         PowerComponentInfo::consumes,
         ByteBufCodecs.VAR_INT,
-        PowerComponentInfo::consumes,
+        PowerComponentInfo::produces,
         ByteBufCodecs.VAR_INT,
-        PowerComponentInfo::consumes,
+        PowerComponentInfo::stores,
         ByteBufCodecs.VAR_INT,
-        PowerComponentInfo::consumes,
+        PowerComponentInfo::capacity,
         ByteBufCodecs.VAR_INT,
-        PowerComponentInfo::consumes,
+        PowerComponentInfo::range,
         StreamCodecUtil.enumStreamCodec(PowerComponentType.class),
         PowerComponentInfo::type,
+        ByteBufCodecs.BOOL,
+        PowerComponentInfo::infinitePower,
         PowerComponentInfo::new
     );
 }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -36,8 +37,10 @@ public record LaserState(
             .getCenter()
             .distanceTo(blockEntity.getBlockPos().getCenter()) - 0.5);
         poseStack.mulPose(blockEntity.getFacing().getRotation());
-        boolean gamma = blockEntity instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser
-            && cfaLaser.isEmittingGamma();
+        boolean gamma = (blockEntity instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser
+            && cfaLaser.isEmittingGamma())
+            || (blockEntity instanceof CelestialForgingAnvilPortalBlockEntity portal
+            && portal.isEmittingGamma());
         LaserState laserState = new LaserState(
             blockEntity,
             blockEntity.getBlockPos(),

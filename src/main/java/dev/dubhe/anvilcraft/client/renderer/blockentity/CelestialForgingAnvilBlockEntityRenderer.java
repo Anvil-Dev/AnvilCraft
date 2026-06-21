@@ -313,24 +313,24 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 // Render the outer ring with star-synchronous rotation (like a real Dyson Sphere)
                 boolean isSmallStar = bodyData.size() < 48;
                 if (isDysonSphereR4 && isSmallStar) {
-                    // Small star: R5 is the outer ring
+                    // Small star: R5 is the outer ring (may be replaced by accelerator model)
                     poseStack.pushPose();
                     poseStack.translate(0.5, centerY, 0.5);
                     poseStack.scale(6, 6, 6);
                     poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
                     poseStack.mulPose(
                         Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
-                    renderRingCutout(R5, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                    renderRingCutout(getRing5Model(blockEntity), poseStack, multiBufferSource, packedOverlay, modelRenderer);
                     poseStack.popPose();
                 } else if (isDysonSphereR5 && !isSmallStar) {
-                    // Large star: R6 is the outer ring
+                    // Large star: R6 is the outer ring (may be replaced by accelerator model)
                     poseStack.pushPose();
                     poseStack.translate(0.5, centerY, 0.5);
                     poseStack.scale(6, 6, 6);
                     poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
                     poseStack.mulPose(
                         Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
-                    renderRingCutout(R6, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+                    renderRingCutout(getRing6Model(blockEntity), poseStack, multiBufferSource, packedOverlay, modelRenderer);
                     poseStack.popPose();
                 }
             }
@@ -371,15 +371,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         // Use effective body data (considers reverse animation where celestialBodyData is already null)
         CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
-        // Stellar remnants render even without amplifier present
-        boolean isRemnant = effectiveBodyData instanceof StarData star && (
-            star.bodyClass() == CelestialBodyClass.BLACK_HOLE
-            || star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
-            || star.bodyClass() == CelestialBodyClass.WHITE_DWARF
-        );
-        boolean canRender = effectiveBodyData != null && (
-            isRemnant || !(effectiveBodyData instanceof StarData && !blockEntity.isAmplifierPresent())
-        );
+        boolean canRender = effectiveBodyData != null
+            && (effectiveBodyData instanceof StarData ? blockEntity.isAmplifierPresent() : true);
         if (canRender) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
@@ -447,19 +440,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             var option = blockEntity.getActiveMegastructureOption();
             if (option != null) {
                 if ("stellar_ring_collider".equals(option.megastructure())) {
-                    // When amplifier is missing, the star is not rendered — collider is off
-                    if (!blockEntity.isAmplifierPresent()) {
-                        return R4;
-                    }
                     return R4_COLLIDER;
                 }
                 if ("dyson_sphere_small".equals(option.megastructure())) {
                     return R4_DYSON_SPHERE;
                 }
                 if ("wormhole_stabilizer".equals(option.megastructure())) {
-                    if (!blockEntity.isAmplifierPresent()) {
-                        return R4;
-                    }
                     return R4_WORMHOLE_STABILIZER;
                 }
             }
@@ -872,7 +858,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
         float baseScale = getBodyScale(bodyData);
-        if (bodyData instanceof SpecialCelestialBodyData s && s.specialType().isErrorPlanet()) {
+        if (bodyData instanceof SpecialCelestialBodyData s && s.isErrorPlanet()) {
             baseScale *= 0.25f;
         }
         float scale = baseScale * animProgress;
@@ -887,7 +873,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.translate(-0.5, -0.5, -0.5);
 
         // Complex custom models (shattered, hollow, flesh, intelligence, error)
-        if (bodyData instanceof SpecialCelestialBodyData s && s.specialType().needsCustomModel()) {
+        if (bodyData instanceof SpecialCelestialBodyData s && s.needsCustomModel()) {
             renderComplexModelBody(s, poseStack, bufferSource, packedOverlay);
             // Atmosphere for complex-model bodies that have it (flesh, intelligence)
             if (s.hasAtmosphere() && s.temperature() != null) {
@@ -935,7 +921,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         MultiBufferSource bufferSource,
         int packedOverlay
     ) {
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(special.specialType().getModelLocation());
+        BakedModel model = Minecraft.getInstance().getModelManager().getModel(special.getModelLocation());
         if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
 
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
@@ -967,21 +953,22 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) {
             renderBakedModelCutout(getStarModel(star), poseStack, bufferSource, packedOverlay);
 
-            // Render relativistic jet along the magnetic axis.
-            // The magnetic axis is tilted from the rotation axis, so as the
-            // body rotates around Y the jet sweeps like a lighthouse (pulsar model).
-            // Jet rotates at 1.5× the body speed for visual separation.
-            float visualSpeed = CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed());
-            float extraJetRotation = bodyRotation * visualSpeed * 0.5f;
-            // Star magneticFieldStrength is 4 (normal) or 5 (magnetar)
-            float magneticTilt = star.magneticFieldStrength() >= 5 ? 15f : 10f;
-            poseStack.pushPose();
-            poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.mulPose(Axis.YP.rotationDegrees(extraJetRotation));
-            poseStack.mulPose(Axis.XP.rotationDegrees(magneticTilt));
-            poseStack.translate(-0.5, -0.5, -0.5);
-            renderBakedModel(NEUTRON_STAR_JET_MODEL, poseStack, bufferSource, packedOverlay, RenderType.translucent());
-            poseStack.popPose();
+            // Render relativistic jet along the magnetic axis — only for Super Fast pulsars.
+            // Rotation speed 5+ = Super Fast (≥100× visual multiplier), which produces
+            // the extreme magnetic field needed for observable relativistic jets.
+            if (star.rotationSpeed() >= 5) {
+                float visualSpeed = CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed());
+                float extraJetRotation = bodyRotation * visualSpeed * 0.5f;
+                // Star magneticFieldStrength is 4 (normal) or 5 (magnetar)
+                float magneticTilt = star.magneticFieldStrength() >= 5 ? 15f : 10f;
+                poseStack.pushPose();
+                poseStack.translate(0.5, 0.5, 0.5);
+                poseStack.mulPose(Axis.YP.rotationDegrees(extraJetRotation));
+                poseStack.mulPose(Axis.XP.rotationDegrees(magneticTilt));
+                poseStack.translate(-0.5, -0.5, -0.5);
+                renderBakedModel(NEUTRON_STAR_JET_MODEL, poseStack, bufferSource, packedOverlay, RenderType.translucent());
+                poseStack.popPose();
+            }
             return;
         }
 

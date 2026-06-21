@@ -174,16 +174,9 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
             && !this.isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity)
         ) {
-            if (irradiatedLaserBlockEntity.getIgnoreFace().isEmpty()) {
+            if (!irradiatedLaserBlockEntity.getIgnoreFace().contains(direction)) {
                 this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
                 irradiatedLaserBlockEntity.onIrradiated(this);
-            } else {
-                for (Direction direction1 : irradiatedLaserBlockEntity.getIgnoreFace()) {
-                    if (direction != direction1) {
-                        this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
-                        irradiatedLaserBlockEntity.onIrradiated(this);
-                    }
-                }
             }
         }
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);

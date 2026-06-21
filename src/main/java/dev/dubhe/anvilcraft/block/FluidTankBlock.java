@@ -5,7 +5,6 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;

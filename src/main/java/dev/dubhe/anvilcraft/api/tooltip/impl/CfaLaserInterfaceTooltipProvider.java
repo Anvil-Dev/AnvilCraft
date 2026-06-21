@@ -23,6 +23,7 @@ public class CfaLaserInterfaceTooltipProvider extends ITooltipProvider.BlockEnti
 
         int received = laser.getReceivedLaserLevel();
         int required = laser.getRequiredLaserLevel();
+        boolean requiredGamma = laser.isRequiredGamma();
         boolean valid = laser.isLaserValid();
         boolean emittingGamma = laser.isEmittingGamma();
         int gammaLevel = laser.getGammaLevel();
@@ -53,8 +54,13 @@ public class CfaLaserInterfaceTooltipProvider extends ITooltipProvider.BlockEnti
         }
 
         if (required > 0) {
-            lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.required", required)
-                .withStyle(ChatFormatting.YELLOW));
+            if (requiredGamma) {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.required_gamma", required)
+                    .withStyle(ChatFormatting.YELLOW));
+            } else {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.required", required)
+                    .withStyle(ChatFormatting.YELLOW));
+            }
             if (valid) {
                 lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.valid")
                     .withStyle(ChatFormatting.GREEN));

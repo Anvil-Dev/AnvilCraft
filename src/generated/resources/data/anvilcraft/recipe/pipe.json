@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "anvilcraft:pipe",
+  "key": {
+    "B": {
+      "item": "anvilcraft:brass_pressure_plate"
+    }
+  },
+  "pattern": [
+    " B ",
+    "B B",
+    " B "
+  ],
+  "result": {
+    "count": 16,
+    "id": "anvilcraft:pipe"
+  }
+}

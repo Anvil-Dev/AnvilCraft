@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IonoCraftBackpackClientHandler {
     private static final double SIDE_OFFSET = 0.3;
     private static final double BACK_OFFSET = 0.45;
-    private static final double Y_OFFSET = 0.9;
+    private static final double Y_OFFSET = 1.1;
 
     /** 服务器同步的正在用背包飞行的玩家 entityId 集合 */
     private static final Set<Integer> SYNCED_FLYING_PLAYERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -79,7 +79,6 @@ public class IonoCraftBackpackClientHandler {
         double cosYaw = Math.cos(yawRad);
         double sinYaw = Math.sin(yawRad);
 
-        double backX = sinYaw;
         double backZ = -cosYaw;
 
         double[][] exhausts = {{SIDE_OFFSET, BACK_OFFSET}, {-SIDE_OFFSET, BACK_OFFSET}};
@@ -88,7 +87,7 @@ public class IonoCraftBackpackClientHandler {
             double sideComp = exhaust[0];
             double backComp = exhaust[1];
 
-            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * backX;
+            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * sinYaw;
             double worldZ = player.getZ() + sideComp * (-sinYaw) + backComp * backZ;
             double worldY = player.getY() + Y_OFFSET;
 

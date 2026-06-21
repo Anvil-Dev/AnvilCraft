@@ -26,6 +26,7 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.LightTexture;
@@ -495,23 +496,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean missingAmplifier = body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
-            // Check if wormhole stabilizer is active — use its specific message
-            var be = getMenu().getBlockEntity();
-            boolean isWormholeActive = be.getActiveMegastructureIndex() >= 0
-                && be.getCelestialBodyData() instanceof StarData star
-                && star.bodyClass() == CelestialBodyClass.BLACK_HOLE;
-            Component line1 = isWormholeActive
-                ? Component.translatable("screen.anvilcraft.cfa.wormhole.missing_amplifier.line1")
-                : Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
-            Component line2;
-            Component line3;
-            if (isWormholeActive) {
-                line2 = Component.translatable("screen.anvilcraft.cfa.wormhole.missing_amplifier.line2");
-                line3 = Component.empty();
-            } else {
-                line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
-                line3 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line3");
-            }
+            Component line1 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
+            Component line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
+            Component line3 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line3");
             int cx1 = PV_X + (PV_W - font.width(line1)) / 2;
             int cx2 = PV_X + (PV_W - font.width(line2)) / 2;
             int cx3 = PV_X + (PV_W - font.width(line3)) / 2;
@@ -712,7 +699,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private void renderBodyPreview(GuiGraphics guiGraphics, CelestialBodyData body) {
         // Complex custom models (shattered, hollow, flesh, intelligence, error)
-        if (body instanceof SpecialCelestialBodyData s && s.specialType().needsCustomModel()) {
+        if (body instanceof SpecialCelestialBodyData s && s.needsCustomModel()) {
             renderComplexModelPreview(guiGraphics, s);
             return;
         }
@@ -777,14 +764,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.pose().popPose();
         }
 
-        // Render ring (translucent, depth-tested against planet body)
+        // Render ring (translucent)
         ResourceLocation ringTex = CelestialBodyTextureBakery.getOrBakeRing(body);
         if (ringTex != null) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.5, 0.5, 0.5);
             guiGraphics.pose().scale(1.2f, 1.2f, 1.2f);
             guiGraphics.pose().translate(-0.5, -0.5, -0.5);
-            var ringConsumer = buf.getBuffer(RenderType.entityTranslucent(ringTex));
+            var ringConsumer = buf.getBuffer(ModRenderTypes.CELESTIAL_RING.apply(ringTex));
             CelestialBodyRenderer.renderRing(guiGraphics.pose(), ringConsumer, LightTexture.FULL_BRIGHT, 0);
             guiGraphics.pose().popPose();
         }
@@ -860,7 +847,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
      */
     private void renderComplexModelPreview(GuiGraphics guiGraphics, SpecialCelestialBodyData special) {
         if (minecraft == null) return;
-        var modelLoc = special.specialType().getModelLocation();
+        var modelLoc = special.getModelLocation();
         BakedModel model = minecraft.getModelManager().getModel(modelLoc);
         if (model == minecraft.getModelManager().getMissingModel()) return;
 
@@ -1061,16 +1048,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int pct = (int) ((1.0f - (float) displayTicks / be.getAcceleratorTicksTotal()) * 100);
             lines.add(Component.literal(pct + "%"));
         }
-        // Infinite power indicator for Stage 1
-        if (stage == 1 && be.getActiveMegastructureIndex() >= 0) {
-            var opt = be.getActiveMegastructureOption();
-            if (opt != null && (opt.megastructure().contains("dyson_sphere"))) {
-                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
-            }
+        // Infinite power indicator — only when Dyson Sphere is providing infinite power
+        if (be.isInfinitePower()) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
         }
 
         int lineHeight = font.lineHeight + 1;
-        int y = PV_INFO_Y;
+        int y = PV_INFO_Y + 10;
         for (Component line : lines) {
             guiGraphics.drawString(font, line, PV_INFO_X, y, 0xFFFFFF, false);
             y += lineHeight;
@@ -1175,13 +1159,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float offsetMass
     ) {
         List<Component> lines = new ArrayList<>();
-        boolean isError = body instanceof SpecialCelestialBodyData special && special.specialType().isErrorPlanet();
+        boolean isError = body instanceof SpecialCelestialBodyData special && special.isErrorPlanet();
         // Type name
         String typeKey;
         if (body instanceof RockyPlanetData rp) {
             typeKey = rockyTypeKey(rp);
         } else if (body instanceof SpecialCelestialBodyData s) {
-            typeKey = "screen.anvilcraft.cfa.class.special." + s.specialType().getName();
+            typeKey = "screen.anvilcraft.cfa.class.special." + s.name();
         } else {
             typeKey = "screen.anvilcraft.cfa.class." + body.bodyClass().name().toLowerCase();
         }
@@ -1215,7 +1199,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         switch (body) {
             case SpecialCelestialBodyData s -> {
-                if (s.specialType().isErrorPlanet()) {
+                if (s.isErrorPlanet()) {
                     lines.add(Component.translatable("screen.anvilcraft.cfa.temp", Component.literal("???")));
                     lines.add(Component.translatable("screen.anvilcraft.cfa.atmos", Component.literal("???")));
                     lines.add(Component.translatable("screen.anvilcraft.cfa.liquid", Component.literal("???")));
@@ -1499,6 +1483,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                         Component.literal(String.valueOf(option.materialCount()))
                     ));
                 }
+                if (hasShiftDown()) {
+                    tooltipLines.add(Component.translatable(option.displayName() + ".description").withStyle(ChatFormatting.DARK_GRAY));
+                } else {
+                    tooltipLines.add(Component.translatable(
+                        "tooltip.anvilcraft.press_key",
+                        Component.literal("Shift").withStyle(ChatFormatting.DARK_GRAY)
+                    ).withStyle(ChatFormatting.DARK_GRAY));
+                }
                 guiGraphics.renderTooltip(font, tooltipLines, java.util.Optional.empty(), x, y);
             }
         }
@@ -1513,8 +1505,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         // Seed slot tooltip
         if (this.hoveredSlot instanceof CelestialForgingAnvilMenu.SeedSlot) {
             List<Component> seedTooltip = new ArrayList<>();
-            seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.line1"));
-            seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.line2"));
+            seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.title"));
+            if (hasShiftDown()) {
+                seedTooltip.add(Component.translatable("screen.anvilcraft.cfa.seed_slot.description").withStyle(ChatFormatting.DARK_GRAY));
+            } else {
+                seedTooltip.add(Component.translatable(
+                    "tooltip.anvilcraft.press_key",
+                    Component.literal("[Shift]").withStyle(ChatFormatting.DARK_GRAY)
+                ).withStyle(ChatFormatting.DARK_GRAY));
+            }
             guiGraphics.renderTooltip(font, seedTooltip, java.util.Optional.empty(), x, y);
         }
         // Anvil slot range tooltip
@@ -1774,14 +1773,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         var be = getMenu().getBlockEntity();
         CelestialRefactorOption option = refactorOptions.get(selectedRefactorIndex);
-        // Only block if the SAME megastructure is already built
-        if (be.getActiveMegastructureIndex() >= 0) {
-            var activeOption = be.getActiveMegastructureOption();
-            if (activeOption != null && activeOption.megastructure().equals(option.megastructure())) {
-                showRefactorError(Component.translatable("screen.anvilcraft.cfa.already_built"));
-                return;
-            }
-        }
         if (option.needsMaterial()) {
             // Check the material slot (slot index = anvil slots count = 5, which is slot 5 in the container)
             // The material slot is the CFA's materialContainer, mapped in the menu

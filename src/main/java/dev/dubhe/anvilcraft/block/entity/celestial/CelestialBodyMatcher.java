@@ -415,7 +415,8 @@ public final class CelestialBodyMatcher {
         return new StarData(
             bodyClass,
             size, rgb[0], rgb[1], rgb[2],
-            axialTilt, rotSpeed, mag, energy
+            axialTilt, rotSpeed, mag, energy,
+            null
         );
     }
 
@@ -428,7 +429,7 @@ public final class CelestialBodyMatcher {
         return Math.clamp(space, 1, 64);
     }
 
-    private static Temperature energyToTemperature(int energy) {
+    public static Temperature energyToTemperature(int energy) {
         if (energy <= 12) return Temperature.FREEZING;
         if (energy <= 15) return Temperature.COLD;
         if (energy == 16) return Temperature.MILD;

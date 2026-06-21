@@ -35,6 +35,9 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * Laser interface for the Celestial Forging Anvil.
  * Extends BaseLaserBlockEntity to participate in the laser chain system.
@@ -53,6 +56,8 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     private boolean laserValid = false;
     @Getter
     private int requiredLaserLevel = 0;
+    @Getter
+    private boolean requiredGamma = false;
 
     // Gamma laser state (set by CFA controller for Penrose Sphere output)
     @Getter
@@ -108,6 +113,14 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         return 0;
     }
 
+    @Override
+    public void syncTo(ServerPlayer player) {
+        PacketDistributor.sendToPlayer(
+            player,
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+        );
+    }
+
     /**
      * Whether this laser interface is in active (redstone-powered) mode.
      */
@@ -150,26 +163,44 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     }
 
     /**
-     * When active, ignore lasers from the facing direction (since we emit from there).
-     * When passive, accept lasers from all directions.
+     * Only accept lasers from the face.
+     * Lasers from the sides and back are ignored.
      */
     @Override
-    public java.util.Set<Direction> getIgnoreFace() {
-        BlockState state = getBlockState();
-        if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
-            && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
-            // Active: don't receive from our own output direction
-            return java.util.Set.of(getFacing());
-        }
-        // Passive: receive from all directions
-        return java.util.Set.of();
+    public Set<Direction> getIgnoreFace() {
+        EnumSet<Direction> ignore = EnumSet.allOf(Direction.class);
+        ignore.remove(getFacing().getOpposite());
+        return ignore;
     }
 
     // === CFA laser tracking ===
+
+    /**
+     * Set the laser requirement for this interface, called by the CFA controller.
+     * When {@code requiredLevel > 0}, incoming lasers are validated against this requirement.
+     *
+     * @param requiredLevel the minimum laser level required, or 0 to clear requirement
+     * @param gamma         whether a gamma laser is required
+     */
+    public void setLaserRequirement(int requiredLevel, boolean gamma) {
+        this.requiredLaserLevel = requiredLevel;
+        this.requiredGamma = gamma;
+        // Re-evaluate validity with the new requirement
+        if (requiredLaserLevel > 0 && receivedLaserLevel > 0) {
+            this.laserValid = receivedLaserLevel >= requiredLaserLevel
+                && receivedGamma == requiredGamma;
+        } else {
+            this.laserValid = false;
+        }
+        this.setChanged();
+    }
+
     public void onLaserReceived(int level, boolean gamma) {
         this.receivedLaserLevel = level;
         this.receivedGamma = gamma;
-        this.laserValid = (requiredLaserLevel > 0 && level >= requiredLaserLevel);
+        this.laserValid = (requiredLaserLevel > 0
+            && level >= requiredLaserLevel
+            && gamma == requiredGamma);
         this.setChanged();
     }
 
@@ -592,6 +623,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         tag.putInt("receivedLaserLevel", receivedLaserLevel);
         tag.putBoolean("receivedGamma", receivedGamma);
         tag.putInt("requiredLaserLevel", requiredLaserLevel);
+        tag.putBoolean("requiredGamma", requiredGamma);
         tag.putBoolean("laserValid", laserValid);
     }
 
@@ -599,6 +631,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.receivedLaserLevel = tag.getInt("receivedLaserLevel");
         this.receivedGamma = tag.getBoolean("receivedGamma");
         this.requiredLaserLevel = tag.getInt("requiredLaserLevel");
+        this.requiredGamma = tag.getBoolean("requiredGamma");
         this.laserValid = tag.getBoolean("laserValid");
     }
 

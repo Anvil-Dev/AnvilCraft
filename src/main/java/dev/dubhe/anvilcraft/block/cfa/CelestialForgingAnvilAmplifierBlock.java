@@ -19,16 +19,21 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -38,9 +43,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class CelestialForgingAnvilAmplifierBlock
     extends FlexibleMultiPartBlock<DirectionCube232PartHalf, DirectionProperty, Direction>
-    implements IHammerChangeable, IHammerRemovable {
+    implements IHammerChangeable, IHammerRemovable, SimpleWaterloggedBlock {
     public static final EnumProperty<DirectionCube232PartHalf> HALF = EnumProperty.create("half", DirectionCube232PartHalf.class);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final VoxelShape NORTH_TIP = ShapeUtil.merge(
         new AABB(0, 0, 0, 16, 4, 16),
         new AABB(5, 5, 5, 10, 10, 10)
@@ -101,6 +107,7 @@ public class CelestialForgingAnvilAmplifierBlock
             this.getStateDefinition().any()
                 .setValue(HALF, DirectionCube232PartHalf.BOTTOM_PART)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(WATERLOGGED, false)
         );
     }
 
@@ -221,7 +228,32 @@ public class CelestialForgingAnvilAmplifierBlock
             }
             return null;
         }
-        return this.defaultBlockState().setValue(FACING, facing);
+        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+        return this.defaultBlockState()
+            .setValue(FACING, facing)
+            .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED)
+            ? Fluids.WATER.getSource(false)
+            : super.getFluidState(state);
+    }
+
+    @Override
+    public BlockState updateShape(
+        BlockState state,
+        Direction direction,
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
+    ) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
     private static boolean isCornerPart(Cube323PartHalf half) {
@@ -249,7 +281,7 @@ public class CelestialForgingAnvilAmplifierBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF, FACING);
+        builder.add(HALF, FACING, WATERLOGGED);
     }
 
     @Override

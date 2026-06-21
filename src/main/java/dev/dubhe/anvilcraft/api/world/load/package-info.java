@@ -1,7 +1,9 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
+@FieldsAreNonnullByDefault
 package dev.dubhe.anvilcraft.api.world.load;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
+import com.mojang.logging.annotations.FieldsAreNonnullByDefault;
+import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

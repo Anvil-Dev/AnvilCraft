@@ -163,8 +163,8 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         Item targetItem = ANVIL_ITEMS[slot];
         if (add) {
             // Add from player inventory to anvil slot
-            if (targetSlot.getItem().getCount() >= targetSlot.getMaxStackSize()) return;
-            for (int i = ANVIL_SLOTS + 1; i < this.slots.size(); i++) {
+            if (targetSlot.getItem().getCount() >= targetSlot.getItem().getMaxStackSize()) return;
+            for (int i = MATERIAL_SLOT + 1; i < this.slots.size(); i++) {
                 Slot invSlot = this.slots.get(i);
                 if (invSlot.getItem().is(targetItem)) {
                     invSlot.remove(1);
@@ -181,7 +181,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             // Remove from anvil slot to player inventory
             if (targetSlot.getItem().isEmpty()) return;
             ItemStack toMove = targetSlot.getItem().copyWithCount(1);
-            for (int i = this.slots.size() - 1; i >= ANVIL_SLOTS + 1; i--) {
+            for (int i = this.slots.size() - 1; i >= MATERIAL_SLOT + 1; i--) {
                 Slot invSlot = this.slots.get(i);
                 ItemStack invStack = invSlot.getItem();
                 if (invStack.isEmpty()) {
@@ -192,7 +192,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
                     return;
                 }
                 if (ItemStack.isSameItemSameComponents(invStack, toMove)
-                    && invStack.getCount() < invSlot.getMaxStackSize()) {
+                    && invStack.getCount() < invStack.getMaxStackSize()) {
                     invStack.grow(1);
                     targetSlot.remove(1);
                     invSlot.setChanged();

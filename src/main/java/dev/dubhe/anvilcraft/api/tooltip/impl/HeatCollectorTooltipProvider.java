@@ -71,7 +71,7 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.grid_information.output_power",
-                    UnitUtil.electricityUnit(componentInfo.produces(), original)
+                    UnitUtil.electricityUnit(componentInfo.produces(), original, componentInfo.infinitePower())
                 )
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         } else if (type == PowerComponentType.CONSUMER) {
@@ -79,7 +79,7 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
             lines.add(Component.translatable(
                     "tooltip.anvilcraft.grid_information.input_power",
-                    UnitUtil.electricityUnit(componentInfo.consumes(), original)
+                    UnitUtil.electricityUnit(componentInfo.consumes(), original, false)
                 )
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         }
@@ -88,12 +88,12 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
             Component.translatable("tooltip.anvilcraft.grid_information.title").setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)),
             Component.translatable(
                     "tooltip.anvilcraft.grid_information.total_consumed",
-                    UnitUtil.electricityUnit(grid.getConsume(), original)
+                    UnitUtil.electricityUnit(grid.getConsume(), original, false)
                 )
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)),
             Component.translatable(
                     "tooltip.anvilcraft.grid_information.total_generated",
-                    UnitUtil.electricityUnit(grid.getGenerate(), original)
+                    UnitUtil.electricityUnit(grid.getGenerate(), original, grid.isInfinitePower())
                 )
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
         );

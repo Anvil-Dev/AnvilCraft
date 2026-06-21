@@ -1,0 +1,47 @@
+{
+  "type": "anvilcraft:special_celestial_body",
+  "axial_tilt": 22.0,
+  "energy": 17,
+  "has_atmosphere": true,
+  "liquid_coverage": "none",
+  "magnetic_field": 2,
+  "mass": 9,
+  "name": "flesh_planet",
+  "needs_custom_model": true,
+  "resources": {
+    "minerals": [
+      {
+        "id": "minecraft:rotten_flesh",
+        "weight": 30
+      },
+      {
+        "id": "minecraft:bone",
+        "weight": 30
+      },
+      {
+        "id": "minecraft:string",
+        "weight": 20
+      },
+      {
+        "id": "minecraft:spider_eye",
+        "weight": 15
+      },
+      {
+        "id": "minecraft:phantom_membrane",
+        "weight": 3
+      },
+      {
+        "id": "minecraft:ghast_tear",
+        "weight": 2
+      }
+    ]
+  },
+  "rotation_speed": 2,
+  "seed_items": [
+    "anvilcraft:rotten_flesh_block",
+    "minecraft:bone_block"
+  ],
+  "space": 10,
+  "texture": "planet_flesh",
+  "time": 40
+}

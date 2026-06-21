@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.block;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;

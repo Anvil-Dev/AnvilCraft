@@ -1,0 +1,273 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "x": 180,
+        "y": 270
+      },
+      "when": {
+        "corner_ended": "down_north"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "x": 180,
+        "y": 90
+      },
+      "when": {
+        "corner_ended": "down_south"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "x": 180
+      },
+      "when": {
+        "corner_ended": "down_east"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "x": 180,
+        "y": 180
+      },
+      "when": {
+        "corner_ended": "down_west"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "y": 270
+      },
+      "when": {
+        "corner_ended": "up_north"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner"
+      },
+      "when": {
+        "corner_ended": "up_east"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "y": 90
+      },
+      "when": {
+        "corner_ended": "up_south"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "y": 180
+      },
+      "when": {
+        "corner_ended": "up_west"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "x": 90
+      },
+      "when": {
+        "corner_ended": "north_east"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "x": 90,
+        "y": 90
+      },
+      "when": {
+        "corner_ended": "south_east"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "x": 90,
+        "y": 180
+      },
+      "when": {
+        "corner_ended": "south_west"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_side_corner",
+        "x": 90,
+        "y": 270
+      },
+      "when": {
+        "corner_ended": "north_west"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "x": 270
+      },
+      "when": {
+        "corner_ended": "up_north|up_west|up_east|up_south",
+        "has_end_start": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "x": 270
+      },
+      "when": {
+        "corner_ended": "up_north|up_west|up_east|up_south",
+        "has_end_start": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "x": 90
+      },
+      "when": {
+        "corner_ended": "down_north|down_west|down_east|down_south",
+        "has_end_start": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "x": 90
+      },
+      "when": {
+        "corner_ended": "down_north|down_west|down_east|down_south",
+        "has_end_start": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end"
+      },
+      "when": {
+        "corner_ended": "north_east|north_west",
+        "has_end_start": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end"
+      },
+      "when": {
+        "corner_ended": "north_east|north_west",
+        "has_end_start": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end"
+      },
+      "when": {
+        "corner_ended": "up_north|down_north",
+        "has_end_end": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end"
+      },
+      "when": {
+        "corner_ended": "up_north|down_north",
+        "has_end_end": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "y": 180
+      },
+      "when": {
+        "corner_ended": "south_east|south_west",
+        "has_end_start": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "y": 180
+      },
+      "when": {
+        "corner_ended": "south_east|south_west",
+        "has_end_start": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "y": 180
+      },
+      "when": {
+        "corner_ended": "up_south|down_south",
+        "has_end_end": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "y": 180
+      },
+      "when": {
+        "corner_ended": "up_south|down_south",
+        "has_end_end": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "y": 90
+      },
+      "when": {
+        "corner_ended": "up_east|down_east|north_east|south_east",
+        "has_end_end": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "y": 90
+      },
+      "when": {
+        "corner_ended": "up_east|down_east|north_east|south_east",
+        "has_end_end": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "y": 270
+      },
+      "when": {
+        "corner_ended": "up_west|down_west|north_west|south_west",
+        "has_end_end": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "y": 270
+      },
+      "when": {
+        "corner_ended": "up_west|down_west|north_west|south_west",
+        "has_end_end": "false"
+      }
+    }
+  ]
+}

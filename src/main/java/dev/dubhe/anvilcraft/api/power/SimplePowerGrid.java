@@ -44,7 +44,8 @@ public class SimplePowerGrid {
         BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
         PowerComponentInfo.CODEC.listOf().fieldOf("powerComponentInfoList").forGetter(it -> it.powerComponentInfoList),
         Codec.INT.fieldOf("generate").forGetter(o -> o.generate),
-        Codec.INT.fieldOf("consume").forGetter(o -> o.consume)
+        Codec.INT.fieldOf("consume").forGetter(o -> o.consume),
+        Codec.BOOL.fieldOf("infinitePower").forGetter(o -> o.infinitePower)
     ).apply(ins, SimplePowerGrid::new));
     public static final StreamCodec<FriendlyByteBuf, SimplePowerGrid> STREAM_CODEC = StreamCodec.of(
         SimplePowerGrid::encode,
@@ -64,6 +65,7 @@ public class SimplePowerGrid {
     private final List<Line> powerTransmitterLines = new ArrayList<>();
     private final int generate; // 发电功率
     private final int consume; // 耗电功率
+    private final boolean infinitePower; // 是否有无限电力
     private final int color;
     private List<Line> powerGridBoundLines = new ArrayList<>();
     private Future<?> shapeFuture;
@@ -71,7 +73,15 @@ public class SimplePowerGrid {
     /**
      * 简单电网
      */
-    public SimplePowerGrid(int id, String level, BlockPos pos, List<PowerComponentInfo> powerComponentInfoList, int generate, int consume) {
+    public SimplePowerGrid(
+        int id,
+        String level,
+        BlockPos pos,
+        List<PowerComponentInfo> powerComponentInfoList,
+        int generate,
+        int consume,
+        boolean infinitePower
+    ) {
         this.pos = pos;
         this.level = level;
         this.id = id;
@@ -80,6 +90,7 @@ public class SimplePowerGrid {
         this.color = FastColor.ARGB32.color((int) (0.4 * 255), colors[0], colors[1], colors[2]);
         this.generate = generate;
         this.consume = consume;
+        this.infinitePower = infinitePower;
         blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
         createMergedOutlineShape();
@@ -107,7 +118,8 @@ public class SimplePowerGrid {
                         it.getPowerAmount(),
                         it.getCapacity(),
                         it.getRange(),
-                        PowerComponentType.STORAGE
+                        PowerComponentType.STORAGE,
+                        false
                     ));
                 }
                 case CONSUMER -> {
@@ -119,7 +131,8 @@ public class SimplePowerGrid {
                         0,
                         0,
                         it.getRange(),
-                        PowerComponentType.CONSUMER
+                        PowerComponentType.CONSUMER,
+                        false
                     ));
                 }
                 case PRODUCER -> {
@@ -131,7 +144,8 @@ public class SimplePowerGrid {
                         0,
                         0,
                         it.getRange(),
-                        PowerComponentType.PRODUCER
+                        PowerComponentType.PRODUCER,
+                        it.isInfinitePower()
                     ));
                 }
 
@@ -144,7 +158,8 @@ public class SimplePowerGrid {
                         0,
                         0,
                         it.getRange(),
-                        PowerComponentType.TRANSMITTER
+                        PowerComponentType.TRANSMITTER,
+                        false
                     ));
                 }
 
@@ -155,12 +170,14 @@ public class SimplePowerGrid {
                     0,
                     0,
                     component.getRange(),
-                    PowerComponentType.INVALID
+                    PowerComponentType.INVALID,
+                    false
                 ));
             }
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
+        this.infinitePower = grid.isHasInfinitePower();
     }
 
     /**

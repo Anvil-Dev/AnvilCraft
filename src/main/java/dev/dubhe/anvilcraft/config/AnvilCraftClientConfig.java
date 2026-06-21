@@ -20,7 +20,7 @@ public class AnvilCraftClientConfig {
     public boolean heliostatsSunflowerModel = true;
 
     @Comment("Do not render power component tooltip when jade present")
-    public boolean doNotShowTooltipWhenJadePresent = true;
+    public boolean doNotShowTooltipWhenJadePresent = false;
 
     @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
     public boolean groundHeaveParticlesEnabled = true;

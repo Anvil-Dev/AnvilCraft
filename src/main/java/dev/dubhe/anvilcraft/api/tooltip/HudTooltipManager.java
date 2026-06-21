@@ -109,14 +109,20 @@ public class HudTooltipManager {
         int screenWidth,
         int screenHeight
     ) {
-        if (state == null) return;
+        if (state == null) {
+            return;
+        }
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
         ITooltipProvider.BlockTooltipProvider currentProvider = determineBlockTooltipProvider(level, pos, state);
-        if (currentProvider == null) return;
+        if (currentProvider == null) {
+            return;
+        }
         List<Component> tooltip = currentProvider.tooltip(level, pos, state);
-        if (tooltip == null || tooltip.isEmpty()) return;
+        if (tooltip == null || tooltip.isEmpty()) {
+            return;
+        }
         renderTooltipWithItemIcon(
             guiGraphics,
             font,
@@ -133,21 +139,21 @@ public class HudTooltipManager {
     /**
      * 渲染方块实体的tooltip
      */
-    public void renderTooltip(
-        GuiGraphics guiGraphics,
-        BlockEntity entity,
-        float partialTick,
-        int screenWidth,
-        int screenHeight
-    ) {
-        if (entity == null) return;
+    public void renderTooltip(GuiGraphics guiGraphics, BlockEntity entity, float partialTick, int screenWidth, int screenHeight) {
+        if (entity == null) {
+            return;
+        }
         final int tooltipPosX = screenWidth / 2 + 10;
         final int tooltipPosY = screenHeight / 2 + 10;
         Font font = Minecraft.getInstance().font;
         ITooltipProvider.BlockEntityTooltipProvider currentProvider = determineBlockEntityTooltipProvider(entity);
-        if (currentProvider == null) return;
+        if (currentProvider == null) {
+            return;
+        }
         List<Component> tooltip = currentProvider.tooltip(entity);
-        if (tooltip == null || tooltip.isEmpty()) return;
+        if (tooltip == null || tooltip.isEmpty()) {
+            return;
+        }
         renderTooltipWithItemIcon(
             guiGraphics,
             font,
@@ -173,7 +179,9 @@ public class HudTooltipManager {
         double camZ
     ) {
         IHandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
-        if (pv == null) return;
+        if (pv == null) {
+            return;
+        }
         pv.render(poseStack, consumer, itemStack, camX, camY, camZ);
     }
 
@@ -188,31 +196,32 @@ public class HudTooltipManager {
         int screenHeight
     ) {
         IHandHeldItemTooltipProvider pv = determineHandHeldItemTooltipProvider(itemStack);
-        if (pv == null) return;
+        if (pv == null) {
+            return;
+        }
         pv.renderTooltip(guiGraphics, screenWidth, screenHeight);
     }
 
     /**
      * 渲染作用范围
      */
-    public void renderAffectRange(
-        BlockEntity entity,
-        PoseStack poseStack,
-        VertexConsumer consumer,
-        double camX,
-        double camY,
-        double camZ
-    ) {
+    public void renderAffectRange(BlockEntity entity, PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
         IAffectRangeProvider currentProvider = determineAffectRangeProvider(entity);
-        if (currentProvider == null) return;
+        if (currentProvider == null) {
+            return;
+        }
         VoxelShape shape = currentProvider.affectRange(entity);
-        if (shape == null) return;
+        if (shape == null) {
+            return;
+        }
         renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00ffcc);
     }
 
     @Nullable
     private IHandHeldItemTooltipProvider determineHandHeldItemTooltipProvider(ItemStack itemStack) {
-        if (itemStack == null || itemStack.isEmpty()) return null;
+        if (itemStack == null || itemStack.isEmpty()) {
+            return null;
+        }
         return handItemProviders.stream()
             .filter(it -> it.accepts(itemStack))
             .min(Comparator.comparingInt(IHandHeldItemTooltipProvider::priority))
@@ -221,7 +230,9 @@ public class HudTooltipManager {
 
     @Nullable
     private ITooltipProvider.BlockTooltipProvider determineBlockTooltipProvider(Level level, BlockPos pos, BlockState state) {
-        if (state == null) return null;
+        if (state == null) {
+            return null;
+        }
         return blockProviders.stream()
             .filter(it -> it.accepts(level, pos, state))
             .min(Comparator.comparingInt(ITooltipProvider::priority))
@@ -230,7 +241,9 @@ public class HudTooltipManager {
 
     @Nullable
     private ITooltipProvider.BlockEntityTooltipProvider determineBlockEntityTooltipProvider(BlockEntity entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return blockEntityProviders.stream()
             .filter(it -> it.accepts(entity))
             .min(Comparator.comparingInt(ITooltipProvider::priority))
@@ -239,7 +252,9 @@ public class HudTooltipManager {
 
     @Nullable
     private IAffectRangeProvider determineAffectRangeProvider(BlockEntity entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return affectRangeProviders.stream()
             .filter(it -> it.accepts(entity))
             .min(Comparator.comparingInt(IAffectRangeProvider::priority))
