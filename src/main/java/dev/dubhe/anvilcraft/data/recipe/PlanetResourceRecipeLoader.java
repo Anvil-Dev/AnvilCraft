@@ -145,7 +145,7 @@ public class PlanetResourceRecipeLoader {
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.OfferingData(
                 List.of(
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:emerald_block", 50),
+                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:gem_block_random", 50),
                     new PlanetResourceRecipe.WeightedEntry("minecraft:experience_bottle", 40),
                     new PlanetResourceRecipe.WeightedEntry("anvilcraft:royal_steel_ingot", 5),
                     new PlanetResourceRecipe.WeightedEntry("minecraft:totem_of_undying", 2),

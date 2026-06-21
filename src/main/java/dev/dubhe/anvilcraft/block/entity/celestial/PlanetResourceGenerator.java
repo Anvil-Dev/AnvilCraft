@@ -285,6 +285,11 @@ public final class PlanetResourceGenerator {
                 if (randomAmulet != null) {
                     set.addOffering(new PlanetaryResourceSet.WeightedItemStack(randomAmulet, entry.weight()));
                 }
+            } else if ("anvilcraft:gem_block_random".equals(id.toString())) {
+                ResourceLocation randomBlock = pickRandomGemBlock(random);
+                if (randomBlock != null) {
+                    set.addOffering(new PlanetaryResourceSet.WeightedItemStack(randomBlock, entry.weight()));
+                }
             } else {
                 set.addOffering(new PlanetaryResourceSet.WeightedItemStack(id, entry.weight()));
             }
@@ -469,6 +474,17 @@ public final class PlanetResourceGenerator {
             ResourceLocation.parse("anvilcraft:sapphire_amulet")
         );
         return knownAmulets.get(random.nextInt(knownAmulets.size()));
+    }
+
+    @Nullable
+    private static ResourceLocation pickRandomGemBlock(RandomSource random) {
+        List<ResourceLocation> knownBlocks = List.of(
+            ResourceLocation.parse("minecraft:emerald_block"),
+            ResourceLocation.parse("anvilcraft:topaz_block"),
+            ResourceLocation.parse("anvilcraft:ruby_block"),
+            ResourceLocation.parse("anvilcraft:sapphire_block")
+        );
+        return knownBlocks.get(random.nextInt(knownBlocks.size()));
     }
 
     private static Set<ResourceLocation> buildItemBlacklist(
