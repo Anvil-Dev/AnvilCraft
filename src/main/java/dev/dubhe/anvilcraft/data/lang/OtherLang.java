@@ -34,6 +34,16 @@ public class OtherLang {
         provider.add("message.anvilcraft.disk.data_cleared", "Cleared data stored in disk");
         provider.add("message.anvilcraft.disk.data_stored", "Stored setting of block into disk");
         provider.add("message.anvilcraft.chute.cannot_place", "Chute cannot face this direction");
+        provider.add("message.anvilcraft.structure_scanner.no_disk", "Please insert a structure disk to save the structure!");
+        provider.add("message.anvilcraft.structure_scanner.output_not_empty", "Output slot is not empty, please take the item first!");
+
+        // Structure Disk tooltips
+        provider.add("item.anvilcraft.structure_disk.structure", "Structure: %s");
+        provider.add("item.anvilcraft.structure_disk.size", "Size: %s");
+        provider.add("item.anvilcraft.structure_disk.fit_placer", "✓ Can be placed by Smart Block Placer");
+        provider.add("item.anvilcraft.structure_disk.too_large_for_placer", "✗ Too large for Smart Block Placer (max 5×5×5)");
+
+        provider.add("book.anvilcraft.material_list.missing_header", "Missing:");
 
         provider.add("enchantment.anvilcraft.beheading", "Beheading");
         provider.add("enchantment.anvilcraft.felling", "Felling");

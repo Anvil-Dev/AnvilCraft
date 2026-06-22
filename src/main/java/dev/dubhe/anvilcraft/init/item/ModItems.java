@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
@@ -677,6 +678,12 @@ public class ModItems {
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
         .properties(p -> p.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::disk)
+        .register();
+
+    public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
+        .item("structure_disk", StructureDiskItem::new)
+        .properties(p -> p.stacksTo(1))
+        .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)

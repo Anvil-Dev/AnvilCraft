@@ -44,7 +44,9 @@ import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
@@ -81,6 +83,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 
@@ -422,6 +425,17 @@ public class ModBlockEntities {
         .blockEntity("fish_tank", FishTankBlockEntity::new)
         .validBlocks(ModBlocks.FISH_TANK)
         .renderer(() -> FishTankRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<SmartBlockPlacerBlockEntity> SMART_BLOCK_PLACER = REGISTRUM
+        .blockEntity("smart_block_placer", SmartBlockPlacerBlockEntity::createBlockEntity)
+        .renderer(() -> SmartBlockPlacerRenderer::new)
+        .validBlock(ModBlocks.SMART_BLOCK_PLACER)
+        .register();
+
+    public static final BlockEntityEntry<StructureScannerBlockEntity> STRUCTURE_SCANNER = REGISTRUM
+        .blockEntity("structure_scanner", StructureScannerBlockEntity::new)
+        .validBlock(ModBlocks.STRUCTURE_SCANNER)
         .register();
 
     public static void register() {

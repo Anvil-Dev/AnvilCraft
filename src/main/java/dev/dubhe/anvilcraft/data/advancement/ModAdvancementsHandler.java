@@ -87,6 +87,19 @@ public class ModAdvancementsHandler {
             )
             .devourerDevour("devourer_devour_devourer", ModBlocks.BLOCK_DEVOURER)
             .save(provider, "block_devourer");
+        AdvancementHolder placerShuttle = clawLine.next()
+            .display(
+                ModBlocks.SMART_BLOCK_PLACER.asItem(),
+                Component.translatable("advancements.anvilcraft.placer_shuttle.title"),
+                Component.translatable("advancements.anvilcraft.placer_shuttle.description"),
+                null,
+                AdvancementType.GOAL,
+                true,
+                true,
+                false
+            )
+            .placerShuttle("placer_shuttle")
+            .save(provider, "placer_shuttle");
 
         AdvancementLineHelper geodeLine = mainLine.createBranch();
         AdvancementHolder geode = geodeLine.next()

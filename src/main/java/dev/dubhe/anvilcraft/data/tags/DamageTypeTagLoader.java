@@ -20,6 +20,8 @@ public class DamageTypeTagLoader {
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
         provider.rawBuilder(DamageTypeTags.NO_KNOCKBACK)
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
+        provider.rawBuilder(DamageTypeTags.NO_KNOCKBACK)
+            .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier());
         provider.rawBuilder(Tags.DamageTypes.IS_MAGIC)
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
 

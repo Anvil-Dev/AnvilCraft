@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
@@ -85,6 +86,26 @@ public class RegisterAdditionalEventListener {
         event.register(
             FishTankRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))
+        );
+        event.register(
+            SmartBlockPlacerRenderer.BASE_MODEL,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_base"))
+        );
+        event.register(
+            SmartBlockPlacerRenderer.UPPERARM_MODEL,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_upperarm"))
+        );
+        event.register(
+            SmartBlockPlacerRenderer.FOREARM_MODEL,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_forearm"))
+        );
+        event.register(
+            SmartBlockPlacerRenderer.CLAW_MODEL,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_claw"))
+        );
+        event.register(
+            SmartBlockPlacerRenderer.CLAW_OPEN_MODEL,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_claw_open"))
         );
     }
 

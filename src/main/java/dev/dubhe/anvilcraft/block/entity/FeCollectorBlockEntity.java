@@ -5,7 +5,7 @@ import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.FeCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.FeCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -242,10 +242,6 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             this.outputPower = 0;
             if (this.grid != null) this.grid.markChanged();
         }
-    }
-
-    public int getEnergyStored() {
-        return this.energy;
     }
 
     class FeEnergyStore implements EnergyHandler {

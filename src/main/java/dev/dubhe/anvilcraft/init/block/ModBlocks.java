@@ -11,8 +11,6 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
-import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -102,6 +100,7 @@ import dev.dubhe.anvilcraft.block.power.consumer.DischargerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
@@ -109,6 +108,7 @@ import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.power.generator.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.ChargerBlock;
 import dev.dubhe.anvilcraft.block.power.generator.CreativeGeneratorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.HeatCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
@@ -157,6 +157,7 @@ import dev.dubhe.anvilcraft.block.utility.redstone.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.ItemDetectorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.PulseGeneratorBlock;
+import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.workstation.ConfinementChamberBlock;
 import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.workstation.CrushingTableBlock;
@@ -168,6 +169,7 @@ import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.workstation.SpaceOvercompressorBlock;
 import dev.dubhe.anvilcraft.block.workstation.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
@@ -213,6 +215,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
@@ -238,6 +241,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ColoredFallingBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
@@ -589,6 +593,7 @@ public class ModBlocks {
         .properties(properties -> properties.isValidSpawn(Blocks::never)
             .noOcclusion()
             .lightLevel(state -> state.getValue(IPowerConsumer.OVERLOAD) ? 0 : 15))
+        .lang("Electric Heater")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -919,6 +924,66 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
+        .register();
+
+    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
+        .block("smart_block_placer", SmartBlockPlacerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(() -> (ctx, generator) -> {
+            Identifier bottom = ctx.getId().withPrefix("block/").withSuffix("_bottom");
+            Identifier off = ctx.getId().withPrefix("block/").withSuffix("_bottom_off");
+            Identifier overload = ctx.getId().withPrefix("block/").withSuffix("_bottom_overload");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(
+                    SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED, SmartBlockPlacerBlock
+                            .UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
+                    .generate((isOverload, isPowered, isUpsideDown, facing) -> {
+                        Identifier model = isOverload ? overload : (isPowered ? off : bottom);
+                        Quadrant baseY = switch (facing) {
+                            case EAST -> Quadrant.R90;
+                            case SOUTH -> Quadrant.R180;
+                            case WEST -> Quadrant.R270;
+                            default -> Quadrant.R0;
+                        };
+                        Quadrant yrot = isUpsideDown
+                            ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
+                            : baseY;
+                        return BlockModelGenerators.plainVariant(model)
+                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
+                    })));
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
+        .register();
+
+    public static final BlockEntry<StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(() -> (ctx, generator) -> {
+            Identifier model = ctx.getId().withPrefix("block/");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(
+                    StructureScannerBlock.UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
+                    .generate((isUpsideDown, facing) -> {
+                        Quadrant baseY = switch (facing) {
+                            case EAST -> Quadrant.R90;
+                            case SOUTH -> Quadrant.R180;
+                            case WEST -> Quadrant.R270;
+                            default -> Quadrant.R0;
+                        };
+                        Quadrant yrot = isUpsideDown
+                            ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
+                            : baseY;
+                        return BlockModelGenerators.plainVariant(model)
+                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
+                    })));
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::structureScanner)
         .register();
 
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)
