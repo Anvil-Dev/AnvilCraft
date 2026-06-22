@@ -44,11 +44,6 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     private @Nullable PowerGrid grid;
     private boolean working;
 
-    /**
-     * 重入防护：防止 IFluidHandler relay 时无限递归
-     */
-    private boolean transferring;
-
     public PumpBlockEntity(BlockEntityType<? extends PumpBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
