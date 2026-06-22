@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.storage;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.StorageMenu;
+import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import lombok.Getter;
@@ -42,14 +43,14 @@ public class StorageBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setId(UUID id) {
-        if (this.level != null) {
-            BlockState state = this.getBlockState();
-            this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
-        }
         if (this.id != null) {
             return;
         }
         this.id = id;
+        if (this.level != null) {
+            BlockState state = this.getBlockState();
+            this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
+        }
     }
 
     @Override
@@ -61,11 +62,13 @@ public class StorageBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     protected void loadAdditional(ValueInput input) {
+        // 信任加载的数据
         input.read("storage_id", UUIDUtil.CODEC).ifPresent(id -> this.id = id);
     }
 
     @Override
     public void onDataPacket(Connection net, ValueInput input) {
+        // 信任服务端传来的数据
         input.read("storage_id", UUIDUtil.CODEC).ifPresent(id -> this.id = id);
     }
 
@@ -103,5 +106,13 @@ public class StorageBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         return new StorageMenu(ModMenuTypes.STORAGE.get(), containerId, inventory, this);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (this.id != null) {
+            StorageMenuState.clear(this.id);
+        }
     }
 }

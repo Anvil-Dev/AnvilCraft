@@ -23,6 +23,10 @@ public class StorageMenuState {
         return StorageMenuState.STATES.computeIfAbsent(id, StorageMenuState::new);
     }
 
+    public static void clear(UUID id) {
+        StorageMenuState.STATES.remove(id);
+    }
+
     public static void clear() {
         StorageMenuState.STATES.clear();
     }
@@ -58,21 +62,25 @@ public class StorageMenuState {
     }
 
     public void sync(int head, List<UnlimitedItemStack> stacks) {
-        this.mapping.ensureCapacity(head);
+        while (this.mapping.size() <= head) {
+            this.mapping.add(UnlimitedItemStack.EMPTY);
+        }
 
         int size = stacks.size();
         for (int i = head; i < head + size; i++) {
             if (this.mapping.get(i) == null) {
-                this.mapping.add(i, stacks.get(i));
+                this.mapping.add(i, stacks.get(i - head));
             } else {
-                this.mapping.set(i, stacks.get(i));
+                this.mapping.set(i, stacks.get(i - head));
             }
         }
     }
 
     public void sync(Map<Integer, UnlimitedItemStack> stacks) {
         for (int index : stacks.keySet()) {
-            this.mapping.ensureCapacity(index);
+            while (this.mapping.size() <= index) {
+                this.mapping.add(UnlimitedItemStack.EMPTY);
+            }
             this.mapping.set(index, stacks.get(index));
         }
     }

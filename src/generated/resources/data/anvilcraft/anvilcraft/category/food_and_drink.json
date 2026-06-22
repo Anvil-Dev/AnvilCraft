@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:has_component",
+  "icon": {
+    "id": "minecraft:apple"
+  },
+  "name": {
+    "translate": "category.anvilcraft.food_and_drink"
+  },
+  "predicates": {
+    "minecraft:food": {},
+    "minecraft:potion_contents": {
+      "type": "neoforge:any"
+    }
+  }
+}

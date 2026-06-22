@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.component.category;
 
 import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -178,9 +179,6 @@ public class CategoryList extends AbstractContainerWidget {
         int top = this.getY();
         int right = left + 4;
         int bottom = top + this.getHeight();
-        return mouseX >= (double) left
-               && mouseY >= (double) top
-               && mouseX < (double) right
-               && mouseY < (double) bottom;
+        return MathUtil.isInRange(mouseX, mouseY, left, top, right, bottom);
     }
 }

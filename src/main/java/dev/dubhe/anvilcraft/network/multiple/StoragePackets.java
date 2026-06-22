@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.connection.ConnectionType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -74,11 +75,13 @@ public class StoragePackets {
             .apply(ByteBufCodecs.list());
 
         /// 服务器侧
+        @ApiStatus.Internal
         private Sync2CFull(UUID id, int head, int encodedCount, RegistryFriendlyByteBuf buf) {
             this(id, head, null, encodedCount, buf);
         }
 
         /// 客户端侧
+        @ApiStatus.Internal
         private Sync2CFull(UUID id, int head, List<UnlimitedItemStack> stacks) {
             this(id, head, stacks, stacks.size(), null);
         }
@@ -187,7 +190,7 @@ public class StoragePackets {
                 Sync2CFull[] array = this.packets.toArray(new Sync2CFull[0]);
                 int length = array.length - 1;
                 Sync2CFull[] dest = new Sync2CFull[length];
-                System.arraycopy(array, 0, dest, 1, length);
+                System.arraycopy(array, 1, dest, 0, length);
                 PacketDistributor.sendToPlayer(this.player, this.packets.getFirst(), dest);
             }
         }

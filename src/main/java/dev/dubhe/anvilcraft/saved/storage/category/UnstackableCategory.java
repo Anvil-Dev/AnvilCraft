@@ -7,7 +7,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 
@@ -26,7 +25,7 @@ public record UnstackableCategory() implements ICategory {
 
     @Override
     public boolean test(UnlimitedItemStack stack) {
-        return stack.getItem() instanceof BlockItem;
+        return !stack.isStackable();
     }
 
     @Override
