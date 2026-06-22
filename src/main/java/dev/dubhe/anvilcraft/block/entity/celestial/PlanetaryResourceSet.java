@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +19,7 @@ public class PlanetaryResourceSet {
     /**
      * A weighted item entry — item identifier with its percentage weight.
      */
-    public record WeightedItemStack(ResourceLocation itemId, int weight) {
+    public record WeightedItemStack(Identifier itemId, int weight) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
             tag.putString("id", itemId.toString());
@@ -28,7 +28,7 @@ public class PlanetaryResourceSet {
         }
 
         public static WeightedItemStack fromTag(CompoundTag tag) {
-            ResourceLocation id = ResourceLocation.parse(tag.getStringOr("id", "minecraft:air"));
+            Identifier id = Identifier.parse(tag.getStringOr("id", "minecraft:air"));
             int weight = tag.getIntOr("weight", 0);
             return new WeightedItemStack(id, weight);
         }
@@ -37,7 +37,7 @@ public class PlanetaryResourceSet {
     /**
      * A weighted fluid entry — fluid identifier with its percentage weight.
      */
-    public record WeightedFluidStack(ResourceLocation fluidId, int weight) {
+    public record WeightedFluidStack(Identifier fluidId, int weight) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
             tag.putString("id", fluidId.toString());
@@ -46,7 +46,7 @@ public class PlanetaryResourceSet {
         }
 
         public static WeightedFluidStack fromTag(CompoundTag tag) {
-            ResourceLocation id = ResourceLocation.parse(tag.getStringOr("id", "minecraft:air"));
+            Identifier id = Identifier.parse(tag.getStringOr("id", "minecraft:air"));
             int weight = tag.getIntOr("weight", 0);
             return new WeightedFluidStack(id, weight);
         }
@@ -192,30 +192,14 @@ public class PlanetaryResourceSet {
 
     public static PlanetaryResourceSet fromTag(CompoundTag tag) {
         PlanetaryResourceSet set = new PlanetaryResourceSet();
-        if (tag.contains("minerals")) {
-            readItemList(tag.getList("minerals", Tag.TAG_COMPOUND), set.minerals);
-        }
-        if (tag.contains("fluids")) {
-            readFluidList(tag.getList("fluids", Tag.TAG_COMPOUND), set.fluids);
-        }
-        if (tag.contains("giantItems")) {
-            readItemList(tag.getList("giantItems", Tag.TAG_COMPOUND), set.giantItems);
-        }
-        if (tag.contains("giantFluids")) {
-            readFluidList(tag.getList("giantFluids", Tag.TAG_COMPOUND), set.giantFluids);
-        }
-        if (tag.contains("biologicalItems")) {
-            readItemList(tag.getList("biologicalItems", Tag.TAG_COMPOUND), set.biologicalItems);
-        }
-        if (tag.contains("biologicalFluids")) {
-            readFluidList(tag.getList("biologicalFluids", Tag.TAG_COMPOUND), set.biologicalFluids);
-        }
-        if (tag.contains("offerings")) {
-            readItemList(tag.getList("offerings", Tag.TAG_COMPOUND), set.offerings);
-        }
-        if (tag.contains("wastelandItems")) {
-            readItemList(tag.getList("wastelandItems", Tag.TAG_COMPOUND), set.wastelandItems);
-        }
+        tag.getList("minerals").ifPresent(listTag -> readItemList(listTag, set.minerals));
+        tag.getList("fluids").ifPresent(listTag -> readFluidList(listTag, set.fluids));
+        tag.getList("giantItems").ifPresent(listTag -> readItemList(listTag, set.giantItems));
+        tag.getList("giantFluids").ifPresent(listTag -> readFluidList(listTag, set.giantFluids));
+        tag.getList("biologicalItems").ifPresent(listTag -> readItemList(listTag, set.biologicalItems));
+        tag.getList("biologicalFluids").ifPresent(listTag -> readFluidList(listTag, set.biologicalFluids));
+        tag.getList("offerings").ifPresent(listTag -> readItemList(listTag, set.offerings));
+        tag.getList("wastelandItems").ifPresent(listTag -> readItemList(listTag, set.wastelandItems));
         set.hasCivilization = tag.getBooleanOr("hasCivilization", false);
         set.isWasteland = tag.getBooleanOr("isWasteland", false);
         return set;

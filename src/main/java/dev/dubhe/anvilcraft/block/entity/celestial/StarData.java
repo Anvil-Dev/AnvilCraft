@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +59,7 @@ public record StarData(
         tag.putInt("magneticFieldStrength", magneticFieldStrength);
         tag.putInt("energy", energy);
         if (bodyUuid != null) {
-            tag.putUUID("bodyUuid", bodyUuid);
+            tag.store("bodyUuid", UUIDUtil.CODEC, bodyUuid);
         }
         return tag;
     }
@@ -72,7 +73,7 @@ public record StarData(
         int mag = tag.getIntOr("magneticFieldStrength", 0);
         int energy = tag.getIntOr("energy", 0);
         int rotSpeed = tag.getIntOr("rotationSpeed", 0);
-        UUID uuid = tag.getUUID("bodyUuid").orElse(null);
+        UUID uuid = tag.read("bodyUuid", UUIDUtil.CODEC).orElse(null);
         return new StarData(cls, size, r, g, b, tag.getFloatOr("axialTilt", 0f), rotSpeed, mag, energy, uuid);
     }
 }

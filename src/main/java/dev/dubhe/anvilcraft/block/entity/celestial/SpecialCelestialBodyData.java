@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -53,10 +53,10 @@ public record SpecialCelestialBodyData(
     }
 
     /**
-     * Get the standalone model resource location for this special body.
+     * Get the model resource identifier for this special body.
      */
-    public ModelResourceLocation getModelLocation() {
-        return ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/" + textureName));
+    public Identifier getModelLocation() {
+        return AnvilCraft.of("block/celestial_body/" + textureName);
     }
 
     @Override
