@@ -112,9 +112,11 @@ public class PipeStraightBlock extends PipeBlock {
         }
 
         if (neighborDir.getAxis() != axis) {
-            // 侧面连接：检查邻居管道是否对准本方块
+            // 侧面连接：检查邻居管道是否对准本方块，或邻居是泵
+            BlockState neighborState = level.getBlockState(neighborPos);
             boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
-            if (!neighborIsPipeToward) {
+            boolean neighborIsPump = neighborState.getBlock() instanceof PumpBlock;
+            if (!neighborIsPipeToward && !neighborIsPump) {
                 return;
             }
 

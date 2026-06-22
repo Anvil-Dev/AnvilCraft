@@ -234,6 +234,22 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
     }
 
     /**
+     * 检查指定位置是否为流体处理器（通过 NeoForge Capability 系统）或泵。
+     *
+     * @param level 世界
+     * @param pos   位置
+     * @return 该位置是否提供 {@link net.neoforged.neoforge.fluids.capability.IFluidHandler} 或是泵
+     */
+    public static boolean isFluidHandlerOrPump(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof PumpBlock) {
+            return true;
+        }
+        BlockEntity be = level.getBlockEntity(pos);
+        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, state, be, null) != null;
+    }
+
+    /**
      * 检查指定方向的邻居是否被"占用"（有管道对准 或 是流体处理器）。
      * 用于判断管道端头是否应该打开（无端头连接）。
      *

@@ -218,6 +218,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.util.DangerUtil;
@@ -997,9 +998,9 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
                 Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-                boolean upsideDown = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
-                boolean powered = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED);
-                boolean overload = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD);
+                boolean upsideDown = state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+                boolean powered = state.getValue(SmartBlockPlacerBlock.POWERED);
+                boolean overload = state.getValue(SmartBlockPlacerBlock.OVERLOAD);
 
                 // 根据状态选择模型
                 String modelName;
@@ -1025,7 +1026,7 @@ public class ModBlocks {
                     rotation = (rotation + 180) % 360;
                 }
 
-                return net.neoforged.neoforge.client.model.generators.ConfiguredModel.builder()
+                return ConfiguredModel.builder()
                     .modelFile(model)
                     .rotationX(upsideDown ? 180 : 0)
                     .rotationY(rotation)
@@ -3875,7 +3876,7 @@ public class ModBlocks {
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL, ModBlockTags.COLLISION_IMMUNE)
-        .item(dev.dubhe.anvilcraft.item.SingularityCrystalItem::new)
+        .item(SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -4224,9 +4225,9 @@ public class ModBlocks {
 
                 var model = provider.models().getExistingFile(AnvilCraft.of(modelName));
 
-                return net.neoforged.neoforge.client.model.generators.ConfiguredModel.builder()
+                return ConfiguredModel.builder()
                     .modelFile(model)
-                    .rotationX((int) orientation.getXRotation())
+                    .rotationX((int) -orientation.getXRotation())
                     .rotationY((int) orientation.getYRotation())
                     .build();
             });

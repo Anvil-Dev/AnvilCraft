@@ -93,7 +93,11 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     }
 
     /**
-     * 放置时根据玩家视线和 Shift 计算朝向。默认输出端朝向目标方块，Shift 反向（输出端指向玩家）
+     * 放置时根据玩家视线和 Shift 计算朝向。
+     * <ul>
+     *   <li>水平摆放：默认输出端朝向目标方块，Shift 反向（输出端指向玩家）</li>
+     *   <li>垂直摆放：默认输出端朝向上方/下方，Shift 反转垂直方向（UP ↔ DOWN）</li>
+     * </ul>
      */
     @Override
     @Nullable
@@ -103,8 +107,17 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         Player player = context.getPlayer();
         boolean shiftDown = player != null && player.isShiftKeyDown();
 
-        // 默认输出端朝向目标方块；按住 Shift 反向（输出端指向玩家）
-        if (!shiftDown) horizontalDir = horizontalDir.getOpposite();
+        if (lookDir.getAxis() == Direction.Axis.Y) {
+            // 垂直摆放：Shift 反转垂直方向（UP ↔ DOWN），水平方向跟随玩家朝向
+            if (!shiftDown) {
+                lookDir = lookDir.getOpposite();
+            }
+        } else {
+            // 水平摆放：默认输出端朝向目标方块，Shift 反向（输出端指向玩家）
+            if (!shiftDown) {
+                horizontalDir = horizontalDir.getOpposite();
+            }
+        }
 
         Orientation orientation = switch (lookDir) {
             case UP -> switch (horizontalDir) {
@@ -131,7 +144,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     }
 
     /**
-     * 放置后将侧面连接的直管转为三通节点
+     * 放置后将侧面连接的直管/弯管转为三通节点，使其能正确吸附管道。
      */
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
@@ -145,26 +158,31 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
                 Direction.Axis pipeAxis = neighborState.getValue(PipeBlock.AXIS);
                 // 泵贴在直管侧面 → 将直管转为三通节点
                 if (dir.getAxis() != pipeAxis) {
-                    convertPipeToNode(level, neighborPos, neighborState, dir.getOpposite());
+                    convertPipeToNode(level, neighborPos, neighborState);
+                }
+            } else if (neighborState.getBlock() instanceof PipeCornerBlock) {
+                PipeBlock.CornerEnded corner = neighborState.getValue(PipeBlock.CORNER_ENDED);
+                // 泵贴在弯管非拐角方向的侧面 → 将弯管转为三通节点
+                if (!corner.containsDirection(dir.getOpposite())) {
+                    convertPipeToNode(level, neighborPos, neighborState);
                 }
             }
         }
     }
 
     /**
-     * 将直管转为三通节点，保留原有两端的连接并添加新方向
+     * 将直管或弯管转为三通节点，扫描全部六个方向重新计算连接状态。
      */
-    private void convertPipeToNode(Level level, BlockPos pos, BlockState state, Direction newDirection) {
-        Direction.Axis axis = state.getValue(PipeBlock.AXIS);
-        Direction startDir = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
-        Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
-
+    private void convertPipeToNode(Level level, BlockPos pos, BlockState state) {
         BlockState nodeState = ModBlocks.PIPE_NODE.get()
             .defaultBlockState()
             .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
-        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(startDir), PipeNodeBlock.evaluateNeighbor(level, pos, startDir));
-        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(endDir), PipeNodeBlock.evaluateNeighbor(level, pos, endDir));
-        nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(newDirection), PipeBlock.NodePipe.PIPE);
+        for (Direction dir : Direction.values()) {
+            nodeState = nodeState.setValue(
+                PipeBlock.getPropertyForDirection(dir),
+                PipeNodeBlock.evaluateNeighbor(level, pos, dir)
+            );
+        }
         level.setBlockAndUpdate(pos, nodeState);
     }
 
@@ -210,5 +228,10 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
         return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.PUMP.get(), PumpBlockEntity::tick);
+    }
+
+    @Override
+    public boolean checkBlockState(BlockState blockState) {
+        return false;
     }
 }
