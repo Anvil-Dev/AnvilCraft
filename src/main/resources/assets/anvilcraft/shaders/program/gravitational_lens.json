@@ -10,99 +10,66 @@
     "Position"
   ],
   "samplers": [
-    {
-      "name": "DiffuseSampler"
-    }
+    { "name": "DiffuseSampler" }
   ],
   "uniforms": [
-    {
-      "name": "ProjMat",
-      "type": "matrix4x4",
-      "count": 16,
-      "values": [
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0, 0.0,
-        0.0, 0.0, 0.0, 1.0
-      ]
-    },
-    {
-      "name": "InSize",
-      "type": "float",
-      "count": 2,
-      "values": [ 1.0, 1.0 ]
-    },
-    {
-      "name": "OutSize",
-      "type": "float",
-      "count": 2,
-      "values": [ 1.0, 1.0 ]
-    },
-    {
-      "name": "BlackHole1X",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "BlackHole1Y",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "BlackHole2X",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "BlackHole2Y",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "BlackHole3X",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "BlackHole3Y",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "BlackHole4X",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "BlackHole4Y",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "BlackHoleCount",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.0 ]
-    },
-    {
-      "name": "LensStrength",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.001953125 ]
-    },
-    {
-      "name": "EventHorizonRadius",
-      "type": "float",
-      "count": 1,
-      "values": [ 0.083333333 ]
-    }
+    { "name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [ 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 ] },
+    { "name": "InSize",  "type": "float", "count": 2,  "values": [ 1.0, 1.0 ] },
+    { "name": "OutSize", "type": "float", "count": 2,  "values": [ 1.0, 1.0 ] },
+
+    { "name": "BlackHole1X", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "BlackHole1Y", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "BlackHole2X", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "BlackHole2Y", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "BlackHole3X", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "BlackHole3Y", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "BlackHole4X", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "BlackHole4Y", "type": "float", "count": 1, "values": [ 0.0 ] },
+
+    { "name": "BlackHole1Dist", "type": "float", "count": 1, "values": [ 1.0 ] },
+    { "name": "BlackHole2Dist", "type": "float", "count": 1, "values": [ 1.0 ] },
+    { "name": "BlackHole3Dist", "type": "float", "count": 1, "values": [ 1.0 ] },
+    { "name": "BlackHole4Dist", "type": "float", "count": 1, "values": [ 1.0 ] },
+
+    { "name": "PolyVerts[0]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[1]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[2]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[3]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[4]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[5]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[6]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[7]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[8]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[9]",  "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[10]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[11]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[12]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[13]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[14]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[15]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[16]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[17]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[18]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[19]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[20]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[21]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[22]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+    { "name": "PolyVerts[23]", "type": "float", "count": 2, "values": [ 0.0, 0.0 ] },
+
+    { "name": "PolyStart[0]", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "PolyStart[1]", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "PolyStart[2]", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "PolyStart[3]", "type": "float", "count": 1, "values": [ 0.0 ] },
+
+    { "name": "PolyCount[0]", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "PolyCount[1]", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "PolyCount[2]", "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "PolyCount[3]", "type": "float", "count": 1, "values": [ 0.0 ] },
+
+    { "name": "BlackHoleCount",     "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "LensStrength",       "type": "float", "count": 1, "values": [ 0.001953125 ] },
+    { "name": "EventHorizonRadius", "type": "float", "count": 1, "values": [ 0.083333333 ] },
+    { "name": "LensingShape",       "type": "float", "count": 1, "values": [ 0.0 ] },
+    { "name": "PerspectiveScale",   "type": "float", "count": 1, "values": [ 10.0 ] }
   ]
 }
