@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.cfa.item;
 
-import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import net.minecraft.ChatFormatting;
@@ -31,11 +31,10 @@ public class CelestialForgingAnvilBlockItem extends SimpleMultiPartBlockItem<Cub
         )) {
             if (level.getBlockState(pos).is(this.getBlock())) {
                 if (level.isClientSide() && player != null) {
-                    player.displayClientMessage(
+                    player.sendSystemMessage(
                         Component.translatable(
                             "block.anvilcraft.celestial_forging_anvil.placement_too_close_to_another")
-                            .withStyle(ChatFormatting.RED),
-                        true
+                            .withStyle(ChatFormatting.RED)
                     );
                 }
                 return false;

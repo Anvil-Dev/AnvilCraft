@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -46,14 +46,14 @@ public class SingularityCrystalItem extends BlockItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        if (!level.isClientSide && player.isShiftKeyDown()) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
+        if (!level.isClientSide() && player.isShiftKeyDown()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
             if (hasDataStored(itemStack)) {
                 deleteData(itemStack);
-                player.displayClientMessage(
-                    Component.translatable("message.anvilcraft.disk.data_cleared"), true);
-                return InteractionResultHolder.success(itemStack);
+                player.sendSystemMessage(
+                    Component.translatable("message.anvilcraft.disk.data_cleared"));
+                return InteractionResult.SUCCESS;
             }
         }
         return super.use(level, player, usedHand);
