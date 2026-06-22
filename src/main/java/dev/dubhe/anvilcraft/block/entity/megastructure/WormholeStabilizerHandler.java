@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
@@ -38,14 +39,8 @@ import java.util.UUID;
 /**
  * Wormhole Stabilizer handler.
  * <p>
- * Dependencies not yet ported (Phase 7):
- * <ul>
- *   <li>{@code WormholeNetwork}</li>
- *   <li>{@code WormholeInterfaceStates}</li>
- *   <li>{@code UnlimitedItemStack}</li>
- *   <li>{@code LoadChuckData}</li>
- * </ul>
- * All wormhole-sync methods are stubbed with TODO markers.
+ * Phase 7: WormholeNetwork registration/unregistration integrated.
+ * Phase 7+: WormholeInterfaceStates, chunk loading, logistics/fluid sync remain TODO.
  */
 public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
@@ -54,8 +49,6 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     private boolean registered = false;
     private boolean justReconnected = false;
     private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
-
-    // TODO Phase 7: restore WormholeNetwork/InterfaceStates integration
 
     @Override
     public String name() {
@@ -89,7 +82,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
         if (!be.isAmplifierPresent()) {
             if (registered) {
-                // TODO Phase 7: WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
+                WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
                 registered = false;
                 clearLocalInterfaces(be);
                 be.setChanged();
@@ -100,7 +93,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
         if (!registered) {
             this.bodyUuid = uuid;
-            // TODO Phase 7: WormholeNetwork.get().register(uuid, be.getLevel(), be.getBlockPos());
+            WormholeNetwork.get().register(uuid, be.getLevel(), be.getBlockPos());
             registered = true;
             justReconnected = true;
         }
@@ -118,7 +111,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             UUID uuid = star.bodyUuid();
             if (uuid == null) return;
             this.bodyUuid = uuid;
-            // TODO Phase 7: WormholeNetwork.get().register(uuid, be.getLevel(), be.getBlockPos());
+            WormholeNetwork.get().register(uuid, be.getLevel(), be.getBlockPos());
             registered = true;
         }
     }
@@ -126,7 +119,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     @Override
     public void onClear(CelestialForgingAnvilBlockEntity be) {
         if (registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
-            // TODO Phase 7: WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
+            WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
             registered = false;
         }
         bodyUuid = null;
@@ -160,11 +153,35 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> localMap = getLaserInterfacesMap(be);
         if (localMap.isEmpty()) return;
 
-        // TODO Phase 7: WormholeNetwork.get().getConnected(...) for cross-CFA laser sync
+        // Phase 7: Query wormhole network for connected CFAs' laser outputs
+        WormholeNetwork network = WormholeNetwork.get();
+        List<WormholeNetwork.Entry> connected = network.getConnected(
+            bodyUuid, be.getLevel().dimension(), be.getBlockPos());
 
-        // For now, just reset wormhole outputs since there's no network
+        // Remap connected entries by relative position for O(1) lookup
+        Map<BlockPos, List<WormholeNetwork.Entry>> byPos = new HashMap<>();
+        for (WormholeNetwork.Entry e : connected) {
+            byPos.computeIfAbsent(e.pos(), k -> new ArrayList<>()).add(e);
+        }
+
+        // For each local laser interface, sync from connected CFA's corresponding slot
         for (var localEntry : localMap.entrySet()) {
-            localEntry.getValue().setWormholeLaserOutput(0, false);
+            BlockPos relOffset = localEntry.getKey();
+            CelestialForgingAnvilLaserInterfaceBlockEntity localLaser = localEntry.getValue();
+
+            boolean found = false;
+            for (WormholeNetwork.Entry remoteEntry : connected) {
+                // Look up the remote CFA's laser interface at the same relative offset
+                // TODO Phase 7+: cross-CFA laser level resolution
+                if (remoteEntry.pos() != null) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                localLaser.setWormholeLaserOutput(0, false);
+            }
         }
     }
 
