@@ -91,6 +91,7 @@
     "MinecraftClientMixin",
     "MouseHandlerMixin",
     "ParticleEngineMixin",
+    "PostChainAccessor",
     "SectionCompilerMixin",
     "SoundEngineMixin",
     "accessor.MultiPlayerGameModeAccessor",

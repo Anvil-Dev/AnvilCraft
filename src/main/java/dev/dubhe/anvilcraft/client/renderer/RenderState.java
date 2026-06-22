@@ -38,4 +38,8 @@ public class RenderState {
     public static boolean isScanPreviewEffectEnabled() {
         return AnvilCraftClient.CONFIG.renderScanPreviewEffect;
     }
+
+    public static boolean isLensEffectEnabled() {
+        return isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.renderBlackHoleLensing;
+    }
 }

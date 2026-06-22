@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.client.support.GravitationalLensManager;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
@@ -19,10 +20,14 @@ public class BlackHoleBlockEntity extends BlockEntity {
     @Override
     public void onLoad() {
         super.onLoad();
-        if (this.level != null && !this.level.isClientSide) {
-            GravityManager.GravitySourceType type = GravityManager.GravitySourceManager.getType(this.getBlockState().getBlock());
-            if (type != null) {
-                GravityManager.GravitySourceManager.addSource(this.level, this.worldPosition, type);
+        if (this.level != null) {
+            if (this.level.isClientSide) {
+                GravitationalLensManager.register(this.worldPosition);
+            } else {
+                GravityManager.GravitySourceType type = GravityManager.GravitySourceManager.getType(this.getBlockState().getBlock());
+                if (type != null) {
+                    GravityManager.GravitySourceManager.addSource(this.level, this.worldPosition, type);
+                }
             }
         }
     }
@@ -30,8 +35,12 @@ public class BlackHoleBlockEntity extends BlockEntity {
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (this.level != null && !this.level.isClientSide) {
-            GravityManager.GravitySourceManager.removeSource(this.level, this.worldPosition);
+        if (this.level != null) {
+            if (this.level.isClientSide) {
+                GravitationalLensManager.unregister(this.worldPosition);
+            } else {
+                GravityManager.GravitySourceManager.removeSource(this.level, this.worldPosition);
+            }
         }
     }
 }

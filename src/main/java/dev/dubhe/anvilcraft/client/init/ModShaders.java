@@ -15,9 +15,12 @@ import java.io.IOException;
 
 public class ModShaders {
     public static final ResourceLocation LASER_BLOOM_LOCATION = AnvilCraft.of("shaders/post/bloom.json");
+    public static final ResourceLocation GRAVITATIONAL_LENS_LOCATION = AnvilCraft.of("shaders/post/gravitational_lens.json");
 
     @Getter
     private static PostChain bloomChain;
+    @Getter
+    private static PostChain lensChain;
     static final Minecraft MINECRAFT = Minecraft.getInstance();
 
     @Getter
@@ -102,6 +105,9 @@ public class ModShaders {
         if (bloomChain != null) {
             bloomChain.resize(width, height);
         }
+        if (lensChain != null) {
+            lensChain.resize(width, height);
+        }
         orthoMatrix = new Matrix4f()
             .setOrtho(
                 0f,
@@ -130,6 +136,23 @@ public class ModShaders {
             );
         } catch (Throwable tr) {
             AnvilCraft.LOGGER.error("Could not load bloom effect shader.", tr);
+        }
+    }
+
+    public static void loadLensEffect(ResourceProvider resourceProvider) throws IOException {
+        try {
+            lensChain = new PostChain(
+                MINECRAFT.getTextureManager(),
+                resourceProvider,
+                Minecraft.getInstance().getMainRenderTarget(),
+                GRAVITATIONAL_LENS_LOCATION
+            );
+            lensChain.resize(
+                Minecraft.getInstance().getWindow().getWidth(),
+                Minecraft.getInstance().getWindow().getHeight()
+            );
+        } catch (Throwable tr) {
+            AnvilCraft.LOGGER.error("Could not load gravitational lens effect shader.", tr);
         }
     }
 }

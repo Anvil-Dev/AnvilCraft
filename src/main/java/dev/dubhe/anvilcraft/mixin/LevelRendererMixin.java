@@ -12,9 +12,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
+import dev.dubhe.anvilcraft.client.support.GravitationalLensManager;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import net.minecraft.client.Camera;
@@ -25,6 +27,8 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.PostPass;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -163,5 +167,88 @@ public abstract class LevelRendererMixin {
         RenderSystem.activeTexture(oldTexture);
         RenderSystem.enableDepthTest();
         minecraft.getMainRenderTarget().bindWrite(false);
+    }
+
+    @Inject(
+        method = "renderLevel",
+        at = @At("TAIL")
+    )
+    void gravitationalLensPostProcess(
+        DeltaTracker deltaTracker,
+        boolean renderBlockOutline,
+        Camera camera,
+        GameRenderer gameRenderer,
+        LightTexture lightTexture,
+        Matrix4f frustumMatrix,
+        Matrix4f projectionMatrix,
+        CallbackInfo ci
+    ) {
+        if (!RenderState.isLensEffectEnabled()) return;
+        if (ModShaders.getLensChain() == null) return;
+
+        PostChain lensChain = ModShaders.getLensChain();
+        java.util.List<PostPass> passes = ((PostChainAccessor) lensChain).getPasses();
+        if (passes.isEmpty()) return;
+
+        PostPass pass = passes.get(0);
+
+        // Collect visible black hole screen positions
+        java.util.List<GravitationalLensManager.ScreenProjection> holes =
+            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 4);
+
+        int count = Math.min(holes.size(), 4);
+
+        // Set dynamic black hole position uniforms
+        for (int i = 0; i < 4; i++) {
+            String xName = "BlackHole" + (i + 1) + "X";
+            String yName = "BlackHole" + (i + 1) + "Y";
+            if (i < count) {
+                GravitationalLensManager.ScreenProjection proj = holes.get(i);
+                pass.getEffect().safeGetUniform(xName).set(proj.screenU());
+                pass.getEffect().safeGetUniform(yName).set(proj.screenV());
+            } else {
+                pass.getEffect().safeGetUniform(xName).set(0.0f);
+                pass.getEffect().safeGetUniform(yName).set(0.0f);
+            }
+        }
+        pass.getEffect().safeGetUniform("BlackHoleCount").set((float) count);
+        pass.getEffect().safeGetUniform("LensStrength")
+            .set((float) AnvilCraftClient.CONFIG.lensStrength);
+        pass.getEffect().safeGetUniform("EventHorizonRadius")
+            .set((float) AnvilCraftClient.CONFIG.eventHorizonRadius);
+
+        // Run the lens post chain (reads main target, writes to result target)
+        lensChain.process(RenderSupport.getPartialTick());
+
+        // Blit result back to the main render target
+        RenderTarget result = lensChain.getTempTarget("result");
+        RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
+
+        float width = main.width;
+        float height = main.height;
+
+        ShaderInstance blitShader = ModShaders.getBlitShader();
+        RenderSystem.viewport(0, 0, (int) width, (int) height);
+        blitShader.setSampler("DiffuseSampler", result);
+        blitShader.safeGetUniform("ProjMat").set(ModShaders.getOrthoMatrix());
+        blitShader.safeGetUniform("OutSize").set(width, height);
+        RenderSystem.depthFunc(GL11.GL_ALWAYS);
+
+        BufferBuilder bufferbuilder = Tesselator.getInstance()
+            .begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        bufferbuilder.addVertex(0.0F, 0.0F, 500.0F);
+        bufferbuilder.addVertex(width, 0.0F, 500.0F);
+        bufferbuilder.addVertex(width, height, 500.0F);
+        bufferbuilder.addVertex(0.0F, height, 500.0F);
+
+        blitShader.apply();
+        main.bindWrite(false);
+        BufferUploader.draw(bufferbuilder.buildOrThrow());
+        main.unbindWrite();
+        result.unbindRead();
+
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.enableDepthTest();
+        main.bindWrite(false);
     }
 }

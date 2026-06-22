@@ -45,6 +45,15 @@ public class AnvilCraftClientConfig {
     @Comment("Scanline post-processing effect on 3D structure previews.")
     public boolean renderScanPreviewEffect = true;
 
+    @Comment("Gravitational lensing post-processing effect near black holes")
+    public boolean renderBlackHoleLensing = true;
+
+    @Comment("Lens distortion strength (higher = stronger bending, 0.002 default)")
+    public double lensStrength = 1.0 / 512.0;
+
+    @Comment("Event horizon radius in screen UV space (higher = bigger black disk, 0.083 default)")
+    public double eventHorizonRadius = 1.0 / 12.0;
+
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
 

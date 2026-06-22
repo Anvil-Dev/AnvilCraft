@@ -1,0 +1,13 @@
+{
+  "targets": [
+    "mcinput",
+    "result"
+  ],
+  "passes": [
+    {
+      "name": "anvilcraft:gravitational_lens",
+      "intarget": "minecraft:main",
+      "outtarget": "result"
+    }
+  ]
+}

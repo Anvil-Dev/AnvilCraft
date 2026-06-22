@@ -24,6 +24,7 @@ abstract class GameRendererMixin {
     )
     void loadBloomEffect(ResourceProvider resourceProvider, CallbackInfo ci) throws IOException {
         ModShaders.loadBloomEffect(resourceProvider);
+        ModShaders.loadLensEffect(resourceProvider);
     }
 
     @Inject(
