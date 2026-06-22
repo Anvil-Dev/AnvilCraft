@@ -6,10 +6,10 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBloc
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 @Getter
 public class PenroseSphereHandler extends BaseMegastructureHandler {
@@ -42,21 +42,13 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
         boolean anyLaserInput = false;
 
         anyLaserInput |= processPenroseLaserPair(be,
-            new BlockPos(cx - 1, cy, cz - 2),
-            new BlockPos(cx + 1, cy, cz - 2)
-        );
+            new BlockPos(cx - 1, cy, cz - 2), new BlockPos(cx + 1, cy, cz - 2));
         anyLaserInput |= processPenroseLaserPair(be,
-            new BlockPos(cx - 1, cy, cz + 2),
-            new BlockPos(cx + 1, cy, cz + 2)
-        );
+            new BlockPos(cx - 1, cy, cz + 2), new BlockPos(cx + 1, cy, cz + 2));
         anyLaserInput |= processPenroseLaserPair(be,
-            new BlockPos(cx - 2, cy, cz - 1),
-            new BlockPos(cx - 2, cy, cz + 1)
-        );
+            new BlockPos(cx - 2, cy, cz - 1), new BlockPos(cx - 2, cy, cz + 1));
         anyLaserInput |= processPenroseLaserPair(be,
-            new BlockPos(cx + 2, cy, cz - 1),
-            new BlockPos(cx + 2, cy, cz + 1)
-        );
+            new BlockPos(cx + 2, cy, cz - 1), new BlockPos(cx + 2, cy, cz + 1));
 
         if (laserActive != anyLaserInput) {
             laserActive = anyLaserInput;
@@ -90,13 +82,9 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
             }
         } else {
             if (beA instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserA
-                && laserA.getReceivedLaserLevel() > 0) {
-                hasInput = true;
-            }
+                && laserA.getReceivedLaserLevel() > 0) hasInput = true;
             if (beB instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserB
-                && laserB.getReceivedLaserLevel() > 0) {
-                hasInput = true;
-            }
+                && laserB.getReceivedLaserLevel() > 0) hasInput = true;
         }
 
         return hasInput;
@@ -113,23 +101,13 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putBoolean("penroseSphereLaserActive", laserActive);
+    public void saveAdditional(ValueOutput output) {
+        output.putBoolean("penroseSphereLaserActive", laserActive);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        this.laserActive = tag.getBoolean("penroseSphereLaserActive");
-    }
-
-    @Override
-    public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putBoolean("penroseSphereLaserActive", laserActive);
-    }
-
-    @Override
-    public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        this.laserActive = tag.getBoolean("penroseSphereLaserActive");
+    public void loadAdditional(ValueInput input) {
+        this.laserActive = input.getBooleanOr("penroseSphereLaserActive", false);
     }
 
     @Override

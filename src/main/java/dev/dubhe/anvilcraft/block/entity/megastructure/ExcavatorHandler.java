@@ -4,14 +4,15 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import lombok.Getter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,6 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         return "planet_excavator";
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
@@ -40,7 +40,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
         if (be.getPlanetaryResourceSet() == null) return;
 
-        int laserCount = countValidLasers(be);
+        int laserCount = countValidLasersLocal(be);
         boolean hasValidLaser = laserCount > 0;
         if (laserActive != hasValidLaser) {
             laserActive = hasValidLaser;
@@ -61,7 +61,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
 
         int roll = be.getLevel().getRandom().nextInt(totalWeight);
         int cumulative = 0;
-        ResourceLocation chosenItem = null;
+        Identifier chosenItem = null;
         for (PlanetaryResourceSet.WeightedItemStack mineral : miningPool) {
             cumulative += mineral.weight();
             if (roll < cumulative) {
@@ -71,17 +71,18 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
         if (chosenItem == null) chosenItem = miningPool.getFirst().itemId();
 
-        ItemLike item = BuiltInRegistries.ITEM.get(chosenItem);
+        ItemLike item = BuiltInRegistries.ITEM.get(chosenItem)
+            .map(h -> (net.minecraft.world.level.ItemLike) h.value()).orElse(Items.AIR);
         if (item.asItem() == Items.AIR) return;
         ItemStack output = new ItemStack(item, efficiency);
 
-        List<IItemHandler> logistics = findLogisticsInterfaces(be);
+        List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
         if (logistics.isEmpty()) return;
 
         int startIdx = logisticsRoundRobin % logistics.size();
         for (int attempt = 0; attempt < logistics.size(); attempt++) {
             int idx = (startIdx + attempt) % logistics.size();
-            IItemHandler handler = logistics.get(idx);
+            ResourceHandler<ItemResource> handler = logistics.get(idx);
             ItemStack remainder = insertIntoHandler(handler, output);
             if (remainder.getCount() < output.getCount()) {
                 logisticsRoundRobin = (idx + 1) % logistics.size();
@@ -90,7 +91,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
     }
 
-    private int countValidLasers(CelestialForgingAnvilBlockEntity be) {
+    private int countValidLasersLocal(CelestialForgingAnvilBlockEntity be) {
         return (int) dev.dubhe.anvilcraft.block.entity.CfaInterfaceScanner.findLaserInterfaces(be.getLevel(), be.getBlockPos())
             .stream()
             .filter(l -> l.getReceivedLaserLevel() >= LASER_THRESHOLD)
@@ -98,23 +99,13 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putBoolean("excavatorLaserActive", laserActive);
+    public void saveAdditional(ValueOutput output) {
+        output.putBoolean("excavatorLaserActive", laserActive);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        this.laserActive = tag.getBoolean("excavatorLaserActive");
-    }
-
-    @Override
-    public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putBoolean("excavatorLaserActive", laserActive);
-    }
-
-    @Override
-    public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        this.laserActive = tag.getBoolean("excavatorLaserActive");
+    public void loadAdditional(ValueInput input) {
+        this.laserActive = input.getBooleanOr("excavatorLaserActive", false);
     }
 
     @Override

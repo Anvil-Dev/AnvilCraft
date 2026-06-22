@@ -1,5 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.power.PowerComponentType;
+import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
+import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -13,6 +18,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.Map;
 
 public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     @Getter
@@ -24,6 +33,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     @Setter
     private boolean isAmplify = false;
 
+    // === Phase 5 stubs — populated in Phase 6 ===
+    @Getter
+    private final CfaMegastructureManager megastructureManager = new CfaMegastructureManager();
+
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -33,6 +46,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
         this.preRotation = this.rotation;
         this.rotation += 3;
     }
+
+    // === NBT ===
 
     @Override
     protected void saveAdditional(ValueOutput output) {
@@ -58,14 +73,51 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    /**
-     * Called by {@link CelestialForgingAnvilLogisticsInterfaceBlockEntity} when a player
-     * inserts/removes items via the logistics interface. Triggers wormhole sync so all
-     * connected CFAs see the change in the same tick.
-     * <p>
-     * TODO: Full wormhole sync implementation in Phase 6.
-     */
+    // === Phase 5+6 stubs ===
+
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
-        // Placeholder — Phase 6 will implement wormhole sync across CFA network
+        // Phase 6
     }
+
+    @Nullable
+    public CelestialBodyData getCelestialBodyData() { return null; }
+
+    @Nullable
+    public PlanetaryResourceSet getPlanetaryResourceSet() { return null; }
+
+    public List<CelestialRefactorOption> getClientVisibleOptions() { return List.of(); }
+
+    @Nullable
+    public CelestialRefactorOption getActiveMegastructureOption() { return null; }
+
+    public int getActiveMegastructureIndex() { return -1; }
+
+    public boolean isAcceleratorActive() { return false; }
+
+    public int getAcceleratorStage() { return 0; }
+
+    public boolean isAmplifierPresent() { return false; }
+
+    public boolean isPowerInsufficient() { return false; }
+
+    public int getStellarMass() { return 0; }
+
+    public int getAgeAnvilCount() { return 0; }
+
+    public void setAgeAnvilCount(int count) { /* Phase 6 */ }
+
+    public void setStellarMass(int mass) { /* Phase 6 */ }
+
+    public void setCelestialBodyData(CelestialBodyData data) { /* Phase 6 */ }
+
+    public void setPlanetaryResourceSet(@Nullable PlanetaryResourceSet set) { /* Phase 6 */ }
+
+    @Nullable
+    public PowerGrid getGrid() { return null; }
+
+    public PowerComponentType getComponentType() { return PowerComponentType.CONSUMER; }
+
+    public Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> getLaserInterfacesMap() { return Map.of(); }
+
+    public Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> getLogisticsInterfacesMap() { return Map.of(); }
 }

@@ -13,7 +13,7 @@ public class MagnetarCoilHandler extends BaseMegastructureHandler {
 
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
-        // Magnetar Coil is passive
+        // Passive
     }
 
     @SuppressWarnings("checkstyle:LocalVariableName")

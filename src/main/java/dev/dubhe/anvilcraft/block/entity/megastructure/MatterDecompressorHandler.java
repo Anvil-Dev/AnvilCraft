@@ -5,9 +5,11 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBloc
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.List;
 
@@ -44,15 +46,14 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
         int efficiency = totalGammaLevel;
 
         if (bodyClass == CelestialBodyClass.BLACK_HOLE) {
-            ItemLike voidMatter = dev.dubhe.anvilcraft.init.item.ModItems.VOID_MATTER.get();
+            ItemLike voidMatter = ModItems.VOID_MATTER.get();
             ItemStack output = new ItemStack(voidMatter, efficiency);
-            List<IItemHandler> logistics = findLogisticsInterfaces(be);
+            List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
             if (!logistics.isEmpty()) {
                 int startIdx = logisticsRoundRobin % logistics.size();
                 for (int attempt = 0; attempt < logistics.size(); attempt++) {
                     int idx = (startIdx + attempt) % logistics.size();
-                    IItemHandler handler = logistics.get(idx);
-                    ItemStack remainder = insertIntoHandler(handler, output);
+                    ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
                     if (remainder.getCount() < output.getCount()) {
                         logisticsRoundRobin = (idx + 1) % logistics.size();
                         return;
@@ -65,15 +66,14 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
             if (interval < 1) interval = 1;
             if (counter >= interval) {
                 counter = 0;
-                ItemLike neutroniumIngot = dev.dubhe.anvilcraft.init.item.ModItems.NEUTRONIUM_INGOT.get();
+                ItemLike neutroniumIngot = ModItems.NEUTRONIUM_INGOT.get();
                 ItemStack output = new ItemStack(neutroniumIngot, 1);
-                List<IItemHandler> logistics = findLogisticsInterfaces(be);
+                List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
                 if (!logistics.isEmpty()) {
                     int startIdx = logisticsRoundRobin % logistics.size();
                     for (int attempt = 0; attempt < logistics.size(); attempt++) {
                         int idx = (startIdx + attempt) % logistics.size();
-                        IItemHandler handler = logistics.get(idx);
-                        ItemStack remainder = insertIntoHandler(handler, output);
+                        ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
                         if (remainder.getCount() < output.getCount()) {
                             logisticsRoundRobin = (idx + 1) % logistics.size();
                             return;

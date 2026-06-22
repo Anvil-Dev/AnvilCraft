@@ -20,7 +20,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
-        // Dyson Sphere is passive
+        // Passive
     }
 
     @Override

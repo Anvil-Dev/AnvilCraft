@@ -19,7 +19,9 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -168,24 +170,25 @@ public class CfaMegastructureManager {
         clearMegastructure(be);
     }
 
-    // === NBT ===
+    // === Persistence: disk (ValueOutput/ValueInput) ===
 
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("activeMegastructure", activeMegastructureIndex);
+    public void saveAdditional(ValueOutput output) {
+        output.putInt("activeMegastructure", activeMegastructureIndex);
         for (var handler : handlers.values()) {
-            handler.saveAdditional(tag, registries);
+            handler.saveAdditional(output);
         }
-        acceleratorHandler.saveAdditional(tag, registries);
+        acceleratorHandler.saveAdditional(output);
     }
 
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        this.activeMegastructureIndex = tag.contains("activeMegastructure")
-            ? tag.getInt("activeMegastructure") : -1;
+    public void loadAdditional(ValueInput input) {
+        this.activeMegastructureIndex = input.getIntOr("activeMegastructure", -1);
         for (var handler : handlers.values()) {
-            handler.loadAdditional(tag, registries);
+            handler.loadAdditional(input);
         }
-        acceleratorHandler.loadAdditional(tag, registries);
+        acceleratorHandler.loadAdditional(input);
     }
+
+    // === Network sync (still CompoundTag-based) ===
 
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         tag.putInt("activeMegastructure", activeMegastructureIndex);
@@ -196,8 +199,7 @@ public class CfaMegastructureManager {
     }
 
     public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        this.activeMegastructureIndex = tag.contains("activeMegastructure")
-            ? tag.getInt("activeMegastructure") : -1;
+        this.activeMegastructureIndex = tag.getIntOr("activeMegastructure", -1);
         for (var handler : handlers.values()) {
             handler.readUpdateTag(tag, registries);
         }
@@ -216,27 +218,15 @@ public class CfaMegastructureManager {
         return handler != null ? handler.getOutputPower(be) : 0;
     }
 
-    public boolean isInfinitePower(CelestialForgingAnvilBlockEntity be) {
-        if (!be.isAcceleratorActive() || be.getAcceleratorStage() != 1 || !be.isAmplifierPresent()) {
-            return false;
-        }
-        CelestialRefactorOption option = getActiveOption(be);
-        return option != null && option.megastructure().contains("dyson_sphere");
-    }
-
     public PowerComponentType getComponentType(CelestialForgingAnvilBlockEntity be) {
         IMegastructureHandler handler = getActiveHandler(be);
-        if (handler != null) {
-            return handler.getComponentType();
-        }
+        if (handler != null) return handler.getComponentType();
         return PowerComponentType.CONSUMER;
     }
 
     public void gridTick(CelestialForgingAnvilBlockEntity be) {
         IMegastructureHandler handler = getActiveHandler(be);
-        if (handler != null) {
-            handler.gridTick(be);
-        }
+        if (handler != null) handler.gridTick(be);
         acceleratorHandler.gridTick(be);
     }
 }

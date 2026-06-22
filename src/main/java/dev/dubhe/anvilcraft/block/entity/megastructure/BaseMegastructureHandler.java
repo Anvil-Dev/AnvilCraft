@@ -10,20 +10,32 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+/**
+ * Base class for CFA megastructure handlers.
+ * Provides utility methods for scanning adjacent interfaces and item/fluid manipulation.
+ */
 public abstract class BaseMegastructureHandler implements IMegastructureHandler {
 
+    // === NBT defaults (most handlers don't persist data) ===
+
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    public void saveAdditional(ValueOutput output) {
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    public void loadAdditional(ValueInput input) {
     }
 
     @Override
@@ -42,13 +54,15 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
     public void onClear(CelestialForgingAnvilBlockEntity be) {
     }
 
+    // === Interface scanning ===
+
     protected List<CelestialForgingAnvilLaserInterfaceBlockEntity> findLaserInterfaces(
         CelestialForgingAnvilBlockEntity be
     ) {
         return CfaInterfaceScanner.findLaserInterfaces(be.getLevel(), be.getBlockPos());
     }
 
-    protected List<IItemHandler> findLogisticsInterfaces(CelestialForgingAnvilBlockEntity be) {
+    protected List<ResourceHandler<ItemResource>> findLogisticsInterfaces(CelestialForgingAnvilBlockEntity be) {
         return CfaInterfaceScanner.findLogisticsInterfaces(be.getLevel(), be.getBlockPos());
     }
 
@@ -62,12 +76,81 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         CfaInterfaceScanner.scanAdjacentBlocks(be.getBlockPos(), be.getLevel(), consumer);
     }
 
-    protected static ItemStack insertIntoHandler(IItemHandler handler, ItemStack stack) {
+    // === Item manipulation (26.1 ResourceHandler API) ===
+
+    /**
+     * Insert a stack into a {@link ResourceHandler}, spreading across available slots.
+     * Uses {@link Transaction} — the entire insert commits at once.
+     */
+    protected static ItemStack insertIntoHandler(ResourceHandler<ItemResource> handler, ItemStack stack) {
         ItemStack remainder = stack.copy();
-        for (int slot = 0; slot < handler.getSlots() && !remainder.isEmpty(); slot++) {
-            remainder = handler.insertItem(slot, remainder, false);
+        try (Transaction tx = Transaction.openRoot()) {
+            for (int slot = 0; slot < handler.size() && !remainder.isEmpty(); slot++) {
+                int inserted = handler.insert(slot, ItemResource.of(remainder), remainder.getCount(), tx);
+                if (inserted > 0) {
+                    remainder.shrink(inserted);
+                }
+            }
+            tx.commit();
         }
         return remainder;
+    }
+
+    /**
+     * Read an ItemStack from a slot of a {@link ResourceHandler}.
+     * {@code getStackFrom} is protected, so we use {@code getResource + getAmountAsInt + toStack}.
+     */
+    protected static ItemStack getStackFromHandler(ResourceHandler<ItemResource> handler, int slot) {
+        ItemResource resource = handler.getResource(slot);
+        if (resource.isEmpty()) return ItemStack.EMPTY;
+        return resource.toStack(handler.getAmountAsInt(slot));
+    }
+
+    /**
+     * Extract from a specific slot without simulation — committed immediately.
+     */
+    protected static ItemStack extractFromHandler(ResourceHandler<ItemResource> handler, int slot, int amount) {
+        ItemResource resource = handler.getResource(slot);
+        if (resource.isEmpty()) return ItemStack.EMPTY;
+        int toExtract = Math.min(amount, handler.getAmountAsInt(slot));
+        try (Transaction tx = Transaction.openRoot()) {
+            int extracted = handler.extract(slot, resource, toExtract, tx);
+            if (extracted > 0) {
+                tx.commit();
+                return resource.toStack(extracted);
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /**
+     * Insert fluid into a tank slot.
+     */
+    protected static int insertFluid(ResourceHandler<FluidResource> tank, int slot, FluidStack stack) {
+        try (Transaction tx = Transaction.openRoot()) {
+            int inserted = tank.insert(slot, FluidResource.of(stack), stack.getAmount(), tx);
+            if (inserted > 0) tx.commit();
+            return inserted;
+        }
+    }
+
+    /**
+     * Extract fluid from a tank slot.
+     */
+    protected static void drainFluid(ResourceHandler<FluidResource> tank, int slot, FluidStack stack) {
+        try (Transaction tx = Transaction.openRoot()) {
+            tank.extract(slot, FluidResource.of(stack), stack.getAmount(), tx);
+            tx.commit();
+        }
+    }
+
+    /**
+     * Read a FluidStack from a tank slot.
+     */
+    protected static FluidStack getFluidFromTank(ResourceHandler<FluidResource> tank, int slot) {
+        FluidResource resource = tank.getResource(slot);
+        if (resource.isEmpty()) return FluidStack.EMPTY;
+        return resource.toStack((int) tank.getAmountAsLong(slot));
     }
 
     protected static void dropItemOnGround(ItemStack stack, Level level, BlockPos pos) {
@@ -82,12 +165,13 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         level.addFreshEntity(entity);
     }
 
+    // === Laser helpers ===
+
     protected int countValidLasers(CelestialForgingAnvilBlockEntity be, int threshold) {
         List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = findLaserInterfaces(be);
         int count = 0;
         for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : lasers) {
-            int level = laser.getReceivedLaserLevel();
-            if (level >= threshold) {
+            if (laser.getReceivedLaserLevel() >= threshold) {
                 count++;
             }
         }
