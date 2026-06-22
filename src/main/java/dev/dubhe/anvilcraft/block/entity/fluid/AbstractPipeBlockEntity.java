@@ -144,7 +144,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             // 检查端头指向的方块是否是泵，若是则继续追踪
             BlockPos neighborPos = blockPos.relative(targetDir);
             if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
-                return getPipeEnd(level, neighborPos, targetDir, accumulatedHeight);
+                return getPipeEnd(level, neighborPos, direction, accumulatedHeight);
             }
             return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
@@ -185,7 +185,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             // 检查端头指向的方块是否是泵，若是则继续追踪
             BlockPos neighborPos = blockPos.relative(targetDir);
             if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
-                return getPipeEnd(level, neighborPos, targetDir, accumulatedHeight);
+                return getPipeEnd(level, neighborPos, targetDir.getOpposite(), accumulatedHeight);
             }
             return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }

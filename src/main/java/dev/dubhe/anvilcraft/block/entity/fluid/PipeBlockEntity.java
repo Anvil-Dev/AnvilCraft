@@ -115,7 +115,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                     PipeEnd pumpEnd = getPipeEnd(level, sourceNeighbor, posDir);
                     if (pumpEnd != null) {
                         sourceCurPos = pumpEnd.pos();
-                        sourceCurDir = pumpEnd.direction().getOpposite();
+                        sourceCurDir = pumpEnd.direction();
                         effectiveHeight = pumpEnd.effectiveHeight();
                     }
                 }
@@ -125,7 +125,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                     PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, negDir);
                     if (pumpEnd != null) {
                         targetCurPos = pumpEnd.pos();
-                        targetCurDir = pumpEnd.direction().getOpposite();
+                        targetCurDir = pumpEnd.direction();
                         effectiveHeight = pumpEnd.effectiveHeight();
                     }
                 }
@@ -155,7 +155,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                     PipeEnd pumpEnd = getPipeEnd(level, sourceNeighbor, firstDir);
                     if (pumpEnd != null) {
                         sourceCurPos = pumpEnd.pos();
-                        sourceCurDir = pumpEnd.direction().getOpposite();
+                        sourceCurDir = pumpEnd.direction();
                         effectiveHeight = pumpEnd.effectiveHeight();
                     }
                 }
@@ -165,7 +165,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                     PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, secondDir);
                     if (pumpEnd != null) {
                         targetCurPos = pumpEnd.pos();
-                        targetCurDir = pumpEnd.direction().getOpposite();
+                        targetCurDir = pumpEnd.direction();
                         effectiveHeight = pumpEnd.effectiveHeight();
                     }
                 }
