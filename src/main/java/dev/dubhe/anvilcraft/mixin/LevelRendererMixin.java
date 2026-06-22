@@ -13,7 +13,6 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
@@ -193,13 +192,9 @@ public abstract class LevelRendererMixin {
 
         PostPass pass = passes.get(0);
 
-        AnvilCraftClientConfig.LensingShape shape = AnvilCraftClient.CONFIG.lensingShape;
-
-        // Collect visible black holes with optional polygon hull data
+        // Collect visible black holes
         java.util.List<GravitationalLensManager.HoleProjection> holes =
-            GravitationalLensManager.collectVisibleBlackHoles(
-                camera, projectionMatrix, 4, shape,
-                AnvilCraftClient.CONFIG.cubicPolygonScale);
+            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 4);
 
         int count = Math.min(holes.size(), 4);
 
@@ -220,39 +215,11 @@ public abstract class LevelRendererMixin {
             }
         }
 
-        // Set polygon vertex data (tightly packed across all holes)
-        int globalVertIdx = 0;
-        for (int i = 0; i < 4; i++) {
-            pass.getEffect().safeGetUniform("PolyStart[" + i + "]").set((float) globalVertIdx);
-            if (i < count && shape == AnvilCraftClientConfig.LensingShape.CUBIC) {
-                GravitationalLensManager.HoleProjection h = holes.get(i);
-                int vc = h.polyVertCount;
-                pass.getEffect().safeGetUniform("PolyCount[" + i + "]").set((float) vc);
-                for (int j = 0; j < vc && globalVertIdx < 24; j++) {
-                    String uName = "PolyVerts[" + globalVertIdx + "]";
-                    pass.getEffect().safeGetUniform(uName).set(h.polyU[j], h.polyV[j]);
-                    globalVertIdx++;
-                }
-            } else {
-                pass.getEffect().safeGetUniform("PolyCount[" + i + "]").set(0.0f);
-            }
-        }
-        // Zero out remaining poly verts
-        for (int k = globalVertIdx; k < 24; k++) {
-            pass.getEffect().safeGetUniform("PolyVerts[" + k + "]").set(0.0f, 0.0f);
-        }
-
-        // Cubic mode: cubicEventHorizonRadius acts as a multiplier on the UV-based radius
-        float horizonRadius = (float) (AnvilCraftClient.CONFIG.eventHorizonRadius
-            * (shape == AnvilCraftClientConfig.LensingShape.CUBIC
-                ? AnvilCraftClient.CONFIG.cubicEventHorizonRadius : 1.0));
-
         pass.getEffect().safeGetUniform("BlackHoleCount").set((float) count);
         pass.getEffect().safeGetUniform("LensStrength")
             .set((float) AnvilCraftClient.CONFIG.lensStrength);
-        pass.getEffect().safeGetUniform("EventHorizonRadius").set(horizonRadius);
-        pass.getEffect().safeGetUniform("LensingShape")
-            .set(shape == AnvilCraftClientConfig.LensingShape.CUBIC ? 1.0f : 0.0f);
+        pass.getEffect().safeGetUniform("EventHorizonRadius")
+            .set((float) AnvilCraftClient.CONFIG.eventHorizonRadius);
         pass.getEffect().safeGetUniform("PerspectiveScale")
             .set((float) AnvilCraftClient.CONFIG.lensPerspectiveScale);
 

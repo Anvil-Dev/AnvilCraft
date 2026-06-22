@@ -48,28 +48,14 @@ public class AnvilCraftClientConfig {
     @Comment("Gravitational lensing post-processing effect near black holes")
     public boolean renderBlackHoleLensing = true;
 
-    @Comment("Lensing shape: CIRCULAR (round, like reference shader) or CUBIC (follows cube silhouette from view angle)")
-    public LensingShape lensingShape = LensingShape.CIRCULAR;
-
     @Comment("Lens distortion strength (higher = stronger bending, 0.002 default)")
     public double lensStrength = 1.0 / 512.0;
 
-    @Comment("Event horizon radius in CIRCULAR mode (screen UV units, 0.083 default)")
+    @Comment("Event horizon radius (screen UV units, 0.083 default)")
     public double eventHorizonRadius = 1.0 / 12.0;
-
-    @Comment("CUBIC mode polygon scale: inflates the cube silhouette for lensing. 1.0 = actual model, 2.0 = 2x.")
-    public double cubicPolygonScale = 2.0;
-
-    @Comment("CUBIC mode horizon multiplier on UV radius. 1.0 = same size as circular. >1 = bigger.")
-    public double cubicEventHorizonRadius = 1.0;
 
     @Comment("Reference distance for perspective scaling. At this distance, effect = config size. Closer = bigger.")
     public double lensPerspectiveScale = 10.0;
-
-    public enum LensingShape {
-        CIRCULAR,
-        CUBIC
-    }
 
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
