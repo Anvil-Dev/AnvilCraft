@@ -125,6 +125,8 @@
   "anvilcraft.configuration.clean_fluid_after_update_menger_sponge.tooltip": "Whether to clean fluid after updating Menger Sponge",
   "anvilcraft.configuration.cubic_event_horizon_radius": "Cubic Event Horizon Radius",
   "anvilcraft.configuration.cubic_event_horizon_radius.tooltip": "CUBIC mode horizon multiplier on UV radius. 1.0 = same size as circular. >1 = bigger.",
+  "anvilcraft.configuration.cubic_polygon_scale": "Cubic Polygon Scale",
+  "anvilcraft.configuration.cubic_polygon_scale.tooltip": "CUBIC mode polygon scale: inflates the cube silhouette for lensing. 1.0 = actual model, 2.0 = 2x.",
   "anvilcraft.configuration.display_anvil_animation": "Display Anvil Animation",
   "anvilcraft.configuration.display_anvil_animation.tooltip": "Should show anvil levitate animation",
   "anvilcraft.configuration.do_not_show_tooltip_when_jade_present": "Do Not Show Tooltip When Jade Present",

@@ -166,12 +166,12 @@ public class GravitationalLensManager {
      * Returns an empty list if the projection is degenerate.
      */
     static List<Vector2f> computeCubeProjectionHull(
-        BlockPos worldPos, Matrix4f viewProj
+        BlockPos worldPos, Matrix4f viewProj, double polygonScale
     ) {
         float cx = worldPos.getX() + 0.5f;
         float cy = worldPos.getY() + 0.5f;
         float cz = worldPos.getZ() + 0.5f;
-        float h = CUBE_HALF_EXTENT;
+        float h = CUBE_HALF_EXTENT * (float) polygonScale;
 
         List<Vector2f> projected = new ArrayList<>(8);
         for (int ix = 0; ix < 2; ix++) {
@@ -205,7 +205,8 @@ public class GravitationalLensManager {
         Camera camera,
         Matrix4f projectionMatrix,
         int maxCount,
-        AnvilCraftClientConfig.LensingShape shapeMode
+        AnvilCraftClientConfig.LensingShape shapeMode,
+        double polygonScale
     ) {
         List<HoleProjection> result = new ArrayList<>();
         if (CLIENT_BLACK_HOLE_POSITIONS.isEmpty()) return result;
@@ -227,7 +228,7 @@ public class GravitationalLensManager {
 
             List<Vector2f> hull = Collections.emptyList();
             if (shapeMode == AnvilCraftClientConfig.LensingShape.CUBIC) {
-                hull = computeCubeProjectionHull(pos, viewProj);
+                hull = computeCubeProjectionHull(pos, viewProj, polygonScale);
             }
 
             float[] pu, pv;

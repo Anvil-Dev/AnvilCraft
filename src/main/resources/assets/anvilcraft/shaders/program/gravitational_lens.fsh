@@ -155,11 +155,8 @@ void main() {
             // Normalized t: 0 at center, 1 at boundary, >1 outside
             float t = distFromCenter / max(boundaryDist, 0.0001);
 
-            // Convert UV-based EventHorizonRadius to polygon-normalized threshold.
-            // horizonScale = how many polygon-radius-units the UV horizon covers.
-            float horizonScale = (EventHorizonRadius * perspScale) / max(avgPolyRadius, 0.00001);
-            // Map t so that t=horizonScale corresponds to the event horizon boundary.
-            effDist = t / max(horizonScale, 0.0001);
+            // Convert back to UV units so gravity strength is proportional to polygon size
+            effDist = t * avgPolyRadius;
             // Direction toward polygon center (in raw UV)
             dir = centerDir;
         } else {

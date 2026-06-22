@@ -57,6 +57,9 @@ public class AnvilCraftClientConfig {
     @Comment("Event horizon radius in CIRCULAR mode (screen UV units, 0.083 default)")
     public double eventHorizonRadius = 1.0 / 12.0;
 
+    @Comment("CUBIC mode polygon scale: inflates the cube silhouette for lensing. 1.0 = actual model, 2.0 = 2x.")
+    public double cubicPolygonScale = 2.0;
+
     @Comment("CUBIC mode horizon multiplier on UV radius. 1.0 = same size as circular. >1 = bigger.")
     public double cubicEventHorizonRadius = 1.0;
 

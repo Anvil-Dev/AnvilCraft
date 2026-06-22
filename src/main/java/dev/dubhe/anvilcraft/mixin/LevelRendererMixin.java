@@ -197,7 +197,9 @@ public abstract class LevelRendererMixin {
 
         // Collect visible black holes with optional polygon hull data
         java.util.List<GravitationalLensManager.HoleProjection> holes =
-            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 4, shape);
+            GravitationalLensManager.collectVisibleBlackHoles(
+                camera, projectionMatrix, 4, shape,
+                AnvilCraftClient.CONFIG.cubicPolygonScale);
 
         int count = Math.min(holes.size(), 4);
 
