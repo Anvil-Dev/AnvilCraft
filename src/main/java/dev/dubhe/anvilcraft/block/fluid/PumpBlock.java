@@ -1,14 +1,11 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.fluid;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
-import dev.dubhe.anvilcraft.block.entity.PumpBlockEntity;
-import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
-import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
-import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
+import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
-import dev.dubhe.anvilcraft.block.PumpBlock;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
@@ -108,6 +108,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                 Direction sourceCurDir = posDir;
                 BlockPos targetCurPos = pos;
                 Direction targetCurDir = negDir;
+                int effectiveHeight = 0;
 
                 BlockPos sourceNeighbor = pos.relative(posDir);
                 if (level.getBlockState(sourceNeighbor).getBlock() instanceof PumpBlock) {
@@ -115,11 +116,11 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                     if (pumpEnd != null) {
                         sourceCurPos = pumpEnd.pos();
                         sourceCurDir = pumpEnd.direction().getOpposite();
+                        effectiveHeight = pumpEnd.effectiveHeight();
                     }
                 }
 
                 BlockPos targetNeighbor = pos.relative(negDir);
-                int effectiveHeight = 0;
                 if (level.getBlockState(targetNeighbor).getBlock() instanceof PumpBlock) {
                     PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, negDir);
                     if (pumpEnd != null) {
@@ -147,6 +148,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                 Direction sourceCurDir = firstDir;
                 BlockPos targetCurPos = pos;
                 Direction targetCurDir = secondDir;
+                int effectiveHeight = 0;
 
                 BlockPos sourceNeighbor = pos.relative(firstDir);
                 if (level.getBlockState(sourceNeighbor).getBlock() instanceof PumpBlock) {
@@ -154,11 +156,11 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                     if (pumpEnd != null) {
                         sourceCurPos = pumpEnd.pos();
                         sourceCurDir = pumpEnd.direction().getOpposite();
+                        effectiveHeight = pumpEnd.effectiveHeight();
                     }
                 }
 
                 BlockPos targetNeighbor = pos.relative(secondDir);
-                int effectiveHeight = 0;
                 if (level.getBlockState(targetNeighbor).getBlock() instanceof PumpBlock) {
                     PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, secondDir);
                     if (pumpEnd != null) {

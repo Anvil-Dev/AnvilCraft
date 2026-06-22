@@ -1,10 +1,9 @@
-package dev.dubhe.anvilcraft.block.entity;
+package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.PumpBlock;
-import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import lombok.Getter;
 import lombok.Setter;
@@ -221,7 +220,12 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
      * </ul>
      */
     public static void tick(Level level, BlockPos pos, BlockState state, PumpBlockEntity entity) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) {
+            boolean powered = state.getValue(PumpBlock.POWERED);
+            boolean overload = state.getValue(PumpBlock.OVERLOAD);
+            entity.working = !powered && !overload;
+            return;
+        }
 
         // 刷新电网过载状态到 blockstate
         entity.flushState(level, pos);

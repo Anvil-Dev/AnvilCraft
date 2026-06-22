@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
-import dev.dubhe.anvilcraft.block.PumpBlock;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import lombok.Getter;
