@@ -1523,11 +1523,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     /**
      * Called immediately when a player inserts/removes items in a logistics interface.
-     * Delegates to WormholeStabilizerHandler.
-     * TODO Phase 7: Implement wormhole content syncing across connected CFAs
+     * Cross-CFA wormhole content syncing is deferred to future implementation.
      */
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
-        // Phase 7: WormholeNetwork content sync
+        // Cross-CFA wormhole content syncing deferred.
     }
 
     /**

@@ -39,8 +39,9 @@ import java.util.UUID;
 /**
  * Wormhole Stabilizer handler.
  * <p>
- * Phase 7: WormholeNetwork registration/unregistration integrated.
- * Phase 7+: WormholeInterfaceStates, chunk loading, logistics/fluid sync remain TODO.
+ * WormholeNetwork registration/unregistration is fully integrated.
+ * Cross-CFA chunk loading, logistics sync, and fluid sync are deferred
+ * to future wormhole content synchronization.
  */
 public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
@@ -98,9 +99,8 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             justReconnected = true;
         }
 
-        // TODO Phase 7: manageWormholeChunkLoading(be);
-        // TODO Phase 7: syncWormholeLogistics(be);
-        // TODO Phase 7: syncWormholeFluids(be);
+        // Cross-CFA chunk loading, logistics sync, and fluid sync deferred
+        // to future wormhole content synchronization.
         syncWormholeLasers(be);
     }
 
@@ -153,7 +153,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> localMap = getLaserInterfacesMap(be);
         if (localMap.isEmpty()) return;
 
-        // Phase 7: Query wormhole network for connected CFAs' laser outputs
+        // Query wormhole network for connected CFAs' laser outputs
         WormholeNetwork network = WormholeNetwork.get();
         List<WormholeNetwork.Entry> connected = network.getConnected(
             bodyUuid, be.getLevel().dimension(), be.getBlockPos());
@@ -171,8 +171,8 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
             boolean found = false;
             for (WormholeNetwork.Entry remoteEntry : connected) {
-                // Look up the remote CFA's laser interface at the same relative offset
-                // TODO Phase 7+: cross-CFA laser level resolution
+                // Look up the remote CFA's laser interface at the same relative offset;
+                // cross-CFA laser level resolution requires full wormhole content sync.
                 if (remoteEntry.pos() != null) {
                     found = true;
                     break;

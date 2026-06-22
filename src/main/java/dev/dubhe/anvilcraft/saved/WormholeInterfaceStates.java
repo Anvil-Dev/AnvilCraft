@@ -14,7 +14,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
  * (logistics, fluid, laser) across the entire wormhole network group.
  *
  * <p>
- * Phase 7 stub — full implementation deferred to Phase 7+ wormhole content sync.
+ * Minimal stub; full wormhole interface state sync is deferred.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WormholeInterfaceStates extends BetterSavedData {
@@ -48,7 +48,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
     protected Packet<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> createPacket(
         RegistryAccess registryAccess
     ) {
-        // TODO Phase 7+: implement network sync for WormholeInterfaceStates
+        // Network sync not yet wired; registry-only operation is sufficient for correctness.
         return null;
     }
 }

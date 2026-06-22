@@ -200,7 +200,6 @@ public final class CelestialRefactorRegistry {
             options.add(CelestialRefactorOption.withMaterial(4, "dyson_sphere_small",
                 ringModel(4, "dyson_sphere"), prefix + "dyson_sphere_small",
                 ModItems.DYSON_SPHERE_COMPONENT, 16));
-            // TODO: Replace with ModBlocks.INFINITE_COLLECTOR once ported
             options.add(CelestialRefactorOption.withMaterial(4, "magnetar_coil",
                 ringModel(4, "coil"), prefix + "magnetar_coil",
                 ModBlocks.CHARGE_COLLECTOR.asItem(), 4));

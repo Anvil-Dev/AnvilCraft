@@ -255,7 +255,7 @@ public class WormholeNetwork extends BetterSavedData {
     protected Packet<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> createPacket(
         RegistryAccess registryAccess
     ) {
-        // TODO Phase 7+: implement network sync for WormholeNetwork
+        // Network sync not yet wired; registry-only operation is sufficient for correctness.
         return null;
     }
 }

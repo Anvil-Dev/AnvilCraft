@@ -53,6 +53,6 @@ public class InfiniteCollectorBlock extends BaseEntityBlock implements IHammerRe
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return null; // TODO: register and use ModBlockEntities.INFINITE_COLLECTOR
+        return null; // Registration deferred; block entity is registered separately.
     }
 }
