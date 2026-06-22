@@ -13,10 +13,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
-import java.util.Objects;
 
 @Getter
 public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
@@ -24,8 +23,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     private static final int SEED_SLOT = 4;
     static final int MATERIAL_SLOT = 5;
     private final CelestialForgingAnvilBlockEntity blockEntity;
-
-    // Slot indices: 0=time, 1=space, 2=mass, 3=energy, 4=seed, 5=material
 
     public CelestialForgingAnvilMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory,
@@ -42,7 +39,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         // Seed slot (single item, consumed on search)
         this.addSlot(new SeedSlot(blockEntity.getAnvilInventory(), SEED_SLOT, 9, 121));
 
-        // Material slot (filtered with stack limit, position matches RF_MAT_X/Y)
+        // Material slot
         this.addSlot(new CFAMaterialSlot(blockEntity, 267, 121));
 
         // Player inventory (3 rows x 9 columns)
@@ -62,8 +59,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData
     ) {
         this(menuType, containerId, inventory,
-            (CelestialForgingAnvilBlockEntity) Objects.requireNonNull(
-                inventory.player.level().getBlockEntity(extraData.readBlockPos())));
+            (CelestialForgingAnvilBlockEntity) inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     @Override
@@ -74,12 +70,10 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         ItemStack copy = stack.copy();
 
         if (index <= SEED_SLOT || index == MATERIAL_SLOT) {
-            // From anvil/seed/material slot to player inventory
             if (!this.moveItemStackTo(stack, MATERIAL_SLOT + 1, this.slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
         } else {
-            // From player inventory: try anvil slots, then material slot (seed slot is manual-only)
             boolean moved = false;
             for (int i = 0; i < ANVIL_SLOTS; i++) {
                 Slot anvilSlot = this.slots.get(i);
@@ -114,36 +108,30 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             blockEntity.startSearch();
             return true;
         }
-        // Scroll wheel anvil transfer: id 1-4 = add, 5-8 = remove
         if (id >= 1 && id <= 8) {
             int slot = (id - 1) % 4;
             boolean add = id <= 4;
             handleAnvilTransfer(slot, add);
             return true;
         }
-        // Refactor option selected: id 9+
         if (id >= 9 && id < 100) {
             int optionIndex = id - 9;
             blockEntity.configureMaterialSlot(optionIndex);
             return true;
         }
-        // Build megastructure request: id 100+
         if (id >= 100 && id < 200) {
             int optionIndex = id - 100;
             blockEntity.buildMegastructure(optionIndex);
             return true;
         }
-        // Lock toggle: id 200
         if (id == 200) {
             blockEntity.toggleLocked();
             return true;
         }
-        // History browse prev: id 201
         if (id == 201) {
             blockEntity.browseHistoryPrev();
             return true;
         }
-        // History browse next: id 202
         if (id == 202) {
             blockEntity.browseHistoryNext();
             return true;
@@ -162,7 +150,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         Slot targetSlot = this.slots.get(slot);
         Item targetItem = ANVIL_ITEMS[slot];
         if (add) {
-            // Add from player inventory to anvil slot
             if (targetSlot.getItem().getCount() >= targetSlot.getItem().getMaxStackSize()) return;
             for (int i = MATERIAL_SLOT + 1; i < this.slots.size(); i++) {
                 Slot invSlot = this.slots.get(i);
@@ -178,7 +165,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
                 }
             }
         } else {
-            // Remove from anvil slot to player inventory
             if (targetSlot.getItem().isEmpty()) return;
             ItemStack toMove = targetSlot.getItem().copyWithCount(1);
             for (int i = this.slots.size() - 1; i >= MATERIAL_SLOT + 1; i--) {
@@ -206,13 +192,10 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        // Reset material slot filter when the UI closes so it always
-        // starts as the barrier ghost on the next open.
         if (!player.level().isClientSide()) {
             blockEntity.setMaterialFilter(new ItemStack(Items.BARRIER));
             blockEntity.setMaterialLimit(0);
             blockEntity.setChanged();
-            // Push to clients so the next UI open sees the barrier ghost
             var level = blockEntity.getLevel();
             if (level != null) {
                 var state = blockEntity.getBlockState();
@@ -223,7 +206,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        // noinspection DataFlowIssue
         return stillValid(
             ContainerLevelAccess.create(this.blockEntity.getLevel(), blockEntity.getBlockPos()),
             player,
@@ -231,21 +213,19 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         );
     }
 
-    // === Precomputed display tables (matching user presets, 1–64 anvil counts) ===
+    // === Precomputed display tables ===
 
-    // Age: 27 My + 30 By + 7 Ty
     private static final String[] AGE_TABLE = {
         "2 My", "2.52 My", "3.18 My", "4 My", "5.04 My", "6.35 My", "8 My", "10.1 My",
         "12.7 My", "16 My", "20.2 My", "25.4 My", "32 My", "40.3 My", "50.8 My", "64 My",
         "80.6 My", "102 My", "128 My", "161 My", "203 My", "256 My", "323 My", "406 My",
         "512 My", "645 My", "813 My", "1 By", "1.26 By", "1.59 By", "2 By", "2.52 By",
-        "3.18 By", "4 By", "5.04 By", "6.335 By", "8 By", "10.1 By", "12.7 By", "16 By",
+        "3.18 By", "4 By", "5.04 By", "6.35 By", "8 By", "10.1 By", "12.7 By", "16 By",
         "20.2 By", "25.4 By", "32 By", "40.3 By", "50.8 By", "64 By", "80.6 By", "102 By",
         "128 By", "161 By", "203 By", "256 By", "323 By", "406 By", "512 By", "645 By",
         "813 By", "1 Ty", "1.26 Ty", "1.59 Ty", "2 Ty", "2.52 Ty", "3.18 Ty", "4 Ty"
     };
 
-    // Radius: 20 R⊕ + 44 R☉
     private static final String[] RADIUS_TABLE = {
         "0.125 R⊕", "0.158 R⊕", "0.198 R⊕", "0.25 R⊕",
         "0.32 R⊕", "0.4 R⊕", "0.5 R⊕", "0.63 R⊕",
@@ -265,7 +245,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "1.26k R☉", "1.59k R☉", "2k R☉", "2.52k R☉"
     };
 
-    // Mass: 40 M⊕ + 24 M☉
     private static final String[] MASS_TABLE = {
         "0.022 M⊕", "0.031 M⊕", "0.044 M⊕", "0.063 M⊕",
         "0.088 M⊕", "0.125 M⊕", "0.177 M⊕", "0.25 M⊕",
@@ -285,7 +264,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "64 M☉", "90.5 M☉", "128 M☉", "181 M☉"
     };
 
-    // Temperature: 24 ℃ + 40 K
     private static final String[] TEMPERATURE_TABLE = {
         "-223 ℃", "-217 ℃", "-210 ℃", "-202 ℃",
         "-194 ℃", "-184 ℃", "-173 ℃", "-161 ℃",
@@ -304,8 +282,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "32300 K", "36200 K", "40600 K", "45600 K",
         "51200 K", "57500 K", "64500 K", "72400 K"
     };
-
-    // === Parameter calculation methods (lookup from presets) ===
 
     public static String formatAge(int count) {
         if (count == 0) return "---";
@@ -331,40 +307,24 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         return "---";
     }
 
-    // === Offset methods: look up the preset value, offset the number, reformat ===
-
-    /**
-     * Format age with a proportional offset applied to the displayed value.
-     */
     public static String formatAgeOffset(int count, float offset) {
         if (count == 0) return "---";
         if (count >= 1 && count <= 64) return applyOffset(AGE_TABLE[count - 1], offset);
         return "---";
     }
 
-    /**
-     * Format radius with a proportional offset applied to the displayed value.
-     */
     public static String formatRadiusOffset(int count, float offset) {
         if (count == 0) return "---";
         if (count >= 1 && count <= 64) return applyOffset(RADIUS_TABLE[count - 1], offset);
         return "---";
     }
 
-    /**
-     * Format mass with a proportional offset applied to the displayed value.
-     */
     public static String formatMassOffset(int count, float offset) {
         if (count == 0) return "---";
         if (count >= 1 && count <= 64) return applyOffset(MASS_TABLE[count - 1], offset);
         return "---";
     }
 
-    /**
-     * Extract the numeric part from a table entry (e.g. "2.52 My" → offset(2.52)),
-     * apply the offset, format to 3 significant figures, and reattach the unit.
-     * Handles entries with "k" suffix (e.g. "2.52k R☉" → 2520).
-     */
     private static String applyOffset(String entry, float offset) {
         int spaceIdx = entry.indexOf(' ');
         String numStr = entry.substring(0, spaceIdx);
@@ -379,9 +339,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         return format3SigFig(offsetValue) + " " + unit;
     }
 
-    /**
-     * Format to 3 significant figures, without trailing zeros.
-     */
     @SuppressWarnings("MalformedFormatString")
     private static String format3SigFig(double value) {
         if (Math.abs(value) < 1e-9) return "0";
@@ -461,7 +418,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            // Accept any item — validation happens on search
             return true;
         }
 

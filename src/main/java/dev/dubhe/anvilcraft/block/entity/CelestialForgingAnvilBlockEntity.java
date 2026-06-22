@@ -21,6 +21,8 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.ExcavatorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -1382,8 +1384,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         if (this.level == null || player.isSpectator()) return null;
-        // TODO Phase 8: replace with actual CelestialForgingAnvilMenu when ported
-        return null;
+        return new CelestialForgingAnvilMenu(ModMenuTypes.CELESTIAL_FORGING_ANVIL.get(), containerId, inventory, this);
     }
 
     @Override
