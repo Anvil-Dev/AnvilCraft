@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 
 public class GravitationalLensManager {
     private static final int MAX_SEARCH_DISTANCE_SQR = 256 * 256;
@@ -38,11 +39,14 @@ public class GravitationalLensManager {
         public final float centerV;
         /** Distance from camera to black hole (world units). */
         public final float cameraDistance;
+        /** Lens direction: > 0 = convex (pull), < 0 = concave (push). */
+        public final float lensDirection;
 
-        HoleProjection(float cu, float cv, float dist) {
+        HoleProjection(float cu, float cv, float dist, float dir) {
             this.centerU = cu;
             this.centerV = cv;
             this.cameraDistance = dist;
+            this.lensDirection = dir;
         }
     }
 
@@ -70,7 +74,7 @@ public class GravitationalLensManager {
      * Transform a world-space point to screen UV via view-projection.
      * Returns {@code null} when the point is behind the camera (clip.w ≤ 0).
      */
-    private static Vector2f worldToScreenUV(float wx, float wy, float wz, Matrix4f viewProj) {
+    private static @Nullable Vector2f worldToScreenUV(float wx, float wy, float wz, Matrix4f viewProj) {
         Vector4f clip = viewProj.transform(new Vector4f(wx, wy, wz, 1.0f));
         if (clip.w <= 0.0f) return null;
 
@@ -78,8 +82,8 @@ public class GravitationalLensManager {
         float ndcY = clip.y / clip.w;
 
         // Clamp to screen edge — still useful for points slightly off-screen
-        ndcX = Math.max(-1.0f, Math.min(1.0f, ndcX));
-        ndcY = Math.max(-1.0f, Math.min(1.0f, ndcY));
+        ndcX = Math.clamp(ndcX, -1.0f, 1.0f);
+        ndcY = Math.clamp(ndcY, -1.0f, 1.0f);
 
         return new Vector2f((ndcX + 1.0f) / 2.0f, (ndcY + 1.0f) / 2.0f);
     }
@@ -90,7 +94,8 @@ public class GravitationalLensManager {
     public static List<HoleProjection> collectVisibleBlackHoles(
         Camera camera,
         Matrix4f projectionMatrix,
-        int maxCount
+        int maxCount,
+        float lensDirection
     ) {
         List<HoleProjection> result = new ArrayList<>();
         if (CLIENT_BLACK_HOLE_POSITIONS.isEmpty()) return result;
@@ -102,7 +107,8 @@ public class GravitationalLensManager {
             double dx = pos.getX() + 0.5 - cameraPos.x;
             double dy = pos.getY() + 0.5 - cameraPos.y;
             double dz = pos.getZ() + 0.5 - cameraPos.z;
-            if (dx * dx + dy * dy + dz * dz > MAX_SEARCH_DISTANCE_SQR) continue;
+            double distanceSqr = dx * dx + dy * dy + dz * dz;
+            if (distanceSqr > MAX_SEARCH_DISTANCE_SQR) continue;
 
             Vector2f centerUV = worldToScreenUV(
                 pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f, viewProj
@@ -113,8 +119,8 @@ public class GravitationalLensManager {
             if (centerUV.x < -0.2f || centerUV.x > 1.2f
                 || centerUV.y < -0.2f || centerUV.y > 1.2f) continue;
 
-            float dist = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-            result.add(new HoleProjection(centerUV.x, centerUV.y, dist));
+            float dist = (float) Math.sqrt(distanceSqr);
+            result.add(new HoleProjection(centerUV.x, centerUV.y, dist, lensDirection));
         }
 
         // Sort nearest first, then take the closest maxCount

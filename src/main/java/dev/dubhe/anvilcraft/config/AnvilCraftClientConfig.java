@@ -60,6 +60,9 @@ public class AnvilCraftClientConfig {
 
         @Comment("Reference distance for perspective scaling. At this distance, effect = config size. Closer = bigger.")
         public double lensPerspectiveScale = 10.0;
+
+        @Comment("Lens direction: >0 = convex (gravitational pull toward center), <0 = concave (push away). Magnitude scales strength.")
+        public double lensDirection = 1.0;
     }
 
     @Comment("A vertical item frame vertically displays items")

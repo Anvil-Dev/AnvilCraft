@@ -149,6 +149,8 @@
   "anvilcraft.configuration.gravitational_lens.button": "Gravitational Lens",
   "anvilcraft.configuration.gravitational_lens.event_horizon_radius": "Event Horizon Radius",
   "anvilcraft.configuration.gravitational_lens.event_horizon_radius.tooltip": "Event horizon radius (screen UV units, 0.083 default)",
+  "anvilcraft.configuration.gravitational_lens.lens_direction": "Lens Direction",
+  "anvilcraft.configuration.gravitational_lens.lens_direction.tooltip": "Lens direction: >0 = convex (pull toward center), <0 = concave (push away). Magnitude scales strength.",
   "anvilcraft.configuration.gravitational_lens.lens_perspective_scale": "Lens Perspective Scale",
   "anvilcraft.configuration.gravitational_lens.lens_perspective_scale.tooltip": "Reference distance for perspective scaling. At this distance, effect = config size. Closer = bigger.",
   "anvilcraft.configuration.gravitational_lens.lens_strength": "Lens Strength",

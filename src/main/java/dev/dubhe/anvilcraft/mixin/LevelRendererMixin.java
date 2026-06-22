@@ -194,24 +194,20 @@ public abstract class LevelRendererMixin {
 
         // Collect visible black holes
         java.util.List<GravitationalLensManager.HoleProjection> holes =
-            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 8);
+            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 8,
+                (float) AnvilCraftClient.CONFIG.gravitationalLens.lensDirection);
 
         int count = Math.min(holes.size(), 8);
 
-        // Set dynamic black hole position and distance uniforms
+        // Set BlackHole vec4 uniforms: x=screenU, y=screenV, z=distance, w=lensDirection
         for (int i = 0; i < 8; i++) {
-            String xName = "BlackHole" + (i + 1) + "X";
-            String yName = "BlackHole" + (i + 1) + "Y";
-            String dName = "BlackHole" + (i + 1) + "Dist";
+            String name = "BlackHole[" + i + "]";
             if (i < count) {
                 GravitationalLensManager.HoleProjection h = holes.get(i);
-                pass.getEffect().safeGetUniform(xName).set(h.centerU);
-                pass.getEffect().safeGetUniform(yName).set(h.centerV);
-                pass.getEffect().safeGetUniform(dName).set(h.cameraDistance);
+                pass.getEffect().safeGetUniform(name)
+                    .set(h.centerU, h.centerV, h.cameraDistance, h.lensDirection);
             } else {
-                pass.getEffect().safeGetUniform(xName).set(0.0f);
-                pass.getEffect().safeGetUniform(yName).set(0.0f);
-                pass.getEffect().safeGetUniform(dName).set(1.0f);
+                pass.getEffect().safeGetUniform(name).set(0.0f, 0.0f, 1.0f, 1.0f);
             }
         }
 
