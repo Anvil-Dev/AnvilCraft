@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
@@ -43,7 +44,7 @@ public abstract class CelestialForgingAnvilInterfaceBlock
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos,
-                                   Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+                                   Block block, @Nullable Orientation orientation, boolean movedByPiston) {
         if (!level.isClientSide()) {
             boolean hasSignal = level.hasNeighborSignal(pos);
             if (state.getValue(ACTIVE) != hasSignal) {
