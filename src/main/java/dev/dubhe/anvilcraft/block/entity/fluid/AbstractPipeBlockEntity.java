@@ -224,7 +224,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
 
         // 若相邻是流体处理器，泵输出端直接对其排液
         if (PipeBlock.isFluidHandler(level, nextPos)) {
-            return new PipeEnd(pumpPos, direction, accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT);
+            return new PipeEnd(pumpPos, direction.getOpposite(), accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT);
         }
 
         return null;
