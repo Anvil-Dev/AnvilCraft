@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.amulet.type;
 
 import com.google.common.collect.Lists;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.amulet.fromto.Effect;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -39,7 +40,9 @@ public class FourToOneAmuletType extends AmuletType {
     @Override
     public void inventoryTick(ServerPlayer player, ItemStack amulet, boolean isEnabled) {
         for (AmuletType type : this.types) {
-            type.inventoryTick(player, amulet, isEnabled);
+            type.inventoryTick(player, amulet, isEnabled ||
+                AmuletManager.INSTANCE.getAmuletsFromInventory(player).entries().stream()
+                    .anyMatch(entry -> entry.getKey().value().equals(type)));
         }
     }
 
