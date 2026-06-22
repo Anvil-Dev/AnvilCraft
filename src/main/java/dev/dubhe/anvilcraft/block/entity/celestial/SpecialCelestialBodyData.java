@@ -15,6 +15,11 @@ import org.jetbrains.annotations.Nullable;
  * {@link SpecialCelestialBodyRecipe}, so no recipe-manager lookup is needed
  * during rendering or NBT deserialization.
  * </p>
+ *
+ * <p>
+ * Note: the {@code fromRecipe} factory method is added in a later phase
+ * once {@code SpecialCelestialBodyRecipe} is ported.
+ * </p>
  */
 @SuppressWarnings("checkstyle:MissingJavadocMethod")
 public record SpecialCelestialBodyData(
@@ -31,26 +36,6 @@ public record SpecialCelestialBodyData(
     boolean needsCustomModel,
     String textureName
 ) implements CelestialBodyData {
-
-    /**
-     * Create from a recipe and its resource location ID.
-     */
-    public static SpecialCelestialBodyData fromRecipe(SpecialCelestialBodyRecipe recipe, String recipeId) {
-        return new SpecialCelestialBodyData(
-            recipeId,
-            recipe.name(),
-            recipe.space(),
-            recipe.axialTilt(),
-            recipe.rotationSpeed(),
-            recipe.magneticFieldStrength(),
-            recipe.temperature(),
-            recipe.hasAtmosphere(),
-            recipe.getLiquidCoverage(),
-            recipe.isErrorPlanet(),
-            recipe.needsCustomModel(),
-            recipe.textureName()
-        );
-    }
 
     @Override
     public CelestialBodyType type() {
