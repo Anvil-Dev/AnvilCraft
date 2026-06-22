@@ -86,20 +86,20 @@ public record SpecialCelestialBodyData(
      * Deserialize a SpecialCelestialBodyData from NBT.
      */
     public static SpecialCelestialBodyData fromTag(CompoundTag tag) {
-        String recipeId = tag.getString("recipeId");
-        String name = tag.getString("name");
-        int size = tag.getInt("size");
-        float axialTilt = tag.getFloat("axialTilt");
-        int rotationSpeed = tag.getInt("rotationSpeed");
-        int magneticFieldStrength = tag.getInt("magneticFieldStrength");
-        boolean hasAtmosphere = tag.getBoolean("hasAtmosphere");
-        boolean isErrorPlanet = tag.getBoolean("isErrorPlanet");
-        boolean needsCustomModel = tag.getBoolean("needsCustomModel");
-        String textureName = tag.getString("textureName");
-        Temperature temperature = tag.contains("temperature")
-            ? Temperature.fromName(tag.getString("temperature")) : null;
-        LiquidCoverage liquidCoverage = tag.contains("liquidCoverage")
-            ? LiquidCoverage.fromName(tag.getString("liquidCoverage")) : null;
+        String recipeId = tag.getStringOr("recipeId", "");
+        String name = tag.getStringOr("name", "");
+        int size = tag.getIntOr("size", 0);
+        float axialTilt = tag.getFloatOr("axialTilt", 0f);
+        int rotationSpeed = tag.getIntOr("rotationSpeed", 0);
+        int magneticFieldStrength = tag.getIntOr("magneticFieldStrength", 0);
+        boolean hasAtmosphere = tag.getBooleanOr("hasAtmosphere", false);
+        boolean isErrorPlanet = tag.getBooleanOr("isErrorPlanet", false);
+        boolean needsCustomModel = tag.getBooleanOr("needsCustomModel", false);
+        String textureName = tag.getStringOr("textureName", "");
+        String tempStr = tag.getStringOr("temperature", "");
+        Temperature temperature = !tempStr.isEmpty() ? Temperature.fromName(tempStr) : null;
+        String lcStr = tag.getStringOr("liquidCoverage", "");
+        LiquidCoverage liquidCoverage = !lcStr.isEmpty() ? LiquidCoverage.fromName(lcStr) : null;
         return new SpecialCelestialBodyData(
             recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength,
             temperature, hasAtmosphere, liquidCoverage,

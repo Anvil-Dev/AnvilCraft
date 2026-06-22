@@ -28,8 +28,8 @@ public class PlanetaryResourceSet {
         }
 
         public static WeightedItemStack fromTag(CompoundTag tag) {
-            ResourceLocation id = ResourceLocation.parse(tag.getString("id"));
-            int weight = tag.getInt("weight");
+            ResourceLocation id = ResourceLocation.parse(tag.getStringOr("id", "minecraft:air"));
+            int weight = tag.getIntOr("weight", 0);
             return new WeightedItemStack(id, weight);
         }
     }
@@ -46,8 +46,8 @@ public class PlanetaryResourceSet {
         }
 
         public static WeightedFluidStack fromTag(CompoundTag tag) {
-            ResourceLocation id = ResourceLocation.parse(tag.getString("id"));
-            int weight = tag.getInt("weight");
+            ResourceLocation id = ResourceLocation.parse(tag.getStringOr("id", "minecraft:air"));
+            int weight = tag.getIntOr("weight", 0);
             return new WeightedFluidStack(id, weight);
         }
     }
@@ -216,8 +216,8 @@ public class PlanetaryResourceSet {
         if (tag.contains("wastelandItems")) {
             readItemList(tag.getList("wastelandItems", Tag.TAG_COMPOUND), set.wastelandItems);
         }
-        set.hasCivilization = tag.getBoolean("hasCivilization");
-        set.isWasteland = tag.getBoolean("isWasteland");
+        set.hasCivilization = tag.getBooleanOr("hasCivilization", false);
+        set.isWasteland = tag.getBooleanOr("isWasteland", false);
         return set;
     }
 

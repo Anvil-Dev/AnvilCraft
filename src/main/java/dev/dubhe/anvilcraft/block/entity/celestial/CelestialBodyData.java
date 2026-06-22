@@ -49,7 +49,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
     CompoundTag toTag();
 
     static CelestialBodyData fromTag(CompoundTag tag) {
-        String typeName = tag.getString("bodyType");
+        String typeName = tag.getStringOr("bodyType", "rocky_planet");
         CelestialBodyType type = CelestialBodyType.fromName(typeName);
         return switch (type) {
             case ROCKY_PLANET -> RockyPlanetData.fromTag(tag);
@@ -60,7 +60,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
     }
 
     static CelestialBodyClass readClass(CompoundTag tag, CelestialBodyType bodyType) {
-        String className = tag.getString("bodyClass");
+        String className = tag.getStringOr("bodyClass", "");
         if (!className.isEmpty()) {
             return CelestialBodyClass.valueOf(className);
         }

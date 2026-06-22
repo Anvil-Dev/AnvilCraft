@@ -41,18 +41,18 @@ public record GiantPlanetData(
 
     public static GiantPlanetData fromTag(CompoundTag tag) {
         CelestialBodyClass cls = CelestialBodyData.readClass(tag, CelestialBodyType.GIANT_PLANET);
-        int mag = tag.contains("magneticFieldStrength") ? tag.getInt("magneticFieldStrength") : 0;
-        boolean bd = tag.contains("brownDwarf") && tag.getBoolean("brownDwarf");
+        int mag = tag.getIntOr("magneticFieldStrength", 0);
+        boolean bd = tag.getBooleanOr("brownDwarf", false);
         return new GiantPlanetData(
             cls,
-            PressureType.fromName(tag.getString("pressureType")),
-            WindSpeed.fromName(tag.getString("windSpeed")),
-            RingType.fromName(tag.getString("ringType")),
-            tag.getInt("size"),
-            tag.getInt("paletteBaseRow"),
-            tag.getInt("paletteOverlayRow"),
-            tag.getFloat("axialTilt"),
-            tag.getInt("rotationSpeed"),
+            PressureType.fromName(tag.getStringOr("pressureType", "gas")),
+            WindSpeed.fromName(tag.getStringOr("windSpeed", "high")),
+            RingType.fromName(tag.getStringOr("ringType", "none")),
+            tag.getIntOr("size", 0),
+            tag.getIntOr("paletteBaseRow", 0),
+            tag.getIntOr("paletteOverlayRow", 0),
+            tag.getFloatOr("axialTilt", 0f),
+            tag.getIntOr("rotationSpeed", 0),
             mag,
             bd
         );

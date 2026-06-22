@@ -41,18 +41,18 @@ public record RockyPlanetData(
 
     public static RockyPlanetData fromTag(CompoundTag tag) {
         CelestialBodyClass cls = CelestialBodyData.readClass(tag, CelestialBodyType.ROCKY_PLANET);
-        int mag = tag.contains("magneticFieldStrength") ? tag.getInt("magneticFieldStrength") : 0;
+        int mag = tag.getIntOr("magneticFieldStrength", 0);
         return new RockyPlanetData(
             cls,
-            tag.getBoolean("hasAtmosphere"),
-            LiquidCoverage.fromName(tag.getString("liquidCoverage")),
-            Temperature.fromName(tag.getString("temperature")),
-            RingType.fromName(tag.getString("ringType")),
-            tag.getInt("size"),
-            tag.getInt("paletteBaseRow"),
-            tag.getInt("paletteOverlayRow"),
-            tag.getFloat("axialTilt"),
-            tag.getInt("rotationSpeed"),
+            tag.getBooleanOr("hasAtmosphere", false),
+            LiquidCoverage.fromName(tag.getStringOr("liquidCoverage", "none")),
+            Temperature.fromName(tag.getStringOr("temperature", "mild")),
+            RingType.fromName(tag.getStringOr("ringType", "none")),
+            tag.getIntOr("size", 0),
+            tag.getIntOr("paletteBaseRow", 0),
+            tag.getIntOr("paletteOverlayRow", 0),
+            tag.getFloatOr("axialTilt", 0f),
+            tag.getIntOr("rotationSpeed", 0),
             mag
         );
     }

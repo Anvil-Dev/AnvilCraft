@@ -65,19 +65,14 @@ public record StarData(
 
     public static StarData fromTag(CompoundTag tag) {
         CelestialBodyClass cls = CelestialBodyData.readClass(tag, CelestialBodyType.STAR);
-        int size = tag.getInt("size");
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        if (tag.contains("colorR")) {
-            r = tag.getInt("colorR");
-            g = tag.getInt("colorG");
-            b = tag.getInt("colorB");
-        }
-        int mag = tag.contains("magneticFieldStrength") ? tag.getInt("magneticFieldStrength") : 0;
-        int energy = tag.contains("energy") ? tag.getInt("energy") : 0;
-        int rotSpeed = tag.contains("rotationSpeed") ? tag.getInt("rotationSpeed") : 0;
-        UUID uuid = tag.contains("bodyUuid") ? tag.getUUID("bodyUuid") : null;
-        return new StarData(cls, size, r, g, b, tag.getFloat("axialTilt"), rotSpeed, mag, energy, uuid);
+        int size = tag.getIntOr("size", 0);
+        int r = tag.getIntOr("colorR", 0);
+        int g = tag.getIntOr("colorG", 0);
+        int b = tag.getIntOr("colorB", 0);
+        int mag = tag.getIntOr("magneticFieldStrength", 0);
+        int energy = tag.getIntOr("energy", 0);
+        int rotSpeed = tag.getIntOr("rotationSpeed", 0);
+        UUID uuid = tag.getUUID("bodyUuid").orElse(null);
+        return new StarData(cls, size, r, g, b, tag.getFloatOr("axialTilt", 0f), rotSpeed, mag, energy, uuid);
     }
 }
