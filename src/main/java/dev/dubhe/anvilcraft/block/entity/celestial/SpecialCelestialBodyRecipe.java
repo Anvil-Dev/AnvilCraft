@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -319,6 +320,6 @@ public record SpecialCelestialBodyRecipe(
     }
 
     private static Item resolveItem(Identifier id) {
-        return BuiltInRegistries.ITEM.get(id).map(net.minecraft.core.Holder.Reference::value).orElse(Items.AIR);
+        return BuiltInRegistries.ITEM.get(id).map(Holder.Reference::value).orElse(Items.AIR);
     }
 }

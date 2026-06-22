@@ -39,11 +39,11 @@ public class SpecialCelestialBodyRecipeLoader {
     }
 
     private static Identifier mc(String path) {
-        return Identifier.of("minecraft", path);
+        return Identifier.withDefaultNamespace(path);
     }
 
     private static Identifier anvil(String path) {
-        return Identifier.of("anvilcraft", path);
+        return Identifier.fromNamespaceAndPath("anvilcraft", path);
     }
 
     private static SpecialCelestialBodyRecipe.WeightedEntry item(String id, int weight) {
