@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -14,7 +13,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -224,6 +226,8 @@ public record SpecialCelestialBodyRecipe(
         }
     };
 
+    public static final Serializer SERIALIZER = new Serializer();
+
     // === Derived properties ===
 
     /** Temperature is auto-derived from energy anvil count. */
@@ -304,36 +308,40 @@ public record SpecialCelestialBodyRecipe(
         return true;
     }
 
+    @Deprecated
     @Override
-    public @NotNull ItemStack assemble(@NotNull SpecialCelestialBodyInput input, HolderLookup.@NotNull Provider registries) {
+    public @NotNull ItemStack assemble(@NotNull SpecialCelestialBodyInput input) {
         return Items.AIR.getDefaultInstance();
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return true;
-    }
-
-    @Override
-    public @NotNull ItemStack getResultItem(HolderLookup.@NotNull Provider registries) {
-        return Items.AIR.getDefaultInstance();
-    }
-
-    public static final Serializer SERIALIZER = new Serializer();
-
-    @Override
-    public @NotNull RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
-    }
-
-    @Override
-    public @NotNull RecipeType<?> getType() {
+    public @NotNull RecipeType<SpecialCelestialBodyRecipe> getType() {
         return ModRecipeTypes.SPECIAL_CELESTIAL_BODY.get();
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @Override
+    public @NotNull RecipeSerializer<SpecialCelestialBodyRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     @Override
     public boolean isSpecial() {
         return true;
+    }
+
+    @Override
+    public boolean showNotification() {
+        return false;
     }
 
     private static Item resolveItem(Identifier id) {
