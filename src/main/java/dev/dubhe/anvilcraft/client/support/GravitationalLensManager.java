@@ -21,6 +21,9 @@ public class GravitationalLensManager {
     /** Client-side cache of loaded black hole block positions. */
     public static final Set<BlockPos> CLIENT_BLACK_HOLE_POSITIONS =
         Collections.newSetFromMap(new ConcurrentHashMap<>());
+    /** Client-side cache of loaded white hole block positions. */
+    public static final Set<BlockPos> CLIENT_WHITE_HOLE_POSITIONS =
+        Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public static void register(BlockPos pos) {
         CLIENT_BLACK_HOLE_POSITIONS.add(pos.immutable());
@@ -28,6 +31,14 @@ public class GravitationalLensManager {
 
     public static void unregister(BlockPos pos) {
         CLIENT_BLACK_HOLE_POSITIONS.remove(pos);
+    }
+
+    public static void registerWhiteHole(BlockPos pos) {
+        CLIENT_WHITE_HOLE_POSITIONS.add(pos.immutable());
+    }
+
+    public static void unregisterWhiteHole(BlockPos pos) {
+        CLIENT_WHITE_HOLE_POSITIONS.remove(pos);
     }
 
     /**
@@ -89,21 +100,38 @@ public class GravitationalLensManager {
     }
 
     /**
-     * Collect up to {@code maxCount} on-screen black holes, sorted nearest first.
+     * Collect up to {@code maxCount} on-screen holes from both black and white hole sets,
+     * sorted nearest first. Black holes get {@code blackHoleDir} (positive=convex pull),
+     * white holes get {@code whiteHoleDir} (negative=concave push).
      */
     public static List<HoleProjection> collectVisibleBlackHoles(
         Camera camera,
         Matrix4f projectionMatrix,
         int maxCount,
-        float lensDirection
+        float blackHoleDir,
+        float whiteHoleDir
     ) {
         List<HoleProjection> result = new ArrayList<>();
-        if (CLIENT_BLACK_HOLE_POSITIONS.isEmpty()) return result;
 
         Matrix4f viewProj = buildViewProj(camera, projectionMatrix);
         Vector3f cameraPos = camera.getPosition().toVector3f();
 
-        for (BlockPos pos : CLIENT_BLACK_HOLE_POSITIONS) {
+        collectFromSet(CLIENT_BLACK_HOLE_POSITIONS, cameraPos, viewProj, blackHoleDir, result);
+        collectFromSet(CLIENT_WHITE_HOLE_POSITIONS, cameraPos, viewProj, whiteHoleDir, result);
+
+        // Sort nearest first, then take the closest maxCount
+        result.sort((a, b) -> Float.compare(a.cameraDistance, b.cameraDistance));
+        if (result.size() > maxCount) {
+            result = result.subList(0, maxCount);
+        }
+        return result;
+    }
+
+    private static void collectFromSet(
+        Set<BlockPos> positions, Vector3f cameraPos, Matrix4f viewProj,
+        float lensDir, List<HoleProjection> out
+    ) {
+        for (BlockPos pos : positions) {
             double dx = pos.getX() + 0.5 - cameraPos.x;
             double dy = pos.getY() + 0.5 - cameraPos.y;
             double dz = pos.getZ() + 0.5 - cameraPos.z;
@@ -115,19 +143,11 @@ public class GravitationalLensManager {
             );
             if (centerUV == null) continue;
 
-            // Skip black holes whose center is far off-screen
             if (centerUV.x < -0.2f || centerUV.x > 1.2f
                 || centerUV.y < -0.2f || centerUV.y > 1.2f) continue;
 
             float dist = (float) Math.sqrt(distanceSqr);
-            result.add(new HoleProjection(centerUV.x, centerUV.y, dist, lensDirection));
+            out.add(new HoleProjection(centerUV.x, centerUV.y, dist, lensDir));
         }
-
-        // Sort nearest first, then take the closest maxCount
-        result.sort((a, b) -> Float.compare(a.cameraDistance, b.cameraDistance));
-        if (result.size() > maxCount) {
-            result = result.subList(0, maxCount);
-        }
-        return result;
     }
 }

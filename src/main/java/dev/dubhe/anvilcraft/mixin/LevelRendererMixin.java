@@ -192,10 +192,10 @@ public abstract class LevelRendererMixin {
 
         PostPass pass = passes.get(0);
 
-        // Collect visible black holes
+        // Collect visible holes: black holes use positive direction, white holes negative
+        float dir = (float) AnvilCraftClient.CONFIG.gravitationalLens.lensDirection;
         java.util.List<GravitationalLensManager.HoleProjection> holes =
-            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 8,
-                (float) AnvilCraftClient.CONFIG.gravitationalLens.lensDirection);
+            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 8, dir, -dir);
 
         int count = Math.min(holes.size(), 8);
 
