@@ -203,10 +203,11 @@ public abstract class LevelRendererMixin {
 
         // Collect visible holes: black holes use positive direction, white holes negative
         float dir = (float) AnvilCraftClient.CONFIG.gravitationalLens.lensDirection;
+        int maxCount = AnvilCraftClient.CONFIG.gravitationalLens.maxHoleCount;
         java.util.List<GravitationalLensManager.HoleProjection> holes =
-            GravitationalLensManager.collectVisibleHoles(camera, projectionMatrix, 256, dir, -dir);
+            GravitationalLensManager.collectVisibleHoles(camera, projectionMatrix, maxCount, dir, -dir);
 
-        int count = Math.min(holes.size(), 256);
+        int count = Math.min(holes.size(), maxCount);
 
         // Upload BlackHole[256] data via UBO (binding point 0, std140)
         java.nio.FloatBuffer buf = java.nio.ByteBuffer.allocateDirect(256 * 4 * 4)
