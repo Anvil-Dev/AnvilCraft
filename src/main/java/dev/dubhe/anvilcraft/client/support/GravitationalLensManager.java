@@ -8,6 +8,13 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -149,5 +156,67 @@ public class GravitationalLensManager {
             float dist = (float) Math.sqrt(distanceSqr);
             out.add(new HoleProjection(centerUV.x, centerUV.y, dist, lensDir));
         }
+    }
+
+    // ---- UBO management ----
+
+    /** Pre-allocated FloatBuffer for UBO upload (256 vec4s × 4 floats = 4096 bytes). */
+    private static final FloatBuffer LENS_UBO_BUF =
+        ByteBuffer.allocateDirect(256 * 4 * 4)
+            .order(ByteOrder.nativeOrder()).asFloatBuffer();
+    /** UBO handle — created on first frame, reset on shader reload. */
+    private static int lensUbo = 0;
+    /** Last program ID for which the UBO block index was bound. */
+    private static int lensUboBlockBound = 0;
+
+    /**
+     * Upload hole data to the UBO and bind it. Call each frame before running the lens post-chain.
+     *
+     * @param holes     collected hole projections (≤ 256)
+     * @param count     actual number of holes to write (remaining slots zeroed)
+     * @param programId the shader program ID, for one-time block-index binding
+     */
+    public static void uploadLensUbo(List<HoleProjection> holes, int count, int programId) {
+        FloatBuffer buf = LENS_UBO_BUF;
+        buf.clear();
+        for (int i = 0; i < 256; i++) {
+            if (i < count) {
+                HoleProjection h = holes.get(i);
+                buf.put(h.centerU).put(h.centerV).put(h.cameraDistance).put(h.lensDirection);
+            } else {
+                buf.put(0.0f).put(0.0f).put(1.0f).put(1.0f);
+            }
+        }
+        buf.flip();
+
+        if (lensUbo == 0) {
+            lensUbo = GL15.glGenBuffers();
+            GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, lensUbo);
+            GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, buf, GL15.GL_DYNAMIC_DRAW);
+        } else {
+            GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, lensUbo);
+            GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, buf);
+        }
+        GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, lensUbo);
+
+        // Bind UBO block "BlackHoles" to binding point 0 (once per shader load)
+        if (lensUboBlockBound != programId) {
+            int blockIndex = GL31.glGetUniformBlockIndex(programId, "BlackHoles");
+            if (blockIndex != GL31.GL_INVALID_INDEX) {
+                GL31.glUniformBlockBinding(programId, blockIndex, 0);
+            }
+            lensUboBlockBound = programId;
+        }
+    }
+
+    /**
+     * Free the UBO and reset state. Call on shader reload / GL context recreation.
+     */
+    public static void resetLensUbo() {
+        if (lensUbo != 0) {
+            GL15.glDeleteBuffers(lensUbo);
+            lensUbo = 0;
+        }
+        lensUboBlockBound = 0;
     }
 }
