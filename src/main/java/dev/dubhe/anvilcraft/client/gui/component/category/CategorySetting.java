@@ -3,9 +3,11 @@ package dev.dubhe.anvilcraft.client.gui.component.category;
 import dev.anvilcraft.lib.v2.util.CollectionUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
@@ -14,6 +16,7 @@ import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.storage.category.FilterCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
+import lombok.Getter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -44,6 +47,8 @@ public class CategorySetting extends AbstractWidget {
     private final TreeSet<ICategory> alternates = new TreeSet<>(this::compareCategories);
     private final List<AbstractWidget> widgets;
     private final TexturedButton addCategory;
+    @Getter
+    private final Runnable exitBehaviour;
 
     private final Scrollable listed = new Scrollable() {
         @Override
@@ -119,6 +124,11 @@ public class CategorySetting extends AbstractWidget {
             }
         ));
 
+        if (AnvilCraftClient.CONFIG.exitCategorySettingBehaviour == AnvilCraftClientConfig.ExitBehaviourMode.CONFIRM) {
+            this.exitBehaviour = () -> this.whenConfirm(screen);
+        } else {
+            this.exitBehaviour = () -> this.whenCancel(screen);
+        }
         this.addRenderableWidget(new TexturedButton(
             x + 278,
             y + 139,
@@ -128,14 +138,7 @@ public class CategorySetting extends AbstractWidget {
             20,
             18,
             40,
-            _ -> {
-                screen.getCategories().rebuild(this.setting);
-                ClientPacketDistributor.sendToServer(new PlayerSettingsSyncPacket(this.setting));
-                this.active = false;
-                this.visible = false;
-                screen.getCategories().active = true;
-                screen.getCategories().visible = true;
-            }
+            _ -> this.whenConfirm(screen)
         ));
         this.addRenderableWidget(new TexturedButton(
             x + 278,
@@ -146,12 +149,7 @@ public class CategorySetting extends AbstractWidget {
             20,
             18,
             40,
-            _ -> {
-                this.active = false;
-                this.visible = false;
-                screen.getCategories().active = true;
-                screen.getCategories().visible = true;
-            }
+            _ -> this.whenCancel(screen)
         ));
     }
 
@@ -544,5 +542,18 @@ public class CategorySetting extends AbstractWidget {
 
     protected boolean isCustom(ICategory category) {
         return this.registry.containsValue(category);
+    }
+
+    private void whenConfirm(StorageScreen screen) {
+        screen.getCategories().rebuild(this.setting);
+        ClientPacketDistributor.sendToServer(new PlayerSettingsSyncPacket(this.setting));
+        this.whenCancel(screen);
+    }
+
+    private void whenCancel(StorageScreen screen) {
+        this.active = false;
+        this.visible = false;
+        screen.getCategories().active = true;
+        screen.getCategories().visible = true;
     }
 }

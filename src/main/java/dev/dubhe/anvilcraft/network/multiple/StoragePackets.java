@@ -332,7 +332,7 @@ public class StoragePackets {
                 Sync2CIncremental[] array = this.packets.toArray(new Sync2CIncremental[0]);
                 int length = array.length - 1;
                 Sync2CIncremental[] dest = new Sync2CIncremental[length];
-                System.arraycopy(array, 0, dest, 1, length);
+                System.arraycopy(array, 1, dest, 0, length);
                 PacketDistributor.sendToPlayer(this.player, this.packets.getFirst(), dest);
             }
         }

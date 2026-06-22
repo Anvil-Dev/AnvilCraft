@@ -99,6 +99,15 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         graphics.text(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
+    @Override
+    public void onClose() {
+        if (this.setting.active) {
+            this.setting.getExitBehaviour().run();
+            return;
+        }
+        super.onClose();
+    }
+
     protected void reorder() {
     }
 }
