@@ -17,15 +17,6 @@
     { "name": "InSize",  "type": "float", "count": 2,  "values": [ 1.0, 1.0 ] },
     { "name": "OutSize", "type": "float", "count": 2,  "values": [ 1.0, 1.0 ] },
 
-    { "name": "BlackHole[0]", "type": "float", "count": 4, "values": [ 0.0, 0.0, 1.0, 1.0 ] },
-    { "name": "BlackHole[1]", "type": "float", "count": 4, "values": [ 0.0, 0.0, 1.0, 1.0 ] },
-    { "name": "BlackHole[2]", "type": "float", "count": 4, "values": [ 0.0, 0.0, 1.0, 1.0 ] },
-    { "name": "BlackHole[3]", "type": "float", "count": 4, "values": [ 0.0, 0.0, 1.0, 1.0 ] },
-    { "name": "BlackHole[4]", "type": "float", "count": 4, "values": [ 0.0, 0.0, 1.0, 1.0 ] },
-    { "name": "BlackHole[5]", "type": "float", "count": 4, "values": [ 0.0, 0.0, 1.0, 1.0 ] },
-    { "name": "BlackHole[6]", "type": "float", "count": 4, "values": [ 0.0, 0.0, 1.0, 1.0 ] },
-    { "name": "BlackHole[7]", "type": "float", "count": 4, "values": [ 0.0, 0.0, 1.0, 1.0 ] },
-
     { "name": "BlackHoleCount",     "type": "float", "count": 1, "values": [ 0.0 ] },
     { "name": "LensStrength",       "type": "float", "count": 1, "values": [ 0.001953125 ] },
     { "name": "EventHorizonRadius", "type": "float", "count": 1, "values": [ 0.083333333 ] },

@@ -32,9 +32,13 @@ import net.minecraft.client.renderer.PostPass;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -44,6 +48,13 @@ public abstract class LevelRendererMixin {
     @Shadow
     @Final
     private Minecraft minecraft;
+
+    /** UBO handle for BlackHole[256] data — created once, updated per frame. */
+    @Unique
+    private static int anvilcraft$lensUbo = 0;
+    /** Last program ID for which we bound the UBO block index. */
+    @Unique
+    private static int anvilcraft$lensUboBlockBound = 0;
 
     @Inject(
         method = "renderLevel",
@@ -190,25 +201,46 @@ public abstract class LevelRendererMixin {
         java.util.List<PostPass> passes = ((PostChainAccessor) lensChain).getPasses();
         if (passes.isEmpty()) return;
 
-        PostPass pass = passes.get(0);
-
         // Collect visible holes: black holes use positive direction, white holes negative
         float dir = (float) AnvilCraftClient.CONFIG.gravitationalLens.lensDirection;
         java.util.List<GravitationalLensManager.HoleProjection> holes =
-            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 8, dir, -dir);
+            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 256, dir, -dir);
 
-        int count = Math.min(holes.size(), 8);
+        int count = Math.min(holes.size(), 256);
 
-        // Set BlackHole vec4 uniforms: x=screenU, y=screenV, z=distance, w=lensDirection
-        for (int i = 0; i < 8; i++) {
-            String name = "BlackHole[" + i + "]";
+        // Upload BlackHole[256] data via UBO (binding point 0, std140)
+        java.nio.FloatBuffer buf = java.nio.ByteBuffer.allocateDirect(256 * 4 * 4)
+            .order(java.nio.ByteOrder.nativeOrder()).asFloatBuffer();
+        for (int i = 0; i < 256; i++) {
             if (i < count) {
                 GravitationalLensManager.HoleProjection h = holes.get(i);
-                pass.getEffect().safeGetUniform(name)
-                    .set(h.centerU, h.centerV, h.cameraDistance, h.lensDirection);
+                buf.put(h.centerU).put(h.centerV).put(h.cameraDistance).put(h.lensDirection);
             } else {
-                pass.getEffect().safeGetUniform(name).set(0.0f, 0.0f, 1.0f, 1.0f);
+                buf.put(0.0f).put(0.0f).put(1.0f).put(1.0f);
             }
+        }
+        buf.flip();
+
+        if (anvilcraft$lensUbo == 0) {
+            anvilcraft$lensUbo = GL15.glGenBuffers();
+            GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, anvilcraft$lensUbo);
+            GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, buf, GL15.GL_DYNAMIC_DRAW);
+        } else {
+            GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, anvilcraft$lensUbo);
+            GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, buf);
+        }
+        GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, anvilcraft$lensUbo);
+
+        PostPass pass = passes.getFirst();
+
+        // Bind UBO block "BlackHoles" to binding point 0 (only needed once per shader load)
+        int programId = pass.getEffect().getId();
+        if (anvilcraft$lensUboBlockBound != programId) {
+            int blockIndex = GL31.glGetUniformBlockIndex(programId, "BlackHoles");
+            if (blockIndex != GL31.GL_INVALID_INDEX) {
+                GL31.glUniformBlockBinding(programId, blockIndex, 0);
+            }
+            anvilcraft$lensUboBlockBound = programId;
         }
 
         pass.getEffect().safeGetUniform("BlackHoleCount").set((float) count);

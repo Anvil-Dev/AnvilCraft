@@ -6,7 +6,9 @@ uniform vec2 InSize;
 // BlackHole[i]: x=screenU, y=screenV, z=cameraDistance, w=lensDirection
 //  lensDirection > 0: convex  (pull toward center, gravitational lens)
 //  lensDirection < 0: concave (push away from center, diverging lens)
-uniform vec4 BlackHole[8];
+layout (std140) uniform BlackHoles {
+    vec4 BlackHole[256];
+};
 
 uniform float BlackHoleCount;
 uniform float LensStrength;
@@ -16,9 +18,9 @@ uniform float PerspectiveScale;
 in vec2 texCoord;
 out vec4 fragColor;
 
-vec2 getHolePos(int i)    { return BlackHole[i].xy; }
-float getHoleDist(int i)  { return BlackHole[i].z; }
-float getLensDir(int i)   { return BlackHole[i].w; }
+vec2 getHolePos(int i) { return BlackHole[i].xy; }
+float getHoleDist(int i) { return BlackHole[i].z; }
+float getLensDir(int i) { return BlackHole[i].w; }
 
 void main() {
     vec2 uv = texCoord;
