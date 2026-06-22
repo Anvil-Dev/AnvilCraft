@@ -61,6 +61,19 @@ public abstract class LevelRendererMixin {
         java.nio.ByteBuffer.allocateDirect(256 * 4 * 4)
             .order(java.nio.ByteOrder.nativeOrder()).asFloatBuffer();
 
+    /**
+     * Reset the lens UBO handle — call on shader reload or GL context recreation
+     * so the next frame allocates a fresh buffer.
+     */
+    @SuppressWarnings("unused") // called from ModShaders.loadLensEffect()
+    public static void anvilcraft$resetLensUbo() {
+        if (anvilcraft$lensUbo != 0) {
+            GL15.glDeleteBuffers(anvilcraft$lensUbo);
+            anvilcraft$lensUbo = 0;
+        }
+        anvilcraft$lensUboBlockBound = 0;
+    }
+
     @Inject(
         method = "renderLevel",
         at = @At(
@@ -227,8 +240,7 @@ public abstract class LevelRendererMixin {
         }
         buf.flip();
 
-        if (anvilcraft$lensUbo == 0 || !GL15.glIsBuffer(anvilcraft$lensUbo)) {
-            if (anvilcraft$lensUbo != 0) GL15.glDeleteBuffers(anvilcraft$lensUbo);
+        if (anvilcraft$lensUbo == 0) {
             anvilcraft$lensUbo = GL15.glGenBuffers();
             GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, anvilcraft$lensUbo);
             GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, buf, GL15.GL_DYNAMIC_DRAW);

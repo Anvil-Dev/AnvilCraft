@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.init;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.mixin.LevelRendererMixin;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
@@ -140,6 +141,7 @@ public class ModShaders {
     }
 
     public static void loadLensEffect(ResourceProvider resourceProvider) throws IOException {
+        LevelRendererMixin.anvilcraft$resetLensUbo();
         try {
             lensChain = new PostChain(
                 MINECRAFT.getTextureManager(),
