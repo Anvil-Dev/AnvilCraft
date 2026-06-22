@@ -57,11 +57,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
 
         BlockState state = blockEntity.getBlockState();
         if (!(state.getBlock() instanceof PumpBlock)) return;
-
-        // 动画速度与传输量正相关
-        float speed = blockEntity.getLastTransferAmount() / MAX_TRANSFER_RATE;
-        if (speed < 0.05f) speed = 1.0f;
-
+        float speed = 1.0f;
         long gameTime = blockEntity.getLevel().getGameTime();
         float cycle = ((gameTime + partialTick) * speed) % 20.0f / 20.0f;
 
