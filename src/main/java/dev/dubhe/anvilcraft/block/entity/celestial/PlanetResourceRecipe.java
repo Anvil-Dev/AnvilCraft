@@ -24,11 +24,6 @@ import java.util.Optional;
 
 /**
  * Recipe defining what resources a planet produces based on its celestial parameters.
- *
- * <p>
- * A single recipe type ({@code anvilcraft:planet_resource}) with a {@code category} discriminator
- * determines the resource generation rules. Each category's data is stored in a nested sub-record.
- * </p>
  */
 public record PlanetResourceRecipe(
     Category category,
@@ -39,8 +34,6 @@ public record PlanetResourceRecipe(
     Optional<OfferingData> offering,
     Optional<WastelandData> wasteland
 ) implements Recipe<PlanetResourceInput> {
-
-    // === Category ===
 
     public enum Category {
         MINERAL("mineral"), FLUID("fluid"), GIANT_ITEM("giant_item"), GIANT_FLUID("giant_fluid"), BIOLOGICAL("biological"), OFFERING(
@@ -66,8 +59,6 @@ public record PlanetResourceRecipe(
         }
     }
 
-    // === WeightedEntry ===
-
     public record WeightedEntry(String id, int weight) {
         public static final Codec<WeightedEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
                 Codec.STRING.fieldOf("id")
@@ -87,8 +78,6 @@ public record PlanetResourceRecipe(
             return Identifier.parse(id);
         }
     }
-
-    // === LifeChances ===
 
     public record LifeChances(int cold, int hot, int mild) {
         public static final LifeChances DEFAULT = new LifeChances(5, 5, 10);
@@ -119,12 +108,6 @@ public record PlanetResourceRecipe(
         }
     }
 
-    // === Per-category data records ===
-
-    /**
-     * Mineral resource configuration.
-     * category=mineral: all rocky planets produce minerals from the source tag.
-     */
     public record MineralData(String sourceTag, String blacklistTag, int step) {
         public static final Codec<MineralData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.optionalFieldOf("source_tag", "c:raw_materials").forGetter(MineralData::sourceTag),
@@ -143,10 +126,6 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Fluid resource mapping.
-     * category=fluid: defines what fluid a rocky planet's surface produces.
-     */
     public record FluidData(String planetType, String temperature, String liquidMin, String outputFluid) {
         public static final Codec<FluidData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.optionalFieldOf("planet_type", "rocky_planet").forGetter(FluidData::planetType),
@@ -168,10 +147,6 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Giant planet item or fluid resources.
-     * category=giant_item or giant_fluid: weighted entries for giant planet resources.
-     */
     public record GiantData(List<WeightedEntry> entries, String pressureType) {
         public static final Codec<GiantData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             WeightedEntry.CODEC.listOf()
@@ -189,10 +164,6 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Biological resource configuration.
-     * category=biological: defines life chances, entity tags, and mild-temperature extra fluids.
-     */
     public record BiologicalData(
         LifeChances lifeChances, String landEntityTag, String aquaticEntityTag, String dropBlacklistTag, List<WeightedEntry> mildExtraFluids
     ) {
@@ -221,10 +192,6 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Offering (civilization) resource entries.
-     * category=offering: weighted items for low civilizations.
-     */
     public record OfferingData(
         List<WeightedEntry> entries, int civilizationChance, int ageMin, int ageMax
     ) {
@@ -248,10 +215,6 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Wasteland resource entries.
-     * category=wasteland: weighted items for wasteland worlds.
-     */
     public record WastelandData(
         List<WeightedEntry> entries, int ageMin, int wastelandChance
     ) {
@@ -272,8 +235,6 @@ public record PlanetResourceRecipe(
         );
     }
 
-    // === Codec ===
-
     public static final MapCodec<PlanetResourceRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Category.CODEC.fieldOf("category").forGetter(PlanetResourceRecipe::category),
         MineralData.CODEC.optionalFieldOf("mineral").forGetter(PlanetResourceRecipe::mineral),
@@ -283,8 +244,6 @@ public record PlanetResourceRecipe(
         OfferingData.CODEC.optionalFieldOf("offering").forGetter(PlanetResourceRecipe::offering),
         WastelandData.CODEC.optionalFieldOf("wasteland").forGetter(PlanetResourceRecipe::wasteland)
     ).apply(ins, PlanetResourceRecipe::new));
-
-    // === StreamCodec ===
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PlanetResourceRecipe> STREAM_CODEC = new StreamCodec<>() {
         @Override
@@ -311,9 +270,9 @@ public record PlanetResourceRecipe(
         }
     };
 
-    public static final Serializer SERIALIZER = new Serializer();
-
-    // === Recipe implementation ===
+    public static final RecipeSerializer<PlanetResourceRecipe> SERIALIZER = new RecipeSerializer<>(
+        CODEC, STREAM_CODEC
+    );
 
     @Override
     public boolean matches(PlanetResourceInput input, @NotNull Level level) {
@@ -384,7 +343,10 @@ public record PlanetResourceRecipe(
         return false;
     }
 
-    // === Convenience accessors (for generator) ===
+    @Override
+    public @NotNull String group() {
+        return "planet_resource";
+    }
 
     public MineralData mineralData() {
         return mineral.orElse(null);
@@ -408,19 +370,5 @@ public record PlanetResourceRecipe(
 
     public WastelandData wastelandData() {
         return wasteland.orElse(null);
-    }
-
-    // === Serializer ===
-
-    public static final class Serializer implements RecipeSerializer<PlanetResourceRecipe> {
-        @Override
-        public @NotNull MapCodec<PlanetResourceRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public @NotNull StreamCodec<RegistryFriendlyByteBuf, PlanetResourceRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
     }
 }

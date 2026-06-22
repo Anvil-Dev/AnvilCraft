@@ -29,13 +29,7 @@ import java.util.Random;
 
 /**
  * Recipe defining a hidden (special) celestial body discoverable via seed items
- * in the Celestial Forging Anvil. Modpack authors can add, remove, or modify
- * special bodies via datapack JSON without touching Java code.
- *
- * <p>
- * Temperature is auto-derived from the {@code energy} anvil count.
- * Civilization is auto-detected when {@code offerings} is non-empty.
- * </p>
+ * in the Celestial Forging Anvil.
  */
 @SuppressWarnings("checkstyle:LineLength")
 public record SpecialCelestialBodyRecipe(
@@ -60,8 +54,6 @@ public record SpecialCelestialBodyRecipe(
     List<DemandEntry> templePunishments
 ) implements Recipe<SpecialCelestialBodyInput> {
 
-    // === WeightedEntry ===
-
     public record WeightedEntry(String id, int weight) {
         public static final Codec<WeightedEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.fieldOf("id").forGetter(WeightedEntry::id),
@@ -81,8 +73,6 @@ public record SpecialCelestialBodyRecipe(
         }
     }
 
-    // === DemandEntry (temple demand items with count instead of weight) ===
-
     public record DemandEntry(String id, int count) {
         public static final Codec<DemandEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.fieldOf("id").forGetter(DemandEntry::id),
@@ -98,15 +88,11 @@ public record SpecialCelestialBodyRecipe(
         );
     }
 
-    // === Codecs for enums ===
-
     private static final Codec<LiquidCoverage> LIQUID_COVERAGE_CODEC =
         Codec.STRING.xmap(LiquidCoverage::fromName, LiquidCoverage::getSerializedName);
 
     private static final StreamCodec<ByteBuf, LiquidCoverage> LIQUID_COVERAGE_STREAM =
         ByteBufCodecs.STRING_UTF8.map(LiquidCoverage::fromName, LiquidCoverage::getSerializedName);
-
-    // === ResourceFields (CODEX-only wrapper to stay under the 16-field group() limit) ===
 
     private record ResourceFields(
         List<WeightedEntry> minerals,
@@ -125,8 +111,6 @@ public record SpecialCelestialBodyRecipe(
             DemandEntry.CODEC.listOf().optionalFieldOf("temple_punishments", List.of()).forGetter(ResourceFields::templePunishments)
         ).apply(ins, ResourceFields::new));
     }
-
-    // === Top-level Codec ===
 
     public static final MapCodec<SpecialCelestialBodyRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Codec.STRING.fieldOf("name").forGetter(SpecialCelestialBodyRecipe::name),
@@ -166,8 +150,6 @@ public record SpecialCelestialBodyRecipe(
             res.offerings, res.templeBlessings, res.templePunishments
         );
     }
-
-    // === StreamCodec ===
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SpecialCelestialBodyRecipe> STREAM_CODEC = new StreamCodec<>() {
         @Override
@@ -226,20 +208,15 @@ public record SpecialCelestialBodyRecipe(
         }
     };
 
-    public static final Serializer SERIALIZER = new Serializer();
+    public static final RecipeSerializer<SpecialCelestialBodyRecipe> SERIALIZER = new RecipeSerializer<>(
+        CODEC, STREAM_CODEC
+    );
 
-    // === Derived properties ===
-
-    /** Temperature is auto-derived from energy anvil count. */
     @NotNull
     public Temperature temperature() {
         return energyToTemperature(energy);
     }
 
-    /**
-     * Map energy anvil count to a temperature enum.
-     * TODO: Move to CelestialBodyMatcher when Phase 4 ports it.
-     */
     private static Temperature energyToTemperature(int energy) {
         if (energy <= 12) return Temperature.FREEZING;
         if (energy <= 15) return Temperature.COLD;
@@ -248,19 +225,13 @@ public record SpecialCelestialBodyRecipe(
         return Temperature.SCORCHED;
     }
 
-    /** Only the built-in ERROR_PLANET is an error planet. */
     public boolean isErrorPlanet() {
         return name.equals("error_planet");
     }
 
-    /**
-     * Whether this body has civilization — true when offerings are defined.
-     */
     public boolean hasCivilization() {
         return !offerings.isEmpty();
     }
-
-    // === Core methods ===
 
     public Item getEffectiveSeedItem(long worldSeed) {
         if (seedItems.isEmpty()) return Items.AIR;
@@ -300,8 +271,6 @@ public record SpecialCelestialBodyRecipe(
     public LiquidCoverage getLiquidCoverage() {
         return liquidCoverage.orElse(null);
     }
-
-    // === Recipe implementation ===
 
     @Override
     public boolean matches(@NotNull SpecialCelestialBodyInput input, @NotNull Level level) {
@@ -344,19 +313,12 @@ public record SpecialCelestialBodyRecipe(
         return false;
     }
 
-    private static Item resolveItem(Identifier id) {
-        return BuiltInRegistries.ITEM.get(id);
+    @Override
+    public @NotNull String group() {
+        return "special_celestial_body";
     }
 
-    public static final class Serializer implements RecipeSerializer<SpecialCelestialBodyRecipe> {
-        @Override
-        public @NotNull MapCodec<SpecialCelestialBodyRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public @NotNull StreamCodec<RegistryFriendlyByteBuf, SpecialCelestialBodyRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+    private static Item resolveItem(Identifier id) {
+        return BuiltInRegistries.ITEM.get(id);
     }
 }

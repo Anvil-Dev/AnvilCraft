@@ -23,17 +23,6 @@ import java.util.List;
 
 /**
  * Recipe defining temple demand entries for the Temple megastructure.
- *
- * <p>
- * Each recipe has a category ({@code blessing} or {@code punishment}) and
- * a list of weighted entries. The temple randomly picks one entry per day.
- * </p>
- *
- * <p>
- * For body-specific demands, use the {@code temple_blessings} and
- * {@code temple_punishments} fields in
- * {@link SpecialCelestialBodyRecipe} instead.
- * </p>
  */
 public record TempleDemandRecipe(
     Category category,
@@ -100,7 +89,9 @@ public record TempleDemandRecipe(
             TempleDemandRecipe::new
         );
 
-    public static final Serializer SERIALIZER = new Serializer();
+    public static final RecipeSerializer<TempleDemandRecipe> SERIALIZER = new RecipeSerializer<>(
+        CODEC, STREAM_CODEC
+    );
 
     @Override
     public boolean matches(TempleDemandInput input, @NotNull Level level) {
@@ -143,15 +134,8 @@ public record TempleDemandRecipe(
         return false;
     }
 
-    public static final class Serializer implements RecipeSerializer<TempleDemandRecipe> {
-        @Override
-        public @NotNull MapCodec<TempleDemandRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public @NotNull StreamCodec<RegistryFriendlyByteBuf, TempleDemandRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+    @Override
+    public @NotNull String group() {
+        return "temple_demand";
     }
 }
