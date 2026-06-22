@@ -76,7 +76,7 @@ void main() {
         vec2 toHole = uv - holeUv;
         toHole.x *= aspectRatio;
         float dist = length(toHole);
-        float horizonMask = 1.0 - step(EventHorizonRadius * perspS, dist);
+        float horizonMask = 1.0 - smoothstep(EventHorizonRadius * perspS * 0.95, EventHorizonRadius * perspS * 1.05, dist);
 
         color = mix(color, vec3(0.0, 0.0, 0.0), horizonMask);
     }

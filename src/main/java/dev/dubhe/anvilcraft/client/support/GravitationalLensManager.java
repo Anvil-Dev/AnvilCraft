@@ -104,7 +104,7 @@ public class GravitationalLensManager {
      * sorted nearest first. Black holes get {@code blackHoleDir} (positive=convex pull),
      * white holes get {@code whiteHoleDir} (negative=concave push).
      */
-    public static List<HoleProjection> collectVisibleBlackHoles(
+    public static List<HoleProjection> collectVisibleHoles(
         Camera camera,
         Matrix4f projectionMatrix,
         int maxCount,
