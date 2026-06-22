@@ -40,6 +40,6 @@ public class RenderState {
     }
 
     public static boolean isLensEffectEnabled() {
-        return isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.renderBlackHoleLensing;
+        return isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.gravitationalLens.renderBlackHoleLensing;
     }
 }

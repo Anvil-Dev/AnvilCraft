@@ -217,11 +217,11 @@ public abstract class LevelRendererMixin {
 
         pass.getEffect().safeGetUniform("BlackHoleCount").set((float) count);
         pass.getEffect().safeGetUniform("LensStrength")
-            .set((float) AnvilCraftClient.CONFIG.lensStrength);
+            .set((float) AnvilCraftClient.CONFIG.gravitationalLens.lensStrength);
         pass.getEffect().safeGetUniform("EventHorizonRadius")
-            .set((float) AnvilCraftClient.CONFIG.eventHorizonRadius);
+            .set((float) AnvilCraftClient.CONFIG.gravitationalLens.eventHorizonRadius);
         pass.getEffect().safeGetUniform("PerspectiveScale")
-            .set((float) AnvilCraftClient.CONFIG.lensPerspectiveScale);
+            .set((float) AnvilCraftClient.CONFIG.gravitationalLens.lensPerspectiveScale);
 
         // Run the lens post chain (reads main target, writes to result target)
         lensChain.process(RenderSupport.getPartialTick());

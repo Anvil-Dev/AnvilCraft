@@ -63,10 +63,8 @@ void main() {
         float perspScale = PerspectiveScale / max(getHoleDist(i), 0.1);
 
         float gravity = LensStrength * perspScale / (dist * dist);
-        float scaledHorizon = EventHorizonRadius * perspScale;
-        float mask = step(scaledHorizon, dist);
 
-        vec2 lensOffset = dir * gravity * mask;
+        vec2 lensOffset = dir * gravity;
         lensOffset.x /= aspectRatio;
         offset += lensOffset;
     }
