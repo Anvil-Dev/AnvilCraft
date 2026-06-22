@@ -1,36 +1,48 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
-import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
+import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
+import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -152,7 +164,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         this.gammaLevel = laserLevel;
         this.irradiateBlockPos = irradiateBlockPos;
         this.laserLevel = laserLevel;
-        CacheableBERenderingPipeline.getInstance().update(this);
+        CachedBlockEntityRenderingPipeline.getInstance().update(this);
     }
 
     @Override
@@ -228,7 +240,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                     }
                     updateIrradiateBlockPos(null);
                 }
-                clearIrradiateSelfLaserBlockSet();
+                irradiateSelfLaserBlockSet.clear();
                 updateLaserLevel(0);
                 wormholeLaserLevel = 0;
                 wormholeLaserGamma = false;
@@ -246,8 +258,6 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         );
 
         // Ensure this portal's side is registered in the wormhole network.
-        // After a megastructure clear + rebuild, portal sides may be missing
-        // from the network because onClear() cleared the local portal map.
         if (!network.hasPortalAt(level.dimension(), parent.getBlockPos(), side)) {
             parent.addPortal(side, worldPosition);
         }
@@ -273,7 +283,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
                 if (connectedPortal != null) {
                     BlockPos targetPortalPos = connectedPortal.getBlockPos();
-                    Level targetLevel = connectedPortal.getLevel();
+                    Level targetLevel = connectedPortal.level;
                     if (targetLevel != null) {
                         BlockState targetState = targetLevel.getBlockState(targetPortalPos);
                         if (targetState.getBlock() instanceof CelestialForgingAnvilPortalBlock
@@ -323,7 +333,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 }
                 updateIrradiateBlockPos(null);
             }
-            clearIrradiateSelfLaserBlockSet();
+            irradiateSelfLaserBlockSet.clear();
             updateLaserLevel(0);
             this.emittingGamma = false;
             this.gammaLevel = 0;
@@ -406,23 +416,22 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         double dz = destPos.getZ() + 0.5;
 
         // Items and projectiles spawn 1 block higher so they don't land at feet level
-        if (entity instanceof net.minecraft.world.entity.item.ItemEntity
-            || entity instanceof net.minecraft.world.entity.projectile.Projectile) {
+        if (entity instanceof ItemEntity || entity instanceof Projectile) {
             dy += 1;
         }
 
         // Only reverse the component perpendicular to the portal face;
         // horizontal and vertical movement parallel to the slab is preserved.
-        net.minecraft.world.phys.Vec3 vel = entity.getDeltaMovement();
-        net.minecraft.world.phys.Vec3 momentum;
+        Vec3 vel = entity.getDeltaMovement();
+        Vec3 momentum;
         if (outwardFacing.getAxis() == Direction.Axis.Z) {
-            momentum = new net.minecraft.world.phys.Vec3(vel.x, vel.y, -vel.z);
+            momentum = new Vec3(vel.x, vel.y, -vel.z);
         } else {
-            momentum = new net.minecraft.world.phys.Vec3(-vel.x, vel.y, vel.z);
+            momentum = new Vec3(-vel.x, vel.y, vel.z);
         }
         float targetYRot = (entity.getYRot() + 180.0f) % 360.0f;
         entity.teleportTo(targetLevel, dx, dy, dz,
-            Set.of(), targetYRot, entity.getXRot());
+            Set.of(), targetYRot, entity.getXRot(), false);
         entity.setDeltaMovement(momentum);
 
         touchingEntities.add(uuid);
@@ -454,8 +463,8 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             .relative(outwardFacing);
         ServerLevel targetLevel = level.getServer().getLevel(target.dimension());
         if (targetLevel == null) return null;
-        if (targetLevel.getBlockEntity(targetPortalPos) instanceof CelestialForgingAnvilPortalBlockEntity targetPortal) {
-            return targetPortal;
+        if (targetLevel.getBlockEntity(targetPortalPos) instanceof CelestialForgingAnvilPortalBlockEntity tp) {
+            return tp;
         }
         return null;
     }
@@ -522,13 +531,11 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                     .add(0.0625, 0.0625, 0.0625)
             );
             this.level.getEntities(
-                net.minecraft.world.level.entity.EntityTypeTest.forClass(
-                    net.minecraft.world.entity.LivingEntity.class),
+                EntityTypeTest.forClass(LivingEntity.class),
                 trackBoundingBox,
-                net.minecraft.world.entity.Entity::isAlive
+                Entity::isAlive
             ).forEach(livingEntity ->
-                livingEntity.hurt(
-                    dev.dubhe.anvilcraft.init.entity.ModDamageTypes.gammaLaser(this.level), hurt)
+                livingEntity.hurtOrSimulate(ModDamageTypes.gammaLaser(this.level), hurt)
             );
         }
 
@@ -542,7 +549,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             this.gammaExposureTicks = 0;
         }
 
-        boolean canBreak = !irradiateBlock.is(net.minecraft.tags.BlockTags.WITHER_IMMUNE)
+        boolean canBreak = !irradiateBlock.is(BlockTags.WITHER_IMMUNE)
             && !irradiateBlock.isAir()
             && irradiateBlock.getDestroySpeed(this.level, this.irradiateBlockPos) >= 0;
 
@@ -551,7 +558,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             if (this.gammaExposureTicks >= requiredExposure) {
                 this.gammaExposureTicks = 0;
                 BlockPos breakPos = this.irradiateBlockPos;
-                if (irradiateBlock.getBlock() instanceof dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock<?, ?, ?> multi) {
+                if (irradiateBlock.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> multi) {
                     breakPos = multi.getMainPartPos(this.irradiateBlockPos, irradiateBlock);
                 }
                 if (gammaLevel >= 16) {
@@ -587,7 +594,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     private boolean gammaCanPassThrough(BlockPos blockPos) {
         if (this.level == null) return false;
         BlockState blockState = this.level.getBlockState(blockPos);
-        return blockState.is(net.minecraft.tags.BlockTags.REPLACEABLE);
+        return blockState.is(BlockTags.REPLACEABLE);
     }
 
     /**
@@ -598,7 +605,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         BlockPos.MutableBlockPos checkPos = getBlockPos().relative(direction).mutable();
         while (!checkPos.equals(targetPos)) {
             BlockState checkState = level.getBlockState(checkPos);
-            if (checkState.getBlock() instanceof dev.dubhe.anvilcraft.block.RubyPrismBlock) {
+            if (checkState.getBlock() instanceof RubyPrismBlock) {
                 level.destroyBlock(checkPos.immutable(), true);
             }
             checkPos.move(direction);
@@ -657,18 +664,17 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
      */
     private void tryHeatEmberMetalAt(BlockPos pos) {
         BlockState state = this.level.getBlockState(pos);
-        if (state.is(dev.dubhe.anvilcraft.init.block.ModBlocks.EMBER_METAL_BLOCK.get())) {
-            net.minecraft.world.level.block.Block overheatedBlock =
-                dev.dubhe.anvilcraft.init.block.ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
+        if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
+            Block overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
             this.level.setBlock(pos, overheatedBlock.defaultBlockState(), 3);
-            if (overheatedBlock instanceof net.minecraft.world.level.block.EntityBlock entityBlock) {
+            if (overheatedBlock instanceof EntityBlock entityBlock) {
                 BlockEntity be = entityBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
                 if (be instanceof dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity heatable) {
                     this.level.setBlockEntity(heatable);
                     heatable.addDurationInTick(80);
                 }
             }
-        } else if (state.is(dev.dubhe.anvilcraft.init.block.ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
+        } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
             BlockEntity be = this.level.getBlockEntity(pos);
             if (be instanceof dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity heatable) {
                 heatable.addDurationInTick(80);
@@ -684,8 +690,6 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
         }
         // Fallback: compute from position.
-        // The portal is placed adjacent to the CFA side center, so its offset
-        // from the controller is twice the side center offset (±2 instead of ±1).
         BlockPos cfaPos = parent.getBlockPos();
         int dx = worldPosition.getX() - cfaPos.getX();
         int dz = worldPosition.getZ() - cfaPos.getZ();
@@ -712,9 +716,19 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     @Override
     public void setRemoved() {
+        // Unregister portal from parent CFA before super.setRemoved()
+        if (this.level != null && !level.isClientSide()) {
+            CelestialForgingAnvilBlockEntity parent = findParentCfa();
+            if (parent != null) {
+                Cube323PartHalf side = findSideFromParent(parent);
+                if (side != null) {
+                    parent.removePortal(side);
+                }
+            }
+        }
         super.setRemoved();
         if (this.level != null && level.isClientSide()) {
-            CacheableBERenderingPipeline.getInstance().update(this);
+            CachedBlockEntityRenderingPipeline.getInstance().update(this);
         }
     }
 
@@ -726,7 +740,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     public void deliverItem(List<ItemStack> drops, Direction direction, BlockPos sourceBlockPos) {
         if (this.level == null) return;
         for (ItemStack itemStack : drops) {
-            this.level.addFreshEntity(new net.minecraft.world.entity.item.ItemEntity(
+            this.level.addFreshEntity(new ItemEntity(
                 this.level,
                 sourceBlockPos.getX() + 0.5,
                 sourceBlockPos.getY() + 1.5,
@@ -736,29 +750,32 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
     }
 
+    // === NBT persistence (26.1: ValueOutput/ValueInput for disk) ===
+
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putBoolean("emittingGamma", emittingGamma);
+        output.putInt("gammaLevel", gammaLevel);
+        output.putBoolean("lastWaterlogged", lastWaterlogged);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.emittingGamma = input.getBooleanOr("emittingGamma", false);
+        this.gammaLevel = input.getIntOr("gammaLevel", 0);
+        this.lastWaterlogged = input.getBooleanOr("lastWaterlogged", false);
     }
 
+    // === Network sync (26.1: getUpdateTag still CompoundTag-based) ===
+
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+    public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("gamma", emittingGamma);
+        tag.putBoolean("emittingGamma", emittingGamma);
         tag.putInt("gammaLevel", gammaLevel);
         return tag;
-    }
-
-    @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        super.handleUpdateTag(tag, registries);
-        this.emittingGamma = tag.getBoolean("gamma");
-        this.gammaLevel = tag.getInt("gammaLevel");
     }
 
     @Override

@@ -1,0 +1,54 @@
+package net.minecraft.world.level.saveddata;
+
+import com.mojang.serialization.Codec;
+import java.util.function.Supplier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.datafix.DataFixTypes;
+
+// Neo: We do not have update logic compatible with DFU, several downstream patches from this record are made to support a nullable dataFixType.
+// Neo: We also have to reintroduce the ability to make level-dependent objects/codecs
+public record SavedDataType<T extends SavedData>(Identifier id, Factory<T> factory, Factory<Codec<T>> codecFactory, @org.jspecify.annotations.Nullable DataFixTypes dataFixType) {
+    public SavedDataType(Identifier id, Supplier<T> constructor, Codec<T> codec, @org.jspecify.annotations.Nullable DataFixTypes dataFixType) {
+        this(id, ignored -> constructor.get(), ignored -> codec, dataFixType);
+    }
+
+    public SavedDataType(Identifier id, Supplier<T> constructor, Codec<T> codec) {
+        this(id, ignored -> constructor.get(), ignored -> codec, null);
+    }
+
+    public SavedDataType(Identifier id, Factory<T> constructor, Factory<Codec<T>> codec) {
+        this(id, constructor, codec, null);
+    }
+
+    // Neo: Use the level-sensitive factory
+    @Deprecated
+    public Supplier<T> constructor() {
+        return () -> factory.create(null);
+    }
+
+    // Neo: Use the level-sensitive codecFactory
+    @Deprecated
+    public Codec<T> codec() {
+        return codecFactory.create(null);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof SavedDataType<?> type && this.id.equals(type.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "SavedDataType[" + this.id + "]";
+    }
+
+    @FunctionalInterface
+    public interface Factory<T> {
+        T create(net.minecraft.server.level.@org.jspecify.annotations.Nullable ServerLevel level);
+    }
+}

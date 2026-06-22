@@ -9,14 +9,17 @@ import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -34,7 +37,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
     implements IHammerRemovable, IHammerChangeable, EntityBlock, SimpleWaterloggedBlock {
@@ -61,14 +64,14 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
     }
 
     @Override
-    protected FluidState getFluidState(BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return state.getValue(BlockStateProperties.WATERLOGGED)
             ? Fluids.WATER.getSource(false)
             : super.getFluidState(state);
     }
 
     @Override
-    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState state = super.getStateForPlacement(context);
         if (state != null) {
             state = state.setValue(BlockStateProperties.WATERLOGGED,
@@ -78,12 +81,13 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
-                                     LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks,
+                                     BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos,
+                                     BlockState neighbourState, RandomSource random) {
         if (state.getValue(BlockStateProperties.WATERLOGGED)) {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+        return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
     }
 
     @Override
@@ -92,8 +96,7 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        // Slab on the face opposite to FACING (the face touching CFA)
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case NORTH -> SHAPE_SLAB_SOUTH;
             case SOUTH -> SHAPE_SLAB_NORTH;
@@ -109,17 +112,18 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
     }
 
     @Override
-    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return getShape(state, level, pos, context);
     }
 
     @Override
-    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity,
+                                InsideBlockEffectApplier effectApplier, boolean isPrecise) {
         if (level.isClientSide()) return;
         if (!state.getValue(OPEN)) return;
         if (level.getBlockEntity(pos) instanceof CelestialForgingAnvilPortalBlockEntity portalBe) {
@@ -147,7 +151,6 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide()) {
-            // FACING points away from CFA; look opposite to find CFA
             Direction towardsCfa = state.getValue(FACING).getOpposite();
             BlockPos cfaPos = pos.relative(towardsCfa);
             BlockState cfaState = level.getBlockState(cfaPos);
@@ -155,7 +158,11 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
                 Cube323PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
                 if (half == Cube323PartHalf.BOTTOM_N || half == Cube323PartHalf.BOTTOM_S
                     || half == Cube323PartHalf.BOTTOM_E || half == Cube323PartHalf.BOTTOM_W) {
-                    BlockPos controllerPos = cfaPos.offset(half.getOffset().multiply(-1));
+                    BlockPos controllerPos = new BlockPos(
+                        cfaPos.getX() - half.getOffsetX(),
+                        cfaPos.getY() - half.getOffsetY(),
+                        cfaPos.getZ() - half.getOffsetZ()
+                    );
                     if (level.getBlockEntity(controllerPos) instanceof CelestialForgingAnvilBlockEntity cfaBe) {
                         cfaBe.addPortal(half, pos);
                     }
@@ -164,26 +171,7 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
         }
     }
 
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            if (!level.isClientSide()) {
-                // FACING points away from CFA; look opposite to find CFA
-                Direction towardsCfa = state.getValue(FACING).getOpposite();
-                BlockPos cfaPos = pos.relative(towardsCfa);
-                BlockState cfaState = level.getBlockState(cfaPos);
-                if (cfaState.getBlock() instanceof CelestialForgingAnvilBlock) {
-                    Cube323PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
-                    BlockPos controllerPos = cfaPos.offset(half.getOffset().multiply(-1));
-                    if (level.getBlockEntity(controllerPos) instanceof CelestialForgingAnvilBlockEntity cfaBe) {
-                        cfaBe.removePortal(half);
-                    }
-                }
-            }
-            level.removeBlockEntity(pos);
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
+    // Block removal cleanup is handled by the portal BE's setRemoved() via WormholeStabilizerHandler.
 
     public static Direction getFacingFromSide(Cube323PartHalf side) {
         return switch (side) {

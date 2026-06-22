@@ -1,16 +1,22 @@
 package dev.dubhe.anvilcraft.saved;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 
 /**
  * Global saved data that tracks all wormhole-stabilized Celestial Forging Anvil
@@ -33,6 +38,28 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WormholeNetwork extends BetterSavedData {
 
+    static final WormholeNetwork CLIENT_COPY = new WormholeNetwork();
+
+    public static final Codec<WormholeNetwork> CODEC = CompoundTag.CODEC.comapFlatMap(
+        tag -> {
+            WormholeNetwork net = new WormholeNetwork();
+            net.readFromTag(tag);
+            return DataResult.success(net);
+        },
+        net -> {
+            CompoundTag tag = new CompoundTag();
+            net.writeToTag(tag);
+            return tag;
+        }
+    );
+
+    public static final SavedDataType<WormholeNetwork> TYPE = new SavedDataType<>(
+        AnvilCraft.of("wormhole_network"),
+        WormholeNetwork::new,
+        WormholeNetwork.CODEC,
+        null
+    );
+
     /**
      * A single entry in the wormhole network, identifying one CFA.
      */
@@ -44,7 +71,7 @@ public class WormholeNetwork extends BetterSavedData {
 
         CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
-            tag.putString("dimension", dimension.location().toString());
+            tag.putString("dimension", dimension.identifier().toString());
             tag.putInt("x", pos.getX());
             tag.putInt("y", pos.getY());
             tag.putInt("z", pos.getZ());
@@ -62,17 +89,22 @@ public class WormholeNetwork extends BetterSavedData {
 
         static Entry fromTag(CompoundTag tag) {
             ResourceKey<Level> dim = ResourceKey.create(
-                net.minecraft.core.registries.Registries.DIMENSION,
-                ResourceLocation.parse(tag.getString("dimension"))
+                Registries.DIMENSION,
+                Identifier.parse(tag.getStringOr("dimension", ""))
             );
-            BlockPos pos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+            BlockPos pos = new BlockPos(
+                tag.getIntOr("x", 0),
+                tag.getIntOr("y", 0),
+                tag.getIntOr("z", 0)
+            );
             Set<Cube323PartHalf> sides = new HashSet<>();
             if (tag.contains("portalSides")) {
-                ListTag sidesTag = tag.getList("portalSides", Tag.TAG_COMPOUND);
+                ListTag sidesTag = tag.getListOrEmpty("portalSides");
                 for (int i = 0; i < sidesTag.size(); i++) {
-                    CompoundTag sideTag = sidesTag.getCompound(i);
+                    CompoundTag sideTag = sidesTag.getCompoundOrEmpty(i);
                     try {
-                        sides.add(Cube323PartHalf.valueOf(sideTag.getString("side").toUpperCase()));
+                        sides.add(Cube323PartHalf.valueOf(
+                            sideTag.getStringOr("side", "").toUpperCase()));
                     } catch (IllegalArgumentException ignored) {
                         // do nothing
                     }
@@ -95,7 +127,7 @@ public class WormholeNetwork extends BetterSavedData {
     // ==================== Static accessors ====================
 
     public static WormholeNetwork get() {
-        return BetterSavedData.get("wormhole_network", WormholeNetwork::new);
+        return BetterSavedData.get(TYPE, CLIENT_COPY);
     }
 
     // ==================== Registration ====================
@@ -179,27 +211,32 @@ public class WormholeNetwork extends BetterSavedData {
             .toList();
     }
 
-    // ==================== NBT Serialization ====================
+    // ==================== NBT Serialization (used by Codec) ====================
 
-    @Override
-    protected void registerDataFixers() {
+    private void writeToTag(CompoundTag nbt) {
+        for (Map.Entry<UUID, List<Entry>> entry : network.entrySet()) {
+            ListTag list = new ListTag();
+            for (Entry e : entry.getValue()) {
+                list.add(e.toTag());
+            }
+            nbt.put(entry.getKey().toString(), list);
+        }
     }
 
-    @Override
-    public void read(CompoundTag nbt, HolderLookup.Provider registries) {
+    private void readFromTag(CompoundTag nbt) {
         network.clear();
         reverseIndex.clear();
-        for (String key : nbt.getAllKeys()) {
+        for (String key : nbt.keySet()) {
             UUID uuid;
             try {
                 uuid = UUID.fromString(key);
             } catch (IllegalArgumentException e) {
                 continue;
             }
-            ListTag list = nbt.getList(key, Tag.TAG_COMPOUND);
+            ListTag list = nbt.getListOrEmpty(key);
             List<Entry> entries = new ArrayList<>();
             for (int i = 0; i < list.size(); i++) {
-                Entry entry = Entry.fromTag(list.getCompound(i));
+                Entry entry = Entry.fromTag(list.getCompoundOrEmpty(i));
                 entries.add(entry);
                 reverseIndex.computeIfAbsent(entry.dimension, k -> new HashMap<>())
                     .put(entry.pos, uuid);
@@ -208,15 +245,17 @@ public class WormholeNetwork extends BetterSavedData {
         }
     }
 
+    // ==================== BetterSavedData abstract methods ====================
+
     @Override
-    public CompoundTag save(CompoundTag nbt, HolderLookup.Provider registries) {
-        for (Map.Entry<UUID, List<Entry>> entry : network.entrySet()) {
-            ListTag list = new ListTag();
-            for (Entry e : entry.getValue()) {
-                list.add(e.toTag());
-            }
-            nbt.put(entry.getKey().toString(), list);
-        }
-        return nbt;
+    protected void registerDataFixers() {
+    }
+
+    @Override
+    protected Packet<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> createPacket(
+        RegistryAccess registryAccess
+    ) {
+        // TODO Phase 7+: implement network sync for WormholeNetwork
+        return null;
     }
 }

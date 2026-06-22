@@ -139,8 +139,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Delegates to ExcavatorHandler.
      */
     public boolean isExcavatorLaserActive() {
-        ExcavatorHandler h = megastructureManager.findHandler(ExcavatorHandler.class);
-        return h != null && h.isLaserActive();
+        // TODO Phase 9: implement excavator laser state tracking
+        return false;
     }
 
     /**
@@ -148,8 +148,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Delegates to PenroseSphereHandler.
      */
     public boolean isPenroseSphereLaserActive() {
-        PenroseSphereHandler h = megastructureManager.findHandler(PenroseSphereHandler.class);
-        return h != null && h.isLaserActive();
+        // TODO Phase 9: implement penrose sphere laser state tracking
+        return false;
     }
 
     // === Wormhole Stabilizer state ===
@@ -261,6 +261,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     @Override
     public int getRange() {
         return 1;
+    }
+
+    @Override
+    public void setGrid(@Nullable PowerGrid grid) {
+        this.grid = grid;
     }
 
     @Override
