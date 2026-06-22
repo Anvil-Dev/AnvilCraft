@@ -8,7 +8,7 @@ import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class TempleDemandRecipeLoader {
     }
 
     private static void saveRecipe(RecipeOutput output, String name, TempleDemandRecipe recipe) {
-        ResourceLocation id = AnvilCraft.of("temple_demand/" + name);
+        Identifier id = AnvilCraft.of("temple_demand/" + name);
         Advancement.Builder advancement = output.advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
             .rewards(AdvancementRewards.Builder.recipe(id))

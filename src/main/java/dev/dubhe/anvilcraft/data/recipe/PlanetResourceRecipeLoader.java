@@ -8,7 +8,7 @@ import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +29,7 @@ public class PlanetResourceRecipeLoader {
     }
 
     private static void saveRecipe(RecipeOutput output, String name, PlanetResourceRecipe recipe) {
-        ResourceLocation id = AnvilCraft.of("planet_resource/" + name);
+        Identifier id = AnvilCraft.of("planet_resource/" + name);
         Advancement.Builder advancement = output.advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
             .rewards(AdvancementRewards.Builder.recipe(id))

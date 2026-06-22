@@ -9,7 +9,7 @@ import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public class SpecialCelestialBodyRecipeLoader {
     }
 
     private static void saveRecipe(RecipeOutput output, String name, SpecialCelestialBodyRecipe recipe) {
-        ResourceLocation id = AnvilCraft.of("special_celestial_body/" + name);
+        Identifier id = AnvilCraft.of("special_celestial_body/" + name);
         Advancement.Builder advancement = output.advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
             .rewards(AdvancementRewards.Builder.recipe(id))
@@ -34,12 +34,12 @@ public class SpecialCelestialBodyRecipeLoader {
         output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
     }
 
-    private static ResourceLocation mc(String path) {
-        return ResourceLocation.withDefaultNamespace(path);
+    private static Identifier mc(String path) {
+        return Identifier.of(path);
     }
 
-    private static ResourceLocation anvil(String path) {
-        return ResourceLocation.fromNamespaceAndPath("anvilcraft", path);
+    private static Identifier anvil(String path) {
+        return Identifier.of("anvilcraft", path);
     }
 
     private static SpecialCelestialBodyRecipe.WeightedEntry item(String id, int weight) {

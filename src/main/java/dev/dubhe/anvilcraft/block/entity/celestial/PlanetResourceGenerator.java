@@ -4,8 +4,8 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Generates a {@link PlanetaryResourceSet} for a celestial body by applying
@@ -61,7 +62,7 @@ public final class PlanetResourceGenerator {
         RecipeManager recipeManager = level.getRecipeManager();
 
         List<PlanetResourceRecipe> recipes = recipeManager.getAllRecipesFor(
-            ModRecipeTypes.PLANET_RESOURCE_TYPE.get()
+            ModRecipeTypes.PLANET_RESOURCE.get()
         ).stream().map(RecipeHolder::value).toList();
 
         PlanetResourceInput input = new PlanetResourceInput(body, ageAnvilCount);
@@ -101,12 +102,10 @@ public final class PlanetResourceGenerator {
             boolean hasCivilization;
 
             if (lifeEligible) {
-                // Roll for life first: COLD/HOT=5%, MILD=10% (or from recipe)
                 int lifeChance = getLifeChance(rocky, biologicalRecipe);
                 boolean lifeExists = lifeChance > 0 && random.nextInt(100) < lifeChance;
 
                 if (lifeExists) {
-                    // Life-bearing planet: 50% chance of civilization, else biological resources
                     hasCivilization = tryCivilization(set, offeringRecipe, rocky, ageAnvilCount, random);
                     if (hasCivilization) {
                         set.setHasCivilization();
@@ -114,7 +113,6 @@ public final class PlanetResourceGenerator {
                         tryBiologicalLifeConfirmed(set, biologicalRecipe, rocky, level, random);
                     }
                 } else {
-                    // No life → try wasteland
                     tryWasteland(set, wastelandRecipe, rocky, ageAnvilCount, random);
                 }
             }
@@ -138,21 +136,21 @@ public final class PlanetResourceGenerator {
         PlanetResourceRecipe.MineralData md = recipe.mineralData();
         if (md == null) return;
 
-        TagKey<Item> sourceTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(md.sourceTag()));
-        TagKey<Item> blacklistTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(md.blacklistTag()));
+        TagKey<Item> sourceTag = TagKey.create(Registries.ITEM, Identifier.parse(md.sourceTag()));
+        TagKey<Item> blacklistTag = TagKey.create(Registries.ITEM, Identifier.parse(md.blacklistTag()));
 
-        Set<ResourceLocation> blacklist = new HashSet<>();
+        Set<Identifier> blacklist = new HashSet<>();
         registries.lookupOrThrow(Registries.ITEM)
             .get(blacklistTag)
             .ifPresent(entries -> entries.forEach(
                 holder -> blacklist.add(holder.unwrapKey().orElseThrow().location())
             ));
 
-        List<ResourceLocation> candidates = new ArrayList<>();
+        List<Identifier> candidates = new ArrayList<>();
         registries.lookupOrThrow(Registries.ITEM)
             .get(sourceTag)
             .ifPresent(entries -> entries.forEach(holder -> {
-                ResourceLocation id = holder.unwrapKey().orElseThrow().location();
+                Identifier id = holder.unwrapKey().orElseThrow().location();
                 if (!blacklist.contains(id)) {
                     candidates.add(id);
                 }
@@ -163,7 +161,7 @@ public final class PlanetResourceGenerator {
 
         int step = md.step();
         int sum = 0;
-        for (ResourceLocation candidate : candidates) {
+        for (Identifier candidate : candidates) {
             if (sum >= 100) break;
             int remaining = 100 - sum;
             int maxSteps = remaining / step;
@@ -186,11 +184,10 @@ public final class PlanetResourceGenerator {
         for (PlanetResourceRecipe recipe : recipes) {
             PlanetResourceRecipe.FluidData fd = recipe.fluidData();
             if (fd != null && !fd.outputFluid().isEmpty()) {
-                // Scorched planets only get lava; other temperatures only get non-lava fluids
                 boolean isLava = fd.outputFluid().contains("lava");
                 if (isScorched != isLava) continue;
                 set.addFluid(new PlanetaryResourceSet.WeightedFluidStack(
-                    ResourceLocation.parse(fd.outputFluid()), 100
+                    Identifier.parse(fd.outputFluid()), 100
                 ));
             }
         }
@@ -243,10 +240,6 @@ public final class PlanetResourceGenerator {
         return rocky.temperature() != Temperature.SCORCHED;
     }
 
-    /**
-     * Get the life chance percentage for a rocky planet.
-     * Defaults (when no recipe overrides): COLD/HOT = 5%, MILD = 10%.
-     */
     private static int getLifeChance(RockyPlanetData rocky, @Nullable PlanetResourceRecipe biologicalRecipe) {
         if (biologicalRecipe != null) {
             PlanetResourceRecipe.BiologicalData bd = biologicalRecipe.biologicalData();
@@ -279,14 +272,14 @@ public final class PlanetResourceGenerator {
         if (random.nextInt(100) >= od.civilizationChance()) return false;
 
         for (PlanetResourceRecipe.WeightedEntry entry : od.entries()) {
-            ResourceLocation id = entry.resourceId();
+            Identifier id = entry.resourceId();
             if ("anvilcraft:gem_amulet_random".equals(id.toString())) {
-                ResourceLocation randomAmulet = pickRandomGemAmulet(random);
+                Identifier randomAmulet = pickRandomGemAmulet(random);
                 if (randomAmulet != null) {
                     set.addOffering(new PlanetaryResourceSet.WeightedItemStack(randomAmulet, entry.weight()));
                 }
             } else if ("anvilcraft:gem_block_random".equals(id.toString())) {
-                ResourceLocation randomBlock = pickRandomGemBlock(random);
+                Identifier randomBlock = pickRandomGemBlock(random);
                 if (randomBlock != null) {
                     set.addOffering(new PlanetaryResourceSet.WeightedItemStack(randomBlock, entry.weight()));
                 }
@@ -312,11 +305,10 @@ public final class PlanetResourceGenerator {
 
         boolean isHighCoverage = rocky.liquidCoverage() == LiquidCoverage.HIGH;
 
-        TagKey<Item> blacklistTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(bd.dropBlacklistTag()));
-        Set<ResourceLocation> blacklist = buildItemBlacklist(level.registryAccess(), blacklistTag);
+        TagKey<Item> blacklistTag = TagKey.create(Registries.ITEM, Identifier.parse(bd.dropBlacklistTag()));
+        Set<Identifier> blacklist = buildItemBlacklist(level.registryAccess(), blacklistTag);
 
-        // Collect item drop frequencies from all matching entities
-        Map<ResourceLocation, Integer> dropFrequencies = new HashMap<>();
+        Map<Identifier, Integer> dropFrequencies = new HashMap<>();
         level.registryAccess().lookupOrThrow(Registries.ENTITY_TYPE)
             .listElements()
             .forEach(holder -> {
@@ -333,16 +325,13 @@ public final class PlanetResourceGenerator {
             });
 
         if (!dropFrequencies.isEmpty()) {
-            // Build flat list of (item, baseWeight) pairs, baseWeight already multiples of 10
-            List<Map.Entry<ResourceLocation, Integer>> candidates = new ArrayList<>(dropFrequencies.entrySet());
-            // Filter out zero-weight entries (entities with empty loot tables)
+            List<Map.Entry<Identifier, Integer>> candidates = new ArrayList<>(dropFrequencies.entrySet());
             candidates.removeIf(e -> e.getValue() <= 0);
             Collections.shuffle(candidates, new java.util.Random(random.nextLong()));
 
-            // Same step-based algorithm as minerals: randomly pick weight (10/20/30/…), truncate at 100%
             final int step = 10;
             int sum = 0;
-            for (Map.Entry<ResourceLocation, Integer> candidate : candidates) {
+            for (Map.Entry<Identifier, Integer> candidate : candidates) {
                 if (sum >= 100) break;
                 int remaining = 100 - sum;
                 int maxSteps = remaining / step;
@@ -403,8 +392,8 @@ public final class PlanetResourceGenerator {
         EntityType<?> entityType,
         Level level,
         RandomSource random,
-        Map<ResourceLocation, Integer> dropFrequencies,
-        Set<ResourceLocation> blacklist
+        Map<Identifier, Integer> dropFrequencies,
+        Set<Identifier> blacklist
     ) {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
@@ -421,7 +410,6 @@ public final class PlanetResourceGenerator {
             .reloadableRegistries()
             .getLootTable(lootTableKey);
 
-        // Recreate entity for loot context
         Entity rollEntity = entityType.create(serverLevel);
         if (!(rollEntity instanceof LivingEntity rollLiving)) {
             if (rollEntity != null) rollEntity.discard();
@@ -429,8 +417,8 @@ public final class PlanetResourceGenerator {
         }
 
         int simulationRolls = 200;
-        Map<ResourceLocation, Integer> counts = new HashMap<>();
-        int totalDrops = 0;
+        Map<Identifier, Integer> counts = new HashMap<>();
+        AtomicInteger totalDrops = new AtomicInteger(0);
 
         for (int i = 0; i < simulationRolls; i++) {
             LootParams params = new LootParams.Builder(serverLevel)
@@ -440,23 +428,22 @@ public final class PlanetResourceGenerator {
                     rollLiving.damageSources().generic())
                 .create(LootContextParamSets.ENTITY);
 
-            List<ItemStack> drops = lootTable.getRandomItems(params, random.nextLong());
-            for (ItemStack drop : drops) {
-                if (drop.isEmpty()) continue;
-                ResourceLocation id = BuiltInRegistries.ITEM.getKey(drop.getItem());
-                // Skip air items (entities with empty or invalid loot tables)
-                if ("minecraft:air".equals(id.toString())) continue;
-                if (blacklist.contains(id)) continue;
+            lootTable.getRandomItems(params, random.nextLong(), drop -> {
+                if (drop.isEmpty()) return;
+                Identifier id = drop.getItem().builtInRegistryHolder().key().location();
+                if ("minecraft:air".equals(id.toString())) return;
+                if (blacklist.contains(id)) return;
                 counts.merge(id, drop.getCount(), Integer::sum);
-                totalDrops += drop.getCount();
-            }
+                totalDrops.addAndGet(drop.getCount());
+            });
         }
 
         rollEntity.discard();
 
-        if (totalDrops > 0) {
-            for (Map.Entry<ResourceLocation, Integer> entry : counts.entrySet()) {
-                int weight = Math.max(10, (entry.getValue() * 100) / totalDrops);
+        int total = totalDrops.get();
+        if (total > 0) {
+            for (Map.Entry<Identifier, Integer> entry : counts.entrySet()) {
+                int weight = Math.max(10, (entry.getValue() * 100) / total);
                 weight = ((weight + 5) / 10) * 10;
                 dropFrequencies.merge(entry.getKey(), weight, Integer::sum);
             }
@@ -466,32 +453,32 @@ public final class PlanetResourceGenerator {
     // === Helpers ===
 
     @Nullable
-    private static ResourceLocation pickRandomGemAmulet(RandomSource random) {
-        List<ResourceLocation> knownAmulets = List.of(
-            ResourceLocation.parse("anvilcraft:emerald_amulet"),
-            ResourceLocation.parse("anvilcraft:topaz_amulet"),
-            ResourceLocation.parse("anvilcraft:ruby_amulet"),
-            ResourceLocation.parse("anvilcraft:sapphire_amulet")
+    private static Identifier pickRandomGemAmulet(RandomSource random) {
+        List<Identifier> knownAmulets = List.of(
+            Identifier.parse("anvilcraft:emerald_amulet"),
+            Identifier.parse("anvilcraft:topaz_amulet"),
+            Identifier.parse("anvilcraft:ruby_amulet"),
+            Identifier.parse("anvilcraft:sapphire_amulet")
         );
         return knownAmulets.get(random.nextInt(knownAmulets.size()));
     }
 
     @Nullable
-    private static ResourceLocation pickRandomGemBlock(RandomSource random) {
-        List<ResourceLocation> knownBlocks = List.of(
-            ResourceLocation.parse("minecraft:emerald_block"),
-            ResourceLocation.parse("anvilcraft:topaz_block"),
-            ResourceLocation.parse("anvilcraft:ruby_block"),
-            ResourceLocation.parse("anvilcraft:sapphire_block")
+    private static Identifier pickRandomGemBlock(RandomSource random) {
+        List<Identifier> knownBlocks = List.of(
+            Identifier.parse("minecraft:emerald_block"),
+            Identifier.parse("anvilcraft:topaz_block"),
+            Identifier.parse("anvilcraft:ruby_block"),
+            Identifier.parse("anvilcraft:sapphire_block")
         );
         return knownBlocks.get(random.nextInt(knownBlocks.size()));
     }
 
-    private static Set<ResourceLocation> buildItemBlacklist(
+    private static Set<Identifier> buildItemBlacklist(
         HolderLookup.Provider registries,
         TagKey<Item> blacklistTag
     ) {
-        Set<ResourceLocation> blacklist = new HashSet<>();
+        Set<Identifier> blacklist = new HashSet<>();
         registries.lookupOrThrow(Registries.ITEM)
             .get(blacklistTag)
             .ifPresent(entries -> entries.forEach(

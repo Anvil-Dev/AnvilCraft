@@ -319,6 +319,6 @@ public record SpecialCelestialBodyRecipe(
     }
 
     private static Item resolveItem(Identifier id) {
-        return BuiltInRegistries.ITEM.get(id);
+        return BuiltInRegistries.ITEM.get(id).map(net.minecraft.core.Holder.Reference::value).orElse(Items.AIR);
     }
 }
