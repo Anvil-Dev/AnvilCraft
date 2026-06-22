@@ -19,13 +19,14 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 public record HasComponentCategory(
     ItemStackTemplate icon,
     Component name,
-    Map<DataComponentPredicate.Type<?>, DataComponentPredicate> predicates,
+    ImmutableMap<DataComponentPredicate.Type<?>, DataComponentPredicate> predicates,
     MatchType match
 ) implements ICategory {
     public static <T extends DataComponentPredicate> HasComponentCategory single(
@@ -37,7 +38,7 @@ public record HasComponentCategory(
         return new HasComponentCategory(
             new ItemStackTemplate(icon.asItem()),
             ICategory.constructName(suffix),
-            Map.of(type, predicate),
+            ImmutableMap.of(type, predicate),
             MatchType.AND
         );
     }
@@ -218,7 +219,9 @@ public record HasComponentCategory(
                 .fieldOf("name")
                 .forGetter(HasComponentCategory::name),
             DataComponentPredicate.CODEC
-                .optionalFieldOf("predicates", Map.of())
+                .xmap(HashMap::new, HashMap::new)
+                .xmap(ImmutableMap::copyOf, HashMap::new)
+                .optionalFieldOf("predicates", ImmutableMap.of())
                 .forGetter(HasComponentCategory::predicates),
             MatchType.CODEC
                 .optionalFieldOf("match_type", MatchType.OR)
@@ -230,7 +233,9 @@ public record HasComponentCategory(
             HasComponentCategory::icon,
             ComponentSerialization.STREAM_CODEC,
             HasComponentCategory::name,
-            DataComponentPredicate.STREAM_CODEC,
+            DataComponentPredicate.STREAM_CODEC
+                .map(HashMap::new, HashMap::new)
+                .map(ImmutableMap::copyOf, HashMap::new),
             HasComponentCategory::predicates,
             MatchType.STREAM_CODEC,
             HasComponentCategory::match,

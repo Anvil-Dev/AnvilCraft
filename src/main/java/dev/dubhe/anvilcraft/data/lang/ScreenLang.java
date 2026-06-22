@@ -214,5 +214,15 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools", "Add Netherite weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools", "Add Frost Metal weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
+
+        provider.add("screen.anvilcraft.storage.category.name", "Name: %s");
+        provider.add("screen.anvilcraft.storage.category.mode", "Mode: %s");
+        provider.add("screen.anvilcraft.storage.category.mode.unlimited", "Unlimited");
+        provider.add("screen.anvilcraft.storage.category.mode.allowlist", "Allow Display");
+        provider.add("screen.anvilcraft.storage.category.mode.blocklist", "Block Display");
+        provider.add("screen.anvilcraft.storage.category.tooltip", "Left click to move to alternates, right click to pin to top");
+        provider.add("screen.anvilcraft.storage.category.add", "Left click when holding Filter to add custom category");
+        provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to select, right click to delete this category");
+        provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to select");
     }
 }

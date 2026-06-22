@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.init;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
-import dev.dubhe.anvilcraft.saved.storage.category.Categories;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -27,13 +26,6 @@ public class ModDataAttachments {
         "zombificated_by_curse",
         () -> AttachmentType.builder(() -> false)
             .serialize(Codec.BOOL.fieldOf("zombificated_by_curse"))
-            .build()
-    );
-
-    public static final Supplier<AttachmentType<Categories>> CATEGORIES = ATTACHMENT_TYPES.register(
-        "categories",
-        () -> AttachmentType.builder(Categories::new)
-            .serialize(Categories.CODEC.fieldOf("categories"))
             .build()
     );
 

@@ -12,9 +12,17 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
+import java.util.Objects;
+
 public record FilterCategory(ItemStackTemplate icon, Component name, ItemStack filter) implements ICategory {
+    private static final Component DEFAULT_NAME = Component.translatable("category.anvilcraft.filter");
+
     public static FilterCategory from(ItemStack filter) {
-        return new FilterCategory(ItemStackTemplate.fromNonEmptyStack(filter), filter.getHoverName(), filter);
+        return new FilterCategory(ItemStackTemplate.fromNonEmptyStack(filter), FilterCategory.findNameFromFilter(filter), filter);
+    }
+
+    private static Component findNameFromFilter(ItemStack filter) {
+        return Objects.requireNonNullElse(filter.getCustomName(), FilterCategory.DEFAULT_NAME);
     }
 
     @Override
@@ -25,6 +33,19 @@ public record FilterCategory(ItemStackTemplate icon, Component name, ItemStack f
     @Override
     public Type getType() {
         return ModCategoryTypes.FILTER.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FilterCategory(ItemStackTemplate icon1, Component name1, ItemStack filter1))) return false;
+        return Objects.equals(this.name(), name1)
+               && ItemStack.isSameItemSameComponents(this.filter(), filter1)
+               && Objects.equals(this.icon(), icon1);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.icon(), this.name()) * 31 + ItemStack.hashItemAndComponents(this.filter());
     }
 
     public static class Type implements ICategory.Type<FilterCategory> {
