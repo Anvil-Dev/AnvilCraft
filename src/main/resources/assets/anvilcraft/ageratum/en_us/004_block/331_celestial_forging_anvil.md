@@ -60,7 +60,11 @@ After building the correct structure, <ref item="anvilcraft:celestial_forging_an
 4. Repeated searching will bind to the same type of celestial body, but the specific material composition will change
 
 <info>
-For the correct parameter combinations, see [Celestial Types](../001_feature/331_celestial_type.md)
+In the GUI, you can use the **mouse wheel** to conveniently adjust the four parameters
+In the center of the GUI, you can check whether a star can be searched based on the legend:
+  - For non-star celestial bodies, only the intersection of the lower-left and upper-right diagrams needs to correspond to the same non-star type
+  - For stellar celestial bodies, the intersection of three diagrams needs to correspond to the same stellar category
+For more information, see [Celestial Types](../001_feature/331_celestial_type.md)
 </info>
 
 # Extracting Celestial Resources
@@ -82,6 +86,10 @@ To remove a mega structure, simply unbind and rebind the planet
 
 - Can hold 16 types of items, each up to 1 stack
 - When receiving a redstone signal, actively tries to output items forward
+
+<warning>
+In some cases, a large number of the same item may be output. If there are not enough <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>, items may be lost
+</warning>
 
 ### <ref item="anvilcraft:celestial_forging_anvil_fluid_interface"/>
 
@@ -132,6 +140,7 @@ Note that even with a level 64 laser input into one interface, it still counts a
 
 <info>
 *Temple* inputs are items as divine blessings or punishments to maintain the faith of low-level civilizations. Item requirements are updated every MC day (cycling in the order of two blessings followed by one punishment)
+After inputting items, the civilization will continue to offer worship until the next MC day. Therefore, it is not recommended to provide items at night, as the civilization always stops worship at dawn, at which point blessings or punishments must be given again
 </info>
 
 ## Stellar Mega Structures
@@ -142,16 +151,12 @@ Note that even with a level 64 laser input into one interface, it still counts a
 |        Mega Structure         |    Construction Condition    |     Input     |                                                                                                             Output/Effect                                                                                                             |
 |:-----------------------------:|:----------------------------:|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |         Ring Collider         |          Small star          |   Power 4MW   | Executes [Anvil Impact Crafting](215_large_electromagnet.md#anvil-impact-crafting) recipes. The stronger the star's gravity and magnetic field, the faster it works; the higher the speed required by the recipe, the slower it works |
-|         Dyson Sphere          |             Star             |   Power 4MW   |                                                           Continuously generates power. Power output is positively correlated with the celestial body's *energy* and *size*                                                           |
+|         Dyson Sphere          |             Star             |     None      |                                                           Continuously generates power. Power output is positively correlated with the celestial body's *temperature* and *radius*                                                           |
 | Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                                                     Accelerates stellar evolution                                                                                                     |
 |         Magnetar Coil         |         Neutron star         |   Power 4MW   |                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                              |
-|      Matter Decompressor      |   Neutron star, black hole   | *Gamma Laser* |                                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole)                                                                 |
-|        Penrose Sphere         |          Black hole          |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
 |      Wormhole Stabilizer      |          Black hole          |     None      |                                                                                                      [Wormhole](332_wormhole.md)                                                                                                      |
-
-<info>
-**Small star**: Visually, a celestial body with 3 beam rings
-</info>
+|        Penrose Sphere         |          Black hole          |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
+|      Matter Decompressor      |   Neutron star, black hole   | *Gamma Laser* |                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole). Each level of *Gamma Laser* doubles efficiency                                                |
 
 <info>
 *Penrose Sphere* input and output [Lasers](201_basic_laser.md#laser) must be grouped on the same side of the forging anvil, using the left and right <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>

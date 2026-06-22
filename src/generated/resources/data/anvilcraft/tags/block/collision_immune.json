@@ -1,6 +1,7 @@
 {
   "values": [
     "anvilcraft:transcendence_anvil",
+    "anvilcraft:infinite_collector",
     "anvilcraft:celestial_forging_anvil",
     "anvilcraft:celestial_forging_anvil_portal",
     "anvilcraft:transcendium_block",
@@ -10,7 +11,6 @@
     "anvilcraft:confined_energy_anvilon",
     "anvilcraft:confined_neutronium_ingot",
     "anvilcraft:confinement_chamber",
-    "anvilcraft:singularity_crystal",
-    "anvilcraft:infinite_collector"
+    "anvilcraft:singularity_crystal"
   ]
 }

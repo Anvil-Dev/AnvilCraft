@@ -15,6 +15,8 @@ items:
 # Function
 
 - Right-click with <ref item="anvilcraft:heliostats"/> in hand to bind to a block, then place it. Uses sunlight to heat the bound block and the block above it, effectively heating two [heatable blocks](../001_feature/101_heated_block.md) at once
+- Right-click a placed <ref item="anvilcraft:heliostats"/> that has an illumination target with an unconfigured <ref item="anvilcraft:heliostats"/> item to copy the target to the item
+- Right-click a placed <ref item="anvilcraft:heliostats"/> without an illumination target with a configured <ref item="anvilcraft:heliostats"/> item to set the target on the placed block
 
 <info>
 If 64 <ref item="anvilcraft:heliostats"/> are used, the heat generated can be converted to 512kW of power
