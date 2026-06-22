@@ -29,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
@@ -950,15 +951,22 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             int placerY = upsideDown ? 4 : 0;
             previewLevelLike.setBlockState(
                 new BlockPos(2, placerY - 2, 7),
-                blockState.getBlock().defaultBlockState()
-                    .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
-                    .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
+                blockState.setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
             );
 
             var rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(structure);
+            int sizeX = structure.diskData.sizeX();
+            int sizeZ = structure.diskData.sizeZ();
             for (var bp : rotatedData.blocks) {
-                int renderY = bp.y();
-                previewLevelLike.setBlockState(new BlockPos(bp.x(), renderY - 2, bp.z() + 1), bp.state());
+                int renderX = upsideDown ? (sizeX - 1 - bp.x()) : bp.x();
+                int renderZ = upsideDown ? (sizeZ - bp.z()) : (bp.z() + 1);
+                int renderY = upsideDown ? (2 - bp.y()) : (bp.y() - 2);
+                BlockState state = bp.state();
+                if (upsideDown) {
+                    state = state.rotate(Rotation.CLOCKWISE_180);
+                    state = SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(state);
+                }
+                previewLevelLike.setBlockState(new BlockPos(renderX, renderY, renderZ), state);
             }
         } else {
             // 普通模式：显示 UI 中的选区模式（不读取世界方块）
@@ -970,9 +978,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             int placerY = upsideDown ? 4 : 0;
             previewLevelLike.setBlockState(
                 new BlockPos(2, placerY - 2, 7),
-                blockState.getBlock().defaultBlockState()
-                    .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
-                    .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
+                blockState.setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
             );
 
             for (Map.Entry<Integer, Set<Integer>> entry : this.layerPositions.entrySet()) {

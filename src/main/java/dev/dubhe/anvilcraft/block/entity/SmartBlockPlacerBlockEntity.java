@@ -1280,13 +1280,22 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                     // 可堆叠方块：检查容器中是否有足够的数量
                     int availableCount = this.countBlockItemInContainer(level, pos, requiredBlock);
                     if (availableCount < stackCount) {
-                        // 数量不足，跳过
+                        // 数量不足，停止模式下不前扫
+                        if (!this.isSkipMissingMode) {
+                            this.currentHeldBlock = ItemStack.EMPTY;
+                            return;
+                        }
                         continue;
                     }
                 } else {
                     // 普通方块：检查是否有物品
                     ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
                     if (blockItem.isEmpty()) {
+                        // 停止模式下不前扫
+                        if (!this.isSkipMissingMode) {
+                            this.currentHeldBlock = ItemStack.EMPTY;
+                            return;
+                        }
                         continue;
                     }
                     this.currentHeldBlock = blockItem.copy();
@@ -1342,6 +1351,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                         this.currentHeldBlock = sourceItem.copy();
                         return;
                     }
+                }
+
+                // 停止模式：源方块与当前位置不匹配时，不前扫
+                if (!this.isSkipMissingMode) {
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    return;
                 }
             }
         }
