@@ -5,8 +5,7 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.core.Direction;
 
 /**
- * Render state for Celestial Forging Anvil portal.
- * Phase 9 TODO: implement full portal rendering with gate open/close animation.
+ * Render state for Celestial Forging Anvil portal gate model.
  */
 public class PortalRenderState extends BlockEntityRenderState {
     private boolean open;

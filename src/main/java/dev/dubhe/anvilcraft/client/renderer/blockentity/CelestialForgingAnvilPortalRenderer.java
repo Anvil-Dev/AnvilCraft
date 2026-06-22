@@ -21,8 +21,8 @@ import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Phase 9 TODO: implement full portal gate rendering with open/close animation.
- * Currently renders as a simple placeholder.
+ * Renders the wormhole portal gate model with open/close states.
+ * Uses 26.1 standalone model keys and submit-based rendering.
  */
 public class CelestialForgingAnvilPortalRenderer
     implements BlockEntityRenderer<CelestialForgingAnvilPortalBlockEntity, PortalRenderState> {
@@ -63,8 +63,21 @@ public class CelestialForgingAnvilPortalRenderer
     @Override
     public void submit(PortalRenderState state, PoseStack pose, SubmitNodeCollector collector,
                        CameraRenderState camera) {
-        // Phase 9 TODO: implement gate model rendering with direction rotation
-        // For now, the gate is invisible (placeholder)
+        var model = state.isOpen() ? state.getGateOpenModel() : state.getGateModel();
+        if (model == null) return;
+        pose.pushPose();
+        pose.translate(0.5, 0.94375, 0.5);
+        float yrot = switch (state.getFacing()) {
+            case NORTH -> 0;
+            case SOUTH -> 180;
+            case EAST -> 270;
+            case WEST -> 90;
+            default -> 0;
+        };
+        pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(yrot));
+        pose.translate(-0.5, 0, -0.5);
+        model.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        pose.popPose();
     }
 
     @Override

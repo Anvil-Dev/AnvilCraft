@@ -141,8 +141,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Delegates to ExcavatorHandler.
      */
     public boolean isExcavatorLaserActive() {
-        // TODO Phase 9: implement excavator laser state tracking
-        return false;
+        ExcavatorHandler h = megastructureManager.findHandler(ExcavatorHandler.class);
+        return h != null && h.isLaserActive();
     }
 
     /**
@@ -150,8 +150,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Delegates to PenroseSphereHandler.
      */
     public boolean isPenroseSphereLaserActive() {
-        // TODO Phase 9: implement penrose sphere laser state tracking
-        return false;
+        PenroseSphereHandler h = megastructureManager.findHandler(PenroseSphereHandler.class);
+        return h != null && h.isLaserActive();
     }
 
     // === Wormhole Stabilizer state ===
