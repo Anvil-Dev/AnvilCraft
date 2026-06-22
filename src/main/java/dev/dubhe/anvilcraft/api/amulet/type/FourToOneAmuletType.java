@@ -40,8 +40,8 @@ public class FourToOneAmuletType extends AmuletType {
     @Override
     public void inventoryTick(ServerPlayer player, ItemStack amulet, boolean isEnabled) {
         for (AmuletType type : this.types) {
-            type.inventoryTick(player, amulet, isEnabled ||
-                AmuletManager.INSTANCE.getAmuletsFromInventory(player).entries().stream()
+            type.inventoryTick(player, amulet, isEnabled
+                || AmuletManager.INSTANCE.getAmuletsFromInventory(player).entries().stream()
                     .anyMatch(entry -> entry.getKey().value().equals(type)));
         }
     }
