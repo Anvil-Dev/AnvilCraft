@@ -2,10 +2,13 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
+import dev.dubhe.anvilcraft.block.state.Orientation;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -14,6 +17,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
 
@@ -71,7 +76,7 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
      * 泵是否能实际泵送流体（启用 + 电网有电）
      */
     public boolean canPump() {
-        return working && grid != null && grid.isWorking();
+        return this.working && this.grid != null && this.grid.isWorking();
     }
 
     // ---- NBT ----
@@ -134,5 +139,30 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
                 entity.sendUpdate();
             }
         }
+        Orientation orientation = updatedState.getValue(PumpBlock.ORIENTATION);
+        Direction sourceDir = orientation.getDirection();
+        BlockPos sourcePos = pos.relative(sourceDir);
+        if (level.getBlockState(sourcePos).getBlock() instanceof PipeBlock || !entity.canPump()) {
+            return;
+        }
+        Direction targetCurDir = sourceDir.getOpposite();
+        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, sourcePos, targetCurDir);
+        if (fluidHandler == null) return;
+        PipeEnd pumpEnd = getPipeEnd(level, pos, sourceDir);
+        BlockPos targetCurPos = pos;
+        int effectiveHeight = 0;
+        if (pumpEnd != null) {
+            targetCurPos = pumpEnd.pos();
+            targetCurDir = pumpEnd.direction();
+            effectiveHeight = pumpEnd.effectiveHeight();
+        }
+        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+            level,
+            pos,
+            sourceDir,
+            targetCurPos,
+            targetCurDir,
+            effectiveHeight
+        );
     }
 }
