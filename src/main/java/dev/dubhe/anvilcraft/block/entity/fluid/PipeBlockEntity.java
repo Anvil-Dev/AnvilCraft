@@ -104,80 +104,16 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                 Direction negDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
 
                 // 检查端头指向的方块是否是泵，若是则透传追踪
-                BlockPos sourceCurPos = pos;
-                Direction sourceCurDir = posDir;
-                BlockPos targetCurPos = pos;
-                Direction targetCurDir = negDir;
-                int effectiveHeight = 0;
-
-                BlockPos sourceNeighbor = pos.relative(posDir);
-                if (level.getBlockState(sourceNeighbor).getBlock() instanceof PumpBlock) {
-                    PipeEnd pumpEnd = getPipeEnd(level, sourceNeighbor, posDir);
-                    if (pumpEnd != null) {
-                        sourceCurPos = pumpEnd.pos();
-                        sourceCurDir = pumpEnd.direction();
-                        effectiveHeight = pumpEnd.effectiveHeight();
-                    }
-                }
-
-                BlockPos targetNeighbor = pos.relative(negDir);
-                if (level.getBlockState(targetNeighbor).getBlock() instanceof PumpBlock) {
-                    PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, negDir);
-                    if (pumpEnd != null) {
-                        targetCurPos = pumpEnd.pos();
-                        targetCurDir = pumpEnd.direction();
-                        effectiveHeight = pumpEnd.effectiveHeight();
-                    }
-                }
-
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                    level,
-                    sourceCurPos,
-                    sourceCurDir,
-                    targetCurPos,
-                    targetCurDir,
-                    effectiveHeight
-                );
+                tickEndCount2(level, pos, posDir, negDir);
+                tickEndCount2(level, pos, negDir, posDir);
             } else {
                 // 弯管两端端头
                 PipeBlock.CornerEnded cornerEnded = state.getValue(PipeCornerBlock.CORNER_ENDED);
                 Direction firstDir = cornerEnded.getFirstDirection();
                 Direction secondDir = cornerEnded.getSecondDirection();
 
-                BlockPos sourceCurPos = pos;
-                Direction sourceCurDir = firstDir;
-                BlockPos targetCurPos = pos;
-                Direction targetCurDir = secondDir;
-                int effectiveHeight = 0;
-
-                BlockPos sourceNeighbor = pos.relative(firstDir);
-                if (level.getBlockState(sourceNeighbor).getBlock() instanceof PumpBlock) {
-                    PipeEnd pumpEnd = getPipeEnd(level, sourceNeighbor, firstDir);
-                    if (pumpEnd != null) {
-                        sourceCurPos = pumpEnd.pos();
-                        sourceCurDir = pumpEnd.direction();
-                        effectiveHeight = pumpEnd.effectiveHeight();
-                    }
-                }
-
-                BlockPos targetNeighbor = pos.relative(secondDir);
-                if (level.getBlockState(targetNeighbor).getBlock() instanceof PumpBlock) {
-                    PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, secondDir);
-                    if (pumpEnd != null) {
-                        targetCurPos = pumpEnd.pos();
-                        targetCurDir = pumpEnd.direction();
-                        effectiveHeight = pumpEnd.effectiveHeight();
-                    }
-                }
-
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                    level,
-                    sourceCurPos,
-                    sourceCurDir,
-                    targetCurPos,
-                    targetCurDir,
-                    effectiveHeight
-                );
+                tickEndCount2(level, pos, firstDir, secondDir);
+                tickEndCount2(level, pos, secondDir, firstDir);
             }
             return;
         }
@@ -211,6 +147,36 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
             pipeEnd.pos(),
             pipeEnd.direction(),
             pipeEnd.effectiveHeight()
+        );
+    }
+
+    private static void tickEndCount2(Level level, BlockPos pos, Direction posDir, Direction negDir) {
+        BlockPos targetCurPos = pos;
+        Direction targetCurDir = negDir;
+        int effectiveHeight = 0;
+
+        BlockPos sourceNeighbor = pos.relative(posDir);
+        if (level.getBlockState(sourceNeighbor).getBlock() instanceof PumpBlock) {
+            return;
+        }
+
+        BlockPos targetNeighbor = pos.relative(negDir);
+        if (level.getBlockState(targetNeighbor).getBlock() instanceof PumpBlock) {
+            PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, negDir.getOpposite());
+            if (pumpEnd != null) {
+                targetCurPos = pumpEnd.pos();
+                targetCurDir = pumpEnd.direction();
+                effectiveHeight = pumpEnd.effectiveHeight();
+            }
+        }
+
+        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+            level,
+            pos,
+            posDir,
+            targetCurPos,
+            targetCurDir,
+            effectiveHeight
         );
     }
 }
