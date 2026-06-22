@@ -1,14 +1,17 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceRecipe;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,14 +33,13 @@ public class PlanetResourceRecipeLoader {
 
     private static void saveRecipe(RecipeOutput output, String name, PlanetResourceRecipe recipe) {
         Identifier id = AnvilCraft.of("planet_resource/" + name);
+        ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, id);
         Advancement.Builder advancement = output.advancement()
-            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-            .rewards(AdvancementRewards.Builder.recipe(id))
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+            .rewards(AdvancementRewards.Builder.recipe(key))
             .requirements(AdvancementRequirements.Strategy.OR);
-        output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
+        output.accept(key, recipe, advancement.build(id.withPrefix("recipes/")));
     }
-
-    // === Mineral ===
 
     private static void createMineralRecipe(RegistrumRecipeProvider provider) {
         saveRecipe(provider, "mineral", new PlanetResourceRecipe(
@@ -48,8 +50,6 @@ public class PlanetResourceRecipeLoader {
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
         ));
     }
-
-    // === Fluids ===
 
     private static void createFluidRecipes(RegistrumRecipeProvider provider) {
         saveRecipe(provider, "fluid_water", new PlanetResourceRecipe(
@@ -71,8 +71,6 @@ public class PlanetResourceRecipeLoader {
         ));
     }
 
-    // === Giant planet items ===
-
     private static void createGiantItemRecipes(RegistrumRecipeProvider provider) {
         saveRecipe(provider, "giant_item_ice", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.GIANT_ITEM,
@@ -87,8 +85,6 @@ public class PlanetResourceRecipeLoader {
             Optional.empty(), Optional.empty(), Optional.empty()
         ));
     }
-
-    // === Giant planet fluids ===
 
     private static void createGiantFluidRecipes(RegistrumRecipeProvider provider) {
         saveRecipe(provider, "giant_fluid_gas", new PlanetResourceRecipe(
@@ -117,8 +113,6 @@ public class PlanetResourceRecipeLoader {
         ));
     }
 
-    // === Biological ===
-
     private static void createBiologicalRecipe(RegistrumRecipeProvider provider) {
         saveRecipe(provider, "biological", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.BIOLOGICAL,
@@ -137,8 +131,6 @@ public class PlanetResourceRecipeLoader {
         ));
     }
 
-    // === Offering ===
-
     private static void createOfferingRecipe(RegistrumRecipeProvider provider) {
         saveRecipe(provider, "offering", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.OFFERING,
@@ -156,8 +148,6 @@ public class PlanetResourceRecipeLoader {
             Optional.empty()
         ));
     }
-
-    // === Wasteland ===
 
     private static void createWastelandRecipe(RegistrumRecipeProvider provider) {
         saveRecipe(provider, "wasteland", new PlanetResourceRecipe(

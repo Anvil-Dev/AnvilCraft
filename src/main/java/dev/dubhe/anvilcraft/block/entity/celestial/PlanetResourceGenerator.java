@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipesRecord;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -41,15 +43,6 @@ public final class PlanetResourceGenerator {
 
     private PlanetResourceGenerator() {}
 
-    /**
-     * Generate resources for the given celestial body.
-     *
-     * @param body           the matched celestial body
-     * @param ageAnvilCount  the "time" anvil count (represents age in billion years)
-     * @param level          the server level (for recipe manager and loot table access)
-     * @param seed           deterministic seed for random generation
-     * @return the generated resource set, never null
-     */
     @SuppressWarnings("checkstyle:MissingSwitchDefault")
     public static PlanetaryResourceSet generate(
         CelestialBodyData body,
@@ -59,15 +52,15 @@ public final class PlanetResourceGenerator {
     ) {
         PlanetaryResourceSet set = new PlanetaryResourceSet();
         RandomSource random = RandomSource.create(seed);
-        RecipeManager recipeManager = level.getRecipeManager();
+        if (!(level instanceof ServerLevel serverLevel)) return set;
 
-        List<PlanetResourceRecipe> recipes = recipeManager.getAllRecipesFor(
-            ModRecipeTypes.PLANET_RESOURCE.get()
-        ).stream().map(RecipeHolder::value).toList();
+        List<PlanetResourceRecipe> recipes = new ArrayList<>();
+        for (RecipeHolder<PlanetResourceRecipe> holder : RecipesRecord.getRecipes(serverLevel).byType(ModRecipeTypes.PLANET_RESOURCE.get())) {
+            recipes.add(holder.value());
+        }
 
         PlanetResourceInput input = new PlanetResourceInput(body, ageAnvilCount);
 
-        // Collect recipes by category
         PlanetResourceRecipe mineralRecipe = null;
         List<PlanetResourceRecipe> fluidRecipes = new ArrayList<>();
         List<PlanetResourceRecipe> giantItemRecipes = new ArrayList<>();
@@ -79,34 +72,26 @@ public final class PlanetResourceGenerator {
         for (PlanetResourceRecipe recipe : recipes) {
             if (!recipe.matches(input, level)) continue;
             switch (recipe.category()) {
-                case MINERAL -> { if (mineralRecipe == null) mineralRecipe = recipe;
-                }
+                case MINERAL -> { if (mineralRecipe == null) mineralRecipe = recipe; }
                 case FLUID -> fluidRecipes.add(recipe);
                 case GIANT_ITEM -> giantItemRecipes.add(recipe);
                 case GIANT_FLUID -> giantFluidRecipes.add(recipe);
-                case BIOLOGICAL -> { if (biologicalRecipe == null) biologicalRecipe = recipe;
-                }
-                case OFFERING -> { if (offeringRecipe == null) offeringRecipe = recipe;
-                }
-                case WASTELAND -> { if (wastelandRecipe == null) wastelandRecipe = recipe;
-                }
+                case BIOLOGICAL -> { if (biologicalRecipe == null) biologicalRecipe = recipe; }
+                case OFFERING -> { if (offeringRecipe == null) offeringRecipe = recipe; }
+                case WASTELAND -> { if (wastelandRecipe == null) wastelandRecipe = recipe; }
             }
         }
 
-        // Generate based on body type
         if (body instanceof RockyPlanetData rocky) {
             generateMinerals(set, mineralRecipe, level.registryAccess(), random);
             generateFluids(set, fluidRecipes, rocky);
 
-            boolean lifeEligible = isLifeEligible(rocky);
-            boolean hasCivilization;
-
-            if (lifeEligible) {
+            if (isLifeEligible(rocky)) {
                 int lifeChance = getLifeChance(rocky, biologicalRecipe);
                 boolean lifeExists = lifeChance > 0 && random.nextInt(100) < lifeChance;
 
                 if (lifeExists) {
-                    hasCivilization = tryCivilization(set, offeringRecipe, rocky, ageAnvilCount, random);
+                    boolean hasCivilization = tryCivilization(set, offeringRecipe, rocky, ageAnvilCount, random);
                     if (hasCivilization) {
                         set.setHasCivilization();
                     } else {
@@ -123,8 +108,6 @@ public final class PlanetResourceGenerator {
 
         return set;
     }
-
-    // === Minerals ===
 
     private static void generateMinerals(
         PlanetaryResourceSet set,
@@ -143,14 +126,14 @@ public final class PlanetResourceGenerator {
         registries.lookupOrThrow(Registries.ITEM)
             .get(blacklistTag)
             .ifPresent(entries -> entries.forEach(
-                holder -> blacklist.add(holder.unwrapKey().orElseThrow().location())
+                holder -> blacklist.add(holder.unwrapKey().orElseThrow().identifier())
             ));
 
         List<Identifier> candidates = new ArrayList<>();
         registries.lookupOrThrow(Registries.ITEM)
             .get(sourceTag)
             .ifPresent(entries -> entries.forEach(holder -> {
-                Identifier id = holder.unwrapKey().orElseThrow().location();
+                Identifier id = holder.unwrapKey().orElseThrow().identifier();
                 if (!blacklist.contains(id)) {
                     candidates.add(id);
                 }
@@ -168,16 +151,12 @@ public final class PlanetResourceGenerator {
             if (maxSteps <= 0) break;
             int steps = 1 + random.nextInt(maxSteps);
             int weight = steps * step;
-            if (sum + weight > 100) {
-                weight = remaining;
-            }
+            if (sum + weight > 100) weight = remaining;
             if (weight <= 0) continue;
             set.addMineral(new PlanetaryResourceSet.WeightedItemStack(candidate, weight));
             sum += weight;
         }
     }
-
-    // === Fluids (rocky planets) ===
 
     private static void generateFluids(PlanetaryResourceSet set, List<PlanetResourceRecipe> recipes, RockyPlanetData rocky) {
         boolean isScorched = rocky.temperature() == Temperature.SCORCHED;
@@ -193,45 +172,27 @@ public final class PlanetResourceGenerator {
         }
     }
 
-    // === Giant planet items ===
-
-    private static void generateGiantItems(
-        PlanetaryResourceSet set,
-        List<PlanetResourceRecipe> recipes,
-        RandomSource random
-    ) {
+    private static void generateGiantItems(PlanetaryResourceSet set, List<PlanetResourceRecipe> recipes, RandomSource random) {
         for (PlanetResourceRecipe recipe : recipes) {
             PlanetResourceRecipe.GiantData gd = recipe.giantData();
             if (gd != null) {
                 for (PlanetResourceRecipe.WeightedEntry entry : gd.entries()) {
-                    set.addGiantItem(new PlanetaryResourceSet.WeightedItemStack(
-                        entry.resourceId(), entry.weight()
-                    ));
+                    set.addGiantItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
                 }
             }
         }
     }
 
-    // === Giant planet fluids ===
-
-    private static void generateGiantFluids(
-        PlanetaryResourceSet set,
-        List<PlanetResourceRecipe> recipes,
-        RandomSource random
-    ) {
+    private static void generateGiantFluids(PlanetaryResourceSet set, List<PlanetResourceRecipe> recipes, RandomSource random) {
         for (PlanetResourceRecipe recipe : recipes) {
             PlanetResourceRecipe.GiantData gd = recipe.giantData();
             if (gd != null) {
                 for (PlanetResourceRecipe.WeightedEntry entry : gd.entries()) {
-                    set.addGiantFluid(new PlanetaryResourceSet.WeightedFluidStack(
-                        entry.resourceId(), entry.weight()
-                    ));
+                    set.addGiantFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), entry.weight()));
                 }
             }
         }
     }
-
-    // === Life prerequisites ===
 
     private static boolean isLifeEligible(RockyPlanetData rocky) {
         if (rocky.liquidCoverage() == LiquidCoverage.NONE) return false;
@@ -254,8 +215,6 @@ public final class PlanetResourceGenerator {
             default -> 0;
         };
     }
-
-    // === Civilization (offerings) ===
 
     private static boolean tryCivilization(
         PlanetaryResourceSet set,
@@ -289,8 +248,6 @@ public final class PlanetResourceGenerator {
         }
         return true;
     }
-
-    // === Biological resources (life already confirmed by caller) ===
 
     private static void tryBiologicalLifeConfirmed(
         PlanetaryResourceSet set,
@@ -338,9 +295,7 @@ public final class PlanetResourceGenerator {
                 if (maxSteps <= 0) break;
                 int steps = 1 + random.nextInt(maxSteps);
                 int weight = steps * step;
-                if (sum + weight > 100) {
-                    weight = remaining;
-                }
+                if (sum + weight > 100) weight = remaining;
                 if (weight <= 0) continue;
                 set.addBiologicalItem(new PlanetaryResourceSet.WeightedItemStack(candidate.getKey(), weight));
                 sum += weight;
@@ -350,15 +305,11 @@ public final class PlanetResourceGenerator {
         if (rocky.temperature() == Temperature.MILD && !isHighCoverage) {
             for (PlanetResourceRecipe.WeightedEntry entry : bd.mildExtraFluids()) {
                 if (random.nextInt(100) < entry.weight()) {
-                    set.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(
-                        entry.resourceId(), 100
-                    ));
+                    set.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), 100));
                 }
             }
         }
     }
-
-    // === Wasteland ===
 
     private static void tryWasteland(
         PlanetaryResourceSet set,
@@ -376,18 +327,10 @@ public final class PlanetResourceGenerator {
 
         set.setWasteland();
         for (PlanetResourceRecipe.WeightedEntry entry : wd.entries()) {
-            set.addWastelandItem(new PlanetaryResourceSet.WeightedItemStack(
-                entry.resourceId(), entry.weight()
-            ));
+            set.addWastelandItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
         }
     }
 
-    // === Entity drop collection ===
-
-    /**
-     * Simulate an entity's loot table and collect drop frequencies into the given map.
-     * Entities with empty loot tables or only air drops are skipped (no entries added).
-     */
     private static void collectEntityDropFrequencies(
         EntityType<?> entityType,
         Level level,
@@ -397,7 +340,7 @@ public final class PlanetResourceGenerator {
     ) {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
-        Entity entity = entityType.create(serverLevel);
+        Entity entity = entityType.create(serverLevel, EntitySpawnReason.COMMAND);
         if (!(entity instanceof LivingEntity living)) {
             if (entity != null) entity.discard();
             return;
@@ -410,7 +353,7 @@ public final class PlanetResourceGenerator {
             .reloadableRegistries()
             .getLootTable(lootTableKey);
 
-        Entity rollEntity = entityType.create(serverLevel);
+        Entity rollEntity = entityType.create(serverLevel, EntitySpawnReason.COMMAND);
         if (!(rollEntity instanceof LivingEntity rollLiving)) {
             if (rollEntity != null) rollEntity.discard();
             return;
@@ -430,7 +373,7 @@ public final class PlanetResourceGenerator {
 
             lootTable.getRandomItems(params, random.nextLong(), drop -> {
                 if (drop.isEmpty()) return;
-                Identifier id = drop.getItem().builtInRegistryHolder().key().location();
+                Identifier id = drop.getItem().builtInRegistryHolder().key().identifier();
                 if ("minecraft:air".equals(id.toString())) return;
                 if (blacklist.contains(id)) return;
                 counts.merge(id, drop.getCount(), Integer::sum);
@@ -449,8 +392,6 @@ public final class PlanetResourceGenerator {
             }
         }
     }
-
-    // === Helpers ===
 
     @Nullable
     private static Identifier pickRandomGemAmulet(RandomSource random) {
@@ -482,7 +423,7 @@ public final class PlanetResourceGenerator {
         registries.lookupOrThrow(Registries.ITEM)
             .get(blacklistTag)
             .ifPresent(entries -> entries.forEach(
-                holder -> blacklist.add(holder.unwrapKey().orElseThrow().location())
+                holder -> blacklist.add(holder.unwrapKey().orElseThrow().identifier())
             ));
         return blacklist;
     }

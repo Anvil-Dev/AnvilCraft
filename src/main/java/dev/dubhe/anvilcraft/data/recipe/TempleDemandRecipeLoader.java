@@ -1,21 +1,22 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
-import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.List;
 
 /**
  * Data generation loader for temple demand recipes.
- * These are global fallback demands that apply to all bodies without
- * body-specific demands defined in their SpecialCelestialBodyRecipe.
  */
 public class TempleDemandRecipeLoader {
 
@@ -26,11 +27,12 @@ public class TempleDemandRecipeLoader {
 
     private static void saveRecipe(RecipeOutput output, String name, TempleDemandRecipe recipe) {
         Identifier id = AnvilCraft.of("temple_demand/" + name);
+        ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, id);
         Advancement.Builder advancement = output.advancement()
-            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-            .rewards(AdvancementRewards.Builder.recipe(id))
+            .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key))
+            .rewards(AdvancementRewards.Builder.recipe(key))
             .requirements(AdvancementRequirements.Strategy.OR);
-        output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
+        output.accept(key, recipe, advancement.build(id.withPrefix("recipes/")));
     }
 
     private static void createBlessingRecipe(RegistrumRecipeProvider provider) {
