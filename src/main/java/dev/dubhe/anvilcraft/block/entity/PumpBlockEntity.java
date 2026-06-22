@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
 public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerConsumer, IFluidHandlerHolder {
 
     private static final int PUMP_POWER = 32;   // 32 kW 电力消耗
-    private static final int PUMP_HEAD = 10;    // 10 米扬程
+    public static final int PUMP_HEADLIFT = 10;    // 10 米扬程
 
     private @Nullable PowerGrid grid;
     private boolean working;
@@ -100,7 +100,7 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     /**
      * 泵是否能实际泵送流体（启用 + 电网有电）
      */
-    private boolean canPump() {
+    public boolean canPump() {
         return working && grid != null && grid.isWorking();
     }
 
@@ -126,7 +126,7 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
         @Override
         public int getTankCapacity(int tank) {
             if (!canPump()) return 0;
-            return PUMP_HEAD * 50; // 500 mB/tick = 10m × 50 mB/tick/m
+            return PUMP_HEADLIFT * 50; // 500 mB/tick = 10m × 50 mB/tick/m
         }
 
         @Override
@@ -245,7 +245,6 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
 
         // 实际泵送需要启用状态 + 电网供电
         boolean canPump = entity.working && gridPowered;
-        entity.heightBonus = canPump ? PUMP_HEAD : 0;
 
         // 主动流体中转：从输入端抽取流体，注入输出端
         int transferred = 0;
@@ -258,7 +257,7 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
             IFluidHandler outputHandler = entity.getNeighborFluidHandler(outputDir);
 
             if (inputHandler != null && outputHandler != null) {
-                int maxTransfer = PUMP_HEAD * 50; // 500 mB/tick
+                int maxTransfer = PUMP_HEADLIFT * 50; // 500 mB/tick
                 entity.transferring = true;
                 try {
                     FluidStack drained = inputHandler.drain(maxTransfer, IFluidHandler.FluidAction.SIMULATE);

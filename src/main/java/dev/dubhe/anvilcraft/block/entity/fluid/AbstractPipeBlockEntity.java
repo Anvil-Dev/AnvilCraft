@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
+import dev.dubhe.anvilcraft.block.PumpBlock;
+import dev.dubhe.anvilcraft.block.entity.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
@@ -36,46 +38,14 @@ import javax.annotation.Nullable;
  * 限制流速（每格高度差 50 mB/tick）。
  *
  * <h3>等效高度（Effective Height）</h3>
- * 每个管道 BlockEntity 持有一个 {@link #heightBonus} 字段，
  * 代表该段管道的等效高度偏移（泵可增大此值实现扬程）。
  * 流体传输和 PipeEnd 排序均以 {@code pos.getY() + heightBonus} 作为等效高度，
  * 而非真实 Y 坐标。
  */
 @Getter
 public abstract class AbstractPipeBlockEntity extends BlockEntity {
-
-    /**
-     * 本段管道的等效高度偏移。泵等设备可设置为正值以实现扬程。
-     * 最终等效高度 = {@code getBlockPos().getY() + heightBonus}。
-     */
-    protected int heightBonus;
-
     protected AbstractPipeBlockEntity(BlockEntityType<? extends AbstractPipeBlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-    }
-
-    /**
-     * 本段管道的等效高度
-     *
-     * @return 本段管道的等效高度（真实Y + 偏移）
-     */
-    public int getEffectiveHeight() {
-        return this.getBlockPos().getY() + this.heightBonus;
-    }
-
-    /**
-     * 设置本段管道的等效高度偏移。
-     *
-     * @param bonus 偏移量（正值提高等效高度，实现扬程）
-     */
-    public void setHeightBonus(int bonus) {
-        if (this.heightBonus != bonus) {
-            this.heightBonus = bonus;
-            this.setChanged();
-            if (this.level != null && !this.level.isClientSide()) {
-                this.sendUpdate();
-            }
-        }
     }
 
     /**
@@ -115,20 +85,25 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         }
         BlockState blockState = level.getBlockState(blockPos);
 
-        // 累加当前位置管道的高度偏移
-        int bonus = 0;
-        if (level.getBlockEntity(blockPos) instanceof AbstractPipeBlockEntity pipeBe) {
-            bonus = pipeBe.getHeightBonus();
-        }
-
         if (blockState.getBlock() instanceof PipeNodeBlock) {
-            return new PipeEnd(blockPos.relative(direction.getOpposite()), direction, accumulatedHeight + bonus + blockPos.getY());
+            return new PipeEnd(blockPos.relative(direction.getOpposite()), direction, accumulatedHeight);
         }
         if (blockState.getBlock() instanceof PipeStraightBlock) {
-            return getPipeStraightEnd(level, blockPos, blockState, direction, accumulatedHeight + bonus);
+            return getPipeStraightEnd(level, blockPos, blockState, direction, accumulatedHeight);
         }
         if (blockState.getBlock() instanceof PipeCornerBlock) {
-            return getPipeCornerEnd(level, blockPos, blockState, direction, accumulatedHeight + bonus);
+            return getPipeCornerEnd(level, blockPos, blockState, direction, accumulatedHeight);
+        }
+        if (blockState.getBlock() instanceof PumpBlock) {
+            Direction pumpOutputDir = blockState.getValue(PumpBlock.ORIENTATION).getDirection();
+            if (direction == pumpOutputDir) {
+                if (level.getBlockEntity(blockPos) instanceof PumpBlockEntity pumpBe && pumpBe.canPump()) {
+                    // 泵可工作且方向匹配 → 等效距离 +10 并继续追踪
+                    return getPumpPipeEnd(level, blockPos, direction, accumulatedHeight);
+                }
+            }
+            // 方向不匹配或泵不能工作 → 清空等效距离并返回
+            return null;
         }
         return null;
     }
@@ -169,7 +144,12 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         }
         Direction targetDir = direction.getOpposite();
         if (!hasNext) {
-            return new PipeEnd(blockPos, targetDir, accumulatedHeight + blockPos.getY());
+            // 检查端头指向的方块是否是泵，若是则继续追踪
+            BlockPos neighborPos = blockPos.relative(targetDir);
+            if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
+                return getPipeEnd(level, neighborPos, targetDir, accumulatedHeight);
+            }
+            return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
         return getPipeEnd(level, blockPos.relative(targetDir), direction, accumulatedHeight);
     }
@@ -205,9 +185,52 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             targetDir = startDir;
         }
         if (!hasNext) {
-            return new PipeEnd(blockPos, targetDir, accumulatedHeight + blockPos.getY());
+            // 检查端头指向的方块是否是泵，若是则继续追踪
+            BlockPos neighborPos = blockPos.relative(targetDir);
+            if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
+                return getPipeEnd(level, neighborPos, targetDir, accumulatedHeight);
+            }
+            return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
         return getPipeEnd(level, blockPos.relative(targetDir), targetDir.getOpposite(), accumulatedHeight);
+    }
+
+    /**
+     * 从泵的输出端继续追踪 PipeEnd。
+     * <ul>
+     *   <li>相邻方块是管道/泵 → 继续递归追踪</li>
+     *   <li>相邻方块是 IFluidHandler → 返回 PipeEnd（泵输出端直接对其排液）</li>
+     *   <li>其他 → null（无有效终点）</li>
+     * </ul>
+     *
+     * @param level             世界
+     * @param pumpPos           泵的位置
+     * @param direction         追踪方向（泵的输出方向）
+     * @param accumulatedHeight 已累积的等效高度（含泵的 heightBonus）
+     * @return PipeEnd，不可达时返回 null
+     */
+    private static @Nullable PipeEnd getPumpPipeEnd(Level level, BlockPos pumpPos, Direction direction, int accumulatedHeight) {
+        BlockPos nextPos = pumpPos.relative(direction);
+        if (!level.isLoaded(nextPos)) return null;
+
+        BlockState nextState = level.getBlockState(nextPos);
+
+        // 若相邻是管道或泵，继续管道追踪
+        if (
+            nextState.getBlock() instanceof PipeNodeBlock
+            || nextState.getBlock() instanceof PipeStraightBlock
+            || nextState.getBlock() instanceof PipeCornerBlock
+            || nextState.getBlock() instanceof PumpBlock
+        ) {
+            return getPipeEnd(level, nextPos, direction, accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT);
+        }
+
+        // 若相邻是流体处理器，泵输出端直接对其排液
+        if (PipeBlock.isFluidHandler(level, nextPos)) {
+            return new PipeEnd(pumpPos, direction, accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT);
+        }
+
+        return null;
     }
 
     /**
@@ -222,7 +245,8 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         BlockPos sourceCurPos,
         Direction sourceCurDirection,
         BlockPos targetCurPos,
-        Direction targetCurDirection
+        Direction targetCurDirection,
+        int effectiveHeight
     ) {
         BlockPos sourcePos = sourceCurPos.relative(sourceCurDirection);
         BlockPos targetPos = targetCurPos.relative(targetCurDirection);
@@ -231,19 +255,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         int sourceEffectiveY = sourcePos.getY();
         int targetEffectiveY = targetPos.getY();
 
-        // 叠加管道自身和目标位置 BlockEntity 的 heightBonus
-        if (level.getBlockEntity(sourceCurPos) instanceof AbstractPipeBlockEntity be) {
-            sourceEffectiveY += be.getHeightBonus();
-        }
-        if (level.getBlockEntity(targetCurPos) instanceof AbstractPipeBlockEntity be) {
-            targetEffectiveY += be.getHeightBonus();
-        }
-        if (level.getBlockEntity(sourcePos) instanceof AbstractPipeBlockEntity be) {
-            sourceEffectiveY += be.getHeightBonus();
-        }
-        if (level.getBlockEntity(targetPos) instanceof AbstractPipeBlockEntity be) {
-            targetEffectiveY += be.getHeightBonus();
-        }
+        targetEffectiveY -= effectiveHeight;
 
         if (sourceEffectiveY <= targetEffectiveY) return;
 
