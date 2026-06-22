@@ -352,8 +352,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
             this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
             if (tag.contains("cachedStructureUuid")) {
-                this.loadedStructureUuid = UUIDUtil.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid"))
-                    .result().orElse(null);
+                this.loadedStructureUuid = UUIDUtil.CODEC.parse(
+                    NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid")
+                ).result().orElse(null);
             }
             this.hasStructureDisk = true;
             this.hasInvalidStructure = false;
