@@ -1,0 +1,37 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"texture_size": [64, 64],
+	"textures": {
+		"0": "anvilcraft:block/celestial_body/neutron_star_jet",
+		"particle": "anvilcraft:block/celestial_body/neutron_star_jet"
+	},
+	"elements": [
+		{
+			"from": [7, 10, 7],
+			"to": [9, 32, 9],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "z", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 2, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 2, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 2, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 2, 16], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7, -16, 7],
+			"to": [9, 6, 9],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "z", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 16, 2, 0], "texture": "#0"},
+				"east": {"uv": [0, 16, 2, 0], "texture": "#0"},
+				"south": {"uv": [0, 16, 2, 0], "texture": "#0"},
+				"west": {"uv": [0, 16, 2, 0], "texture": "#0"}
+			}
+		}
+	]
+}
