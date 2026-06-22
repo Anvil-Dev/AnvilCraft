@@ -94,12 +94,10 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             return getPipeCornerEnd(level, blockPos, blockState, direction, accumulatedHeight);
         }
         if (blockState.getBlock() instanceof PumpBlock) {
-            Direction pumpOutputDir = blockState.getValue(PumpBlock.ORIENTATION).getDirection();
-            if (direction == pumpOutputDir) {
-                if (level.getBlockEntity(blockPos) instanceof PumpBlockEntity pumpBe && pumpBe.canPump()) {
-                    // 泵可工作且方向匹配 → 等效距离 +10 并继续追踪
-                    return getPumpPipeEnd(level, blockPos, direction, accumulatedHeight);
-                }
+            Direction pumpOutputDir = blockState.getValue(PumpBlock.ORIENTATION).getDirection().getOpposite();
+            if (direction == pumpOutputDir && level.getBlockEntity(blockPos) instanceof PumpBlockEntity pumpBe && pumpBe.canPump()) {
+                // 泵可工作且方向匹配 → 等效距离 +10 并继续追踪
+                return getPumpPipeEnd(level, blockPos, direction, accumulatedHeight);
             }
             // 方向不匹配或泵不能工作 → 清空等效距离并返回
             return null;
