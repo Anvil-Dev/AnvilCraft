@@ -87,7 +87,7 @@ public class StructureLoadUtil {
         String fileName = structureDiskData.file();
 
         // Validate and sanitize structure file name to prevent path traversal
-        if (!isValidStructureFile(fileName)) {
+        if (isInvalidStructureFile(fileName)) {
             LOGGER.error("Invalid structure file name: {}", fileName);
             return null;
         }
@@ -98,7 +98,7 @@ public class StructureLoadUtil {
             Path structureFile = baseDir.resolve(fileName);
 
             // Validate the resolved path stays within the intended directory
-            if (!isPathWithinBaseDirectory(structureFile, baseDir)) {
+            if (isPathOutsideBaseDirectory(structureFile, baseDir)) {
                 LOGGER.error("Path traversal attempt detected: {}", fileName);
                 return null;
             }
@@ -229,42 +229,86 @@ public class StructureLoadUtil {
     }
 
     /**
+     * 加载结构预览数据（仅调色板和方块列表），用于网络同步到客户端
+     *
+     * @param level    世界实例（服务端）
+     * @param fileName 结构文件名（已校验）
+     * @return 预览CompoundTag（含palette+blocks），加载失败返回null
+     */
+    @Nullable
+    public static CompoundTag loadPreviewData(Level level, String fileName) {
+        if (isInvalidStructureFile(fileName)) {
+            LOGGER.warn("Invalid structure file name for preview: {}", fileName);
+            return null;
+        }
+
+        try {
+            Path baseDir = getStructureDirectory(level);
+            Path structureFile = baseDir.resolve(fileName);
+
+            if (isPathOutsideBaseDirectory(structureFile, baseDir)) {
+                LOGGER.error("Path traversal detected for preview: {}", fileName);
+                return null;
+            }
+
+            if (!Files.exists(structureFile)) {
+                LOGGER.warn("Structure file not found for preview: {}", fileName);
+                return null;
+            }
+
+            CompoundTag fullTag = NbtIo.readCompressed(structureFile, NbtAccounter.unlimitedHeap());
+            CompoundTag previewTag = new CompoundTag();
+            if (fullTag.contains("palette")) {
+                previewTag.put("palette", fullTag.getListOrEmpty("palette").copy());
+            }
+            if (fullTag.contains("blocks")) {
+                previewTag.put("blocks", fullTag.getListOrEmpty("blocks").copy());
+            }
+            return previewTag.isEmpty() ? null : previewTag;
+
+        } catch (IOException e) {
+            LOGGER.error("Failed to load preview data: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Validate structure file name to prevent path traversal attacks
      * File names must match the pattern: name_uuid.nbt
      */
-    private static boolean isValidStructureFile(String fileName) {
+    public static boolean isInvalidStructureFile(String fileName) {
         if (fileName.trim().isEmpty()) {
-            return false;
+            return true;
         }
 
         // Check length
         if (fileName.length() > MAX_STRUCTURE_FILE_LENGTH) {
-            return false;
+            return true;
         }
 
         // Validate against whitelist pattern
         if (!VALID_STRUCTURE_FILE.matcher(fileName).matches()) {
-            return false;
+            return true;
         }
 
         // Additional safety: ensure no path separators
-        return !fileName.contains("/") && !fileName.contains("\\") && !fileName.contains("..");
+        return fileName.contains("/") || fileName.contains("\\") || fileName.contains("..");
     }
 
     /**
-     * Validate that the resolved path stays within the base directory
+     * Validate that the resolved path escapes the base directory
      * Prevents path traversal attacks using sequences
      */
-    private static boolean isPathWithinBaseDirectory(Path resolvedPath, Path baseDir) {
+    private static boolean isPathOutsideBaseDirectory(Path resolvedPath, Path baseDir) {
         try {
             Path normalizedResolved = resolvedPath.toAbsolutePath().normalize();
             Path normalizedBase = baseDir.toAbsolutePath().normalize();
 
-            // Check if the resolved path starts with the base directory
-            return normalizedResolved.startsWith(normalizedBase);
+            // Check if the resolved path escapes the base directory
+            return !normalizedResolved.startsWith(normalizedBase);
         } catch (Exception e) {
             LOGGER.error("Error validating path: {}", e.getMessage());
-            return false;
+            return true;
         }
     }
 
@@ -336,14 +380,14 @@ public class StructureLoadUtil {
 
         // 检查原版床：FOOT是主体部件，HEAD是次要部件
         switch (block) {
-            case BedBlock bedBlock -> {
+            case BedBlock _ -> {
                 return state.hasProperty(BlockStateProperties.BED_PART)
                        && state.getValue(BlockStateProperties.BED_PART) == BedPart.HEAD;
             }
 
 
             // 检查原版门：LOWER是主体部件，UPPER是次要部件
-            case DoorBlock doorBlock -> {
+            case DoorBlock _ -> {
                 return state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
                        && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER;
             }

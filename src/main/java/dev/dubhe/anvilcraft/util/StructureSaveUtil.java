@@ -86,7 +86,7 @@ public class StructureSaveUtil {
             Path structureFile = baseDir.resolve(fileName);
 
             // Validate the resolved path stays within the intended directory
-            if (!isPathWithinBaseDirectory(structureFile, baseDir)) {
+            if (isPathOutsideBaseDirectory(structureFile, baseDir)) {
                 LOGGER.error("Path traversal attempt detected: {}", structureFile);
                 return;
             }
@@ -234,19 +234,19 @@ public class StructureSaveUtil {
     }
 
     /**
-     * Validate that the resolved path stays within the base directory
+     * Validate that the resolved path escapes the base directory
      * Prevents path traversal attacks using sequences
      */
-    private static boolean isPathWithinBaseDirectory(Path resolvedPath, Path baseDir) {
+    private static boolean isPathOutsideBaseDirectory(Path resolvedPath, Path baseDir) {
         try {
             Path normalizedResolved = resolvedPath.toAbsolutePath().normalize();
             Path normalizedBase = baseDir.toAbsolutePath().normalize();
 
-            // Check if the resolved path starts with the base directory
-            return normalizedResolved.startsWith(normalizedBase);
+            // Check if the resolved path escapes the base directory
+            return !normalizedResolved.startsWith(normalizedBase);
         } catch (Exception e) {
             LOGGER.error("Error validating path: {}", e.getMessage());
-            return false;
+            return true;
         }
     }
 }
