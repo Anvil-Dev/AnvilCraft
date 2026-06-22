@@ -30,7 +30,7 @@ void main() {
     int count = int(BlackHoleCount);
 
     // --- Gravitational displacement ---
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 256; i++) {
         if (i >= count) break;
 
         vec2 holeUv = getHolePos(i);
@@ -61,7 +61,7 @@ void main() {
     vec3 color = texture(DiffuseSampler, uv + offset).rgb;
 
     // --- Render event horizon (convex, on-screen black holes only) ---
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 256; i++) {
         if (i >= count) break;
 
         // Concave lenses have no event horizon

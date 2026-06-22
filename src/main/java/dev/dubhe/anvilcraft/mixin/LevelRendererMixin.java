@@ -49,12 +49,17 @@ public abstract class LevelRendererMixin {
     @Final
     private Minecraft minecraft;
 
-    /** UBO handle for BlackHole[256] data — created once, updated per frame. */
+    /** UBO handle for BlackHole[256] data — created once, recreated on GL context loss. */
     @Unique
     private static int anvilcraft$lensUbo = 0;
     /** Last program ID for which we bound the UBO block index. */
     @Unique
     private static int anvilcraft$lensUboBlockBound = 0;
+    /** Pre-allocated FloatBuffer for UBO upload (256 vec4s * 4 floats = 4096 bytes). */
+    @Unique
+    private static final java.nio.FloatBuffer ANVILCRAFT$LENS_UBO_BUF =
+        java.nio.ByteBuffer.allocateDirect(256 * 4 * 4)
+            .order(java.nio.ByteOrder.nativeOrder()).asFloatBuffer();
 
     @Inject(
         method = "renderLevel",
@@ -210,8 +215,8 @@ public abstract class LevelRendererMixin {
         int count = Math.min(holes.size(), maxCount);
 
         // Upload BlackHole[256] data via UBO (binding point 0, std140)
-        java.nio.FloatBuffer buf = java.nio.ByteBuffer.allocateDirect(256 * 4 * 4)
-            .order(java.nio.ByteOrder.nativeOrder()).asFloatBuffer();
+        java.nio.FloatBuffer buf = ANVILCRAFT$LENS_UBO_BUF;
+        buf.clear();
         for (int i = 0; i < 256; i++) {
             if (i < count) {
                 GravitationalLensManager.HoleProjection h = holes.get(i);
@@ -222,7 +227,8 @@ public abstract class LevelRendererMixin {
         }
         buf.flip();
 
-        if (anvilcraft$lensUbo == 0) {
+        if (anvilcraft$lensUbo == 0 || !GL15.glIsBuffer(anvilcraft$lensUbo)) {
+            if (anvilcraft$lensUbo != 0) GL15.glDeleteBuffers(anvilcraft$lensUbo);
             anvilcraft$lensUbo = GL15.glGenBuffers();
             GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, anvilcraft$lensUbo);
             GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, buf, GL15.GL_DYNAMIC_DRAW);
