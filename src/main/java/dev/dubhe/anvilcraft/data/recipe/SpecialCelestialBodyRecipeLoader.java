@@ -39,7 +39,7 @@ public class SpecialCelestialBodyRecipeLoader {
     }
 
     private static Identifier mc(String path) {
-        return Identifier.of(path);
+        return Identifier.of("minecraft", path);
     }
 
     private static Identifier anvil(String path) {

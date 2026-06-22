@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -346,8 +347,10 @@ public final class PlanetResourceGenerator {
             return;
         }
 
-        ResourceKey<LootTable> lootTableKey = living.getLootTable();
+        ResourceKey<LootTable> lootTableKey = living.getLootTable().orElse(null);
         entity.discard();
+
+        if (lootTableKey == null) return;
 
         LootTable lootTable = serverLevel.getServer()
             .reloadableRegistries()
