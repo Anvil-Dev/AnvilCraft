@@ -105,7 +105,6 @@ import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
-import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.RedstoneComputerBlock;
 import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
@@ -157,6 +156,7 @@ import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
@@ -278,10 +278,12 @@ import static dev.dubhe.anvilcraft.AnvilCraft.of;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
-@SuppressWarnings({
-    "unused",
-    "CodeBlock2Expr"
-})
+@SuppressWarnings(
+    {
+        "unused",
+        "CodeBlock2Expr"
+    }
+)
 public class ModBlocks {
     static {
         REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
@@ -1534,9 +1536,10 @@ public class ModBlocks {
         .loot((tables, block) -> {
             // Generate empty loot table (rolls=0) so datagen doesn't break.
             // Actual drop (with NBT) is handled manually in onRemove.
-            tables.add(block, LootTable.lootTable()
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(0.0f))));
+            tables.add(
+                block,
+                LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(0.0f)))
+            );
         })
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)

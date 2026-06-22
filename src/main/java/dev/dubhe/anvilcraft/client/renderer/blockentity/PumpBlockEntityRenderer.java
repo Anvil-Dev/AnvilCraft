@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -30,10 +30,14 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
     private static final ModelResourceLocation PUMP_PISTON_2 =
         ModelResourceLocation.standalone(AnvilCraft.of("block/pump_piston_2"));
 
-    /** 活塞最大位移（单位：方块，2/16 = 2 像素） */
+    /**
+     * 活塞最大位移（单位：方块，2/16 = 2 像素）
+     */
     private static final float MAX_PISTON_OFFSET = 1.5f / 16.0f;
 
-    /** 最大传输速率（mB/tick），用于归一化动画速度 */
+    /**
+     * 最大传输速率（mB/tick），用于归一化动画速度
+     */
     private static final float MAX_TRANSFER_RATE = 500.0f;
 
     @SuppressWarnings("unused")
