@@ -215,6 +215,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
@@ -240,6 +241,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ColoredFallingBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
@@ -933,13 +935,23 @@ public class ModBlocks {
             Identifier off = ctx.getId().withPrefix("block/").withSuffix("_bottom_off");
             Identifier overload = ctx.getId().withPrefix("block/").withSuffix("_bottom_overload");
             generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
-                .with(PropertyDispatchWrap.initial(SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED)
-                    .select(true, true, BlockModelGenerators.plainVariant(overload))
-                    .select(true, false, BlockModelGenerators.plainVariant(overload))
-                    .select(false, true, BlockModelGenerators.plainVariant(off))
-                    .select(false, false, BlockModelGenerators.plainVariant(bottom))
-                    .dispatch())
-                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+                .with(PropertyDispatch.initial(
+                    SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED, SmartBlockPlacerBlock
+                            .UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
+                    .generate((isOverload, isPowered, isUpsideDown, facing) -> {
+                        Identifier model = isOverload ? overload : (isPowered ? off : bottom);
+                        Quadrant baseY = switch (facing) {
+                            case EAST -> Quadrant.R90;
+                            case SOUTH -> Quadrant.R180;
+                            case WEST -> Quadrant.R270;
+                            default -> Quadrant.R0;
+                        };
+                        Quadrant yrot = isUpsideDown
+                            ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
+                            : baseY;
+                        return BlockModelGenerators.plainVariant(model)
+                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
+                    })));
         })
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -950,7 +962,25 @@ public class ModBlocks {
         .block("structure_scanner", StructureScannerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .blockstate(() -> (ctx, generator) -> {
+            Identifier model = ctx.getId().withPrefix("block/");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(
+                    StructureScannerBlock.UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
+                    .generate((isUpsideDown, facing) -> {
+                        Quadrant baseY = switch (facing) {
+                            case EAST -> Quadrant.R90;
+                            case SOUTH -> Quadrant.R180;
+                            case WEST -> Quadrant.R270;
+                            default -> Quadrant.R0;
+                        };
+                        Quadrant yrot = isUpsideDown
+                            ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
+                            : baseY;
+                        return BlockModelGenerators.plainVariant(model)
+                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
+                    })));
+        })
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::structureScanner)

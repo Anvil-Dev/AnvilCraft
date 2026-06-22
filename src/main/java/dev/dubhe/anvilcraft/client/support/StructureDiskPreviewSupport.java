@@ -3,68 +3,85 @@ package dev.dubhe.anvilcraft.client.support;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.network.StructurePreviewRequestPacket;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * 结构磁盘预览支持类
- * 管理结构磁盘的缓存和3D预览渲染
+ * 管理结构磁盘的缓存和3D预览渲染。
+ *
+ * <p>缓存策略（会话级）：</p>
+ * <ul>
+ *   <li>完整缓存 {@link #PREVIEW_CACHE} — 解析完毕的 LevelLike，本次游戏内永不过期，
+ *       仅在超过 {@link #MAX_CACHE_SIZE} 时淘汰最旧条目</li>
+ *   <li>待处理缓存 {@link #PENDING_PREVIEW_DATA} — 服务端返回的原始 NBT，
+ *       等待 tooltip 渲染时获取磁盘上下文后完成解析</li>
+ *   <li>请求去重 {@link #PENDING_REQUESTS} — 防止同一 UUID 重复请求，
+ *       超时 {@link #REQUEST_TIMEOUT_MS} 后允许重试</li>
+ * </ul>
  */
 public class StructureDiskPreviewSupport {
     private static final int PREVIEW_SIZE = 80;
 
     /**
-     * 预览缓存：使用StructureUUID作为key
+     * 完整预览缓存（UUID → LevelLike），会话级，永不超时
      */
-    private static final Map<String, PreviewCache> PREVIEW_CACHE = new HashMap<>();
+    private static final Map<UUID, PreviewCache> PREVIEW_CACHE = new HashMap<>();
 
     /**
-     * 缓存过期时间（毫秒）
+     * 最大缓存条目数（防止内存泄漏）
      */
-    private static final long CACHE_EXPIRY_MS = 5000;
+    private static final int MAX_CACHE_SIZE = 100;
 
     /**
-     * 最大缓存条目数
+     * 服务端返回的原始NBT预览数据（等待构建LevelLike）
      */
-    private static final int MAX_CACHE_SIZE = 50;
+    private static final Map<UUID, CompoundTag> PENDING_PREVIEW_DATA = new HashMap<>();
 
     /**
-     * 上次清理时间
+     * 已发送请求的UUID集合（防止重复请求）
      */
-    private static long lastCleanupTime = 0;
+    private static final Set<UUID> PENDING_REQUESTS = new HashSet<>();
 
     /**
-     * 清理间隔（毫秒）
+     * 请求超时时间（毫秒），超时后可重新请求
      */
-    private static final long CLEANUP_INTERVAL_MS = 10000;
+    private static final long REQUEST_TIMEOUT_MS = 30000;
 
     /**
-     * 预览缓存数据
+     * 请求时间戳记录
      */
-    private static class PreviewCache {
-        final StructureLoadUtil.StructureData structureData;
-        final LevelLike levelLike;
-        final long timestamp;
+    private static final Map<UUID, Long> REQUEST_TIMESTAMPS = new HashMap<>();
 
+    private record PreviewCache(
+        StructureLoadUtil.StructureData structureData,
+        LevelLike levelLike,
+        long creationTime
+    ) {
         PreviewCache(StructureLoadUtil.StructureData structureData, LevelLike levelLike) {
-            this.structureData = structureData;
-            this.levelLike = levelLike;
-            this.timestamp = System.currentTimeMillis();
-        }
-
-        boolean isExpired() {
-            return System.currentTimeMillis() - this.timestamp > CACHE_EXPIRY_MS;
+            this(structureData, levelLike, System.currentTimeMillis());
         }
     }
 
@@ -94,16 +111,13 @@ public class StructureDiskPreviewSupport {
             previewX = 5;
         }
 
-        // 渲染背景（轻微透明）
         graphics.fill(previewX - 2, previewY - 2, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 2, 0xF0100010);
 
-        // 渲染边框
         graphics.fill(previewX - 2, previewY - 2, previewX + PREVIEW_SIZE + 2, previewY - 1, 0x505000ff);
         graphics.fill(previewX - 2, previewY + PREVIEW_SIZE + 2, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 3, 0x505000ff);
         graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + PREVIEW_SIZE + 3, 0x505000ff);
         graphics.fill(previewX + PREVIEW_SIZE + 1, previewY - 1, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 3, 0x505000ff);
 
-        // 渲染3D预览
         int maxDim = Math.max(cache.structureData.diskData.sizeX(),
             Math.max(cache.structureData.diskData.sizeY(),
                 cache.structureData.diskData.sizeZ()));
@@ -116,41 +130,119 @@ public class StructureDiskPreviewSupport {
     }
 
     /**
+     * 接收服务端返回的结构预览NBT数据（由 StructurePreviewResponsePacket 调用）
+     * 存储原始数据，待 tooltip 渲染时再解析为 LevelLike。
+     */
+    public static void receiveStructureData(UUID structureUuid, CompoundTag structureData) {
+        PENDING_PREVIEW_DATA.put(structureUuid, structureData);
+        PENDING_REQUESTS.remove(structureUuid);
+        REQUEST_TIMESTAMPS.remove(structureUuid);
+    }
+
+    /**
      * 获取或创建预览缓存
      */
     @Nullable
     private static PreviewCache getOrCreateCache(ItemStack diskStack, ClientLevel level) {
-        UUID uuid = StructureDiskPreviewSupport.getStructureUuidFromDisk(diskStack);
-        String cacheKey = uuid == null ? null : uuid.toString();
-        if (cacheKey == null) {
-            cacheKey = "hash_" + diskStack.getComponents().hashCode();
-        }
+        StructureDiskData diskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
+        if (diskData == null) return null;
 
-        cleanupExpiredCache();
+        UUID uuid = diskData.uuid();
 
-        PreviewCache cache = PREVIEW_CACHE.get(cacheKey);
-        if (cache != null && !cache.isExpired()) {
+        // 1. 命中完整缓存 — 直接返回，永不过期
+        PreviewCache cache = PREVIEW_CACHE.get(uuid);
+        if (cache != null) {
             return cache;
         }
 
-        StructureLoadUtil.StructureData data = StructureLoadUtil.loadStructureFromDiskForPreview(level, diskStack);
-        if (data == null || data.isEmpty()) {
-            PREVIEW_CACHE.remove(cacheKey);
+        // 2. 检查是否有服务端返回的 NBT 待处理数据
+        CompoundTag pendingData = PENDING_PREVIEW_DATA.get(uuid);
+        if (pendingData != null) {
+            StructureLoadUtil.StructureData data = parsePreviewNbt(pendingData, diskData, level.registryAccess());
+            if (data != null && !data.isEmpty()) {
+                LevelLike levelLike = buildLevelLike(data);
+                if (levelLike != null) {
+                    cache = new PreviewCache(data, levelLike);
+                    PREVIEW_CACHE.put(uuid, cache);
+                    PENDING_PREVIEW_DATA.remove(uuid);
+                    evictIfNeeded();
+                    return cache;
+                }
+            }
+            // 解析失败，清理待处理数据，后续会重新请求
+            PENDING_PREVIEW_DATA.remove(uuid);
             return null;
         }
 
-        cacheKey = data.diskData.uuid().toString();
-
-        LevelLike levelLike = buildLevelLike(data);
-        if (levelLike == null) {
-            PREVIEW_CACHE.remove(cacheKey);
-            return null;
+        // 3. 回退：尝试从本地文件加载（单人模式有效）
+        StructureLoadUtil.StructureData localData = StructureLoadUtil.loadStructureFromDiskForPreview(level, diskStack);
+        if (localData != null && !localData.isEmpty()) {
+            LevelLike levelLike = buildLevelLike(localData);
+            if (levelLike != null) {
+                cache = new PreviewCache(localData, levelLike);
+                PREVIEW_CACHE.put(uuid, cache);
+                evictIfNeeded();
+                return cache;
+            }
         }
 
-        cache = new PreviewCache(data, levelLike);
-        PREVIEW_CACHE.put(cacheKey, cache);
+        // 4. 未缓存且未请求 → 向服务端发送请求
+        if (shouldSendRequest(uuid)) {
+            PENDING_REQUESTS.add(uuid);
+            REQUEST_TIMESTAMPS.put(uuid, System.currentTimeMillis());
+            ClientPacketDistributor.sendToServer(new StructurePreviewRequestPacket(uuid, diskData.file()));
+        }
 
-        return cache;
+        return null;
+    }
+
+    /**
+     * 检查是否应该发送请求（未被请求或已超时）
+     */
+    private static boolean shouldSendRequest(UUID uuid) {
+        if (!PENDING_REQUESTS.contains(uuid)) return true;
+        Long timestamp = REQUEST_TIMESTAMPS.get(uuid);
+        if (timestamp == null) return true;
+        return System.currentTimeMillis() - timestamp > REQUEST_TIMEOUT_MS;
+    }
+
+    /**
+     * 从NBT数据解析为 StructureData
+     */
+    private static StructureLoadUtil.@Nullable StructureData parsePreviewNbt(
+        CompoundTag tag,
+        StructureDiskData diskData,
+        HolderLookup.Provider registry
+    ) {
+        ListTag paletteTag = tag.getListOrEmpty("palette");
+        ListTag blocksTag = tag.getListOrEmpty("blocks");
+        if (paletteTag.isEmpty() || blocksTag.isEmpty()) return null;
+
+        var blockLookup = registry.lookupOrThrow(Registries.BLOCK);
+        List<BlockState> palette = new ArrayList<>();
+        for (int i = 0; i < paletteTag.size(); i++) {
+            BlockState state = NbtUtils.readBlockState(blockLookup, paletteTag.getCompoundOrEmpty(i));
+            palette.add(state);
+        }
+        if (palette.isEmpty()) return null;
+
+        StructureLoadUtil.StructureData result = new StructureLoadUtil.StructureData(diskData);
+        for (int i = 0; i < blocksTag.size(); i++) {
+            CompoundTag blockTag = blocksTag.getCompoundOrEmpty(i);
+            ListTag posTag = blockTag.getListOrEmpty("pos");
+            if (posTag.size() < 3) continue;
+
+            int x = posTag.getInt(0).orElse(0);
+            int y = posTag.getInt(1).orElse(0);
+            int z = posTag.getInt(2).orElse(0);
+            int stateIndex = blockTag.getInt("state").orElse(-1);
+
+            if (stateIndex >= 0 && stateIndex < palette.size()) {
+                result.blocks.add(new StructureLoadUtil.BlockPosition(x, y, z, palette.get(stateIndex)));
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -165,11 +257,9 @@ public class StructureDiskPreviewSupport {
 
         LevelLike levelLike = new LevelLike(minecraft.level);
 
-        // 使用统一的旋转逻辑，与服务端放置和智能放置器预览保持一致
         StructureLoadUtil.StructureData rotatedData =
             SmartBlockPlacerBlockEntity.rotateStructureDataStatic(data);
 
-        // 计算旋转后结构的中心
         int sizeX = data.diskData.sizeX();
         int sizeY = data.diskData.sizeY();
         int sizeZ = data.diskData.sizeZ();
@@ -192,33 +282,15 @@ public class StructureDiskPreviewSupport {
     }
 
     /**
-     * 从磁盘ItemStack中提取StructureUUID
+     * 缓存超过上限时淘汰最旧条目
      */
-    @Nullable
-    private static UUID getStructureUuidFromDisk(ItemStack diskStack) {
-        StructureDiskData structureDiskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
-        if (structureDiskData == null) return null;
-        return structureDiskData.uuid();
-    }
+    private static void evictIfNeeded() {
+        if (PREVIEW_CACHE.size() <= MAX_CACHE_SIZE) return;
 
-    /**
-     * 清理过期缓存条目
-     */
-    private static void cleanupExpiredCache() {
-        long currentTime = System.currentTimeMillis();
-
-        if (currentTime - lastCleanupTime < CLEANUP_INTERVAL_MS) return;
-
-        lastCleanupTime = currentTime;
-
-        PREVIEW_CACHE.entrySet().removeIf(entry -> entry.getValue().isExpired());
-
-        if (PREVIEW_CACHE.size() > MAX_CACHE_SIZE) {
-            PREVIEW_CACHE.entrySet()
-                .stream()
-                .sorted(Comparator.comparingLong(entry -> entry.getValue().timestamp))
-                .limit(PREVIEW_CACHE.size() - MAX_CACHE_SIZE)
-                .forEach(entry -> PREVIEW_CACHE.remove(entry.getKey()));
-        }
+        PREVIEW_CACHE.entrySet()
+            .stream()
+            .sorted(java.util.Comparator.comparingLong(e -> e.getValue().creationTime))
+            .limit(PREVIEW_CACHE.size() - MAX_CACHE_SIZE)
+            .forEach(e -> PREVIEW_CACHE.remove(e.getKey()));
     }
 }

@@ -320,12 +320,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider ignored) {
-        this.loadFromTag(tag);
-        // 旧路径也从CompoundTag加载物品栏（向后兼容）
+        // 先加载物品栏，确保 tryLoadStructure 能正确访问到磁盘物品
+        // 否则 loadFromTag 中加载的 cachedStructure 会被 tryLoadStructure 误判清空
         loadItemsFromTag(tag, this.diskInventory);
         this.lastDiskItem = this.diskInventory.getItem(0).copy();
         loadItemsFromTag(tag, this.bookInventory);
         loadItemsFromTag(tag, this.outputBookInventory);
+        this.loadFromTag(tag);
     }
 
     private void loadFromTag(CompoundTag tag) {
@@ -351,10 +352,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
             this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
             if (tag.contains("cachedStructureUuid")) {
-                this.loadedStructureUuid = UUIDUtil.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid"))
-                    .result().orElse(null);
+                this.loadedStructureUuid = UUIDUtil.CODEC.parse(
+                    NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid")
+                ).result().orElse(null);
             }
             this.hasStructureDisk = true;
+            this.hasInvalidStructure = false;
         }
 
         // NBT加载后尝试从磁盘更新结构（如果有磁盘的话）
@@ -1277,13 +1280,22 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                     // 可堆叠方块：检查容器中是否有足够的数量
                     int availableCount = this.countBlockItemInContainer(level, pos, requiredBlock);
                     if (availableCount < stackCount) {
-                        // 数量不足，跳过
+                        // 数量不足，停止模式下不前扫
+                        if (!this.isSkipMissingMode) {
+                            this.currentHeldBlock = ItemStack.EMPTY;
+                            return;
+                        }
                         continue;
                     }
                 } else {
                     // 普通方块：检查是否有物品
                     ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
                     if (blockItem.isEmpty()) {
+                        // 停止模式下不前扫
+                        if (!this.isSkipMissingMode) {
+                            this.currentHeldBlock = ItemStack.EMPTY;
+                            return;
+                        }
                         continue;
                     }
                     this.currentHeldBlock = blockItem.copy();
@@ -1339,6 +1351,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                         this.currentHeldBlock = sourceItem.copy();
                         return;
                     }
+                }
+
+                // 停止模式：源方块与当前位置不匹配时，不前扫
+                if (!this.isSkipMissingMode) {
+                    this.currentHeldBlock = ItemStack.EMPTY;
+                    return;
                 }
             }
         }
@@ -3889,6 +3907,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
         this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
         this.loadLayerPositions(tag);
+
+        // 同步结构缓存数据（菜单打开包中包含 cachedStructure），
+        // 用于客户端预览蓝图和结构信息
+        if (tag.contains("cachedStructure")) {
+            this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
+            this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
+            if (tag.contains("cachedStructureUuid")) {
+                this.loadedStructureUuid = UUIDUtil.CODEC.parse(
+                    NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid")
+                ).result().orElse(null);
+            }
+            this.hasStructureDisk = true;
+            this.hasInvalidStructure = false;
+        }
     }
 
     void loadLayerPositions(CompoundTag tag) {
