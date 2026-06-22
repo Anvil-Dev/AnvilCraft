@@ -57,6 +57,18 @@ public record StructurePreviewRequestPacket(UUID structureUuid, String structure
             return;
         }
 
+        // 校验预览数据同时包含有效的 palette 和 blocks
+        // 若任一项为空，客户端 parsePreviewNbt 会解析失败且不会重试
+        if (!previewData.contains("palette") || !previewData.contains("blocks")
+            || previewData.getListOrEmpty("palette").isEmpty()
+            || previewData.getListOrEmpty("blocks").isEmpty()) {
+            AnvilCraft.LOGGER.warn(
+                "Preview data has empty palette or blocks for structure: {} (file: {})",
+                this.structureUuid, this.structureFile
+            );
+            return;
+        }
+
         // 发送预览数据回客户端
         serverPlayer.connection.send(
             new StructurePreviewResponsePacket(this.structureUuid, previewData)

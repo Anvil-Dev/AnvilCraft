@@ -42,7 +42,6 @@ import java.util.UUID;
  *       超时 {@link #REQUEST_TIMEOUT_MS} 后允许重试</li>
  * </ul>
  */
-@SuppressWarnings("all")
 public class StructureDiskPreviewSupport {
     private static final int PREVIEW_SIZE = 80;
 
@@ -135,7 +134,6 @@ public class StructureDiskPreviewSupport {
      * 存储原始数据，待 tooltip 渲染时再解析为 LevelLike。
      */
     public static void receiveStructureData(UUID structureUuid, CompoundTag structureData) {
-        if (structureUuid == null || structureData == null) return;
         PENDING_PREVIEW_DATA.put(structureUuid, structureData);
         PENDING_REQUESTS.remove(structureUuid);
         REQUEST_TIMESTAMPS.remove(structureUuid);
@@ -150,7 +148,6 @@ public class StructureDiskPreviewSupport {
         if (diskData == null) return null;
 
         UUID uuid = diskData.uuid();
-        if (uuid == null) return null;
 
         // 1. 命中完整缓存 — 直接返回，永不过期
         PreviewCache cache = PREVIEW_CACHE.get(uuid);

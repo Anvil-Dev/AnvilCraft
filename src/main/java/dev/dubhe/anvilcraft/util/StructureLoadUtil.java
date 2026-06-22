@@ -48,6 +48,7 @@ public class StructureLoadUtil {
     // Whitelist pattern for structure file names: only allow alphanumeric, underscore, hyphen, and dot (for .nbt extension)
     private static final Pattern VALID_STRUCTURE_FILE = Pattern.compile("^[a-zA-Z0-9_\\-]+_[a-f0-9\\-]+\\.nbt$");
     private static final int MAX_STRUCTURE_FILE_LENGTH = 128;
+    private static final int MAX_PREVIEW_BLOCKS = 4096;
 
     /**
      * 从结构磁盘读取结构数据（不过滤多方块方块，用于预览）
@@ -258,12 +259,31 @@ public class StructureLoadUtil {
 
             CompoundTag fullTag = NbtIo.readCompressed(structureFile, NbtAccounter.unlimitedHeap());
             CompoundTag previewTag = new CompoundTag();
+
+            // 复制调色板
             if (fullTag.contains("palette")) {
                 previewTag.put("palette", fullTag.getListOrEmpty("palette").copy());
             }
+
+            // 复制方块列表，超过上限时截断并记录警告
             if (fullTag.contains("blocks")) {
-                previewTag.put("blocks", fullTag.getListOrEmpty("blocks").copy());
+                ListTag allBlocks = fullTag.getListOrEmpty("blocks");
+                int totalBlocks = allBlocks.size();
+                if (totalBlocks > MAX_PREVIEW_BLOCKS) {
+                    LOGGER.warn(
+                        "Preview data truncated: {} blocks (max {}) for file: {}",
+                        totalBlocks, MAX_PREVIEW_BLOCKS, fileName
+                    );
+                    ListTag truncated = new ListTag();
+                    for (int i = 0; i < MAX_PREVIEW_BLOCKS; i++) {
+                        truncated.add(allBlocks.get(i).copy());
+                    }
+                    previewTag.put("blocks", truncated);
+                } else {
+                    previewTag.put("blocks", allBlocks.copy());
+                }
             }
+
             return previewTag.isEmpty() ? null : previewTag;
 
         } catch (IOException e) {
