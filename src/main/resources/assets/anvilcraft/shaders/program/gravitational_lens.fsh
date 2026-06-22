@@ -58,7 +58,7 @@ void main() {
 
     vec3 color = texture(DiffuseSampler, uv + offset).rgb;
 
-    // --- Render event horizon (convex black holes only) ---
+    // --- Render event horizon (convex, on-screen black holes only) ---
     for (int i = 0; i < 8; i++) {
         if (i >= count) break;
 
@@ -66,6 +66,10 @@ void main() {
         if (getLensDir(i) <= 0.0) continue;
 
         vec2 holeUv = getHolePos(i);
+
+        // Skip event horizon when the hole center is off-screen
+        if (holeUv.x < 0.0 || holeUv.x > 1.0 || holeUv.y < 0.0 || holeUv.y > 1.0) continue;
+
         float perspS = PerspectiveScale / max(getHoleDist(i), 0.1);
         vec2 toHole = uv - holeUv;
         toHole.x *= aspectRatio;
