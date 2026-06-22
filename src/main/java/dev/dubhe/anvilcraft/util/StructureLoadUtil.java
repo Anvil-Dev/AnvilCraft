@@ -257,7 +257,7 @@ public class StructureLoadUtil {
                 return null;
             }
 
-            CompoundTag fullTag = NbtIo.readCompressed(structureFile, NbtAccounter.unlimitedHeap());
+            CompoundTag fullTag = NbtIo.readCompressed(structureFile, NbtAccounter.create(128L * 1024 * 1024));
             CompoundTag previewTag = new CompoundTag();
 
             // 复制调色板
