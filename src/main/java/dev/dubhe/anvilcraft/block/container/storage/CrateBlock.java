@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
@@ -34,13 +33,7 @@ public class CrateBlock extends Block implements EntityBlock {
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof CrateBlockEntity be) {
-            if (!level.isClientSide() && player.preventsBlockDrops() && be.getId() != null) {
-                ItemStack itemStack = new ItemStack(state.getBlock());
-                itemStack.applyComponents(blockEntity.collectComponents());
-                ItemEntity entity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, itemStack);
-                entity.setDefaultPickUpDelay();
-                level.addFreshEntity(entity);
-            }
+            be.playerWillDestroy(level, pos, state, player);
         }
 
         return super.playerWillDestroy(level, pos, state, player);

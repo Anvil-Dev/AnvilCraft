@@ -157,7 +157,7 @@ public class StoragePackets {
             }
 
             // 遍历
-            for (int i = 0; i < max; i++) {
+            for (int i = 0; i <= max; i++) {
                 RegistryFriendlyByteBuf data = this.ensureBuf();
 
                 UnlimitedItemStack stack = changes.get(i);
@@ -167,7 +167,7 @@ public class StoragePackets {
                     if (data.writerIndex() > 0) {
                         this.flush();
                     }
-                    if (stack.isEmpty()) {
+                    if (stack != null) {
                         changes.remove(i);
                     }
                     continue;

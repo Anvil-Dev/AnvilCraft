@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.inventory.state;
 
+import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -68,7 +69,7 @@ public class StorageMenuState {
 
         int size = stacks.size();
         for (int i = head; i < head + size; i++) {
-            if (this.mapping.get(i) == null) {
+            if (ListUtil.safelyGet(this.mapping, i).isEmpty()) {
                 this.mapping.add(i, stacks.get(i - head));
             } else {
                 this.mapping.set(i, stacks.get(i - head));

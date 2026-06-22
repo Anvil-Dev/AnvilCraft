@@ -55,8 +55,6 @@ public class ModCapabilities {
 
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CRATE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.LARGE_CRATE.get(), ModCapabilities::item);
-        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SHULKER_CONTAINER.get(), ModCapabilities::item);
-        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.HYPERDIMENSION_STORAGE_STATION.get(), ModCapabilities::item);
 
         event.registerBlock(
             Capabilities.Item.BLOCK,
