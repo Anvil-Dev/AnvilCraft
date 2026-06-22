@@ -194,12 +194,12 @@ public abstract class LevelRendererMixin {
 
         // Collect visible black holes
         java.util.List<GravitationalLensManager.HoleProjection> holes =
-            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 4);
+            GravitationalLensManager.collectVisibleBlackHoles(camera, projectionMatrix, 8);
 
-        int count = Math.min(holes.size(), 4);
+        int count = Math.min(holes.size(), 8);
 
         // Set dynamic black hole position and distance uniforms
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             String xName = "BlackHole" + (i + 1) + "X";
             String yName = "BlackHole" + (i + 1) + "Y";
             String dName = "BlackHole" + (i + 1) + "Dist";

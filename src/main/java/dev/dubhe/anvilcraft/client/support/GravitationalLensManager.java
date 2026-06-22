@@ -68,22 +68,16 @@ public class GravitationalLensManager {
 
     /**
      * Transform a world-space point to screen UV via view-projection.
-     * Vertices behind the camera (clip.w ≤ 0) are mirrored so they still
-     * project to valid screen positions.
+     * Returns {@code null} when the point is behind the camera (clip.w ≤ 0).
      */
     private static Vector2f worldToScreenUV(float wx, float wy, float wz, Matrix4f viewProj) {
         Vector4f clip = viewProj.transform(new Vector4f(wx, wy, wz, 1.0f));
-
-        if (clip.w <= 0.0f) {
-            clip.x = -clip.x;
-            clip.y = -clip.y;
-            clip.z = -clip.z;
-            clip.w = -clip.w;
-        }
+        if (clip.w <= 0.0f) return null;
 
         float ndcX = clip.x / clip.w;
         float ndcY = clip.y / clip.w;
 
+        // Clamp to screen edge — still useful for points slightly off-screen
         ndcX = Math.max(-1.0f, Math.min(1.0f, ndcX));
         ndcY = Math.max(-1.0f, Math.min(1.0f, ndcY));
 
@@ -91,7 +85,7 @@ public class GravitationalLensManager {
     }
 
     /**
-     * Collect up to {@code maxCount} visible black holes sorted by distance.
+     * Collect up to {@code maxCount} on-screen black holes, sorted nearest first.
      */
     public static List<HoleProjection> collectVisibleBlackHoles(
         Camera camera,
@@ -115,9 +109,18 @@ public class GravitationalLensManager {
             );
             if (centerUV == null) continue;
 
+            // Skip black holes whose center is far off-screen
+            if (centerUV.x < -0.2f || centerUV.x > 1.2f
+                || centerUV.y < -0.2f || centerUV.y > 1.2f) continue;
+
             float dist = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
             result.add(new HoleProjection(centerUV.x, centerUV.y, dist));
-            if (result.size() >= maxCount) break;
+        }
+
+        // Sort nearest first, then take the closest maxCount
+        result.sort((a, b) -> Float.compare(a.cameraDistance, b.cameraDistance));
+        if (result.size() > maxCount) {
+            result = result.subList(0, maxCount);
         }
         return result;
     }
