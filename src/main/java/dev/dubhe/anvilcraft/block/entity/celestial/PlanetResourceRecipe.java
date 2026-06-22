@@ -8,7 +8,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -81,8 +81,8 @@ public record PlanetResourceRecipe(
             WeightedEntry::new
         );
 
-        public ResourceLocation resourceId() {
-            return ResourceLocation.parse(id);
+        public Identifier resourceId() {
+            return Identifier.parse(id);
         }
     }
 
@@ -359,14 +359,16 @@ public record PlanetResourceRecipe(
         return Items.AIR.getDefaultInstance();
     }
 
+    public static final Serializer SERIALIZER = new Serializer();
+
     @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.PLANET_RESOURCE_SERIALIZER.get();
+        return SERIALIZER;
     }
 
     @Override
     public @NotNull RecipeType<?> getType() {
-        return ModRecipeTypes.PLANET_RESOURCE_TYPE.get();
+        return ModRecipeTypes.PLANET_RESOURCE.get();
     }
 
     @Override

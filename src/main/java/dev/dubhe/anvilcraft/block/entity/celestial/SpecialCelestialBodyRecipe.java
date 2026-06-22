@@ -10,7 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,9 +31,8 @@ import java.util.Random;
  * special bodies via datapack JSON without touching Java code.
  *
  * <p>
- * Temperature is auto-derived from the {@code energy} anvil count using
- * {@link CelestialBodyMatcher#energyToTemperature(int)}. Civilization is
- * auto-detected when {@code offerings} is non-empty.
+ * Temperature is auto-derived from the {@code energy} anvil count.
+ * Civilization is auto-detected when {@code offerings} is non-empty.
  * </p>
  */
 @SuppressWarnings("checkstyle:LineLength")
@@ -50,7 +49,7 @@ public record SpecialCelestialBodyRecipe(
     int magneticFieldStrength,
     int rotationSpeed,
     float axialTilt,
-    List<ResourceLocation> seedItems,
+    List<Identifier> seedItems,
     List<WeightedEntry> minerals,
     List<WeightedEntry> fluids,
     List<WeightedEntry> biologicalItems,
@@ -75,8 +74,8 @@ public record SpecialCelestialBodyRecipe(
             WeightedEntry::new
         );
 
-        public ResourceLocation resourceId() {
-            return ResourceLocation.parse(id);
+        public Identifier resourceId() {
+            return Identifier.parse(id);
         }
     }
 
@@ -101,9 +100,6 @@ public record SpecialCelestialBodyRecipe(
 
     private static final Codec<LiquidCoverage> LIQUID_COVERAGE_CODEC =
         Codec.STRING.xmap(LiquidCoverage::fromName, LiquidCoverage::getSerializedName);
-
-    private static final Codec<ResourceLocation> RESOURCE_LOCATION_CODEC =
-        ResourceLocation.CODEC;
 
     private static final StreamCodec<ByteBuf, LiquidCoverage> LIQUID_COVERAGE_STREAM =
         ByteBufCodecs.STRING_UTF8.map(LiquidCoverage::fromName, LiquidCoverage::getSerializedName);
@@ -142,7 +138,7 @@ public record SpecialCelestialBodyRecipe(
         Codec.INT.fieldOf("magnetic_field").forGetter(SpecialCelestialBodyRecipe::magneticFieldStrength),
         Codec.INT.fieldOf("rotation_speed").forGetter(SpecialCelestialBodyRecipe::rotationSpeed),
         Codec.FLOAT.fieldOf("axial_tilt").forGetter(SpecialCelestialBodyRecipe::axialTilt),
-        RESOURCE_LOCATION_CODEC.listOf().fieldOf("seed_items").forGetter(SpecialCelestialBodyRecipe::seedItems),
+        Identifier.CODEC.listOf().fieldOf("seed_items").forGetter(SpecialCelestialBodyRecipe::seedItems),
         Codec.BOOL.optionalFieldOf("needs_custom_model", false).forGetter(SpecialCelestialBodyRecipe::needsCustomModel),
         ResourceFields.CODEC.fieldOf("resources").forGetter(
             r -> new ResourceFields(r.minerals, r.fluids, r.biologicalItems,
@@ -155,7 +151,7 @@ public record SpecialCelestialBodyRecipe(
         String name, int time, int space, int mass, int energy,
         String texture, boolean hasAtmosphere,
         Optional<LiquidCoverage> liquidCoverage, int magneticField, int rotationSpeed, float axialTilt,
-        List<ResourceLocation> seedItems, boolean needsCustomModel,
+        List<Identifier> seedItems, boolean needsCustomModel,
         ResourceFields res
     ) {
         return new SpecialCelestialBodyRecipe(
@@ -185,7 +181,7 @@ public record SpecialCelestialBodyRecipe(
             int magneticFieldStrength = buf.readInt();
             int rotationSpeed = buf.readInt();
             float axialTilt = buf.readFloat();
-            List<ResourceLocation> seedItems = ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
+            List<Identifier> seedItems = Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             boolean needsCustomModel = buf.readBoolean();
             List<WeightedEntry> minerals = WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             List<WeightedEntry> fluids = WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
@@ -217,7 +213,7 @@ public record SpecialCelestialBodyRecipe(
             buf.writeInt(r.magneticFieldStrength());
             buf.writeInt(r.rotationSpeed());
             buf.writeFloat(r.axialTilt());
-            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.seedItems());
+            Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.seedItems());
             buf.writeBoolean(r.needsCustomModel());
             WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.minerals());
             WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.fluids());
@@ -233,7 +229,19 @@ public record SpecialCelestialBodyRecipe(
     /** Temperature is auto-derived from energy anvil count. */
     @NotNull
     public Temperature temperature() {
-        return CelestialBodyMatcher.energyToTemperature(energy);
+        return energyToTemperature(energy);
+    }
+
+    /**
+     * Map energy anvil count to a temperature enum.
+     * TODO: Move to CelestialBodyMatcher when Phase 4 ports it.
+     */
+    private static Temperature energyToTemperature(int energy) {
+        if (energy <= 12) return Temperature.FREEZING;
+        if (energy <= 15) return Temperature.COLD;
+        if (energy == 16) return Temperature.MILD;
+        if (energy <= 22) return Temperature.HOT;
+        return Temperature.SCORCHED;
     }
 
     /** Only the built-in ERROR_PLANET is an error planet. */
@@ -311,14 +319,16 @@ public record SpecialCelestialBodyRecipe(
         return Items.AIR.getDefaultInstance();
     }
 
+    public static final Serializer SERIALIZER = new Serializer();
+
     @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.SPECIAL_CELESTIAL_BODY_SERIALIZER.get();
+        return SERIALIZER;
     }
 
     @Override
     public @NotNull RecipeType<?> getType() {
-        return ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get();
+        return ModRecipeTypes.SPECIAL_CELESTIAL_BODY.get();
     }
 
     @Override
@@ -326,7 +336,7 @@ public record SpecialCelestialBodyRecipe(
         return true;
     }
 
-    private static Item resolveItem(ResourceLocation id) {
+    private static Item resolveItem(Identifier id) {
         return BuiltInRegistries.ITEM.get(id);
     }
 

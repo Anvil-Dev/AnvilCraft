@@ -8,7 +8,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -78,8 +78,8 @@ public record TempleDemandRecipe(
                 Entry::new
             );
 
-        public ResourceLocation itemResource() {
-            return ResourceLocation.parse(itemId);
+        public Identifier itemResource() {
+            return Identifier.parse(itemId);
         }
     }
 
@@ -118,14 +118,16 @@ public record TempleDemandRecipe(
         return Items.AIR.getDefaultInstance();
     }
 
+    public static final Serializer SERIALIZER = new Serializer();
+
     @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
-        return ModRecipeTypes.TEMPLE_DEMAND_SERIALIZER.get();
+        return SERIALIZER;
     }
 
     @Override
     public @NotNull RecipeType<?> getType() {
-        return ModRecipeTypes.TEMPLE_DEMAND_TYPE.get();
+        return ModRecipeTypes.TEMPLE_DEMAND.get();
     }
 
     @Override
