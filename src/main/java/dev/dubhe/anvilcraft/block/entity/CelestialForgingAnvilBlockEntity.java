@@ -57,4 +57,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity {
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
+
+    /**
+     * Called by {@link CelestialForgingAnvilLogisticsInterfaceBlockEntity} when a player
+     * inserts/removes items via the logistics interface. Triggers wormhole sync so all
+     * connected CFAs see the change in the same tick.
+     * <p>
+     * TODO: Full wormhole sync implementation in Phase 6.
+     */
+    public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
+        // Placeholder — Phase 6 will implement wormhole sync across CFA network
+    }
 }

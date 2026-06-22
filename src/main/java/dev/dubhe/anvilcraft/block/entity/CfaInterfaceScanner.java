@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.block.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,8 +50,8 @@ public final class CfaInterfaceScanner {
         return result;
     }
 
-    public static List<IItemHandler> findLogisticsInterfaces(Level level, BlockPos controllerPos) {
-        List<IItemHandler> result = new ArrayList<>();
+    public static List<ResourceHandler<ItemResource>> findLogisticsInterfaces(Level level, BlockPos controllerPos) {
+        List<ResourceHandler<ItemResource>> result = new ArrayList<>();
         if (level == null) return result;
         scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
             BlockEntity be = level.getBlockEntity(checkPos);

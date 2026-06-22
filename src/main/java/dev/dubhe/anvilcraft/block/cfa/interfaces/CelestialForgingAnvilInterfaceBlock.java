@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -21,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class CelestialForgingAnvilInterfaceBlock
     extends HorizontalDirectionalBlock
     implements IHammerRemovable, IHammerChangeable {
+    public static final BooleanProperty ACTIVE = BlockStateProperties.ENABLED;
     public static final VoxelShape BASE_NORTH = ShapeUtil.merge(
         new AABB(0, 0, 2, 16, 4, 16),
         new AABB(0, 4, 8, 16, 8, 16),
@@ -34,7 +37,19 @@ public abstract class CelestialForgingAnvilInterfaceBlock
     public CelestialForgingAnvilInterfaceBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.getStateDefinition().any()
-            .setValue(FACING, Direction.NORTH));
+            .setValue(FACING, Direction.NORTH)
+            .setValue(ACTIVE, false));
+    }
+
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos,
+                                   Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+        if (!level.isClientSide()) {
+            boolean hasSignal = level.hasNeighborSignal(pos);
+            if (state.getValue(ACTIVE) != hasSignal) {
+                level.setBlock(pos, state.setValue(ACTIVE, hasSignal), 3);
+            }
+        }
     }
 
     @Override

@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.util.RandomSource;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -14,6 +15,15 @@ import java.util.List;
  * Three-step celestial body matching engine using diagram PNGs.
  * Each 64×64 diagram maps anvil counts to pixel colors that identify body classes.
  * Uses classloader-based loading (works on both server and client).
+ *
+ * <p>
+ * In 26.1, {@code NativeImage} became {@code @OnlyIn(Dist.CLIENT)} and is unavailable
+ * on the server. This class now uses {@link javax.imageio.ImageIO} + {@link BufferedImage}
+ * which works everywhere.
+ * <p>
+ * Pixel format difference: {@code BufferedImage.getRGB()} returns ARGB (0xAARRGGBB),
+ * whereas the old {@code NativeImage.getPixelRGBA()} returned ABGR (0xAABBGGRR).
+ * The RGB extraction has been updated accordingly.
  */
 public final class CelestialBodyMatcher {
 
@@ -26,11 +36,11 @@ public final class CelestialBodyMatcher {
     private static final String AGE_RADIUS = DIR + "/age_radius_diagram_pixel.png";
     private static final String STAR_COLOR_TEMP = "assets/anvilcraft/textures/block/celestial_body/star_color_temperature.png";
 
-    private static NativeImage massRadiusImage;
-    private static NativeImage ageTempImage;
-    private static NativeImage ageTempSpImage;
-    private static NativeImage ageRadiusImage;
-    private static NativeImage starColorTempImage;
+    private static BufferedImage massRadiusImage;
+    private static BufferedImage ageTempImage;
+    private static BufferedImage ageTempSpImage;
+    private static BufferedImage ageRadiusImage;
+    private static BufferedImage starColorTempImage;
     private static boolean loadAttempted = false;
 
     // Precomputed valid (time,space,mass,energy) combinations
@@ -49,7 +59,6 @@ public final class CelestialBodyMatcher {
     // Diagrams are 64×64 pixels. Anvil counts range 1–64.
     // Pixel (1,1) bottom-left → 0-indexed (x=0, y=63).
     // Pixel (64,64) top-right → 0-indexed (x=63, y=0).
-    // x = count - 1, y = 64 - count (since PNG origin is top-left).
     private static final int DIAG_SIZE = 64;
 
     @Nullable
@@ -154,14 +163,6 @@ public final class CelestialBodyMatcher {
     /**
      * Get the valid range [min, max] for one anvil type given partial counts.
      * Count values of 0 mean "unknown / not placed yet".
-     *
-     * @param time         time anvil count (0 = unknown)
-     * @param space        space anvil count (0 = unknown)
-     * @param mass         mass anvil count (0 = unknown)
-     * @param energy       energy anvil count (0 = unknown)
-     * @param isAmplified  whether amplifier mode is active
-     * @param targetIndex  which anvil type to query (0=time, 1=space, 2=mass, 3=energy)
-     * @return {@code [min, max]} or {@code null} if no valid range exists
      */
     public static int @Nullable [] getValidRange(int time, int space, int mass, int energy, boolean isAmplified, int targetIndex) {
         ensurePrecomputed();
@@ -170,7 +171,6 @@ public final class CelestialBodyMatcher {
 
         int[] counts = {time, space, mass, energy};
 
-        // Fast path: if no other slots have anvils, the full 1–64 range is trivially valid
         boolean allUnknown = true;
         for (int i = 0; i < 4; i++) {
             if (i != targetIndex && counts[i] > 0) {
@@ -180,7 +180,6 @@ public final class CelestialBodyMatcher {
         }
         if (allUnknown) return new int[] {1, 64};
 
-        // Collect unknown indices (excluding target)
         java.util.List<Integer> unknownIndices = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             if (i != targetIndex && counts[i] <= 0) {
@@ -204,10 +203,6 @@ public final class CelestialBodyMatcher {
         return new int[] {min, max};
     }
 
-    /**
-     * Returns true if there exists at least one assignment of the unknown indices
-     * that makes the full 4-tuple valid according to the bitset.
-     */
     private static boolean anyValid(BitSet bitset, int[] counts, List<Integer> unknownIndices) {
         if (unknownIndices.isEmpty()) {
             return bitset.get(encode(counts[0], counts[1], counts[2], counts[3]));
@@ -241,13 +236,13 @@ public final class CelestialBodyMatcher {
         ageRadiusImage = loadImage(AGE_RADIUS);
     }
 
-    private static NativeImage loadImage(String classpath) {
+    private static BufferedImage loadImage(String classpath) {
         try (InputStream is = AnvilCraft.class.getClassLoader().getResourceAsStream(classpath)) {
             if (is == null) {
                 AnvilCraft.LOGGER.warn("CelestialBodyMatcher: missing diagram {}", classpath);
                 return null;
             }
-            return NativeImage.read(is);
+            return ImageIO.read(is);
         } catch (Exception e) {
             AnvilCraft.LOGGER.warn("CelestialBodyMatcher: failed to load {}", classpath, e);
             return null;
@@ -255,7 +250,7 @@ public final class CelestialBodyMatcher {
     }
 
     @Nullable
-    private static NativeImage loadStarColorTemp() {
+    private static BufferedImage loadStarColorTemp() {
         if (starColorTempImage == null) {
             starColorTempImage = loadImage(STAR_COLOR_TEMP);
         }
@@ -264,28 +259,27 @@ public final class CelestialBodyMatcher {
 
     // === Diagram lookups ===
 
-    @Nullable
-    private static CelestialBodyClass lookupClass(NativeImage image, int x, int y) {
-        if (image == null) return null;
-        int xi = Math.clamp(x, 0, image.getWidth() - 1);
-        int yi = Math.clamp(y, 0, image.getHeight() - 1);
-        int argb = image.getPixelRGBA(xi, yi);
-        int r = argb & 0xFF;
-        int g = (argb >> 8) & 0xFF;
-        int b = (argb >> 16) & 0xFF;
-        int rgb = (r << 16) | (g << 8) | b;
-        return CelestialBodyClass.fromRgb(rgb);
-    }
-
-    private static int getRgb(NativeImage image, int x, int y) {
+    /**
+     * Extract RGB from a {@link BufferedImage} pixel.
+     * {@code BufferedImage.getRGB()} returns ARGB format: {@code 0xAARRGGBB}.
+     */
+    private static int getRgb(BufferedImage image, int x, int y) {
         if (image == null) return 0;
         int xi = Math.clamp(x, 0, image.getWidth() - 1);
         int yi = Math.clamp(y, 0, image.getHeight() - 1);
-        int argb = image.getPixelRGBA(xi, yi);
-        int r = argb & 0xFF;
+        int argb = image.getRGB(xi, yi);
+        // BufferedImage: ARGB → extract R,G,B
+        int r = (argb >> 16) & 0xFF;
         int g = (argb >> 8) & 0xFF;
-        int b = (argb >> 16) & 0xFF;
+        int b = argb & 0xFF;
         return (r << 16) | (g << 8) | b;
+    }
+
+    @Nullable
+    private static CelestialBodyClass lookupClass(BufferedImage image, int x, int y) {
+        if (image == null) return null;
+        int rgb = getRgb(image, x, y);
+        return CelestialBodyClass.fromRgb(rgb);
     }
 
     // === Step logic ===
@@ -407,7 +401,6 @@ public final class CelestialBodyMatcher {
         CelestialBodyClass bodyClass, int energy, int space, RandomSource random
     ) {
         int size = sizeForSpace(space);
-        // Get color from star_color_temperature.png at row = energy
         int[] rgb = getStarColorFromTempDiagram(energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
         int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : randomRotationSpeed(random);
@@ -422,9 +415,6 @@ public final class CelestialBodyMatcher {
 
     // === Helpers ===
 
-    /**
-     * Linear mapping from space anvil count (1–64) to celestial body size.
-     */
     private static int sizeForSpace(int space) {
         return Math.clamp(space, 1, 64);
     }
@@ -444,9 +434,6 @@ public final class CelestialBodyMatcher {
         return RingType.STRONG;
     }
 
-    /**
-     * Weighted magnetic field: gives level 0, 1, or 2 with given probabilities.
-     */
     private static int weightedMagnetic(RandomSource random, float p0, float p1, float p2) {
         float f = random.nextFloat();
         if (f < p0) return 0;
@@ -455,22 +442,10 @@ public final class CelestialBodyMatcher {
     }
 
     private static float randomAxialTilt(RandomSource random) {
-        // Skew toward 0°: square distribution → ~1% near 90° (flat)
         float raw = random.nextFloat();
         return 90f * raw * raw;
     }
 
-    /**
-     * Random rotation speed level (0-5).
-     * <ul>
-     *   <li>0 = Very Slow (1%)</li>
-     *   <li>1 = Slow (25%)</li>
-     *   <li>2 = Medium (48%)</li>
-     *   <li>3 = Fast (25%)</li>
-     *   <li>4 = Very Fast (1%)</li>
-     *   <li>5 = Super Fast (0.1%)</li>
-     * </ul>
-     */
     private static int randomRotationSpeed(RandomSource random) {
         float f = random.nextFloat();
         if (f < 0.01f) return 0;
@@ -478,54 +453,39 @@ public final class CelestialBodyMatcher {
         if (f < 0.74f) return 2;
         if (f < 0.99f) return 3;
         if (f < 0.999f) return 4;
-        return 5; // Super Fast
+        return 5;
     }
 
     @SuppressWarnings("checkstyle:NeedBraces")
     private static int[] getStarColorFromTempDiagram(int energy) {
-        NativeImage img = loadStarColorTemp();
+        BufferedImage img = loadStarColorTemp();
         if (img == null) return new int[] {255, 255, 255};
         int row = toY(energy);
-        int argb = img.getPixelRGBA(0, row);
-        int r = argb & 0xFF;
+        int argb = img.getRGB(0, row);
+        // BufferedImage ARGB: AARRGGBB
+        int r = (argb >> 16) & 0xFF;
         int g = (argb >> 8) & 0xFF;
-        int b = (argb >> 16) & 0xFF;
+        int b = argb & 0xFF;
         return new int[] {r, g, b};
     }
 
     // === Public diagram pixel lookups (for UI guide display) ===
 
-    /**
-     * Get the RGB color from the mass-radius diagram at (mass, space).
-     * Returns 0x000000 for black (no match).
-     */
     public static int getMassRadiusRgb(int mass, int space) {
         ensureLoaded();
         return getRgb(massRadiusImage, toX(mass), toY(space));
     }
 
-    /**
-     * Get the RGB color from the age-temp diagram at (time, energy).
-     * Returns 0x000000 for black (no match).
-     */
     public static int getAgeTempRgb(int time, int energy) {
         ensureLoaded();
         return getRgb(ageTempImage, toX(time), toY(energy));
     }
 
-    /**
-     * Get the RGB color from the age-temp-sp diagram at (time, energy).
-     * Returns 0x000000 for black (no match).
-     */
     public static int getAgeTempSpRgb(int time, int energy) {
         ensureLoaded();
         return getRgb(ageTempSpImage, toX(time), toY(energy));
     }
 
-    /**
-     * Get the RGB color from the age-radius diagram at (time, space).
-     * Returns 0x000000 for black (no match).
-     */
     public static int getAgeRadiusRgb(int time, int space) {
         ensureLoaded();
         return getRgb(ageRadiusImage, toX(time), toY(space));
@@ -533,13 +493,6 @@ public final class CelestialBodyMatcher {
 
     // === Pixel scanning for stellar evolution accelerator ===
 
-    /**
-     * Count non-black pixels to the right of (x, y) in the age-temp diagram
-     * until hitting a pure black pixel (0x000000) or reaching the right edge.
-     * Starts from x+1 (the current pixel represents the star's current state,
-     * remaining lifetime is counted from the next pixel).
-     * Used to determine remaining main sequence lifetime.
-     */
     public static int countPixelsRightInAgeTemp(int x, int y) {
         ensureLoaded();
         if (ageTempImage == null) return 0;
@@ -552,12 +505,6 @@ public final class CelestialBodyMatcher {
         return count;
     }
 
-    /**
-     * Count non-black pixels downward (lower energy, higher PNG Y) from (x, y)
-     * in the age-temp-sp diagram until hitting pure black or reaching the bottom edge.
-     * Starts from y+1 (the current pixel represents the star's current state).
-     * Used to determine remaining giant/supergiant phase lifetime.
-     */
     public static int countPixelsDownInAgeTempSp(int x, int y) {
         ensureLoaded();
         if (ageTempSpImage == null) return 0;
@@ -570,22 +517,14 @@ public final class CelestialBodyMatcher {
         return count;
     }
 
-    /**
-     * Count the total non-black pixels in the current colored segment of the column
-     * at position x in age-temp-sp. Scans from the first non-black pixel after any
-     * black separator down to the next black separator, counting all colored pixels.
-     * Used to calculate the fraction for giant phase timing.
-     */
     public static int countTotalColoredPixelsInAgeTempSpColumn(int x, int startY) {
         ensureLoaded();
         if (ageTempSpImage == null) return 0;
-        // Scan upward from startY to find the top of this colored segment (first black pixel above)
         int segmentTop = startY;
         for (int scanY = startY - 1; scanY >= 0; scanY--) {
             if (getRgb(ageTempSpImage, x, scanY) == 0x000000) break;
             segmentTop = scanY;
         }
-        // Scan downward from segmentTop to count all colored pixels until black
         int count = 0;
         for (int scanY = segmentTop; scanY < DIAG_SIZE; scanY++) {
             int rgb = getRgb(ageTempSpImage, x, scanY);
@@ -595,10 +534,6 @@ public final class CelestialBodyMatcher {
         return count;
     }
 
-    /**
-     * Get the RGB color from star_color_temperature.png for a given energy anvil count.
-     * Public for use by the stellar evolution accelerator when creating remnants.
-     */
     public static int[] getStarColor(int energy) {
         return getStarColorFromTempDiagram(energy);
     }

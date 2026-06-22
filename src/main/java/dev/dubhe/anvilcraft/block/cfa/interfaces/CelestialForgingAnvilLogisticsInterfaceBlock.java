@@ -45,6 +45,6 @@ public class CelestialForgingAnvilLogisticsInterfaceBlock extends CelestialForgi
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, ACTIVE);
     }
 }

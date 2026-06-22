@@ -1,10 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -201,9 +200,10 @@ public final class CelestialRefactorRegistry {
             options.add(CelestialRefactorOption.withMaterial(4, "dyson_sphere_small",
                 ringModel(4, "dyson_sphere"), prefix + "dyson_sphere_small",
                 ModItems.DYSON_SPHERE_COMPONENT, 16));
+            // TODO: Replace with ModBlocks.INFINITE_COLLECTOR once ported
             options.add(CelestialRefactorOption.withMaterial(4, "magnetar_coil",
                 ringModel(4, "coil"), prefix + "magnetar_coil",
-                ModBlocks.INFINITE_COLLECTOR.asItem(), 4));
+                ModBlocks.CHARGE_COLLECTOR.asItem(), 4));
             options.add(CelestialRefactorOption.withMaterial(4, "penrose_sphere",
                 ringModel(4, "penrose_sphere"), prefix + "penrose_sphere",
                 ModItems.PENROSE_SPHERE_COMPONENT, 8));
@@ -229,9 +229,9 @@ public final class CelestialRefactorRegistry {
         return options;
     }
 
-    private static ModelResourceLocation ringModel(int ring, String megastructure) {
-        return ModelResourceLocation.standalone(
-            AnvilCraft.of("block/celestial_forging_anvil_ring_" + ring + "_" + megastructure)
+    private static Identifier ringModel(int ring, String megastructure) {
+        return Identifier.withDefaultNamespace(
+            "block/celestial_forging_anvil_ring_" + ring + "_" + megastructure
         );
     }
 }

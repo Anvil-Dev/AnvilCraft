@@ -120,7 +120,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
-            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos)
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, false)
         );
     }
 
@@ -130,7 +130,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
                     level.getChunkAt(getBlockPos()).getPos(),
-                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos)
+                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, false)
                 );
             }
         }
