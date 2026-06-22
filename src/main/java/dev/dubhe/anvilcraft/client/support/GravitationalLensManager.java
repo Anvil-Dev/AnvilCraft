@@ -7,7 +7,6 @@ import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
@@ -25,10 +24,14 @@ import javax.annotation.Nullable;
 public class GravitationalLensManager {
     private static final int MAX_SEARCH_DISTANCE_SQR = 256 * 256;
 
-    /** Client-side cache of loaded black hole block positions. */
+    /**
+     * Client-side cache of loaded black hole block positions.
+     */
     public static final Set<BlockPos> CLIENT_BLACK_HOLE_POSITIONS =
         Collections.newSetFromMap(new ConcurrentHashMap<>());
-    /** Client-side cache of loaded white hole block positions. */
+    /**
+     * Client-side cache of loaded white hole block positions.
+     */
     public static final Set<BlockPos> CLIENT_WHITE_HOLE_POSITIONS =
         Collections.newSetFromMap(new ConcurrentHashMap<>());
 
@@ -52,12 +55,18 @@ public class GravitationalLensManager {
      * Per-hole data passed to the shader.
      */
     public static final class HoleProjection {
-        /** Center UV of the black hole on screen. */
+        /**
+         * Center UV of the black hole on screen.
+         */
         public final float centerU;
         public final float centerV;
-        /** Distance from camera to black hole (world units). */
+        /**
+         * Distance from camera to black hole (world units).
+         */
         public final float cameraDistance;
-        /** Lens direction: > 0 = convex (pull), < 0 = concave (push). */
+        /**
+         * Lens direction: > 0 = convex (pull), < 0 = concave (push).
+         */
         public final float lensDirection;
 
         HoleProjection(float cu, float cv, float dist, float dir) {
@@ -151,7 +160,9 @@ public class GravitationalLensManager {
             if (centerUV == null) continue;
 
             if (centerUV.x < -0.2f || centerUV.x > 1.2f
-                || centerUV.y < -0.2f || centerUV.y > 1.2f) continue;
+                || centerUV.y < -0.2f || centerUV.y > 1.2f) {
+                continue;
+            }
 
             float dist = (float) Math.sqrt(distanceSqr);
             out.add(new HoleProjection(centerUV.x, centerUV.y, dist, lensDir));
@@ -160,13 +171,19 @@ public class GravitationalLensManager {
 
     // ---- UBO management ----
 
-    /** Pre-allocated FloatBuffer for UBO upload (256 vec4s × 4 floats = 4096 bytes). */
+    /**
+     * Pre-allocated FloatBuffer for UBO upload (256 vec4s × 4 floats = 4096 bytes).
+     */
     private static final FloatBuffer LENS_UBO_BUF =
         ByteBuffer.allocateDirect(256 * 4 * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer();
-    /** UBO handle — created on first frame, reset on shader reload. */
+    /**
+     * UBO handle — created on first frame, reset on shader reload.
+     */
     private static int lensUbo = 0;
-    /** Last program ID for which the UBO block index was bound. */
+    /**
+     * Last program ID for which the UBO block index was bound.
+     */
     private static int lensUboBlockBound = 0;
 
     /**
