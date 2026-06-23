@@ -61,6 +61,10 @@ public class AnvilCraftClient {
                 ModBlockEntities.RUBY_PRISM.get(),
                 new CachedLaserBlockEntityRenderer<>()
             );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.LARGE_LASER.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
         });
     }
 

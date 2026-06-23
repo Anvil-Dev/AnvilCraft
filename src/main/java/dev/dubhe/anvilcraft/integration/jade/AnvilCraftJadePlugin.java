@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.SmartBlockPlacerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.BurningHeaterClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ChargerClientProvider;
@@ -18,6 +19,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.client.HeatableBlockClient
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ItemDetectorClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.PowerBlockClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.RubyPrismClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.SmartBlockPlacerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.SpaceOvercompressorClientProvider;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -40,6 +42,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(BurningHeaterProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(ChargerProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(DischargerProvider.INSTANCE, BlockEntity.class);
+        registration.registerBlockDataProvider(SmartBlockPlacerProvider.INSTANCE, Block.class);
     }
 
     @Override
@@ -53,5 +56,6 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(HeatableBlockClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(ChargerClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(DischargerClientProvider.INSTANCE, Block.class);
+        registration.registerBlockComponent(SmartBlockPlacerClientProvider.INSTANCE, Block.class);
     }
 }

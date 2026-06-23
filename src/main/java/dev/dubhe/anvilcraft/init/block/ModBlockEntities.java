@@ -30,6 +30,7 @@ import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LaserReceiverBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
@@ -447,6 +448,11 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.STRUCTURE_SCANNER)
         .register();
 
+    public static final BlockEntityEntry<LargeLaserBlockEntity> LARGE_LASER = REGISTRUM
+        .blockEntity("large_laser", LargeLaserBlockEntity::new)
+        .validBlock(ModBlocks.LARGE_LASER)
+        .renderer(() -> LaserBlockEntityRenderer::new)
+        .register();
     // ==== Pipe & Pump ====
 
     public static final BlockEntityEntry<PipeBlockEntity> PIPE = REGISTRUM
