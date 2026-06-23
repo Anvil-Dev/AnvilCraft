@@ -11,6 +11,8 @@ import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
+import dev.dubhe.anvilcraft.network.PlayerSettingsSyncPacket;
+import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,11 +22,18 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 @EventBusSubscriber
 public class PlayerTickEventHandler {
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, new PlayerSettingsSyncPacket(PlayerSettings.getSetting(serverPlayer)));
+        }
+    }
 
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
@@ -71,6 +80,7 @@ public class PlayerTickEventHandler {
             if (!item.has(ModComponents.STORED_ENERGY)) continue;
 
             // 获取物品的最大容量
+            @SuppressWarnings("UnstableApiUsage")
             EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(item, ItemAccess.forStack(item));
             if (storage == null) continue;
 

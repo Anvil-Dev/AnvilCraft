@@ -7,8 +7,8 @@
     "translate": "category.anvilcraft.enchanted"
   },
   "predicates": {
-    "anvilcraft:disabled_enchantments": {},
-    "anvilcraft:merciless_enchantments": {},
+    "anvilcraft:disabled_enchantment": [],
+    "anvilcraft:merciless_enchantment": [],
     "minecraft:enchantments": [],
     "minecraft:stored_enchantments": []
   }

@@ -186,4 +186,7 @@ public class AnvilCraftServerConfig {
 
     @CollapsibleObject
     public SpacetimeSupercomputerCommand spacetimeSupercomputerCommand = new SpacetimeSupercomputerCommand();
+
+    @Comment("The max size of the entries in storages' recover station")
+    public int storageRecoverMaxSize = 20;
 }

@@ -1,0 +1,38 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"top": "anvilcraft:block/creative_fluid_tank_top",
+		"particle": "anvilcraft:block/creative_fluid_tank_side",
+		"side": "anvilcraft:block/creative_fluid_tank_side"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#side", "cullface": "north"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#side", "cullface": "east"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#side", "cullface": "south"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#side", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#top", "cullface": "up"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#top", "cullface": "down"}
+			}
+		},
+		{
+			"name": "cube inverted",
+			"from": [15, 15, 15],
+			"to": [1, 1, 1],
+			"faces": {
+				"north": {"uv": [1, 15, 15, 1], "texture": "#side"},
+				"east": {"uv": [1, 15, 15, 1], "texture": "#side"},
+				"south": {"uv": [1, 15, 15, 1], "texture": "#side"},
+				"west": {"uv": [1, 15, 15, 1], "texture": "#side"},
+				"up": {"uv": [15, 1, 1, 15], "texture": "#top"},
+				"down": {"uv": [15, 1, 1, 15], "texture": "#top"}
+			}
+		}
+	]
+}
