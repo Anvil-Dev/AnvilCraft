@@ -11,7 +11,6 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.block.decoration.InstructBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -43,6 +42,7 @@ import dev.dubhe.anvilcraft.block.container.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.decoration.InstructBlock;
 import dev.dubhe.anvilcraft.block.decoration.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.decoration.ember.EmberMetalBlock;
 import dev.dubhe.anvilcraft.block.decoration.ember.EmberMetalPillarBlock;
@@ -2240,7 +2240,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends StairBlock> CUT_BRASS_STAIRS = REGISTRUM
-        .block("cut_brass_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRONZE_BLOCK.getDefaultState(), properties))
+        .block("cut_brass_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRASS_BLOCK.getDefaultState(), properties))
         .initialProperties(BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/cut_brass_block")))
@@ -3791,7 +3791,7 @@ public class ModBlocks {
     public static final BlockEntry<RotatedPillarBlock> PLYWOOD_BLOCK = REGISTRUM
         .block("plywood", RotatedPillarBlock::new)
         .initialProperties(() -> Blocks.OAK_PLANKS)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.PLANKS)
+        .tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.PLANKS)
         .blockstate(() -> DataGenUtil.columnBlock(AnvilCraft.of("block/plywood_side"), AnvilCraft.of("block/plywood")))
         .item()
         .tag(ItemTags.PLANKS)
@@ -3802,16 +3802,28 @@ public class ModBlocks {
     public static final BlockEntry<? extends StairBlock> PLYWOOD_STAIRS = REGISTRUM
         .block("plywood_stairs", (properties) -> new StairBlock(ModBlocks.PLYWOOD_BLOCK.getDefaultState(), properties))
         .initialProperties(PLYWOOD_BLOCK::get)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/plywood"), AnvilCraft.of("block/plywood"), AnvilCraft.of("block/plywood_side")))
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .blockstate(() -> DataGenUtil
+            .stairsBlock(
+                AnvilCraft.of("block/plywood"),
+                AnvilCraft.of("block/plywood"),
+                AnvilCraft.of("block/plywood_side")
+            )
+        )
         .simpleItem()
         .register();
 
     public static final BlockEntry<? extends SlabBlock> PLYWOOD_SLAB = REGISTRUM
         .block("plywood_slab", SlabBlock::new)
         .initialProperties(PLYWOOD_BLOCK::get)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/plywood"), AnvilCraft.of("block/plywood"), AnvilCraft.of("block/plywood_side")))
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .blockstate(() -> DataGenUtil
+            .slabBlock(
+                AnvilCraft.of("block/plywood"),
+                AnvilCraft.of("block/plywood"),
+                AnvilCraft.of("block/plywood_side")
+            )
+        )
         .simpleItem()
         .register();
 

@@ -312,7 +312,7 @@ public class StoneCutterRecipeLoader {
                 1
             )
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.PLYWOOD_BLOCK), AnvilCraftDatagen.has(holder, ModBlocks.PLYWOOD_BLOCK))
-            .save(provider, "plywood_stairs_from_plywood_block_ccuttting");
+            .save(provider, "plywood_stairs_from_plywood_block_cutting");
 
         SingleItemRecipeBuilder
             .stonecutting(
@@ -322,7 +322,7 @@ public class StoneCutterRecipeLoader {
                 2
             )
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.PLYWOOD_BLOCK), AnvilCraftDatagen.has(holder, ModBlocks.PLYWOOD_BLOCK))
-            .save(provider, "plywood_slab_from_plywood_block_ccuttting");
+            .save(provider, "plywood_slab_from_plywood_block_cutting");
     }
 
     private void stoneCutterRecipe(
