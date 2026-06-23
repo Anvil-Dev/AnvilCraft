@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 
 public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencerMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("machine", "active_silencer");
-    public static final Identifier SLIDER = SharedTextures.SMALL_SLIDER;
+    public static final Identifier SLIDER = SharedTextures.SMALL_MACHINE_SLIDER;
 
     private static final int SCROLL_BAR_HEIGHT = 120;
     private static final int SCROLL_BAR_TOP_POS_Y = 35;

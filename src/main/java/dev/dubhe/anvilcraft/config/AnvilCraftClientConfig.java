@@ -51,6 +51,9 @@ public class AnvilCraftClientConfig {
     @Comment("Add a tooltip line that shows multiphase stored ID")
     public boolean showMultiphaseStoredId = false;
 
+    @Comment("Toggle the behaviour when exiting the Category Setting menu")
+    public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CONFIRM;
+
     public static class IonoCraftBackpackHud {
         @Comment("If true, will show Ionocraft Backpack current power in hud")
         public boolean enabled = true;
@@ -71,5 +74,10 @@ public class AnvilCraftClientConfig {
         WEARING_HAMMER,
         HOLDING_HAMMER,
         TOGGLE_WITH_KEY
+    }
+
+    public enum ExitBehaviourMode {
+        CONFIRM,
+        CANCEL
     }
 }

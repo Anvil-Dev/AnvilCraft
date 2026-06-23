@@ -4,7 +4,7 @@
     "id": "minecraft:apple"
   },
   "name": {
-    "translate": "category.anvilcraft.foods_and_drinks"
+    "translate": "category.anvilcraft.food_and_drink"
   },
   "predicates": {
     "minecraft:food": {},

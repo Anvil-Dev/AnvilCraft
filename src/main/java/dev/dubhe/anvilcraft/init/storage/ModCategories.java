@@ -2,13 +2,16 @@ package dev.dubhe.anvilcraft.init.storage;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
+import dev.dubhe.anvilcraft.item.property.predicate.ExtraEnchantmentsPredicate;
+import dev.dubhe.anvilcraft.saved.storage.category.BlockCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.CreativeModeTabCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.HasComponentCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.OrCategory;
+import dev.dubhe.anvilcraft.saved.storage.category.UnstackableCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.client.RecipeBookCategoryCategory;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
@@ -21,23 +24,33 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.holdersets.AnyHolderSet;
 
 import java.util.List;
 import java.util.Map;
 
 public class ModCategories {
-    public static final ResourceKey<ICategory> FOODS_AND_DRINKS = ModCategories.key("foods_and_drinks");
+    public static final ResourceKey<ICategory> MINECRAFT = ModCategories.key("minecraft");
+    public static final ResourceKey<ICategory> BLOCK = ModCategories.key("block");
+    public static final ResourceKey<ICategory> UNSTACKABLE = ModCategories.key("unstackable");
+    public static final ResourceKey<ICategory> FOOD_AND_DRINK = ModCategories.key("food_and_drink");
     public static final ResourceKey<ICategory> ANVILCRAFT = ModCategories.key("anvilcraft");
     public static final ResourceKey<ICategory> REDSTONE = ModCategories.key("redstone");
     public static final ResourceKey<ICategory> ENCHANTED = ModCategories.key("enchanted");
 
     public static void bootstrap(BootstrapContext<ICategory> ctx) {
         ctx.register(
-            ModCategories.FOODS_AND_DRINKS,
+            ModCategories.MINECRAFT,
+            new NamespaceCategory(Blocks.GRASS_BLOCK, Identifier.DEFAULT_NAMESPACE)
+        );
+        ctx.register(ModCategories.BLOCK, BlockCategory.INSTANCE);
+        ctx.register(ModCategories.UNSTACKABLE, UnstackableCategory.INSTANCE);
+        ctx.register(
+            ModCategories.FOOD_AND_DRINK,
             HasComponentCategory.or(
                 Items.APPLE,
-                ModCategories.FOODS_AND_DRINKS.identifier(),
+                ModCategories.FOOD_AND_DRINK.identifier(),
                 Map.of(
                     DataComponentPredicate.AnyValueType.create(DataComponents.FOOD),
                     EnchantmentsPredicate.enchantments(List.of()), // ignored
@@ -77,10 +90,10 @@ public class ModCategories {
                     EnchantmentsPredicate.enchantments(List.of()),
                     DataComponentPredicates.STORED_ENCHANTMENTS,
                     EnchantmentsPredicate.storedEnchantments(List.of()),
-                    DataComponentPredicate.AnyValueType.create(ModComponents.MERCILESS_ENCHANTMENTS),
-                    EnchantmentsPredicate.enchantments(List.of()), // ignored
-                    DataComponentPredicate.AnyValueType.create(ModComponents.DISABLED_ENCHANTMENTS),
-                    EnchantmentsPredicate.enchantments(List.of()) // ignored
+                    ModDataComponentPredicates.MERCILESS_ENCH.get(),
+                    ExtraEnchantmentsPredicate.merciless(List.of()),
+                    ModDataComponentPredicates.DISABLED_ENCH.get(),
+                    ExtraEnchantmentsPredicate.disabled(List.of())
                 )
             )
         );

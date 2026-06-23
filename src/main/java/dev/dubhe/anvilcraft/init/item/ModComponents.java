@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
@@ -168,6 +169,11 @@ public class ModComponents {
     public static final DataComponentType<IAmulet> AMULET = register(
         "amulet",
         b -> b.persistent(IAmulet.CODEC).networkSynchronized(IAmulet.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<StorageRef> STORAGE = register(
+        "storage",
+        b -> b.persistent(StorageRef.CODEC.codec()).networkSynchronized(StorageRef.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {

@@ -39,12 +39,12 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInter
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
-import dev.dubhe.anvilcraft.block.container.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
-import dev.dubhe.anvilcraft.block.container.HyperdimensionStorageStationBlock;
-import dev.dubhe.anvilcraft.block.container.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
-import dev.dubhe.anvilcraft.block.container.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.decoration.InstructBlock;
 import dev.dubhe.anvilcraft.block.decoration.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.decoration.ember.EmberMetalBlock;
@@ -209,12 +209,12 @@ import dev.dubhe.anvilcraft.item.block.MultiphaseMatterBlockItem;
 import dev.dubhe.anvilcraft.item.block.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.block.RadiationBlockItem;
 import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
-import dev.dubhe.anvilcraft.item.block.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.item.block.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.block.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.block.UncontainableBlockItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
@@ -1096,7 +1096,11 @@ public class ModBlocks {
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
         )
-        .simpleItem()
+        .item()
+        .properties(properties -> properties
+            .component(ModComponents.STORAGE, StorageRef.crate())
+        )
+        .build()
         .recipe(RegistrumBlockRecipeLoader::crate)
         .blockstate(DataGenUtil::onlyState)
         .tag(BlockTags.MINEABLE_WITH_AXE)
@@ -1110,7 +1114,10 @@ public class ModBlocks {
             .isValidSpawn(ModBlocks::never)
         )
         .item(SimpleMultiPartBlockItem::new)
-        .properties(properties -> properties.stacksTo(16))
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.largeCrate())
+        )
         .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1125,8 +1132,11 @@ public class ModBlocks {
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
-        .item(ShulkerContainerBlockItem::new)
-        .properties(properties -> properties.stacksTo(16))
+        .item(FlexibleMultiPartBlockItem::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.shulkerContainer())
+        )
         .model(DataGenUtil::oversizedItem)
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -1143,7 +1153,10 @@ public class ModBlocks {
             .requiresCorrectToolForDrops()
         )
         .item(SimpleMultiPartBlockItem::new)
-        .properties(properties -> properties.stacksTo(16))
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.hyperdimension())
+        )
         .model(DataGenUtil::oversizedItem)
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
