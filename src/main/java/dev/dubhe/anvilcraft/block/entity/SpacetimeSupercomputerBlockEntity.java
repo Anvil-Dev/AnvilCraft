@@ -43,13 +43,15 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private float chargingProgress = 0;
 
     @Getter
-    private final List<CommandInfo> availableCommands = Util.make(new ObjectArrayList<>(), (list) -> {
-        list.add(new CommandInfo("/locate biome", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateBiomeCommand));
-        list.add(new CommandInfo("/locate structure", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateStructureCommand));
-        list.add(new CommandInfo("/locate poi", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocatePoiCommand));
-        list.add(new CommandInfo("/time add", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTimeAddCommand));
-        list.add(new CommandInfo("/tick sprint", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand));
-    });
+    private final List<CommandInfo> availableCommands = Util.make(
+        new ObjectArrayList<>(), (list) -> {
+            list.add(new CommandInfo("/locate biome", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateBiomeCommand));
+            list.add(new CommandInfo("/locate structure", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateStructureCommand));
+            list.add(new CommandInfo("/locate poi", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocatePoiCommand));
+            list.add(new CommandInfo("/time add", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTimeAddCommand));
+            list.add(new CommandInfo("/tick sprint", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand));
+        }
+    );
 
     public SpacetimeSupercomputerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -120,56 +122,39 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                     if (this.chargingProgress >= 20f + timeAddConsumeProcess) {
                         Objects.requireNonNull(this.level.getServer())
                             .getCommands()
-                            .performPrefixedCommand(
-                                player.createCommandSourceStackForNameResolution((ServerLevel) level),
-                                cmd
-                            );
+                            .performPrefixedCommand(player.createCommandSourceStackForNameResolution((ServerLevel) level), cmd);
                         this.chargingProgress -= 20f + timeAddConsumeProcess;
                         this.addHistoryCommand(cmd);
                     } else {
-                        player.sendSystemMessage(
-                            Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
-                                .withStyle(ChatFormatting.RED)
-                        );
+                        player.sendSystemMessage(Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
+                            .withStyle(ChatFormatting.RED));
                     }
                 } else if (cmd.startsWith("tick sprint")) {
                     int tickSprintConsumeProcess = getTickSprintConsumeProcess(cmd);
                     if (this.chargingProgress >= 20f + tickSprintConsumeProcess) {
                         Objects.requireNonNull(this.level.getServer())
                             .getCommands()
-                            .performPrefixedCommand(
-                                player.createCommandSourceStackForNameResolution((ServerLevel) level),
-                                cmd
-                            );
+                            .performPrefixedCommand(player.createCommandSourceStackForNameResolution((ServerLevel) level), cmd);
                         this.chargingProgress -= 20f + tickSprintConsumeProcess;
                         this.addHistoryCommand(cmd);
                     } else {
-                        player.sendSystemMessage(
-                            Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
-                                .withStyle(ChatFormatting.RED)
-                        );
+                        player.sendSystemMessage(Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
+                            .withStyle(ChatFormatting.RED));
                     }
                 } else if (cmd.startsWith("locate")) {
                     Objects.requireNonNull(this.level.getServer())
                         .getCommands()
-                        .performPrefixedCommand(
-                            player.createCommandSourceStackForNameResolution((ServerLevel) level),
-                            cmd
-                        );
+                        .performPrefixedCommand(player.createCommandSourceStackForNameResolution((ServerLevel) level), cmd);
                     this.chargingProgress -= 20f;
                     this.addHistoryCommand(cmd);
                 }
             } else {
-                player.sendSystemMessage(
-                    Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
-                        .withStyle(ChatFormatting.RED)
-                );
+                player.sendSystemMessage(Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
+                    .withStyle(ChatFormatting.RED));
             }
         } else {
-            player.sendSystemMessage(
-                Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command")
-                    .withStyle(ChatFormatting.RED)
-            );
+            player.sendSystemMessage(Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command")
+                .withStyle(ChatFormatting.RED));
         }
     }
 

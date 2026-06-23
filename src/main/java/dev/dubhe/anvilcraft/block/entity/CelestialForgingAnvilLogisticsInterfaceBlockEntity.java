@@ -70,7 +70,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         @Override
         protected void onContentsChanged(int slot, ItemStack stack) {
             CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.setChanged();
-            if (!syncing) {
+            if (!CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.syncing) {
                 CelestialForgingAnvilLogisticsInterfaceBlockEntity.this.triggerWormholeSync(slot);
             }
         }
@@ -97,7 +97,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
      */
     public void syncToClients() {
         if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = getUpdatePacket();
+            Packet<?> packet = this.getUpdatePacket();
             if (packet != null) {
                 for (ServerPlayer player : serverLevel.getChunkSource().chunkMap
                     .getPlayers(serverLevel.getChunkAt(worldPosition).getPos(), false)) {
@@ -111,7 +111,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     public void setChanged() {
         super.setChanged();
         if (level != null && !level.isClientSide()) {
-            syncToClients();
+            this.syncToClients();
         }
     }
 
@@ -122,7 +122,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
 
     @SuppressWarnings("unused")
     public ResourceHandler<ItemResource> getItemHandler() {
-        return itemHandler;
+        return this.itemHandler;
     }
 
     // === Wormhole sync ===
@@ -134,7 +134,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
      */
     private void triggerWormholeSync(int changedSlot) {
         if (level == null || level.isClientSide()) return;
-        BlockPos cfaPos = findParentCfa();
+        BlockPos cfaPos = this.findParentCfa();
         if (cfaPos == null) return;
         if (level.getBlockEntity(cfaPos) instanceof CelestialForgingAnvilBlockEntity cfa) {
             cfa.syncLogisticsOnChange(worldPosition, changedSlot);
@@ -185,22 +185,22 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         if (!state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
         if (!state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
 
-        if (ejectCooldown > 0) {
-            ejectCooldown--;
+        if (this.ejectCooldown > 0) {
+            this.ejectCooldown--;
             return;
         }
 
         Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
         BlockPos targetPos = worldPosition.relative(facing);
         boolean ejected = false;
-        int totalSlots = itemHandler.size();
+        int totalSlots = this.itemHandler.size();
 
         // Round-robin: start from lastEjectSlot, iterate all slots
         for (int offset = 0; offset < totalSlots; offset++) {
-            int slot = (lastEjectSlot + offset) % totalSlots;
-            ItemResource resource = itemHandler.getResource(slot);
+            int slot = (this.lastEjectSlot + offset) % totalSlots;
+            ItemResource resource = this.itemHandler.getResource(slot);
             if (resource.isEmpty()) continue;
-            int amount = itemHandler.getAmountAsInt(slot);
+            int amount = this.itemHandler.getAmountAsInt(slot);
             int toExtract = Math.min(amount, MAX_EJECT_PER_OP);
             ItemStack stackToMove = resource.toStack(toExtract);
 
@@ -213,19 +213,19 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
                 int inserted = toExtract - remainder.getCount();
                 if (inserted > 0) {
                     try (Transaction tx = Transaction.openRoot()) {
-                        itemHandler.extract(slot, resource, inserted, tx);
+                        this.itemHandler.extract(slot, resource, inserted, tx);
                         tx.commit();
                     }
                 }
                 if (remainder.getCount() < stackToMove.getCount()) {
                     ejected = true;
-                    lastEjectSlot = (slot + 1) % totalSlots;
+                    this.lastEjectSlot = (slot + 1) % totalSlots;
                     break;
                 }
             } else {
                 // No target container — eject items into the world with velocity
                 try (Transaction tx = Transaction.openRoot()) {
-                    int extracted = itemHandler.extract(slot, resource, toExtract, tx);
+                    int extracted = this.itemHandler.extract(slot, resource, toExtract, tx);
                     if (extracted > 0) {
                         tx.commit();
                         ItemStack toEject = resource.toStack(extracted);
@@ -240,7 +240,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
                         entity.setDefaultPickUpDelay();
                         level.addFreshEntity(entity);
                         ejected = true;
-                        lastEjectSlot = (slot + 1) % totalSlots;
+                        this.lastEjectSlot = (slot + 1) % totalSlots;
                         break;
                     }
                 }
@@ -248,8 +248,8 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         }
 
         if (ejected) {
-            ejectCooldown = EJECT_COOLDOWN;
-            setChanged();
+            this.ejectCooldown = EJECT_COOLDOWN;
+            this.setChanged();
         }
     }
 
@@ -275,42 +275,42 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
 
     public void setTempleDemandItem(ItemStack templeDemandItem) {
         this.templeDemandItem = templeDemandItem;
-        setChanged();
+        this.setChanged();
     }
 
     public void setTempleDemandCount(int templeDemandCount) {
         this.templeDemandCount = templeDemandCount;
-        setChanged();
+        this.setChanged();
     }
 
     public void setTempleDemandProgress(int templeDemandProgress) {
         this.templeDemandProgress = templeDemandProgress;
-        setChanged();
+        this.setChanged();
     }
 
     public void setTempleDemandSatisfied(boolean templeDemandSatisfied) {
         this.templeDemandSatisfied = templeDemandSatisfied;
-        setChanged();
+        this.setChanged();
     }
 
     public void setColliderTargetItems(List<ItemStack> colliderTargetItems) {
         this.colliderTargetItems = colliderTargetItems;
-        setChanged();
+        this.setChanged();
     }
 
     public void setColliderProcessing(boolean colliderProcessing) {
         this.colliderProcessing = colliderProcessing;
-        setChanged();
+        this.setChanged();
     }
 
     public void setColliderStarMissing(boolean colliderStarMissing) {
         this.colliderStarMissing = colliderStarMissing;
-        setChanged();
+        this.setChanged();
     }
 
     public void setEjectCooldown(int ejectCooldown) {
         this.ejectCooldown = ejectCooldown;
-        setChanged();
+        this.setChanged();
     }
 
     // === Persistence (26.1: ValueOutput / ValueInput for disk) ===
@@ -318,24 +318,24 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt("ejectCooldown", ejectCooldown);
+        output.putInt("ejectCooldown", this.ejectCooldown);
         this.itemHandler.serialize(output.child("inventory"));
-        if (!templeDemandItem.isEmpty()) {
-            output.store("templeDemandItem", ItemStack.OPTIONAL_CODEC, templeDemandItem);
+        if (!this.templeDemandItem.isEmpty()) {
+            output.store("templeDemandItem", ItemStack.OPTIONAL_CODEC, this.templeDemandItem);
         }
-        output.putInt("templeDemandCount", templeDemandCount);
-        output.putInt("templeDemandProgress", templeDemandProgress);
-        output.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
-        if (!colliderTargetItems.isEmpty()) {
+        output.putInt("templeDemandCount", this.templeDemandCount);
+        output.putInt("templeDemandProgress", this.templeDemandProgress);
+        output.putBoolean("templeDemandSatisfied", this.templeDemandSatisfied);
+        if (!this.colliderTargetItems.isEmpty()) {
             ValueOutput.ValueOutputList list = output.childrenList("colliderTargetItems");
-            for (ItemStack stack : colliderTargetItems) {
+            for (ItemStack stack : this.colliderTargetItems) {
                 if (!stack.isEmpty()) {
                     list.addChild().store("item", ItemStack.OPTIONAL_CODEC, stack);
                 }
             }
         }
-        output.putBoolean("colliderProcessing", colliderProcessing);
-        output.putBoolean("colliderStarMissing", colliderStarMissing);
+        output.putBoolean("colliderProcessing", this.colliderProcessing);
+        output.putBoolean("colliderStarMissing", this.colliderStarMissing);
     }
 
     @Override
@@ -350,7 +350,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         this.colliderTargetItems.clear();
         input.childrenList("colliderTargetItems").ifPresent(list -> {
             for (ValueInput child : list) {
-                child.read("item", ItemStack.OPTIONAL_CODEC).ifPresent(colliderTargetItems::add);
+                child.read("item", ItemStack.OPTIONAL_CODEC).ifPresent(this.colliderTargetItems::add);
             }
         });
         this.colliderProcessing = input.getBooleanOr("colliderProcessing", false);
@@ -362,29 +362,29 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putInt("ejectCooldown", ejectCooldown);
+        tag.putInt("ejectCooldown", this.ejectCooldown);
         // Serialize inventory data for client-side tooltip display
         TagValueOutput invOutput = TagValueOutput.createWithContext(
             new ProblemReporter.Collector(this.problemPath()), registries);
         this.itemHandler.serialize(invOutput);
         tag.put("inventory", invOutput.buildResult());
-        if (!templeDemandItem.isEmpty()) {
-            tag.put("templeDemandItem", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, templeDemandItem).getOrThrow());
+        if (!this.templeDemandItem.isEmpty()) {
+            tag.put("templeDemandItem", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.templeDemandItem).getOrThrow());
         }
-        tag.putInt("templeDemandCount", templeDemandCount);
-        tag.putInt("templeDemandProgress", templeDemandProgress);
-        tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
-        if (!colliderTargetItems.isEmpty()) {
+        tag.putInt("templeDemandCount", this.templeDemandCount);
+        tag.putInt("templeDemandProgress", this.templeDemandProgress);
+        tag.putBoolean("templeDemandSatisfied", this.templeDemandSatisfied);
+        if (!this.colliderTargetItems.isEmpty()) {
             ListTag list = new ListTag();
-            for (ItemStack stack : colliderTargetItems) {
+            for (ItemStack stack : this.colliderTargetItems) {
                 if (!stack.isEmpty()) {
                     list.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack).getOrThrow());
                 }
             }
             tag.put("colliderTargetItems", list);
         }
-        tag.putBoolean("colliderProcessing", colliderProcessing);
-        tag.putBoolean("colliderStarMissing", colliderStarMissing);
+        tag.putBoolean("colliderProcessing", this.colliderProcessing);
+        tag.putBoolean("colliderStarMissing", this.colliderStarMissing);
         return tag;
     }
 }

@@ -577,7 +577,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         }
         if (!this.portals.isEmpty()) {
             ValueOutput.ValueOutputList portalList = output.childrenList("portals");
-            for (Map.Entry<Cube323PartHalf, BlockPos> entry : portals.entrySet()) {
+            for (Map.Entry<Cube323PartHalf, BlockPos> entry : this.portals.entrySet()) {
                 ValueOutput child = portalList.addChild();
                 child.putString("side", entry.getKey().getSerializedName());
                 child.putInt("px", entry.getValue().getX());

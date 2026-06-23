@@ -105,35 +105,35 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (id == 0) {
-            blockEntity.startSearch();
+            this.blockEntity.startSearch();
             return true;
         }
         if (id >= 1 && id <= 8) {
             int slot = (id - 1) % 4;
             boolean add = id <= 4;
-            handleAnvilTransfer(slot, add);
+            this.handleAnvilTransfer(slot, add);
             return true;
         }
         if (id >= 9 && id < 100) {
             int optionIndex = id - 9;
-            blockEntity.configureMaterialSlot(optionIndex);
+            this.blockEntity.configureMaterialSlot(optionIndex);
             return true;
         }
         if (id >= 100 && id < 200) {
             int optionIndex = id - 100;
-            blockEntity.buildMegastructure(optionIndex);
+            this.blockEntity.buildMegastructure(optionIndex);
             return true;
         }
         if (id == 200) {
-            blockEntity.toggleLocked();
+            this.blockEntity.toggleLocked();
             return true;
         }
         if (id == 201) {
-            blockEntity.browseHistoryPrev();
+            this.blockEntity.browseHistoryPrev();
             return true;
         }
         if (id == 202) {
-            blockEntity.browseHistoryNext();
+            this.blockEntity.browseHistoryNext();
             return true;
         }
         return super.clickMenuButton(player, id);
@@ -193,13 +193,13 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         if (!player.level().isClientSide()) {
-            blockEntity.setMaterialFilter(new ItemStack(Items.BARRIER));
-            blockEntity.setMaterialLimit(0);
-            blockEntity.setChanged();
-            var level = blockEntity.getLevel();
+            this.blockEntity.setMaterialFilter(new ItemStack(Items.BARRIER));
+            this.blockEntity.setMaterialLimit(0);
+            this.blockEntity.setChanged();
+            var level = this.blockEntity.getLevel();
             if (level != null) {
-                var state = blockEntity.getBlockState();
-                level.sendBlockUpdated(blockEntity.getBlockPos(), state, state, 3);
+                var state = this.blockEntity.getBlockState();
+                level.sendBlockUpdated(this.blockEntity.getBlockPos(), state, state, 3);
             }
         }
     }
@@ -207,7 +207,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(
-            ContainerLevelAccess.create(this.blockEntity.getLevel(), blockEntity.getBlockPos()),
+            ContainerLevelAccess.create(this.blockEntity.getLevel(), this.blockEntity.getBlockPos()),
             player,
             ModBlocks.CELESTIAL_FORGING_ANVIL.get()
         );
@@ -396,14 +396,14 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            ItemStack filter = blockEntity.getMaterialFilter();
+            ItemStack filter = this.blockEntity.getMaterialFilter();
             if (filter.isEmpty() || filter.is(Items.BARRIER)) return false;
             return ItemStack.isSameItemSameComponents(filter, stack);
         }
 
         @Override
         public int getMaxStackSize() {
-            int limit = blockEntity.getMaterialLimit();
+            int limit = this.blockEntity.getMaterialLimit();
             return limit > 0 ? limit : 1;
         }
     }
