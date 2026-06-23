@@ -4,8 +4,11 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
+import com.mojang.blaze3d.shaders.UniformType;
+import dev.anvilcraft.lib.v2.rendering.ALRPipelines;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.neoforged.api.distmarker.Dist;
@@ -47,7 +50,8 @@ public class ModRenderPipelines {
         .withColorTargetState(new ColorTargetState(LASER_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withFragmentShader(AnvilCraft.of("core/rendertype_lightning"))
-        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/lightning"))
         .build();
 
@@ -56,10 +60,18 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/scan_preview"))
         .build();
 
+    public static final RenderPipeline GRAVITATIONAL_LENS = RenderPipeline.builder(ALRPipelines.POST_PASS)
+        .withLocation(AnvilCraft.of("pipeline/gravitational_lens"))
+        .withFragmentShader(AnvilCraft.of("core/gravitational_lens"))
+        .withUniform("SamplerInfo", UniformType.UNIFORM_BUFFER)
+        .withUniform("BlackHoles", UniformType.UNIFORM_BUFFER)
+        .build();
+
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(LASER_TRANSLUCENT);
         event.registerPipeline(LIGHTNING);
         event.registerPipeline(SCAN_PREVIEW);
+        event.registerPipeline(GRAVITATIONAL_LENS);
     }
 }

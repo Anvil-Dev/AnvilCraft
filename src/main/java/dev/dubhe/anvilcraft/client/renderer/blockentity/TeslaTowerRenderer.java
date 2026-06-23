@@ -70,6 +70,7 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
         if (state.getStart() == null || state.getEnd() == null || state.getCamera() == null) {
             return;
         }
+        System.out.println("RENDER! = ");
         collector.submitCustomGeometry(
             pose,
             ModRenderTypes.LIGHTNING,

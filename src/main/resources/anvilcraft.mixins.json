@@ -88,12 +88,10 @@
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
-    "LevelRendererMixin",
     "GuiGraphicsExtractorMixin",
     "ItemInHandRendererMixin",
     "ItemSubmitMixin",
     "MouseHandlerMixin",
-    "GlCommandEncoderMixin",
     "PostChainAccessor",
     "SectionCompilerMixin",
     "SoundEngineMixin",

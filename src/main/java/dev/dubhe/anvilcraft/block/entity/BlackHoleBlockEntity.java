@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.client.support.GravitationalLensManager;
+import dev.dubhe.anvilcraft.client.support.GravitationalLensSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
@@ -22,7 +22,7 @@ public class BlackHoleBlockEntity extends BlockEntity {
         super.onLoad();
         if (this.level != null) {
             if (this.level.isClientSide()) {
-                GravitationalLensManager.register(this.worldPosition);
+                GravitationalLensSupport.register(this.worldPosition);
             } else {
                 GravityManager.GravitySourceType type = GravityManager.GravitySourceManager.getType(this.getBlockState().getBlock());
                 if (type != null) {
@@ -37,7 +37,7 @@ public class BlackHoleBlockEntity extends BlockEntity {
         super.setRemoved();
         if (this.level != null) {
             if (this.level.isClientSide()) {
-                GravitationalLensManager.unregister(this.worldPosition);
+                GravitationalLensSupport.unregister(this.worldPosition);
             } else {
                 GravityManager.GravitySourceManager.removeSource(this.level, this.worldPosition);
             }
