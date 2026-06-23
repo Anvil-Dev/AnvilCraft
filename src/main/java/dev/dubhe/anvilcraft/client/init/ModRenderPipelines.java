@@ -55,11 +55,6 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/lightning"))
         .build();
 
-    public static final RenderPipeline SCAN_PREVIEW = RenderPipeline.builder(net.minecraft.client.renderer.RenderPipelines.BLOCK_SNIPPET)
-        .withFragmentShader(AnvilCraft.of("core/scan_preview"))
-        .withLocation(AnvilCraft.of("pipeline/scan_preview"))
-        .build();
-
     public static final RenderPipeline GRAVITATIONAL_LENS = RenderPipeline.builder(ALRPipelines.POST_PASS)
         .withLocation(AnvilCraft.of("pipeline/gravitational_lens"))
         .withFragmentShader(AnvilCraft.of("core/gravitational_lens"))
@@ -71,7 +66,6 @@ public class ModRenderPipelines {
     public static void on(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(LASER_TRANSLUCENT);
         event.registerPipeline(LIGHTNING);
-        event.registerPipeline(SCAN_PREVIEW);
         event.registerPipeline(GRAVITATIONAL_LENS);
     }
 }
