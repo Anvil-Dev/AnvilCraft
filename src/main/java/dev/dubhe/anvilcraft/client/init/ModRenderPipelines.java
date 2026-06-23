@@ -51,9 +51,15 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/lightning"))
         .build();
 
+    public static final RenderPipeline SCAN_PREVIEW = RenderPipeline.builder(net.minecraft.client.renderer.RenderPipelines.BLOCK_SNIPPET)
+        .withFragmentShader(AnvilCraft.of("core/scan_preview"))
+        .withLocation(AnvilCraft.of("pipeline/scan_preview"))
+        .build();
+
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(LASER_TRANSLUCENT);
         event.registerPipeline(LIGHTNING);
+        event.registerPipeline(SCAN_PREVIEW);
     }
 }
