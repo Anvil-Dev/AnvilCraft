@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.container.storage;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -19,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
-public class CrateBlock extends Block implements EntityBlock {
+public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     public CrateBlock(Properties properties) {
         super(properties);
     }
