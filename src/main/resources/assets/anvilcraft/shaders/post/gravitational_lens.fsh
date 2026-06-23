@@ -80,14 +80,5 @@ void main() {
         color = mix(color, vec3(0.0, 0.0, 0.0), clamp(horizonMask, 0.0, 1.0));
     }
 
-    // DEBUG: green circle to verify pipeline + InSize (should be round if SamplerInfo is correct)
-    {
-        vec2 toCenter = uv - vec2(0.5);
-        toCenter.x *= aspectRatio;
-        if (length(toCenter) < 0.03) {
-            color = mix(color, vec3(0.0, 1.0, 0.0), 0.5);
-        }
-    }
-
     fragColor = vec4(color, 1.0);
 }
