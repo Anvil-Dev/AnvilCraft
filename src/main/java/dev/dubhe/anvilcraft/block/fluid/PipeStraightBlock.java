@@ -65,27 +65,18 @@ public class PipeStraightBlock extends PipeBlock {
         Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
-        if (orientation == null) return;
         Direction.Axis axis = state.getValue(AXIS);
-        Direction neighborDir = orientation.getFront();
-
-        if (neighborDir.getAxis() != axis) {
-            BlockState neighborState = level.getBlockState(pos.relative(neighborDir));
-            boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
-            boolean neighborIsPump = neighborState.getBlock() instanceof PumpBlock;
-            if (!neighborIsPipeToward && !neighborIsPump) return;
-            BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
-                .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
-            for (Direction dir : Direction.values()) {
-                nodeState = nodeState.setValue(getPropertyForDirection(dir),
-                    PipeNodeBlock.evaluateNeighbor(level, pos, dir));
-            }
-            level.setBlockAndUpdate(pos, nodeState);
-            return;
+        BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+            .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+        boolean changed = false;
+        for (Direction dir : Direction.values()) {
+            nodeState = nodeState.setValue(getPropertyForDirection(dir),
+                PipeNodeBlock.evaluateNeighbor(level, pos, dir));
         }
-        Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-        boolean neighborIsPipe = level.getBlockState(pos.relative(neighborDir)).getBlock() instanceof PipeBlock;
-        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipe);
+        BlockState simplified = PipeNodeBlock.trySimplify(nodeState);
+        if (!simplified.equals(state)) {
+            level.setBlockAndUpdate(pos, simplified);
+        }
     }
 
     @Override

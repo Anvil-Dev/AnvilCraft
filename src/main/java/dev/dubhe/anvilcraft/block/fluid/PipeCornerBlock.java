@@ -50,7 +50,8 @@ public class PipeCornerBlock extends PipeBlock {
     }
 
     /**
-     * 邻居更新：非弯管方向有管道对准时转为节点；弯管方向开/关端头。
+     * 邻居更新：全方向扫描重建连接状态。
+     * 参考 1.21.1 风格，不依赖 orientation 参数，每次变更都扫描全部方向。
      */
     @Override
     protected void neighborChanged(
@@ -62,26 +63,16 @@ public class PipeCornerBlock extends PipeBlock {
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
-        if (orientation == null) return;
-        CornerEnded corner = state.getValue(CORNER_ENDED);
-        Direction neighborDir = orientation.getFront();
-
-        if (!corner.containsDirection(neighborDir)) {
-            BlockState neighborState = level.getBlockState(pos.relative(neighborDir));
-            if (isNeighborPipeToward(level, pos, neighborDir) || neighborState.getBlock() instanceof PumpBlock) {
-                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
-                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
-                for (Direction dir : Direction.values()) {
-                    nodeState = nodeState.setValue(getPropertyForDirection(dir),
-                        PipeNodeBlock.evaluateNeighbor(level, pos, dir));
-                }
-                level.setBlockAndUpdate(pos, nodeState);
-            }
-            return;
+        BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+            .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+        for (Direction dir : Direction.values()) {
+            nodeState = nodeState.setValue(getPropertyForDirection(dir),
+                PipeNodeBlock.evaluateNeighbor(level, pos, dir));
         }
-        boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
-        Direction startDir = corner.getFirstDirection();
-        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipeToward);
+        BlockState simplified = PipeNodeBlock.trySimplify(nodeState);
+        if (!simplified.equals(state)) {
+            level.setBlockAndUpdate(pos, simplified);
+        }
     }
 
     @Override

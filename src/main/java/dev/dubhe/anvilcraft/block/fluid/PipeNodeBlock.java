@@ -82,14 +82,9 @@ public class PipeNodeBlock extends PipeBlock {
         Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
-        if (orientation == null) return;
-        Direction neighborDir = orientation.getFront();
-        EnumProperty<NodePipe> prop = getPropertyForDirection(neighborDir);
-        NodePipe newValue = evaluateNeighbor(level, pos, neighborDir);
-        if (state.getValue(prop) == newValue) return;
-        BlockState newState = state.setValue(prop, newValue);
-        BlockState simplified = trySimplify(newState);
-        level.setBlockAndUpdate(pos, simplified);
+        BlockState updated = scanAllDirections(state, level, pos);
+        BlockState simplified = trySimplify(updated);
+        if (!simplified.equals(state)) level.setBlockAndUpdate(pos, simplified);
     }
 
     public static NodePipe evaluateNeighbor(Level level, BlockPos pos, Direction dir) {

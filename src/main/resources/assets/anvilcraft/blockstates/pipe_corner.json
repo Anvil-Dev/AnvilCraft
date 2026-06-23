@@ -3,8 +3,7 @@
     {
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
-        "x": 180,
-        "y": 270
+        "x": 180
       },
       "when": {
         "corner_ended": "down_north"
@@ -14,7 +13,7 @@
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
         "x": 180,
-        "y": 90
+        "y": 180
       },
       "when": {
         "corner_ended": "down_south"
@@ -23,7 +22,8 @@
     {
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
-        "x": 180
+        "x": 180,
+        "y": 90
       },
       "when": {
         "corner_ended": "down_east"
@@ -33,7 +33,7 @@
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
         "x": 180,
-        "y": 180
+        "y": 270
       },
       "when": {
         "corner_ended": "down_west"
@@ -41,8 +41,7 @@
     },
     {
       "apply": {
-        "model": "anvilcraft:block/pipe_side_corner",
-        "y": 270
+        "model": "anvilcraft:block/pipe_side_corner"
       },
       "when": {
         "corner_ended": "up_north"
@@ -50,7 +49,8 @@
     },
     {
       "apply": {
-        "model": "anvilcraft:block/pipe_side_corner"
+        "model": "anvilcraft:block/pipe_side_corner",
+        "y": 90
       },
       "when": {
         "corner_ended": "up_east"
@@ -59,7 +59,7 @@
     {
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
-        "y": 90
+        "y": 180
       },
       "when": {
         "corner_ended": "up_south"
@@ -68,7 +68,7 @@
     {
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
-        "y": 180
+        "y": 270
       },
       "when": {
         "corner_ended": "up_west"
@@ -77,7 +77,8 @@
     {
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
-        "x": 90
+        "x": 90,
+        "z": 270
       },
       "when": {
         "corner_ended": "north_east"
@@ -86,8 +87,9 @@
     {
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
-        "x": 90,
-        "y": 90
+        "x": 0,
+        "y": 90,
+        "z": 0
       },
       "when": {
         "corner_ended": "south_east"
@@ -97,7 +99,8 @@
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
         "x": 90,
-        "y": 180
+        "y": 180,
+        "z": 90
       },
       "when": {
         "corner_ended": "south_west"
@@ -106,8 +109,9 @@
     {
       "apply": {
         "model": "anvilcraft:block/pipe_side_corner",
-        "x": 90,
-        "y": 270
+        "x": 270,
+        "y": 270,
+        "z": 180
       },
       "when": {
         "corner_ended": "north_west"
