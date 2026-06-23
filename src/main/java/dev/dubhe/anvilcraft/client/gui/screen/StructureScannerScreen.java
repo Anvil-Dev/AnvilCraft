@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.component.ItemCollectorButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -601,7 +602,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.previewWindowY + this.previewWindowHeight,
             scale,
             true,
-            false,
+            AnvilCraftClient.CONFIG.renderScanPreviewEffect,
             poseStack
         );
     }

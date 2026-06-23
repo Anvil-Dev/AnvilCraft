@@ -28,6 +28,9 @@ public class AnvilCraftClientConfig {
     @Comment("Bloom effect on laser and power transmitter lines.")
     public boolean renderBloomEffect = true;
 
+    @Comment("Scanline post-processing effect on 3D structure previews.")
+    public boolean renderScanPreviewEffect = true;
+
     @CollapsibleObject
     public GravitationalLens gravitationalLens = new GravitationalLens();
 
