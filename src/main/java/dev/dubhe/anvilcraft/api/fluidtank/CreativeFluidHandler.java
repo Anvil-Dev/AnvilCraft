@@ -35,4 +35,10 @@ public class CreativeFluidHandler extends FluidStacksResourceHandler {
         if (!FluidResource.of(existing).equals(resource)) return 0;
         return amount;
     }
+
+    @Override
+    public long getAmountAsLong(int index) {
+        // 创造模式储罐永远显示满箱
+        return this.capacity;
+    }
 }
