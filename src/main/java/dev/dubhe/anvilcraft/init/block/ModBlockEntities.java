@@ -438,6 +438,7 @@ public class ModBlockEntities {
         .blockEntity("large_laser", LargeLaserBlockEntity::new)
         .validBlock(ModBlocks.LARGE_LASER)
         .renderer(() -> LaserBlockEntityRenderer::new)
+        .register();
 
     public static final BlockEntityEntry<SpacetimeSupercomputerBlockEntity> SPACETIME_SUPERCOMPUTER = REGISTRUM
         .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
