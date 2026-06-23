@@ -100,9 +100,10 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
                 BlockPos neighborPos = pos.relative(Direction.UP);
                 if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
                     PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.UP);
-                    if (pumpEnd != null)
+                    if (pumpEnd != null) {
                         AbstractPipeBlockEntity.moveFluidWithHeightCheck(
                             level, pos, Direction.UP, pumpEnd.pos(), pumpEnd.direction(), pumpEnd.effectiveHeight());
+                    }
                 } else {
                     AbstractPipeBlockEntity.moveFluidWithHeightCheck(
                         level, pos, Direction.UP, pos.relative(Direction.UP), Direction.DOWN, 0);
@@ -112,9 +113,11 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
                 BlockPos neighborPos = pos.relative(Direction.DOWN);
                 if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
                     PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.DOWN);
-                    if (pumpEnd != null)
+                    if (pumpEnd != null) {
                         AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                            level, pos.relative(Direction.DOWN), Direction.UP, pumpEnd.pos(), pumpEnd.direction(), pumpEnd.effectiveHeight());
+                            level, pos.relative(Direction.DOWN),
+                            Direction.UP, pumpEnd.pos(), pumpEnd.direction(), pumpEnd.effectiveHeight());
+                    }
                 } else {
                     AbstractPipeBlockEntity.moveFluidWithHeightCheck(
                         level, pos.relative(Direction.DOWN), Direction.UP, pos, Direction.DOWN, 0);

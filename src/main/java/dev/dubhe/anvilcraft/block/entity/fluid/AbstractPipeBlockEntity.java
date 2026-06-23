@@ -83,8 +83,9 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         Direction targetDir = direction.getOpposite();
         if (!hasNext) {
             BlockPos neighborPos = blockPos.relative(targetDir);
-            if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock)
+            if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
                 return getPipeEnd(level, neighborPos, direction, accumulatedHeight);
+            }
             return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
         return getPipeEnd(level, blockPos.relative(targetDir), direction, accumulatedHeight);
@@ -107,8 +108,9 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         }
         if (!hasNext) {
             BlockPos neighborPos = blockPos.relative(targetDir);
-            if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock)
+            if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
                 return getPipeEnd(level, neighborPos, targetDir.getOpposite(), accumulatedHeight);
+            }
             return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
         return getPipeEnd(level, blockPos.relative(targetDir), targetDir.getOpposite(), accumulatedHeight);

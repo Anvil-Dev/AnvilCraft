@@ -31,8 +31,9 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
     }
 
     public static int getEndCount(BlockState blockState) {
-        if (!(blockState.getBlock() instanceof PipeStraightBlock) && !(blockState.getBlock() instanceof PipeCornerBlock))
+        if (!(blockState.getBlock() instanceof PipeStraightBlock) && !(blockState.getBlock() instanceof PipeCornerBlock)) {
             return -1;
+        }
         int count = 0;
         if (blockState.getValue(PipeStraightBlock.HAS_END_START)) count++;
         if (blockState.getValue(PipeStraightBlock.HAS_END_END)) count++;
@@ -85,13 +86,19 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
         Direction sourceDirection;
         boolean hasEndStart = state.getValue(PipeBlock.HAS_END_START);
         if (isStraight) {
-            if (hasEndStart) sourceDirection = PipeBlock.getDirectionFromAxis(
-                state.getValue(PipeStraightBlock.AXIS), Direction.AxisDirection.NEGATIVE);
-            else sourceDirection = PipeBlock.getDirectionFromAxis(
-                state.getValue(PipeStraightBlock.AXIS), Direction.AxisDirection.POSITIVE);
+            if (hasEndStart) {
+                sourceDirection = PipeBlock.getDirectionFromAxis(
+                    state.getValue(PipeStraightBlock.AXIS), Direction.AxisDirection.NEGATIVE);
+            } else {
+                sourceDirection = PipeBlock.getDirectionFromAxis(
+                    state.getValue(PipeStraightBlock.AXIS), Direction.AxisDirection.POSITIVE);
+            }
         } else {
-            if (hasEndStart) sourceDirection = state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection();
-            else sourceDirection = state.getValue(PipeCornerBlock.CORNER_ENDED).getSecondDirection();
+            if (hasEndStart) {
+                sourceDirection = state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection();
+            } else {
+                sourceDirection = state.getValue(PipeCornerBlock.CORNER_ENDED).getSecondDirection();
+            }
         }
         PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos, sourceDirection);
         if (pipeEnd == null) return;

@@ -45,32 +45,40 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     }
 
     @Override
-    public int getInputPower() { return PUMP_POWER; }
+    public int getInputPower() {
+        return PUMP_POWER;
+    }
 
     @Override
-    public @Nullable Level getCurrentLevel() { return getLevel(); }
+    public @Nullable Level getCurrentLevel() {
+        return getLevel();
+    }
 
     @Override
-    public BlockPos getPos() { return getBlockPos(); }
+    public BlockPos getPos() {
+        return getBlockPos();
+    }
 
-    public boolean canPump() { return this.working && this.grid != null && this.grid.isWorking(); }
+    public boolean canPump() {
+        return this.working && this.grid != null && this.grid.isWorking();
+    }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putBoolean("Working", working);
+        output.putBoolean("Working", this.working);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        working = input.getBooleanOr("Working", false);
+        this.working = input.getBooleanOr("Working", false);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("Working", working);
+        tag.putBoolean("Working", this.working);
         return tag;
     }
 
