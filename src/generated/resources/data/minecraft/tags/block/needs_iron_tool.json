@@ -32,6 +32,8 @@
     "anvilcraft:ruby_block",
     "anvilcraft:sapphire_block",
     "anvilcraft:chromatic_stone",
-    "anvilcraft:exp_gem_block"
+    "anvilcraft:exp_gem_block",
+    "anvilcraft:creative_fluid_tank",
+    "anvilcraft:creative_crate"
   ]
 }

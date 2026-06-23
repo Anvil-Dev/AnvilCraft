@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
@@ -106,6 +107,14 @@ public class RegisterAdditionalEventListener {
         event.register(
             SmartBlockPlacerRenderer.CLAW_OPEN_MODEL,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_claw_open"))
+        );
+        event.register(
+            PumpBlockEntityRenderer.PUMP_PISTON_1,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/pump_piston_1"))
+        );
+        event.register(
+            PumpBlockEntityRenderer.PUMP_PISTON_2,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/pump_piston_2"))
         );
     }
 

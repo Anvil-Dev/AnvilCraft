@@ -7,12 +7,15 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
+import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
+import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -42,6 +45,7 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BURNING_HEATER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CREATIVE_CRATE.get(), ModCapabilities::item);
 
         event.registerBlock(
             Capabilities.Item.BLOCK,
@@ -64,8 +68,25 @@ public class ModCapabilities {
 
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FLUID_TANK.get(), ModCapabilities::fluid);
-        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.LARGE_FLUID_TANK.get(), ModCapabilities::fluid);
+        event.registerBlock(
+            Capabilities.Fluid.BLOCK,
+            ((level, pos, state, be, direction) -> {
+                if (!(state.getBlock() instanceof LargeFluidTankBlock tankBlock)) return null;
+                BlockPos mainPos = tankBlock.getMainPartPos(pos, state);
+                BlockEntity mainBe = level.getBlockEntity(mainPos);
+                if (mainBe instanceof LargeFluidTankBlockEntity tank) {
+                    return tank.getFluidHandler();
+                }
+                return null;
+            }),
+            ModBlocks.LARGE_FLUID_TANK.get()
+        );
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PIPE_NODE.get(), ModCapabilities::fluid);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.CREATIVE_FLUID_TANK.get(), ModCapabilities::fluid);
 
+        event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.WATER_BUCKET);
+        event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.LAVA_BUCKET);
+        event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.MILK_BUCKET);
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);
 
         // 武器物品注册 FE ITEM capability
