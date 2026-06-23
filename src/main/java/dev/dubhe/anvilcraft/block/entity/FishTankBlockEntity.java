@@ -930,6 +930,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     public void refreshIgnited() {
         if (!FishTankBlockEntity.canIgnite(this.fluidHandler.getStack())) {
             this.setIgnited(false);
+            return;
         }
         if (this.isIgnited()) {
             return;
