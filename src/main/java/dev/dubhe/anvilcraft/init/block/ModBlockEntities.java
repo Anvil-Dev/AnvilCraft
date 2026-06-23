@@ -47,6 +47,7 @@ import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
@@ -437,6 +438,10 @@ public class ModBlockEntities {
         .blockEntity("large_laser", LargeLaserBlockEntity::new)
         .validBlock(ModBlocks.LARGE_LASER)
         .renderer(() -> LaserBlockEntityRenderer::new)
+
+    public static final BlockEntityEntry<SpacetimeSupercomputerBlockEntity> SPACETIME_SUPERCOMPUTER = REGISTRUM
+        .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
+        .validBlock(ModBlocks.SPACETIME_SUPERCOMPUTER)
         .register();
 
     public static void register() {

@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "anvilcraft:cut_brass_block",
+  "result": {
+    "id": "anvilcraft:chiseled_brass_block"
+  }
+}
