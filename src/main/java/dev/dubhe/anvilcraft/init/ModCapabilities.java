@@ -82,6 +82,9 @@ public class ModCapabilities {
         );
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PIPE_NODE.get(), ModCapabilities::fluid);
 
+        event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.WATER_BUCKET);
+        event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.LAVA_BUCKET);
+        event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.MILK_BUCKET);
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);
 
         // 武器物品注册 FE ITEM capability
