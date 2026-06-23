@@ -63,6 +63,7 @@ import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
 import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
 import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
+import dev.dubhe.anvilcraft.block.laser.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.LaserReceiverBlock;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyLaserBlock;
@@ -606,7 +607,7 @@ public class ModBlocks {
             .noOcclusion()
             .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) >= 2 ? 15
                 : state.getValue(BurningHeaterBlock.LEVEL) >= 1 ? 7 : 0)
-            )
+        )
         .simpleItem()
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
             MultiVariantGenerator.dispatch(ctx.get())
@@ -936,7 +937,7 @@ public class ModBlocks {
             Identifier overload = ctx.getId().withPrefix("block/").withSuffix("_bottom_overload");
             generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
                 .with(PropertyDispatch.initial(
-                    SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED, SmartBlockPlacerBlock
+                        SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED, SmartBlockPlacerBlock
                             .UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
                     .generate((isOverload, isPowered, isUpsideDown, facing) -> {
                         Identifier model = isOverload ? overload : (isPowered ? off : bottom);
@@ -966,7 +967,7 @@ public class ModBlocks {
             Identifier model = ctx.getId().withPrefix("block/");
             generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
                 .with(PropertyDispatch.initial(
-                    StructureScannerBlock.UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
+                        StructureScannerBlock.UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
                     .generate((isUpsideDown, facing) -> {
                         Quadrant baseY = switch (facing) {
                             case EAST -> Quadrant.R90;
@@ -1011,6 +1012,18 @@ public class ModBlocks {
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<LargeLaserBlock> LARGE_LASER = REGISTRUM
+        .block("large_laser", LargeLaserBlock::new)
+        .initialProperties(RUBY_LASER::get)
+        .properties(properties -> properties.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never))
+        .loot(FlexibleMultiPartBlock::loot)
+        .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>::new)
+        .properties((properties) -> properties.stacksTo(16))
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -1912,11 +1925,11 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(() -> DataGenUtil.slabBlock(
-           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
-           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
-           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
-           _ -> AnvilCraft.of("block/cut_heavy_iron_block")
-            ))
+            _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+            _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+            _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+            _ -> AnvilCraft.of("block/cut_heavy_iron_block")
+        ))
         .item()
         .tag(ItemTags.SLABS)
         .build()
@@ -3042,7 +3055,7 @@ public class ModBlocks {
     private static BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(Color color) {
         // noinspection Convert2Lambda
         return REGISTRUM.block(
-            color + "_reinforced_concrete",
+                color + "_reinforced_concrete",
                 p -> new ReinforcedConcreteBlock(p, color)
             ).initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
@@ -3067,22 +3080,22 @@ public class ModBlocks {
                         .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)), false)
                         .build(generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)));
                     generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
-                                                          .with(
-                                                              PropertyDispatchWrap.initial(ReinforcedConcreteBlock.HALF)
-                                                                  .select(
-                                                                      ReinforcedConcreteHalf.TOP,
-                                                                      BlockModelGenerators.plainVariant(topModel)
-                                                                  )
-                                                                  .select(
-                                                                      ReinforcedConcreteHalf.SINGLE,
-                                                                      BlockModelGenerators.plainVariant(singleModel)
-                                                                  )
-                                                                  .select(
-                                                                      ReinforcedConcreteHalf.BOTTOM,
-                                                                      BlockModelGenerators.plainVariant(bottomModel)
-                                                                  )
-                                                                  .dispatch()
-                                                          ));
+                        .with(
+                            PropertyDispatchWrap.initial(ReinforcedConcreteBlock.HALF)
+                                .select(
+                                    ReinforcedConcreteHalf.TOP,
+                                    BlockModelGenerators.plainVariant(topModel)
+                                )
+                                .select(
+                                    ReinforcedConcreteHalf.SINGLE,
+                                    BlockModelGenerators.plainVariant(singleModel)
+                                )
+                                .select(
+                                    ReinforcedConcreteHalf.BOTTOM,
+                                    BlockModelGenerators.plainVariant(bottomModel)
+                                )
+                                .dispatch()
+                        ));
                 }
             })
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))

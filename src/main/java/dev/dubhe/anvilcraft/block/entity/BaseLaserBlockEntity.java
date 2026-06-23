@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRende
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
@@ -148,6 +149,13 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void emitLaser(Direction direction) {
         if (this.level == null) return;
         BlockPos tempIrradiateBlockPos = this.getIrradiateBlockPos(this.maxTransmissionDistance, direction, this.getBlockPos());
+        if (this.getBlockState().getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
+            tempIrradiateBlockPos = this.getIrradiateBlockPos(
+                this.maxTransmissionDistance,
+                direction,
+                this.getBlockPos().relative(direction)
+            );
+        }
         if (this.irradiateBlockPos != null && !tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
             if (this.level.getBlockEntity(this.irradiateBlockPos) instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity) {
                 lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
@@ -175,11 +183,12 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         this.updateLaserLevel(this.calculateLaserLevel());
         int hurt = Math.min(16, this.laserLevel - 4);
         if (hurt > 0) {
+            Vec3 startPos = this.getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625);
+            if (this.getBlockState().getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
+                startPos = this.getBlockPos().relative(direction).getCenter().add(-0.0625, -0.0625, -0.0625);
+            }
             AABB trackBoundingBox = new AABB(
-                this.getBlockPos()
-                    .relative(direction)
-                    .getCenter()
-                    .add(-0.0625, -0.0625, -0.0625),
+                startPos,
                 this.irradiateBlockPos.relative(direction.getOpposite())
                     .getCenter()
                     .add(0.0625, 0.0625, 0.0625)
@@ -212,8 +221,12 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
     public void deliverItem(List<ItemStack> drops, Direction direction, BlockPos sourceBlockPos) {
         if (this.level == null) return;
-        Vec3 blockPos = getBlockPos().relative(direction.getOpposite()).getCenter();
+        Vec3 dropPos = getBlockPos().relative(direction.getOpposite()).getCenter();
         BlockPos downStreamPos = getBlockPos().relative(this.getFacing().getOpposite());
+        if (this.getBlockState().getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
+            dropPos = this.getBlockPos().relative(direction.getOpposite(), 2).getCenter();
+            downStreamPos = this.getBlockPos().relative(this.getFacing().getOpposite(), 2);
+        }
         if (getLevel() == null) return;
         ResourceHandler<ItemResource> cap = getLevel()
             .getCapability(
@@ -222,6 +235,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 this.getFacing()
             );
         BlockState sourceBlock = this.level.getBlockState(sourceBlockPos);
+        BlockPos finalDropStreamPos = downStreamPos;
+        Vec3 finalDropPos = dropPos;
         drops.forEach(itemStack -> {
             if (cap != null) {
                 ItemStack outItemStack = ItemHandlerUtil.insertItem(cap, itemStack, true);
@@ -230,18 +245,18 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 } else {
                     this.level.addFreshEntity(new ItemEntity(
                         this.level,
-                        blockPos.x,
-                        blockPos.y,
-                        blockPos.z,
+                        finalDropPos.x,
+                        finalDropPos.y,
+                        finalDropPos.z,
                         outItemStack
                     ));
                 }
             } else if (
-                this.level.getBlockEntity(downStreamPos) instanceof BaseLaserBlockEntity downStreamBlockEntity
+                this.level.getBlockEntity(finalDropStreamPos) instanceof BaseLaserBlockEntity downStreamBlockEntity
                 && downStreamBlockEntity.getFacing() == direction
             ) {
                 downStreamBlockEntity.deliverItem(drops, direction, sourceBlockPos);
-            } else this.level.addFreshEntity(new ItemEntity(this.level, blockPos.x, blockPos.y, blockPos.z, itemStack));
+            } else this.level.addFreshEntity(new ItemEntity(this.level, finalDropPos.x, finalDropPos.y, finalDropPos.z, itemStack));
         });
         if (this.level.getBlockEntity(downStreamPos) instanceof BaseLaserBlockEntity) return;
         if (sourceBlock.is(Blocks.ANCIENT_DEBRIS)) {
