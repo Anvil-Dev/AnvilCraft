@@ -1,0 +1,15 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "anvilcraft:block/cut_bronze_pillar",
+      "z": 90
+    },
+    "axis=y": {
+      "model": "anvilcraft:block/cut_bronze_pillar"
+    },
+    "axis=z": {
+      "model": "anvilcraft:block/cut_bronze_pillar",
+      "x": 90
+    }
+  }
+}
