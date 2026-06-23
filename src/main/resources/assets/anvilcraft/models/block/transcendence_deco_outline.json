@@ -1,0 +1,28 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"ambientocclusion": false,
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"1": "anvilcraft:block/transcendium_block_outline",
+		"particle": "anvilcraft:block/transcendium_block_outline"
+	},
+	"elements": [
+		{
+			"name": "cube_outline",
+			"from": [16, 16, 16],
+			"to": [0, 0, 0],
+			"shade": false,
+			"light_emission": 15,
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "south"},
+				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "west"},
+				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "north"},
+				"west": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "east"},
+				"up": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "down"},
+				"down": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1", "cullface": "up"}
+			}
+		}
+	]
+}

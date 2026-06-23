@@ -3,21 +3,103 @@ package dev.dubhe.anvilcraft.data.recipe;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
 
-public class CutterRecipeLoader {
-    public CutterRecipeLoader(RegistrumRecipeProvider provider) {
-        HolderGetter<Item> holder = provider.getItems();
-        this.bronzeSeriesBlockRecipe(holder, provider);
-        this.brassSeriesBlockRecipe(holder, provider);
-        this.plywoodSeriesBlockRecipe(holder, provider);
+public class StoneCutterRecipeLoader {
+    public StoneCutterRecipeLoader(RegistrumRecipeProvider provider) {
+        this.bronzeSeriesBlockRecipe(provider);
+        this.brassSeriesBlockRecipe(provider);
+        this.plywoodSeriesBlockRecipe(provider);
+
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.ARROW,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.CHECK_MARK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.CROSS_MARK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.EXCLAMATION_MARK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModBlocks.INDUCTION_LIGHT),
+            ModBlocks.QUESTION_MARK,
+            16
+        );
+
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.EMBER_METAL_NUGGET),
+            ModBlocks.EMBER_DECO_BLOCK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.EMBER_METAL_NUGGET),
+            ModBlocks.EMBER_DECO_OUTLINE,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.FROST_METAL_NUGGET),
+            ModBlocks.FROST_DECO_BLOCK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.FROST_METAL_NUGGET),
+            ModBlocks.FROST_DECO_OUTLINE,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+            ModBlocks.TRANSCENDENCE_DECO_BLOCK,
+            16
+        );
+        this.stoneCutterRecipe(
+            provider,
+            RecipeCategory.BUILDING_BLOCKS,
+            Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+            ModBlocks.TRANSCENDENCE_DECO_OUTLINE,
+            16
+        );
     }
 
-    public void bronzeSeriesBlockRecipe(HolderGetter<Item> holder, RegistrumRecipeProvider provider) {
+    public void bronzeSeriesBlockRecipe(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> holder = provider.getItems();
         // 青铜块 -> 切制青铜块x4
         SingleItemRecipeBuilder
             .stonecutting(
@@ -118,7 +200,8 @@ public class CutterRecipeLoader {
             .save(provider, "chiseled_bronze_block_from_cut_bronze_block");
     }
 
-    public void brassSeriesBlockRecipe(HolderGetter<Item> holder, RegistrumRecipeProvider provider) {
+    public void brassSeriesBlockRecipe(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> holder = provider.getItems();
         // 黄铜块 -> 切制黄铜块x4
         SingleItemRecipeBuilder
             .stonecutting(
@@ -219,7 +302,8 @@ public class CutterRecipeLoader {
             .save(provider, "chiseled_brass_block_from_cut_brass_block");
     }
 
-    public void plywoodSeriesBlockRecipe(HolderGetter<Item> holder, RegistrumRecipeProvider provider) {
+    public void plywoodSeriesBlockRecipe(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> holder = provider.getItems();
         SingleItemRecipeBuilder
             .stonecutting(
                 Ingredient.of(ModBlocks.PLYWOOD_BLOCK),
@@ -239,5 +323,62 @@ public class CutterRecipeLoader {
             )
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.PLYWOOD_BLOCK), AnvilCraftDatagen.has(holder, ModBlocks.PLYWOOD_BLOCK))
             .save(provider, "plywood_slab_from_plywood_block_ccuttting");
+    }
+
+    private void stoneCutterRecipe(
+        RegistrumRecipeProvider provider,
+        RecipeCategory recipeCategory,
+        Ingredient ingredient,
+        ItemLike result
+    ) {
+        this.stoneCutterRecipe(provider, recipeCategory, ingredient, result, 1);
+    }
+
+    private void stoneCutterRecipe(
+        RegistrumRecipeProvider provider,
+        RecipeCategory recipeCategory,
+        Ingredient ingredient, ItemLike result,
+        String path
+    ) {
+        this.stoneCutterRecipe(provider, recipeCategory, ingredient, result, 1, path);
+    }
+
+    private void stoneCutterRecipe(
+        RegistrumRecipeProvider provider,
+        RecipeCategory recipeCategory,
+        Ingredient ingredient,
+        ItemLike result,
+        int count
+    ) {
+        SingleItemRecipeBuilder stonecutting = SingleItemRecipeBuilder.stonecutting(
+            ingredient,
+            recipeCategory,
+            result,
+            count
+        );
+        for (Holder<Item> item : ingredient.getValues()) {
+            stonecutting.unlockedBy(AnvilCraftDatagen.hasItem(item.value()), AnvilCraftDatagen.has(provider.getItems(), item.value()));
+        }
+        stonecutting.save(provider);
+    }
+
+    private void stoneCutterRecipe(
+        RegistrumRecipeProvider provider,
+        RecipeCategory recipeCategory,
+        Ingredient ingredient,
+        ItemLike result,
+        int count,
+        String path
+    ) {
+        SingleItemRecipeBuilder stonecutting = SingleItemRecipeBuilder.stonecutting(
+            ingredient,
+            recipeCategory,
+            result,
+            count
+        );
+        for (Holder<Item> item : ingredient.getValues()) {
+            stonecutting.unlockedBy(AnvilCraftDatagen.hasItem(item.value()), AnvilCraftDatagen.has(provider.getItems(), item.value()));
+        }
+        stonecutting.save(provider, path);
     }
 }

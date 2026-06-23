@@ -1,25 +1,25 @@
-package dev.dubhe.anvilcraft.block.utility;
+package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 
-public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
-    public ArrowBlock(Properties properties) {
+public class InstructBlock extends HorizontalDirectionalBlock implements IHammerRemovable {
+    public InstructBlock(Properties properties) {
         super(properties);
         registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH));
     }
 
     @Override
-    protected MapCodec<? extends DirectionalBlock> codec() {
-        return Block.simpleCodec(ArrowBlock::new);
+    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+        return simpleCodec(InstructBlock::new);
     }
 
     @Override
@@ -41,6 +41,6 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getNearestLookingDirection().getOpposite());
+            .setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 }
