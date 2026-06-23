@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
+import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -82,7 +83,7 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FLUID_TANK.get(), ModCapabilities::fluid);
         event.registerBlock(
             Capabilities.Fluid.BLOCK,
-            ((level, pos, state, be, direction) -> {
+            ((level, pos, state, _, _) -> {
                 if (!(state.getBlock() instanceof LargeFluidTankBlock tankBlock)) return null;
                 BlockPos mainPos = tankBlock.getMainPartPos(pos, state);
                 BlockEntity mainBe = level.getBlockEntity(mainPos);
