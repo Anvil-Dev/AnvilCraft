@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
+import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
@@ -9,8 +10,8 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,9 +26,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-import static dev.dubhe.anvilcraft.block.laser.PropelPistonBlock.createTickerHelper;
-
-public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, EntityBlock {
+public class NeutronIrradiatorBlock extends BaseEntityBlock implements IHammerRemovable {
     public static VoxelShape MODEL = Shapes.or(
         Block.box(0, 0, 0, 16, 10, 16),
         Block.box(13, 10, 0, 16, 12, 3),
@@ -49,7 +48,6 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, E
         super.onPlace(state, level, pos, oldState, movedByPiston);
     }
 
-
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(TYPE);
@@ -69,6 +67,11 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, E
     public NeutronIrradiatorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(TYPE, IrradiatorType.NEUTRON));
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(NeutronIrradiatorBlock::new);
     }
 
     @Nullable

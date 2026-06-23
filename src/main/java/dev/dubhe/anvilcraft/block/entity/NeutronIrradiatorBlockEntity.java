@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableMap;
-import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
+import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;

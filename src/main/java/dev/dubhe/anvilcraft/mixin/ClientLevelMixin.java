@@ -37,8 +37,8 @@ abstract class ClientLevelMixin implements LevelReader {
         PowerGridSupport.clearAllGrid();
     }
 
-    @Inject(method = "addBreakingBlockEffect(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;" +
-        "Lnet/minecraft/world/phys/HitResult;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "addBreakingBlockEffect(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;"
+        + "Lnet/minecraft/world/phys/HitResult;)V", at = @At("HEAD"), cancellable = true)
     private void cancelHitEffectForEmptyBlock(BlockPos pos, Direction direction, HitResult hitResult, CallbackInfo ci) {
         if (this.getBlockState(pos).getShape(this, pos).isEmpty()) {
             ci.cancel();
