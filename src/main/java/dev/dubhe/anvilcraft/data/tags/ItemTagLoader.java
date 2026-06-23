@@ -127,7 +127,8 @@ public class ItemTagLoader {
             .addElement(ItemTagLoader.findId(ModBlocks.REDHOT_TUNGSTEN_BLOCK.asItem()))
             .addElement(ItemTagLoader.findId(ModBlocks.GLOWING_TUNGSTEN_BLOCK.asItem()))
             .addElement(ItemTagLoader.findId(ModBlocks.HEATED_TUNGSTEN_BLOCK.asItem()))
-            .addElement(ItemTagLoader.findId(ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK.asItem()));
+            .addElement(ItemTagLoader.findId(ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK.asItem()))
+            .addElement(ItemTagLoader.findId(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem()));
         provider.rawBuilder(ModItemTags.NETHERITE_BLOCK)
             .addElement(ItemTagLoader.findId(ModBlocks.REDHOT_NETHERITE_BLOCK.asItem()))
             .addElement(ItemTagLoader.findId(ModBlocks.GLOWING_NETHERITE_BLOCK.asItem()))
