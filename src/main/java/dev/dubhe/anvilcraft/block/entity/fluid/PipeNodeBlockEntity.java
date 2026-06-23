@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
-import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
+import dev.dubhe.anvilcraft.api.fluid.CapacityModifiableFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
@@ -33,16 +33,16 @@ import java.util.TreeSet;
  * 管道节点的 BlockEntity，持有内部 FluidTank（4 Bucket）并负责 per-tick 流体分发。
  * 按等效高度降序分发到各 PipeEnd。
  *
- * <p>26.1 版本使用 {@link FluidStackResourceHandler} 替代旧的 FluidTank。
+ * <p>26.1 版本使用 {@link CapacityModifiableFluidHandler} 替代旧的 FluidTank。
  */
 @Getter
 public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFluidHandlerHolder {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 4;
 
-    private final FluidStackResourceHandler fluidHandler = new FluidStackResourceHandler(PipeNodeBlockEntity.CAPACITY) {
+    private final CapacityModifiableFluidHandler fluidHandler = new CapacityModifiableFluidHandler(1, PipeNodeBlockEntity.CAPACITY) {
         @Override
-        protected void onContentChanged(net.neoforged.neoforge.fluids.FluidStack stack) {
+        protected void onContentsChanged(int index, net.neoforged.neoforge.fluids.FluidStack stack) {
             PipeNodeBlockEntity.this.setChanged();
             PipeNodeBlockEntity.this.sendUpdate();
             PipeNodeBlockEntity.this.sendNeighbourUpdate();
@@ -96,7 +96,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
             PipeBlock.NodePipe value = state.getValue(property);
 
-            if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.UP)) {
+            if (value.equals(PipeBlock.NodePipe.END) && direction == Direction.UP) {
                 BlockPos neighborPos = pos.relative(Direction.UP);
                 if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
                     PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.UP);
@@ -109,7 +109,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
                         level, pos, Direction.UP, pos.relative(Direction.UP), Direction.DOWN, 0);
                 }
             }
-            if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.DOWN)) {
+            if (value.equals(PipeBlock.NodePipe.END) && direction == Direction.DOWN) {
                 BlockPos neighborPos = pos.relative(Direction.DOWN);
                 if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
                     PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.DOWN);
