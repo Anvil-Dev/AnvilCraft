@@ -119,8 +119,8 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         BlockState state = getBlockState();
         if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
             && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
-            if (wormholeOutputLevel > 0) {
-                return wormholeOutputLevel;
+            if (this.wormholeOutputLevel > 0) {
+                return this.wormholeOutputLevel;
             }
             return 1;
         }
@@ -160,7 +160,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
     @Override
     public int getLaserColor() {
-        if (emittingGamma) {
+        if (this.emittingGamma) {
             return 0x8040FF; // Blue-purple for gamma laser
         }
         return super.getLaserColor(); // Red for normal laser (0x00ff0d0d)
@@ -175,13 +175,13 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         int level = source.getLaserLevel();
         boolean gamma = source instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaSource
             && cfaSource.isEmittingGamma();
-        onLaserReceived(level, gamma);
+        this.onLaserReceived(level, gamma);
         // Do not chain — do not call super.onIrradiated(source)
     }
 
     @Override
     public void onCancelingIrradiation(BaseLaserBlockEntity source) {
-        resetLaser();
+        this.resetLaser();
     }
 
     /**
@@ -191,7 +191,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     public Set<Direction> getIgnoreFace() {
         EnumSet<Direction> ignore = EnumSet.allOf(Direction.class);
-        ignore.remove(getFacing().getOpposite());
+        ignore.remove(this.getFacing().getOpposite());
         return ignore;
     }
 
@@ -208,9 +208,9 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.requiredLaserLevel = requiredLevel;
         this.requiredGamma = gamma;
         // Re-evaluate validity with the new requirement
-        if (requiredLaserLevel > 0 && receivedLaserLevel > 0) {
-            this.laserValid = receivedLaserLevel >= requiredLaserLevel
-                && receivedGamma == requiredGamma;
+        if (this.requiredLaserLevel > 0 && this.receivedLaserLevel > 0) {
+            this.laserValid = this.receivedLaserLevel >= this.requiredLaserLevel
+                && this.receivedGamma == this.requiredGamma;
         } else {
             this.laserValid = false;
         }
@@ -220,9 +220,9 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void onLaserReceived(int level, boolean gamma) {
         this.receivedLaserLevel = level;
         this.receivedGamma = gamma;
-        this.laserValid = (requiredLaserLevel > 0
-            && level >= requiredLaserLevel
-            && gamma == requiredGamma);
+        this.laserValid = (this.requiredLaserLevel > 0
+            && level >= this.requiredLaserLevel
+            && gamma == this.requiredGamma);
         this.setChanged();
     }
 
@@ -259,7 +259,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
         // If receiving an incoming laser, only receive — never emit,
         // regardless of active/passive mode or gamma state.
-        if (receivedLaserLevel > 0) {
+        if (this.receivedLaserLevel > 0) {
             // Passive: clear emission since we are receiving
             if (irradiateBlockPos != null) {
                 BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
@@ -270,25 +270,25 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             }
             irradiateSelfLaserBlockSet.clear();
             updateLaserLevel(0); // clear stale emission level for HUD
-        } else if (emittingGamma && gammaLevel > 0) {
+        } else if (this.emittingGamma && this.gammaLevel > 0) {
             // Emit gamma laser (Penrose Sphere output)
-            Direction facing = getFacing();
-            emitGammaLaserBeam(facing);
+            Direction facing = this.getFacing();
+            this.emitGammaLaserBeam(facing);
             // Don't reset emittingGamma yet — tickWithGamma needs it for packet sending
-        } else if (wormholeOutputGamma && wormholeOutputLevel > 0 && active) {
+        } else if (this.wormholeOutputGamma && this.wormholeOutputLevel > 0 && active) {
             // Emit gamma laser via wormhole (summed from passive interfaces across the network).
             // We borrow gammaLevel for the emission but restore it afterward so Penrose Sphere
             // state is preserved. emittingGamma is left true so tickWithGamma sends a gamma
             // packet; it will be reset by the cleanup at the end of serverTick().
             int savedGammaLevel = this.gammaLevel;
-            this.gammaLevel = wormholeOutputLevel;
+            this.gammaLevel = this.wormholeOutputLevel;
             this.emittingGamma = true;
-            Direction facing = getFacing();
-            emitGammaLaserBeam(facing);
+            Direction facing = this.getFacing();
+            this.emitGammaLaserBeam(facing);
             this.gammaLevel = savedGammaLevel;
         } else if (active) {
             // Emit normal laser when active (includes wormholeOutputLevel via getBaseLaserLevel)
-            Direction facing = getFacing();
+            Direction facing = this.getFacing();
             // Only emit if not already part of a laser chain
             if (irradiateSelfLaserBlockSet.isEmpty()) {
                 emitLaser(facing);
@@ -307,11 +307,11 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         }
 
         // Custom tick with gamma-aware packet sending
-        tickWithGamma(level);
+        this.tickWithGamma(level);
 
         // Reset gamma emission after packet is sent
-        if (emittingGamma) {
-            emittingGamma = false;
+        if (this.emittingGamma) {
+            this.emittingGamma = false;
         }
 
         // Register as heat producer if currently hitting a heatable block.
@@ -392,14 +392,14 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
         // Gamma laser: only pass through air/replaceable blocks.
         // All other blocks (including glass) stop the gamma laser.
-        BlockPos tempIrradiateBlockPos = getGammaIrradiateBlockPos(16, direction, this.getBlockPos());
+        BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(16, direction, this.getBlockPos());
         if (this.getBlockState().getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
-            tempIrradiateBlockPos = getGammaIrradiateBlockPos(
+            tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(
                 16, direction, this.getBlockPos().relative(direction));
         }
 
         // Handle prism destruction along the beam path
-        destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
+        this.destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
 
         // Update old target if changed
         if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
@@ -429,7 +429,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             }
         }
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);
-        this.updateLaserLevel(gammaLevel);
+        this.updateLaserLevel(this.gammaLevel);
 
         if (!(this.level instanceof ServerLevel)) {
             this.maxTransmissionDistance = originalMaxDistance;
@@ -437,7 +437,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         }
 
         // Entity damage: 16x normal laser damage
-        int hurt = Math.min(16, gammaLevel - 4) * 16;
+        int hurt = Math.min(16, this.gammaLevel - 4) * 16;
         if (hurt > 0) {
             Vec3 startPos = this.getBlockPos()
                 .relative(direction)
@@ -460,7 +460,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
         // Gamma laser block breaking — continuous exposure per block position
         BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
-        int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(gammaLevel / 4, 0, 4)];
+        int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(this.gammaLevel / 4, 0, 4)];
 
         // Track continuous exposure: reset when the irradiated block changes
         BlockPos currentTarget = this.irradiateBlockPos.immutable();
@@ -482,7 +482,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
                 if (irradiateBlock.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> multiPartBlock) {
                     breakPos = multiPartBlock.getMainPartPos(this.irradiateBlockPos, irradiateBlock);
                 }
-                if (gammaLevel >= 16) {
+                if (this.gammaLevel >= 16) {
                     // ≥16: destroy without drops (entire multipart structure)
                     this.level.destroyBlock(breakPos, false);
                 } else {
@@ -497,7 +497,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         // Gamma laser heating: upgrade wither-immune ember metal blocks in area.
         // Area size and thickness scale with gamma level:
         // ≥4: 1×1×1  ≥8: 3×3×1  ≥12: 5×5×2  ≥16: 7×7×3
-        tryHeatEmberMetal(direction);
+        this.tryHeatEmberMetal(direction);
 
         this.maxTransmissionDistance = originalMaxDistance;
     }
@@ -507,18 +507,18 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
      * Area scales with gamma level: ≥4→1×1, ≥8→3×3, ≥12→5×5×2, ≥16→7×7×3.
      */
     private void tryHeatEmberMetal(Direction direction) {
-        if (this.level == null || gammaLevel < 4) return;
+        if (this.level == null || this.gammaLevel < 4) return;
         if (this.level.getGameTime() % 20 != 0) return;
 
         int areaSize;
         int thickness;
-        if (gammaLevel >= 16) {
+        if (this.gammaLevel >= 16) {
             areaSize = 7;
             thickness = 3;
-        } else if (gammaLevel >= 12) {
+        } else if (this.gammaLevel >= 12) {
             areaSize = 5;
             thickness = 2;
-        } else if (gammaLevel >= 8) {
+        } else if (this.gammaLevel >= 8) {
             areaSize = 3;
             thickness = 1;
         } else {
@@ -543,7 +543,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
                     BlockPos target = depthPos
                         .relative(perpendiculars[0], a)
                         .relative(perpendiculars[1], b);
-                    tryHeatEmberMetalAt(target);
+                    this.tryHeatEmberMetalAt(target);
                 }
             }
         }
@@ -595,7 +595,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     private BlockPos getGammaIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
         for (int length = 1; length <= expectedLength; length++) {
             BlockPos checkPos = originPos.relative(direction, length);
-            if (!gammaCanPassThrough(checkPos)) return checkPos;
+            if (!this.gammaCanPassThrough(checkPos)) return checkPos;
         }
         return originPos.relative(direction, expectedLength);
     }
@@ -615,11 +615,11 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putInt("receivedLaserLevel", receivedLaserLevel);
-        output.putBoolean("receivedGamma", receivedGamma);
-        output.putInt("requiredLaserLevel", requiredLaserLevel);
-        output.putBoolean("requiredGamma", requiredGamma);
-        output.putBoolean("laserValid", laserValid);
+        output.putInt("receivedLaserLevel", this.receivedLaserLevel);
+        output.putBoolean("receivedGamma", this.receivedGamma);
+        output.putInt("requiredLaserLevel", this.requiredLaserLevel);
+        output.putBoolean("requiredGamma", this.requiredGamma);
+        output.putBoolean("laserValid", this.laserValid);
     }
 
     @Override
@@ -639,13 +639,13 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putInt("receivedLaserLevel", receivedLaserLevel);
-        tag.putBoolean("receivedGamma", receivedGamma);
-        tag.putInt("requiredLaserLevel", requiredLaserLevel);
-        tag.putBoolean("requiredGamma", requiredGamma);
-        tag.putBoolean("laserValid", laserValid);
-        tag.putBoolean("gamma", emittingGamma);
-        tag.putInt("gammaLevel", gammaLevel);
+        tag.putInt("receivedLaserLevel", this.receivedLaserLevel);
+        tag.putBoolean("receivedGamma", this.receivedGamma);
+        tag.putInt("requiredLaserLevel", this.requiredLaserLevel);
+        tag.putBoolean("requiredGamma", this.requiredGamma);
+        tag.putBoolean("laserValid", this.laserValid);
+        tag.putBoolean("gamma", this.emittingGamma);
+        tag.putInt("gammaLevel", this.gammaLevel);
         return tag;
     }
 
@@ -656,7 +656,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
      */
     public void syncToClients() {
         if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = getUpdatePacket();
+            Packet<?> packet = this.getUpdatePacket();
             if (packet != null) {
                 for (ServerPlayer player : serverLevel.getChunkSource().chunkMap
                     .getPlayers(serverLevel.getChunkAt(worldPosition).getPos(), false)) {
@@ -670,7 +670,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void setChanged() {
         super.setChanged();
         if (level != null && !level.isClientSide()) {
-            syncToClients();
+            this.syncToClients();
         }
     }
 

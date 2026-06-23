@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PortalRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;

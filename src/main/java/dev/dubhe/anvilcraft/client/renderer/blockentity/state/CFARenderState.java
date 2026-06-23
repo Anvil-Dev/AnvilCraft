@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity.state;
 
-import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;

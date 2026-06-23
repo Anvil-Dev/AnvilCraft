@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PowerGeneratorRenderState;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 
 public class InfiniteCollectorRenderer extends PowerProducerRenderer<InfiniteCollectorBlockEntity, PowerGeneratorRenderState> {
     public static final StandaloneModelKey<BlockStateModel> MODEL = new StandaloneModelKey<>(

@@ -15,7 +15,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     @Override
     public String name() {
-        return name;
+        return this.name;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
         if (!be.isAmplifierPresent()) return 0;
         if (!(be.getCelestialBodyData() instanceof StarData star)) return 0;
         if (be.isAcceleratorActive() && be.getAcceleratorStage() == 1) {
-            return Math.max(cachedGridConsumption * 2, cachedGridConsumption + 1);
+            return Math.max(this.cachedGridConsumption * 2, this.cachedGridConsumption + 1);
         }
         int e = star.energy();
         int r = star.size();

@@ -22,8 +22,8 @@ public class PlanetaryResourceSet {
     public record WeightedItemStack(Identifier itemId, int weight) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
-            tag.putString("id", itemId.toString());
-            tag.putInt("weight", weight);
+            tag.putString("id", this.itemId.toString());
+            tag.putInt("weight", this.weight);
             return tag;
         }
 
@@ -40,8 +40,8 @@ public class PlanetaryResourceSet {
     public record WeightedFluidStack(Identifier fluidId, int weight) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
-            tag.putString("id", fluidId.toString());
-            tag.putInt("weight", weight);
+            tag.putString("id", this.fluidId.toString());
+            tag.putInt("weight", this.weight);
             return tag;
         }
 
@@ -69,84 +69,84 @@ public class PlanetaryResourceSet {
     // === Getters ===
 
     public List<WeightedItemStack> getMinerals() {
-        return Collections.unmodifiableList(minerals);
+        return Collections.unmodifiableList(this.minerals);
     }
 
     public List<WeightedFluidStack> getFluids() {
-        return Collections.unmodifiableList(fluids);
+        return Collections.unmodifiableList(this.fluids);
     }
 
     public List<WeightedItemStack> getGiantItems() {
-        return Collections.unmodifiableList(giantItems);
+        return Collections.unmodifiableList(this.giantItems);
     }
 
     public List<WeightedFluidStack> getGiantFluids() {
-        return Collections.unmodifiableList(giantFluids);
+        return Collections.unmodifiableList(this.giantFluids);
     }
 
     public List<WeightedItemStack> getBiologicalItems() {
-        return Collections.unmodifiableList(biologicalItems);
+        return Collections.unmodifiableList(this.biologicalItems);
     }
 
     public List<WeightedFluidStack> getBiologicalFluids() {
-        return Collections.unmodifiableList(biologicalFluids);
+        return Collections.unmodifiableList(this.biologicalFluids);
     }
 
     public List<WeightedItemStack> getOfferings() {
-        return Collections.unmodifiableList(offerings);
+        return Collections.unmodifiableList(this.offerings);
     }
 
     public List<WeightedItemStack> getWastelandItems() {
-        return Collections.unmodifiableList(wastelandItems);
+        return Collections.unmodifiableList(this.wastelandItems);
     }
 
     public boolean hasCivilization() {
-        return hasCivilization;
+        return this.hasCivilization;
     }
 
     public boolean isEmpty() {
-        return minerals.isEmpty()
-            && fluids.isEmpty()
-            && giantItems.isEmpty()
-            && giantFluids.isEmpty()
-            && biologicalItems.isEmpty()
-            && biologicalFluids.isEmpty()
-            && offerings.isEmpty()
-            && wastelandItems.isEmpty();
+        return this.minerals.isEmpty()
+            && this.fluids.isEmpty()
+            && this.giantItems.isEmpty()
+            && this.giantFluids.isEmpty()
+            && this.biologicalItems.isEmpty()
+            && this.biologicalFluids.isEmpty()
+            && this.offerings.isEmpty()
+            && this.wastelandItems.isEmpty();
     }
 
     // === Mutators (package-private, for PlanetResourceGenerator) ===
 
     void addMineral(WeightedItemStack entry) {
-        minerals.add(entry);
+        this.minerals.add(entry);
     }
 
     void addFluid(WeightedFluidStack entry) {
-        fluids.add(entry);
+        this.fluids.add(entry);
     }
 
     void addGiantItem(WeightedItemStack entry) {
-        giantItems.add(entry);
+        this.giantItems.add(entry);
     }
 
     void addGiantFluid(WeightedFluidStack entry) {
-        giantFluids.add(entry);
+        this.giantFluids.add(entry);
     }
 
     void addBiologicalItem(WeightedItemStack entry) {
-        biologicalItems.add(entry);
+        this.biologicalItems.add(entry);
     }
 
     void addBiologicalFluid(WeightedFluidStack entry) {
-        biologicalFluids.add(entry);
+        this.biologicalFluids.add(entry);
     }
 
     void addOffering(WeightedItemStack entry) {
-        offerings.add(entry);
+        this.offerings.add(entry);
     }
 
     void addWastelandItem(WeightedItemStack entry) {
-        wastelandItems.add(entry);
+        this.wastelandItems.add(entry);
     }
 
     void setHasCivilization() {
@@ -154,39 +154,39 @@ public class PlanetaryResourceSet {
     }
 
     void setWasteland() {
-        isWasteland = true;
+        this.isWasteland = true;
     }
 
     // === NBT Serialization ===
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        if (!minerals.isEmpty()) {
-            tag.put("minerals", writeItemList(minerals));
+        if (!this.minerals.isEmpty()) {
+            tag.put("minerals", writeItemList(this.minerals));
         }
-        if (!fluids.isEmpty()) {
-            tag.put("fluids", writeFluidList(fluids));
+        if (!this.fluids.isEmpty()) {
+            tag.put("fluids", writeFluidList(this.fluids));
         }
-        if (!giantItems.isEmpty()) {
-            tag.put("giantItems", writeItemList(giantItems));
+        if (!this.giantItems.isEmpty()) {
+            tag.put("giantItems", writeItemList(this.giantItems));
         }
-        if (!giantFluids.isEmpty()) {
-            tag.put("giantFluids", writeFluidList(giantFluids));
+        if (!this.giantFluids.isEmpty()) {
+            tag.put("giantFluids", writeFluidList(this.giantFluids));
         }
-        if (!biologicalItems.isEmpty()) {
-            tag.put("biologicalItems", writeItemList(biologicalItems));
+        if (!this.biologicalItems.isEmpty()) {
+            tag.put("biologicalItems", writeItemList(this.biologicalItems));
         }
-        if (!biologicalFluids.isEmpty()) {
-            tag.put("biologicalFluids", writeFluidList(biologicalFluids));
+        if (!this.biologicalFluids.isEmpty()) {
+            tag.put("biologicalFluids", writeFluidList(this.biologicalFluids));
         }
-        if (!offerings.isEmpty()) {
-            tag.put("offerings", writeItemList(offerings));
+        if (!this.offerings.isEmpty()) {
+            tag.put("offerings", writeItemList(this.offerings));
         }
-        if (!wastelandItems.isEmpty()) {
-            tag.put("wastelandItems", writeItemList(wastelandItems));
+        if (!this.wastelandItems.isEmpty()) {
+            tag.put("wastelandItems", writeItemList(this.wastelandItems));
         }
-        tag.putBoolean("hasCivilization", hasCivilization);
-        tag.putBoolean("isWasteland", isWasteland);
+        tag.putBoolean("hasCivilization", this.hasCivilization);
+        tag.putBoolean("isWasteland", this.isWasteland);
         return tag;
     }
 

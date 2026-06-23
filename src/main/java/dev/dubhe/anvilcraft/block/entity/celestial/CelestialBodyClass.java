@@ -90,21 +90,21 @@ public enum CelestialBodyClass {
     }
 
     public int rgb() {
-        return rgb;
+        return this.rgb;
     }
 
     /**
      * Whether step 2 uses age_temp_sp instead of age_temp.
      */
     public boolean step2UsesSp() {
-        return step2UsesSp;
+        return this.step2UsesSp;
     }
 
     /**
      * Whether step 3 (age_radius lookup) is needed.
      */
     public boolean needsStep3() {
-        return stellar || this == BROWN_DWARF;
+        return this.stellar || this == BROWN_DWARF;
     }
 
     /**
@@ -119,7 +119,7 @@ public enum CelestialBodyClass {
      * Planetary bodies (including brown dwarf, excluding large moon).
      */
     public boolean isPlanetary() {
-        return !stellar;
+        return !this.stellar;
     }
 
     /**
@@ -134,7 +134,7 @@ public enum CelestialBodyClass {
      * The accepted step 2 color for this body class. Rocky planets all use ROCKY_LOW_LIQUID rgb.
      */
     public int step2MatchRgb() {
-        return isRockyPlanet() ? ROCKY_LOW_LIQUID.rgb : rgb;
+        return this.isRockyPlanet() ? ROCKY_LOW_LIQUID.rgb : this.rgb;
     }
 
     @Nullable

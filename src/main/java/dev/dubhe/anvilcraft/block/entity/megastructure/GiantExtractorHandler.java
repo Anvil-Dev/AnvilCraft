@@ -31,7 +31,7 @@ public class GiantExtractorHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (be.getPlanetaryResourceSet() == null) return;
 
         List<PlanetaryResourceSet.WeightedFluidStack> giantFluids = be.getPlanetaryResourceSet().getGiantFluids();
@@ -70,43 +70,42 @@ public class GiantExtractorHandler extends BaseMegastructureHandler {
                             }
                         }
                     }
-            }
-        }
-
-        if (!giantItems.isEmpty()) {
-            int totalItemWeight = giantItems.stream().mapToInt(PlanetaryResourceSet.WeightedItemStack::weight).sum();
-            if (totalItemWeight > 0) {
-                int roll = be.getLevel().getRandom().nextInt(totalItemWeight);
-                int cumulative = 0;
-                Identifier chosenItem = null;
-                for (PlanetaryResourceSet.WeightedItemStack item : giantItems) {
-                    cumulative += item.weight();
-                    if (roll < cumulative) {
-                        chosenItem = item.itemId();
-                        break;
-                    }
                 }
-                if (chosenItem == null) chosenItem = giantItems.getFirst().itemId();
+            }
 
-                ItemLike item = BuiltInRegistries.ITEM.get(chosenItem)
-                    .map(h -> (ItemLike) h.value()).orElse(Items.AIR);
-                if (item.asItem() != Items.AIR) {
-                    ItemStack output = new ItemStack(item, 1);
-                    List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
-                    if (!logistics.isEmpty()) {
-                        int startIdx = logisticsRoundRobin % logistics.size();
-                        for (int attempt = 0; attempt < logistics.size(); attempt++) {
-                            int idx = (startIdx + attempt) % logistics.size();
-                            ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
-                            if (remainder.getCount() < output.getCount()) {
-                                logisticsRoundRobin = (idx + 1) % logistics.size();
-                                break;
+            if (!giantItems.isEmpty()) {
+                int totalItemWeight = giantItems.stream().mapToInt(PlanetaryResourceSet.WeightedItemStack::weight).sum();
+                if (totalItemWeight > 0) {
+                    int roll = be.getLevel().getRandom().nextInt(totalItemWeight);
+                    int cumulative = 0;
+                    Identifier chosenItem = null;
+                    for (PlanetaryResourceSet.WeightedItemStack item : giantItems) {
+                        cumulative += item.weight();
+                        if (roll < cumulative) {
+                            chosenItem = item.itemId();
+                            break;
+                        }
+                    }
+                    if (chosenItem == null) chosenItem = giantItems.getFirst().itemId();
+
+                    ItemLike item = BuiltInRegistries.ITEM.get(chosenItem).map(h -> (ItemLike) h.value()).orElse(Items.AIR);
+                    if (item.asItem() != Items.AIR) {
+                        ItemStack output = new ItemStack(item, 1);
+                        List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
+                        if (!logistics.isEmpty()) {
+                            int startIdx = this.logisticsRoundRobin % logistics.size();
+                            for (int attempt = 0; attempt < logistics.size(); attempt++) {
+                                int idx = (startIdx + attempt) % logistics.size();
+                                ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
+                                if (remainder.getCount() < output.getCount()) {
+                                    this.    logisticsRoundRobin = (idx + 1) % logistics.size();
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
-        }
         }
     }
 

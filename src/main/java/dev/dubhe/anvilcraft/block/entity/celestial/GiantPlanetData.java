@@ -24,18 +24,18 @@ public record GiantPlanetData(
     @Override
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putString("bodyType", type().getSerializedName());
-        tag.putString("bodyClass", bodyClass.name());
-        tag.putString("pressureType", pressureType.getSerializedName());
-        tag.putString("windSpeed", windSpeed.getSerializedName());
-        tag.putString("ringType", ringType.getSerializedName());
-        tag.putInt("size", size);
-        tag.putInt("paletteBaseRow", paletteBaseRow);
-        tag.putInt("paletteOverlayRow", paletteOverlayRow);
-        tag.putFloat("axialTilt", axialTilt);
-        tag.putInt("rotationSpeed", rotationSpeed);
-        tag.putInt("magneticFieldStrength", magneticFieldStrength);
-        tag.putBoolean("brownDwarf", brownDwarf);
+        tag.putString("bodyType", this.type().getSerializedName());
+        tag.putString("bodyClass", this.bodyClass.name());
+        tag.putString("pressureType", this.pressureType.getSerializedName());
+        tag.putString("windSpeed", this.windSpeed.getSerializedName());
+        tag.putString("ringType", this.ringType.getSerializedName());
+        tag.putInt("size", this.size);
+        tag.putInt("paletteBaseRow", this.paletteBaseRow);
+        tag.putInt("paletteOverlayRow", this.paletteOverlayRow);
+        tag.putFloat("axialTilt", this.axialTilt);
+        tag.putInt("rotationSpeed", this.rotationSpeed);
+        tag.putInt("magneticFieldStrength", this.magneticFieldStrength);
+        tag.putBoolean("brownDwarf", this.brownDwarf);
         return tag;
     }
 

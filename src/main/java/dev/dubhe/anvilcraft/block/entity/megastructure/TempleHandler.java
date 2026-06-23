@@ -17,9 +17,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -52,55 +52,58 @@ public class TempleHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (be.getPlanetaryResourceSet() == null || !be.getPlanetaryResourceSet().hasCivilization()) return;
 
         long currentDay = be.getLevel().getGameTime() / 24000;
-        if (lastDay != currentDay || demandItem.isEmpty()) {
-            lastDay = currentDay;
-            cycleDay = (cycleDay + 1) % 3;
-            demandSatisfied = false;
-            demandProgress = 0;
-            TempleDemandRecipe.Category cat = cycleDay == 2
-                ? TempleDemandRecipe.Category.PUNISHMENT : TempleDemandRecipe.Category.BLESSING;
-            var demand = pickTempleDemand(be, cat);
-            demandItem = demand.item();
-            demandCount = demand.count();
-            pushTempleDemandToLogistics(be);
+        if (this.lastDay != currentDay || this.demandItem.isEmpty()) {
+            this.lastDay = currentDay;
+            this.cycleDay = (this.cycleDay + 1) % 3;
+            this.demandSatisfied = false;
+            this.demandProgress = 0;
+            TempleDemandRecipe.Category cat = this.cycleDay == 2
+                                              ? TempleDemandRecipe.Category.PUNISHMENT
+                                              : TempleDemandRecipe.Category.BLESSING;
+            var demand = this.pickTempleDemand(be, cat);
+            this.demandItem = demand.item();
+            this.demandCount = demand.count();
+            this.pushTempleDemandToLogistics(be);
             be.setChanged();
             be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
         }
 
-        if (!demandSatisfied && !demandItem.isEmpty()) {
-            if (trySatisfyDemand(be)) {
-                demandSatisfied = true;
-                pushTempleDemandToLogistics(be);
+        if (!this.demandSatisfied && !this.demandItem.isEmpty()) {
+            if (this.trySatisfyDemand(be)) {
+                this.demandSatisfied = true;
+                this.pushTempleDemandToLogistics(be);
                 be.setChanged();
                 be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
             }
         }
 
-        if (demandSatisfied) {
-            produceTempleOfferings(be);
+        if (this.demandSatisfied) {
+            this.produceTempleOfferings(be);
         }
 
         if (be.getLevel().getGameTime() % 20 == 0) {
-            pushTempleDemandToLogistics(be);
+            this.pushTempleDemandToLogistics(be);
         }
     }
 
     public void pushTempleDemandToLogistics(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
-        scanAdjacentBlocks((checkPos) -> {
-            var blockEntity = be.getLevel().getBlockEntity(checkPos);
-            if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
-                logiBe.setTempleDemandItem(demandSatisfied ? ItemStack.EMPTY : demandItem);
-                logiBe.setTempleDemandCount(demandSatisfied ? 0 : demandCount);
-                logiBe.setTempleDemandProgress(demandSatisfied ? 0 : demandProgress);
-                logiBe.setTempleDemandSatisfied(demandSatisfied);
-                logiBe.setChanged();
-            }
-        }, be);
+        scanAdjacentBlocks(
+            (checkPos) -> {
+                var blockEntity = be.getLevel().getBlockEntity(checkPos);
+                if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
+                    logiBe.setTempleDemandItem(this.demandSatisfied ? ItemStack.EMPTY : this.demandItem);
+                    logiBe.setTempleDemandCount(this.demandSatisfied ? 0 : this.demandCount);
+                    logiBe.setTempleDemandProgress(this.demandSatisfied ? 0 : this.demandProgress);
+                    logiBe.setTempleDemandSatisfied(this.demandSatisfied);
+                    logiBe.setChanged();
+                }
+            }, be
+        );
     }
 
     private record TempleDemandResult(ItemStack item, int count) {
@@ -114,7 +117,9 @@ public class TempleHandler extends BaseMegastructureHandler {
 
         var globalRecipes = RecipesRecord.getRecipes(be.getLevel())
             .byType(ModRecipeTypes.TEMPLE_DEMAND.get())
-            .stream().map(RecipeHolder::value).toList();
+            .stream()
+            .map(RecipeHolder::value)
+            .toList();
         for (var recipe : globalRecipes) {
             if (recipe.category() == category) {
                 candidates.addAll(recipe.entries());
@@ -126,37 +131,39 @@ public class TempleHandler extends BaseMegastructureHandler {
             ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, recipeId);
             var holder = RecipesRecord.getRecipes(be.getLevel()).byKey(key);
             if (holder != null && holder.value() instanceof SpecialCelestialBodyRecipe specialRecipe) {
-                    List<SpecialCelestialBodyRecipe.DemandEntry> demands = category == TempleDemandRecipe.Category.BLESSING
-                        ? specialRecipe.templeBlessings() : specialRecipe.templePunishments();
-                    for (var d : demands) {
-                        candidates.add(new TempleDemandRecipe.Entry(d.id(), d.count()));
-                    }
+                List<SpecialCelestialBodyRecipe.DemandEntry> demands = category == TempleDemandRecipe.Category.BLESSING
+                                                                       ? specialRecipe.templeBlessings()
+                                                                       : specialRecipe.templePunishments();
+                for (var d : demands) {
+                    candidates.add(new TempleDemandRecipe.Entry(d.id(), d.count()));
                 }
             }
+        }
 
         if (candidates.isEmpty()) return TempleDemandResult.EMPTY;
 
         TempleDemandRecipe.Entry entry = candidates.get(be.getLevel().getRandom().nextInt(candidates.size()));
         var item = BuiltInRegistries.ITEM.get(entry.itemResource())
-            .map(h -> (net.minecraft.world.level.ItemLike) h.value()).orElse(Items.AIR);
+            .map(h -> (net.minecraft.world.level.ItemLike) h.value())
+            .orElse(Items.AIR);
         if (item == Items.AIR) return TempleDemandResult.EMPTY;
         return new TempleDemandResult(new ItemStack(item, 1), entry.count());
     }
 
     private boolean trySatisfyDemand(CelestialForgingAnvilBlockEntity be) {
-        if (demandItem.isEmpty() || demandCount <= 0) return false;
-        if (demandProgress >= demandCount) return true;
+        if (this.demandItem.isEmpty() || this.demandCount <= 0) return false;
+        if (this.demandProgress >= this.demandCount) return true;
         List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
         if (logistics.isEmpty()) return false;
 
-        int needed = demandCount - demandProgress;
+        int needed = this.demandCount - this.demandProgress;
         for (ResourceHandler<ItemResource> handler : logistics) {
             for (int slot = 0; slot < handler.size() && needed > 0; slot++) {
                 ItemStack contained = getStackFromHandler(handler, slot);
-                if (ItemStack.isSameItemSameComponents(contained, demandItem)) {
+                if (ItemStack.isSameItemSameComponents(contained, this.demandItem)) {
                     ItemStack extracted = extractFromHandler(handler, slot, needed);
                     int taken = extracted.getCount();
-                    demandProgress += taken;
+                    this.demandProgress += taken;
                     needed -= taken;
                 }
             }
@@ -190,8 +197,7 @@ public class TempleHandler extends BaseMegastructureHandler {
         }
         if (chosenItem == null) chosenItem = offerings.getFirst().itemId();
 
-        var item = BuiltInRegistries.ITEM.get(chosenItem)
-            .map(h -> (net.minecraft.world.level.ItemLike) h.value()).orElse(Items.AIR);
+        var item = BuiltInRegistries.ITEM.get(chosenItem).map(h -> (net.minecraft.world.level.ItemLike) h.value()).orElse(Items.AIR);
         if (item.asItem() == Items.AIR) return;
         ItemStack output = new ItemStack(item, 1);
 
@@ -208,14 +214,14 @@ public class TempleHandler extends BaseMegastructureHandler {
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        output.putInt("templeCycleDay", cycleDay);
-        output.putLong("templeLastDay", lastDay);
-        if (!demandItem.isEmpty()) {
-            output.store("templeDemand", ItemStack.OPTIONAL_CODEC, demandItem);
+        output.putInt("templeCycleDay", this.cycleDay);
+        output.putLong("templeLastDay", this.lastDay);
+        if (!this.demandItem.isEmpty()) {
+            output.store("templeDemand", ItemStack.OPTIONAL_CODEC, this.demandItem);
         }
-        output.putInt("templeDemandCount", demandCount);
-        output.putInt("templeDemandProgress", demandProgress);
-        output.putBoolean("templeDemandSatisfied", demandSatisfied);
+        output.putInt("templeDemandCount", this.demandCount);
+        output.putInt("templeDemandProgress", this.demandProgress);
+        output.putBoolean("templeDemandSatisfied", this.demandSatisfied);
     }
 
     @Override
@@ -230,14 +236,14 @@ public class TempleHandler extends BaseMegastructureHandler {
 
     @Override
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("templeCycleDay", cycleDay);
-        tag.putLong("templeLastDay", lastDay);
-        if (!demandItem.isEmpty()) {
-            tag.put("templeDemand", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, demandItem).getOrThrow());
+        tag.putInt("templeCycleDay", this.cycleDay);
+        tag.putLong("templeLastDay", this.lastDay);
+        if (!this.demandItem.isEmpty()) {
+            tag.put("templeDemand", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.demandItem).getOrThrow());
         }
-        tag.putInt("templeDemandCount", demandCount);
-        tag.putInt("templeDemandProgress", demandProgress);
-        tag.putBoolean("templeDemandSatisfied", demandSatisfied);
+        tag.putInt("templeDemandCount", this.demandCount);
+        tag.putInt("templeDemandProgress", this.demandProgress);
+        tag.putBoolean("templeDemandSatisfied", this.demandSatisfied);
     }
 
     @Override
@@ -262,6 +268,6 @@ public class TempleHandler extends BaseMegastructureHandler {
         this.demandCount = 0;
         this.demandProgress = 0;
         this.demandSatisfied = false;
-        pushTempleDemandToLogistics(be);
+        this.pushTempleDemandToLogistics(be);
     }
 }

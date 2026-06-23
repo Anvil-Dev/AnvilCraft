@@ -55,6 +55,6 @@ public record CelestialRefactorOption(
     }
 
     public boolean needsMaterial() {
-        return materialCount > 0 && !material.isEmpty();
+        return this.materialCount > 0 && !this.material.isEmpty();
     }
 }

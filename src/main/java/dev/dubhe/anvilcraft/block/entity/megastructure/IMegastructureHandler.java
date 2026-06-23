@@ -9,6 +9,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Interface for CFA megastructure handlers.
+ *
  * <p>
  * In 26.1, NBT persistence uses {@link ValueOutput}/{@link ValueInput} for disk save/load.
  * Network sync still uses {@link CompoundTag} via {@code getUpdateTag}.

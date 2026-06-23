@@ -35,7 +35,7 @@ public class EcoStationHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (be.getPlanetaryResourceSet() == null) return;
         if (be.getPlanetaryResourceSet().hasCivilization()) return;
         List<PlanetaryResourceSet.WeightedItemStack> bioItems = be.getPlanetaryResourceSet().getBiologicalItems();
@@ -54,18 +54,17 @@ public class EcoStationHandler extends BaseMegastructureHandler {
         for (PlanetaryResourceSet.WeightedItemStack item : bioItems) {
             cumulative += item.weight();
             if (roll < cumulative) {
-                ItemLike itemLike = BuiltInRegistries.ITEM.get(item.itemId())
-                    .map(h -> (ItemLike) h.value()).orElse(Items.AIR);
+                ItemLike itemLike = BuiltInRegistries.ITEM.get(item.itemId()).map(h -> (ItemLike) h.value()).orElse(Items.AIR);
                 if (itemLike.asItem() != Items.AIR) {
                     ItemStack output = new ItemStack(itemLike, 1);
                     List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
                     if (!logistics.isEmpty()) {
-                        int startIdx = logisticsRoundRobin % logistics.size();
+                        int startIdx = this.logisticsRoundRobin % logistics.size();
                         for (int attempt = 0; attempt < logistics.size(); attempt++) {
                             int idx = (startIdx + attempt) % logistics.size();
                             ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
                             if (remainder.getCount() < output.getCount()) {
-                                logisticsRoundRobin = (idx + 1) % logistics.size();
+                                this.logisticsRoundRobin = (idx + 1) % logistics.size();
                                 return;
                             }
                         }
@@ -89,14 +88,17 @@ public class EcoStationHandler extends BaseMegastructureHandler {
                                 ResourceHandler<FluidResource> tank = fluidIf.getFluidHandler();
                                 try (Transaction tx = Transaction.openRoot()) {
                                     int filled = tank.insert(FluidResource.of(output), output.getAmount(), tx);
-                                    if (filled > 0) { tx.commit(); return; }
+                                    if (filled > 0) {
+                                        tx.commit();
+                                        return;
+                                    }
                                 }
                             }
                         }
                     }
-                return;
+                    return;
+                }
             }
-        }
         }
     }
 

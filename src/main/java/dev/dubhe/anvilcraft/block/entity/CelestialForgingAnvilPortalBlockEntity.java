@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
-import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
+import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
@@ -123,14 +123,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     public Set<Direction> getIgnoreFace() {
         // Only accept lasers from the front (the direction opposite to FACING)
         EnumSet<Direction> ignore = EnumSet.allOf(Direction.class);
-        ignore.remove(getFacing().getOpposite());
+        ignore.remove(this.getFacing().getOpposite());
         return ignore;
     }
 
     @Override
     protected int getBaseLaserLevel() {
-        if (wormholeLaserLevel > 0) return wormholeLaserLevel;
-        return 0;
+        return Math.max(this.wormholeLaserLevel, 0);
     }
 
     @Override
@@ -176,7 +175,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     @Override
     public int getLaserColor() {
-        if (emittingGamma) {
+        if (this.emittingGamma) {
             return 0x8040FF; // Blue-purple for gamma laser
         }
         return super.getLaserColor(); // Red for normal laser
@@ -207,7 +206,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     public void tick() {
         if (level == null || level.isClientSide()) return;
-        CelestialForgingAnvilBlockEntity parent = findParentCfa();
+        CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof CelestialForgingAnvilPortalBlock)) return;
 
@@ -222,11 +221,11 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
                 level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
             }
-            touchingEntities.clear();
+            this.touchingEntities.clear();
             return;
         }
 
-        Cube323PartHalf side = findSideFromParent(parent);
+        Cube323PartHalf side = this.findSideFromParent(parent);
         if (side == null) return;
 
         // Query wormhole network to determine if portal should be open.
@@ -238,9 +237,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             // No wormhole identity — close portal and clean up laser
             if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
                 level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
-                touchingEntities.clear();
+                this.touchingEntities.clear();
             }
-            if (wormholeLaserLevel > 0) {
+            if (this.wormholeLaserLevel > 0) {
                 if (irradiateBlockPos != null) {
                     BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                     if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -250,14 +249,14 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 }
                 irradiateSelfLaserBlockSet.clear();
                 updateLaserLevel(0);
-                wormholeLaserLevel = 0;
-                wormholeLaserGamma = false;
+                this.wormholeLaserLevel = 0;
+                this.wormholeLaserGamma = false;
                 this.emittingGamma = false;
                 this.gammaLevel = 0;
                 this.gammaIrradiatingPos = null;
                 this.gammaExposureTicks = 0;
                 this.setChanged();
-                sendLaserPackets();
+                this.sendLaserPackets();
             }
             return;
         }
@@ -286,9 +285,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         // Sync waterlogged state with connected portal (only when this portal's state changed)
         if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             boolean thisWaterlogged = state.getValue(BlockStateProperties.WATERLOGGED);
-            if (thisWaterlogged != lastWaterlogged) {
-                lastWaterlogged = thisWaterlogged;
-                CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
+            if (thisWaterlogged != this.lastWaterlogged) {
+                this.lastWaterlogged = thisWaterlogged;
+                CelestialForgingAnvilPortalBlockEntity connectedPortal = this.findConnectedPortal(parent, side);
                 if (connectedPortal != null) {
                     BlockPos targetPortalPos = connectedPortal.getBlockPos();
                     Level targetLevel = connectedPortal.level;
@@ -308,26 +307,26 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
 
             // Sync laser: transmit incoming laser to connected portal
-            CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
+            CelestialForgingAnvilPortalBlockEntity connectedPortal = this.findConnectedPortal(parent, side);
             if (connectedPortal != null) {
-                connectedPortal.setWormholeLaser(incomingLaserLevel, incomingLaserGamma);
+                connectedPortal.setWormholeLaser(this.incomingLaserLevel, this.incomingLaserGamma);
             }
         } else {
             // Portal closed: clear any stale wormhole laser on the other side
-            CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
-            if (connectedPortal != null && incomingLaserLevel == 0) {
+            CelestialForgingAnvilPortalBlockEntity connectedPortal = this.findConnectedPortal(parent, side);
+            if (connectedPortal != null && this.incomingLaserLevel == 0) {
                 connectedPortal.setWormholeLaser(0, false);
             }
         }
 
         // Emit laser if this portal has a wormhole laser set from connected portal
-        if (wormholeLaserLevel > 0) {
-            Direction facing = getFacing();
-            this.emittingGamma = wormholeLaserGamma;
-            this.gammaLevel = wormholeLaserLevel;
+        if (this.wormholeLaserLevel > 0) {
+            Direction facing = this.getFacing();
+            this.emittingGamma = this.wormholeLaserGamma;
+            this.gammaLevel = this.wormholeLaserLevel;
             if (irradiateSelfLaserBlockSet.isEmpty()) {
-                if (wormholeLaserGamma) {
-                    emitPortalGammaLaser(facing);
+                if (this.wormholeLaserGamma) {
+                    this.emitPortalGammaLaser(facing);
                 } else {
                     emitLaser(facing);
                 }
@@ -353,7 +352,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         this.tickCount++;
 
         // Send laser render packets
-        sendLaserPackets();
+        this.sendLaserPackets();
 
         // Register as heat producer if the laser is hitting a heatable block
         if (level instanceof ServerLevel serverLevel
@@ -369,18 +368,18 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
             for (Entity entity : entities) {
                 UUID uuid = entity.getUUID();
-                if (!touchingEntities.contains(uuid)) {
-                    tryTouchTeleport(entity);
-                    touchingEntities.add(uuid);
+                if (!this.touchingEntities.contains(uuid)) {
+                    this.tryTouchTeleport(entity);
+                    this.touchingEntities.add(uuid);
                 }
             }
 
             Set<UUID> currentUuids = entities.stream()
                 .map(Entity::getUUID)
                 .collect(Collectors.toSet());
-            touchingEntities.removeIf(uuid -> !currentUuids.contains(uuid));
+            this.touchingEntities.removeIf(uuid -> !currentUuids.contains(uuid));
         } else {
-            touchingEntities.clear();
+            this.touchingEntities.clear();
         }
     }
 
@@ -392,11 +391,11 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
      */
     public void tryTouchTeleport(Entity entity) {
         UUID uuid = entity.getUUID();
-        if (touchingEntities.contains(uuid)) return;
+        if (this.touchingEntities.contains(uuid)) return;
 
-        CelestialForgingAnvilBlockEntity parent = findParentCfa();
+        CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
         if (parent == null) return;
-        Cube323PartHalf side = findSideFromParent(parent);
+        Cube323PartHalf side = this.findSideFromParent(parent);
         if (side == null) return;
 
         WormholeNetwork network = WormholeNetwork.get();
@@ -442,7 +441,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             Set.of(), targetYRot, entity.getXRot(), false);
         entity.setDeltaMovement(momentum);
 
-        touchingEntities.add(uuid);
+        this.touchingEntities.add(uuid);
     }
 
     /**
@@ -487,10 +486,10 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         int originalMaxDistance = this.maxTransmissionDistance;
         this.maxTransmissionDistance = 16;
 
-        BlockPos tempIrradiateBlockPos = getGammaIrradiateBlockPos(direction);
+        BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(direction);
 
         // Destroy prisms along the beam path
-        destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
+        this.destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
 
         // Update old target if changed
         if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
@@ -518,7 +517,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
         }
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);
-        this.updateLaserLevel(gammaLevel);
+        this.updateLaserLevel(this.gammaLevel);
 
         if (!(this.level instanceof ServerLevel serverLevel)) {
             this.maxTransmissionDistance = originalMaxDistance;
@@ -526,7 +525,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
 
         // Gamma entity damage: 16x normal laser damage
-        int hurt = Math.min(16, gammaLevel - 4) * 16;
+        int hurt = Math.min(16, this.gammaLevel - 4) * 16;
         if (hurt > 0) {
             Vec3 startPos = this.getBlockPos()
                 .relative(direction)
@@ -549,7 +548,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         // Gamma laser block breaking — continuous exposure per block position
         BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
-        int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(gammaLevel / 4, 0, 4)];
+        int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(this.gammaLevel / 4, 0, 4)];
 
         BlockPos currentTarget = this.irradiateBlockPos.immutable();
         if (!currentTarget.equals(this.gammaIrradiatingPos)) {
@@ -569,7 +568,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 if (irradiateBlock.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> multi) {
                     breakPos = multi.getMainPartPos(this.irradiateBlockPos, irradiateBlock);
                 }
-                if (gammaLevel >= 16) {
+                if (this.gammaLevel >= 16) {
                     this.level.destroyBlock(breakPos, false);
                 } else {
                     this.level.destroyBlock(this.irradiateBlockPos, true);
@@ -580,7 +579,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
 
         // Gamma laser heating: upgrade ember metal blocks in cross-sectional area
-        tryHeatEmberMetal(direction);
+        this.tryHeatEmberMetal(direction);
 
         this.maxTransmissionDistance = originalMaxDistance;
     }
@@ -591,7 +590,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     private BlockPos getGammaIrradiateBlockPos(Direction direction) {
         for (int length = 1; length <= 16; length++) {
             BlockPos checkPos = this.getBlockPos().relative(direction, length);
-            if (!gammaCanPassThrough(checkPos)) return checkPos;
+            if (!this.gammaCanPassThrough(checkPos)) return checkPos;
         }
         return this.getBlockPos().relative(direction, 16);
     }
@@ -625,18 +624,18 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
      * Area scales with gamma level: ≥4→1×1, ≥8→3×3, ≥12→5×5×2, ≥16→7×7×3.
      */
     private void tryHeatEmberMetal(Direction direction) {
-        if (this.level == null || gammaLevel < 4) return;
+        if (this.level == null || this.gammaLevel < 4) return;
         if (this.level.getGameTime() % 20 != 0) return;
 
         int areaSize;
         int thickness;
-        if (gammaLevel >= 16) {
+        if (this.gammaLevel >= 16) {
             areaSize = 7;
             thickness = 3;
-        } else if (gammaLevel >= 12) {
+        } else if (this.gammaLevel >= 12) {
             areaSize = 5;
             thickness = 2;
-        } else if (gammaLevel >= 8) {
+        } else if (this.gammaLevel >= 8) {
             areaSize = 3;
             thickness = 1;
         } else {
@@ -661,7 +660,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                     BlockPos target = depthPos
                         .relative(perpendiculars[0], a)
                         .relative(perpendiculars[1], b);
-                    tryHeatEmberMetalAt(target);
+                    this.tryHeatEmberMetalAt(target);
                 }
             }
         }
@@ -726,9 +725,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     public void setRemoved() {
         // Unregister portal from parent CFA before super.setRemoved()
         if (this.level != null && !level.isClientSide()) {
-            CelestialForgingAnvilBlockEntity parent = findParentCfa();
+            CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
             if (parent != null) {
-                Cube323PartHalf side = findSideFromParent(parent);
+                Cube323PartHalf side = this.findSideFromParent(parent);
                 if (side != null) {
                     parent.removePortal(side);
                 }
@@ -763,9 +762,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putBoolean("emittingGamma", emittingGamma);
-        output.putInt("gammaLevel", gammaLevel);
-        output.putBoolean("lastWaterlogged", lastWaterlogged);
+        output.putBoolean("emittingGamma", this.emittingGamma);
+        output.putInt("gammaLevel", this.gammaLevel);
+        output.putBoolean("lastWaterlogged", this.lastWaterlogged);
     }
 
     @Override
@@ -781,8 +780,8 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     @Override
     public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("emittingGamma", emittingGamma);
-        tag.putInt("gammaLevel", gammaLevel);
+        tag.putBoolean("emittingGamma", this.emittingGamma);
+        tag.putInt("gammaLevel", this.gammaLevel);
         return tag;
     }
 

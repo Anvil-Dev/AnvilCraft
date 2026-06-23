@@ -25,9 +25,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     private int originalSize = 0;
     private boolean dysonDestroyed = false;
     private long dysonDestroyTick = -1;
-    @Setter @Getter
+    @Setter
+    @Getter
     private int supernovaFlashTicks = 0;
-    @Setter @Getter
+    @Setter
+    @Getter
     private int collapseAnimTicks = 0;
 
     @Override
@@ -36,24 +38,26 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     public boolean isActive() {
-        return stage >= 1 && stage <= 4;
+        return this.stage >= 1 && this.stage <= 4;
     }
 
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         if (!be.isAmplifierPresent()) return;
-        if (stage < 1 || stage > 4) return;
+        if (this.stage < 1 || this.stage > 4) return;
 
-        switch (stage) {
-            case 1 -> tickStage1(be);
-            case 2 -> tickStage2(be);
-            case 3 -> tickStage3(be);
-            case 4 -> tickStage4(be);
-            default -> {}
+        switch (this.stage) {
+            case 1 -> this.tickStage1(be);
+            case 2 -> this.tickStage2(be);
+            case 3 -> this.tickStage3(be);
+            case 4 -> this.tickStage4(be);
+            default -> {
+            }
         }
     }
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void onBuild(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
@@ -72,9 +76,9 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             int pixelsRight = CelestialBodyMatcher.countPixelsRightInAgeTemp(ageX, energyY);
             this.stage = 1;
             this.ticksRemaining = pixelsRight * 2400;
-            this.ticksTotal = ticksRemaining;
+            this.ticksTotal = this.ticksRemaining;
         } else {
-            initGiantPhase(be, ageX, energyY);
+            this.initGiantPhase(be, ageX, energyY);
         }
 
         be.setChanged();
@@ -88,11 +92,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         float fraction = (float) pixelsDown / totalPixels;
         this.stage = 2;
         this.ticksRemaining = Math.max((int) (fraction * 2400), 1);
-        this.ticksTotal = ticksRemaining;
+        this.ticksTotal = this.ticksRemaining;
 
-        if (isDysonSphereBuilt(be) && ticksRemaining > 20) {
+        if (this.isDysonSphereBuilt(be) && this.ticksRemaining > 20) {
             long startTick = be.getLevel().getGameTime();
-            long range = ticksRemaining / 2;
+            long range = this.ticksRemaining / 2;
             if (range > 0) {
                 this.dysonDestroyTick = startTick + be.getLevel().getRandom().nextInt((int) range);
             }
@@ -111,55 +115,60 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void tickStage1(CelestialForgingAnvilBlockEntity be) {
-        ticksRemaining--;
-        if (ticksRemaining % 20 == 0) syncToClient(be);
-        if (ticksRemaining <= 0) {
+        this.ticksRemaining--;
+        if (this.ticksRemaining % 20 == 0) this.syncToClient(be);
+        if (this.ticksRemaining <= 0) {
             if (be.getCelestialBodyData() instanceof StarData star && star.bodyClass() == CelestialBodyClass.M_MAIN) {
-                transitionToStage4(be);
+                this.transitionToStage4(be);
             } else {
-                transitionToStage2(be);
+                this.transitionToStage2(be);
             }
         }
     }
 
     private void tickStage2(CelestialForgingAnvilBlockEntity be) {
-        ticksRemaining--;
-        updateGiantPhaseVisuals(be);
-        if (ticksRemaining % 20 == 0) syncToClient(be);
-        if (!dysonDestroyed && dysonDestroyTick >= 0 && be.getLevel().getGameTime() >= dysonDestroyTick) {
-            destroyDysonSphere(be);
+        this.ticksRemaining--;
+        this.updateGiantPhaseVisuals(be);
+        if (this.ticksRemaining % 20 == 0) this.syncToClient(be);
+        if (!this.dysonDestroyed && this.dysonDestroyTick >= 0 && be.getLevel().getGameTime() >= this.dysonDestroyTick) {
+            this.destroyDysonSphere(be);
         }
-        if (ticksRemaining <= 0) {
-            transitionToStage3(be);
+        if (this.ticksRemaining <= 0) {
+            this.transitionToStage3(be);
         }
     }
 
     private void tickStage3(CelestialForgingAnvilBlockEntity be) {
-        if (collapseAnimTicks > 0) {
-            collapseAnimTicks--;
-            ticksRemaining--;
-            updateCollapseColor(be);
-            if (collapseAnimTicks == 5) {
-                be.getLevel().explode(null,
-                    be.getBlockPos().getX() + 0.5, be.getBlockPos().getY() + 4.0, be.getBlockPos().getZ() + 0.5,
-                    6.0f, Level.ExplosionInteraction.BLOCK);
+        if (this.collapseAnimTicks > 0) {
+            this.collapseAnimTicks--;
+            this.ticksRemaining--;
+            this.updateCollapseColor(be);
+            if (this.collapseAnimTicks == 5) {
+                be.getLevel().explode(
+                    null,
+                    be.getBlockPos().getX() + 0.5,
+                    be.getBlockPos().getY() + 4.0,
+                    be.getBlockPos().getZ() + 0.5,
+                    6.0f,
+                    Level.ExplosionInteraction.BLOCK
+                );
             }
-            if (collapseAnimTicks > 0) syncToClient(be);
+            if (this.collapseAnimTicks > 0) this.syncToClient(be);
         } else {
-            triggerSupernova(be);
+            this.triggerSupernova(be);
         }
     }
 
     private void tickStage4(CelestialForgingAnvilBlockEntity be) {
-        ticksRemaining--;
-        if (ticksRemaining <= 0) completeMStarEvolution(be);
+        this.ticksRemaining--;
+        if (this.ticksRemaining <= 0) this.completeMStarEvolution(be);
     }
 
     private void transitionToStage2(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
         int ageX = CelestialBodyMatcher.toX(be.getAgeAnvilCount());
         int energyY = CelestialBodyMatcher.toY(star.energy());
-        initGiantPhase(be, ageX, energyY);
+        this.initGiantPhase(be, ageX, energyY);
     }
 
     private void transitionToStage3(CelestialForgingAnvilBlockEntity be) {
@@ -180,7 +189,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void triggerSupernova(CelestialForgingAnvilBlockEntity be) {
-        createRemnant(be);
+        this.createRemnant(be);
         be.getMegastructureManager().clearAllMegastructures(be);
         this.supernovaFlashTicks = 10;
         be.setChanged();
@@ -188,53 +197,76 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void createRemnant(CelestialForgingAnvilBlockEntity be) {
-        int mass = originalMass;
-        if (mass < 55) createWhiteDwarfRemnant(be);
-        else if (mass <= 58) createNeutronStarRemnant(be);
-        else createBlackHoleRemnant(be);
-        finishAccelerator();
+        int mass = this.originalMass;
+        if (mass < 55) {
+            this.createWhiteDwarfRemnant(be);
+        } else if (mass <= 58) {
+            this.createNeutronStarRemnant(be);
+        } else {
+            this.createBlackHoleRemnant(be);
+        }
+        this.finishAccelerator();
     }
 
     private void completeMStarEvolution(CelestialForgingAnvilBlockEntity be) {
-        createWhiteDwarfRemnant(be);
-        finishAccelerator();
+        this.createWhiteDwarfRemnant(be);
+        this.finishAccelerator();
     }
 
     private void createWhiteDwarfRemnant(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        int wdMassAnvil = originalMass <= 30 ? 48 : originalMass <= 42 ? 49 : 50;
-        int wdSpaceAnvil = originalMass <= 30 ? 11 : originalMass <= 42 ? 10 : 9;
+        int wdMassAnvil = this.originalMass <= 30 ? 48 : this.originalMass <= 42 ? 49 : 50;
+        int wdSpaceAnvil = this.originalMass <= 30 ? 11 : this.originalMass <= 42 ? 10 : 9;
         int wdEnergy = 47;
         int[] rgb = CelestialBodyMatcher.getStarColor(wdEnergy);
         int newMag = Math.min(star.magneticFieldStrength() + 1, 5);
         int newRotation = Math.min(star.rotationSpeed() + 1, 5);
         be.setAgeAnvilCount(be.getAgeAnvilCount() + 1);
         be.setStellarMass(wdMassAnvil);
-        be.setCelestialBodyData(new StarData(CelestialBodyClass.WHITE_DWARF, wdSpaceAnvil,
-            rgb[0], rgb[1], rgb[2], star.axialTilt(), newRotation, newMag, wdEnergy, star.bodyUuid()));
+        be.setCelestialBodyData(new StarData(
+            CelestialBodyClass.WHITE_DWARF,
+            wdSpaceAnvil,
+            rgb[0],
+            rgb[1],
+            rgb[2],
+            star.axialTilt(),
+            newRotation,
+            newMag,
+            wdEnergy,
+            star.bodyUuid()
+        ));
         be.setPlanetaryResourceSet(null);
     }
 
     private void createNeutronStarRemnant(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        int neutronMass = originalMass <= 55 ? 50 : originalMass <= 56 ? 51 : 52;
+        int neutronMass = this.originalMass <= 55 ? 50 : this.originalMass <= 56 ? 51 : 52;
         int newMag = Math.min(star.magneticFieldStrength() + 2, 6);
         int newRotation = Math.min(star.rotationSpeed() + 2, 5);
         be.setAgeAnvilCount(be.getAgeAnvilCount() + 1);
         be.setStellarMass(neutronMass);
-        be.setCelestialBodyData(new StarData(CelestialBodyClass.NEUTRON_STAR, 1,
-            255, 255, 255, star.axialTilt(), newRotation, newMag, 64, star.bodyUuid()));
+        be.setCelestialBodyData(new StarData(
+            CelestialBodyClass.NEUTRON_STAR,
+            1,
+            255,
+            255,
+            255,
+            star.axialTilt(),
+            newRotation,
+            newMag,
+            64,
+            star.bodyUuid()
+        ));
         be.setPlanetaryResourceSet(null);
     }
 
     private void createBlackHoleRemnant(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        int bhMass = Math.clamp(53 + (originalMass - 59), 53, 59);
+        int bhMass = Math.clamp(53 + (this.originalMass - 59), 53, 59);
         int newMag = Math.min(star.magneticFieldStrength() + 2, 6);
         be.setAgeAnvilCount(be.getAgeAnvilCount() + 1);
         be.setStellarMass(bhMass);
-        be.setCelestialBodyData(new StarData(CelestialBodyClass.BLACK_HOLE, 1,
-            0, 0, 0, star.axialTilt(), 1, newMag, 64, star.bodyUuid()));
+        be.setCelestialBodyData(new StarData(CelestialBodyClass.BLACK_HOLE, 1, 0, 0, 0, star.axialTilt(), 1, newMag, 64, star.bodyUuid()));
         be.setPlanetaryResourceSet(null);
     }
 
@@ -247,8 +279,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void destroyDysonSphere(CelestialForgingAnvilBlockEntity be) {
-        if (dysonDestroyed) return;
-        dysonDestroyed = true;
+        if (this.dysonDestroyed) return;
+        this.dysonDestroyed = true;
         be.getMegastructureManager().clearMegastructure(be);
         be.setChanged();
         be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
@@ -262,40 +294,77 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     private void updateGiantPhaseVisuals(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
         if (be.getLevel().getGameTime() % 20 != 0) return;
-        float progress = ticksTotal > 0 ? (float) ticksRemaining / ticksTotal : 0f;
+        float progress = this.ticksTotal > 0 ? (float) this.ticksRemaining / this.ticksTotal : 0f;
         float t = 1.0f - progress;
-        int newSize = originalSize + Math.round((64 - originalSize) * t);
+        int newSize = this.originalSize + Math.round((64 - this.originalSize) * t);
         newSize = Math.clamp(newSize, 1, 64);
-        float floatEnergy = Math.clamp(originalEnergy + (38 - originalEnergy) * t, 38, 64);
+        float floatEnergy = Math.clamp(this.originalEnergy + (38 - this.originalEnergy) * t, 38, 64);
         int[] rgb = getBlendedStarColor(floatEnergy);
-        be.setCelestialBodyData(new StarData(star.bodyClass(), newSize,
-            rgb[0], rgb[1], rgb[2], star.axialTilt(), star.rotationSpeed(), star.magneticFieldStrength(), star.energy(), star.bodyUuid()));
+        be.setCelestialBodyData(new StarData(
+            star.bodyClass(),
+            newSize,
+            rgb[0],
+            rgb[1],
+            rgb[2],
+            star.axialTilt(),
+            star.rotationSpeed(),
+            star.magneticFieldStrength(),
+            star.energy(),
+            star.bodyUuid()
+        ));
     }
 
     private void updateCollapseColor(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        int collapseEnergy = switch (collapseAnimTicks) {
-            case 10 -> 38; case 9 -> 40; case 8 -> 42; case 7 -> 44; case 6 -> 46;
-            case 5 -> 48; case 4 -> 50; case 3 -> 53; case 2 -> 56; case 1 -> 59; default -> 62;
+        int collapseEnergy = switch (this.collapseAnimTicks) {
+            case 10 -> 38;
+            case 9 -> 40;
+            case 8 -> 42;
+            case 7 -> 44;
+            case 6 -> 46;
+            case 5 -> 48;
+            case 4 -> 50;
+            case 3 -> 53;
+            case 2 -> 56;
+            case 1 -> 59;
+            default -> 62;
         };
         int[] rgb = CelestialBodyMatcher.getStarColor(collapseEnergy);
         float startScale = visualScale(star.size());
         float endScale = visualScale(9);
-        float progress = Math.clamp((10.0f - collapseAnimTicks) / 9.0f, 0.0f, 1.0f);
+        float progress = Math.clamp((10.0f - this.collapseAnimTicks) / 9.0f, 0.0f, 1.0f);
         float targetScale = startScale + (endScale - startScale) * progress;
         int collapseSize = Math.max(9, sizeForVisualScale(targetScale));
-        be.setCelestialBodyData(new StarData(star.bodyClass(), collapseSize,
-            rgb[0], rgb[1], rgb[2], star.axialTilt(), star.rotationSpeed(), star.magneticFieldStrength(), star.energy(), star.bodyUuid()));
+        be.setCelestialBodyData(new StarData(
+            star.bodyClass(),
+            collapseSize,
+            rgb[0],
+            rgb[1],
+            rgb[2],
+            star.axialTilt(),
+            star.rotationSpeed(),
+            star.magneticFieldStrength(),
+            star.energy(),
+            star.bodyUuid()
+        ));
     }
 
     private static float visualScale(int size) {
-        if (size <= 20) return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
-        else { float t2 = (size - 20) / 44f; return 1.5f * (1.0f + t2 * t2 * 1.63f); }
+        if (size <= 20) {
+            return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
+        } else {
+            float t2 = (size - 20) / 44f;
+            return 1.5f * (1.0f + t2 * t2 * 1.63f);
+        }
     }
 
     private static int sizeForVisualScale(float scale) {
-        if (scale >= 1.5f) { float t2 = (float) Math.sqrt((scale / 1.5f - 1.0f) / 1.63f); return Math.round(20f + 44f * t2); }
-        else return Math.round(1f + (scale / 1.5f - 0.2f) * 19f / 0.8f);
+        if (scale >= 1.5f) {
+            float t2 = (float) Math.sqrt((scale / 1.5f - 1.0f) / 1.63f);
+            return Math.round(20f + 44f * t2);
+        } else {
+            return Math.round(1f + (scale / 1.5f - 0.2f) * 19f / 0.8f);
+        }
     }
 
     private static int[] getBlendedStarColor(float energy) {
@@ -323,14 +392,14 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        output.putInt("acceleratorStage", stage);
-        output.putInt("acceleratorTicksRemaining", ticksRemaining);
-        output.putInt("acceleratorTicksTotal", ticksTotal);
-        output.putInt("acceleratorOriginalMass", originalMass);
-        output.putInt("acceleratorOriginalEnergy", originalEnergy);
-        output.putInt("acceleratorOriginalSize", originalSize);
-        output.putBoolean("acceleratorDysonDestroyed", dysonDestroyed);
-        output.putLong("acceleratorDysonDestroyTick", dysonDestroyTick);
+        output.putInt("acceleratorStage", this.stage);
+        output.putInt("acceleratorTicksRemaining", this.ticksRemaining);
+        output.putInt("acceleratorTicksTotal", this.ticksTotal);
+        output.putInt("acceleratorOriginalMass", this.originalMass);
+        output.putInt("acceleratorOriginalEnergy", this.originalEnergy);
+        output.putInt("acceleratorOriginalSize", this.originalSize);
+        output.putBoolean("acceleratorDysonDestroyed", this.dysonDestroyed);
+        output.putLong("acceleratorDysonDestroyTick", this.dysonDestroyTick);
     }
 
     @Override
@@ -347,11 +416,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
 
     @Override
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("acceleratorStage", stage);
-        tag.putInt("acceleratorTicksRemaining", ticksRemaining);
-        tag.putInt("acceleratorTicksTotal", ticksTotal);
-        tag.putInt("supernovaFlashTicks", supernovaFlashTicks);
-        tag.putInt("collapseAnimTicks", collapseAnimTicks);
+        tag.putInt("acceleratorStage", this.stage);
+        tag.putInt("acceleratorTicksRemaining", this.ticksRemaining);
+        tag.putInt("acceleratorTicksTotal", this.ticksTotal);
+        tag.putInt("supernovaFlashTicks", this.supernovaFlashTicks);
+        tag.putInt("collapseAnimTicks", this.collapseAnimTicks);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class ExtractorHandler extends BaseMegastructureHandler {
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (be.getPlanetaryResourceSet() == null) return;
 
         List<PlanetaryResourceSet.WeightedFluidStack> fluids = be.getPlanetaryResourceSet().getFluids();

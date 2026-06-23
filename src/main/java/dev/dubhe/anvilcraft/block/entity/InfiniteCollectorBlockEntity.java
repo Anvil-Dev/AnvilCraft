@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
+import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.collector.IHeatCollector;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -75,7 +77,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof InfiniteCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
         }
-        if (this.outputPower != oldPower && grid != null) grid.markChanged();
+        if (this.outputPower != oldPower && this.grid != null) this.grid.markChanged();
         this.inputtingPower = 0;
         this.time++;
     }
@@ -83,33 +85,55 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     @Override
     public void onLoad() {
         super.onLoad();
+        if (this.getCurrentLevel() == null) return;
+        HeatCollectorManager.addInfiniteCollector(this.getPos(), this.getCurrentLevel());
+        ChargeCollectorManager.getInstance(this.getCurrentLevel()).addInfiniteCollector(this);
     }
 
     @Override
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
+        if (this.getCurrentLevel() == null) return;
+        HeatCollectorManager.removeInfiniteCollector(this.getPos(), this.getCurrentLevel());
+        ChargeCollectorManager.getInstance(this.getCurrentLevel()).removeInfiniteCollector(this);
     }
 
     @Override
     public void setRemoved() {
         super.setRemoved();
+        if (this.getCurrentLevel() == null) return;
+        HeatCollectorManager.removeInfiniteCollector(this.getPos(), this.getCurrentLevel());
+        ChargeCollectorManager.getInstance(this.getCurrentLevel()).removeInfiniteCollector(this);
     }
 
     public void clientTick() {
         if (!this.isWorking()) return;
-        rotation += (float) (Math.log(getServerPower() + 1) * 0.5);
+        this.rotation += (float) (Math.log(getServerPower() + 1) * 0.5);
     }
 
     public boolean isWorking() {
         return this.result.isWorking();
     }
 
+    /**
+     * 向收集器添加热能
+     *
+     * @param num 添加至收集器的热能
+     * @return 溢出的热能(即未被添加至该收集器的热能)
+     */
     public int inputtingHeat(int num) {
         if (!this.isWorking()) return num;
         this.inputtingPower += num;
         return 0;
     }
 
+    /**
+     * 向收集器添加电荷
+     *
+     * @param num    添加至收集器的电荷数
+     * @param srcPos 电荷来源位置
+     * @return 溢出的电荷数(即未被添加至收集器的电荷数)
+     */
     public double incomingCharge(double num, BlockPos srcPos) {
         if (!this.isWorking()) return num;
         this.inputtingPower += (int) Math.floor(num);

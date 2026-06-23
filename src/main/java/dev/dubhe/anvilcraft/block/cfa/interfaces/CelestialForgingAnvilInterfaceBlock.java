@@ -54,7 +54,7 @@ public abstract class CelestialForgingAnvilInterfaceBlock
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!level.isClientSide()) {
-            neighborChanged(state, level, pos, state.getBlock(), null, false);
+            this.neighborChanged(state, level, pos, state.getBlock(), null, false);
         }
     }
 

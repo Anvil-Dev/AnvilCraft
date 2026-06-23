@@ -71,28 +71,28 @@ public record SpecialCelestialBodyData(
      * Get the model resource identifier for this special body.
      */
     public Identifier getModelLocation() {
-        return AnvilCraft.of("block/celestial_body/" + textureName);
+        return AnvilCraft.of("block/celestial_body/" + this.textureName);
     }
 
     @Override
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString("bodyType", CelestialBodyType.SPECIAL.getSerializedName());
-        tag.putString("recipeId", recipeId);
-        tag.putString("name", name);
-        tag.putInt("size", size);
-        tag.putFloat("axialTilt", axialTilt);
-        tag.putInt("rotationSpeed", rotationSpeed);
-        tag.putInt("magneticFieldStrength", magneticFieldStrength);
-        tag.putBoolean("hasAtmosphere", hasAtmosphere);
-        tag.putBoolean("isErrorPlanet", isErrorPlanet);
-        tag.putBoolean("needsCustomModel", needsCustomModel);
-        tag.putString("textureName", textureName);
-        if (temperature != null) {
-            tag.putString("temperature", temperature.getSerializedName());
+        tag.putString("recipeId", this.recipeId);
+        tag.putString("name", this.name);
+        tag.putInt("size", this.size);
+        tag.putFloat("axialTilt", this.axialTilt);
+        tag.putInt("rotationSpeed", this.rotationSpeed);
+        tag.putInt("magneticFieldStrength", this.magneticFieldStrength);
+        tag.putBoolean("hasAtmosphere", this.hasAtmosphere);
+        tag.putBoolean("isErrorPlanet", this.isErrorPlanet);
+        tag.putBoolean("needsCustomModel", this.needsCustomModel);
+        tag.putString("textureName", this.textureName);
+        if (this.temperature != null) {
+            tag.putString("temperature", this.temperature.getSerializedName());
         }
-        if (liquidCoverage != null) {
-            tag.putString("liquidCoverage", liquidCoverage.getSerializedName());
+        if (this.liquidCoverage != null) {
+            tag.putString("liquidCoverage", this.liquidCoverage.getSerializedName());
         }
         return tag;
     }

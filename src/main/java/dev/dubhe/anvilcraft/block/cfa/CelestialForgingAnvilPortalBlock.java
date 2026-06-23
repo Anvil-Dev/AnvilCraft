@@ -118,7 +118,7 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return getShape(state, level, pos, context);
+        return this.getShape(state, level, pos, context);
     }
 
     @Override

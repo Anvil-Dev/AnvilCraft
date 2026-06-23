@@ -131,9 +131,15 @@ public class RegisterAdditionalEventListener {
         event.register(CFARenderer.R4_WORMHOLE_STABILIZER,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_wormhole_stabilizer")));
         event.register(CFARenderer.R5_ACCELERATOR,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_5_stellar_evolution_accelerator")));
+            SimpleUnbakedStandaloneModel.blockStateModel(
+                AnvilCraft.of("block/celestial_forging_anvil_ring_5_stellar_evolution_accelerator")
+            )
+        );
         event.register(CFARenderer.R6_ACCELERATOR,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_6_stellar_evolution_accelerator")));
+            SimpleUnbakedStandaloneModel.blockStateModel(
+                AnvilCraft.of("block/celestial_forging_anvil_ring_6_stellar_evolution_accelerator")
+            )
+        );
         // CFA body models
         event.register(CFARenderer.BODY_STAR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/star")));

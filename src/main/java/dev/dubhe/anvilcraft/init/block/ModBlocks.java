@@ -733,8 +733,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .item(dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem::new)
+        .build()
         .register();
 
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)
@@ -1328,12 +1329,12 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
-        .item(SimpleMultiPartBlockItem::new)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
+        .item(dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
         .model(DataGenUtil::oversizedItem)
         .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
 
     public static final BlockEntry<CelestialForgingAnvilAmplifierBlock> CELESTIAL_FORGING_ANVIL_AMPLIFIER = REGISTRUM
@@ -3462,7 +3463,7 @@ public class ModBlocks {
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL)
-        .item()
+        .item(dev.dubhe.anvilcraft.item.SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()

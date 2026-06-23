@@ -38,21 +38,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class PlanetResourceGenerator {
 
-    private PlanetResourceGenerator() {}
+    private PlanetResourceGenerator() {
+    }
 
-    @SuppressWarnings("checkstyle:MissingSwitchDefault")
-    public static PlanetaryResourceSet generate(
-        CelestialBodyData body,
-        int ageAnvilCount,
-        Level level,
-        long seed
-    ) {
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    public static PlanetaryResourceSet generate(CelestialBodyData body, int ageAnvilCount, Level level, long seed) {
         PlanetaryResourceSet set = new PlanetaryResourceSet();
         RandomSource random = RandomSource.create(seed);
         if (!(level instanceof ServerLevel serverLevel)) return set;
 
         List<PlanetResourceRecipe> recipes = new ArrayList<>();
-        for (RecipeHolder<PlanetResourceRecipe> holder : RecipesRecord.getRecipes(serverLevel).byType(ModRecipeTypes.PLANET_RESOURCE.get())) {
+        for (RecipeHolder<PlanetResourceRecipe> holder : RecipesRecord.getRecipes(serverLevel)
+            .byType(ModRecipeTypes.PLANET_RESOURCE.get())) {
             recipes.add(holder.value());
         }
 
@@ -69,13 +66,21 @@ public final class PlanetResourceGenerator {
         for (PlanetResourceRecipe recipe : recipes) {
             if (!recipe.matches(input, level)) continue;
             switch (recipe.category()) {
-                case MINERAL -> { if (mineralRecipe == null) mineralRecipe = recipe; }
+                case MINERAL -> {
+                    if (mineralRecipe == null) mineralRecipe = recipe;
+                }
                 case FLUID -> fluidRecipes.add(recipe);
                 case GIANT_ITEM -> giantItemRecipes.add(recipe);
                 case GIANT_FLUID -> giantFluidRecipes.add(recipe);
-                case BIOLOGICAL -> { if (biologicalRecipe == null) biologicalRecipe = recipe; }
-                case OFFERING -> { if (offeringRecipe == null) offeringRecipe = recipe; }
-                case WASTELAND -> { if (wastelandRecipe == null) wastelandRecipe = recipe; }
+                case BIOLOGICAL -> {
+                    if (biologicalRecipe == null) biologicalRecipe = recipe;
+                }
+                case OFFERING -> {
+                    if (offeringRecipe == null) offeringRecipe = recipe;
+                }
+                case WASTELAND -> {
+                    if (wastelandRecipe == null) wastelandRecipe = recipe;
+                }
             }
         }
 
@@ -122,19 +127,15 @@ public final class PlanetResourceGenerator {
         Set<Identifier> blacklist = new HashSet<>();
         registries.lookupOrThrow(Registries.ITEM)
             .get(blacklistTag)
-            .ifPresent(entries -> entries.forEach(
-                holder -> blacklist.add(holder.unwrapKey().orElseThrow().identifier())
-            ));
+            .ifPresent(entries -> entries.forEach(holder -> blacklist.add(holder.unwrapKey().orElseThrow().identifier())));
 
         List<Identifier> candidates = new ArrayList<>();
-        registries.lookupOrThrow(Registries.ITEM)
-            .get(sourceTag)
-            .ifPresent(entries -> entries.forEach(holder -> {
-                Identifier id = holder.unwrapKey().orElseThrow().identifier();
-                if (!blacklist.contains(id)) {
-                    candidates.add(id);
-                }
-            }));
+        registries.lookupOrThrow(Registries.ITEM).get(sourceTag).ifPresent(entries -> entries.forEach(holder -> {
+            Identifier id = holder.unwrapKey().orElseThrow().identifier();
+            if (!blacklist.contains(id)) {
+                candidates.add(id);
+            }
+        }));
 
         if (candidates.isEmpty()) return;
         Collections.shuffle(candidates, new java.util.Random(random.nextLong()));
@@ -162,9 +163,7 @@ public final class PlanetResourceGenerator {
             if (fd != null && !fd.outputFluid().isEmpty()) {
                 boolean isLava = fd.outputFluid().contains("lava");
                 if (isScorched != isLava) continue;
-                set.addFluid(new PlanetaryResourceSet.WeightedFluidStack(
-                    Identifier.parse(fd.outputFluid()), 100
-                ));
+                set.addFluid(new PlanetaryResourceSet.WeightedFluidStack(Identifier.parse(fd.outputFluid()), 100));
             }
         }
     }
@@ -263,20 +262,16 @@ public final class PlanetResourceGenerator {
         Set<Identifier> blacklist = buildItemBlacklist(level.registryAccess(), blacklistTag);
 
         Map<Identifier, Integer> dropFrequencies = new HashMap<>();
-        level.registryAccess().lookupOrThrow(Registries.ENTITY_TYPE)
-            .listElements()
-            .forEach(holder -> {
-                EntityType<?> entityType = holder.value();
-                var cat = entityType.getCategory();
-                boolean matches = isHighCoverage
-                    ? cat == MobCategory.WATER_CREATURE
-                       || cat == MobCategory.WATER_AMBIENT
-                       || cat == MobCategory.UNDERGROUND_WATER_CREATURE
-                    : cat == MobCategory.CREATURE;
-                if (matches) {
-                    collectEntityDropFrequencies(entityType, level, random, dropFrequencies, blacklist);
-                }
-            });
+        level.registryAccess().lookupOrThrow(Registries.ENTITY_TYPE).listElements().forEach(holder -> {
+            EntityType<?> entityType = holder.value();
+            var cat = entityType.getCategory();
+            boolean matches = isHighCoverage
+                              ? cat == MobCategory.WATER_CREATURE || cat == MobCategory.WATER_AMBIENT || cat == MobCategory.UNDERGROUND_WATER_CREATURE
+                              : cat == MobCategory.CREATURE;
+            if (matches) {
+                collectEntityDropFrequencies(entityType, level, random, dropFrequencies, blacklist);
+            }
+        });
 
         if (!dropFrequencies.isEmpty()) {
             List<Map.Entry<Identifier, Integer>> candidates = new ArrayList<>(dropFrequencies.entrySet());
@@ -348,9 +343,7 @@ public final class PlanetResourceGenerator {
 
         if (lootTableKey == null) return;
 
-        LootTable lootTable = serverLevel.getServer()
-            .reloadableRegistries()
-            .getLootTable(lootTableKey);
+        LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(lootTableKey);
 
         Entity rollEntity = entityType.create(serverLevel, EntitySpawnReason.COMMAND);
         if (!(rollEntity instanceof LivingEntity rollLiving)) {
@@ -363,21 +356,21 @@ public final class PlanetResourceGenerator {
         AtomicInteger totalDrops = new AtomicInteger(0);
 
         for (int i = 0; i < simulationRolls; i++) {
-            LootParams params = new LootParams.Builder(serverLevel)
-                .withParameter(LootContextParams.THIS_ENTITY, rollLiving)
+            LootParams params = new LootParams.Builder(serverLevel).withParameter(LootContextParams.THIS_ENTITY, rollLiving)
                 .withParameter(LootContextParams.ORIGIN, rollLiving.position())
-                .withParameter(LootContextParams.DAMAGE_SOURCE,
-                    rollLiving.damageSources().generic())
+                .withParameter(LootContextParams.DAMAGE_SOURCE, rollLiving.damageSources().generic())
                 .create(LootContextParamSets.ENTITY);
 
-            lootTable.getRandomItems(params, random.nextLong(), drop -> {
-                if (drop.isEmpty()) return;
-                Identifier id = drop.getItem().builtInRegistryHolder().key().identifier();
-                if ("minecraft:air".equals(id.toString())) return;
-                if (blacklist.contains(id)) return;
-                counts.merge(id, drop.getCount(), Integer::sum);
-                totalDrops.addAndGet(drop.getCount());
-            });
+            lootTable.getRandomItems(
+                params, random.nextLong(), drop -> {
+                    if (drop.isEmpty()) return;
+                    Identifier id = drop.getItem().builtInRegistryHolder().key().identifier();
+                    if ("minecraft:air".equals(id.toString())) return;
+                    if (blacklist.contains(id)) return;
+                    counts.merge(id, drop.getCount(), Integer::sum);
+                    totalDrops.addAndGet(drop.getCount());
+                }
+            );
         }
 
         rollEntity.discard();
@@ -414,16 +407,11 @@ public final class PlanetResourceGenerator {
         return knownBlocks.get(random.nextInt(knownBlocks.size()));
     }
 
-    private static Set<Identifier> buildItemBlacklist(
-        HolderLookup.Provider registries,
-        TagKey<Item> blacklistTag
-    ) {
+    private static Set<Identifier> buildItemBlacklist(HolderLookup.Provider registries, TagKey<Item> blacklistTag) {
         Set<Identifier> blacklist = new HashSet<>();
         registries.lookupOrThrow(Registries.ITEM)
             .get(blacklistTag)
-            .ifPresent(entries -> entries.forEach(
-                holder -> blacklist.add(holder.unwrapKey().orElseThrow().identifier())
-            ));
+            .ifPresent(entries -> entries.forEach(holder -> blacklist.add(holder.unwrapKey().orElseThrow().identifier())));
         return blacklist;
     }
 }

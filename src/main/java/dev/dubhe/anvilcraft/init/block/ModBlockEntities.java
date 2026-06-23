@@ -431,7 +431,8 @@ public class ModBlockEntities {
         .renderer(() -> CelestialForgingAnvilPortalRenderer::new)
         .register();
 
-    public static final BlockEntityEntry<CelestialForgingAnvilLogisticsInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE = REGISTRUM
+    public static final BlockEntityEntry<CelestialForgingAnvilLogisticsInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE =
+        REGISTRUM
         .blockEntity("celestial_forging_anvil_logistics_interface", CelestialForgingAnvilLogisticsInterfaceBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)
         .register();

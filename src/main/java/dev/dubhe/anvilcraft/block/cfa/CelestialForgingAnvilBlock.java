@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.cfa;
 
+import com.mojang.logging.LogUtils;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
@@ -16,13 +17,12 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import com.mojang.logging.LogUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -42,8 +42,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -227,6 +227,7 @@ public class CelestialForgingAnvilBlock
 
     // === Destruction (26.1: onRemove removed, use playerWillDestroy + setRemoved) ===
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockPos mainPos = getMainPartPos(pos, state);
@@ -319,7 +320,7 @@ public class CelestialForgingAnvilBlock
     // === Interaction ===
 
     @Override
-    @SuppressWarnings({"deprecation", "checkstyle:VariableDeclarationUsageDistance"})
+    @SuppressWarnings({"checkstyle:VariableDeclarationUsageDistance"})
     public InteractionResult use(
         BlockState state,
         Level level,

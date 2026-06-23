@@ -45,7 +45,7 @@ public record TempleDemandRecipe(
         }
 
         public String getSerializedName() {
-            return name;
+            return this.name;
         }
 
         public static Category fromName(String name) {
@@ -70,7 +70,7 @@ public record TempleDemandRecipe(
             );
 
         public Identifier itemResource() {
-            return Identifier.parse(itemId);
+            return Identifier.parse(this.itemId);
         }
     }
 

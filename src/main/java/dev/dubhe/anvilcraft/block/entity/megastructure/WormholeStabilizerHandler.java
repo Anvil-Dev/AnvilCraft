@@ -42,6 +42,7 @@ import java.util.UUID;
 
 /**
  * Wormhole Stabilizer megastructure handler.
+ *
  * <p>
  * Manages wormhole network registration/unregistration, portal placement,
  * chunk loading for connected CFAs, and full bidirectional cross-CFA
@@ -69,23 +70,23 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
     @Nullable
     public UUID getBodyUuid() {
-        return bodyUuid;
+        return this.bodyUuid;
     }
 
     public Map<Cube323PartHalf, BlockPos> getPortals() {
-        return Collections.unmodifiableMap(portals);
+        return Collections.unmodifiableMap(this.portals);
     }
 
     @Override
     public int getInputPower(CelestialForgingAnvilBlockEntity be) {
-        return 0;
+        return super.getInputPower(be);
     }
 
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (!(be.getCelestialBodyData() instanceof StarData star) || star.bodyClass() != CelestialBodyClass.BLACK_HOLE) return;
 
         // Get UUID from the celestial body; fall back to stored UUID
@@ -94,31 +95,31 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         if (uuid == null) return;
 
         if (!be.isAmplifierPresent()) {
-            if (registered) {
+            if (this.registered) {
                 WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
-                registered = false;
-                clearLocalInterfaces(be);
-                cleanupWormholeChunkLoading(be.getLevel());
+                this.registered = false;
+                this.clearLocalInterfaces(be);
+                this.cleanupWormholeChunkLoading(be.getLevel());
                 be.setChanged();
                 be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
             }
             return;
         }
 
-        if (!registered) {
+        if (!this.registered) {
             this.bodyUuid = uuid;
             WormholeNetwork.get().register(uuid, be.getLevel(), be.getBlockPos());
-            registered = true;
-            justReconnected = true;
-            if (!portals.isEmpty()) {
-                WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), portals.keySet());
+            this.registered = true;
+            this.justReconnected = true;
+            if (!this.portals.isEmpty()) {
+                WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), this.portals.keySet());
             }
         }
 
-        manageWormholeChunkLoading(be);
-        syncWormholeLogistics(be);
-        syncWormholeFluids(be);
-        syncWormholeLasers(be);
+        this.manageWormholeChunkLoading(be);
+        this.syncWormholeLogistics(be);
+        this.syncWormholeFluids(be);
+        this.syncWormholeLasers(be);
     }
 
     @Override
@@ -129,22 +130,22 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             if (uuid == null) return;
             this.bodyUuid = uuid;
             WormholeNetwork.get().register(uuid, be.getLevel(), be.getBlockPos());
-            registered = true;
-            if (!portals.isEmpty()) {
-                WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), portals.keySet());
+            this.registered = true;
+            if (!this.portals.isEmpty()) {
+                WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), this.portals.keySet());
             }
         }
     }
 
     @Override
     public void onClear(CelestialForgingAnvilBlockEntity be) {
-        if (registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
+        if (this.registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
             WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
-            registered = false;
+            this.registered = false;
         }
-        bodyUuid = null;
-        portals.clear();
-        cleanupWormholeChunkLoading(be.getLevel());
+        this.bodyUuid = null;
+        this.portals.clear();
+        this.cleanupWormholeChunkLoading(be.getLevel());
     }
 
     public boolean addPortal(Cube323PartHalf side, BlockPos portalPos, CelestialForgingAnvilBlockEntity be) {
@@ -154,11 +155,11 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
                                                                                                               != Cube323PartHalf.BOTTOM_W) {
             return false;
         }
-        if (portals.containsKey(side)) return false;
-        portals.put(side, portalPos);
+        if (this.portals.containsKey(side)) return false;
+        this.portals.put(side, portalPos);
 
-        if (registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
-            WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), portals.keySet());
+        if (this.registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
+            WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), this.portals.keySet());
         }
 
         be.setChanged();
@@ -169,10 +170,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     }
 
     public void removePortal(Cube323PartHalf side, CelestialForgingAnvilBlockEntity be) {
-        portals.remove(side);
+        this.portals.remove(side);
 
-        if (registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
-            WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), portals.keySet());
+        if (this.registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
+            WormholeNetwork.get().setPortalSides(be.getLevel().dimension(), be.getBlockPos(), this.portals.keySet());
         }
 
         be.setChanged();
@@ -187,7 +188,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
      * in the same tick, providing instant cross-dimensional synchronization.
      */
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot, CelestialForgingAnvilBlockEntity be) {
-        if (be.getLevel() == null || be.getLevel().isClientSide() || !registered || bodyUuid == null) return;
+        if (be.getLevel() == null || be.getLevel().isClientSide() || !this.registered || this.bodyUuid == null) return;
 
         Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> localMap = getLogisticsInterfacesMap(be);
         CelestialForgingAnvilLogisticsInterfaceBlockEntity localBe = localMap.values()
@@ -200,7 +201,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         BlockPos relOffset = new BlockPos(interfacePos.getX() - be.getBlockPos().getX(), 0, interfacePos.getZ() - be.getBlockPos().getZ());
         ResourceHandler<ItemResource> localHandler = localBe.getItemHandler();
         int slots = localHandler.size();
-        UUID uuid = WormholeInterfaceStates.logisticsUuid(bodyUuid, relOffset.getX(), relOffset.getZ());
+        UUID uuid = WormholeInterfaceStates.logisticsUuid(this.bodyUuid, relOffset.getX(), relOffset.getZ());
         WormholeInterfaceStates states = WormholeInterfaceStates.get();
         List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
 
@@ -212,7 +213,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         }
 
         WormholeNetwork network = WormholeNetwork.get();
-        List<WormholeNetwork.Entry> connected = network.getConnected(bodyUuid, be.getLevel().dimension(), be.getBlockPos());
+        List<WormholeNetwork.Entry> connected = network.getConnected(this.bodyUuid, be.getLevel().dimension(), be.getBlockPos());
         for (WormholeNetwork.Entry entry : connected) {
             ServerLevel targetLevel = be.getLevel().getServer().getLevel(entry.dimension());
             if (targetLevel == null) continue;
@@ -235,9 +236,9 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     // ==================== Chunk loading ====================
 
     private void manageWormholeChunkLoading(CelestialForgingAnvilBlockEntity be) {
-        if (be.getLevel() == null || be.getLevel().isClientSide() || bodyUuid == null) return;
+        if (be.getLevel() == null || be.getLevel().isClientSide() || this.bodyUuid == null) return;
         WormholeNetwork network = WormholeNetwork.get();
-        List<WormholeNetwork.Entry> connected = network.getConnected(bodyUuid, be.getLevel().dimension(), be.getBlockPos());
+        List<WormholeNetwork.Entry> connected = network.getConnected(this.bodyUuid, be.getLevel().dimension(), be.getBlockPos());
 
         Set<WormholeChunkLoadKey> currentKeys = new HashSet<>();
         for (WormholeNetwork.Entry entry : connected) {
@@ -247,14 +248,14 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             WormholeChunkLoadKey key = new WormholeChunkLoadKey(entry.dimension().identifier(), entry.pos());
             currentKeys.add(key);
 
-            if (!loadedChunks.containsKey(key)) {
+            if (!this.loadedChunks.containsKey(key)) {
                 var data = LoadChuckData.createLoadChuckData(1, entry.pos(), false, targetLevel);
                 LevelLoadManager.register(entry.pos(), data, targetLevel);
-                loadedChunks.put(key, data);
+                this.loadedChunks.put(key, data);
             }
         }
 
-        loadedChunks.entrySet().removeIf(e -> {
+        this.loadedChunks.entrySet().removeIf(e -> {
             if (!currentKeys.contains(e.getKey())) {
                 LevelLoadManager.unregister(e.getKey().pos(), be.getLevel());
                 return true;
@@ -264,10 +265,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     }
 
     private void cleanupWormholeChunkLoading(net.minecraft.world.level.Level level) {
-        for (WormholeChunkLoadKey key : loadedChunks.keySet()) {
+        for (WormholeChunkLoadKey key : this.loadedChunks.keySet()) {
             LevelLoadManager.unregister(key.pos(), level);
         }
-        loadedChunks.clear();
+        this.loadedChunks.clear();
     }
 
     // ==================== Logistics sync ====================
@@ -285,12 +286,12 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
      * </ul>
      */
     private void syncWormholeLogistics(CelestialForgingAnvilBlockEntity be) {
-        if (be.getLevel() == null || be.getLevel().isClientSide() || !registered || bodyUuid == null) return;
+        if (be.getLevel() == null || be.getLevel().isClientSide() || !this.registered || this.bodyUuid == null) return;
         Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> localMap = getLogisticsInterfacesMap(be);
         if (localMap.isEmpty()) return;
 
-        boolean isReconnect = justReconnected;
-        justReconnected = false;
+        boolean isReconnect = this.justReconnected;
+        this.justReconnected = false;
 
         WormholeInterfaceStates states = WormholeInterfaceStates.get();
         for (var localEntry : localMap.entrySet()) {
@@ -299,9 +300,9 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             ResourceHandler<ItemResource> localHandler = localBe.getItemHandler();
             int slots = localHandler.size();
 
-            UUID uuid = WormholeInterfaceStates.logisticsUuid(bodyUuid, relOffset.getX(), relOffset.getZ());
+            UUID uuid = WormholeInterfaceStates.logisticsUuid(this.bodyUuid, relOffset.getX(), relOffset.getZ());
             List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
-            List<UnlimitedItemStack> lastSeen = lastSeenItems.computeIfAbsent(uuid, k -> {
+            List<UnlimitedItemStack> lastSeen = this.lastSeenItems.computeIfAbsent(uuid, k -> {
                 List<UnlimitedItemStack> init = new ArrayList<>(slots);
                 for (int i = 0; i < slots; i++) init.add(canonical.get(i).copy());
                 return init;
@@ -381,7 +382,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     // ==================== Fluid sync ====================
 
     private void syncWormholeFluids(CelestialForgingAnvilBlockEntity be) {
-        if (be.getLevel() == null || be.getLevel().isClientSide() || !registered || bodyUuid == null) return;
+        if (be.getLevel() == null || be.getLevel().isClientSide() || !this.registered || this.bodyUuid == null) return;
         Map<BlockPos, CelestialForgingAnvilFluidInterfaceBlockEntity> localMap = getFluidInterfacesMap(be);
         if (localMap.isEmpty()) return;
 
@@ -392,10 +393,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             ResourceHandler<FluidResource> localHandler = localBe.getFluidHandler();
             int tanks = localHandler.size();
 
-            UUID uuid = WormholeInterfaceStates.fluidUuid(bodyUuid, relOffset.getX(), relOffset.getZ());
+            UUID uuid = WormholeInterfaceStates.fluidUuid(this.bodyUuid, relOffset.getX(), relOffset.getZ());
             String snapKey = uuid + ":" + relOffset.getX() + "," + relOffset.getZ();
             List<FluidStack> canonical = states.getOrCreateFluidState(uuid, tanks);
-            List<FluidStack> lastLocal = lastFluidSnapshot.computeIfAbsent(snapKey, k -> new ArrayList<>(tanks));
+            List<FluidStack> lastLocal = this.lastFluidSnapshot.computeIfAbsent(snapKey, k -> new ArrayList<>(tanks));
             while (lastLocal.size() < tanks) lastLocal.add(FluidStack.EMPTY);
 
             for (int tank = 0; tank < tanks; tank++) {
@@ -426,12 +427,12 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     // ==================== Laser sync ====================
 
     private void syncWormholeLasers(CelestialForgingAnvilBlockEntity be) {
-        if (be.getLevel() == null || be.getLevel().isClientSide() || !registered || bodyUuid == null) return;
+        if (be.getLevel() == null || be.getLevel().isClientSide() || !this.registered || this.bodyUuid == null) return;
         Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> localMap = getLaserInterfacesMap(be);
         if (localMap.isEmpty()) return;
 
         WormholeNetwork network = WormholeNetwork.get();
-        List<WormholeNetwork.Entry> connected = network.getConnected(bodyUuid, be.getLevel().dimension(), be.getBlockPos());
+        List<WormholeNetwork.Entry> connected = network.getConnected(this.bodyUuid, be.getLevel().dimension(), be.getBlockPos());
 
         for (var localEntry : localMap.entrySet()) {
             BlockPos relOffset = localEntry.getKey();
@@ -571,10 +572,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        if (bodyUuid != null) {
-            output.store("wormholeBodyUuid", UUIDUtil.CODEC, bodyUuid);
+        if (this.bodyUuid != null) {
+            output.store("wormholeBodyUuid", UUIDUtil.CODEC, this.bodyUuid);
         }
-        if (!portals.isEmpty()) {
+        if (!this.portals.isEmpty()) {
             ValueOutput.ValueOutputList portalList = output.childrenList("portals");
             for (Map.Entry<Cube323PartHalf, BlockPos> entry : portals.entrySet()) {
                 ValueOutput child = portalList.addChild();
@@ -600,15 +601,15 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
                     child.getIntOr("px", 0),
                     child.getIntOr("py", 0),
                     child.getIntOr("pz", 0));
-                portals.put(side, pos);
+                this.portals.put(side, pos);
             }
         });
     }
 
     @Override
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        if (bodyUuid != null) {
-            tag.store("wormholeBodyUuid", UUIDUtil.CODEC, bodyUuid);
+        if (this.bodyUuid != null) {
+            tag.store("wormholeBodyUuid", UUIDUtil.CODEC, this.bodyUuid);
         }
     }
 

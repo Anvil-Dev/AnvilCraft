@@ -4,12 +4,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.util.RandomSource;
 import org.jspecify.annotations.Nullable;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import javax.imageio.ImageIO;
 
 /**
  * Three-step celestial body matching engine using diagram PNGs.
@@ -20,6 +20,7 @@ import java.util.List;
  * In 26.1, {@code NativeImage} became {@code @OnlyIn(Dist.CLIENT)} and is unavailable
  * on the server. This class now uses {@link javax.imageio.ImageIO} + {@link BufferedImage}
  * which works everywhere.
+ *
  * <p>
  * Pixel format difference: {@code BufferedImage.getRGB()} returns ARGB (0xAARRGGBB),
  * whereas the old {@code NativeImage.getPixelRGBA()} returned ABGR (0xAABBGGRR).

@@ -11,12 +11,10 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedDataType;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,13 +69,13 @@ public class WormholeNetwork extends BetterSavedData {
 
         CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
-            tag.putString("dimension", dimension.identifier().toString());
-            tag.putInt("x", pos.getX());
-            tag.putInt("y", pos.getY());
-            tag.putInt("z", pos.getZ());
-            if (!portalSides.isEmpty()) {
+            tag.putString("dimension", this.dimension.identifier().toString());
+            tag.putInt("x", this.pos.getX());
+            tag.putInt("y", this.pos.getY());
+            tag.putInt("z", this.pos.getZ());
+            if (!this.portalSides.isEmpty()) {
                 ListTag sidesTag = new ListTag();
-                for (Cube323PartHalf side : portalSides) {
+                for (Cube323PartHalf side : this.portalSides) {
                     CompoundTag sideTag = new CompoundTag();
                     sideTag.putString("side", side.getSerializedName());
                     sidesTag.add(sideTag);
@@ -137,11 +135,11 @@ public class WormholeNetwork extends BetterSavedData {
      */
     public void register(UUID bodyUuid, Level level, BlockPos pos) {
         ResourceKey<Level> dim = level.dimension();
-        List<Entry> entries = network.computeIfAbsent(bodyUuid, k -> new ArrayList<>());
+        List<Entry> entries = this.network.computeIfAbsent(bodyUuid, k -> new ArrayList<>());
         entries.removeIf(e -> e.dimension.equals(dim) && e.pos.equals(pos));
         entries.add(new Entry(dim, pos));
 
-        reverseIndex.computeIfAbsent(dim, k -> new HashMap<>()).put(pos, bodyUuid);
+        this.reverseIndex.computeIfAbsent(dim, k -> new HashMap<>()).put(pos, bodyUuid);
         setDirty();
     }
 
@@ -150,15 +148,15 @@ public class WormholeNetwork extends BetterSavedData {
      */
     public void unregister(Level level, BlockPos pos) {
         ResourceKey<Level> dim = level.dimension();
-        Map<BlockPos, UUID> dimMap = reverseIndex.get(dim);
+        Map<BlockPos, UUID> dimMap = this.reverseIndex.get(dim);
         if (dimMap == null) return;
         UUID uuid = dimMap.remove(pos);
         if (uuid != null) {
-            List<Entry> entries = network.get(uuid);
+            List<Entry> entries = this.network.get(uuid);
             if (entries != null) {
                 entries.removeIf(e -> e.dimension.equals(dim) && e.pos.equals(pos));
                 if (entries.isEmpty()) {
-                    network.remove(uuid);
+                    this.network.remove(uuid);
                 }
             }
             setDirty();
@@ -168,9 +166,9 @@ public class WormholeNetwork extends BetterSavedData {
     // ==================== Portal side management ====================
 
     public void setPortalSides(ResourceKey<Level> dim, BlockPos pos, Set<Cube323PartHalf> sides) {
-        UUID uuid = reverseIndex.getOrDefault(dim, Map.of()).get(pos);
+        UUID uuid = this.reverseIndex.getOrDefault(dim, Map.of()).get(pos);
         if (uuid != null) {
-            List<Entry> entries = network.get(uuid);
+            List<Entry> entries = this.network.get(uuid);
             if (entries != null) {
                 for (int i = 0; i < entries.size(); i++) {
                     Entry e = entries.get(i);
@@ -185,9 +183,9 @@ public class WormholeNetwork extends BetterSavedData {
     }
 
     public boolean hasPortalAt(ResourceKey<Level> dim, BlockPos pos, Cube323PartHalf side) {
-        UUID uuid = reverseIndex.getOrDefault(dim, Map.of()).get(pos);
+        UUID uuid = this.reverseIndex.getOrDefault(dim, Map.of()).get(pos);
         if (uuid != null) {
-            List<Entry> entries = network.get(uuid);
+            List<Entry> entries = this.network.get(uuid);
             if (entries != null) {
                 for (Entry e : entries) {
                     if (e.dimension.equals(dim) && e.pos.equals(pos)) {
@@ -205,7 +203,7 @@ public class WormholeNetwork extends BetterSavedData {
      * Get all connected CFA entries (excluding self) for a given body UUID.
      */
     public List<Entry> getConnected(UUID bodyUuid, ResourceKey<Level> selfDim, BlockPos selfPos) {
-        List<Entry> all = network.getOrDefault(bodyUuid, List.of());
+        List<Entry> all = this.network.getOrDefault(bodyUuid, List.of());
         return all.stream()
             .filter(e -> !(e.dimension.equals(selfDim) && e.pos.equals(selfPos)))
             .toList();
@@ -214,7 +212,7 @@ public class WormholeNetwork extends BetterSavedData {
     // ==================== NBT Serialization (used by Codec) ====================
 
     private void writeToTag(CompoundTag nbt) {
-        for (Map.Entry<UUID, List<Entry>> entry : network.entrySet()) {
+        for (Map.Entry<UUID, List<Entry>> entry : this.network.entrySet()) {
             ListTag list = new ListTag();
             for (Entry e : entry.getValue()) {
                 list.add(e.toTag());
@@ -224,8 +222,8 @@ public class WormholeNetwork extends BetterSavedData {
     }
 
     private void readFromTag(CompoundTag nbt) {
-        network.clear();
-        reverseIndex.clear();
+        this.network.clear();
+        this.reverseIndex.clear();
         for (String key : nbt.keySet()) {
             UUID uuid;
             try {
@@ -238,10 +236,10 @@ public class WormholeNetwork extends BetterSavedData {
             for (int i = 0; i < list.size(); i++) {
                 Entry entry = Entry.fromTag(list.getCompoundOrEmpty(i));
                 entries.add(entry);
-                reverseIndex.computeIfAbsent(entry.dimension, k -> new HashMap<>())
+                this.reverseIndex.computeIfAbsent(entry.dimension, k -> new HashMap<>())
                     .put(entry.pos, uuid);
             }
-            network.put(uuid, entries);
+            this.network.put(uuid, entries);
         }
     }
 

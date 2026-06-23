@@ -28,7 +28,7 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         if (!be.isAmplifierPresent()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) return;
+        if (option == null || !this.name().equals(option.megastructure())) return;
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
 
         CelestialBodyClass bodyClass = star.bodyClass();
@@ -50,32 +50,32 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
             ItemStack output = new ItemStack(voidMatter, efficiency);
             List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
             if (!logistics.isEmpty()) {
-                int startIdx = logisticsRoundRobin % logistics.size();
+                int startIdx = this.logisticsRoundRobin % logistics.size();
                 for (int attempt = 0; attempt < logistics.size(); attempt++) {
                     int idx = (startIdx + attempt) % logistics.size();
                     ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
                     if (remainder.getCount() < output.getCount()) {
-                        logisticsRoundRobin = (idx + 1) % logistics.size();
+                        this.logisticsRoundRobin = (idx + 1) % logistics.size();
                         return;
                     }
                 }
             }
         } else {
-            counter++;
+            this.counter++;
             int interval = NEUTRON_STAR_INTERVAL / efficiency;
             if (interval < 1) interval = 1;
-            if (counter >= interval) {
-                counter = 0;
+            if (this.counter >= interval) {
+                this.counter = 0;
                 ItemLike neutroniumIngot = ModItems.NEUTRONIUM_INGOT.get();
                 ItemStack output = new ItemStack(neutroniumIngot, 1);
                 List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
                 if (!logistics.isEmpty()) {
-                    int startIdx = logisticsRoundRobin % logistics.size();
+                    int startIdx = this.logisticsRoundRobin % logistics.size();
                     for (int attempt = 0; attempt < logistics.size(); attempt++) {
                         int idx = (startIdx + attempt) % logistics.size();
                         ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
                         if (remainder.getCount() < output.getCount()) {
-                            logisticsRoundRobin = (idx + 1) % logistics.size();
+                            this.logisticsRoundRobin = (idx + 1) % logistics.size();
                             return;
                         }
                     }

@@ -15,7 +15,7 @@ public enum PressureType implements StringRepresentable {
 
     @Override
     public @NotNull String getSerializedName() {
-        return name;
+        return this.name;
     }
 
     public static PressureType fromName(String name) {

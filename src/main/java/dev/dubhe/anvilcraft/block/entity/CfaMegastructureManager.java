@@ -34,82 +34,82 @@ public class CfaMegastructureManager {
     private final AcceleratorHandler acceleratorHandler;
 
     public CfaMegastructureManager() {
-        registerHandler(new ExcavatorHandler());
-        registerHandler(new ExtractorHandler());
-        registerHandler(new GiantExtractorHandler());
-        registerHandler(new ColliderHandler());
-        registerHandler(new DysonSphereHandler("dyson_sphere_small"));
-        registerHandler(new DysonSphereHandler("dyson_sphere_large"));
-        registerHandler(new MagnetarCoilHandler());
-        registerHandler(new PenroseSphereHandler());
-        registerHandler(new MatterDecompressorHandler());
-        registerHandler(new WormholeStabilizerHandler());
-        registerHandler(new EcoStationHandler());
-        registerHandler(new TempleHandler());
+        this.registerHandler(new ExcavatorHandler());
+        this.registerHandler(new ExtractorHandler());
+        this.registerHandler(new GiantExtractorHandler());
+        this.registerHandler(new ColliderHandler());
+        this.registerHandler(new DysonSphereHandler("dyson_sphere_small"));
+        this.registerHandler(new DysonSphereHandler("dyson_sphere_large"));
+        this.registerHandler(new MagnetarCoilHandler());
+        this. registerHandler(new PenroseSphereHandler());
+        this.registerHandler(new MatterDecompressorHandler());
+        this.registerHandler(new WormholeStabilizerHandler());
+        this.registerHandler(new EcoStationHandler());
+        this.registerHandler(new TempleHandler());
         this.acceleratorHandler = new AcceleratorHandler();
     }
 
     private void registerHandler(IMegastructureHandler handler) {
-        handlers.put(handler.name(), handler);
+        this.handlers.put(handler.name(), handler);
     }
 
     public int getActiveIndex() {
-        return activeMegastructureIndex;
+        return this.activeMegastructureIndex;
     }
 
     @Nullable
     public IMegastructureHandler getActiveHandler(CelestialForgingAnvilBlockEntity be) {
-        CelestialRefactorOption option = getActiveOption(be);
+        CelestialRefactorOption option = this.getActiveOption(be);
         if (option == null) return null;
-        return handlers.get(option.megastructure());
+        return this.handlers.get(option.megastructure());
     }
 
     @Nullable
     public CelestialRefactorOption getActiveOption(CelestialForgingAnvilBlockEntity be) {
-        if (activeMegastructureIndex < 0 || be.getCelestialBodyData() == null) return null;
+        if (this.activeMegastructureIndex < 0 || be.getCelestialBodyData() == null) return null;
         var options = CelestialRefactorRegistry.getOptions(
             be.getCelestialBodyData(),
             be.isAmplify(),
             be.getPlanetaryResourceSet()
         );
-        if (activeMegastructureIndex >= options.size()) return null;
-        return options.get(activeMegastructureIndex);
+        if (this.activeMegastructureIndex >= options.size()) return null;
+        return options.get(this.activeMegastructureIndex);
     }
 
     @Nullable
     @SuppressWarnings("unchecked")
     public <T extends IMegastructureHandler> T findHandler(Class<T> type) {
-        for (var handler : handlers.values()) {
+        for (var handler : this.handlers.values()) {
             if (type.isInstance(handler)) return (T) handler;
         }
         return null;
     }
 
     public WormholeStabilizerHandler getWormholeHandler() {
-        return findHandler(WormholeStabilizerHandler.class);
+        return this.findHandler(WormholeStabilizerHandler.class);
     }
 
     // === Tick ===
 
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
-        if (activeMegastructureIndex >= 0) {
-            IMegastructureHandler active = getActiveHandler(be);
+        if (this.activeMegastructureIndex >= 0) {
+            IMegastructureHandler active = this.getActiveHandler(be);
             if (active != null) {
                 active.serverTick(be);
             }
-            syncLaserRequirements(be);
+            this.syncLaserRequirements(be);
         }
-        if (acceleratorHandler.isActive()) {
-            acceleratorHandler.serverTick(be);
+        if (this.acceleratorHandler.isActive()) {
+            this.acceleratorHandler.serverTick(be);
         }
     }
 
     // === Laser requirements ===
 
     public void syncLaserRequirements(CelestialForgingAnvilBlockEntity be) {
-        IMegastructureHandler active = getActiveHandler(be);
+        IMegastructureHandler active = this.getActiveHandler(be);
         if (active == null) {
-            clearAllLaserRequirements(be);
+            this.clearAllLaserRequirements(be);
             return;
         }
         var lasers = CfaInterfaceScanner.findLaserInterfaces(be.getLevel(), be.getBlockPos());
@@ -123,7 +123,7 @@ public class CfaMegastructureManager {
                 laser.setLaserRequirement(1, true);
             }
         } else {
-            clearAllLaserRequirements(be);
+            this.clearAllLaserRequirements(be);
         }
     }
 
@@ -143,90 +143,90 @@ public class CfaMegastructureManager {
         if (optionIndex < 0 || optionIndex >= options.size()) return;
         CelestialRefactorOption option = options.get(optionIndex);
         if ("stellar_evolution_accelerator".equals(option.megastructure())) {
-            acceleratorHandler.onBuild(be);
+            this.acceleratorHandler.onBuild(be);
             return;
         }
-        if (activeMegastructureIndex >= 0) return;
+        if (this.activeMegastructureIndex >= 0) return;
         this.activeMegastructureIndex = optionIndex;
-        IMegastructureHandler handler = handlers.get(option.megastructure());
+        IMegastructureHandler handler = this.handlers.get(option.megastructure());
         if (handler != null) {
             handler.onBuild(be);
         }
     }
 
     public void clearMegastructure(CelestialForgingAnvilBlockEntity be) {
-        if (activeMegastructureIndex >= 0) {
-            IMegastructureHandler handler = getActiveHandler(be);
+        if (this.activeMegastructureIndex >= 0) {
+            IMegastructureHandler handler = this.getActiveHandler(be);
             if (handler != null) {
                 handler.onClear(be);
             }
         }
         this.activeMegastructureIndex = -1;
-        clearAllLaserRequirements(be);
+        this.clearAllLaserRequirements(be);
     }
 
     public void clearAllMegastructures(CelestialForgingAnvilBlockEntity be) {
-        acceleratorHandler.onClear(be);
-        clearMegastructure(be);
+        this.acceleratorHandler.onClear(be);
+        this.clearMegastructure(be);
     }
 
     // === Persistence: disk (ValueOutput/ValueInput) ===
 
     public void saveAdditional(ValueOutput output) {
-        output.putInt("activeMegastructure", activeMegastructureIndex);
-        for (var handler : handlers.values()) {
+        output.putInt("activeMegastructure", this.activeMegastructureIndex);
+        for (var handler : this.handlers.values()) {
             handler.saveAdditional(output);
         }
-        acceleratorHandler.saveAdditional(output);
+        this.acceleratorHandler.saveAdditional(output);
     }
 
     public void loadAdditional(ValueInput input) {
         this.activeMegastructureIndex = input.getIntOr("activeMegastructure", -1);
-        for (var handler : handlers.values()) {
+        for (var handler : this.handlers.values()) {
             handler.loadAdditional(input);
         }
-        acceleratorHandler.loadAdditional(input);
+        this.acceleratorHandler.loadAdditional(input);
     }
 
     // === Network sync (still CompoundTag-based) ===
 
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("activeMegastructure", activeMegastructureIndex);
-        for (var handler : handlers.values()) {
+        tag.putInt("activeMegastructure", this.activeMegastructureIndex);
+        for (var handler : this.handlers.values()) {
             handler.writeUpdateTag(tag, registries);
         }
-        acceleratorHandler.writeUpdateTag(tag, registries);
+        this.acceleratorHandler.writeUpdateTag(tag, registries);
     }
 
     public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         this.activeMegastructureIndex = tag.getIntOr("activeMegastructure", -1);
-        for (var handler : handlers.values()) {
+        for (var handler : this.handlers.values()) {
             handler.readUpdateTag(tag, registries);
         }
-        acceleratorHandler.readUpdateTag(tag, registries);
+        this.acceleratorHandler.readUpdateTag(tag, registries);
     }
 
     // === Power ===
 
     public int getInputPower(CelestialForgingAnvilBlockEntity be) {
-        IMegastructureHandler handler = getActiveHandler(be);
+        IMegastructureHandler handler = this.getActiveHandler(be);
         return handler != null ? handler.getInputPower(be) : 0;
     }
 
     public int getOutputPower(CelestialForgingAnvilBlockEntity be) {
-        IMegastructureHandler handler = getActiveHandler(be);
+        IMegastructureHandler handler = this.getActiveHandler(be);
         return handler != null ? handler.getOutputPower(be) : 0;
     }
 
     public PowerComponentType getComponentType(CelestialForgingAnvilBlockEntity be) {
-        IMegastructureHandler handler = getActiveHandler(be);
+        IMegastructureHandler handler = this.getActiveHandler(be);
         if (handler != null) return handler.getComponentType();
         return PowerComponentType.CONSUMER;
     }
 
     public void gridTick(CelestialForgingAnvilBlockEntity be) {
-        IMegastructureHandler handler = getActiveHandler(be);
+        IMegastructureHandler handler = this.getActiveHandler(be);
         if (handler != null) handler.gridTick(be);
-        acceleratorHandler.gridTick(be);
+        this.acceleratorHandler.gridTick(be);
     }
 }

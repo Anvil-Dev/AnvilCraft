@@ -70,7 +70,7 @@ public record SpecialCelestialBodyRecipe(
         );
 
         public Identifier resourceId() {
-            return Identifier.parse(id);
+            return Identifier.parse(this.id);
         }
     }
 
@@ -215,7 +215,7 @@ public record SpecialCelestialBodyRecipe(
 
     @NotNull
     public Temperature temperature() {
-        return energyToTemperature(energy);
+        return energyToTemperature(this.energy);
     }
 
     private static Temperature energyToTemperature(int energy) {
@@ -227,42 +227,42 @@ public record SpecialCelestialBodyRecipe(
     }
 
     public boolean isErrorPlanet() {
-        return name.equals("error_planet");
+        return this.name.equals("error_planet");
     }
 
     public boolean hasCivilization() {
-        return !offerings.isEmpty();
+        return !this.offerings.isEmpty();
     }
 
     public Item getEffectiveSeedItem(long worldSeed) {
-        if (seedItems.isEmpty()) return Items.AIR;
-        if (seedItems.size() == 1) {
-            return resolveItem(seedItems.getFirst());
+        if (this.seedItems.isEmpty()) return Items.AIR;
+        if (this.seedItems.size() == 1) {
+            return resolveItem(this.seedItems.getFirst());
         }
-        Random random = new Random(worldSeed * 31L + name.hashCode() * 7919L);
-        return resolveItem(seedItems.get(random.nextInt(seedItems.size())));
+        Random random = new Random(worldSeed * 31L + this.name.hashCode() * 7919L);
+        return resolveItem(this.seedItems.get(random.nextInt(this.seedItems.size())));
     }
 
     public boolean isEffectiveSeedItem(Item consumedItem, long worldSeed) {
-        Item effective = getEffectiveSeedItem(worldSeed);
+        Item effective = this.getEffectiveSeedItem(worldSeed);
         return consumedItem == effective;
     }
 
     public PlanetaryResourceSet generateResources() {
         PlanetaryResourceSet r = new PlanetaryResourceSet();
-        for (WeightedEntry entry : minerals) {
+        for (WeightedEntry entry : this.minerals) {
             r.addMineral(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
         }
-        for (WeightedEntry entry : fluids) {
+        for (WeightedEntry entry : this.fluids) {
             r.addFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), entry.weight()));
         }
-        for (WeightedEntry entry : biologicalItems) {
+        for (WeightedEntry entry : this.biologicalItems) {
             r.addBiologicalItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
         }
-        for (WeightedEntry entry : offerings) {
+        for (WeightedEntry entry : this.offerings) {
             r.addOffering(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
         }
-        if (hasCivilization()) {
+        if (this.hasCivilization()) {
             r.setHasCivilization();
         }
         return r;
@@ -270,7 +270,7 @@ public record SpecialCelestialBodyRecipe(
 
     @Nullable
     public LiquidCoverage getLiquidCoverage() {
-        return liquidCoverage.orElse(null);
+        return this.liquidCoverage.orElse(null);
     }
 
     @Override

@@ -84,7 +84,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
 
     public void syncToClients() {
         if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = getUpdatePacket();
+            Packet<?> packet = this.getUpdatePacket();
             if (packet != null) {
                 for (ServerPlayer player : serverLevel.getChunkSource().chunkMap
                     .getPlayers(serverLevel.getChunkAt(worldPosition).getPos(), false)) {
@@ -99,7 +99,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
         super.setChanged();
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            syncToClients();
+            this.syncToClients();
         }
     }
 

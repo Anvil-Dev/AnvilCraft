@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.heat.collector;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -64,6 +65,7 @@ public class HeatCollectorManager {
 
     private final Level level;
     private final Set<BlockPos> heatCollectors = Collections.synchronizedSet(new HashSet<>());
+    private final Set<BlockPos> infiniteCollectors = Collections.synchronizedSet(new HashSet<>());
 
     /// 获取当前维度的HeatCollectorManager
     public static HeatCollectorManager getInstance(Level level) {
@@ -98,6 +100,14 @@ public class HeatCollectorManager {
         getInstance(level).heatCollectors.remove(pos);
     }
 
+    public static void addInfiniteCollector(BlockPos pos, Level level) {
+        getInstance(level).infiniteCollectors.add(pos);
+    }
+
+    public static void removeInfiniteCollector(BlockPos pos, Level level) {
+        getInstance(level).infiniteCollectors.remove(pos);
+    }
+
     public static void checkWhenPlaceCollector(BlockPlaceContext ctx, BlockPos pos, Level level) {
         HeatCollectorManager manager = getInstance(level);
         AABB validRange = AABB.ofSize(pos.getCenter(), 9, 9, 9);
@@ -111,7 +121,43 @@ public class HeatCollectorManager {
                 return;
             }
         }
+        for (BlockPos checkedPos : manager.infiniteCollectors) {
+            if (validRange.contains(checkedPos.getCenter())) {
+                Optional.ofNullable(ctx.getPlayer()).ifPresent(player -> player.sendOverlayMessage(
+                    Component.translatable("block.anvilcraft.heat_collector.placement_too_close_to_another")
+                        .withStyle(ChatFormatting.RED)
+                ));
+                manager.heatCollectors.add(pos);
+                return;
+            }
+        }
         manager.heatCollectors.add(pos);
+    }
+
+    public static void checkWhenPlaceInfiniteCollector(BlockPlaceContext ctx, BlockPos pos, Level level) {
+        HeatCollectorManager manager = getInstance(level);
+        AABB validRange = AABB.ofSize(pos.getCenter(), 9, 9, 9);
+        for (BlockPos checkedPos : manager.heatCollectors) {
+            if (validRange.contains(checkedPos.getCenter())) {
+                Optional.ofNullable(ctx.getPlayer()).ifPresent(player -> player.sendOverlayMessage(
+                    Component.translatable("block.anvilcraft.infinite_collector.placement_too_close_to_another")
+                        .withStyle(ChatFormatting.RED)
+                ));
+                manager.infiniteCollectors.add(pos);
+                return;
+            }
+        }
+        for (BlockPos checkedPos : manager.infiniteCollectors) {
+            if (validRange.contains(checkedPos.getCenter())) {
+                Optional.ofNullable(ctx.getPlayer()).ifPresent(player -> player.sendOverlayMessage(
+                    Component.translatable("block.anvilcraft.infinite_collector.placement_too_close_to_another")
+                        .withStyle(ChatFormatting.RED)
+                ));
+                manager.infiniteCollectors.add(pos);
+                return;
+            }
+        }
+        manager.infiniteCollectors.add(pos);
     }
 
     HeatCollectorManager(Level level) {
@@ -125,15 +171,15 @@ public class HeatCollectorManager {
     private void tick() {
         if (this.level.isClientSide()) return;
         if (this.level.getGameTime() % PowerGrid.GRID_TICK != 0) return;
-        List<HeatCollectorBlockEntity> collectors = this.getCollectorsFromNWToSE();
-        Map<Entry, Double2ObjectMap<HeatCollectorBlockEntity>> heatSources = new HashMap<>();
-        for (HeatCollectorBlockEntity collector : collectors) {
+        List<IHeatCollector> collectors = this.getCollectorsFromNWToSE();
+        Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources = new HashMap<>();
+        for (IHeatCollector collector : collectors) {
             this.collectSources(collector, heatSources);
         }
         for (Entry entry : heatSources.keySet()) {
             int heat = entry.accepts();
-            for (HeatCollectorBlockEntity entity : heatSources.get(entry).values()) {
-                heat = entity.inputtingHeat(heat);
+            for (IHeatCollector entity : heatSources.get(entry).values()) {
+                heat = entity.inputHeat(heat);
                 if (heat == 0) break;
             }
             if (this.level.getGameTime() % entry.entry().timeToTransform() == 0) {
@@ -142,23 +188,29 @@ public class HeatCollectorManager {
         }
     }
 
-    private void collectSources(HeatCollectorBlockEntity collector, Map<Entry, Double2ObjectMap<HeatCollectorBlockEntity>> heatSources) {
-        BlockPos collectorPos = collector.getPos();
-        Map<Entry, Double2ObjectMap<HeatCollectorBlockEntity>> heatSourcesCache = new HashMap<>();
+    private void collectSources(IHeatCollector collector, Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources) {
+        BlockPos collectorPos = collector.getCollectorPos();
+        int collectorRange = collector.getCollectorRange();
+        int overlapRange = collectorRange + 1;
+        Map<Entry, Double2ObjectMap<IHeatCollector>> heatSourcesCache = new HashMap<>();
         for (BlockPos pos : BlockPos.betweenClosed(
-            collectorPos.above(4).east(4).south(4),
-            collectorPos.below(4).west(4).north(4)
+            collectorPos.above(overlapRange).east(overlapRange).south(overlapRange),
+            collectorPos.below(overlapRange).west(overlapRange).north(overlapRange)
         )) {
             pos = pos.immutable();
             BlockState state = this.level.getBlockState(pos);
-            if (state.is(ModBlocks.HEAT_COLLECTOR) && !pos.equals(collectorPos)) {
-                collector.setResult(HeatCollectorBlockEntity.WorkResult.TOO_CLOSE);
-                // heatSources.values().removeIf(map -> map.values().removeIf(entity -> entity.equals(collector)));
-                return;
+            // Check for other collectors (both heat and infinite) in range
+            if (!pos.equals(collectorPos)) {
+                boolean isNearHeatCollector = state.is(ModBlocks.HEAT_COLLECTOR);
+                boolean isNearInfiniteCollector = state.is(ModBlocks.INFINITE_COLLECTOR);
+                if (isNearHeatCollector || isNearInfiniteCollector) {
+                    collector.setCollectorWorking(false);
+                    return;
+                }
             }
-            if (Math.abs(pos.getX() - collectorPos.getX()) > 2
-                || Math.abs(pos.getY() - collectorPos.getY()) > 2
-                || Math.abs(pos.getZ() - collectorPos.getZ()) > 2
+            if (Math.abs(pos.getX() - collectorPos.getX()) > collectorRange
+                || Math.abs(pos.getY() - collectorPos.getY()) > collectorRange
+                || Math.abs(pos.getZ() - collectorPos.getZ()) > collectorRange
             ) {
                 continue;
             }
@@ -169,13 +221,13 @@ public class HeatCollectorManager {
                         .put(
                             Vector3i.distance(
                                 finalPos.getX(), finalPos.getY(), finalPos.getZ(),
-                                collector.getPos().getX(), collector.getPos().getY(), collector.getPos().getZ()
+                                collector.getCollectorPos().getX(), collector.getCollectorPos().getY(), collector.getCollectorPos().getZ()
                             ), collector
                     );
                     TriggerUtil.heatCollectOn(this.level, finalPos, state, this.level.getBlockEntity(finalPos));
                 });
         }
-        collector.setResult(HeatCollectorBlockEntity.WorkResult.SUCCESS);
+        collector.setCollectorWorking(true);
         for (var entry : heatSourcesCache.entrySet()) {
             heatSources
                 .computeIfAbsent(entry.getKey(), _ -> new Double2ObjectAVLTreeMap<>())
@@ -183,15 +235,20 @@ public class HeatCollectorManager {
         }
     }
 
-    /// 获取集热器的List集合(以从西北到东南排序)
-    private List<HeatCollectorBlockEntity> getCollectorsFromNWToSE() {
-        List<HeatCollectorBlockEntity> collectors = new ArrayList<>();
+    /// 获取收集器的List集合(以从西北到东南排序)
+    private List<IHeatCollector> getCollectorsFromNWToSE() {
+        List<IHeatCollector> collectors = new ArrayList<>();
         for (Iterator<BlockPos> iterator = this.heatCollectors.iterator(); iterator.hasNext(); ) {
             BlockPos pos = iterator.next();
             Util.castSafely(this.level.getBlockEntity(pos), HeatCollectorBlockEntity.class)
                 .ifPresentOrElse(collectors::add, iterator::remove);
         }
-        collectors.sort(Comparator.comparing(BlockEntity::getBlockPos));
+        for (Iterator<BlockPos> iterator = this.infiniteCollectors.iterator(); iterator.hasNext(); ) {
+            BlockPos pos = iterator.next();
+            Util.castSafely(this.level.getBlockEntity(pos), InfiniteCollectorBlockEntity.class)
+                .ifPresentOrElse(collectors::add, iterator::remove);
+        }
+        collectors.sort(Comparator.comparing(IHeatCollector::getCollectorPos));
         return collectors;
     }
 

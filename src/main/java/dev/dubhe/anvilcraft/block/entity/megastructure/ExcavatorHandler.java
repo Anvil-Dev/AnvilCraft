@@ -30,20 +30,21 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         return "planet_excavator";
     }
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         CelestialRefactorOption option = be.getActiveMegastructureOption();
-        if (option == null || !name().equals(option.megastructure())) {
-            laserActive = false;
+        if (option == null || !this.name().equals(option.megastructure())) {
+            this.laserActive = false;
             return;
         }
         if (be.getPlanetaryResourceSet() == null) return;
 
-        int laserCount = countValidLasersLocal(be);
+        int laserCount = this.countValidLasersLocal(be);
         boolean hasValidLaser = laserCount > 0;
-        if (laserActive != hasValidLaser) {
-            laserActive = hasValidLaser;
+        if (this.laserActive != hasValidLaser) {
+            this.laserActive = hasValidLaser;
             be.setChanged();
             be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
         }
@@ -79,13 +80,13 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
         if (logistics.isEmpty()) return;
 
-        int startIdx = logisticsRoundRobin % logistics.size();
+        int startIdx = this.logisticsRoundRobin % logistics.size();
         for (int attempt = 0; attempt < logistics.size(); attempt++) {
             int idx = (startIdx + attempt) % logistics.size();
             ResourceHandler<ItemResource> handler = logistics.get(idx);
             ItemStack remainder = insertIntoHandler(handler, output);
             if (remainder.getCount() < output.getCount()) {
-                logisticsRoundRobin = (idx + 1) % logistics.size();
+                this.logisticsRoundRobin = (idx + 1) % logistics.size();
                 return;
             }
         }
@@ -100,7 +101,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
 
     @Override
     public void saveAdditional(ValueOutput output) {
-        output.putBoolean("excavatorLaserActive", laserActive);
+        output.putBoolean("excavatorLaserActive", this.laserActive);
     }
 
     @Override

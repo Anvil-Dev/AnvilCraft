@@ -105,13 +105,13 @@ public class WormholeInterfaceStates extends BetterSavedData {
      * Call {@link #setDirty()} after structural changes.
      */
     public List<UnlimitedItemStack> getOrCreateItemState(UUID uuid, int slotCount) {
-        List<UnlimitedItemStack> state = itemStates.get(uuid);
+        List<UnlimitedItemStack> state = this.itemStates.get(uuid);
         if (state == null) {
             state = new ArrayList<>(slotCount);
             for (int i = 0; i < slotCount; i++) {
                 state.add(UnlimitedItemStack.EMPTY);
             }
-            itemStates.put(uuid, state);
+            this.itemStates.put(uuid, state);
             setDirty();
         }
         while (state.size() < slotCount) {
@@ -129,13 +129,13 @@ public class WormholeInterfaceStates extends BetterSavedData {
      * Call {@link #setDirty()} after structural changes.
      */
     public List<FluidStack> getOrCreateFluidState(UUID uuid, int tankCount) {
-        List<FluidStack> state = fluidStates.get(uuid);
+        List<FluidStack> state = this.fluidStates.get(uuid);
         if (state == null) {
             state = new ArrayList<>(tankCount);
             for (int i = 0; i < tankCount; i++) {
                 state.add(FluidStack.EMPTY);
             }
-            fluidStates.put(uuid, state);
+            this.fluidStates.put(uuid, state);
             setDirty();
         }
         while (state.size() < tankCount) {
@@ -146,15 +146,15 @@ public class WormholeInterfaceStates extends BetterSavedData {
     }
 
     public List<FluidStack> getFluidState(UUID uuid) {
-        return fluidStates.get(uuid);
+        return this.fluidStates.get(uuid);
     }
 
     // ==================== NBT Serialization (used by Codec) ====================
 
     private void writeToTag(CompoundTag nbt) {
-        if (!itemStates.isEmpty()) {
+        if (!this.itemStates.isEmpty()) {
             CompoundTag itemsTag = new CompoundTag();
-            for (var entry : itemStates.entrySet()) {
+            for (var entry : this.itemStates.entrySet()) {
                 CompoundTag entryTag = new CompoundTag();
                 ListTag slotsTag = new ListTag();
                 List<UnlimitedItemStack> slots = entry.getValue();
@@ -178,9 +178,9 @@ public class WormholeInterfaceStates extends BetterSavedData {
             nbt.put(ITEM_STATES_KEY, itemsTag);
         }
 
-        if (!fluidStates.isEmpty()) {
+        if (!this.fluidStates.isEmpty()) {
             CompoundTag fluidsTag = new CompoundTag();
-            for (var entry : fluidStates.entrySet()) {
+            for (var entry : this.fluidStates.entrySet()) {
                 CompoundTag entryTag = new CompoundTag();
                 ListTag tanksTag = new ListTag();
                 List<FluidStack> tanks = entry.getValue();
@@ -206,8 +206,8 @@ public class WormholeInterfaceStates extends BetterSavedData {
     }
 
     private void readFromTag(CompoundTag nbt) {
-        itemStates.clear();
-        fluidStates.clear();
+        this.itemStates.clear();
+        this.fluidStates.clear();
 
         if (nbt.contains(ITEM_STATES_KEY)) {
             CompoundTag itemsTag = nbt.getCompoundOrEmpty(ITEM_STATES_KEY);
@@ -234,7 +234,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
                             .ifPresent(stack -> slots.set(slotIdx, stack));
                     }
                 }
-                itemStates.put(uuid, slots);
+                this.itemStates.put(uuid, slots);
             }
         }
 
@@ -263,7 +263,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
                             .ifPresent(fluid -> tanks.set(tankIdx, fluid));
                     }
                 }
-                fluidStates.put(uuid, tanks);
+                this.fluidStates.put(uuid, tanks);
             }
         }
     }

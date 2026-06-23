@@ -22,12 +22,12 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.item.property.component.DiskData;
 import dev.dubhe.anvilcraft.item.utility.DiskItem;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
@@ -75,7 +75,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +131,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Delegates to CfaMegastructureManager.
      */
     public int getActiveMegastructureIndex() {
-        return megastructureManager.getActiveIndex();
+        return this.megastructureManager.getActiveIndex();
     }
 
     /**
@@ -140,7 +139,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Delegates to ExcavatorHandler.
      */
     public boolean isExcavatorLaserActive() {
-        ExcavatorHandler h = megastructureManager.findHandler(ExcavatorHandler.class);
+        ExcavatorHandler h = this.megastructureManager.findHandler(ExcavatorHandler.class);
         return h != null && h.isLaserActive();
     }
 
@@ -149,7 +148,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Delegates to PenroseSphereHandler.
      */
     public boolean isPenroseSphereLaserActive() {
-        PenroseSphereHandler h = megastructureManager.findHandler(PenroseSphereHandler.class);
+        PenroseSphereHandler h = this.megastructureManager.findHandler(PenroseSphereHandler.class);
         return h != null && h.isLaserActive();
     }
 
@@ -159,7 +158,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      */
     @Nullable
     public UUID getWormholeParamsHash() {
-        WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
+        WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
         return wh.getBodyUuid();
     }
 
@@ -204,23 +203,23 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     // === Stellar Evolution Accelerator delegation ===
     public int getAcceleratorStage() {
-        return megastructureManager.getAcceleratorHandler().getStage();
+        return this.megastructureManager.getAcceleratorHandler().getStage();
     }
 
     public int getAcceleratorTicksRemaining() {
-        return megastructureManager.getAcceleratorHandler().getTicksRemaining();
+        return this.megastructureManager.getAcceleratorHandler().getTicksRemaining();
     }
 
     public int getAcceleratorTicksTotal() {
-        return megastructureManager.getAcceleratorHandler().getTicksTotal();
+        return this.megastructureManager.getAcceleratorHandler().getTicksTotal();
     }
 
     public int getSupernovaFlashTicks() {
-        return megastructureManager.getAcceleratorHandler().getSupernovaFlashTicks();
+        return this.megastructureManager.getAcceleratorHandler().getSupernovaFlashTicks();
     }
 
     public int getCollapseAnimTicks() {
-        return megastructureManager.getAcceleratorHandler().getCollapseAnimTicks();
+        return this.megastructureManager.getAcceleratorHandler().getCollapseAnimTicks();
     }
 
     /**
@@ -238,15 +237,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     @Override
     public int getInputPower() {
-        if (searching && searchTicksRemaining > 0) {
-            return isAmplify ? 4000 : 1000;
+        if (this.searching && this.searchTicksRemaining > 0) {
+            return this.isAmplify ? 4000 : 1000;
         }
-        return megastructureManager.getInputPower(this);
+        return this.megastructureManager.getInputPower(this);
     }
 
     @Override
     public int getOutputPower() {
-        return megastructureManager.getOutputPower(this);
+        return this.megastructureManager.getOutputPower(this);
     }
 
     @Override
@@ -276,18 +275,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     @Override
     public PowerComponentType getComponentType() {
-        return megastructureManager.getComponentType(this);
+        return this.megastructureManager.getComponentType(this);
     }
 
     @Override
     public PowerComponentInfo toPowerComponentInfo() {
-        PowerComponentType type = getComponentType();
+        PowerComponentType type = this.getComponentType();
         return new PowerComponentInfo(
-            getPos(),
-            getInputPower(),
-            getOutputPower(),
+            this.getPos(),
+            this.getInputPower(),
+            this.getOutputPower(),
             0, 0,
-            getRange(),
+            this.getRange(),
             getShape(),
             type
         );
@@ -295,13 +294,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     @Override
     public void gridTick() {
-        megastructureManager.gridTick(this);
+        this.megastructureManager.gridTick(this);
     }
 
     private boolean hasEnoughPower() {
-        if (grid == null) return false;
-        int required = getInputPower();
-        return required <= 0 || grid.isWorking();
+        if (this.grid == null) return false;
+        int required = this.getInputPower();
+        return required <= 0 || this.grid.isWorking();
     }
 
     @Getter
@@ -324,9 +323,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      */
     @Nullable
     public CelestialBodyData getEffectiveBodyDataForRendering() {
-        if (celestialBodyData != null) return celestialBodyData;
-        if (animationTicks > 0 && !animationForward && animationPreviousBodyData != null) {
-            return animationPreviousBodyData;
+        if (this.celestialBodyData != null) return this.celestialBodyData;
+        if (this.animationTicks > 0 && !this.animationForward && this.animationPreviousBodyData != null) {
+            return this.animationPreviousBodyData;
         }
         return null;
     }
@@ -336,10 +335,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Uses ease-in-out cubic interpolation.
      */
     public float getAnimationProgress(float partialTick) {
-        if (animationTicks <= 0) return animationForward ? 1.0f : 0.0f;
-        float t = (ANIMATION_DURATION_TICKS - animationTicks + partialTick) / (float) ANIMATION_DURATION_TICKS;
+        if (this.animationTicks <= 0) return this.animationForward ? 1.0f : 0.0f;
+        float t = (ANIMATION_DURATION_TICKS - this.animationTicks + partialTick) / (float) ANIMATION_DURATION_TICKS;
         float eased = easeInOutCubic(t);
-        return animationForward ? eased : (1.0f - eased);
+        return this.animationForward ? eased : (1.0f - eased);
     }
 
     /**
@@ -347,7 +346,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Starts fast (5x) and decays to 1x as animation progresses.
      */
     public float getAnimationRotationBoost(float partialTick) {
-        float progress = getAnimationProgress(partialTick);
+        float progress = this.getAnimationProgress(partialTick);
         return 1.0f + 4.0f * (1.0f - progress);
     }
 
@@ -389,8 +388,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      */
     public void configureMaterialSlot(int optionIndex) {
         if (level == null || level.isClientSide()) return;
-        if (celestialBodyData == null) return;
-        List<CelestialRefactorOption> options = getClientVisibleOptions();
+        if (this.celestialBodyData == null) return;
+        List<CelestialRefactorOption> options = this.getClientVisibleOptions();
         if (optionIndex < 0 || optionIndex >= options.size()) {
             setMaterialFilter(new ItemStack(Items.BARRIER));
             setMaterialLimit(0);
@@ -405,7 +404,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             }
         }
         this.setChanged();
-        syncToClient();
+        this.syncToClient();
     }
 
     // Search timer
@@ -465,10 +464,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (level != null && !level.isClientSide()) {
             if (!hasSeedItem) {
                 var preCheck = CelestialBodyMatcher.match(
-                    getAnvilCount(0),
-                    getAnvilCount(1),
-                    getAnvilCount(2),
-                    getAnvilCount(3),
+                    this.getAnvilCount(0),
+                    this.getAnvilCount(1),
+                    this.getAnvilCount(2),
+                    this.getAnvilCount(3),
                     this.isAmplify,
                     level.getRandom()
                 );
@@ -477,20 +476,20 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
                     this.searching = false;
                     this.searchTicksRemaining = 0;
                     setChanged();
-                    syncToClient();
+                    this.syncToClient();
                     return;
                 }
             }
         }
 
         // Check power availability
-        if (!hasEnoughPower()) {
+        if (!this.hasEnoughPower()) {
             this.powerInsufficient = true;
             this.searching = false;
             this.searchTicksRemaining = 0;
             setChanged();
             if (level != null && !level.isClientSide()) {
-                syncToClient();
+                this.syncToClient();
             }
             return;
         }
@@ -511,23 +510,23 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         this.searching = true;
         setChanged();
         if (level != null && !level.isClientSide()) {
-            syncToClient();
+            this.syncToClient();
         }
     }
 
     public void serverTick() {
         // Continuous power state refresh — clears stale powerInsufficient when grid recovers
-        boolean hasEnoughPower = hasEnoughPower();
+        boolean hasEnoughPower = this.hasEnoughPower();
         if (!hasEnoughPower && !this.powerInsufficient) {
             this.powerInsufficient = true;
             setChanged();
-            syncToClient();
+            this.syncToClient();
         } else if (hasEnoughPower && this.powerInsufficient) {
             this.powerInsufficient = false;
             setChanged();
-            syncToClient();
+            this.syncToClient();
         }
-        if (searchTicksRemaining > 0) {
+        if (this.searchTicksRemaining > 0) {
             // Check if power is still sufficient during search
             if (!hasEnoughPower) {
                 this.searching = false;
@@ -535,37 +534,37 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
                 this.powerInsufficient = true;
                 setChanged();
                 if (level != null) {
-                    syncToClient();
+                    this.syncToClient();
                 }
             } else {
-                searchTicksRemaining--;
-                if (searchTicksRemaining == 0) {
+                this.searchTicksRemaining--;
+                if (this.searchTicksRemaining == 0) {
                     this.searching = false;
-                    tryMatchCelestialBody();
-                    if (celestialBodyData == null) {
+                    this.tryMatchCelestialBody();
+                    if (this.celestialBodyData == null) {
                         this.searchFailed = true;
                     }
                     setChanged();
                     if (level != null) {
-                        syncToClient();
+                        this.syncToClient();
                     }
                 }
             }
         }
 
         // Manage stellar gravity source
-        updateGravitySource();
+        this.updateGravitySource();
 
         // Destroy entities at the gravity center
-        if (gravitySourceActive && level != null) {
-            destroyEntitiesAtCenter();
+        if (this.gravitySourceActive && level != null) {
+            this.destroyEntitiesAtCenter();
         }
 
         // Megastructure logic (delegated to handler classes)
-        megastructureManager.serverTick(this);
+        this.megastructureManager.serverTick(this);
 
         // Supernova flash timer
-        var accel = megastructureManager.getAcceleratorHandler();
+        var accel = this.megastructureManager.getAcceleratorHandler();
         if (accel.getSupernovaFlashTicks() > 0) {
             accel.setSupernovaFlashTicks(accel.getSupernovaFlashTicks() - 1);
         }
@@ -588,39 +587,39 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     private void updateGravitySource() {
         if (level == null || level.isClientSide()) return;
 
-        boolean shouldHaveGravity = amplifierPresent
-            && celestialBodyData instanceof StarData
-            && stellarMass > 0
-            && celestialBodyData.size() > 0;
+        boolean shouldHaveGravity = this.amplifierPresent
+            && this.celestialBodyData instanceof StarData
+            && this.stellarMass > 0
+            && this.celestialBodyData.size() > 0;
 
         double newStrength = 0;
         if (shouldHaveGravity) {
-            double massRatio = Math.pow(2, (stellarMass - 12) / 2.0);
+            double massRatio = Math.pow(2, (this.stellarMass - 12) / 2.0);
             newStrength = massRatio * GRAVITY_STRENGTH_MULTIPLIER
                 / (GRAVITY_REFERENCE_RADIUS_RATIO * GRAVITY_REFERENCE_RADIUS_RATIO);
         }
-        int newSize = shouldHaveGravity ? celestialBodyData.size() : 0;
+        int newSize = shouldHaveGravity ? this.celestialBodyData.size() : 0;
 
         BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
 
         if (shouldHaveGravity) {
-            if (!gravitySourceActive || newStrength != currentGravityStrength || newSize != currentGravitySize) {
+            if (!this.gravitySourceActive || newStrength != this.currentGravityStrength || newSize != this.currentGravitySize) {
                 // Remove old source if strength/size changed
-                if (gravitySourceActive) {
+                if (this.gravitySourceActive) {
                     GravityManager.GravitySourceManager.removeSource(level, centerPos);
                 }
                 // Add new/updated source
                 GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(newStrength, GRAVITY_RADIUS);
                 GravityManager.GravitySourceManager.addSource(level, centerPos, type);
-                gravitySourceActive = true;
-                currentGravityStrength = newStrength;
-                currentGravitySize = newSize;
+                this.gravitySourceActive = true;
+                this.currentGravityStrength = newStrength;
+                this.currentGravitySize = newSize;
             }
-        } else if (gravitySourceActive) {
+        } else if (this.gravitySourceActive) {
             GravityManager.GravitySourceManager.removeSource(level, centerPos);
-            gravitySourceActive = false;
-            currentGravityStrength = 0;
-            currentGravitySize = 0;
+            this.gravitySourceActive = false;
+            this.currentGravityStrength = 0;
+            this.currentGravitySize = 0;
         }
     }
 
@@ -632,9 +631,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (level == null || level.isClientSide()) return;
         BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
         GravityManager.GravitySourceManager.removeSource(level, centerPos);
-        gravitySourceActive = false;
-        currentGravityStrength = 0;
-        currentGravitySize = 0;
+        this.gravitySourceActive = false;
+        this.currentGravityStrength = 0;
+        this.currentGravitySize = 0;
     }
 
     private void destroyEntitiesAtCenter() {
@@ -643,7 +642,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, centerBox);
         for (Entity entity : entities) {
             if (entity instanceof LivingEntity living) {
-                if (celestialBodyData instanceof StarData star
+                if (this.celestialBodyData instanceof StarData star
                     && star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
                     living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
                 } else {
@@ -668,9 +667,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     public record SearchHistoryEntry(CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
-            tag.put("body", body.toTag());
-            if (resources != null) {
-                tag.put("resources", resources.toTag());
+            tag.put("body", this.body.toTag());
+            if (this.resources != null) {
+                tag.put("resources", this.resources.toTag());
             }
             return tag;
         }
@@ -709,14 +708,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         this.bodyRotation += 1;
 
         // Animation tick (client-side only)
-        if (animationTicks > 0) {
-            animationTicks--;
-            if (animationTicks == 0 && !animationForward) {
-                animationPreviousBodyData = null;
+        if (this.animationTicks > 0) {
+            this.animationTicks--;
+            if (this.animationTicks == 0 && !this.animationForward) {
+                this.animationPreviousBodyData = null;
             }
         }
         // Supernova flash countdown (client-side, for rendering)
-        var accel = megastructureManager.getAcceleratorHandler();
+        var accel = this.megastructureManager.getAcceleratorHandler();
         if (accel.getSupernovaFlashTicks() > 0) {
             accel.setSupernovaFlashTicks(accel.getSupernovaFlashTicks() - 1);
         }
@@ -732,7 +731,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (this.isAmplify != amplify) {
             this.isAmplify = amplify;
             if (level != null && !level.isClientSide()) {
-                if (celestialBodyData instanceof StarData) {
+                if (this.celestialBodyData instanceof StarData) {
                     if (!amplify) {
                         this.locked = true; // Lock when amplifier removed with stellar body
                     }
@@ -740,7 +739,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             }
             this.setChanged();
             if (level != null) {
-                syncToClient();
+                this.syncToClient();
             }
         }
     }
@@ -749,14 +748,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     public void setRemoved() {
         super.setRemoved();
         if (level != null && !level.isClientSide() && !PowerGrid.isServerClosing) {
-            if (gravitySourceActive) {
+            if (this.gravitySourceActive) {
                 BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
                 GravityManager.GravitySourceManager.removeSource(level, centerPos);
-                gravitySourceActive = false;
+                this.gravitySourceActive = false;
             }
             // Unregister wormhole and clear megastructures so connected portals close.
             // Skip during server shutdown to avoid accessing saved data during save.
-            megastructureManager.clearAllMegastructures(this);
+            this.megastructureManager.clearAllMegastructures(this);
         }
     }
 
@@ -768,18 +767,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * @return offset in [-0.05, +0.05]
      */
     public float getDisplayOffset(int index) {
-        if (bodySeed == 0) return 0f;
-        net.minecraft.util.RandomSource rand = net.minecraft.util.RandomSource.create(bodySeed + index * 7919L);
+        if (this.bodySeed == 0) return 0f;
+        net.minecraft.util.RandomSource rand = net.minecraft.util.RandomSource.create(this.bodySeed + index * 7919L);
         return (rand.nextFloat() - 0.5f) * 0.1f;
     }
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public void tryMatchCelestialBody() {
         if (level == null) return;
-        int time = getAnvilCount(0);
-        int space = getAnvilCount(1);
-        int mass = getAnvilCount(2);
-        int energy = getAnvilCount(3);
+        int time = this.getAnvilCount(0);
+        int space = this.getAnvilCount(1);
+        int mass = this.getAnvilCount(2);
+        int energy = this.getAnvilCount(3);
         this.ageAnvilCount = time;
         this.bodySeed = level.getRandom().nextLong();
         this.stellarMass = mass;
@@ -787,7 +786,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         // Verify seed item is still present — if player removed it during the search,
         // clear captured data so we fall through to normal matching instead of granting
         // a special planet without deducting the seed item.
-        if (lastConsumedSeedItem != null || lastConsumedSeedNbt != null) {
+        if (this.lastConsumedSeedItem != null || this.lastConsumedSeedNbt != null) {
             ItemStack seedStack = this.anvilInventory.getItem(4);
             if (seedStack.isEmpty()) {
                 this.lastConsumedSeedItem = null;
@@ -796,24 +795,24 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         }
 
         // First: check for seed item snapshot (disk / singularity crystal)
-        if (lastConsumedSeedNbt != null && lastConsumedSeedNbt.contains("celestialBody")) {
-            applySnapshot(lastConsumedSeedNbt);
-            consumeSeedItem();
+        if (this.lastConsumedSeedNbt != null && this.lastConsumedSeedNbt.contains("celestialBody")) {
+            this.applySnapshot(this.lastConsumedSeedNbt);
+            this.consumeSeedItem();
             if (!level.isClientSide()) {
                 this.setChanged();
-                syncToClient();
+                this.syncToClient();
             }
             return;
         }
 
         // Second: check for special celestial body discovery via seed item
-        if (lastConsumedSeedItem != null) {
-            SpecialCelestialBodyData specialBody = tryMatchSpecialCelestialBody(
+        if (this.lastConsumedSeedItem != null) {
+            SpecialCelestialBodyData specialBody = this.tryMatchSpecialCelestialBody(
                 time,
                 space,
                 mass,
                 energy,
-                lastConsumedSeedItem,
+                this.lastConsumedSeedItem,
                 ((ServerLevel) level).getSeed()
             );
             if (specialBody != null) {
@@ -828,11 +827,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
                         this.planetaryResourceSet = recipe.generateResources();
                     }
                 }
-                addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
-                consumeSeedItem();
+                this.addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
+                this.consumeSeedItem();
                 if (!level.isClientSide()) {
                     this.setChanged();
-                    syncToClient();
+                    this.syncToClient();
                 }
                 return;
             }
@@ -854,16 +853,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
                     this.bodySeed
                 );
             }
-            addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
+            this.addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
         } else {
             this.planetaryResourceSet = null;
             this.searchTicksRemaining = 0; // Stop timer on failure
         }
-        consumeSeedItem();
+        this.consumeSeedItem();
 
         if (!level.isClientSide()) {
             this.setChanged();
-            syncToClient();
+            this.syncToClient();
         }
     }
 
@@ -926,10 +925,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (tag.contains("planetaryResources")) {
             this.planetaryResourceSet = PlanetaryResourceSet.fromTag(tag.getCompoundOrEmpty("planetaryResources"));
         }
-        addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
+        this.addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
         if (!level.isClientSide()) {
             this.setChanged();
-            syncToClient();
+            this.syncToClient();
         }
     }
 
@@ -937,22 +936,22 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     @Override
     public void storeDiskData(ValueOutput output) {
-        if (celestialBodyData != null) {
-            output.store("celestialBody", CompoundTag.CODEC, celestialBodyData.toTag());
+        if (this.celestialBodyData != null) {
+            output.store("celestialBody", CompoundTag.CODEC, this.celestialBodyData.toTag());
             output.putLong("bodySeed", this.bodySeed);
             output.putInt("ageAnvilCount", this.ageAnvilCount);
             output.putInt("stellarMass", this.stellarMass);
             output.putIntArray(
                 "anvilCounts", new int[]{
-                    getAnvilCount(0),
-                    getAnvilCount(1),
-                    getAnvilCount(2),
-                    getAnvilCount(3)
+                    this.getAnvilCount(0),
+                    this.getAnvilCount(1),
+                    this.getAnvilCount(2),
+                    this.getAnvilCount(3)
                 }
             );
             output.putBoolean("isAmplify", this.isAmplify);
-            if (planetaryResourceSet != null) {
-                output.store("planetaryResources", CompoundTag.CODEC, planetaryResourceSet.toTag());
+            if (this.planetaryResourceSet != null) {
+                output.store("planetaryResources", CompoundTag.CODEC, this.planetaryResourceSet.toTag());
             }
         }
     }
@@ -969,7 +968,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             // Only allow storing, not applying
             if (!DiskItem.hasDataStored(itemStack)) {
                 // Extreme bodies (black hole / neutron star) require a singularity crystal
-                if (celestialBodyData instanceof StarData star && star.bodyClass().isExtreme()) {
+                if (this.celestialBodyData instanceof StarData star && star.bodyClass().isExtreme()) {
                     player.sendSystemMessage(
                         Component.translatable("message.anvilcraft.disk.extreme_body_requires_crystal")
                             .withStyle(ChatFormatting.RED)
@@ -1058,13 +1057,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             PowerGrid.addComponent(this);
             // Re-register with wormhole network if wormhole stabilizer is active
             // Delegated to handler's onBuild which handles re-registration
-            WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
-            if (megastructureManager.getActiveIndex() >= 0 && getActiveMegastructureOption() != null
-                && "wormhole_stabilizer".equals(getActiveMegastructureOption().megastructure())) {
+            WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
+            if (this.megastructureManager.getActiveIndex() >= 0 && this.getActiveMegastructureOption() != null
+                && "wormhole_stabilizer".equals(this.getActiveMegastructureOption().megastructure())) {
                 wh.onBuild(this);
             }
             this.setChanged();
-            syncToClient();
+            this.syncToClient();
         }
     }
 
@@ -1083,14 +1082,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         output.putInt("searchTicks", this.searchTicksRemaining);
         output.putBoolean("searchFailed", this.searchFailed);
         output.putBoolean("powerInsufficient", this.powerInsufficient);
-        if (celestialBodyData != null) {
-            output.store("celestialBody", CompoundTag.CODEC, celestialBodyData.toTag());
+        if (this.celestialBodyData != null) {
+            output.store("celestialBody", CompoundTag.CODEC, this.celestialBodyData.toTag());
         }
         // Search history
         CompoundTag histTag = new CompoundTag();
-        histTag.putInt("size", Math.min(searchHistory.size(), MAX_HISTORY));
-        for (int i = 0; i < Math.min(searchHistory.size(), MAX_HISTORY); i++) {
-            histTag.put("h" + i, searchHistory.get(i).toTag());
+        histTag.putInt("size", Math.min(this.searchHistory.size(), MAX_HISTORY));
+        for (int i = 0; i < Math.min(this.searchHistory.size(), MAX_HISTORY); i++) {
+            histTag.put("h" + i, this.searchHistory.get(i).toTag());
         }
         output.store("searchHistory", CompoundTag.CODEC, histTag);
         // Anvil inventory
@@ -1103,27 +1102,27 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         }
         output.store("anvils", CompoundTag.CODEC, invTag);
         // Material slot
-        if (!materialFilter.isEmpty()) {
-            output.store("materialFilter", ItemStack.OPTIONAL_CODEC, materialFilter);
+        if (!this.materialFilter.isEmpty()) {
+            output.store("materialFilter", ItemStack.OPTIONAL_CODEC, this.materialFilter);
         }
-        output.putInt("materialLimit", materialLimit);
+        output.putInt("materialLimit", this.materialLimit);
         output.putInt("ageAnvilCount", this.ageAnvilCount);
-        if (planetaryResourceSet != null) {
-            output.store("planetaryResources", CompoundTag.CODEC, planetaryResourceSet.toTag());
+        if (this.planetaryResourceSet != null) {
+            output.store("planetaryResources", CompoundTag.CODEC, this.planetaryResourceSet.toTag());
         }
         // Portals are persisted by WormholeStabilizerHandler via megastructureManager
         // Temple state
-        output.putInt("templeCycleDay", templeCycleDay);
-        output.putLong("templeLastDay", templeLastDay);
-        if (!templeDemandItem.isEmpty()) {
-            output.store("templeDemand", ItemStack.OPTIONAL_CODEC, templeDemandItem);
+        output.putInt("templeCycleDay", this.templeCycleDay);
+        output.putLong("templeLastDay", this.templeLastDay);
+        if (!this.templeDemandItem.isEmpty()) {
+            output.store("templeDemand", ItemStack.OPTIONAL_CODEC, this.templeDemandItem);
         }
-        output.putInt("templeDemandCount", templeDemandCount);
-        output.putInt("templeDemandProgress", templeDemandProgress);
-        output.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
-        output.putInt("historyBrowseIndex", historyBrowseIndex);
+        output.putInt("templeDemandCount", this.templeDemandCount);
+        output.putInt("templeDemandProgress", this.templeDemandProgress);
+        output.putBoolean("templeDemandSatisfied", this.templeDemandSatisfied);
+        output.putInt("historyBrowseIndex", this.historyBrowseIndex);
         // Delegate megastructure NBT to manager
-        megastructureManager.saveAdditional(output);
+        this.megastructureManager.saveAdditional(output);
     }
 
     @Override
@@ -1149,14 +1148,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             .map(CelestialBodyData::fromTag).orElse(null);
         // Detect transitions for animation (client-side only, e.g. singleplayer chunk load)
         // Skip animation during accelerator evolution or supernova flash
-        boolean skipAnimLoad = getAcceleratorStage() >= 1 || getSupernovaFlashTicks() > 0;
+        boolean skipAnimLoad = this.getAcceleratorStage() >= 1 || this.getSupernovaFlashTicks() > 0;
         if (level != null && level.isClientSide() && !skipAnimLoad) {
-            detectAnimationTransition(oldBodyData, this.celestialBodyData);
+            this.detectAnimationTransition(oldBodyData, this.celestialBodyData);
         }
         // Search history
         input.read("searchHistory", CompoundTag.CODEC).ifPresent(this::loadSearchHistory);
         // Inventory
-        input.read("anvils", CompoundTag.CODEC).ifPresent(invTag -> loadInventoryFromTag(invTag));
+        input.read("anvils", CompoundTag.CODEC).ifPresent(invTag -> this.loadInventoryFromTag(invTag));
         // Material filter
         this.materialFilter = input.read("materialFilter", ItemStack.OPTIONAL_CODEC)
             .orElse(new ItemStack(Items.BARRIER));
@@ -1176,9 +1175,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         // Collider runtime state is not persisted — always start clean on load
         this.historyBrowseIndex = input.getIntOr("historyBrowseIndex", 0);
         // Delegate megastructure NBT to manager (must be last so managers overwrite BE fields)
-        megastructureManager.loadAdditional(input);
+        this.megastructureManager.loadAdditional(input);
         if (level != null && !level.isClientSide()) {
-            syncToClient();
+            this.syncToClient();
         }
     }
 
@@ -1235,14 +1234,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         tag.putInt("searchTicks", this.searchTicksRemaining);
         tag.putBoolean("searchFailed", this.searchFailed);
         tag.putBoolean("powerInsufficient", this.powerInsufficient);
-        if (celestialBodyData != null) {
-            tag.put("celestialBody", celestialBodyData.toTag());
+        if (this.celestialBodyData != null) {
+            tag.put("celestialBody", this.celestialBodyData.toTag());
         }
         // Search history
         CompoundTag histTag = new CompoundTag();
-        histTag.putInt("size", Math.min(searchHistory.size(), MAX_HISTORY));
-        for (int i = 0; i < Math.min(searchHistory.size(), MAX_HISTORY); i++) {
-            histTag.put("h" + i, searchHistory.get(i).toTag());
+        histTag.putInt("size", Math.min(this.searchHistory.size(), MAX_HISTORY));
+        for (int i = 0; i < Math.min(this.searchHistory.size(), MAX_HISTORY); i++) {
+            histTag.put("h" + i, this.searchHistory.get(i).toTag());
         }
         tag.put("searchHistory", histTag);
         // Anvil inventory (sync all 5 slots for client display)
@@ -1255,28 +1254,28 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         }
         tag.put("anvils", invTag);
         // Material filter sync
-        if (!materialFilter.isEmpty()) {
-            tag.put("materialFilter", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, materialFilter).getOrThrow());
+        if (!this.materialFilter.isEmpty()) {
+            tag.put("materialFilter", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.materialFilter).getOrThrow());
         }
-        tag.putInt("materialLimit", materialLimit);
+        tag.putInt("materialLimit", this.materialLimit);
         tag.putInt("ageAnvilCount", this.ageAnvilCount);
-        if (planetaryResourceSet != null) {
-            tag.put("planetaryResources", planetaryResourceSet.toTag());
+        if (this.planetaryResourceSet != null) {
+            tag.put("planetaryResources", this.planetaryResourceSet.toTag());
         }
         // Portals are synced by WormholeStabilizerHandler via megastructureManager
         // Temple state (client sync)
-        tag.putInt("templeCycleDay", templeCycleDay);
-        tag.putLong("templeLastDay", templeLastDay);
-        if (!templeDemandItem.isEmpty()) {
-            tag.put("templeDemand", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, templeDemandItem).getOrThrow());
+        tag.putInt("templeCycleDay", this.templeCycleDay);
+        tag.putLong("templeLastDay", this.templeLastDay);
+        if (!this.templeDemandItem.isEmpty()) {
+            tag.put("templeDemand", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.templeDemandItem).getOrThrow());
         }
-        tag.putInt("templeDemandCount", templeDemandCount);
-        tag.putInt("templeDemandProgress", templeDemandProgress);
-        tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
+        tag.putInt("templeDemandCount", this.templeDemandCount);
+        tag.putInt("templeDemandProgress", this.templeDemandProgress);
+        tag.putBoolean("templeDemandSatisfied", this.templeDemandSatisfied);
         // Collider runtime state not synced to client
-        tag.putInt("historyBrowseIndex", historyBrowseIndex);
+        tag.putInt("historyBrowseIndex", this.historyBrowseIndex);
         // Delegate megastructure NBT to manager
-        megastructureManager.writeUpdateTag(tag, registries);
+        this.megastructureManager.writeUpdateTag(tag, registries);
         return tag;
     }
 
@@ -1286,29 +1285,29 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     public void addToSearchHistory(CelestialBodyData data, @Nullable PlanetaryResourceSet resources) {
         // Dedup: don't add if it's already the most recent entry
-        if (!searchHistory.isEmpty()) {
-            SearchHistoryEntry latest = searchHistory.getFirst();
+        if (!this.searchHistory.isEmpty()) {
+            SearchHistoryEntry latest = this.searchHistory.getFirst();
             if (latest.body().toTag().toString().equals(data.toTag().toString())) return;
         }
-        searchHistory.addFirst(new SearchHistoryEntry(data, resources));
-        while (searchHistory.size() > MAX_HISTORY) {
-            searchHistory.removeLast();
+        this.searchHistory.addFirst(new SearchHistoryEntry(data, resources));
+        while (this.searchHistory.size() > MAX_HISTORY) {
+            this.searchHistory.removeLast();
         }
     }
 
     private void loadSearchHistory(CompoundTag tag) {
-        searchHistory.clear();
+        this.searchHistory.clear();
         int size = Math.min(tag.getIntOr("size", 0), MAX_HISTORY);
         for (int i = 0; i < size; i++) {
             if (tag.contains("h" + i)) {
                 CompoundTag entryTag = tag.getCompoundOrEmpty("h" + i);
                 if (entryTag.contains("body")) {
                     // New format: SearchHistoryEntry
-                    searchHistory.add(SearchHistoryEntry.fromTag(entryTag));
+                    this.searchHistory.add(SearchHistoryEntry.fromTag(entryTag));
                 } else {
                     // Old format: bare CelestialBodyData (no resources saved)
                     CelestialBodyData body = CelestialBodyData.fromTag(entryTag);
-                    searchHistory.add(new SearchHistoryEntry(body, null));
+                    this.searchHistory.add(new SearchHistoryEntry(body, null));
                 }
             }
         }
@@ -1317,58 +1316,58 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     // === History browsing (server-side) ===
 
     public boolean hasPreviousHistory() {
-        int sz = searchHistory.size();
-        return sz > 1 && historyBrowseIndex < sz;
+        int sz = this.searchHistory.size();
+        return sz > 1 && this.historyBrowseIndex < sz;
     }
 
     public boolean hasNextHistory() {
-        return historyBrowseIndex > 0;
+        return this.historyBrowseIndex > 0;
     }
 
     public void browseHistoryPrev() {
         if (level == null || level.isClientSide()) return;
-        int sz = searchHistory.size();
+        int sz = this.searchHistory.size();
         // Need at least 2 entries: index 0 is the current locked body
-        if (sz <= 1 || historyBrowseIndex >= sz) return;
-        if (historyBrowseIndex == 0) {
-            historyOriginalEntry = new SearchHistoryEntry(celestialBodyData, planetaryResourceSet);
-            historyBrowseIndex = 1; // skip the current-body entry
+        if (sz <= 1 || this.historyBrowseIndex >= sz) return;
+        if (this.historyBrowseIndex == 0) {
+            this.historyOriginalEntry = new SearchHistoryEntry(this.celestialBodyData, this.planetaryResourceSet);
+            this.historyBrowseIndex = 1; // skip the current-body entry
         }
-        historyBrowseIndex++;
-        if (historyBrowseIndex > sz) return;
-        applyHistoryEntry();
+        this.historyBrowseIndex++;
+        if (this.historyBrowseIndex > sz) return;
+        this.applyHistoryEntry();
     }
 
     public void browseHistoryNext() {
         if (level == null || level.isClientSide()) return;
-        if (historyBrowseIndex <= 0) return;
-        historyBrowseIndex--;
-        if (historyBrowseIndex == 0) {
-            if (historyOriginalEntry != null) {
-                celestialBodyData = historyOriginalEntry.body();
-                planetaryResourceSet = historyOriginalEntry.resources();
-                historyOriginalEntry = null;
+        if (this.historyBrowseIndex <= 0) return;
+        this.historyBrowseIndex--;
+        if (this.historyBrowseIndex == 0) {
+            if (this.historyOriginalEntry != null) {
+                this.celestialBodyData = this.historyOriginalEntry.body();
+                this.planetaryResourceSet = this.historyOriginalEntry.resources();
+                this.historyOriginalEntry = null;
             }
             setChanged();
-            syncToClient();
+            this.syncToClient();
         } else {
-            applyHistoryEntry();
+            this.applyHistoryEntry();
         }
     }
 
     private void applyHistoryEntry() {
-        if (historyBrowseIndex > 0 && historyBrowseIndex <= searchHistory.size()) {
-            SearchHistoryEntry entry = searchHistory.get(historyBrowseIndex - 1);
-            celestialBodyData = entry.body();
-            planetaryResourceSet = entry.resources();
+        if (this.historyBrowseIndex > 0 && this.historyBrowseIndex <= this.searchHistory.size()) {
+            SearchHistoryEntry entry = this.searchHistory.get(this.historyBrowseIndex - 1);
+            this.celestialBodyData = entry.body();
+            this.planetaryResourceSet = entry.resources();
         }
         setChanged();
-        syncToClient();
+        this.syncToClient();
     }
 
     public void syncToClient() {
         if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = getUpdatePacket();
+            Packet<?> packet = this.getUpdatePacket();
             for (ServerPlayer serverPlayer : serverLevel.getChunkSource().chunkMap.getPlayers(
                 serverLevel.getChunkAt(worldPosition)
                     .getPos(), false
@@ -1401,29 +1400,29 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      */
     public void toggleLocked() {
         if (level == null || level.isClientSide()) return;
-        if (isAcceleratorActive()) {
+        if (this.isAcceleratorActive()) {
             // Cannot unlock during stellar evolution
             return;
         }
         this.locked = !this.locked;
         if (!this.locked) {
             // Unlocking: clear megastructure and accelerator to revert to restriction ring
-            clearMegastructure();
-            clearAcceleratorState();
+            this.clearMegastructure();
+            this.clearAcceleratorState();
         }
         this.setChanged();
-        syncToClient();
+        this.syncToClient();
     }
 
     private void clearAcceleratorState() {
-        megastructureManager.getAcceleratorHandler().onClear(this);
+        this.megastructureManager.getAcceleratorHandler().onClear(this);
     }
 
     /**
      * Clear the active megastructure and all related state, reverting to the restriction ring.
      */
     private void clearMegastructure() {
-        megastructureManager.clearMegastructure(this);
+        this.megastructureManager.clearMegastructure(this);
         // Clear material filter (still owned by BE)
         this.materialFilter = new ItemStack(Items.BARRIER);
         this.materialLimit = 0;
@@ -1437,11 +1436,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      */
     public List<CelestialRefactorOption> getClientVisibleOptions() {
         List<CelestialRefactorOption> options = CelestialRefactorRegistry.getOptions(
-            celestialBodyData,
-            isAmplify,
+            this.celestialBodyData,
+            this.isAmplify,
             this.planetaryResourceSet
         );
-        if (megastructureManager.getActiveIndex() >= 0) {
+        if (this.megastructureManager.getActiveIndex() >= 0) {
             options = options.stream().filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure())).toList();
         }
         return options;
@@ -1452,14 +1451,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      */
     @Nullable
     public CelestialRefactorOption getActiveMegastructureOption() {
-        return megastructureManager.getActiveOption(this);
+        return this.megastructureManager.getActiveOption(this);
     }
 
     /**
      * Get the portals placed on this CFA's sides (unmodifiable).
      */
     public Map<Cube323PartHalf, BlockPos> getPortals() {
-        WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
+        WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
         return wh.getPortals();
     }
 
@@ -1470,15 +1469,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      */
     public void buildMegastructure(int optionIndex) {
         if (level == null || level.isClientSide()) return;
-        if (celestialBodyData == null) return;
-        List<CelestialRefactorOption> options = getClientVisibleOptions();
+        if (this.celestialBodyData == null) return;
+        List<CelestialRefactorOption> options = this.getClientVisibleOptions();
         if (optionIndex < 0 || optionIndex >= options.size()) return;
 
         CelestialRefactorOption option = options.get(optionIndex);
 
         // Check materials first
         if (option.needsMaterial()) {
-            ItemStack contained = materialContainer.getItem(0);
+            ItemStack contained = this.materialContainer.getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
             if (!ItemStack.isSameItemSameComponents(contained, required) || contained.getCount() < required.getCount()) {
                 return;
@@ -1487,12 +1486,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         }
 
         // Delegate to megastructure manager
-        megastructureManager.buildMegastructure(optionIndex, this);
+        this.megastructureManager.buildMegastructure(optionIndex, this);
 
         // Re-register with power grid so the component type change takes effect
         PowerGrid.addComponent(this);
         this.setChanged();
-        syncToClient();
+        this.syncToClient();
     }
 
     // === Wormhole interface scanning ===
@@ -1529,7 +1528,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * state and to all connected CFAs in the same tick.
      */
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
-        WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
+        WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
         wh.syncLogisticsOnChange(interfacePos, changedSlot, this);
     }
 
@@ -1539,7 +1538,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * @return true if successful, false if side already has a portal or invalid side
      */
     public boolean addPortal(Cube323PartHalf side, BlockPos portalPos) {
-        WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
+        WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
         return wh.addPortal(side, portalPos, this);
     }
 
@@ -1547,7 +1546,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Unregister a portal from a specific side.
      */
     public void removePortal(Cube323PartHalf side) {
-        WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
+        WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
         wh.removePortal(side, this);
     }
 }

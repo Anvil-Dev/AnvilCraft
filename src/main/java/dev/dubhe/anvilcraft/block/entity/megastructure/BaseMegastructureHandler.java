@@ -168,7 +168,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
     // === Laser helpers ===
 
     protected int countValidLasers(CelestialForgingAnvilBlockEntity be, int threshold) {
-        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = findLaserInterfaces(be);
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = this.findLaserInterfaces(be);
         int count = 0;
         for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : lasers) {
             if (laser.getReceivedLaserLevel() >= threshold) {

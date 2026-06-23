@@ -1,11 +1,8 @@
 package dev.dubhe.anvilcraft.event.server;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 /**
