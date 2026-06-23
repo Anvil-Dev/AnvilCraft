@@ -96,7 +96,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
             PipeBlock.NodePipe value = state.getValue(property);
 
-            if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.UP)) {
+            if (value.equals(PipeBlock.NodePipe.END) && direction == Direction.UP) {
                 BlockPos neighborPos = pos.relative(Direction.UP);
                 if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
                     PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.UP);
@@ -109,7 +109,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
                         level, pos, Direction.UP, pos.relative(Direction.UP), Direction.DOWN, 0);
                 }
             }
-            if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.DOWN)) {
+            if (value.equals(PipeBlock.NodePipe.END) && direction == Direction.DOWN) {
                 BlockPos neighborPos = pos.relative(Direction.DOWN);
                 if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
                     PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.DOWN);
