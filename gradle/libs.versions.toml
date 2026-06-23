@@ -7,6 +7,7 @@ modDevGradle = "2.0.141"
 lombok = "8.7.1"
 machete = "1.2.0"
 anvillib = "2.0.0+snapshot.462"
+ageratum = "0.0.1+build.105"
 sodium = "mc26.1.2-0.8.10-neoforge"
 iris = "1.10.9+26.1-neoforge"
 
@@ -20,6 +21,7 @@ jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
 anvillib-recipe = { group = "dev.anvilcraft.lib", name = "anvillib-recipe-neoforge-26.1", version.ref = "anvillib" }
 anvillib-moveableEntityBlock = { group = "dev.anvilcraft.lib", name = "anvillib-moveable-entity-block-neoforge-26.1", version.ref = "anvillib" }
 anvillib = { group = "dev.anvilcraft.lib", name = "anvillib-neoforge-26.1", version.ref = "anvillib" }
+ageratum = { group = "dev.anvilcraft.resource", name = "ageratum-neoforge-26.1.2", version.ref = "ageratum" }
 
 [plugins]
 modDevGradle = { id = "net.neoforged.moddev", version.ref = "modDevGradle" }
