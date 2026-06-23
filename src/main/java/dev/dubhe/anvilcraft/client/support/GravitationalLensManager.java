@@ -79,10 +79,17 @@ public class GravitationalLensManager {
      * Build the combined view-projection matrix from CameraRenderState + projection.
      */
     private static Matrix4f buildViewProj(CameraRenderState cameraState, Matrix4fc projectionMatrix) {
+        float yaw = cameraState.yRot;
+        float pitch = cameraState.xRot;
+
+        Quaternionf cameraRotation = new Quaternionf()
+            .rotateX((float) Math.toRadians(pitch))
+            .rotateY((float) Math.toRadians(yaw + 180.0f));
+
         Vector3f cameraPos = cameraState.pos.toVector3f();
 
         Matrix4f viewMatrix = new Matrix4f()
-            .rotate(cameraState.orientation)
+            .rotate(cameraRotation)
             .translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
         return new Matrix4f(projectionMatrix).mul(viewMatrix);
