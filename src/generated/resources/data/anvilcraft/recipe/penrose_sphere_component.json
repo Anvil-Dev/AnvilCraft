@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "anvilcraft:transcendium_ingot",
+    "B": "anvilcraft:heliostats",
+    "C": "anvilcraft:ruby_prism"
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:penrose_sphere_component"
+  }
+}

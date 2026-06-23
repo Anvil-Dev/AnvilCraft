@@ -8,7 +8,7 @@
 		"0": "anvilcraft:block/celestial_forging_anvil_base",
 		"1": "anvilcraft:block/transcendium_block_outline",
 		"2": "anvilcraft:block/celestial_forging_anvil_top",
-		"particle": "anvilcraft:block/celestial_forging_anvil_base"
+		"particle": "anvilcraft:block/celestial_forging_anvil_particle"
 	},
 	"elements": [
 		{
@@ -607,35 +607,41 @@
 		{
 			"name": "group",
 			"origin": [0, 14, 0],
+			"scope": 0,
 			"color": 0,
 			"children": [0, 1, 2, 3, 4, 5, 6, 7]
 		},
 		{
 			"name": "group",
 			"origin": [-8, 8, 19],
+			"scope": 0,
 			"color": 0,
 			"children": [
 				{
 					"name": "group",
 					"origin": [8, 2, 8],
+					"scope": 0,
 					"color": 0,
 					"children": [8, 9, 10, 11, 12]
 				},
 				{
 					"name": "group",
 					"origin": [8, 2, 8],
+					"scope": 0,
 					"color": 0,
 					"children": [13, 14, 15, 16, 17]
 				},
 				{
 					"name": "group",
 					"origin": [8, 2, 8],
+					"scope": 0,
 					"color": 0,
 					"children": [18, 19, 20, 21, 22]
 				},
 				{
 					"name": "group",
 					"origin": [8, 2, 8],
+					"scope": 0,
 					"color": 0,
 					"children": [23, 24, 25, 26, 27]
 				}
@@ -644,6 +650,7 @@
 		{
 			"name": "group",
 			"origin": [8, -2, 23],
+			"scope": 0,
 			"color": 0,
 			"children": [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]
 		}

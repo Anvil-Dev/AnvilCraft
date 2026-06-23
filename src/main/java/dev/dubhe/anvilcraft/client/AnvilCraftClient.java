@@ -60,6 +60,14 @@ public class AnvilCraftClient {
                 ModBlockEntities.RUBY_PRISM.get(),
                 new CachedLaserBlockEntityRenderer<>()
             );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.CELESTIAL_FORGING_ANVIL_PORTAL.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
         });
     }
 

@@ -16,7 +16,12 @@ public class FeatureRendererSupport {
     public static BlockModelRenderState initialize(StandaloneModelKey<BlockStateModel> standalone, BlockEntity be) {
         BlockModelRenderState state = new BlockModelRenderState();
         Minecraft mc = Minecraft.getInstance();
-        mc.getModelManager().getStandaloneModel(standalone).collectParts(
+        BlockStateModel model = mc.getModelManager().getStandaloneModel(standalone);
+        if (model == null) {
+            // Model JSON not yet added — return empty state to avoid NPE
+            return state;
+        }
+        model.collectParts(
             mc.level,
             be.getBlockPos(),
             be.getBlockState(),

@@ -1,0 +1,26 @@
+{
+  "type": "anvilcraft:special_celestial_body",
+  "axial_tilt": 2.71828,
+  "energy": 18,
+  "has_atmosphere": false,
+  "liquid_coverage": "high",
+  "magnetic_field": 1,
+  "mass": 12,
+  "name": "intelligent_planet",
+  "needs_custom_model": true,
+  "resources": {
+    "fluids": [
+      {
+        "id": "anvilcraft:exp_fluid",
+        "weight": 100
+      }
+    ]
+  },
+  "rotation_speed": 2,
+  "seed_items": [
+    "anvilcraft:spacetime_supercomputer"
+  ],
+  "space": 12,
+  "texture": "planet_intelligence",
+  "time": 58
+}

@@ -1,0 +1,23 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"texture_size": [32, 32],
+	"textures": {
+		"particle": "anvilcraft:block/celestial_body/planet_giant_ring_0",
+		"ring": "anvilcraft:block/celestial_body/planet_giant_ring_0"
+	},
+	"elements": [
+		{
+			"from": [-8, 8, -8],
+			"to": [24, 8, 24],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"up": {"uv": [8, 8, 0, 0], "texture": "#ring"},
+				"down": {"uv": [16, 0, 8, 8], "texture": "#ring"}
+			}
+		}
+	]
+}

@@ -148,6 +148,13 @@ public class ModItems {
         .lang("AnvilCraft Guide Book")
         .recipe(RegistrumItemRecipeLoader::guideBook)
         .register();
+    // CFA 巨构组件
+    public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
+        .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
+        .register();
+    public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
+        .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
+        .register();
     // 工具
     public static final ItemEntry<MagnetItem> MAGNET = REGISTRUM
         .item("magnet", properties -> new MagnetItem(properties.durability(255)))
