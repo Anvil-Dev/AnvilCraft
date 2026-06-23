@@ -2425,7 +2425,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends StairBlock> CUT_BRASS_STAIRS = REGISTRUM
-        .block("cut_brass_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRONZE_BLOCK.getDefaultState(), properties))
+        .block("cut_brass_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRASS_BLOCK.getDefaultState(), properties))
         .initialProperties(BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_brass_block")))
@@ -4004,7 +4004,7 @@ public class ModBlocks {
     public static final BlockEntry<RotatedPillarBlock> PLYWOOD_BLOCK = REGISTRUM
         .block("plywood", RotatedPillarBlock::new)
         .initialProperties(() -> Blocks.OAK_PLANKS)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.PLANKS)
+        .tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.PLANKS)
         .blockstate((ctx, provider) -> {
             provider.axisBlock(ctx.get(), of("block/plywood_side"), of("block/plywood"));
         })
@@ -4017,7 +4017,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends StairBlock> PLYWOOD_STAIRS = REGISTRUM
         .block("plywood_stairs", (properties) -> new StairBlock(ModBlocks.PLYWOOD_BLOCK.getDefaultState(), properties))
         .initialProperties(PLYWOOD_BLOCK::get)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
         .blockstate((ctx, provider) -> {
             provider.stairsBlock(
                 ctx.get(),
@@ -4032,7 +4032,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends SlabBlock> PLYWOOD_SLAB = REGISTRUM
         .block("plywood_slab", SlabBlock::new)
         .initialProperties(PLYWOOD_BLOCK::get)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
         .blockstate((ctx, provider) -> {
             provider.slabBlock(
                 ctx.get(),
