@@ -1,12 +1,13 @@
 #version 330
 
 uniform sampler2D DiffuseSampler;
-uniform vec2 InSize;
 
-// UBO layout (binding = 0):
-//   vec4[0]: LensParams (count, lensStrength, eventHorizonRadius, perspectiveScale)
-//   vec4[1..256]: BlackHole (screenU, screenV, cameraDistance, lensDirection)
-layout (std140, binding = 0) uniform BlackHoles {
+layout (std140) uniform SamplerInfo {
+    vec2 OutSize;
+    vec2 InSize;
+};
+
+layout (std140) uniform BlackHoles {
     vec4 LensParams;
     vec4 BlackHole[256];
 };
@@ -22,13 +23,15 @@ void main() {
     vec2 uv = texCoord;
     float aspectRatio = InSize.x / InSize.y;
 
-    vec2 offset = vec2(0.0);
+    vec3 color = texture(DiffuseSampler, uv).rgb;
+
     int count = int(LensParams.x);
     float lensStrength = LensParams.y;
     float eventHorizonRadius = LensParams.z;
     float perspectiveScale = LensParams.w;
 
     // --- Gravitational displacement ---
+    vec2 offset = vec2(0.0);
     for (int i = 0; i < 256; i++) {
         if (i >= count) break;
 
@@ -47,37 +50,43 @@ void main() {
 
         vec2 lensOffset;
         if (lensDir < 0.0) {
-            // Concave: push away from center, scaled by |lensDir|
             lensOffset = -dir * gravity * (-lensDir);
         } else {
-            // Convex: pull toward center
             lensOffset = dir * gravity * lensDir;
         }
         lensOffset.x /= aspectRatio;
         offset += lensOffset;
     }
 
-    vec3 color = texture(DiffuseSampler, uv + offset).rgb;
+    color = texture(DiffuseSampler, uv + offset).rgb;
 
     // --- Render event horizon (convex, on-screen black holes only) ---
     for (int i = 0; i < 256; i++) {
         if (i >= count) break;
-
-        // Concave lenses have no event horizon
         if (getLensDir(i) <= 0.0) continue;
 
         vec2 holeUv = getHolePos(i);
-
-        // Skip event horizon when the hole center is off-screen
         if (holeUv.x < 0.0 || holeUv.x > 1.0 || holeUv.y < 0.0 || holeUv.y > 1.0) continue;
 
         float perspS = perspectiveScale / max(getHoleDist(i), 0.1);
         vec2 toHole = uv - holeUv;
         toHole.x *= aspectRatio;
         float dist = length(toHole);
-        float horizonMask = 1.0 - smoothstep(eventHorizonRadius * perspS * 0.95, eventHorizonRadius * perspS * 1.05, dist);
+        float innerR = eventHorizonRadius * perspS * 0.95;
+        float outerR = eventHorizonRadius * perspS * 1.05;
+        // Clamp to prevent smoothstep undefined behavior
+        if (innerR >= outerR) continue;
+        float horizonMask = 1.0 - smoothstep(innerR, outerR, dist);
+        color = mix(color, vec3(0.0, 0.0, 0.0), clamp(horizonMask, 0.0, 1.0));
+    }
 
-        color = mix(color, vec3(0.0, 0.0, 0.0), horizonMask);
+    // DEBUG: green circle to verify pipeline + InSize (should be round if SamplerInfo is correct)
+    {
+        vec2 toCenter = uv - vec2(0.5);
+        toCenter.x *= aspectRatio;
+        if (length(toCenter) < 0.03) {
+            color = mix(color, vec3(0.0, 1.0, 0.0), 0.5);
+        }
     }
 
     fragColor = vec4(color, 1.0);

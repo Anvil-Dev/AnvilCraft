@@ -1,26 +1,13 @@
 {
-    "targets": {
-        "lens_out": {}
-    },
+    "targets": {},
     "passes": [
         {
             "vertex_shader": "minecraft:core/screenquad",
             "fragment_shader": "anvilcraft:post/gravitational_lens",
             "inputs": [
                 {
-                    "sampler_name": "DiffuseSampler",
+                    "sampler_name": "Diffuse",
                     "target": "minecraft:main"
-                }
-            ],
-            "output": "lens_out"
-        },
-        {
-            "vertex_shader": "minecraft:core/screenquad",
-            "fragment_shader": "minecraft:post/blit",
-            "inputs": [
-                {
-                    "sampler_name": "In",
-                    "target": "lens_out"
                 }
             ],
             "output": "minecraft:main"

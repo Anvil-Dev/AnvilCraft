@@ -68,5 +68,6 @@ public abstract class LevelRendererMixin {
 
         RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
         lensChain.process(mainTarget, resourceAllocator);
+        GravitationalLensManager.clearLensUboFlag();
     }
 }

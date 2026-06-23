@@ -9,7 +9,9 @@ import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
@@ -209,14 +211,13 @@ public class GravitationalLensManager {
     private static final FloatBuffer LENS_UBO_BUF =
         ByteBuffer.allocateDirect(257 * 4 * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer();
-    /**
-     * UBO handle — created on first frame, reset on shader reload.
-     */
+    /** UBO handle — created on first frame, reset on shader reload. */
     private static int lensUbo = 0;
+    /** Set to true each frame before the lens post-chain processes, cleared after binding. */
+    private static volatile boolean needsBind = false;
 
     /**
      * Upload hole data + lens params to the UBO and bind it.
-     * The shader uses {@code layout(std140, binding = 0)} so no programId is needed.
      *
      * @param holes              collected hole projections (≤ 256)
      * @param count              actual number of holes
@@ -251,18 +252,42 @@ public class GravitationalLensManager {
             GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, lensUbo);
             GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, buf);
         }
-        GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, lensUbo);
+        // Mark that the UBO needs to be bound before the next draw
+        needsBind = true;
+    }
+
+    /**
+     * Called before every render pass draw. If the lens UBO has been uploaded,
+     * binds it to the "BlackHoles" uniform block of the current shader program.
+     * Uses {@code glGetUniformBlockIndex} + {@code glUniformBlockBinding} to
+     * ensure correct binding without requiring {@code binding = 0} in the shader.
+     */
+    public static void bindLensUboIfNeeded() {
+        if (!needsBind || lensUbo == 0) return;
+
+        int program = GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM);
+        if (program == 0) return;
+
+        int blockIndex = GL31.glGetUniformBlockIndex(program, "BlackHoles");
+        if (blockIndex == GL31.GL_INVALID_INDEX) return;
+
+        // Use binding point 8 to avoid conflicts with SamplerInfo (binding 0) and other post-pass UBOs
+        GL31.glUniformBlockBinding(program, blockIndex, 8);
+        GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 8, lensUbo);
+    }
+
+    /** Clear the UBO bind flag — call after the lens post-chain has finished processing. */
+    public static void clearLensUboFlag() {
+        needsBind = false;
     }
 
     /**
      * Upload hole data to the UBO and bind it. Call each frame before running the lens post-chain.
      *
      * @deprecated Use {@link #uploadLensUbo(List, int, float, float, float)} instead.
-     *             This overload is kept for reference compatibility only.
      */
     @Deprecated
     public static void uploadLensUbo(List<HoleProjection> holes, int count, int programId) {
-        // Legacy: re-derive params from config (best effort)
         uploadLensUbo(holes, count, 0.002f, 0.083f, 10.0f);
     }
 
@@ -274,5 +299,6 @@ public class GravitationalLensManager {
             GL15.glDeleteBuffers(lensUbo);
             lensUbo = 0;
         }
+        needsBind = false;
     }
 }

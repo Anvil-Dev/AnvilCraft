@@ -93,6 +93,7 @@
     "ItemInHandRendererMixin",
     "ItemSubmitMixin",
     "MouseHandlerMixin",
+    "GlCommandEncoderMixin",
     "PostChainAccessor",
     "SectionCompilerMixin",
     "SoundEngineMixin",
