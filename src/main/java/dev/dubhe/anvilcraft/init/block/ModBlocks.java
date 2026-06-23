@@ -11,6 +11,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.block.SpacetimeSupercomputerBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -1508,6 +1509,19 @@ public class ModBlocks {
             );
         })
         .recipe(RegistrumBlockRecipeLoader::propelPiston)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<SpacetimeSupercomputerBlock> SPACETIME_SUPERCOMPUTER = REGISTRUM
+        .block("spacetime_supercomputer", SpacetimeSupercomputerBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties((properties) -> properties
+            .noOcclusion()
+            .explosionResistance(1200)
+            .isValidSpawn(Blocks::never)
+            .isSuffocating(ModBlocks::never))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .blockstate(DataGenUtil::onlyState)
         .simpleItem()
         .register();
 
