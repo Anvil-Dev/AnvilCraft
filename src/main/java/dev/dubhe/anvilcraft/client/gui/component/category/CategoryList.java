@@ -133,7 +133,7 @@ public class CategoryList extends AbstractContainerWidget {
             Button button = ListUtil.safelyGet(this.children(), i).orElse(null);
             if (button == null) continue;
             button.active = true;
-            button.setPosition(this.getX(), this.getY() + i * 20);
+            button.setPosition(this.getX(), this.getY() + (i - this.head) * 20);
             button.extractRenderState(graphics, mouseX, mouseY, a);
         }
     }
