@@ -35,7 +35,7 @@ public class AnvilCraftServerConfig {
     public int redstoneEmpRadius = 6;
 
     @Comment("Maximum length of redstone EMP")
-    @SerializedName("Redstone Emp Max Radius")
+    @SerializedName("Redstone EMP Max Radius")
     @BoundedDiscrete(max = 64, min = 1)
     public int redstoneEmpMaxRadius = 24;
 
@@ -105,12 +105,8 @@ public class AnvilCraftServerConfig {
     public int inductionLightBlockRipeningRange = 5;
 
     @Comment("The number of ticks between heliostat detections")
-    @SerializedName("Heliostats detection interval")
     @BoundedDiscrete(max = 20, min = 1)
     public int heliostatsDetectionInterval = 4;
-
-    @Comment("Iono Craft Backpack Max Flight Time in ticks")
-    public int ionoCraftBackpackMaxFlightTime = 1200 * 20;
 
     @Comment("Giant anvil maxCount fall damage")
     @BoundedDiscrete(max = 100, min = 0)

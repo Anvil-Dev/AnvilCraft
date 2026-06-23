@@ -49,7 +49,7 @@ public class IonoCraftBackpackClientHandler {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;
         if (minecraft.isPaused()) return;
-        if (!AnvilCraftClient.CONFIG.ionoCraftBackpackExhaustParticlesEnabled) return;
+        if (!AnvilCraftClient.CONFIG.ionocraftBackpackExhaustParticlesEnabled) return;
 
         ClientLevel level = minecraft.level;
         LocalPlayer localPlayer = minecraft.player;

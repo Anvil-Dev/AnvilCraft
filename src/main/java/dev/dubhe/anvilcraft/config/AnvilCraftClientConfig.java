@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.config;
 
+import com.google.gson.annotations.SerializedName;
 import dev.anvilcraft.lib.v2.config.BoundedDiscrete;
 import dev.anvilcraft.lib.v2.config.CollapsibleObject;
 import dev.anvilcraft.lib.v2.config.Comment;
@@ -33,8 +34,9 @@ public class AnvilCraftClientConfig {
     @BoundedDiscrete(max = 1, min = 0)
     public double groundHeaveParticleChance = 0.8;
 
+    @SerializedName("Display Redstone EMP Particles")
     @Comment("Enable redstone EMP particle effects")
-    public boolean redstoneEmpParticlesEnabled = true;
+    public boolean displayRedstoneEmpParticles = true;
 
     @Comment("Render lines between power transmitters")
     public boolean renderPowerTransmitterLines = true;
@@ -49,33 +51,43 @@ public class AnvilCraftClientConfig {
     public boolean verticalItemFrame = false;
 
     @Comment("Enable exhaust particles when flying with Ionocraft Backpack")
-    public boolean ionoCraftBackpackExhaustParticlesEnabled = true;
+    public boolean ionocraftBackpackExhaustParticlesEnabled = true;
 
+    @SerializedName("Ionocraft Backpack HUD")
     @CollapsibleObject
-    public IonoCraftBackpackHud ionoCraftBackpackHud = new IonoCraftBackpackHud();
+    public IonocraftBackpackHud ionocraftBackpackHud = new IonocraftBackpackHud();
 
+    @SerializedName("Show Multiphase Stored ID")
     @Comment("Add a tooltip line that shows multiphase stored ID")
     public boolean showMultiphaseStoredId = false;
 
-    public static class IonoCraftBackpackHud {
+    public static class IonocraftBackpackHud {
+        @SerializedName("Enabled")
         @Comment("If true, will show Ionocraft Backpack current power in hud")
         public boolean enabled = true;
 
+        @SerializedName("HUD Scale")
         @Comment("The Gui Hud Scale")
         @BoundedDiscrete(min = 0, max = 8)
         public float hudScale = 0.75f;
 
+        @SerializedName("HUD X Position")
         @Comment("The gui hud x position")
         public int hudX = 8;
 
+        @SerializedName("HUD Y Position")
         @Comment("The gui hud y position")
         public int hudY = 8;
     }
 
     public enum GoggleMode {
+        @SerializedName("Always Show")
         ALWAYS_SHOW,
+        @SerializedName("When Wearing Hammer")
         WEARING_HAMMER,
+        @SerializedName("When Holding Hammer")
         HOLDING_HAMMER,
+        @SerializedName("Toggle with Key")
         TOGGLE_WITH_KEY
     }
 }

@@ -19,7 +19,7 @@ public class IonoCraftBackpackHUD {
     private static final ResourceLocation BATTERY_FULL = SharedTextures.textureGui("misc/battery_display/battery_full");
 
     public static void render(GuiGraphics guiGraphics, DeltaTracker partialTick) {
-        if (!AnvilCraftClient.CONFIG.ionoCraftBackpackHud.enabled) {
+        if (!AnvilCraftClient.CONFIG.ionocraftBackpackHud.enabled) {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
@@ -39,9 +39,9 @@ public class IonoCraftBackpackHUD {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
 
-        int x = AnvilCraftClient.CONFIG.ionoCraftBackpackHud.hudX;
-        int y = AnvilCraftClient.CONFIG.ionoCraftBackpackHud.hudY;
-        float scale = AnvilCraftClient.CONFIG.ionoCraftBackpackHud.hudScale;
+        int x = AnvilCraftClient.CONFIG.ionocraftBackpackHud.hudX;
+        int y = AnvilCraftClient.CONFIG.ionocraftBackpackHud.hudY;
+        float scale = AnvilCraftClient.CONFIG.ionocraftBackpackHud.hudScale;
 
         poseStack.scale(scale, scale, scale);
         poseStack.translate(x, y, 0);
