@@ -67,6 +67,14 @@ public class AnvilCraftClient {
                 new CachedLaserBlockEntityRenderer<>()
             );
             CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.CELESTIAL_FORGING_ANVIL_PORTAL.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
                 ModBlockEntities.LARGE_LASER.get(),
                 new CachedLaserBlockEntityRenderer<>()
             );

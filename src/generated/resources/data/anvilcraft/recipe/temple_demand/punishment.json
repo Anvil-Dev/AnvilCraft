@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:temple_demand",
+  "category": "punishment",
+  "entries": [
+    {
+      "count": 1,
+      "id": "anvilcraft:topaz"
+    },
+    {
+      "count": 1,
+      "id": "minecraft:lava_bucket"
+    },
+    {
+      "count": 1024,
+      "id": "minecraft:tnt"
+    }
+  ]
+}

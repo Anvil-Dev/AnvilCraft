@@ -3,24 +3,40 @@ package dev.dubhe.anvilcraft.block.cfa;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -28,9 +44,10 @@ import org.jspecify.annotations.Nullable;
 
 public class CelestialForgingAnvilAmplifierBlock
     extends FlexibleMultiPartBlock<DirectionCube232PartHalf, EnumProperty<Direction>, Direction>
-    implements IHammerChangeable, IHammerRemovable {
+    implements IHammerChangeable, IHammerRemovable, SimpleWaterloggedBlock {
     public static final EnumProperty<DirectionCube232PartHalf> HALF = EnumProperty.create("half", DirectionCube232PartHalf.class);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final VoxelShape NORTH_TIP = ShapeUtil.merge(
         new AABB(0, 0, 0, 16, 4, 16),
         new AABB(5, 5, 5, 10, 10, 10)
@@ -56,7 +73,7 @@ public class CelestialForgingAnvilAmplifierBlock
     public static final VoxelShape EAST_RIGHT_WING = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_RIGHT_WING);
 
     public static final VoxelShape NORTH_BASE = ShapeUtil.merge(
-        new AABB(0, 0, 2, 16, 4, 16),
+        new AABB(2, 0, 2, 16, 4, 16),
         new AABB(6, 4, 6, 16, 12, 16),
         new AABB(2, 12, 2, 16, 16, 16),
 
@@ -91,6 +108,7 @@ public class CelestialForgingAnvilAmplifierBlock
             this.getStateDefinition().any()
                 .setValue(HALF, DirectionCube232PartHalf.BOTTOM_PART)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(WATERLOGGED, false)
         );
     }
 
@@ -154,9 +172,99 @@ public class CelestialForgingAnvilAmplifierBlock
         return state.setValue(this.getPart(), part);
     }
 
+    // 增幅器放置时自动检测锻星砧角落并确定朝向
+    // 核心方块始终是 ES 角(BOTTOM_PART)，其余3块在西北侧
+    // 内层方形(3×3)四角检测角落方块 → 确定 FACING
+    // 外层方形(5×5)四角检测 BOTTOM_CENTER  → 确认真在砧角
+    private static final int[][] CORNER_CHECKS = {
+        { 1,  1, 0}, {-2,  1, 1}, { 1, -2, 2}, {-2, -2, 3},
+    };
+    private static final int[][] CENTER_CHECKS = {
+        { 2,  2}, {-3,  2}, { 2, -3}, {-3, -3},
+    };
+    private static final Direction[] FACING_MAP = {
+        Direction.NORTH, Direction.EAST, Direction.WEST, Direction.SOUTH
+    };
+
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().trySetValue(FACING, context.getHorizontalDirection().getOpposite());
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+
+        // 1. 在内层方形四角检测锻星砧角落方块
+        Direction facing = null;
+        for (int[] c : CORNER_CHECKS) {
+            for (int dy = 0; dy <= 1; dy++) {
+                BlockState state = level.getBlockState(pos.offset(c[0], dy, c[1]));
+                if (state.getBlock() instanceof CelestialForgingAnvilBlock
+                    && state.hasProperty(CelestialForgingAnvilBlock.HALF)
+                    && isCornerPart(state.getValue(CelestialForgingAnvilBlock.HALF))) {
+                    facing = FACING_MAP[c[2]];
+                    break;
+                }
+            }
+            if (facing != null) break;
+        }
+
+        // 2. 在外层方形四角验证锻星砧 BOTTOM_CENTER（排除孤立角落方块）
+        if (facing != null) {
+            boolean valid = false;
+            for (int[] c : CENTER_CHECKS) {
+                BlockState state = level.getBlockState(pos.offset(c[0], 0, c[1]));
+                if (state.getBlock() instanceof CelestialForgingAnvilBlock
+                    && state.hasProperty(CelestialForgingAnvilBlock.HALF)
+                    && state.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER) {
+                    valid = true;
+                    break;
+                }
+            }
+            if (!valid) facing = null;
+        }
+
+        if (facing == null) {
+            if (context.getPlayer() != null && !level.isClientSide()) {
+                context.getPlayer().sendSystemMessage(
+                    Component.translatable("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner")
+                        .withColor(0xFF8888));
+            }
+            return null;
+        }
+        FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
+        return this.defaultBlockState()
+            .setValue(FACING, facing)
+            .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED)
+            ? Fluids.WATER.getSource(false)
+            : super.getFluidState(state);
+    }
+
+    @Override
+    protected BlockState updateShape(
+        BlockState state,
+        LevelReader level,
+        ScheduledTickAccess ticks,
+        BlockPos pos,
+        Direction directionToNeighbour,
+        BlockPos neighbourPos,
+        BlockState neighbourState,
+        RandomSource random
+    ) {
+        if (state.getValue(WATERLOGGED)) {
+            ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
+    }
+
+    private static boolean isCornerPart(Cube323PartHalf half) {
+        return switch (half) {
+            case BOTTOM_NW, BOTTOM_NE, BOTTOM_SW, BOTTOM_SE,
+                 TOP_NW, TOP_NE, TOP_SW, TOP_SE -> true;
+            default -> false;
+        };
     }
 
     @Override
@@ -176,7 +284,7 @@ public class CelestialForgingAnvilAmplifierBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF, FACING);
+        builder.add(HALF, FACING, WATERLOGGED);
     }
 
     @Override
@@ -193,7 +301,7 @@ public class CelestialForgingAnvilAmplifierBlock
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, state -> state.cycle(FACING));
+        this.change(blockPos, level, (state) -> state.cycle(FACING));
         return true;
     }
 
@@ -203,17 +311,54 @@ public class CelestialForgingAnvilAmplifierBlock
     }
 
     @Override
+    protected InteractionResult useWithoutItem(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
+    ) {
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+        // Scan nearby for the controller (BOTTOM_CENTER of anvil)
+        for (int dx = -5; dx <= 5; dx++) {
+            for (int dz = -5; dz <= 5; dz++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    BlockPos checkPos = pos.offset(dx, dy, dz);
+                    BlockState checkState = level.getBlockState(checkPos);
+                    if (
+                        checkState.getBlock() instanceof CelestialForgingAnvilBlock
+                        && checkState.hasProperty(CelestialForgingAnvilBlock.HALF)
+                        && checkState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER
+                    ) {
+                        BlockEntity be = level.getBlockEntity(checkPos);
+                        if (
+                            be instanceof CelestialForgingAnvilBlockEntity cfaBe
+                            && player instanceof ServerPlayer sp
+                        ) {
+                            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
+                            ModMenuTypes.open(sp, cfaBe, checkPos);
+                            return InteractionResult.SUCCESS;
+                        }
+                    }
+                }
+            }
+        }
+        return InteractionResult.PASS;
+    }
+
+    @Override
     protected VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
         return Shapes.empty();
     }
 
     @Override
     protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
-        return 1.0F;
+        return 1.0f;
     }
 
     @Override
     protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
+
 }

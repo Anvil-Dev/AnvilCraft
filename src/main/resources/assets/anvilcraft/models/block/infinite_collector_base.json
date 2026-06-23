@@ -1,0 +1,53 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"outline": "anvilcraft:block/transcendium_block_outline",
+		"base": "anvilcraft:block/infinite_collector_side",
+		"particle": "anvilcraft:block/infinite_collector_top",
+		"top": "anvilcraft:block/infinite_collector_top",
+		"bottom": "anvilcraft:block/infinite_collector_bottom"
+	},
+	"elements": [
+		{
+			"name": "cube_outline",
+			"from": [15.975, 3.975, 15.975],
+			"to": [0.025, 0.025, 0.025],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 2, 8]},
+			"faces": {
+				"north": {"uv": [0, 13, 15, 16], "rotation": 180, "texture": "#outline"},
+				"east": {"uv": [0, 13, 15, 16], "rotation": 180, "texture": "#outline"},
+				"south": {"uv": [0, 13, 15, 16], "rotation": 180, "texture": "#outline"},
+				"west": {"uv": [0, 13, 15, 16], "rotation": 180, "texture": "#outline"},
+				"up": {"uv": [0, 0, 15, 15], "rotation": 180, "texture": "#outline"},
+				"down": {"uv": [0, 0, 15, 15], "rotation": 180, "texture": "#outline"}
+			}
+		},
+		{
+			"from": [0.5, 0.5, 0.5],
+			"to": [15.5, 3.5, 15.5],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 2, 8]},
+			"faces": {
+				"north": {"uv": [0, 13, 15, 16], "texture": "#base"},
+				"east": {"uv": [0, 13, 15, 16], "texture": "#base"},
+				"south": {"uv": [0, 13, 15, 16], "texture": "#base"},
+				"west": {"uv": [0, 13, 15, 16], "texture": "#base"},
+				"up": {"uv": [0, 0, 15, 15], "texture": "#top"},
+				"down": {"uv": [0, 0, 15, 15], "texture": "#bottom"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 2, 8],
+			"scope": 0,
+			"color": 0,
+			"shade": false,
+			"children": [0, 1]
+		}
+	]
+}

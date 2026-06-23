@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.init.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceRecipe;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
+import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
@@ -96,6 +99,11 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<PortalConversionRecipe>> PORTAL_CONVERSION = registerType(
         "portal_conversion"
     );
+    public static final DeferredHolder<RecipeType<?>, RecipeType<PlanetResourceRecipe>> PLANET_RESOURCE = registerType("planet_resource");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<SpecialCelestialBodyRecipe>> SPECIAL_CELESTIAL_BODY = registerType(
+        "special_celestial_body"
+    );
+    public static final DeferredHolder<RecipeType<?>, RecipeType<TempleDemandRecipe>> TEMPLE_DEMAND = registerType("temple_demand");
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return DF.register(name, RecipeType::simple);

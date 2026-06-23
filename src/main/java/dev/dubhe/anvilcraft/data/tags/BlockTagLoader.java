@@ -351,5 +351,22 @@ public class BlockTagLoader {
             .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL.location());
 
         provider.rawBuilder(ModBlockTags.INCORRECT_FOR_TRANSCENDIUM_TOOL);
+
+        // === CFA blocks: immune to Wither, Ender Dragon ===
+        provider.rawBuilder(BlockTags.WITHER_IMMUNE)
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
+
+        provider.rawBuilder(BlockTags.DRAGON_IMMUNE)
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
     }
 }

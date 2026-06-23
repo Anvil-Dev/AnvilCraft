@@ -1,0 +1,34 @@
+{
+  "type": "anvilcraft:special_celestial_body",
+  "axial_tilt": 45.0,
+  "energy": 17,
+  "has_atmosphere": false,
+  "liquid_coverage": "none",
+  "magnetic_field": 3,
+  "mass": 1,
+  "name": "hollow_planet",
+  "needs_custom_model": true,
+  "resources": {
+    "minerals": [
+      {
+        "id": "minecraft:obsidian",
+        "weight": 90
+      },
+      {
+        "id": "anvilcraft:void_matter",
+        "weight": 8
+      },
+      {
+        "id": "anvilcraft:negative_matter_nugget",
+        "weight": 2
+      }
+    ]
+  },
+  "rotation_speed": 4,
+  "seed_items": [
+    "anvilcraft:negative_matter_block"
+  ],
+  "space": 10,
+  "texture": "planet_hollow",
+  "time": 60
+}

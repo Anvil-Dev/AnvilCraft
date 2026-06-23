@@ -39,5 +39,8 @@ public class RecipeHandler {
         DeformationRecipeLoader.init(provider);
         EnergyWeaponMakeRecipeLoader.init(provider);
         PortalConversionRecipeLoader.init(provider);
+        PlanetResourceRecipeLoader.init(provider);
+        SpecialCelestialBodyRecipeLoader.init(provider);
+        TempleDemandRecipeLoader.init(provider);
     }
 }

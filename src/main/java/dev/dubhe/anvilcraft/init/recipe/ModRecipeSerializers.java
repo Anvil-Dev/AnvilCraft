@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.init.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceRecipe;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
+import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
@@ -185,6 +188,12 @@ public class ModRecipeSerializers {
         "portal_conversion",
         () -> PortalConversionRecipe.SERIALIZER
     );
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<PlanetResourceRecipe>> PLANET_RESOURCE = DF
+        .register("planet_resource", () -> PlanetResourceRecipe.SERIALIZER);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SpecialCelestialBodyRecipe>> SPECIAL_CELESTIAL_BODY = DF
+        .register("special_celestial_body", () -> SpecialCelestialBodyRecipe.SERIALIZER);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TempleDemandRecipe>> TEMPLE_DEMAND = DF
+        .register("temple_demand", () -> TempleDemandRecipe.SERIALIZER);
 
     public static void register(IEventBus bus) {
         DF.register(bus);

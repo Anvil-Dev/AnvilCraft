@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
 import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
+import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.block.SpacetimeSupercomputerBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
@@ -34,11 +35,13 @@ import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilFluidInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
@@ -738,6 +741,18 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
+    public static final BlockEntry<InfiniteCollectorBlock> INFINITE_COLLECTOR = REGISTRUM.block(
+            "infinite_collector",
+            InfiniteCollectorBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .item(dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem::new)
+        .build()
+        .register();
+
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)
         .initialProperties(() -> Blocks.GLASS)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1414,12 +1429,12 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
-        .item(SimpleMultiPartBlockItem::new)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
+        .item(dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
         .model(DataGenUtil::oversizedItem)
         .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
 
     public static final BlockEntry<CelestialForgingAnvilAmplifierBlock> CELESTIAL_FORGING_ANVIL_AMPLIFIER = REGISTRUM
@@ -1443,7 +1458,11 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilLogisticsInterfaceBlock> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_logistics_interface", CelestialForgingAnvilLogisticsInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(() -> DataGenUtil.horizontalFacingBlock(
+            BlockStateProperties.ENABLED,
+            ctx -> ctx.getId().withPrefix("block/").withSuffix("_active"),
+            ctx -> ctx.getId().withPrefix("block/")
+        ))
         .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
@@ -1458,7 +1477,11 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilFluidInterfaceBlock> CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(() -> DataGenUtil.horizontalFacingBlock(
+            BlockStateProperties.ENABLED,
+            ctx -> ctx.getId().withPrefix("block/").withSuffix("_active"),
+            ctx -> ctx.getId().withPrefix("block/")
+        ))
         .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
@@ -1473,7 +1496,11 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilLaserInterfaceBlock> CELESTIAL_FORGING_ANVIL_LASER_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_laser_interface", CelestialForgingAnvilLaserInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(() -> DataGenUtil.horizontalFacingBlock(
+            BlockStateProperties.ENABLED,
+            ctx -> ctx.getId().withPrefix("block/").withSuffix("_active"),
+            ctx -> ctx.getId().withPrefix("block/")
+        ))
         .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
@@ -1481,6 +1508,20 @@ public class ModBlocks {
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .build()
+        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
+        .register();
+
+    public static final BlockEntry<CelestialForgingAnvilPortalBlock> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
+        .block("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .explosionResistance(1200)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item(CelestialForgingAnvilPortalBlockItem::new)
         .build()
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
@@ -3697,7 +3738,7 @@ public class ModBlocks {
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL)
-        .item()
+        .item(dev.dubhe.anvilcraft.item.SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()

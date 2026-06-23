@@ -125,6 +125,20 @@ public class ModCapabilities {
 
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.POWER_CONVERTER.get(), ModCapabilities::energy);
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.FE_COLLECTOR.get(), ModCapabilities::energy);
+
+        // CFA logistics interface — Item capability
+        event.registerBlockEntity(
+            Capabilities.Item.BLOCK,
+            ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get(),
+            (be, direction) -> be.getItemHandler()
+        );
+
+        // CFA fluid interface — Fluid capability
+        event.registerBlockEntity(
+            Capabilities.Fluid.BLOCK,
+            ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get(),
+            (be, direction) -> be.getFluidHandler()
+        );
     }
 
     /// 物品

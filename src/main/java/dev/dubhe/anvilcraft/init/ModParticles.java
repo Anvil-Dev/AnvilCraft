@@ -32,7 +32,6 @@ public class ModParticles {
         "anvilon_time", () -> new SimpleParticleType(false)
     );
 
-
     public static final Supplier<SimpleParticleType> IONOCRAFT_BACKPACK_EXHAUST = REGISTER.register(
         "ionocraft_backpack_exhaust", () -> new SimpleParticleType(false)
     );

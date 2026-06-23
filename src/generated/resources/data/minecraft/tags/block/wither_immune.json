@@ -18,6 +18,12 @@
     "anvilcraft:confined_space_anvilon",
     "anvilcraft:confined_mass_anvilon",
     "anvilcraft:confined_energy_anvilon",
-    "anvilcraft:confinement_chamber"
+    "anvilcraft:confinement_chamber",
+    "anvilcraft:celestial_forging_anvil",
+    "anvilcraft:celestial_forging_anvil_amplifier",
+    "anvilcraft:celestial_forging_anvil_logistics_interface",
+    "anvilcraft:celestial_forging_anvil_laser_interface",
+    "anvilcraft:celestial_forging_anvil_fluid_interface",
+    "anvilcraft:celestial_forging_anvil_portal"
   ]
 }

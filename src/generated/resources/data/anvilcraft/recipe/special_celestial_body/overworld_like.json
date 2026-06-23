@@ -1,0 +1,136 @@
+{
+  "type": "anvilcraft:special_celestial_body",
+  "axial_tilt": 0.0,
+  "energy": 16,
+  "has_atmosphere": true,
+  "liquid_coverage": "medium",
+  "magnetic_field": 2,
+  "mass": 20,
+  "name": "overworld_like",
+  "resources": {
+    "biological_items": [
+      {
+        "id": "minecraft:porkchop",
+        "weight": 5
+      },
+      {
+        "id": "minecraft:beef",
+        "weight": 5
+      },
+      {
+        "id": "minecraft:mutton",
+        "weight": 5
+      },
+      {
+        "id": "minecraft:chicken",
+        "weight": 5
+      },
+      {
+        "id": "minecraft:leather",
+        "weight": 5
+      },
+      {
+        "id": "minecraft:feather",
+        "weight": 5
+      },
+      {
+        "id": "minecraft:white_wool",
+        "weight": 10
+      },
+      {
+        "id": "minecraft:light_gray_wool",
+        "weight": 4
+      },
+      {
+        "id": "minecraft:gray_wool",
+        "weight": 4
+      },
+      {
+        "id": "minecraft:black_wool",
+        "weight": 4
+      },
+      {
+        "id": "minecraft:brown_wool",
+        "weight": 4
+      },
+      {
+        "id": "minecraft:red_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:orange_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:yellow_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:lime_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:green_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:cyan_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:light_blue_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:blue_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:purple_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:magenta_wool",
+        "weight": 2
+      },
+      {
+        "id": "minecraft:pink_wool",
+        "weight": 2
+      }
+    ],
+    "fluids": [
+      {
+        "id": "minecraft:water",
+        "weight": 100
+      }
+    ],
+    "minerals": [
+      {
+        "id": "minecraft:raw_copper",
+        "weight": 50
+      },
+      {
+        "id": "minecraft:raw_iron",
+        "weight": 30
+      },
+      {
+        "id": "minecraft:raw_gold",
+        "weight": 20
+      }
+    ]
+  },
+  "rotation_speed": 2,
+  "seed_items": [
+    "minecraft:grass_block",
+    "minecraft:podzol",
+    "minecraft:mycelium",
+    "minecraft:dirt",
+    "minecraft:coarse_dirt",
+    "minecraft:rooted_dirt",
+    "minecraft:moss_block",
+    "minecraft:mud"
+  ],
+  "space": 14,
+  "texture": "planet_overworld",
+  "time": 32
+}
