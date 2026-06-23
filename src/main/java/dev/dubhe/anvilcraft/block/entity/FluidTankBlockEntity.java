@@ -48,19 +48,19 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.putBoolean("bigger", this.isBigger);
-        this.tank.serialize(output);
+        this.tank.serialize(output.child("tank"));
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        this.tank.deserialize(input.childOrEmpty("tank"));
         this.isBigger = input.getBooleanOr("bigger", false);
         if (this.isBigger) {
             this.onFormed();
         } else {
             this.onUnformed();
         }
-        this.tank.deserialize(input);
     }
 
     @Override

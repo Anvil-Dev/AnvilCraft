@@ -82,6 +82,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         CameraRenderState camera
     ) {
         Orientation orientation = state.getOrientation();
+        if (orientation == null) return;
 
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
