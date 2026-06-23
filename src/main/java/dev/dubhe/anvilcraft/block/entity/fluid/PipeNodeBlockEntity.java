@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
-import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,11 +35,11 @@ import java.util.TreeSet;
  *
  * <p>26.1 版本使用 {@link CapacityModifiableFluidHandler} 替代旧的 FluidTank。
  */
+@Getter
 public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFluidHandlerHolder {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 4;
 
-    @Getter(AccessLevel.NONE)
     private final CapacityModifiableFluidHandler fluidHandler = new CapacityModifiableFluidHandler(1, PipeNodeBlockEntity.CAPACITY) {
         @Override
         protected void onContentsChanged(int index, net.neoforged.neoforge.fluids.FluidStack stack) {
