@@ -59,12 +59,18 @@ public class GravitationalLensManager {
      * Per-hole data passed to the shader.
      */
     public static final class HoleProjection {
-        /** Center UV of the black hole on screen. */
+        /**
+         * Center UV of the black hole on screen.
+         */
         public final float centerU;
         public final float centerV;
-        /** Distance from camera to black hole (world units). */
+        /**
+         * Distance from camera to black hole (world units).
+         */
         public final float cameraDistance;
-        /** Lens direction: > 0 = convex (pull), < 0 = concave (push). */
+        /**
+         * Lens direction: > 0 = convex (pull), < 0 = concave (push).
+         */
         public final float lensDirection;
 
         HoleProjection(float cu, float cv, float dist, float dir) {
@@ -155,34 +161,6 @@ public class GravitationalLensManager {
         return result;
     }
 
-    /**
-     * Collect up to {@code maxCount} on-screen holes using Camera + projection matrix.
-     * @deprecated Prefer using {@link #collectVisibleHoles(CameraRenderState, Matrix4fc, int, float, float)}
-     */
-    @Deprecated
-    public static List<HoleProjection> collectVisibleHoles(
-        Camera camera,
-        Matrix4f projectionMatrix,
-        int maxCount,
-        float blackHoleDir,
-        float whiteHoleDir
-    ) {
-        List<HoleProjection> result = new ArrayList<>();
-
-        Matrix4f viewProj = buildViewProj(camera, projectionMatrix);
-        Vector3f cameraPos = camera.position().toVector3f();
-
-        collectFromSet(CLIENT_BLACK_HOLE_POSITIONS, cameraPos, viewProj, blackHoleDir, result);
-        collectFromSet(CLIENT_WHITE_HOLE_POSITIONS, cameraPos, viewProj, whiteHoleDir, result);
-
-        // Sort nearest first, then take the closest maxCount
-        result.sort((a, b) -> Float.compare(a.cameraDistance, b.cameraDistance));
-        if (result.size() > maxCount) {
-            result = result.subList(0, maxCount);
-        }
-        return result;
-    }
-
     private static void collectFromSet(
         Set<BlockPos> positions, Vector3f cameraPos, Matrix4f viewProj,
         float lensDir, List<HoleProjection> out
@@ -218,9 +196,13 @@ public class GravitationalLensManager {
     private static final FloatBuffer LENS_UBO_BUF =
         ByteBuffer.allocateDirect(257 * 4 * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer();
-    /** UBO handle — created on first frame, reset on shader reload. */
+    /**
+     * UBO handle — created on first frame, reset on shader reload.
+     */
     private static int lensUbo = 0;
-    /** Set to true each frame before the lens post-chain processes, cleared after binding. */
+    /**
+     * Set to true each frame before the lens post-chain processes, cleared after binding.
+     */
     private static volatile boolean needsBind = false;
 
     /**
@@ -283,19 +265,11 @@ public class GravitationalLensManager {
         GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 8, lensUbo);
     }
 
-    /** Clear the UBO bind flag — call after the lens post-chain has finished processing. */
+    /**
+     * Clear the UBO bind flag — call after the lens post-chain has finished processing.
+     */
     public static void clearLensUboFlag() {
         needsBind = false;
-    }
-
-    /**
-     * Upload hole data to the UBO and bind it. Call each frame before running the lens post-chain.
-     *
-     * @deprecated Use {@link #uploadLensUbo(List, int, float, float, float)} instead.
-     */
-    @Deprecated
-    public static void uploadLensUbo(List<HoleProjection> holes, int count, int programId) {
-        uploadLensUbo(holes, count, 0.002f, 0.083f, 10.0f);
     }
 
     /**
