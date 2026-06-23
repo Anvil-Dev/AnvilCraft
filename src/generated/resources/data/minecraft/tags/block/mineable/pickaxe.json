@@ -286,6 +286,8 @@
     "anvilcraft:pipe_straight",
     "anvilcraft:pipe_corner",
     "anvilcraft:pipe_node",
-    "anvilcraft:pump"
+    "anvilcraft:pump",
+    "anvilcraft:creative_fluid_tank",
+    "anvilcraft:creative_crate"
   ]
 }

@@ -11,6 +11,8 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
+import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -3788,6 +3790,22 @@ public class ModBlocks {
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::pump)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CreativeFluidTankBlock> CREATIVE_FLUID_TANK = REGISTRUM
+        .block("creative_fluid_tank", CreativeFluidTankBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<CreativeCrateBlock> CREATIVE_CRATE = REGISTRUM
+        .block("creative_crate", CreativeCrateBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
         .register();
 
     public static void register() {

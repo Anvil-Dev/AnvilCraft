@@ -14,6 +14,8 @@ import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
@@ -75,6 +77,8 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeCrateRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
@@ -452,6 +456,18 @@ public class ModBlockEntities {
         .blockEntity("pump", PumpBlockEntity::create)
         .validBlock(ModBlocks.PUMP)
         .renderer(() -> PumpBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CreativeFluidTankBlockEntity> CREATIVE_FLUID_TANK = REGISTRUM
+        .blockEntity("creative_fluid_tank", CreativeFluidTankBlockEntity::new)
+        .validBlock(ModBlocks.CREATIVE_FLUID_TANK)
+        .renderer(() -> CreativeFluidTankRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CreativeCrateBlockEntity> CREATIVE_CRATE = REGISTRUM
+        .blockEntity("creative_crate", CreativeCrateBlockEntity::new)
+        .validBlock(ModBlocks.CREATIVE_CRATE)
+        .renderer(() -> CreativeCrateRenderer::new)
         .register();
 
     public static void register() {
