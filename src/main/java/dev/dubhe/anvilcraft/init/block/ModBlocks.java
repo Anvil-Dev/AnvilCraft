@@ -3797,6 +3797,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(ctx.get(),
+                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))))
         .simpleItem()
         .register();
 
@@ -3805,6 +3808,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(ctx.get(),
+                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))))
         .simpleItem()
         .register();
 
