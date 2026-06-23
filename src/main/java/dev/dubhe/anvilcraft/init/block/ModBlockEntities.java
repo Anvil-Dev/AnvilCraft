@@ -469,6 +469,8 @@ public class ModBlockEntities {
         .blockEntity("creative_crate", CreativeCrateBlockEntity::new)
         .validBlock(ModBlocks.CREATIVE_CRATE)
         .renderer(() -> CreativeCrateRenderer::new)
+        .register();
+
     public static final BlockEntityEntry<SpacetimeSupercomputerBlockEntity> SPACETIME_SUPERCOMPUTER = REGISTRUM
         .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
         .validBlock(ModBlocks.SPACETIME_SUPERCOMPUTER)
