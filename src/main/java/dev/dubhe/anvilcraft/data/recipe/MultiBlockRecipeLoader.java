@@ -6,16 +6,18 @@ import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.core.*;
+import net.minecraft.core.registries.*;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.neoforge.common.Tags;
 
 public class MultiBlockRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        HolderGetter<Block> blocks = provider.getRegistries().lookupOrThrow(Registries.BLOCK);
+
         MultiblockRecipe.builder(ModBlocks.GIANT_ANVIL)
             .layer("ABA", "CDE", "AFA")
             .layer("   ", " D ", "   ")
@@ -234,6 +236,39 @@ public class MultiBlockRecipeLoader {
             .layer("AAA", "AAA", "AAA")
             .symbol('A', BlockPredicateWithState.of(Tags.Blocks.STRIPPED_LOGS))
             .symbol('B', ModBlocks.RESIN_BLOCK)
+            .save(provider);
+
+        MultiblockRecipe.builder(ModBlocks.LARGE_LASER, 1)
+            .layer(" A ", "BCD", " E ")
+            .layer("BFD", "BCD", "BGD")
+            .layer("AAA", "HCI", "EEE")
+            .symbol('A', BlockPredicateWithState.of("anvilcraft:ruby_laser")
+                .hasState(blocks, "facing", "south")
+            )
+            .symbol('B', BlockPredicateWithState.of("anvilcraft:ruby_laser")
+                .hasState(blocks, "facing", "east")
+            )
+            .symbol('C', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "down")
+            )
+            .symbol('D', BlockPredicateWithState.of("anvilcraft:ruby_laser")
+                .hasState(blocks, "facing", "west")
+            )
+            .symbol('E', BlockPredicateWithState.of("anvilcraft:ruby_laser")
+                .hasState(blocks, "facing", "north")
+            )
+            .symbol('F', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "south")
+            )
+            .symbol('G', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "north")
+            )
+            .symbol('H', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "east")
+            )
+            .symbol('I', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "west")
+            )
             .save(provider);
     }
 }
