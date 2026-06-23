@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.init;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -10,8 +9,6 @@ import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = AnvilCraft.MOD_ID)
 public class ModShaders {
-    public static final Identifier GRAVITATIONAL_LENS_LOCATION = AnvilCraft.of("shaders/post/gravitational_lens.json");
-
     private static RenderPipeline scanPreviewShader;
 
     public static RenderPipeline getScanPreviewShader() {

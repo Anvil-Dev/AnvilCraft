@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.client.support;
 
 import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -72,6 +74,19 @@ public class GravitationalLensManager {
     }
 
     /**
+     * Build the combined view-projection matrix from CameraRenderState + projection.
+     */
+    private static Matrix4f buildViewProj(CameraRenderState cameraState, Matrix4fc projectionMatrix) {
+        Vector3f cameraPos = cameraState.pos.toVector3f();
+
+        Matrix4f viewMatrix = new Matrix4f()
+            .rotate(cameraState.orientation)
+            .translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+
+        return new Matrix4f(projectionMatrix).mul(viewMatrix);
+    }
+
+    /**
      * Build the combined view-projection matrix from camera position/rotation + projection.
      */
     private static Matrix4f buildViewProj(Camera camera, Matrix4f projectionMatrix) {
@@ -106,7 +121,36 @@ public class GravitationalLensManager {
      * Collect up to {@code maxCount} on-screen holes from both black and white hole sets,
      * sorted nearest first. Black holes get {@code blackHoleDir} (positive=convex pull),
      * white holes get {@code whiteHoleDir} (negative=concave push).
+     * Uses CameraRenderState + projection matrix from the new rendering pipeline.
      */
+    public static List<HoleProjection> collectVisibleHoles(
+        CameraRenderState cameraState,
+        Matrix4fc projectionMatrix,
+        int maxCount,
+        float blackHoleDir,
+        float whiteHoleDir
+    ) {
+        List<HoleProjection> result = new ArrayList<>();
+
+        Matrix4f viewProj = buildViewProj(cameraState, projectionMatrix);
+        Vector3f cameraPos = cameraState.pos.toVector3f();
+
+        collectFromSet(CLIENT_BLACK_HOLE_POSITIONS, cameraPos, viewProj, blackHoleDir, result);
+        collectFromSet(CLIENT_WHITE_HOLE_POSITIONS, cameraPos, viewProj, whiteHoleDir, result);
+
+        // Sort nearest first, then take the closest maxCount
+        result.sort((a, b) -> Float.compare(a.cameraDistance, b.cameraDistance));
+        if (result.size() > maxCount) {
+            result = result.subList(0, maxCount);
+        }
+        return result;
+    }
+
+    /**
+     * Collect up to {@code maxCount} on-screen holes using Camera + projection matrix.
+     * @deprecated Prefer using {@link #collectVisibleHoles(CameraRenderState, Matrix4fc, int, float, float)}
+     */
+    @Deprecated
     public static List<HoleProjection> collectVisibleHoles(
         Camera camera,
         Matrix4f projectionMatrix,
@@ -159,30 +203,36 @@ public class GravitationalLensManager {
     // ---- UBO management ----
 
     /**
-     * Pre-allocated FloatBuffer for UBO upload (256 vec4s × 4 floats = 4096 bytes).
+     * Pre-allocated FloatBuffer for UBO upload.
+     * Layout: vec4 LensParams + 256 vec4 BlackHole = 257 × 4 floats = 4112 bytes.
      */
     private static final FloatBuffer LENS_UBO_BUF =
-        ByteBuffer.allocateDirect(256 * 4 * 4)
+        ByteBuffer.allocateDirect(257 * 4 * 4)
             .order(ByteOrder.nativeOrder()).asFloatBuffer();
     /**
      * UBO handle — created on first frame, reset on shader reload.
      */
     private static int lensUbo = 0;
-    /**
-     * Last program ID for which the UBO block index was bound.
-     */
-    private static int lensUboBlockBound = 0;
 
     /**
-     * Upload hole data to the UBO and bind it. Call each frame before running the lens post-chain.
+     * Upload hole data + lens params to the UBO and bind it.
+     * The shader uses {@code layout(std140, binding = 0)} so no programId is needed.
      *
-     * @param holes     collected hole projections (≤ 256)
-     * @param count     actual number of holes to write (remaining slots zeroed)
-     * @param programId the shader program ID, for one-time block-index binding
+     * @param holes              collected hole projections (≤ 256)
+     * @param count              actual number of holes
+     * @param lensStrength       lens distortion strength
+     * @param eventHorizonRadius event horizon radius in UV units
+     * @param perspectiveScale   perspective scaling reference distance
      */
-    public static void uploadLensUbo(List<HoleProjection> holes, int count, int programId) {
+    public static void uploadLensUbo(
+        List<HoleProjection> holes, int count,
+        float lensStrength, float eventHorizonRadius, float perspectiveScale
+    ) {
         FloatBuffer buf = LENS_UBO_BUF;
         buf.clear();
+        // First vec4: LensParams (count, lensStrength, eventHorizonRadius, perspectiveScale)
+        buf.put((float) count).put(lensStrength).put(eventHorizonRadius).put(perspectiveScale);
+        // Remaining 256 vec4s: BlackHole data
         for (int i = 0; i < 256; i++) {
             if (i < count) {
                 HoleProjection h = holes.get(i);
@@ -202,15 +252,18 @@ public class GravitationalLensManager {
             GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, 0, buf);
         }
         GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, 0, lensUbo);
+    }
 
-        // Bind UBO block "BlackHoles" to binding point 0 (once per shader load)
-        if (lensUboBlockBound != programId) {
-            int blockIndex = GL31.glGetUniformBlockIndex(programId, "BlackHoles");
-            if (blockIndex != GL31.GL_INVALID_INDEX) {
-                GL31.glUniformBlockBinding(programId, blockIndex, 0);
-            }
-            lensUboBlockBound = programId;
-        }
+    /**
+     * Upload hole data to the UBO and bind it. Call each frame before running the lens post-chain.
+     *
+     * @deprecated Use {@link #uploadLensUbo(List, int, float, float, float)} instead.
+     *             This overload is kept for reference compatibility only.
+     */
+    @Deprecated
+    public static void uploadLensUbo(List<HoleProjection> holes, int count, int programId) {
+        // Legacy: re-derive params from config (best effort)
+        uploadLensUbo(holes, count, 0.002f, 0.083f, 10.0f);
     }
 
     /**
@@ -221,6 +274,5 @@ public class GravitationalLensManager {
             GL15.glDeleteBuffers(lensUbo);
             lensUbo = 0;
         }
-        lensUboBlockBound = 0;
     }
 }
