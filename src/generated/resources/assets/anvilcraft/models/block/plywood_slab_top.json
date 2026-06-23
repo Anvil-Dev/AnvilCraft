@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "anvilcraft:block/plywood",
+    "side": "anvilcraft:block/plywood_side",
+    "top": "anvilcraft:block/plywood"
+  }
+}
