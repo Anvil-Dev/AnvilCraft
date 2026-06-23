@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
-import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
+import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import lombok.Getter;
@@ -193,8 +193,9 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
                 tx.commit();
             }
             ItemStack fuelStack = fuelResource.toStack(itemsToConsume);
-            if (fuelStack.getCraftingRemainder() != null && this.itemHandler.getResource(0).isEmpty()) {
-                ItemStack remainderStack = fuelStack.getCraftingRemainder().create();
+            var remainder = fuelStack.getCraftingRemainder();
+            if (remainder != null && this.itemHandler.getResource(0).isEmpty()) {
+                ItemStack remainderStack = remainder.create();
                 this.itemHandler.set(0,
                     ItemResource.of(remainderStack.getItem(), remainderStack.getComponentsPatch()),
                     remainderStack.getCount()
@@ -244,8 +245,9 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
             this.itemHandler.extract(0, fuelResource, itemsToConsume, tx);
             tx.commit();
         }
-        if (fuelResource.toStack().getCraftingRemainder() != null && this.itemHandler.getResource(0).isEmpty()) {
-            ItemStack remainderStack = fuelResource.toStack().getCraftingRemainder().create();
+        var remainder = fuelResource.toStack().getCraftingRemainder();
+        if (remainder != null && this.itemHandler.getResource(0).isEmpty()) {
+            ItemStack remainderStack = remainder.create();
             this.itemHandler.set(0,
                 ItemResource.of(remainderStack.getItem(), remainderStack.getComponentsPatch()),
                 remainderStack.getCount()

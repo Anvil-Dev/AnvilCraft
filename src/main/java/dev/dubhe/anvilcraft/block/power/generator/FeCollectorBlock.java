@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.power.generator;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;

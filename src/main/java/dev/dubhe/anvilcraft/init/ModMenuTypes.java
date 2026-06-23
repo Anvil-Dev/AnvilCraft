@@ -24,6 +24,8 @@ import dev.dubhe.anvilcraft.client.gui.screen.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.SmartBlockPlacerScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
@@ -50,6 +52,8 @@ import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
+import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
+import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
@@ -126,6 +130,14 @@ public class ModMenuTypes {
         .register();
     public static final MenuEntry<StructureToolMenu> STRUCTURE_TOOL = REGISTRUM
         .menu("structure_tool", StructureToolMenu::new, () -> StructureToolScreen::new)
+        .register();
+
+    public static final MenuEntry<SmartBlockPlacerMenu> SMART_BLOCK_PLACER = REGISTRUM
+        .menu("smart_block_placer", SmartBlockPlacerMenu::new, () -> SmartBlockPlacerScreen::new)
+        .register();
+
+    public static final MenuEntry<StructureScannerMenu> STRUCTURE_SCANNER = REGISTRUM
+        .menu("structure_scanner", StructureScannerMenu::new, () -> StructureScannerScreen::new)
         .register();
 
     public static final MenuEntry<JewelCraftingMenu> JEWEL_CRAFTING = REGISTRUM
