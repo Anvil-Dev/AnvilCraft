@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
+import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -45,5 +46,6 @@ public class ServerLifecycleEventListener {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
         SoundHelper.INSTANCE.clear();
+        StorageMenuState.clear();
     }
 }

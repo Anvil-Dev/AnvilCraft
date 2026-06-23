@@ -1,16 +1,20 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FluidHandlerRenderState;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
@@ -22,6 +26,15 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFluidHandlerHolder, S extends FluidHandlerRenderState>
     implements BlockEntityRenderer<B, S> {
+
+    private static final RenderType FLUID_RENDER_TYPE = RenderType.create(
+        AnvilCraft.of("fluid_tank").toString(),
+        RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
+            .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+            .useLightmap()
+            .sortOnUpload()
+            .createRenderSetup()
+    );
 
     protected abstract void updateTankW(
         B be,
@@ -59,17 +72,19 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         );
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
         int tintColor = model.fluidTintSource().colorAsStack(resource.toStack(1));
+        float minY = state.getMinY();
+        float maxY = minY + (state.getMaxY() - minY) * state.getFill();
         submitNodeCollector.submitCustomGeometry(
             poseStack,
-            RenderTypes.entityTranslucent(sprite.atlasLocation()),
+            FLUID_RENDER_TYPE,
             (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                 sprite,
                 resource,
                 state.getMinX(),
-                state.getMinY(),
+                minY,
                 state.getMinZ(),
                 state.getMaxX(),
-                state.getMaxY(),
+                maxY,
                 state.getMaxZ(),
                 tintColor,
                 buffer,
