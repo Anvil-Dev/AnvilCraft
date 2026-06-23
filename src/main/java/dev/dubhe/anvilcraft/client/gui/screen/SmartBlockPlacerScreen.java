@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.component.ToggleButton;
 import dev.dubhe.anvilcraft.client.gui.component.TriStateButton;
 import dev.dubhe.anvilcraft.constant.Constant;
@@ -828,7 +829,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.previewWindowY + this.previewWindowHeight,
             10,
             false,
-            false,
+            AnvilCraftClient.CONFIG.renderScanPreviewEffect,
             poseStack
         );
     }

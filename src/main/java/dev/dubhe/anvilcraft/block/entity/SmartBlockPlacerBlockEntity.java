@@ -82,6 +82,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -94,11 +95,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 @Getter
 @Setter
-
 public class SmartBlockPlacerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
@@ -179,8 +178,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     private boolean isSkipMissingMode = true;  // true=跳过缺少方块, false=停止在缺少方块
 
     // 已加载的原始结构数据(未旋转)
-    @Nullable
-    private StructureLoadUtil.StructureData loadedStructure = null;
+    private StructureLoadUtil.@Nullable StructureData loadedStructure = null;
     /**
      * -- GETTER --
      * 获取已加载的结构名称
@@ -601,8 +599,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     /**
      * 获取已加载的结构数据
      */
-    @Nullable
-    public StructureLoadUtil.StructureData getLoadedStructure() {
+    public StructureLoadUtil.@Nullable StructureData getLoadedStructure() {
         return this.loadedStructure;
     }
 

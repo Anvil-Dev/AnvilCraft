@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.client;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderDispatcher;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
+import dev.dubhe.anvilcraft.client.init.ModPostEffects;
 import dev.dubhe.anvilcraft.client.particle.IonoCraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
+import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
@@ -15,6 +18,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.particle.FlyTowardsPositionParticle;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
@@ -29,6 +33,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.jspecify.annotations.Nullable;
@@ -81,13 +86,34 @@ public class AnvilCraftClient {
     }
 
     @SubscribeEvent
+    public static void on(RenderLevelStageEvent.AfterLevel event) {
+        if (!RenderState.isLensEffectEnabled()) {
+            return;
+        }
+        RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
+        if (ModPostEffects.getGravitationalLensPostEffect() == null) {
+            return;
+        }
+        ModPostEffects.getGravitationalLensPostEffect().process(
+            mainTarget.getColorTextureView(),
+            mainTarget,
+            mainTarget.width,
+            mainTarget.height,
+            event.getLevelRenderState()
+        );
+    }
+
+    @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {
         e.registerSpriteSet(ModParticles.PLASMA_JETS.get(), PlasmaJetsParticle.Provider::new);
         e.registerSpriteSet(ModParticles.ANVILON_ENERGY.get(), FlyTowardsPositionParticle.EnchantProvider::new);
         e.registerSpriteSet(ModParticles.ANVILON_MASS.get(), FlyTowardsPositionParticle.EnchantProvider::new);
         e.registerSpriteSet(ModParticles.ANVILON_SPACE.get(), FlyTowardsPositionParticle.EnchantProvider::new);
         e.registerSpriteSet(ModParticles.ANVILON_TIME.get(), FlyTowardsPositionParticle.EnchantProvider::new);
-        e.registerSpriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), IonoCraftBackpackExhaustParticle.Provider::new);
+        e.registerSpriteSet(
+            ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(),
+            IonoCraftBackpackExhaustParticle.Provider::new
+        );
     }
 
     public static class ItemExtensionImpl implements IClientItemExtensions {

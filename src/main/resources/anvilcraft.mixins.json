@@ -92,6 +92,7 @@
     "ItemInHandRendererMixin",
     "ItemSubmitMixin",
     "MouseHandlerMixin",
+    "PostChainAccessor",
     "SectionCompilerMixin",
     "SoundEngineMixin",
     "SubmitNodeCollectionMixin",
