@@ -488,7 +488,7 @@ public class ModBlockEntities {
         .register();
 
     public static final BlockEntityEntry<LargeLaserBlockEntity> LARGE_LASER = REGISTRUM
-        .blockEntity("laser_laser", LargeLaserBlockEntity::new)
+        .blockEntity("large_laser", LargeLaserBlockEntity::new)
         .validBlock(ModBlocks.LARGE_LASER)
         .renderer(() -> LaserBlockRenderer::new)
         .register();
