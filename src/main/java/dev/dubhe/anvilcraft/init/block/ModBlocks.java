@@ -11,7 +11,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.block.InstructBlock;
+import dev.dubhe.anvilcraft.block.decoration.InstructBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
