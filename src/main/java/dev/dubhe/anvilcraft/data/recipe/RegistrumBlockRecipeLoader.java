@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.HolderGetter;
@@ -1746,28 +1747,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Block> void bronzeBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderGetter<Item> lookup = provider.getItems();
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItemTags.BRONZE_INGOTS)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRONZE_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.BRONZE_INGOTS))
-            .save(provider);
-    }
-
-    public static <T extends Block> void brassBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderGetter<Item> lookup = provider.getItems();
-        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
-            .pattern("AAA")
-            .pattern("AAA")
-            .pattern("AAA")
-            .define('A', ModItemTags.BRASS_INGOTS)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.BRASS_INGOTS), AnvilCraftDatagen.has(lookup, ModItemTags.BRASS_INGOTS))
-            .save(provider);
-    }
-
     public static <T extends Block> void topazBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get())
@@ -2320,6 +2299,14 @@ public class RegistrumBlockRecipeLoader {
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_pillar_from_cut_flint_block"));
     }
 
+    public static <T extends Block> void plywood(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ItemCompressRecipe.builder()
+            .requires(ModItems.WOOD_FIBER, 4)
+            .requires(ModItems.RESIN)
+            .result(ctx.get(), 16)
+            .save(provider);
+    }
+
     public static <T extends Block> void pulseGenerator(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get())
@@ -2356,7 +2343,7 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(lookup, Items.COPPER_INGOT))
             .save(provider, AnvilCraft.recipe("copper_pressure_plate_from_" + location1.getPath().replace('/', '_')));
     }
-    
+
     private static SingleItemRecipeBuilder stonecutting(Ingredient ingredient, ItemLike result) {
         return RegistrumBlockRecipeLoader.stonecutting(ingredient, result, 1);
     }
@@ -2367,5 +2354,21 @@ public class RegistrumBlockRecipeLoader {
 
     private static SingleItemRecipeBuilder stonecutting(Ingredient ingredient, RecipeCategory category, ItemLike result, int count) {
         return SingleItemRecipeBuilder.stonecutting(ingredient, category, result, count);
+    }
+
+    // ==== Pump Recipe ====
+
+    public static <T extends Block> void pump(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 2)
+            .pattern("PCP")
+            .pattern("P P")
+            .pattern("   ")
+            .define('P', Items.PISTON)
+            .define('C', ModItems.PIPE)
+            .group(ctx.getId().toString())
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.PISTON), AnvilCraftDatagen.has(lookup, Items.PISTON))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PIPE), AnvilCraftDatagen.has(lookup, ModItems.PIPE))
+            .save(provider);
     }
 }

@@ -18,6 +18,7 @@ import net.neoforged.fml.ModList;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Getter(AccessLevel.PROTECTED)
@@ -93,5 +94,16 @@ public class ModNameContents implements ComponentContents {
     @Override
     public MapCodec<? extends ComponentContents> codec() {
         return ModNameContents.CODEC;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ModNameContents that)) return false;
+        return Objects.equals(this.getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getId());
     }
 }

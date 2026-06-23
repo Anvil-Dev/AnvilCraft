@@ -243,5 +243,15 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks", "Structure contains multiblock blocks, cannot be recognized by Smart Block Placer");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.too_large", "Structure is too large to save");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.unknown_blocks", "Structure contains unknown blocks");
+
+        provider.add("screen.anvilcraft.storage.category.name", "Name: %s");
+        provider.add("screen.anvilcraft.storage.category.mode", "Mode: %s");
+        provider.add("screen.anvilcraft.storage.category.mode.unlimited", "Unlimited");
+        provider.add("screen.anvilcraft.storage.category.mode.allowlist", "Allow Display");
+        provider.add("screen.anvilcraft.storage.category.mode.blocklist", "Block Display");
+        provider.add("screen.anvilcraft.storage.category.tooltip", "Left click to move to alternates, right click to pin to top");
+        provider.add("screen.anvilcraft.storage.category.add", "Left click when holding Filter to add custom category");
+        provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to select, right click to delete this category");
+        provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to select");
     }
 }

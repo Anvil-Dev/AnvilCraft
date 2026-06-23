@@ -55,16 +55,12 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-        if (result == InteractionResult.PASS) {
-            if (level.getBlockEntity(pos) instanceof FluidTankBlockEntity tank) {
-                if (tank.onPlayerUse(player, hand)) {
-                    return InteractionResult.SUCCESS;
-                }
+        if (level.getBlockEntity(pos) instanceof FluidTankBlockEntity tank) {
+            if (tank.onPlayerUse(player, hand)) {
+                return InteractionResult.SUCCESS;
             }
-
         }
-        return InteractionResult.PASS;
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override

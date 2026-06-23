@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "type=neutron": {
       "model": "anvilcraft:block/neutron_irradiator"
+    },
+    "type=energy": {
+      "model": "anvilcraft:block/anvilon_irradiator_energy"
+    },
+    "type=space": {
+      "model": "anvilcraft:block/anvilon_irradiator_space"
+    },
+    "type=mass": {
+      "model": "anvilcraft:block/anvilon_irradiator_mass"
+    },
+    "type=time": {
+      "model": "anvilcraft:block/anvilon_irradiator_time"
     }
   }
 }

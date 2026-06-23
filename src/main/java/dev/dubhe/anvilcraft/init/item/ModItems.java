@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
+import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
@@ -1245,6 +1246,14 @@ public class ModItems {
         .tag(Tags.Items.BUCKETS)
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
+        .register();
+
+    // ==== Pipe & Pump ====
+
+    public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
+        .model(DataGenUtil::onlyInfo)
+        .recipe(RegistrumItemRecipeLoader::pipe)
+        .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
         .register();
 
     public static void register() {

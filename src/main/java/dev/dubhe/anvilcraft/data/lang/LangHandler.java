@@ -22,5 +22,6 @@ public class LangHandler {
         IntegrationScreenLang.init(provider);
         ScreenTooltipLang.init(provider);
         CategoryLang.init(provider);
+        BlockLang.init(provider);
     }
 }

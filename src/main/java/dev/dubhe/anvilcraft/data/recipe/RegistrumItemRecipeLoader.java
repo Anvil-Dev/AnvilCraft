@@ -1568,4 +1568,21 @@ public class RegistrumItemRecipeLoader {
                 .save(provider);
         };
     }
+
+    // ==== Pipe Recipe ====
+
+    public static <T extends Item> void pipe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 16)
+            .pattern(" B ")
+            .pattern("B B")
+            .pattern(" B ")
+            .define('B', ModBlocks.BRASS_PRESSURE_PLATE.asItem())
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE),
+                AnvilCraftDatagen.has(lookup, ModBlocks.BRASS_PRESSURE_PLATE)
+            )
+            .save(provider);
+    }
 }

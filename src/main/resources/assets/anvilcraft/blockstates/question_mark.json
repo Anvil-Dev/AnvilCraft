@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "anvilcraft:block/question_mark",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "anvilcraft:block/question_mark"
+    },
+    "facing=south": {
+      "model": "anvilcraft:block/question_mark",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "anvilcraft:block/question_mark",
+      "y": 270
+    }
+  }
+}
