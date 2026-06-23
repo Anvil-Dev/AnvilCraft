@@ -1,10 +1,11 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
-import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
+import dev.dubhe.anvilcraft.api.fluid.CapacityModifiableFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -33,16 +34,16 @@ import java.util.TreeSet;
  * 管道节点的 BlockEntity，持有内部 FluidTank（4 Bucket）并负责 per-tick 流体分发。
  * 按等效高度降序分发到各 PipeEnd。
  *
- * <p>26.1 版本使用 {@link FluidStackResourceHandler} 替代旧的 FluidTank。
+ * <p>26.1 版本使用 {@link CapacityModifiableFluidHandler} 替代旧的 FluidTank。
  */
-@Getter
 public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFluidHandlerHolder {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 4;
 
-    private final FluidStackResourceHandler fluidHandler = new FluidStackResourceHandler(PipeNodeBlockEntity.CAPACITY) {
+    @Getter(AccessLevel.NONE)
+    private final CapacityModifiableFluidHandler fluidHandler = new CapacityModifiableFluidHandler(1, PipeNodeBlockEntity.CAPACITY) {
         @Override
-        protected void onContentChanged(net.neoforged.neoforge.fluids.FluidStack stack) {
+        protected void onContentsChanged(int index, net.neoforged.neoforge.fluids.FluidStack stack) {
             PipeNodeBlockEntity.this.setChanged();
             PipeNodeBlockEntity.this.sendUpdate();
             PipeNodeBlockEntity.this.sendNeighbourUpdate();
