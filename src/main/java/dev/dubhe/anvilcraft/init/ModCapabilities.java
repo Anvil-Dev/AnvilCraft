@@ -65,6 +65,7 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FLUID_TANK.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.LARGE_FLUID_TANK.get(), ModCapabilities::fluid);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PIPE_NODE.get(), ModCapabilities::fluid);
 
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);
 

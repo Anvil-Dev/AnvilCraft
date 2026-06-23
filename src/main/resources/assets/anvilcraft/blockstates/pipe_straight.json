@@ -1,0 +1,148 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_straight",
+        "y": 90
+      },
+      "when": {
+        "axis": "x"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_straight",
+        "x": 90
+      },
+      "when": {
+        "axis": "y"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_straight"
+      },
+      "when": {
+        "axis": "z"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "y": 270
+      },
+      "when": {
+        "axis": "x",
+        "has_end_start": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "y": 90
+      },
+      "when": {
+        "axis": "x",
+        "has_end_end": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "y": 270
+      },
+      "when": {
+        "axis": "x",
+        "has_end_start": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "y": 90
+      },
+      "when": {
+        "axis": "x",
+        "has_end_end": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "x": 90
+      },
+      "when": {
+        "axis": "y",
+        "has_end_start": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "x": 270
+      },
+      "when": {
+        "axis": "y",
+        "has_end_end": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "x": 90
+      },
+      "when": {
+        "axis": "y",
+        "has_end_start": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "x": 270
+      },
+      "when": {
+        "axis": "y",
+        "has_end_end": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end"
+      },
+      "when": {
+        "axis": "z",
+        "has_end_start": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_no_end",
+        "y": 180
+      },
+      "when": {
+        "axis": "z",
+        "has_end_end": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end"
+      },
+      "when": {
+        "axis": "z",
+        "has_end_start": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/pipe_end",
+        "y": 180
+      },
+      "when": {
+        "axis": "z",
+        "has_end_end": "true"
+      }
+    }
+  ]
+}

@@ -2368,4 +2368,20 @@ public class RegistrumBlockRecipeLoader {
     private static SingleItemRecipeBuilder stonecutting(Ingredient ingredient, RecipeCategory category, ItemLike result, int count) {
         return SingleItemRecipeBuilder.stonecutting(ingredient, category, result, count);
     }
+
+    // ==== Pump Recipe ====
+
+    public static <T extends Block> void pump(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 2)
+            .pattern("PCP")
+            .pattern("P P")
+            .pattern("   ")
+            .define('P', Items.PISTON)
+            .define('C', ModItems.PIPE)
+            .group(ctx.getId().toString())
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.PISTON), AnvilCraftDatagen.has(lookup, Items.PISTON))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PIPE), AnvilCraftDatagen.has(lookup, ModItems.PIPE))
+            .save(provider);
+    }
 }

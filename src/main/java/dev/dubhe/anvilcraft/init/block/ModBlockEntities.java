@@ -56,6 +56,9 @@ import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.container.HyperdimensionStorageStationBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.container.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.container.ShulkerContainerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.IncandescentBlockEntity;
@@ -85,6 +88,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
@@ -430,6 +434,24 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<StructureScannerBlockEntity> STRUCTURE_SCANNER = REGISTRUM
         .blockEntity("structure_scanner", StructureScannerBlockEntity::new)
         .validBlock(ModBlocks.STRUCTURE_SCANNER)
+        .register();
+
+    // ==== Pipe & Pump ====
+
+    public static final BlockEntityEntry<PipeBlockEntity> PIPE = REGISTRUM
+        .blockEntity("pipe", PipeBlockEntity::create)
+        .validBlocks(ModBlocks.PIPE_STRAIGHT, ModBlocks.PIPE_CORNER)
+        .register();
+
+    public static final BlockEntityEntry<PipeNodeBlockEntity> PIPE_NODE = REGISTRUM
+        .blockEntity("pipe_node", PipeNodeBlockEntity::create)
+        .validBlock(ModBlocks.PIPE_NODE)
+        .register();
+
+    public static final BlockEntityEntry<PumpBlockEntity> PUMP = REGISTRUM
+        .blockEntity("pump", PumpBlockEntity::create)
+        .validBlock(ModBlocks.PUMP)
+        .renderer(() -> PumpBlockEntityRenderer::new)
         .register();
 
     public static void register() {

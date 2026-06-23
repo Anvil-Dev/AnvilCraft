@@ -57,6 +57,10 @@ import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronPlateBlock;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronTrapdoorBlock;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.fluid.ExpFluidBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
@@ -3748,6 +3752,42 @@ public class ModBlocks {
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
+        .register();
+
+    // ==== Pipe & Pump ====
+
+    public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM
+        .block("pipe_straight", PipeStraightBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM
+        .block("pipe_corner", PipeCornerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM
+        .block("pipe_node", PipeNodeBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PumpBlock> PUMP = REGISTRUM
+        .block("pump", PumpBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::pump)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static void register() {

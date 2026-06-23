@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.item;
 
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumItemModelGenerator;
+import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
@@ -1238,6 +1239,14 @@ public class ModItems {
         .tag(Tags.Items.BUCKETS)
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
+        .register();
+
+    // ==== Pipe & Pump ====
+
+    public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
+        .model(DataGenUtil::onlyInfo)
+        .recipe(RegistrumItemRecipeLoader::pipe)
+        .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
         .register();
 
     public static void register() {
