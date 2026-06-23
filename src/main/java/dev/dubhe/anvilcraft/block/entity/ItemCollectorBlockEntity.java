@@ -48,7 +48,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -127,7 +126,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @Override
     public int getInputPower() {
-        int power = getPowerConsumption();
+        int power = this.getPowerConsumption();
         if (level == null) return power;
         return getBlockState().getValue(ItemCollectorBlock.POWERED) ? 0 : power;
     }
