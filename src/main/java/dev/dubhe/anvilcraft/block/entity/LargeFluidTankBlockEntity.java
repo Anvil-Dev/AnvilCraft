@@ -17,10 +17,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -34,7 +34,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         @Override
         protected void onContentsChanged(int index, FluidStack stack) {
             setChanged();
-            sendUpdate();
+            LargeFluidTankBlockEntity.this.sendUpdate();
         }
     };
     protected boolean bigger = false;
