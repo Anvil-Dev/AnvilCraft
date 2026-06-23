@@ -97,9 +97,9 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, E
                 Supplier<SimpleParticleType> particle = NeutronIrradiatorBlockEntity.PARTICLE_TYPE_MAP.get(block);
                 if (particle == null) continue;
                 level.addParticle(particle.get(),
-                    pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5,
+                    pos.getX() + 0.5, pos.getY() + 1.8, pos.getZ() + 0.5,
                     i + 0.3 * (random.nextDouble() - 0.5),
-                    -0.5 + 0.3 * (random.nextDouble() - 0.5),
+                    -0.6 + 0.3 * (random.nextDouble() - 0.5),
                     j + 0.3 * (random.nextDouble() - 0.5));
 
             }
