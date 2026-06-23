@@ -156,8 +156,7 @@ public class ItemCrushRecipeLoader {
             .result(result, 0.5F)
             .save(
                 provider,
-                AnvilCraft.of("item_crush/tool/%s_2_%s".formatted(RecipeLoaderUtil.getName(tool), RecipeLoaderUtil.getName(result)))
-            );
+                AnvilCraft.of("item_crush/tool/%s_2_%s".formatted(RecipeLoaderUtil.getName(tool), RecipeLoaderUtil.getName(result))));
     }
 
     private static void blockCrush(RegistrumRecipeProvider provider, ItemLike input, ItemLike result) {

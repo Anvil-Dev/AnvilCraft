@@ -81,6 +81,7 @@ public final class PlanetResourceGenerator {
                 case WASTELAND -> {
                     if (wastelandRecipe == null) wastelandRecipe = recipe;
                 }
+                default -> {}
             }
         }
 
@@ -266,7 +267,9 @@ public final class PlanetResourceGenerator {
             EntityType<?> entityType = holder.value();
             var cat = entityType.getCategory();
             boolean matches = isHighCoverage
-                              ? cat == MobCategory.WATER_CREATURE || cat == MobCategory.WATER_AMBIENT || cat == MobCategory.UNDERGROUND_WATER_CREATURE
+                              ? cat == MobCategory.WATER_CREATURE
+                                || cat == MobCategory.WATER_AMBIENT
+                                || cat == MobCategory.UNDERGROUND_WATER_CREATURE
                               : cat == MobCategory.CREATURE;
             if (matches) {
                 collectEntityDropFrequencies(entityType, level, random, dropFrequencies, blacklist);

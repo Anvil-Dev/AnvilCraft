@@ -59,5 +59,9 @@ public class OtherLang {
 
         provider.add("item.anvilcraft.pill.tooltip",
             "Pills made together with potion to achieve corresponding effects, can be taken quickly");
+
+        provider.add("block.anvilcraft.infinite_collector.placement_too_close_to_another", "Too close to another Infinite Collector");
+        provider.add("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner",
+            "Must be placed on the corner of a Celestial Forging Anvil");
     }
 }

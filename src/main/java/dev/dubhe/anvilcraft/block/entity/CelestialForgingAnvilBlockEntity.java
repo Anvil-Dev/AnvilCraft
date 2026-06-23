@@ -226,7 +226,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * Whether the stellar evolution accelerator is active (any stage 1-4).
      */
     public boolean isAcceleratorActive() {
-        return megastructureManager.getAcceleratorHandler().isActive();
+        return this.megastructureManager.getAcceleratorHandler().isActive();
     }
 
     public CelestialForgingAnvilBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
