@@ -144,7 +144,7 @@ public class PipeNodeBlock extends PipeBlock {
      * 评估指定方向邻居的连接状态。
      * <ul>
      *   <li>邻居是管道且对准本节点 → {@link NodePipe#PIPE}</li>
-     *   <li>邻居是 IFluidHandler → {@link NodePipe#END}</li>
+     *   <li>邻居是 IFluidHandler 或 PumpBlock → {@link NodePipe#END}</li>
      *   <li>其他 → {@link NodePipe#NONE}</li>
      * </ul>
      *
@@ -159,7 +159,7 @@ public class PipeNodeBlock extends PipeBlock {
         if (neighborState.getBlock() instanceof PipeBlock && hasConnectionToward(neighborState, dir.getOpposite())) {
             return NodePipe.PIPE;
         }
-        if (isFluidHandler(level, neighborPos)) {
+        if (isFluidHandler(level, neighborPos) || neighborState.getBlock() instanceof PumpBlock) {
             return NodePipe.END;
         }
         return NodePipe.NONE;

@@ -152,10 +152,11 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsI
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
-import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
@@ -208,6 +209,7 @@ import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.FragmentationDegree;
+import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.generator.PipeBlockStateGenerator;
@@ -216,6 +218,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.util.DangerUtil;
@@ -276,10 +279,7 @@ import static dev.dubhe.anvilcraft.AnvilCraft.of;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
-@SuppressWarnings({
-    "unused",
-    "CodeBlock2Expr"
-})
+@SuppressWarnings({"unused", "CodeBlock2Expr"})
 public class ModBlocks {
     static {
         REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
@@ -998,9 +998,9 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
                 Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-                boolean upsideDown = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
-                boolean powered = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.POWERED);
-                boolean overload = state.getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.OVERLOAD);
+                boolean upsideDown = state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+                boolean powered = state.getValue(SmartBlockPlacerBlock.POWERED);
+                boolean overload = state.getValue(SmartBlockPlacerBlock.OVERLOAD);
 
                 // 根据状态选择模型
                 String modelName;
@@ -1026,7 +1026,7 @@ public class ModBlocks {
                     rotation = (rotation + 180) % 360;
                 }
 
-                return net.neoforged.neoforge.client.model.generators.ConfiguredModel.builder()
+                return ConfiguredModel.builder()
                     .modelFile(model)
                     .rotationX(upsideDown ? 180 : 0)
                     .rotationY(rotation)
@@ -1532,9 +1532,10 @@ public class ModBlocks {
         .loot((tables, block) -> {
             // Generate empty loot table (rolls=0) so datagen doesn't break.
             // Actual drop (with NBT) is handled manually in onRemove.
-            tables.add(block, LootTable.lootTable()
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(0.0f))));
+            tables.add(
+                block,
+                LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(0.0f)))
+            );
         })
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)
@@ -3875,7 +3876,7 @@ public class ModBlocks {
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL, ModBlockTags.COLLISION_IMMUNE)
-        .item(dev.dubhe.anvilcraft.item.SingularityCrystalItem::new)
+        .item(SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -4201,6 +4202,38 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeNodeBlock)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PumpBlock> PUMP = REGISTRUM.block("pump", PumpBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate((ctx, provider) -> {
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                boolean powered = state.getValue(PumpBlock.POWERED);
+                boolean overload = state.getValue(PumpBlock.OVERLOAD);
+                Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
+
+                String modelName;
+                if (overload) {
+                    modelName = "block/pump_overload";
+                } else if (powered) {
+                    modelName = "block/pump_off";
+                } else {
+                    modelName = "block/pump_base";
+                }
+
+                var model = provider.models().getExistingFile(AnvilCraft.of(modelName));
+
+                return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX((int) -orientation.getXRotation())
+                    .rotationY((int) orientation.getYRotation())
+                    .build();
+            });
+        })
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::pump)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

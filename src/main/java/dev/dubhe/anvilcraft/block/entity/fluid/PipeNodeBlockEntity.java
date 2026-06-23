@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -80,16 +81,12 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         if (!tankNbt.isEmpty()) {
             tag.put("Fluid", tankNbt);
         }
-        if (this.heightBonus != 0) {
-            tag.putInt("HeightBonus", this.heightBonus);
-        }
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.fluidHandler.readFromNBT(registries, tag.getCompound("Fluid"));
-        this.heightBonus = tag.getInt("HeightBonus");
     }
 
     @Override
@@ -98,9 +95,6 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
         CompoundTag tankNbt = this.fluidHandler.writeToNBT(registries, new CompoundTag());
         if (!tankNbt.isEmpty()) {
             tag.put("Fluid", tankNbt);
-        }
-        if (this.heightBonus != 0) {
-            tag.putInt("HeightBonus", this.heightBonus);
         }
         return tag;
     }
@@ -128,15 +122,57 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
             PipeBlock.NodePipe value = state.getValue(property);
 
-            // END + UP：向上方排液
+            // END + UP：向上方排液（若端头指向泵则透传追踪）
             if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.UP)) {
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                    level, pos, Direction.UP, pos.relative(Direction.UP), Direction.DOWN);
+                BlockPos neighborPos = pos.relative(Direction.UP);
+                if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
+                    PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.UP);
+                    if (pumpEnd != null) {
+                        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                            level,
+                            pos,
+                            Direction.UP,
+                            pumpEnd.pos(),
+                            pumpEnd.direction(),
+                            pumpEnd.effectiveHeight()
+                        );
+                    }
+                } else {
+                    AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                        level,
+                        pos,
+                        Direction.UP,
+                        pos.relative(Direction.UP),
+                        Direction.DOWN,
+                        0
+                    );
+                }
             }
-            // END + DOWN：向下方排液
+            // END + DOWN：向下方排液（若端头指向泵则透传追踪）
             if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.DOWN)) {
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                    level, pos.relative(Direction.DOWN), Direction.UP, pos, Direction.DOWN);
+                BlockPos neighborPos = pos.relative(Direction.DOWN);
+                if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
+                    PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.DOWN);
+                    if (pumpEnd != null) {
+                        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                            level,
+                            pos.relative(Direction.DOWN),
+                            Direction.UP,
+                            pumpEnd.pos(),
+                            pumpEnd.direction(),
+                            pumpEnd.effectiveHeight()
+                        );
+                    }
+                } else {
+                    AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+                        level,
+                        pos.relative(Direction.DOWN),
+                        Direction.UP,
+                        pos,
+                        Direction.DOWN,
+                        0
+                    );
+                }
             }
 
             if (!value.equals(PipeBlock.NodePipe.PIPE)) {
@@ -148,7 +184,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             if (pipeEnd == null) {
                 continue;
             }
-            pipeEnds.add(new EndAndDirection(pipeEnd, direction));
+            pipeEnds.add(new EndAndDirection(pipeEnd, direction, pipeEnd.effectiveHeight()));
         }
 
         if (pipeEnds.isEmpty()) {
@@ -162,7 +198,8 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
                 pos.relative(endAndDirection.direction()),
                 endAndDirection.direction().getOpposite(),
                 endAndDirection.end().pos(),
-                endAndDirection.end().direction()
+                endAndDirection.end().direction(),
+                endAndDirection.effectiveHeight()
             );
         }
     }
@@ -170,6 +207,6 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
     /**
      * PipeEnd + 方向对
      */
-    record EndAndDirection(PipeEnd end, Direction direction) {
+    record EndAndDirection(PipeEnd end, Direction direction, int effectiveHeight) {
     }
 }

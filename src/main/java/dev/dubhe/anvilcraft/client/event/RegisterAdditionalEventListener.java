@@ -71,6 +71,8 @@ public class RegisterAdditionalEventListener {
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_forearm")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_claw")));
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/smart_block_placer_claw_open")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/pump_piston_1")));
+        event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/pump_piston_2")));
 
         // Special celestial body models
         event.register(ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/planet_overworld")));

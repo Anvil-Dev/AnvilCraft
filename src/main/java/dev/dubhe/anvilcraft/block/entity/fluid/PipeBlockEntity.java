@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -61,24 +62,16 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        if (this.heightBonus != 0) {
-            tag.putInt("HeightBonus", this.heightBonus);
-        }
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.heightBonus = tag.getInt("HeightBonus");
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        if (this.heightBonus != 0) {
-            tag.putInt("HeightBonus", this.heightBonus);
-        }
-        return tag;
+        return super.getUpdateTag(registries);
     }
 
     @Override
@@ -91,8 +84,9 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
     /**
      * Per-tick 排液逻辑。
      *
-     * <p>仅当有端头时才执行。两端端头且非垂直/非垂直弯管时跳过（避免水平管误排）。
-     * 单端端头时沿无端头端追踪 PipeEnd 并向其排液。
+     * <p>仅当有端头时才执行。两端端头时按管轴方向排液，
+     * 端头指向泵时自动透传追踪（不提前返回）。
+     * 单端端头时沿无端头方向追踪 PipeEnd 并向其排液。
      */
     public static void tick(Level level, BlockPos pos, BlockState state) {
         int endCount = getEndCount(state);
@@ -102,34 +96,24 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
 
         boolean isStraight = state.getBlock() instanceof PipeStraightBlock;
 
-        // 两端端头 + 水平直管 → 跳过
-        if (endCount == 2 && isStraight && !Direction.Axis.Y.equals(state.getValue(PipeStraightBlock.AXIS))) {
-            return;
-        }
-
-        // 两端端头 + 水平弯管（不涉及 Y 轴）→ 跳过
-        if (
-            endCount == 2 && !isStraight
-            && !state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.DOWN)
-            && !state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.UP)
-        ) {
-            return;
-        }
-
         if (endCount == 2) {
-            // 两端端头 → 同柱/同管排液
+            // 两端端头 → 按管轴方向排液，检查端头是否指向泵
             if (isStraight) {
-                // 垂直直管：上端 → 下端
-                AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, Direction.UP, pos, Direction.DOWN);
+                Direction.Axis axis = state.getValue(PipeStraightBlock.AXIS);
+                Direction posDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+                Direction negDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+
+                // 检查端头指向的方块是否是泵，若是则透传追踪
+                tickEndCount2(level, pos, posDir, negDir);
+                tickEndCount2(level, pos, negDir, posDir);
             } else {
-                // 垂直弯管：垂直端 → 水平端（或反向）
-                if (state.getValue(PipeCornerBlock.CORNER_ENDED).getFirstDirection().equals(Direction.DOWN)) {
-                    PipeBlock.CornerEnded cornerEnded = state.getValue(PipeCornerBlock.CORNER_ENDED);
-                    AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, cornerEnded.getSecondDirection(), pos, Direction.DOWN);
-                } else {
-                    PipeBlock.CornerEnded cornerEnded = state.getValue(PipeCornerBlock.CORNER_ENDED);
-                    AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, Direction.UP, pos, cornerEnded.getSecondDirection());
-                }
+                // 弯管两端端头
+                PipeBlock.CornerEnded cornerEnded = state.getValue(PipeCornerBlock.CORNER_ENDED);
+                Direction firstDir = cornerEnded.getFirstDirection();
+                Direction secondDir = cornerEnded.getSecondDirection();
+
+                tickEndCount2(level, pos, firstDir, secondDir);
+                tickEndCount2(level, pos, secondDir, firstDir);
             }
             return;
         }
@@ -156,6 +140,43 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
         if (pipeEnd == null) {
             return;
         }
-        AbstractPipeBlockEntity.moveFluidWithHeightCheck(level, pos, sourceDirection, pipeEnd.pos(), pipeEnd.direction());
+        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+            level,
+            pos,
+            sourceDirection,
+            pipeEnd.pos(),
+            pipeEnd.direction(),
+            pipeEnd.effectiveHeight()
+        );
+    }
+
+    private static void tickEndCount2(Level level, BlockPos pos, Direction posDir, Direction negDir) {
+        BlockPos targetCurPos = pos;
+        Direction targetCurDir = negDir;
+        int effectiveHeight = 0;
+
+        BlockPos sourceNeighbor = pos.relative(posDir);
+        if (level.getBlockState(sourceNeighbor).getBlock() instanceof PumpBlock) {
+            return;
+        }
+
+        BlockPos targetNeighbor = pos.relative(negDir);
+        if (level.getBlockState(targetNeighbor).getBlock() instanceof PumpBlock) {
+            PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, negDir.getOpposite());
+            if (pumpEnd != null) {
+                targetCurPos = pumpEnd.pos();
+                targetCurDir = pumpEnd.direction();
+                effectiveHeight = pumpEnd.effectiveHeight();
+            }
+        }
+
+        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
+            level,
+            pos,
+            posDir,
+            targetCurPos,
+            targetCurDir,
+            effectiveHeight
+        );
     }
 }

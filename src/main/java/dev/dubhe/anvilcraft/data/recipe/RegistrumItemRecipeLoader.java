@@ -1365,4 +1365,5 @@ public class RegistrumItemRecipeLoader {
             )
             .save(provider);
     }
+
 }

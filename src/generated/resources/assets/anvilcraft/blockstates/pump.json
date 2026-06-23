@@ -1,0 +1,216 @@
+{
+  "variants": {
+    "orientation=down_east,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "x": -90,
+      "y": -90
+    },
+    "orientation=down_east,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "x": -90,
+      "y": -90
+    },
+    "orientation=down_east,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": -90,
+      "y": -90
+    },
+    "orientation=down_east,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": -90,
+      "y": -90
+    },
+    "orientation=down_north,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "x": -90,
+      "y": 180
+    },
+    "orientation=down_north,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "x": -90,
+      "y": 180
+    },
+    "orientation=down_north,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": -90,
+      "y": 180
+    },
+    "orientation=down_north,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": -90,
+      "y": 180
+    },
+    "orientation=down_south,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "x": -90
+    },
+    "orientation=down_south,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "x": -90
+    },
+    "orientation=down_south,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": -90
+    },
+    "orientation=down_south,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": -90
+    },
+    "orientation=down_west,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "x": -90,
+      "y": 90
+    },
+    "orientation=down_west,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "x": -90,
+      "y": 90
+    },
+    "orientation=down_west,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": -90,
+      "y": 90
+    },
+    "orientation=down_west,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": -90,
+      "y": 90
+    },
+    "orientation=east_up,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "y": -90
+    },
+    "orientation=east_up,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "y": -90
+    },
+    "orientation=east_up,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "y": -90
+    },
+    "orientation=east_up,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "y": -90
+    },
+    "orientation=north_up,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "y": 180
+    },
+    "orientation=north_up,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "y": 180
+    },
+    "orientation=north_up,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "y": 180
+    },
+    "orientation=north_up,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "y": 180
+    },
+    "orientation=south_up,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base"
+    },
+    "orientation=south_up,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off"
+    },
+    "orientation=south_up,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload"
+    },
+    "orientation=south_up,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload"
+    },
+    "orientation=up_east,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "x": 90,
+      "y": -90
+    },
+    "orientation=up_east,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "x": 90,
+      "y": -90
+    },
+    "orientation=up_east,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": 90,
+      "y": -90
+    },
+    "orientation=up_east,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": 90,
+      "y": -90
+    },
+    "orientation=up_north,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_north,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_north,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_north,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": 90,
+      "y": 180
+    },
+    "orientation=up_south,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "x": 90
+    },
+    "orientation=up_south,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "x": 90
+    },
+    "orientation=up_south,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": 90
+    },
+    "orientation=up_south,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": 90
+    },
+    "orientation=up_west,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=up_west,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=up_west,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=up_west,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "x": 90,
+      "y": 90
+    },
+    "orientation=west_up,overload=false,powered=false": {
+      "model": "anvilcraft:block/pump_base",
+      "y": 90
+    },
+    "orientation=west_up,overload=false,powered=true": {
+      "model": "anvilcraft:block/pump_off",
+      "y": 90
+    },
+    "orientation=west_up,overload=true,powered=false": {
+      "model": "anvilcraft:block/pump_overload",
+      "y": 90
+    },
+    "orientation=west_up,overload=true,powered=true": {
+      "model": "anvilcraft:block/pump_overload",
+      "y": 90
+    }
+  }
+}

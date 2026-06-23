@@ -2140,4 +2140,23 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
             .save(provider);
     }
+
+    public static <T extends Block> void pump(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get().asItem(), 2)
+            .pattern("PCP")
+            .pattern("P P")
+            .pattern("   ")
+            .define('P', Blocks.PISTON)
+            .define('C', ModBlocks.PIPE_STRAIGHT.asItem())
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Blocks.PISTON.asItem()),
+                RegistrumRecipeProvider.has(Blocks.PISTON)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.PIPE_STRAIGHT.asItem()),
+                RegistrumRecipeProvider.has(ModBlocks.PIPE_STRAIGHT)
+            )
+            .save(provider);
+    }
 }
