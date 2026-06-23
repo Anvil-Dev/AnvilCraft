@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:item_compress",
+  "ingredients": [
+    {
+      "count": 4,
+      "items": "anvilcraft:wood_fiber"
+    },
+    {
+      "items": "anvilcraft:resin"
+    }
+  ],
+  "results": [
+    {
+      "count": 16,
+      "id": "anvilcraft:plywood"
+    }
+  ]
+}

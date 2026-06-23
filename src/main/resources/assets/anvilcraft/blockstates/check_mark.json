@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "anvilcraft:block/check_mark",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "anvilcraft:block/check_mark"
+    },
+    "facing=south": {
+      "model": "anvilcraft:block/check_mark",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "anvilcraft:block/check_mark",
+      "y": 270
+    }
+  }
+}
