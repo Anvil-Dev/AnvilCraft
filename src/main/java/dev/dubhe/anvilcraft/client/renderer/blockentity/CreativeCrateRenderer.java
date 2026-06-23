@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CreativeCrateRenderState;
-import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -13,6 +12,7 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -40,7 +40,11 @@ public class CreativeCrateRenderer implements BlockEntityRenderer<CreativeCrateB
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         ItemStack stack = be.getDisplayStack();
         if (!stack.isEmpty()) {
-            state.setItem(FeatureRendererSupport.initialize(stack, this.resolver));
+            ItemClusterRenderState cluster = new ItemClusterRenderState();
+            cluster.seed = ItemClusterRenderState.getSeedForItemStack(stack);
+            this.resolver.updateForTopItem(cluster.item, stack, ItemDisplayContext.FIXED, null, null, cluster.seed);
+            cluster.count = ItemClusterRenderState.getRenderedAmount(stack.getCount());
+            state.setItem(cluster);
         }
     }
 
@@ -55,38 +59,33 @@ public class CreativeCrateRenderer implements BlockEntityRenderer<CreativeCrateB
         if (cluster == null) return;
         int light = state.lightCoords;
 
-        // Render item on all 6 sides
+        // 在六个面的近表面渲染物品，参考 1.21.1 的渲染位置
         for (int side = 0; side < 6; side++) {
             poseStack.pushPose();
-            poseStack.translate(0.5, 0.5, 0.5);
-            float scale = 0.8f;
-            poseStack.scale(scale, scale, scale);
             switch (side) {
-                case 0 -> { // +Z (south)
-                    poseStack.translate(0, 0, 0.5);
-                }
-                case 1 -> { // -Z (north)
-                    poseStack.translate(0, 0, -0.5);
+                case 0 -> poseStack.translate(0.5, 0.5, 0.9);
+                case 1 -> {
+                    poseStack.translate(0.5, 0.5, 0.1);
                     poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 }
-                case 2 -> { // +X (east)
-                    poseStack.translate(0.5, 0, 0);
+                case 2 -> {
+                    poseStack.translate(0.9, 0.5, 0.5);
                     poseStack.mulPose(Axis.YP.rotationDegrees(90));
                 }
-                case 3 -> { // -X (west)
-                    poseStack.translate(-0.5, 0, 0);
-                    poseStack.mulPose(Axis.YP.rotationDegrees(90));
+                case 3 -> {
+                    poseStack.translate(0.1, 0.5, 0.5);
+                    poseStack.mulPose(Axis.YP.rotationDegrees(270));
                 }
-                case 4 -> { // +Y (top)
-                    poseStack.translate(0, 0.5, 0);
+                case 4 -> {
+                    poseStack.translate(0.5, 0.9, 0.5);
                     poseStack.mulPose(Axis.XP.rotationDegrees(90));
                 }
-                case 5 -> { // -Y (bottom)
-                    poseStack.translate(0, -0.5, 0);
-                    poseStack.mulPose(Axis.XP.rotationDegrees(90));
+                case 5 -> {
+                    poseStack.translate(0.5, 0.1, 0.5);
+                    poseStack.mulPose(Axis.XP.rotationDegrees(270));
                 }
                 default -> {
-                    // Should not happen
+                    // This should never happen as side is always 0-5
                 }
             }
             cluster.item.submit(poseStack, submitNodeCollector, light, OverlayTexture.NO_OVERLAY, 0);

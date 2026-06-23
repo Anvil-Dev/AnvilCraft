@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,7 +38,8 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        input.read("item", ItemStack.CODEC).ifPresent(this.itemHandler::setStack);
+        this.itemHandler.setStack(
+            input.read("item", ItemStack.CODEC).orElse(ItemStack.EMPTY));
     }
 
     @Override
@@ -59,6 +61,16 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
         return this.itemHandler;
     }
 
+    private void sendUpdate() {
+        if (this.level == null) return;
+        this.level.sendBlockUpdated(
+            this.getBlockPos(),
+            this.getBlockState(),
+            this.getBlockState(),
+            Block.UPDATE_CLIENTS
+        );
+    }
+
     /**
      * 获取当前显示的物品（用于渲染器）
      */
@@ -74,6 +86,7 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
                     player.getInventory().placeItemBackInInventory(this.itemHandler.getStack());
                     this.itemHandler.setStack(ItemStack.EMPTY);
                     setChanged();
+                    this.sendUpdate();
                 }
                 return true;
             }
@@ -82,6 +95,7 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
         if (!player.level().isClientSide()) {
             this.itemHandler.setStack(held.copyWithCount(1));
             setChanged();
+            this.sendUpdate();
         }
         return true;
     }
