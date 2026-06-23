@@ -107,9 +107,10 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
     protected void extractEnchantmentSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
         if (this.menu.getEnchantments().isEmpty()) return;
-        for (int i = this.head; i < this.head + Math.min(this.menu.getEnchantments().size() - this.head, 6); i++) {
-            int x = this.leftPos + 65 + 18 * (i % 3);
-            int y = this.topPos + 23 + 18 * ((i - this.head) / 3);
+        int areaSize = this.scrollable.column() * this.scrollable.row();
+        for (int i = this.head; i < this.head + Math.min(this.menu.getEnchantments().size() - this.head, areaSize); i++) {
+            int x = this.leftPos + 65 + 18 * (i % this.scrollable.column());
+            int y = this.topPos + 23 + 18 * ((i - this.head) / this.scrollable.column());
 
             EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), i).orElse(null);
             if (data == null) continue;

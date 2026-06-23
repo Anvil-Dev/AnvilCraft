@@ -173,6 +173,10 @@ public class UnlimitedItemStack implements ItemInstance, MutableDataComponentHol
         return this.getItem().getMaxStackSize(this.toStack());
     }
 
+    public boolean isStackable() {
+        return this.getMaxStackSize() > 1 && (!this.stack.isDamageableItem() || !this.stack.isDamaged());
+    }
+
     public UnlimitedItemStack copy() {
         return new UnlimitedItemStack(this.stack, this.count);
     }

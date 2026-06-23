@@ -48,7 +48,9 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
+import dev.dubhe.anvilcraft.mixin.invoker.BaseMappedRegistryInvoker;
 import lombok.Getter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -174,6 +176,7 @@ public class AnvilCraft {
                 CONFIG.emberAnvilBeyondMaxLevel = true;
                 CONFIG.transcendenceAnvilBeyondMaxLevel = true;
             }
+            Util.<BaseMappedRegistryInvoker>cast(BuiltInRegistries.DATA_COMPONENT_PREDICATE_TYPE).invokeSetSync(true);
         });
     }
 }

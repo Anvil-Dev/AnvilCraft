@@ -362,9 +362,9 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             int scrollY = (int) (posY + (scrollOff / (float) totalCount) * SCROLL_BAR_HEIGHT);
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
-            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SMALL_SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SMALL_MACHINE_SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
         } else {
-            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SMALL_SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SMALL_MACHINE_SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
         }
     }
 

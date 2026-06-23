@@ -1,0 +1,38 @@
+{
+  "variants": {
+    "facing=east,upside_down=false": {
+      "model": "anvilcraft:block/structure_scanner",
+      "y": 90
+    },
+    "facing=east,upside_down=true": {
+      "model": "anvilcraft:block/structure_scanner",
+      "x": 180,
+      "y": 270
+    },
+    "facing=north,upside_down=false": {
+      "model": "anvilcraft:block/structure_scanner"
+    },
+    "facing=north,upside_down=true": {
+      "model": "anvilcraft:block/structure_scanner",
+      "x": 180,
+      "y": 180
+    },
+    "facing=south,upside_down=false": {
+      "model": "anvilcraft:block/structure_scanner",
+      "y": 180
+    },
+    "facing=south,upside_down=true": {
+      "model": "anvilcraft:block/structure_scanner",
+      "x": 180
+    },
+    "facing=west,upside_down=false": {
+      "model": "anvilcraft:block/structure_scanner",
+      "y": 270
+    },
+    "facing=west,upside_down=true": {
+      "model": "anvilcraft:block/structure_scanner",
+      "x": 180,
+      "y": 90
+    }
+  }
+}

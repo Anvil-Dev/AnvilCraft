@@ -530,6 +530,18 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void structureDisk(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
+            .requires(ModItems.DISK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DISK), AnvilCraftDatagen.has(lookup, ModItems.DISK))
+            .save(provider);
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ModItems.DISK.get())
+            .requires(ctx.get())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(lookup, ctx.get()))
+            .save(provider, AnvilCraft.recipe("disk_from_structure_disk"));
+    }
+
     public static <T extends Item> void filter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
@@ -1555,5 +1567,22 @@ public class RegistrumItemRecipeLoader {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ingredient), AnvilCraftDatagen.has(lookup, ingredient))
                 .save(provider);
         };
+    }
+
+    // ==== Pipe Recipe ====
+
+    public static <T extends Item> void pipe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 16)
+            .pattern(" B ")
+            .pattern("B B")
+            .pattern(" B ")
+            .define('B', ModBlocks.BRASS_PRESSURE_PLATE.asItem())
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE),
+                AnvilCraftDatagen.has(lookup, ModBlocks.BRASS_PRESSURE_PLATE)
+            )
+            .save(provider);
     }
 }

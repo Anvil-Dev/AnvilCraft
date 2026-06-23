@@ -28,5 +28,7 @@ public class ToolPropertyLang {
         provider.add("tooltip.anvilcraft.property.devour_range.range_5", "5x5");
         provider.add("tooltip.anvilcraft.property.devour_range.range_7", "7x7");
         provider.add("tooltip.anvilcraft.property.devour_range.range_9", "9x9");
+        provider.add("tooltip.anvilcraft.property.storage.id", "Storage ID: %s");
+        provider.add("tooltip.anvilcraft.property.storage.id.null", "None yet, will create when placing");
     }
 }

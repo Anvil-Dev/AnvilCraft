@@ -11,14 +11,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Matrix4f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FeatureRendererSupport {
+    private static final Logger LOGGER = LoggerFactory.getLogger("anvilcraft:FeatureRendererSupport");
+
     public static BlockModelRenderState initialize(StandaloneModelKey<BlockStateModel> standalone, BlockEntity be) {
         BlockModelRenderState state = new BlockModelRenderState();
         Minecraft mc = Minecraft.getInstance();
         BlockStateModel model = mc.getModelManager().getStandaloneModel(standalone);
         if (model == null) {
-            // Model JSON not yet added — return empty state to avoid NPE
+            LOGGER.warn("Standalone model '{}' is null, returning empty render state", standalone);
             return state;
         }
         model.collectParts(

@@ -215,7 +215,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter.missing_tools", "Add Frost Metal weapons or tools or Ember Metal weapons or tools");
         provider.add("screen.anvilcraft.frost_smithing.multiphase_matter_block.missing_tools", "Add Frost workstations or Ember workstations");
 
-        // Celestial Forging Anvil (所有冒号后面都要带空格，中文也是！)
+        // Celestial Forging Anvil (所有冒号后面都要带空格)
         provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil"); // 锻星砧
         provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter"); // 天体参数
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock"); // 点击锁定
@@ -416,5 +416,43 @@ public class ScreenLang {
 
         // Portal placement messages
         provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers"); // 传送门只能放置在锻星砧侧面的中心位置
+        // Smart Block Placer
+        provider.add("screen.anvilcraft.smart_block_placer.book_slot", "Book Slot: Place book in blueprint mode");
+        provider.add("screen.anvilcraft.smart_block_placer.disk_slot", "Disk Slot: Place Disk and enable blueprint mode");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.1", "Layer 1");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.2", "Layer 2");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.3", "Layer 3");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.4", "Layer 4");
+        provider.add("screen.anvilcraft.smart_block_placer.layer.5", "Layer 5");
+        provider.add("screen.anvilcraft.smart_block_placer.layer_mode.all", "Show All Layers");
+        provider.add("screen.anvilcraft.smart_block_placer.layer_mode.single", "Show Layer %s / 5");
+        provider.add("screen.anvilcraft.smart_block_placer.missing.block", "Missing:");
+        provider.add("screen.anvilcraft.smart_block_placer.missing_mode.skip", "Skip Mode: Skip missing blocks during placement");
+        provider.add("screen.anvilcraft.smart_block_placer.missing_mode.stop", "Stop Mode: Stop placement when blocks are missing");
+        provider.add("screen.anvilcraft.smart_block_placer.no_structure_record", "Record a structure with the Structure Scanner first");
+        provider.add("screen.anvilcraft.smart_block_placer.operation_mode.move", "Move Mode: Move the blocks behind to the placement position.");
+        provider.add("screen.anvilcraft.smart_block_placer.operation_mode.pickup", "Pickup Mode: Retrieve blocks from containers behind");
+        provider.add("screen.anvilcraft.smart_block_placer.position.selected", "Position (%s, %s) - Selected");
+        provider.add("screen.anvilcraft.smart_block_placer.position.unselected", "Position (%s, %s) - Not selected");
+        provider.add("screen.anvilcraft.smart_block_placer.preview.empty", "No positions configured");
+        provider.add("screen.anvilcraft.smart_block_placer.structure.loaded", "Loaded: ");
+
+        // Structure Scanner
+        provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
+        provider.add("screen.anvilcraft.structure_scanner.ready", "Scan ready");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.multiblock_blocks", "Structure contains multiblock blocks, cannot be recognized by Smart Block Placer");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.too_large", "Structure is too large to save");
+        provider.add("screen.anvilcraft.structure_scanner.tooltip.unknown_blocks", "Structure contains unknown blocks");
+
+        provider.add("screen.anvilcraft.storage.category.name", "Name: %s");
+        provider.add("screen.anvilcraft.storage.category.mode", "Mode: %s");
+        provider.add("screen.anvilcraft.storage.category.mode.unlimited", "Unlimited");
+        provider.add("screen.anvilcraft.storage.category.mode.allowlist", "Allow Display");
+        provider.add("screen.anvilcraft.storage.category.mode.blocklist", "Block Display");
+        provider.add("screen.anvilcraft.storage.category.tooltip", "Left click to move to alternates, right click to pin to top");
+        provider.add("screen.anvilcraft.storage.category.add", "Left click when holding Filter to add custom category");
+        provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to select, right click to delete this category");
+        provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to select");
     }
 }

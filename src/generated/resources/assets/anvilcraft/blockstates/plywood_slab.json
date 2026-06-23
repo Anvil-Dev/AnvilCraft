@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "anvilcraft:block/plywood_slab"
+    },
+    "type=double": {
+      "model": "anvilcraft:block/plywood"
+    },
+    "type=top": {
+      "model": "anvilcraft:block/plywood_slab_top"
+    }
+  }
+}
