@@ -70,8 +70,10 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
             Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
             resource.getFluid()
         );
+        var tintSource = model.fluidTintSource();
+        if (tintSource == null) return;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        int tintColor = model.fluidTintSource().colorAsStack(resource.toStack(1));
+        int tintColor = tintSource.colorAsStack(resource.toStack(1));
         float minY = state.getMinY();
         float maxY = minY + (state.getMaxY() - minY) * state.getFill();
         submitNodeCollector.submitCustomGeometry(

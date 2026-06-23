@@ -26,6 +26,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.fluid.FluidTintSource;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
@@ -291,39 +292,41 @@ public class ModFluids {
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(), POWDER_SNOW_TYPE);
     }
 
+    private static final FluidTintSource TINT_WHITE = state -> 0xFFFFFFFF;
+
     @SubscribeEvent
     public static void registerFluidModel(RegisterFluidModelsEvent event) {
         event.register(new FluidModel.Unbaked(
             new Material(AnvilCraft.of("block/exp_fluid")),
             new Material(AnvilCraft.of("block/exp_fluid_flow")),
             null,
-            null
+            TINT_WHITE
         ), ModFluids.EXP_FLUID, ModFluids.FLOWING_EXP_FLUID);
         event.register(new FluidModel.Unbaked(
             new Material(AnvilCraft.of("block/oil")),
             new Material(AnvilCraft.of("block/oil_flow")),
             null,
-            null
+            TINT_WHITE
         ), ModFluids.OIL, ModFluids.FLOWING_OIL);
         for (Color color : Color.values()) {
             event.register(new FluidModel.Unbaked(
                 new Material(AnvilCraft.of("block/%s_cement".formatted(color))),
                 new Material(AnvilCraft.of("block/%s_cement".formatted(color))),
                 null,
-                null
+                TINT_WHITE
             ), ModFluids.SOURCE_CEMENTS.get(color), ModFluids.FLOWING_CEMENTS.get(color));
         }
         event.register(new FluidModel.Unbaked(
             new Material(AnvilCraft.of("block/melt_gem")),
             new Material(AnvilCraft.of("block/melt_gem_flow")),
             null,
-            null
+            TINT_WHITE
         ), ModFluids.MELT_GEM, ModFluids.FLOWING_MELT_GEM);
         event.register(new FluidModel.Unbaked(
             new Material(Identifier.withDefaultNamespace("block/powder_snow")),
             new Material(Identifier.withDefaultNamespace("block/powder_snow")),
             null,
-            null
+            TINT_WHITE
         ), ModFluids.POWDER_SNOW);
     }
 }
