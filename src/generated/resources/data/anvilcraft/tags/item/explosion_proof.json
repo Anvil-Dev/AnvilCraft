@@ -1,8 +1,8 @@
 {
   "values": [
-    "anvilcraft:transcendence_anvil",
     "anvilcraft:shulker_container",
     "anvilcraft:hyperdimension_storage_station",
+    "anvilcraft:transcendence_anvil",
     "anvilcraft:frost_metal_block",
     "anvilcraft:cut_frost_metal_block",
     "anvilcraft:cut_frost_metal_pillar",
@@ -33,6 +33,8 @@
     "anvilcraft:heavy_halberd_core",
     "anvilcraft:resonator_core",
     "anvilcraft:multiphase_transcendium",
+    "anvilcraft:dyson_sphere_component",
+    "anvilcraft:penrose_sphere_component",
     "anvilcraft:earth_core_shard_block",
     "anvilcraft:earth_core_shard_ore",
     "anvilcraft:earth_core_shard",

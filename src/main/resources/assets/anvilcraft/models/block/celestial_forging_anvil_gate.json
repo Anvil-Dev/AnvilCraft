@@ -507,10 +507,10 @@
 		"gui": {
 			"rotation": [30, -135, 0],
 			"translation": [0.25, 0.75, 0],
-			"scale": [0.24, 0.24, 0.24]
+			"scale": [0.3, 0.3, 0.3]
 		},
 		"head": {
-			"translation": [0, 10.75, -0.5],
+			"translation": [0, 6.25, -0.25],
 			"scale": [0.6, 0.6, 0.6]
 		},
 		"fixed": {

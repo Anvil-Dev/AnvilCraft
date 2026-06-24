@@ -198,16 +198,17 @@
 	"display": {
 		"gui": {
 			"rotation": [30, -135, 0],
-			"translation": [0, -0.75, 0],
-			"scale": [0.5, 0.5, 0.5]
+			"translation": [0, -1.25, 0],
+			"scale": [0.6, 0.6, 0.6]
 		},
 		"fixed": {
-			"translation": [0, -2, 0],
+			"rotation": [0, 90, 0],
+			"translation": [0, -2.75, 0],
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"on_shelf": {
-			"rotation": [0, 180, 0],
-			"translation": [0, 2.25, -0.75]
+			"rotation": [0, -180, 0],
+			"translation": [0, 0, -0.75]
 		}
 	},
 	"groups": [

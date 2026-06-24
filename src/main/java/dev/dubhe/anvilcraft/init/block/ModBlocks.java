@@ -228,11 +228,13 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
+import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -358,6 +360,54 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::fishTank)
         .register();
 
+    // ==== Pipe & Pump ====
+
+    public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM
+        .block("pipe_straight", PipeStraightBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM
+        .block("pipe_corner", PipeCornerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM
+        .block("pipe_node", PipeNodeBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PumpBlock> PUMP = REGISTRUM
+        .block("pump", PumpBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::pump)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CreativeFluidTankBlock> CREATIVE_FLUID_TANK = REGISTRUM
+        .block("creative_fluid_tank", CreativeFluidTankBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(
+                ctx.get(),
+                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
+            )
+        ))
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRUM.block("fluid_tank", FluidTankBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
@@ -365,6 +415,111 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
+        .register();
+
+    public static final BlockEntry<LargeFluidTankBlock> LARGE_FLUID_TANK = REGISTRUM.block(
+            "large_fluid_tank",
+            LargeFluidTankBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p
+            .isSuffocating(ModBlocks::never)
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .isViewBlocking(ModBlocks::never))
+        .loot(SimpleMultiPartBlock::loot)
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CreativeCrateBlock> CREATIVE_CRATE = REGISTRUM
+        .block("creative_crate", CreativeCrateBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(ctx.get(),
+                                           BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))))
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<CrateBlock> CRATE = REGISTRUM
+        .block("crate", CrateBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+        )
+        .item()
+        .properties(properties -> properties
+            .component(ModComponents.STORAGE, StorageRef.crate())
+        )
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::crate)
+        .blockstate(DataGenUtil::onlyState)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .register();
+    public static final BlockEntry<LargeCrateBlock> LARGE_CRATE = REGISTRUM
+        .block("large_crate", LargeCrateBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+        )
+        .item(SimpleMultiPartBlockItem::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.largeCrate())
+        )
+        .model(DataGenUtil::oversizedItem)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .register();
+    public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
+        .block("shulker_container", ShulkerContainerBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .loot(FlexibleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops()
+        )
+        .item(FlexibleMultiPartBlockItem::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.shulkerContainer())
+        )
+        .model(DataGenUtil::oversizedItem)
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
+        .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops()
+        )
+        .item(SimpleMultiPartBlockItem::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.hyperdimension())
+        )
+        .model(DataGenUtil::oversizedItem)
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.NEEDS_EMBER_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
@@ -421,17 +576,6 @@ public class ModBlocks {
         .tag(BlockTags.ANVIL, ModBlockTags.NON_MAGNETIC, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
-    public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
-        .recipe(RegistrumBlockRecipeLoader::royalAnvil)
-        .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0F, 1200F))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .item()
-        .tag(ItemTags.ANVIL)
-        .build()
-        .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .register();
-
     public static final BlockEntry<NeoforgeBlock> NEOFORGE = REGISTRUM
         .block("neoforge", NeoforgeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
@@ -441,6 +585,17 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.ANVIL, ModBlockTags.NON_MAGNETIC, ModBlockTags.CANT_BROKEN_ANVIL)
         .recipe(RegistrumBlockRecipeLoader::neoforge)
+        .register();
+
+    public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::royalAnvil)
+        .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0F, 1200F))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .tag(ItemTags.ANVIL)
+        .build()
+        .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .register();
 
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRUM.block("royal_grindstone", RoyalGrindstoneBlock::new)
@@ -592,16 +747,6 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<? extends Block> CREATIVE_GENERATOR = REGISTRUM.block("creative_generator", CreativeGeneratorBlock::new)
-        .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .item()
-        .model(DataGenUtil::noExtraModelOrState)
-        .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
     public static final BlockEntry<? extends Block> HEATER = REGISTRUM.block("heater", HeaterBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never)
@@ -692,7 +837,11 @@ public class ModBlocks {
                 DataGenContext<Item, TeslaTowerItem> ctx,
                 RegistrumItemModelGenerator generator
             ) {
-                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix("_overall"));
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/").withSuffix("_overall")),
+                    new ClientItem.Properties(true, true, 1.0F)
+                );
             }
         })
         .build()
@@ -711,6 +860,17 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::inductionLight)
+        .register();
+
+    public static final BlockEntry<CreativeGeneratorBlock> CREATIVE_GENERATOR = REGISTRUM
+        .block("creative_generator", CreativeGeneratorBlock::new)
+        .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model(DataGenUtil::noExtraModelOrState)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<ChargeCollectorBlock> CHARGE_COLLECTOR = REGISTRUM.block("charge_collector", ChargeCollectorBlock::new)
@@ -742,6 +902,25 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
+    public static final BlockEntry<HeatCollectorBlock> HEAT_COLLECTOR = REGISTRUM.block("heat_collector", HeatCollectorBlock::new)
+        .simpleItem()
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumBlockRecipeLoader::heatCollector)
+        .register();
+
+    public static final BlockEntry<VoidEnergyCollectorBlock> VOID_ENERGY_COLLECTOR = REGISTRUM
+        .block("void_energy_collector", VoidEnergyCollectorBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200F))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::voidEnergyCollector)
+        .register();
+
     public static final BlockEntry<InfiniteCollectorBlock> INFINITE_COLLECTOR = REGISTRUM.block(
             "infinite_collector",
             InfiniteCollectorBlock::new
@@ -766,7 +945,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .defaultLoot()
         .item(HeliostatsItem::new)
-        .model(DataGenUtil::onlyInfo)
+        .model(DataGenUtil::oversizedItem)
         .build()
         .recipe(RegistrumBlockRecipeLoader::heliostats)
         .register();
@@ -913,15 +1092,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::itemCollector)
         .register();
 
-    public static final BlockEntry<HeatCollectorBlock> HEAT_COLLECTOR = REGISTRUM.block("heat_collector", HeatCollectorBlock::new)
-        .simpleItem()
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe(RegistrumBlockRecipeLoader::heatCollector)
-        .register();
-
     public static final BlockEntry<ChargerBlock> CHARGER = REGISTRUM.block("charger", ChargerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
@@ -986,7 +1156,9 @@ public class ModBlocks {
                             .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
                     })));
         })
-        .simpleItem()
+        .item()
+        .model(DataGenUtil::oversizedItem)
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
         .register();
@@ -1127,81 +1299,6 @@ public class ModBlocks {
         .build()
         .recipe(RegistrumBlockRecipeLoader::overseer)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<CrateBlock> CRATE = REGISTRUM
-        .block("crate", CrateBlock::new)
-        .initialProperties(() -> Blocks.OAK_PLANKS)
-        .properties(properties -> properties
-            .noOcclusion()
-            .isValidSpawn(ModBlocks::never)
-        )
-        .item()
-        .properties(properties -> properties
-            .component(ModComponents.STORAGE, StorageRef.crate())
-        )
-        .build()
-        .recipe(RegistrumBlockRecipeLoader::crate)
-        .blockstate(DataGenUtil::onlyState)
-        .tag(BlockTags.MINEABLE_WITH_AXE)
-        .register();
-    public static final BlockEntry<LargeCrateBlock> LARGE_CRATE = REGISTRUM
-        .block("large_crate", LargeCrateBlock::new)
-        .initialProperties(() -> Blocks.OAK_PLANKS)
-        .loot(SimpleMultiPartBlock::loot)
-        .properties(properties -> properties
-            .noOcclusion()
-            .isValidSpawn(ModBlocks::never)
-        )
-        .item(SimpleMultiPartBlockItem::new)
-        .properties(properties -> properties
-            .stacksTo(16)
-            .component(ModComponents.STORAGE, StorageRef.largeCrate())
-        )
-        .model(DataGenUtil::oversizedItem)
-        .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_AXE)
-        .register();
-    public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
-        .block("shulker_container", ShulkerContainerBlock::new)
-        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .loot(FlexibleMultiPartBlock::loot)
-        .properties(properties -> properties
-            .noOcclusion()
-            .isValidSpawn(ModBlocks::never)
-            .requiresCorrectToolForDrops()
-        )
-        .item(FlexibleMultiPartBlockItem::new)
-        .properties(properties -> properties
-            .stacksTo(16)
-            .component(ModComponents.STORAGE, StorageRef.shulkerContainer())
-        )
-        .model(DataGenUtil::oversizedItem)
-        .tag(ModItemTags.EXPLOSION_PROOF)
-        .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-    public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
-        .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
-        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .loot(SimpleMultiPartBlock::loot)
-        .properties(properties -> properties
-            .noOcclusion()
-            .isValidSpawn(ModBlocks::never)
-            .requiresCorrectToolForDrops()
-        )
-        .item(SimpleMultiPartBlockItem::new)
-        .properties(properties -> properties
-            .stacksTo(16)
-            .component(ModComponents.STORAGE, StorageRef.hyperdimension())
-        )
-        .model(DataGenUtil::oversizedItem)
-        .tag(ModItemTags.EXPLOSION_PROOF)
-        .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(ModBlockTags.NEEDS_EMBER_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRUM.block(
@@ -1389,25 +1486,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::slidingRailStop)
         .register();
 
-    public static final BlockEntry<LargeFluidTankBlock> LARGE_FLUID_TANK = REGISTRUM.block(
-            "large_fluid_tank",
-            LargeFluidTankBlock::new
-        )
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p
-            .isSuffocating(ModBlocks::never)
-            .noOcclusion()
-            .isValidSpawn(Blocks::never)
-            .isViewBlocking(ModBlocks::never))
-        .loot(SimpleMultiPartBlock::loot)
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
-        .properties(properties -> properties.stacksTo(16))
-        .model(DataGenUtil::oversizedItem)
-        .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
     public static final BlockEntry<AccelerationRingBlock> ACCELERATION_RING = REGISTRUM.block(
             "acceleration_ring",
             AccelerationRingBlock::new
@@ -1540,19 +1618,13 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilPortalBlockItem::new)
+        .model(() -> (ctx, generator) -> {
+            generator.createWithExistingModel(
+                ctx.get(),
+                ctx.getId().withPath(path -> "block/" + path.substring(0, path.length() - 7) + "_gate")
+            );
+        })
         .build()
-        .register();
-
-    public static final BlockEntry<VoidEnergyCollectorBlock> VOID_ENERGY_COLLECTOR = REGISTRUM.block(
-            "void_energy_collector",
-            VoidEnergyCollectorBlock::new
-        )
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200F))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .simpleItem()
-        .recipe(RegistrumBlockRecipeLoader::voidEnergyCollector)
         .register();
 
     public static final BlockEntry<MagnetoElectricCoreBlock> MAGNETO_ELECTRIC_CORE_BLOCK = REGISTRUM.block(
@@ -4054,64 +4126,6 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.OBSIDIAN)
         .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
-        .register();
-
-    // ==== Pipe & Pump ====
-
-    public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM
-        .block("pipe_straight", PipeStraightBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM
-        .block("pipe_corner", PipeCornerBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM
-        .block("pipe_node", PipeNodeBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<PumpBlock> PUMP = REGISTRUM
-        .block("pump", PumpBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
-        .recipe(RegistrumBlockRecipeLoader::pump)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<CreativeFluidTankBlock> CREATIVE_FLUID_TANK = REGISTRUM
-        .block("creative_fluid_tank", CreativeFluidTankBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
-        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
-            MultiVariantGenerator.dispatch(ctx.get(),
-                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))))
-        .simpleItem()
-        .register();
-
-    public static final BlockEntry<CreativeCrateBlock> CREATIVE_CRATE = REGISTRUM
-        .block("creative_crate", CreativeCrateBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
-        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
-            MultiVariantGenerator.dispatch(ctx.get(),
-                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))))
         .simpleItem()
         .register();
 

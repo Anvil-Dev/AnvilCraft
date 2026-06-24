@@ -1,6 +1,7 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "anvilcraft:item/heliostats"
-  }
+    "model": "anvilcraft:block/heliostats"
+  },
+  "oversized_in_gui": true
 }
