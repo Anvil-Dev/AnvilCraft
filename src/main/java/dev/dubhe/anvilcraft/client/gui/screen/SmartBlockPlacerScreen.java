@@ -959,8 +959,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             int sizeX = structure.diskData.sizeX();
             int sizeZ = structure.diskData.sizeZ();
             for (var bp : rotatedData.blocks) {
-                int renderX = upsideDown ? (sizeX - 1 - bp.x()) : (sizeX - 1 - bp.x());
-                int renderZ = upsideDown ? (sizeZ - bp.z()) : (sizeZ - bp.z());
+                int renderX = sizeX - 1 - bp.x();
+                int renderZ = sizeZ - bp.z();
                 int renderY = upsideDown ? (2 - bp.y()) : (bp.y() - 2);
                 BlockState state = bp.state();
                 if (upsideDown) {
