@@ -24,7 +24,7 @@ items:
 <item id="anvilcraft:ember_metal_nugget"/>
 </row>
 
-<gradient start="#ff7a00" end="#9f9f23"> Sworn by fierce flame, this body is eternal </gradient>
+<gradient start="#ff7a00" end="#9f9f23"> Forged by fierce flame, this body is eternal </gradient>
 
 # Crafting
 

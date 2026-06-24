@@ -18,10 +18,10 @@ items:
 # Prerequisites:
 
 - [Thermal System](../001_feature/101_heated_block.md)
-- [Anvil Collision Crafting](../004_block/215_large_electromagnet.md#铁砧撞击合成)
+- [Anvil Collision Crafting](../004_block/215_large_electromagnet.md#anvil-impact-crafting)
 
 <warning>
-If you skip the prerequisites, you won't understand this chapter
+If you skip the prerequisites, you won't understand this section
 </warning>
 
 ---
@@ -29,8 +29,9 @@ If you skip the prerequisites, you won't understand this chapter
 # <ref item="anvilcraft:ember_metal_block"/>
 
 - <ref item="anvilcraft:ember_metal_block"/> also counts as a *heatable block* and has 2 temperature levels:
-  - <color=#666666>Normal</color>
-  - <color=#6688cc>Overheated</color>
+  
+  - <color=#666666> Normal </color>
+  - <color=#6688cc> Overheated </color>
 - Cannot be heated by conventional methods, but can be heated by the methods described below
 - Very unstable, typically only maintaining its state for a short time. After cooling, there is a 5% chance of turning into <ref item="minecraft:netherite_block"/>
 - Can provide 1024kW of energy to <ref item="anvilcraft:heat_collector"/>

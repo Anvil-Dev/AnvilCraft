@@ -26,4 +26,4 @@ Some mobs (Witches, Iron Golems) can recover health on their own or with externa
 For example, Blazes normally require a player kill to drop Blaze Rods. To obtain drops automatically, you must rely on <ref item="anvilcraft:ember_anvil"/>
 </info>
 
-- Using <ref item="anvilcraft:transcendence_anvil"/> can produce drops that normally require **manual player kills**. Obtains even more drops.
+- Using <ref item="anvilcraft:transcendence_anvil"/> can produce drops that normally require **manual player kills**, and yields even more drops.

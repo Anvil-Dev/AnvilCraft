@@ -31,6 +31,6 @@ Using different anvils to destroy blocks yields different effects:
 - <ref item="minecraft:anvil"/>: Normal mining
 - <ref item="anvilcraft:spectral_anvil"/>: Normal mining
 - <ref item="anvilcraft:royal_anvil"/>: Silk Touch
-- <ref item="anvilcraft:frost_anvil"/>: [Disintegration](100_enchantment.md#崩解)
-- <ref item="anvilcraft:ember_anvil"/>: [Smelting](100_enchantment.md#熔炼)
+- <ref item="anvilcraft:frost_anvil"/>: [Disintegration](100_enchantment.md#disintegration)
+- <ref item="anvilcraft:ember_anvil"/>: [Smelting](100_enchantment.md#smelting)
 - <ref item="anvilcraft:transcendence_anvil"/>: Fortune V

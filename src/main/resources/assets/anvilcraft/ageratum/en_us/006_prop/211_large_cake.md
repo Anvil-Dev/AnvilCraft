@@ -66,7 +66,7 @@ Right-click with a shovel to eat the entire block
 </row>
 
 <structure id="../../structures/large_cake.snbt"/>
-- Made using the [Multiblock Transformation](../004_block/210_giant_anvil.md#功能) recipe
+- Made using the [Multiblock Transformation](../004_block/210_giant_anvil.md#function) recipe
 
 <tip>
 Try automating the Large Cake and become an automation "cake" master

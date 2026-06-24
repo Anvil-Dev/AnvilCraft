@@ -34,7 +34,7 @@ items:
 
 - Each <ref item="anvilcraft:plutonium_block"/> provides 8kW of power to <ref item="anvilcraft:heat_collector"/>
 - Time-warping <ref item="anvilcraft:plutonium_block"/> will release in an instant the energy that would normally take tens of thousands of years,
-  heating horizontally adjacent [Heatable Blocks](../001_feature/101_heated_block.md#可加热方块) to <color=#ee7744>Incandescent</color> for 10min, totaling 1024kW
+  heating horizontally adjacent [Heatable Blocks](../001_feature/101_heated_block.md#heatable-blocks) to <color=#ee7744>Incandescent</color> for 10min, totaling 1024kW
 - Collide an anvil with <ref item="anvilcraft:plutonium_block"/> to heat up to 16 <ref item="anvilcraft:overheated_ember_metal_block"/> for 60s, totaling
   16384kW
 

@@ -14,7 +14,7 @@ items:
 
 # Acquisition
 
-See [8-in-1 Smithing Template: Template Dissociation](../004_block/221_ember_smithing_table.md#模板解离)
+See [8-in-1 Smithing Template: Template Dissociation](../004_block/221_ember_smithing_table.md#template-dissociation)
 
 # Use
 

@@ -22,7 +22,7 @@ items:
 <item id="anvilcraft:frost_metal_ingot"/>
 <item id="anvilcraft:frost_metal_nugget"/>
 </row>
-<gradient start="#5dc2ef" end="#9f9f93"> When numbers are high enough, it's a mechanic! </gradient>
+<gradient start="#5dc2ef" end="#9f9f93"> When numbers go high enough, it becomes a mechanic! </gradient>
 
 # Crafting
 

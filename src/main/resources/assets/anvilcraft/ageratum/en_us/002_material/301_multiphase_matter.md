@@ -21,7 +21,7 @@ items:
 
 <recipe id="anvilcraft:anvil_collision/ember_anvil_and_frost_metal_block_32"/>
 
-> [Anvil Collision Crafting](../004_block/215_large_electromagnet.md#铁砧撞击合成)
+> [Anvil Collision Crafting](../004_block/215_large_electromagnet.md#anvil-impact-crafting)
 
 # Uses
 

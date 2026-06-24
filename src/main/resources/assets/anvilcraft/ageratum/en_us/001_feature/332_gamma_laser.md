@@ -6,7 +6,7 @@ navigation:
 
 # Gamma Laser
 
-- Gamma turret is a special type of [Laser](../004_block/201_basic_laser.md#laser)
+- The Gamma Turret is a special type of [Laser](../004_block/201_basic_laser.md#laser)
 - Comes from <ref item="anvilcraft:celestial_forging_anvil"/>
 - Propagates up to 16 blocks
 - Deals 16x the damage of a same-level normal laser to living entities

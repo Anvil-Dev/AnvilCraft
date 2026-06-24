@@ -24,8 +24,6 @@ items:
 <item id="anvilcraft:royal_steel_nugget"/>
 </row>
 
-<gradient start="#418814" end="#7fffa3"> Lord Cucumber Steel </gradient>
-
 # Crafting
 
 <row halign="center">

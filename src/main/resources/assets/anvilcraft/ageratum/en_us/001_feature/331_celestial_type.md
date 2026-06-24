@@ -16,10 +16,10 @@ navigation:
 |              Color               |                Type                | Stellar |
 |:--------------------------------:|:----------------------------------:|:-------:|
 | <color=#999966>999966</color> |          Large Satellite           |   No    |
-| <color=#669933>669933</color> |  Rocky Planet (No Liquid)  |   No    |
-| <color=#339933>339933</color> | Rocky Planet (Little Liquid) |   No    |
-| <color=#339999>339999</color> | Rocky Planet (Medium Liquid) |   No    |
-| <color=#33cccc>33cccc</color> |  Rocky Planet (Much Liquid) |   No    |
+| <color=#669933>669933</color> |  Rocky Planet (Minimal Water)  |   No    |
+| <color=#339933>339933</color> | Rocky Planet (Little Water) |   No    |
+| <color=#339999>339999</color> | Rocky Planet (Some Water) |   No    |
+| <color=#33cccc>33cccc</color> |  Rocky Planet (Abundant Water) |   No    |
 | <color=#336699>336699</color> |            Ice Giant              |   No    |
 | <color=#666699>666699</color> |            Gas Giant              |   No    |
 | <color=#330000>330000</color> |           Brown Dwarf             |   No    |

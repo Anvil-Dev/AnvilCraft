@@ -22,7 +22,7 @@ items:
 # Resonator
 
 - A universal tool that can mine any block
-- Does not break completely; similar to Elytra, it loses all bonuses, functions, etc.; attack damage becomes 0, most enchantments stop working, and [Ruthless](../001_feature/201_properties.md#无情) from Frost Metal also stops working
+- Does not break completely; similar to Elytra, it loses all bonuses, functions, etc.; attack damage becomes 0, most enchantments stop working, and [Ruthless](../001_feature/201_properties.md#ruthless) from Frost Metal also stops working
 - Hold the <Key id="key.anvilcraft.switch_resonate_mode"></Key> key to bring up a radial menu with five options
   - Auto is selected by default, accelerating the breaking of any block
   - Selecting a specific tool type only accelerates breaking the corresponding blocks, but enables operations such as *stripping* and *tilling*
