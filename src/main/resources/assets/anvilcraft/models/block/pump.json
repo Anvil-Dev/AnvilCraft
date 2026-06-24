@@ -1,7 +1,7 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
-	"parent": "minecraft:block/cube",
+	"parent": "minecraft:block/block",
 	"textures": {
 		"0": "anvilcraft:block/pump",
 		"1": "anvilcraft:block/pipe_end",
@@ -174,7 +174,8 @@
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"head": {
-			"translation": [0, 0, -14.25]
+			"translation": [0, 0, -3.25],
+			"scale": [1.25, 1.25, 1.25]
 		},
 		"fixed": {
 			"rotation": [90, 0, 0],
