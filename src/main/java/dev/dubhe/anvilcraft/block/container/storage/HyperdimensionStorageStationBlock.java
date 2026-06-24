@@ -77,7 +77,7 @@ public class HyperdimensionStorageStationBlock
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
+        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
         if (blockEntity instanceof HyperdimensionStorageStationBlockEntity be) {
             be.playerWillDestroy(level, pos, state, player);
         }

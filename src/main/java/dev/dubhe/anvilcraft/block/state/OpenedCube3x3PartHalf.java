@@ -122,7 +122,7 @@ public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<Opened
 
     @Override
     public boolean isMain() {
-        return this == OpenedCube3x3PartHalf.MID_CENTER;
+        return this == OpenedCube3x3PartHalf.BOTTOM_CENTER;
     }
 
     public BlockPos fromMain(BlockPos pos) {

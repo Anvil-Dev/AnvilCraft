@@ -8,13 +8,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -37,6 +41,27 @@ public class SimpleMultiPartBlockItem<P extends Enum<P> & ISimpleMultiPartBlockS
             level.setBlock(offset, blockState, 27);
         }
         return super.placeBlock(context, state);
+    }
+
+    @Override
+    protected boolean updateCustomBlockEntityTag(
+        BlockPos pos,
+        Level level,
+        @Nullable Player player,
+        ItemStack itemStack,
+        BlockState placedState
+    ) {
+        pos = this.block.getMainPartPos(pos, placedState);
+        boolean b = super.updateCustomBlockEntityTag(pos, level, player, itemStack, placedState);
+
+        // From BlockItem#updateBlockEntityComponents
+        BlockEntity entity = level.getBlockEntity(pos);
+        if (entity != null) {
+            entity.applyComponentsFromItemStack(itemStack);
+            entity.setChanged();
+        }
+
+        return b;
     }
 
     public int getMaxOffsetDistance(Direction clickedFace) {
