@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
 public class ChargeCollectorRenderer extends PowerProducerRenderer<ChargeCollectorBlockEntity, PowerGeneratorRenderState> {
-    public static final StandaloneModelKey<BlockStateModel> CUBE = new StandaloneModelKey<>(
+    public static final StandaloneModelKey<BlockStateModel> HEAD = new StandaloneModelKey<>(
         () -> "AnvilCraft: Charge Collector Cube Model"
     );
 
@@ -31,6 +31,6 @@ public class ChargeCollectorRenderer extends PowerProducerRenderer<ChargeCollect
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return CUBE;
+        return HEAD;
     }
 }
