@@ -11,6 +11,11 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.heatable_block_provider", "Heatable Block");
         provider.add("config.jade.plugin_anvilcraft.burning_heater_provider", "Burning Heater");
         provider.add("config.jade.plugin_anvilcraft.smart_block_placer_provider", "Smart Block Placer");
+        provider.add("config.jade.plugin_anvilcraft.charger_provider", "Charger Provider");
+        provider.add("config.jade.plugin_anvilcraft.discharger_provider", "Discharger Provider");
+        provider.add("config.jade.plugin_anvilcraft.wip_block", "WIP Block");
+        provider.add("config.jade.plugin_anvilcraft.creative_crate", "Creative Crate");
+        provider.add("config.jade.plugin_anvilcraft.creative_fluid_tank", "Creative Fluid Tank");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");
