@@ -324,7 +324,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.lastDiskItem = this.diskInventory.getItem(0).copy();
         loadItemsFromTag(tag, this.bookInventory);
         loadItemsFromTag(tag, this.outputBookInventory);
-        this.loadFromTag(tag);
+        // 结构数据存储在 DATA_KEY 子节点下，需要提取后再传入 loadFromTag
+        CompoundTag dataTag = tag.contains(DATA_KEY)
+            ? tag.getCompoundOrEmpty(DATA_KEY)
+            : tag;
+        this.loadFromTag(dataTag);
     }
 
     private void loadFromTag(CompoundTag tag) {
