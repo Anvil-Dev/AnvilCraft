@@ -324,7 +324,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.lastDiskItem = this.diskInventory.getItem(0).copy();
         loadItemsFromTag(tag, this.bookInventory);
         loadItemsFromTag(tag, this.outputBookInventory);
-        this.loadFromTag(tag);
+        // 结构数据存储在 DATA_KEY 子节点下，需要提取后再传入 loadFromTag
+        CompoundTag dataTag = tag.contains(DATA_KEY)
+            ? tag.getCompoundOrEmpty(DATA_KEY)
+            : tag;
+        this.loadFromTag(dataTag);
     }
 
     private void loadFromTag(CompoundTag tag) {
@@ -1015,8 +1019,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         boolean wasIdle = this.lastPlaceCooldown == 0;
         boolean isNowWorking = this.placeCooldown > 0;
         boolean becameActive = wasIdle && isNowWorking;
+        // 只要有持有物且未在动画中，立即触发
+        boolean hasItem = !this.currentHeldBlock.isEmpty() && this.clientAnimationStartTime == 0;
 
-        if (isNewCycle || becameActive) {
+        if (isNewCycle || becameActive || hasItem) {
             this.clientAnimationStartTime = 0;
             this.clientLastTargetPos = null;
             this.clientIsRetracting = false;
@@ -1842,7 +1848,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 // 检测穿梭行为：当前放置器的目标位置是否是另一个放置器的源位置
                 this.checkAndTriggerShuttle(level, targetPos);
 
-                // 保留 currentHeldBlock 用于客户端动画，下一轮 prepareHeldBlock 会自动覆盖
+                // 放置成功，清空 currentHeldBlock；下一轮 prepareHeldBlock 会重新设置
+                this.currentHeldBlock = ItemStack.EMPTY;
                 return false;
             }
         );
@@ -2070,7 +2077,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的状态更新
             level.neighborChanged(targetPos, level.getBlockState(targetPos).getBlock(), null);
 
-            // 放置成功（保留 currentHeldBlock 用于客户端动画，下一轮 prepareHeldBlock 会自动覆盖）
+            // 放置成功，清空 currentHeldBlock；下一轮 prepareHeldBlock 会重新设置
+            this.currentHeldBlock = ItemStack.EMPTY;
             this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
             this.onChanged();
             return;
@@ -2227,7 +2235,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             // 在目标位置发送方块更新通知
             level.neighborChanged(targetPos, blueprintState.getBlock(), null);
 
-            // 放置成功（保留 currentHeldBlock 用于客户端动画，下一轮 prepareHeldBlock 会自动覆盖）
+            // 放置成功，清空 currentHeldBlock；下一轮 prepareHeldBlock 会重新设置
+            this.currentHeldBlock = ItemStack.EMPTY;
             this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
             this.onChanged();
             return;
