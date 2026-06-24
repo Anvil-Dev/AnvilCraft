@@ -953,6 +953,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (SmartBlockPlacerBlockEntity.isBlockBeingMovedByPlacer()) return;
         ResourceHandler<ItemResource> handler = this.getItemHandler();
         for (int slot = 0; slot < handler.size(); slot++) {
             try (Transaction transaction = Transaction.openRoot()) {
