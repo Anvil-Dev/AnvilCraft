@@ -750,10 +750,11 @@ public class ModBlocks {
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
             MultiVariantGenerator.dispatch(ctx.get())
-                .with(PropertyDispatch.initial(InfiniteCollectorBlock.POWERED)
+                .with(PropertyDispatchWrap.initial(InfiniteCollectorBlock.POWERED)
                     .select(false, BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))
                     .select(true, BlockModelGenerators.plainVariant(
                         ctx.getId().withPrefix("block/").withSuffix("_base")))
+                    .dispatch()
                 )))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item(dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem::new)
