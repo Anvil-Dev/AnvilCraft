@@ -46,16 +46,16 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heliostats_head_sunflower"))
         );
         event.register(
-            CreativeGeneratorRenderer.CUBE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/creative_generator_cube"))
+            CreativeGeneratorRenderer.HEAD,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/creative_generator_head"))
         );
         event.register(
-            ChargeCollectorRenderer.CUBE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/charge_collector_cube"))
+            ChargeCollectorRenderer.HEAD,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/charge_collector_head"))
         );
         event.register(
-            HeatCollectorRenderer.CUBE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heat_collector_cube"))
+            HeatCollectorRenderer.HEAD,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heat_collector_head"))
         );
         event.register(
             VoidEnergyCollectorRenderer.HEAD,

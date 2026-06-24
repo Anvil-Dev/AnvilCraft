@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
 public class HeatCollectorRenderer extends PowerProducerRenderer<HeatCollectorBlockEntity, PowerGeneratorRenderState> {
-    public static final StandaloneModelKey<BlockStateModel> CUBE = new StandaloneModelKey<>(
+    public static final StandaloneModelKey<BlockStateModel> HEAD = new StandaloneModelKey<>(
         () -> "AnvilCraft: Heat Collector Cube Model"
     );
 
@@ -31,6 +31,6 @@ public class HeatCollectorRenderer extends PowerProducerRenderer<HeatCollectorBl
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return CUBE;
+        return HEAD;
     }
 }
