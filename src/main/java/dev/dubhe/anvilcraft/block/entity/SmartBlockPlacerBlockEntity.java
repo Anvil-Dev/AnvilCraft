@@ -1015,8 +1015,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         boolean wasIdle = this.lastPlaceCooldown == 0;
         boolean isNowWorking = this.placeCooldown > 0;
         boolean becameActive = wasIdle && isNowWorking;
+        // 只要有持有物且未在动画中，立即触发
+        boolean hasItem = !this.currentHeldBlock.isEmpty() && this.clientAnimationStartTime == 0;
 
-        if (isNewCycle || becameActive) {
+        if (isNewCycle || becameActive || hasItem) {
             this.clientAnimationStartTime = 0;
             this.clientLastTargetPos = null;
             this.clientIsRetracting = false;
