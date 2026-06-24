@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.BookOnlySlot;
 import dev.dubhe.anvilcraft.inventory.component.StructureDiskOnlySlot;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -82,17 +81,8 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         }
     }
 
-    @SuppressWarnings("resource")
-    public SmartBlockPlacerMenu(
-        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(menuType, containerId, inventory, Objects.requireNonNull(
-            inventory.player.level().getBlockEntity(extraData.readBlockPos())));
-
-        // 从菜单打开包中同步最新的BlockEntity状态
-        CompoundTag syncTag = extraData.readNbt();
-        if (syncTag != null && this.blockEntity != null) {
-            this.blockEntity.applySyncDataFromMenu(syncTag);
-        }
+    public SmartBlockPlacerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
+        this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
     }
 
     @Nullable

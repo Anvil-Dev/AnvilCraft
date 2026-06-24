@@ -10,8 +10,11 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.space_overcompressor", "Space Overcompressor");
         provider.add("config.jade.plugin_anvilcraft.heatable_block_provider", "Heatable Block");
         provider.add("config.jade.plugin_anvilcraft.burning_heater_provider", "Burning Heater");
+        provider.add("config.jade.plugin_anvilcraft.burning_heater_client_provider", "Burning Heater (Client)");
         provider.add("config.jade.plugin_anvilcraft.charger_provider", "Charger");
+        provider.add("config.jade.plugin_anvilcraft.charger_client_provider", "Charger (Client)");
         provider.add("config.jade.plugin_anvilcraft.discharger_provider", "Discharger");
+        provider.add("config.jade.plugin_anvilcraft.discharger_client_provider", "Discharger (Client)");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");

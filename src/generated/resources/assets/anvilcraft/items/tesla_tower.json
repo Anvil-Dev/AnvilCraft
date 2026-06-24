@@ -2,5 +2,6 @@
   "model": {
     "type": "minecraft:model",
     "model": "anvilcraft:block/tesla_tower_overall"
-  }
+  },
+  "oversized_in_gui": true
 }

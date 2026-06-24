@@ -150,13 +150,6 @@ public class ModItems {
         .lang("AnvilCraft Guide Book")
         .recipe(RegistrumItemRecipeLoader::guideBook)
         .register();
-    // CFA 巨构组件
-    public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
-        .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
-        .register();
-    public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
-        .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
-        .register();
     // 工具
     public static final ItemEntry<MagnetItem> MAGNET = REGISTRUM
         .item("magnet", properties -> new MagnetItem(properties.durability(255)))
@@ -1191,6 +1184,18 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::negativeMatterNugget)
         .register();
 
+    public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
+        .register();
+
+    public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
+        .register();
+
     public static final ItemEntry<SuperHeavyItem> NEUTRONIUM_INGOT = REGISTRUM.item("neutronium_ingot", SuperHeavyItem::new)
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .initialProperties(() -> new Item.Properties().fireResistant())
@@ -1251,6 +1256,7 @@ public class ModItems {
     // ==== Pipe & Pump ====
 
     public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
+        .removeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey())
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::pipe)
         .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
