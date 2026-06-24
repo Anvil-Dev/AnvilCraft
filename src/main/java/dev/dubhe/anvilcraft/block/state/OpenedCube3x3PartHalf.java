@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.state;
 
 import lombok.Getter;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import org.jspecify.annotations.Nullable;
@@ -122,14 +121,6 @@ public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<Opened
 
     @Override
     public boolean isMain() {
-        return this == OpenedCube3x3PartHalf.MID_CENTER;
-    }
-
-    public BlockPos fromMain(BlockPos pos) {
-        return pos.offset(this.offsetX, this.offsetY, this.offsetZ).below();
-    }
-
-    public BlockPos toMain(BlockPos pos) {
-        return pos.offset(-this.offsetX, -this.offsetY, -this.offsetZ).above();
+        return this == OpenedCube3x3PartHalf.BOTTOM_CENTER;
     }
 }

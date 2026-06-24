@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block.container.storage;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
@@ -13,7 +11,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.multiple.StoragePackets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -43,81 +40,6 @@ public class ShulkerContainerBlock
     public static final EnumProperty<OpenedCube3x3PartHalf> HALF = EnumProperty.create("half", OpenedCube3x3PartHalf.class);
     public static final BooleanProperty OPENED = BooleanProperty.create("opened");
 
-    private static final ImmutableMap<Direction, ImmutableList<Vec3i>> UPDATE_OFFSET = ImmutableMap.of(
-        Direction.DOWN,
-        ImmutableList.of(
-            new Vec3i(-1, 3, -1),
-            new Vec3i(-1, 3, 0),
-            new Vec3i(-1, 3, 1),
-            new Vec3i(0, 3, -1),
-            new Vec3i(0, 3, 0),
-            new Vec3i(0, 3, 1),
-            new Vec3i(1, 3, -1),
-            new Vec3i(1, 3, 0),
-            new Vec3i(1, 3, 1)
-        ),
-        Direction.UP,
-        ImmutableList.of(
-            new Vec3i(-1, -1, -1),
-            new Vec3i(-1, -1, 0),
-            new Vec3i(-1, -1, 1),
-            new Vec3i(0, -1, -1),
-            new Vec3i(0, -1, 0),
-            new Vec3i(0, -1, 1),
-            new Vec3i(1, -1, -1),
-            new Vec3i(1, -1, 0),
-            new Vec3i(1, -1, 1)
-        ),
-        Direction.EAST,
-        ImmutableList.of(
-            new Vec3i(-2, 0, -1),
-            new Vec3i(-2, 0, 0),
-            new Vec3i(-2, 0, 1),
-            new Vec3i(-2, 1, -1),
-            new Vec3i(-2, 1, 0),
-            new Vec3i(-2, 1, 1),
-            new Vec3i(-2, 2, -1),
-            new Vec3i(-2, 2, 0),
-            new Vec3i(-2, 2, 1)
-        ),
-        Direction.WEST,
-        ImmutableList.of(
-            new Vec3i(2, 0, -1),
-            new Vec3i(2, 0, 0),
-            new Vec3i(2, 0, 1),
-            new Vec3i(2, 1, -1),
-            new Vec3i(2, 1, 0),
-            new Vec3i(2, 1, 1),
-            new Vec3i(2, 2, -1),
-            new Vec3i(2, 2, 0),
-            new Vec3i(2, 2, 1)
-        ),
-        Direction.SOUTH,
-        ImmutableList.of(
-            new Vec3i(-1, 0, -2),
-            new Vec3i(0, 0, -2),
-            new Vec3i(1, 0, -2),
-            new Vec3i(-1, 1, -2),
-            new Vec3i(0, 1, -2),
-            new Vec3i(1, 1, -2),
-            new Vec3i(-1, 2, -2),
-            new Vec3i(0, 2, -2),
-            new Vec3i(1, 2, -2)
-        ),
-        Direction.NORTH,
-        ImmutableList.of(
-            new Vec3i(-1, 0, 2),
-            new Vec3i(0, 0, 2),
-            new Vec3i(1, 0, 2),
-            new Vec3i(-1, 1, 2),
-            new Vec3i(0, 1, 2),
-            new Vec3i(1, 1, 2),
-            new Vec3i(-1, 2, 2),
-            new Vec3i(0, 2, 2),
-            new Vec3i(1, 2, 2)
-        )
-    );
-
     public ShulkerContainerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
@@ -125,29 +47,6 @@ public class ShulkerContainerBlock
                 .setValue(HALF, OpenedCube3x3PartHalf.BOTTOM_CENTER)
                 .setValue(OPENED, false)
         );
-    }
-
-    @Override
-    public void removePartsAndUpdate(Level level, BlockPos pos) {
-        BlockState blockState = level.getBlockState(pos);
-        if (!blockState.is(this)) return;
-        BlockPos bottomCenterPos = this.getMainPartPos(pos, blockState).below();
-        for (OpenedCube3x3PartHalf part : this.getParts()) {
-            BlockPos bp = bottomCenterPos.offset(part.getOffset());
-            level.setBlock(bp, level.getBlockState(bp).getFluidState().createLegacyBlock(), 3, 0);
-        }
-        ShulkerContainerBlock.UPDATE_OFFSET.forEach((direction, offsetList) -> offsetList.forEach(offset -> {
-            BlockPos updatedPos = bottomCenterPos.offset(offset);
-            BlockPos fromPos = updatedPos.relative(direction);
-            level.neighborShapeChanged(
-                direction,
-                 updatedPos,
-                fromPos,
-                level.getBlockState(fromPos),
-                3,
-                512
-            );
-        }));
     }
 
     @Override
@@ -202,7 +101,7 @@ public class ShulkerContainerBlock
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
+        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
         if (blockEntity instanceof ShulkerContainerBlockEntity be) {
             be.playerWillDestroy(level, pos, state, player);
         }

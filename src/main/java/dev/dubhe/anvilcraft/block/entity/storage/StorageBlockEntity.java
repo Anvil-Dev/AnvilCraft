@@ -78,7 +78,9 @@ public class StorageBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
-        tag.store("storage_id", UUIDUtil.CODEC, this.id);
+        if (this.id != null) {
+            tag.store("storage_id", UUIDUtil.CODEC, this.id);
+        }
         return tag;
     }
 
