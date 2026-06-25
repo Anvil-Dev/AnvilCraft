@@ -65,8 +65,6 @@ public class OtherLang {
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.falling_giant_anvil", "%1$s died due to systemic resonance caused by ground vibrations");
 
-        provider.add("effect.anvilcraft.rage", "Rage");
-
         provider.add("item.anvilcraft.pill.tooltip",
             "Pills made together with potion to achieve corresponding effects, can be taken quickly");
 
