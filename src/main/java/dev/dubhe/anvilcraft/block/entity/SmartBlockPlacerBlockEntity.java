@@ -2,6 +2,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableSet;
+import dev.anvilcraft.lib.v2.sync.annotation.Sync;
+import dev.anvilcraft.lib.v2.sync.management.SyncProxy;
+import dev.anvilcraft.lib.v2.sync.util.SyncDirection;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
@@ -98,11 +102,18 @@ import java.util.function.Supplier;
 
 @Getter
 @Setter
+@Sync(SyncDirection.S2C)
 public class SmartBlockPlacerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
-    private static final int PLACEMENT_INTERVAL = 20;
-    private static final int PLACEMENT_DELAY = 6;
+
+    public static int getPlacementInterval() {
+        return AnvilCraft.CONFIG.smartBlockPlacerInterval;
+    }
+
+    public static int getPlacementDelay() {
+        return Math.max(1, (int) (getPlacementInterval() * 0.3f));
+    }
 
     // 白名单：蓝图中需要保留的方块状态属性
     private static final Set<Property<?>> INHERITED_PROPERTIES = ImmutableSet.of(
@@ -240,6 +251,59 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             SmartBlockPlacerBlockEntity.this.onOutputBookTaken();
         }
     };
+
+    // 动画数据同步（通过 SyncProxy 自动同步到客户端）
+    public final SyncProxy<Integer> placeCooldownProxy = new SyncProxy<>(0);
+    public final SyncProxy<ItemStack> currentHeldBlockProxy = new SyncProxy<>(ItemStack.EMPTY);
+    public final SyncProxy<Integer> currentPlacementIndexProxy = new SyncProxy<>(0);
+    public final SyncProxy<Boolean> isPoweredProxy = new SyncProxy<>(false);
+    public final SyncProxy<Boolean> hasRedstoneSignalProxy = new SyncProxy<>(false);
+
+    public int getPlaceCooldown() {
+        Integer value = this.placeCooldownProxy.getValue();
+        return value != null ? value : 0;
+    }
+
+    public ItemStack getCurrentHeldBlock() {
+        ItemStack value = this.currentHeldBlockProxy.getValue();
+        return value != null ? value : ItemStack.EMPTY;
+    }
+
+    public int getCurrentPlacementIndex() {
+        Integer value = this.currentPlacementIndexProxy.getValue();
+        return value != null ? value : 0;
+    }
+
+    public boolean isPowered() {
+        Boolean value = this.isPoweredProxy.getValue();
+        return value != null && value;
+    }
+
+    public boolean isHasRedstoneSignal() {
+        Boolean value = this.hasRedstoneSignalProxy.getValue();
+        return value != null && value;
+    }
+
+    // 预览/模式数据同步（通过 SyncProxy 自动同步到客户端）
+    public final SyncProxy<Integer> selectedLayerProxy = new SyncProxy<>(0);
+    public final SyncProxy<Boolean> isPickupModeProxy = new SyncProxy<>(true);
+    public final SyncProxy<Boolean> isSkipMissingModeProxy = new SyncProxy<>(true);
+    public final SyncProxy<CompoundTag> dataSyncProxy = new SyncProxy<>(new CompoundTag());
+
+    public int getSelectedLayer() {
+        Integer value = this.selectedLayerProxy.getValue();
+        return value != null ? value : 0;
+    }
+
+    public boolean isPickupMode() {
+        Boolean value = this.isPickupModeProxy.getValue();
+        return value != null && value;
+    }
+
+    public boolean isSkipMissingMode() {
+        Boolean value = this.isSkipMissingModeProxy.getValue();
+        return value != null && value;
+    }
 
     // 客户端动画状态
     private long clientAnimationStartTime = 0;
@@ -402,11 +466,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 this.getBlockState(),
                 Block.UPDATE_CLIENTS
             );
-            if (level instanceof ServerLevel serverLevel) {
-                serverLevel.getPlayers(_ -> true).forEach(
-                    player -> player.connection.send(this.getUpdatePacket())
-                );
-            }
+            // 通过 SyncProxy 自动同步动画状态到客户端
+            this.placeCooldownProxy.setValue(this.placeCooldown);
+            this.currentHeldBlockProxy.setValue(this.currentHeldBlock);
+            this.currentPlacementIndexProxy.setValue(this.currentPlacementIndex);
+            this.isPoweredProxy.setValue(this.isPowered);
+            this.hasRedstoneSignalProxy.setValue(this.hasRedstoneSignal);
         }
     }
 
@@ -597,6 +662,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 只在结构数据真正变化时才同步
         if (structureChanged) {
             this.onChanged();
+            // 通过 SyncProxy 同步结构数据
+            CompoundTag structTag = new CompoundTag();
+            this.saveAdditionalDataToTag(structTag);
+            this.dataSyncProxy.setValue(structTag);
         }
     }
 
@@ -604,6 +673,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 获取已加载的结构数据
      */
     public StructureLoadUtil.@Nullable StructureData getLoadedStructure() {
+        // 检查 SyncProxy 数据同步是否更新
+        CompoundTag tag = this.dataSyncProxy.getValue();
+        if (tag != null && !tag.isEmpty()) {
+            int hash = tag.hashCode();
+            if (hash != this.lastDataSyncHash) {
+                this.lastDataSyncHash = hash;
+                this.applyDataSyncFromPacket(tag);
+            }
+        }
         return this.loadedStructure;
     }
 
@@ -1013,14 +1091,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     public void tickClient() {
-        boolean isNewCycle = this.placeCooldown > this.lastPlaceCooldown
-                             && this.placeCooldown >= PLACEMENT_INTERVAL;
+        Integer cooldownValue = this.placeCooldownProxy.getValue();
+        int cooldown = cooldownValue != null ? cooldownValue : 0;
+        boolean isNewCycle = cooldown > this.lastPlaceCooldown
+                             && cooldown >= getPlacementInterval();
 
         boolean wasIdle = this.lastPlaceCooldown == 0;
-        boolean isNowWorking = this.placeCooldown > 0;
+        boolean isNowWorking = cooldown > 0;
         boolean becameActive = wasIdle && isNowWorking;
-        // 只要有持有物且未在动画中，立即触发
-        boolean hasItem = !this.currentHeldBlock.isEmpty() && this.clientAnimationStartTime == 0;
+        ItemStack heldBlockValue = this.currentHeldBlockProxy.getValue();
+        boolean hasItem = (heldBlockValue != null && !heldBlockValue.isEmpty())
+                          && this.clientAnimationStartTime == 0;
 
         if (isNewCycle || becameActive || hasItem) {
             this.clientAnimationStartTime = 0;
@@ -1029,7 +1110,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.retractSoundPlayed = false;
         }
 
-        this.lastPlaceCooldown = this.placeCooldown;
+        this.lastPlaceCooldown = cooldown;
     }
 
     /**
@@ -1422,7 +1503,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         boolean shouldDecrementCooldown = currentGameTime != this.lastTickGameTime;
 
         if (this.placeCooldown > 0 && shouldDecrementCooldown) {
-            if (this.placeCooldown == PLACEMENT_DELAY && shouldExecute) {
+            if (this.placeCooldown == getPlacementDelay() && shouldExecute) {
                 if (this.currentHeldBlock.isEmpty()) {
                     this.currentPlacementIndex = 0;
                 }
@@ -1439,7 +1520,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         if (this.placeCooldown == 0 && shouldExecute) {
             onCycleStart.run();
 
-            this.placeCooldown = PLACEMENT_INTERVAL;
+            this.placeCooldown = getPlacementInterval();
             this.lastTickGameTime = currentGameTime;
             this.onChanged();
         }
@@ -3781,18 +3862,48 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     public void setSelectedLayer(int layer) {
         this.selectedLayer = layer;
+        this.selectedLayerProxy.setValue(layer);
         this.onChanged();
     }
 
     public void setPickupMode(boolean pickupMode) {
         this.isPickupMode = pickupMode;
+        this.isPickupModeProxy.setValue(pickupMode);
         this.expectedShuttleTarget = null;
         this.onChanged();
     }
 
     public void setSkipMissingMode(boolean skipMissingMode) {
         this.isSkipMissingMode = skipMissingMode;
+        this.isSkipMissingModeProxy.setValue(skipMissingMode);
         this.onChanged();
+    }
+
+    // 上一个同步的数据包哈希（用于检测变化）
+    private int lastDataSyncHash = 0;
+
+    /**
+     * 从网络包应用结构/预览数据（客户端调用）
+     */
+    public void applyDataSyncFromPacket(CompoundTag tag) {
+        if (tag.contains("cachedStructure") || (tag.contains("cachedStructureUuid"))) {
+            this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
+            this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
+            if (tag.contains("cachedStructureUuid")) {
+                this.loadedStructureUuid = net.minecraft.core.UUIDUtil.CODEC.parse(
+                    net.minecraft.nbt.NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid")
+                ).result().orElse(null);
+            }
+            this.hasStructureDisk = true;
+            this.hasInvalidStructure = false;
+        } else {
+            this.loadedStructure = null;
+            this.loadedStructureName = "";
+            this.loadedStructureUuid = null;
+            this.hasStructureDisk = false;
+            this.hasInvalidStructure = false;
+        }
+        this.loadLayerPositions(tag);
     }
 
     public void togglePosition(int layer, int position, boolean selected) {
@@ -3951,8 +4062,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     @Override
     public int getInputPower() {
-        // 蓝图模式耗电量为64kW，其他模式为16kW
-        return (this.loadedStructure != null && !this.loadedStructure.isEmpty()) ? 64 : SmartBlockPlacerBlockEntity.POWER;
+        // 耗电随放置速度反比例变化：basePower * 20 / interval
+        // 20gt 时：普通模式 8kW，蓝图模式 64kW
+        // 10gt 时：普通模式 16kW，蓝图模式 128kW
+        int basePower = (this.loadedStructure != null && !this.loadedStructure.isEmpty()) ? 64 : SmartBlockPlacerBlockEntity.POWER;
+        return Math.max(1, basePower * 20 / getPlacementInterval());
     }
 
     @Override

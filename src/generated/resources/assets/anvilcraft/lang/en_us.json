@@ -240,6 +240,8 @@
   "anvilcraft.configuration.show_multiphase_stored_id.tooltip": "Add a tooltip line that shows multiphase stored ID",
   "anvilcraft.configuration.sliding_rail_stick_to_each_other": "Sliding Rail Stick To Each Other",
   "anvilcraft.configuration.sliding_rail_stick_to_each_other.tooltip": "Pushing or pulling a sliding rail will chain to other rails",
+  "anvilcraft.configuration.smart_block_placer_interval": "Smart Block Placer Interval",
+  "anvilcraft.configuration.smart_block_placer_interval.tooltip": "Placement interval of smart block placer (in ticks)",
   "anvilcraft.configuration.spacetime_supercomputer_command": "Spacetime Supercomputer Command",
   "anvilcraft.configuration.spacetime_supercomputer_command.allow_locate_biome_command": "Allow Locate Biome Command",
   "anvilcraft.configuration.spacetime_supercomputer_command.allow_locate_biome_command.tooltip": "Allow /locate biome command",
