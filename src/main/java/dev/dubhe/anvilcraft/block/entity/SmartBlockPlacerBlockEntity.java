@@ -2,6 +2,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableSet;
+import dev.anvilcraft.lib.v2.sync.annotation.Sync;
+import dev.anvilcraft.lib.v2.sync.management.SyncProxy;
+import dev.anvilcraft.lib.v2.sync.util.SyncDirection;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
@@ -24,8 +27,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
-import dev.dubhe.anvilcraft.network.SmartBlockPlacerAnimSyncPacket;
-import dev.dubhe.anvilcraft.network.SmartBlockPlacerDataSyncPacket;
 import dev.dubhe.anvilcraft.util.StructureBookUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -80,7 +81,6 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -101,6 +101,7 @@ import java.util.function.Supplier;
 
 @Getter
 @Setter
+@Sync(SyncDirection.S2C)
 public class SmartBlockPlacerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
@@ -243,6 +244,59 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             SmartBlockPlacerBlockEntity.this.onOutputBookTaken();
         }
     };
+
+    // 动画数据同步（通过 SyncProxy 自动同步到客户端）
+    public final SyncProxy<Integer> placeCooldownProxy = new SyncProxy<>(0);
+    public final SyncProxy<ItemStack> currentHeldBlockProxy = new SyncProxy<>(ItemStack.EMPTY);
+    public final SyncProxy<Integer> currentPlacementIndexProxy = new SyncProxy<>(0);
+    public final SyncProxy<Boolean> isPoweredProxy = new SyncProxy<>(false);
+    public final SyncProxy<Boolean> hasRedstoneSignalProxy = new SyncProxy<>(false);
+
+    public int getPlaceCooldown() {
+        Integer value = this.placeCooldownProxy.getValue();
+        return value != null ? value : 0;
+    }
+
+    public ItemStack getCurrentHeldBlock() {
+        ItemStack value = this.currentHeldBlockProxy.getValue();
+        return value != null ? value : ItemStack.EMPTY;
+    }
+
+    public int getCurrentPlacementIndex() {
+        Integer value = this.currentPlacementIndexProxy.getValue();
+        return value != null ? value : 0;
+    }
+
+    public boolean isPowered() {
+        Boolean value = this.isPoweredProxy.getValue();
+        return value != null && value;
+    }
+
+    public boolean isHasRedstoneSignal() {
+        Boolean value = this.hasRedstoneSignalProxy.getValue();
+        return value != null && value;
+    }
+
+    // 预览/模式数据同步（通过 SyncProxy 自动同步到客户端）
+    public final SyncProxy<Integer> selectedLayerProxy = new SyncProxy<>(0);
+    public final SyncProxy<Boolean> isPickupModeProxy = new SyncProxy<>(true);
+    public final SyncProxy<Boolean> isSkipMissingModeProxy = new SyncProxy<>(true);
+    public final SyncProxy<CompoundTag> dataSyncProxy = new SyncProxy<>(new CompoundTag());
+
+    public int getSelectedLayer() {
+        Integer value = this.selectedLayerProxy.getValue();
+        return value != null ? value : 0;
+    }
+
+    public boolean isPickupMode() {
+        Boolean value = this.isPickupModeProxy.getValue();
+        return value != null && value;
+    }
+
+    public boolean isSkipMissingMode() {
+        Boolean value = this.isSkipMissingModeProxy.getValue();
+        return value != null && value;
+    }
 
     // 客户端动画状态
     private long clientAnimationStartTime = 0;
@@ -405,26 +459,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 this.getBlockState(),
                 Block.UPDATE_CLIENTS
             );
-            if (level instanceof ServerLevel serverLevel) {
-                var animPacket = new SmartBlockPlacerAnimSyncPacket(
-                    this.getBlockPos(), this.placeCooldown, this.currentHeldBlock,
-                    this.currentPlacementIndex, this.isPowered, this.hasRedstoneSignal);
-                for (var player : serverLevel.getPlayers(_ -> true)) {
-                    PacketDistributor.sendToPlayer(player, animPacket);
-                }
-            }
-        }
-    }
-
-    private void sendDataPacket() {
-        if (this.level == null || this.level.isClientSide()) return;
-        if (this.level instanceof ServerLevel serverLevel) {
-            var dataTag = new CompoundTag();
-            this.saveAdditionalDataToTag(dataTag);
-            var dataPacket = new SmartBlockPlacerDataSyncPacket(this.getBlockPos(), dataTag);
-            for (var player : serverLevel.getPlayers(_ -> true)) {
-                PacketDistributor.sendToPlayer(player, dataPacket);
-            }
+            // 通过 SyncProxy 自动同步动画状态到客户端
+            this.placeCooldownProxy.setValue(this.placeCooldown);
+            this.currentHeldBlockProxy.setValue(this.currentHeldBlock);
+            this.currentPlacementIndexProxy.setValue(this.currentPlacementIndex);
+            this.isPoweredProxy.setValue(this.isPowered);
+            this.hasRedstoneSignalProxy.setValue(this.hasRedstoneSignal);
         }
     }
 
@@ -615,7 +655,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 只在结构数据真正变化时才同步
         if (structureChanged) {
             this.onChanged();
-            this.sendDataPacket();
+            // 通过 SyncProxy 同步结构数据
+            CompoundTag structTag = new CompoundTag();
+            this.saveAdditionalDataToTag(structTag);
+            this.dataSyncProxy.setValue(structTag);
         }
     }
 
@@ -623,6 +666,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 获取已加载的结构数据
      */
     public StructureLoadUtil.@Nullable StructureData getLoadedStructure() {
+        // 检查 SyncProxy 数据同步是否更新
+        CompoundTag tag = this.dataSyncProxy.getValue();
+        if (tag != null && !tag.isEmpty()) {
+            int hash = tag.hashCode();
+            if (hash != this.lastDataSyncHash) {
+                this.lastDataSyncHash = hash;
+                this.applyDataSyncFromPacket(tag);
+            }
+        }
         return this.loadedStructure;
     }
 
@@ -1032,14 +1084,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     public void tickClient() {
-        boolean isNewCycle = this.placeCooldown > this.lastPlaceCooldown
-                             && this.placeCooldown >= PLACEMENT_INTERVAL;
+        Integer cooldownValue = this.placeCooldownProxy.getValue();
+        int cooldown = cooldownValue != null ? cooldownValue : 0;
+        boolean isNewCycle = cooldown > this.lastPlaceCooldown
+                             && cooldown >= PLACEMENT_INTERVAL;
 
         boolean wasIdle = this.lastPlaceCooldown == 0;
-        boolean isNowWorking = this.placeCooldown > 0;
+        boolean isNowWorking = cooldown > 0;
         boolean becameActive = wasIdle && isNowWorking;
-        // 只要有持有物且未在动画中，立即触发
-        boolean hasItem = !this.currentHeldBlock.isEmpty() && this.clientAnimationStartTime == 0;
+        ItemStack heldBlockValue = this.currentHeldBlockProxy.getValue();
+        boolean hasItem = (heldBlockValue != null && !heldBlockValue.isEmpty())
+                          && this.clientAnimationStartTime == 0;
 
         if (isNewCycle || becameActive || hasItem) {
             this.clientAnimationStartTime = 0;
@@ -1048,7 +1103,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.retractSoundPlayed = false;
         }
 
-        this.lastPlaceCooldown = this.placeCooldown;
+        this.lastPlaceCooldown = cooldown;
     }
 
     /**
@@ -3800,44 +3855,37 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     public void setSelectedLayer(int layer) {
         this.selectedLayer = layer;
+        this.selectedLayerProxy.setValue(layer);
         this.onChanged();
-        this.sendDataPacket();
     }
 
     public void setPickupMode(boolean pickupMode) {
         this.isPickupMode = pickupMode;
+        this.isPickupModeProxy.setValue(pickupMode);
         this.expectedShuttleTarget = null;
         this.onChanged();
-        this.sendDataPacket();
     }
 
     public void setSkipMissingMode(boolean skipMissingMode) {
         this.isSkipMissingMode = skipMissingMode;
+        this.isSkipMissingModeProxy.setValue(skipMissingMode);
         this.onChanged();
-        this.sendDataPacket();
     }
 
-    // ---- 网络包同步字段设置（客户端调用） ----
-
-    public void applyAnimSyncData(int placeCooldown, ItemStack heldBlock, int placementIndex,
-                                  boolean powered, boolean hasRedstoneSignal) {
-        this.placeCooldown = placeCooldown;
-        this.currentHeldBlock = heldBlock.copy();
-        this.currentPlacementIndex = placementIndex;
-        this.isPowered = powered;
-        this.hasRedstoneSignal = hasRedstoneSignal;
-        this.tickClient();
-    }
+    // 上一个同步的数据包哈希（用于检测变化）
+    private int lastDataSyncHash = 0;
 
     /**
      * 从网络包应用结构/预览数据（客户端调用）
      */
     public void applyDataSyncFromPacket(CompoundTag tag) {
-        if (tag.contains("cachedStructure")) {
+        if (tag.contains("cachedStructure") || (tag.contains("cachedStructureUuid"))) {
             this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
             this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
             if (tag.contains("cachedStructureUuid")) {
-                this.loadedStructureUuid = java.util.UUID.fromString(tag.getStringOr("cachedStructureUuid", ""));
+                this.loadedStructureUuid = net.minecraft.core.UUIDUtil.CODEC.parse(
+                    net.minecraft.nbt.NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid")
+                ).result().orElse(null);
             }
             this.hasStructureDisk = true;
             this.hasInvalidStructure = false;
@@ -3848,9 +3896,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.hasStructureDisk = false;
             this.hasInvalidStructure = false;
         }
-        this.selectedLayer = tag.getIntOr("selectedLayer", 0);
-        this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
-        this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
         this.loadLayerPositions(tag);
     }
 
