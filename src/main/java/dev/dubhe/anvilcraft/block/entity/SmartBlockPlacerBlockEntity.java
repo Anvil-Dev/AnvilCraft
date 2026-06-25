@@ -3814,8 +3814,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.currentPlacementIndex = placementIndex;
         this.isPowered = powered;
         this.hasRedstoneSignal = hasRedstoneSignal;
-        // 触发 tickClient 检测状态变化
-        this.lastPlaceCooldown = 0;
         this.tickClient();
     }
 
