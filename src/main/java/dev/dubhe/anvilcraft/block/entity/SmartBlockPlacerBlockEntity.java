@@ -409,13 +409,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 var animPacket = new SmartBlockPlacerAnimSyncPacket(
                     this.getBlockPos(), this.placeCooldown, this.currentHeldBlock,
                     this.currentPlacementIndex, this.isPowered, this.hasRedstoneSignal);
-                var dataTag = new CompoundTag();
-                this.saveAdditionalDataToTag(dataTag);
-                var dataPacket = new SmartBlockPlacerDataSyncPacket(this.getBlockPos(), dataTag);
                 for (var player : serverLevel.getPlayers(_ -> true)) {
                     PacketDistributor.sendToPlayer(player, animPacket);
-                    PacketDistributor.sendToPlayer(player, dataPacket);
                 }
+            }
+        }
+    }
+
+    private void sendDataPacket() {
+        if (this.level == null || this.level.isClientSide()) return;
+        if (this.level instanceof ServerLevel serverLevel) {
+            var dataTag = new CompoundTag();
+            this.saveAdditionalDataToTag(dataTag);
+            var dataPacket = new SmartBlockPlacerDataSyncPacket(this.getBlockPos(), dataTag);
+            for (var player : serverLevel.getPlayers(_ -> true)) {
+                PacketDistributor.sendToPlayer(player, dataPacket);
             }
         }
     }
@@ -607,6 +615,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 只在结构数据真正变化时才同步
         if (structureChanged) {
             this.onChanged();
+            this.sendDataPacket();
         }
     }
 
@@ -3792,17 +3801,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public void setSelectedLayer(int layer) {
         this.selectedLayer = layer;
         this.onChanged();
+        this.sendDataPacket();
     }
 
     public void setPickupMode(boolean pickupMode) {
         this.isPickupMode = pickupMode;
         this.expectedShuttleTarget = null;
         this.onChanged();
+        this.sendDataPacket();
     }
 
     public void setSkipMissingMode(boolean skipMissingMode) {
         this.isSkipMissingMode = skipMissingMode;
         this.onChanged();
+        this.sendDataPacket();
     }
 
     // ---- 网络包同步字段设置（客户端调用） ----
@@ -3828,6 +3840,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 this.loadedStructureUuid = java.util.UUID.fromString(tag.getStringOr("cachedStructureUuid", ""));
             }
             this.hasStructureDisk = true;
+            this.hasInvalidStructure = false;
+        } else {
+            this.loadedStructure = null;
+            this.loadedStructureName = "";
+            this.loadedStructureUuid = null;
+            this.hasStructureDisk = false;
             this.hasInvalidStructure = false;
         }
         this.selectedLayer = tag.getIntOr("selectedLayer", 0);
