@@ -112,7 +112,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     public static int getPlacementDelay() {
-        return Math.max(1, getPlacementInterval() * 6 / 20);
+        return Math.max(1, (int) (getPlacementInterval() * 0.3f));
     }
 
     // 白名单：蓝图中需要保留的方块状态属性
@@ -4066,7 +4066,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 20gt 时：普通模式 8kW，蓝图模式 64kW
         // 10gt 时：普通模式 16kW，蓝图模式 128kW
         int basePower = (this.loadedStructure != null && !this.loadedStructure.isEmpty()) ? 64 : SmartBlockPlacerBlockEntity.POWER;
-        return basePower * 20 / getPlacementInterval();
+        return Math.max(1, basePower * 20 / getPlacementInterval());
     }
 
     @Override
