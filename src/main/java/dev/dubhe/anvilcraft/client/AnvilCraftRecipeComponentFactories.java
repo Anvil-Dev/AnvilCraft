@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.MDChargerChargingRecipeCompon
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDJewelCraftingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDMultipleToOneSmithingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDPortalConversionRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.MDProceduralProcessRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCompressRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCrushRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockProcessingRecipeComponent;
@@ -207,6 +208,14 @@ public class AnvilCraftRecipeComponentFactories {
         "portal_conversion", () -> MDRecipeComponent.RecipeComponentFactory.create(
             ModRecipeTypes.PORTAL_CONVERSION_TYPE.get(),
             MDPortalConversionRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        PROCEDURAL_PROCESS = RECIPE_COMPONENT_FACTORIES.register(
+        "procedural_process", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.PROCEDURAL_PROCESS.get(),
+            MDProceduralProcessRecipeComponent::new
         )
     );
 
