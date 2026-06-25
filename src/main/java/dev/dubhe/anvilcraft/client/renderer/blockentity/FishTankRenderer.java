@@ -132,16 +132,17 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             );
             pose.popPose();
         }
-        if (state.getStacks().isEmpty()) return;
-        FishTankRenderer.submitItemsInTank(
-            state.getStacks(),
-            pose,
-            collector,
-            this.random,
-            state.getFill(),
-            state.lightCoords,
-            state.getSeed()
-        );
+        if (!state.getStacks().isEmpty()) {
+            FishTankRenderer.submitItemsInTank(
+                state.getStacks(),
+                pose,
+                collector,
+                this.random,
+                state.getFill(),
+                state.lightCoords,
+                state.getSeed()
+            );
+        }
         FishTankRenderer.submitFishesInTank(state, this.renderer, pose, collector, camera);
     }
 

@@ -15,11 +15,15 @@
 
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
+import dev.dubhe.anvilcraft.api.fluid.InfinityFluidTank;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FluidHandlerRenderState;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
 public class LargeFluidTankRenderer extends BaseFluidHandlerHolderRenderer<LargeFluidTankBlockEntity, FluidHandlerRenderState> {
@@ -42,5 +46,15 @@ public class LargeFluidTankRenderer extends BaseFluidHandlerHolderRenderer<Large
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         state.setTankW(-1, -1, -1, 2, 2, 2, TANK_W);
+    }
+
+    @Override
+    public float getFill(ResourceHandler<FluidResource> tank) {
+        return tank instanceof InfinityFluidTank infinity && infinity.isInfinity() ? 1.0F : super.getFill(tank);
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(LargeFluidTankBlockEntity blockEntity) {
+        return new AABB(blockEntity.getBlockPos().above()).inflate(1);
     }
 }

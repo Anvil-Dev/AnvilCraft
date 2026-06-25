@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.network.multiple;
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
-import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import io.netty.buffer.ByteBuf;

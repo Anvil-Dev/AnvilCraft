@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.saved.storage;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import dev.dubhe.anvilcraft.saved.BetterSavedData;

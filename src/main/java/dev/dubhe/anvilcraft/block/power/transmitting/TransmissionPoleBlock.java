@@ -1,18 +1,20 @@
 package dev.dubhe.anvilcraft.block.power.transmitting;
 
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
+import dev.dubhe.anvilcraft.api.block.entity.ITickable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -29,8 +31,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHalf>
-    implements IHammerRemovable, IHasMultiBlock, EntityBlock {
+public class TransmissionPoleBlock
+    extends SimpleMultiPartBlock<Vertical3PartHalf>
+    implements MultiPartBlockEntity<Vertical3PartHalf, TransmissionPoleBlock>, IHammerRemovable, IHasMultiBlock {
     public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
@@ -89,7 +92,8 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
         BlockState state,
         BlockGetter level,
         BlockPos pos,
-        CollisionContext context) {
+        CollisionContext context
+    ) {
         if (state.getValue(HALF) == Vertical3PartHalf.BOTTOM) return TRANSMISSION_POLE_BASE;
         if (state.getValue(HALF) == Vertical3PartHalf.MID) return TRANSMISSION_POLE_MID;
         if (state.getValue(HALF) == Vertical3PartHalf.TOP) return TRANSMISSION_POLE_TOP;
@@ -106,31 +110,31 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
         return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public TransmissionPoleBlock getMultiBlock() {
+        return this;
+    }
+
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new TransmissionPoleBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide()) return null;
-        return (level1, pos, state1, entity) -> {
-            if (entity instanceof TransmissionPoleBlockEntity be) be.tick(level1, pos);
-        };
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return ITickable.tickServerOnly(level, ModBlockEntities.TRANSMISSION_POLE.get(), type);
     }
 
     @Override
-
     protected void neighborChanged(
         BlockState state,
         Level level,
         BlockPos pos,
         Block neighborBlock,
         @Nullable Orientation orientation,
-        boolean movedByPiston) {
+        boolean movedByPiston
+    ) {
         if (level.isClientSide()) return;
         if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return;
         BlockPos topPos = pos.above(2);

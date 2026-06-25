@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -33,7 +34,7 @@ import org.jspecify.annotations.Nullable;
  * Stores 4 fluid types, each up to 80 buckets.
  * Consumes 128kW power. Supports fluid I/O via pipes.
  */
-public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity implements IPowerConsumer {
+public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity implements IPowerConsumer, IFluidResourceHandlerHolder {
     private static final int TANK_COUNT = 4;
     private static final int CAPACITY_PER_TANK = 80_000; // 80 buckets in mB
 
@@ -66,7 +67,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
                 return false;
             }
 
-            protected void onContentsChanged() {
+            private void onContentsChanged() {
                 CelestialForgingAnvilFluidInterfaceBlockEntity.this.setChanged();
             }
         };

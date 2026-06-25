@@ -1,8 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluidtank.CreativeFluidHandler;
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -16,12 +15,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import org.jetbrains.annotations.Nullable;
 
-public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
+public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     private final CreativeFluidHandler fluidHandler = new CreativeFluidHandler();
 
     public CreativeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -51,7 +48,7 @@ public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidH
     }
 
     @Override
-    public ResourceHandler<FluidResource> getFluidHandler() {
+    public CreativeFluidHandler getFluidHandler() {
         return this.fluidHandler;
     }
 

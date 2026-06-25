@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.block.power.transmitting;
 
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
+import dev.dubhe.anvilcraft.api.block.entity.ITickable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -13,7 +16,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -32,7 +34,7 @@ import org.jspecify.annotations.Nullable;
 
 public class RemoteTransmissionPoleBlock
     extends SimpleMultiPartBlock<Vertical4PartHalf>
-    implements IHammerRemovable, IHasMultiBlock, EntityBlock {
+    implements MultiPartBlockEntity<Vertical4PartHalf, RemoteTransmissionPoleBlock>, IHammerRemovable, IHasMultiBlock {
     public static final EnumProperty<Vertical4PartHalf> HALF = EnumProperty.create("half", Vertical4PartHalf.class);
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
@@ -118,24 +120,23 @@ public class RemoteTransmissionPoleBlock
         return state;
     }
 
-    @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public RemoteTransmissionPoleBlock getMultiBlock() {
+        return this;
+    }
+
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new RemoteTransmissionPoleBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide()) return null;
-        return (level1, pos, state1, entity) -> {
-            if (entity instanceof RemoteTransmissionPoleBlockEntity be) be.tick(level1, pos);
-        };
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return ITickable.tickServerOnly(level, ModBlockEntities.REMOTE_TRANSMISSION_POLE.get(), type);
     }
 
     @Override
-
     protected void neighborChanged(
         BlockState state,
         Level level,

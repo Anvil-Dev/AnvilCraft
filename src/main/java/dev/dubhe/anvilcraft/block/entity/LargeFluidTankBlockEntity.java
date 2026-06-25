@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.InfinityFluidTank;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -27,7 +27,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
-public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
+public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     public static final int CAPACITY = 320 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 12800 * FluidType.BUCKET_VOLUME;
     protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false) {

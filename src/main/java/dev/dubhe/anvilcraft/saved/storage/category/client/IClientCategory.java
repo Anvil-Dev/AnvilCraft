@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.saved.storage.category.client;
 
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 
 public interface IClientCategory extends ICategory {

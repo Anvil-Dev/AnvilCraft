@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
@@ -80,7 +80,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class FishTankBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, ItemResourceHandlerCache, IFluidHandlerHolder {
+public class FishTankBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, ItemResourceHandlerCache,
+    IFluidResourceHandlerHolder {
     private static final double EPSILON = 1.0 / 1024.0;
     public static final int MAX_TROPICAL_FISH = 4;
 

@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.saved;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

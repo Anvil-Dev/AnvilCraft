@@ -46,7 +46,7 @@ import java.util.UUID;
 
 @SuppressWarnings("checkstyle:LineLength")
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
-    private static final Identifier BACKGROUND = SharedTextures.SMART_BLOCK_PLACER_BACKGROUND;
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "smart_block_placer");
 
     private static final Identifier[] LAYER_DEFAULT = {
         SharedTextures.SMART_BLOCK_PLACER_LAYER_1,
@@ -964,6 +964,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 int renderY = upsideDown ? (2 - bp.y()) : (bp.y() - 2);
                 BlockState state = bp.state();
                 if (upsideDown) {
+                    // noinspection deprecation
                     state = state.rotate(Rotation.CLOCKWISE_180);
                     state = SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(state);
                 }

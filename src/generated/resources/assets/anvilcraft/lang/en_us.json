@@ -1961,6 +1961,7 @@
   "tooltip.anvilcraft.item.weathered_copper_pressure_plate": "Redstone signal increases with pressing time, also a copper plate",
   "tooltip.anvilcraft.item.white_hole": "Dev Block with intense gravitational repulsion",
   "tooltip.anvilcraft.item.zinc_pressure_plate": "Output a redstone signal based on the highest percentage of health of the mobs above, also a zinc plate",
+  "tooltip.anvilcraft.jade.infinity": "∞",
   "tooltip.anvilcraft.jade.item_detector": "Detection Range: %d",
   "tooltip.anvilcraft.jade.power_information": "Power Grid: %s",
   "tooltip.anvilcraft.jade.ruby_prism.power": "Laser level: %d",

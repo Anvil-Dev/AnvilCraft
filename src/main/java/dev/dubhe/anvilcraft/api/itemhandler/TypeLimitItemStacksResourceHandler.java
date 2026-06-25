@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.network.util.BoolAndInt;
-import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;

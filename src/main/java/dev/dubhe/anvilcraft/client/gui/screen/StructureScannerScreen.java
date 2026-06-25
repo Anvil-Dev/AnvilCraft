@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StructureScannerScreen extends AbstractContainerScreen<StructureScannerMenu> {
-    private static final Identifier BACKGROUND = SharedTextures.STRUCTURE_SCANNER_BACKGROUND;
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "structure_scanner");
     private static final Identifier REDO_TEXTURE = SharedTextures.REDO;
     private static final Identifier STOP_TEXTURE = SharedTextures.STOP;
     private static final Identifier CONFIRM_TEXTURE = SharedTextures.CONFIRM;

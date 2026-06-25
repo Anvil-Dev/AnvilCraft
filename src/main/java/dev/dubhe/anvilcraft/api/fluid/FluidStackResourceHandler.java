@@ -53,7 +53,7 @@ public class FluidStackResourceHandler implements ResourceHandler<FluidResource>
 
     @Override
     public boolean isValid(int index, FluidResource resource) {
-        return resource.matches(this.stack);
+        return this.stack.isEmpty() || resource.matches(this.stack);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class FluidStackResourceHandler implements ResourceHandler<FluidResource>
 
         int currentAmount = this.getAmountAsInt(index);
 
-        if (currentAmount == 0 && this.isValid(index, resource)) {
+        if (currentAmount == 0 || this.isValid(index, resource)) {
             int inserted = Math.min(amount, this.getCapacityAsInt(index, resource) - currentAmount);
 
             if (inserted > 0) {

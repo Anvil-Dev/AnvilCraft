@@ -521,7 +521,7 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+        TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.Collector(this.problemPath()), provider);
         output.store(super.getUpdateTag(provider));
         this.saveAdditionalData(output);
         return output.buildResult();

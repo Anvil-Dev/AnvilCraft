@@ -799,10 +799,8 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .register();
 
-    public static final BlockEntry<? extends Block> REMOTE_TRANSMISSION_POLE = REGISTRUM.block(
-            "remote_transmission_pole",
-            RemoteTransmissionPoleBlock::new
-        )
+    public static final BlockEntry<RemoteTransmissionPoleBlock> REMOTE_TRANSMISSION_POLE = REGISTRUM
+        .block("remote_transmission_pole", RemoteTransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
