@@ -22,5 +22,6 @@ public class LangHandler {
         ScreenTooltipLang.init(provider);
         MessageLang.init(provider);
         BlockLang.init(provider);
+        EffectLang.init(provider);
     }
 }

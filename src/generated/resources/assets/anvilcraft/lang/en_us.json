@@ -687,6 +687,7 @@
   "death.attack.anvilcraft.laser": "%1$s was pierced by laser",
   "death.attack.anvilcraft.lost_in_time": "%1$s was lost in the river of time",
   "death.attack.anvilcraft.plasma_jets": "%1$s tried to high-five the plasma jets. They did not high-five back.",
+  "effect.anvilcraft.invulnerable": "Invulnerable",
   "effect.anvilcraft.rage": "Rage",
   "enchantment.anvilcraft.beheading": "Beheading",
   "enchantment.anvilcraft.beheading.desc": "Increase drop chance of Wither Skeleton Skull and make other mobs drop their head.",
