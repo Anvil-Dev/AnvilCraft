@@ -105,7 +105,7 @@ import java.util.function.Supplier;
 public class SmartBlockPlacerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
-    private static final int PLACEMENT_INTERVAL = 20;
+    public static final int PLACEMENT_INTERVAL = 20;
     private static final int PLACEMENT_DELAY = 6;
 
     // 白名单：蓝图中需要保留的方块状态属性

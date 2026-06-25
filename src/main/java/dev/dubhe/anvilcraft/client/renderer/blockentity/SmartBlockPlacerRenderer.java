@@ -72,7 +72,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         private static final float UPPER_ARM_LENGTH = 2.5f;  // 大臂长度
         private static final float FOREARM_LENGTH = 2.5f;    // 小臂长度
         private static final float BASE_HEIGHT = 0.0f;       // 底座关节高度（相对于底座模型）
-        private static final int ANIMATION_DURATION_TICKS = 20; // 动画总持续时间：20tick = 1秒
 
         /**
          * 计算机械臂角度
@@ -219,12 +218,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
 
-        /**
-         * 获取动画持续时间
-         */
-        public int getAnimationDurationTicks() {
-            return ANIMATION_DURATION_TICKS;
-        }
     }
 
     @SuppressWarnings(
@@ -242,6 +235,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, cameraPosition, breakProgress);
+
+        // 从放置速度获取动画总时长，跟随 PLACEMENT_INTERVAL 动态变化
+        state.setAnimationDurationTicks(SmartBlockPlacerBlockEntity.PLACEMENT_INTERVAL);
 
         // Initialize models
         state.setBaseModel(FeatureRendererSupport.initialize(BASE_MODEL, entity));
@@ -296,7 +292,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 entity.setClientRetractStartTime(retractLevel.getGameTime());
 
                 long elapsedTicks = retractLevel.getGameTime() - animStartTime;
-                float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME
+                float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) state
                     .getAnimationDurationTicks());
                 float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
                     animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
@@ -318,7 +314,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
             float startProgress = entity.getClientRetractStartProgress();
             float remainingProgress = 1.0f - startProgress;
-            float retractDuration = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() * remainingProgress;
+            float retractDuration = state.getAnimationDurationTicks() * remainingProgress;
 
             if (retractDuration <= 0) {
                 entity.setClientIsRetracting(false);
@@ -352,7 +348,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             // 如果动画已播放完成，检查工作条件
             if (animStartTime != 0 && animTargetPos != null) {
                 long elapsedTicks = currentTime - animStartTime;
-                boolean animationCompleted = elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 5;
+                boolean animationCompleted = elapsedTicks >= state.getAnimationDurationTicks() + 5;
 
                 if (animationCompleted) {
                     BlockPos targetPos = this.getNextTargetPosition(entity, facing, upsideDown);
@@ -444,10 +440,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 isAnimationPlaying = true;
                 long elapsedTicks = currentTime - animStartTime;
 
-                if (elapsedTicks < WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
+                if (elapsedTicks < state.getAnimationDurationTicks()) {
                     animationProgress = Math.min(
                         1.0f,
-                        (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
+                        (elapsedTicks + partialTick) / (float) state.getAnimationDurationTicks()
                     );
                 } else {
                     animationProgress = 1.0f;
