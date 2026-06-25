@@ -236,8 +236,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     ) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, cameraPosition, breakProgress);
 
-        // 从放置速度获取动画总时长，跟随 PLACEMENT_INTERVAL 动态变化
-        state.setAnimationDurationTicks(SmartBlockPlacerBlockEntity.PLACEMENT_INTERVAL);
+        // 从放置速度获取动画总时长，跟随配置项 smartBlockPlacerInterval 动态变化
+        state.setAnimationDurationTicks(SmartBlockPlacerBlockEntity.getPlacementInterval());
 
         // Initialize models
         state.setBaseModel(FeatureRendererSupport.initialize(BASE_MODEL, entity));

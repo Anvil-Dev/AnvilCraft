@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import dev.anvilcraft.lib.v2.sync.annotation.Sync;
 import dev.anvilcraft.lib.v2.sync.management.SyncProxy;
 import dev.anvilcraft.lib.v2.sync.util.SyncDirection;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
@@ -105,8 +106,14 @@ import java.util.function.Supplier;
 public class SmartBlockPlacerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemResourceHandlerHolder {
     private static final int POWER = 8;
-    public static final int PLACEMENT_INTERVAL = 20;
-    private static final int PLACEMENT_DELAY = 6;
+
+    public static int getPlacementInterval() {
+        return AnvilCraft.CONFIG.smartBlockPlacerInterval;
+    }
+
+    public static int getPlacementDelay() {
+        return Math.max(1, getPlacementInterval() * 6 / 20);
+    }
 
     // 白名单：蓝图中需要保留的方块状态属性
     private static final Set<Property<?>> INHERITED_PROPERTIES = ImmutableSet.of(
@@ -1087,7 +1094,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         Integer cooldownValue = this.placeCooldownProxy.getValue();
         int cooldown = cooldownValue != null ? cooldownValue : 0;
         boolean isNewCycle = cooldown > this.lastPlaceCooldown
-                             && cooldown >= PLACEMENT_INTERVAL;
+                             && cooldown >= getPlacementInterval();
 
         boolean wasIdle = this.lastPlaceCooldown == 0;
         boolean isNowWorking = cooldown > 0;
@@ -1496,7 +1503,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         boolean shouldDecrementCooldown = currentGameTime != this.lastTickGameTime;
 
         if (this.placeCooldown > 0 && shouldDecrementCooldown) {
-            if (this.placeCooldown == PLACEMENT_DELAY && shouldExecute) {
+            if (this.placeCooldown == getPlacementDelay() && shouldExecute) {
                 if (this.currentHeldBlock.isEmpty()) {
                     this.currentPlacementIndex = 0;
                 }
@@ -1513,7 +1520,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         if (this.placeCooldown == 0 && shouldExecute) {
             onCycleStart.run();
 
-            this.placeCooldown = PLACEMENT_INTERVAL;
+            this.placeCooldown = getPlacementInterval();
             this.lastTickGameTime = currentGameTime;
             this.onChanged();
         }
@@ -4055,8 +4062,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     @Override
     public int getInputPower() {
-        // 蓝图模式耗电量为64kW，其他模式为16kW
-        return (this.loadedStructure != null && !this.loadedStructure.isEmpty()) ? 64 : SmartBlockPlacerBlockEntity.POWER;
+        // 耗电随放置速度反比例变化：basePower * 20 / interval
+        // 20gt 时：普通模式 8kW，蓝图模式 64kW
+        // 10gt 时：普通模式 16kW，蓝图模式 128kW
+        int basePower = (this.loadedStructure != null && !this.loadedStructure.isEmpty()) ? 64 : SmartBlockPlacerBlockEntity.POWER;
+        return basePower * 20 / getPlacementInterval();
     }
 
     @Override

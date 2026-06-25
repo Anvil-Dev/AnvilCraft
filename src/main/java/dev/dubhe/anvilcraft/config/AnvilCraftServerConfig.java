@@ -139,6 +139,10 @@ public class AnvilCraftServerConfig {
     @Comment("Combining items with Enchanted Books beyond max level in Transcendence Anvil")
     public boolean transcendenceAnvilBeyondMaxLevel = true;
 
+    @Comment("Placement interval of smart block placer (in ticks)")
+    @BoundedDiscrete(max = 200, min = 2)
+    public int smartBlockPlacerInterval = 20;
+
     public static class PowerConverter {
         @Comment("The working interval of power converters")
         @BoundedDiscrete(min = 1, max = 60)
