@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.MDMultipleToOneSmithingRecipe
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDPortalConversionRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCompressRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCrushRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockProcessingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockSmearRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBoilingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBulgingRecipeComponent;
@@ -19,7 +20,6 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemCrushRecipeCompon
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemInjectRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDMeshRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDNeutronIrradiationRecipeComponent;
-import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDReversedSmearAlikeRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDSqueezingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDStampingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDSuperHeatingRecipeComponent;
@@ -156,9 +156,9 @@ public class AnvilCraftRecipeComponentFactories {
 
     public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
         BLOCK_PROCESSING = RECIPE_COMPONENT_FACTORIES.register(
-        "reversed_smear_alike", () -> MDRecipeComponent.RecipeComponentFactory.create(
-            ModRecipeTypes.REVERSED_SMEAR_ALIKE_TYPE.get(),
-            MDReversedSmearAlikeRecipeComponent::new
+        "block_processing", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.BLOCK_PROCESSING_TYPE.get(),
+            MDBlockProcessingRecipeComponent::new
         )
     );
 

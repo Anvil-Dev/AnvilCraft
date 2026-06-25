@@ -3,20 +3,20 @@ package dev.dubhe.anvilcraft.client.markdown.recipe.anvil;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.resource.ageratum.client.feat.markdown.MDRenderContext;
 import dev.anvilcraft.resource.ageratum.util.RecipeUtil;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.ReversedSmearAlikeRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import lombok.Getter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class MDReversedSmearAlikeRecipeComponent extends MDBaseAnvilRecipeComponent {
+public class MDBlockProcessingRecipeComponent extends MDBaseAnvilRecipeComponent {
 
     private final List<BlockStatePredicate> inputBlocks;
     @Getter
     private final BlockState outputBlockState;
 
-    public MDReversedSmearAlikeRecipeComponent(ReversedSmearAlikeRecipe recipe, boolean enableAlignCenter) {
+    public MDBlockProcessingRecipeComponent(BlockProcessingRecipe recipe, boolean enableAlignCenter) {
         super(enableAlignCenter);
         inputBlocks = recipe.getInputBlocks();
         outputBlockState = recipe.getFirstResultBlock().state();
