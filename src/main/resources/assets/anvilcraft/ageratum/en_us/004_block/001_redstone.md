@@ -74,7 +74,14 @@ In the GUI you can set thresholds and other modes
 
 # <ref item="anvilcraft:redstone_computer"/>
 
+<row halign="center">
 <recipe id="anvilcraft:redstone_computer"/>
+<recipe id="anvilcraft:procedural_process/redstone_computer_from_procedural"/>
+</row>
+
+<info>
+Crafting via [Block Procedural Processing](../007_struct/000_block_processing.md#block-procedural-processing) is more complex but saves materials
+</info>
 
 - Outputs the sum of the signal strengths of the three inputs, capped at 15
 

@@ -73,4 +73,14 @@ Converts the block and generates resources in the cauldron
 <info>
 Mod Improvement: When the cauldron is filled with 4 layers of honey, you can extract honey blocks using hoppers and other logistics blocks.
 </info>
+
+# Block Procedural Processing
+
+Accepts various processing methods including but not limited to those above as individual steps, allowing multiple different steps to be performed in sequence, cycled several times
+
+<info>
+Taking <ref item="anvilcraft:redstone_computer"/> as an example, it requires sequentially pressing <ref item="anvilcraft:circuit_board"/>, <ref item="anvilcraft:processor"/>, <ref item="anvilcraft:disk"/>
+</info>
+
+<recipe id="anvilcraft:procedural_process/redstone_computer_from_procedural"/>
     
