@@ -1,11 +1,16 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
+import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -23,14 +28,14 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Fluid interface for the Celestial Forging Anvil.
- * Stores 4 fluid types, each up to 80 buckets.
- * Consumes 128kW power. Supports fluid I/O via pipes.
- */
-public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity implements IPowerConsumer {
+/// 锻星砧流体接口。
+/// 被动模式：存储最多 4 种流体，各 80 桶，供管道和巨构读写。
+/// 主动模式（红石信号激活）：模型切换到 _active，以 10 米扬程向前方泵送。
+public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
+    implements IPowerConsumer, IFluidHandlerHolder {
     private static final int TANK_COUNT = 4;
     private static final int CAPACITY_PER_TANK = 80_000; // 80 buckets in mB
+    private static final int PUMP_HEADLIFT = 10; // 10m head lift
 
     @Getter
     private final FluidTank[] tanks = new FluidTank[TANK_COUNT];
@@ -227,5 +232,65 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
                 return FluidStack.EMPTY;
             }
         };
+    }
+
+    /**
+     * Server-side tick：在主动模式（红石信号激活）且有电时，向 FACING 方向泵送流体。
+     * <ul>
+     *   <li>前方是管道 → 沿管道追踪到远端再推送</li>
+     *   <li>前方是流体容器 → 直接推送</li>
+     *   <li>扬程 10 米，流速 50 mB/t 每米高度差</li>
+     * </ul>
+     */
+    public void serverTick() {
+        if (level == null || level.isClientSide()) return;
+        BlockState state = getBlockState();
+        if (!state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
+
+        boolean active = state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
+        if (!active) return;
+
+        // 检查电网供电
+        if (grid == null || !grid.isWorking()) return;
+
+        Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
+        BlockPos frontPos = getBlockPos().relative(facing);
+        BlockState frontState = level.getBlockState(frontPos);
+
+        // 确定目标：前方是管道 → 追踪到远端；否则直接用前方方块
+        BlockPos targetPos;       // 接收方的位置
+        Direction targetQueryDir; // 从接收方查询 IFluidHandler 的方向
+        int pipeHeight = 0;       // 管道沿途累计的等效高度
+
+        if (frontState.getBlock() instanceof PipeBlock) {
+            // 从前方管道沿 facing.getOpposite() 方向追踪到管道远端
+            // getPipeEnd 的参数 direction 是"从管道哪一侧进入"，即接口连接管道的那一侧
+            AbstractPipeBlockEntity.PipeEnd pipeEnd =
+                AbstractPipeBlockEntity.getPipeEnd(level, frontPos, facing.getOpposite());
+            if (pipeEnd == null) return;
+            // pipeEnd.direction() = 从管道末端指向接收方的方向
+            targetPos = pipeEnd.pos().relative(pipeEnd.direction());
+            targetQueryDir = pipeEnd.direction().getOpposite();
+            pipeHeight = pipeEnd.effectiveHeight();
+        } else {
+            targetPos = frontPos;
+            targetQueryDir = facing.getOpposite();
+        }
+
+        // 计算有效高度差（含 10m 扬程，扣除管道累计等效高度）
+        int sourceY = getBlockPos().getY();
+        int targetY = targetPos.getY() - pipeHeight;
+        int heightDiff = PUMP_HEADLIFT + sourceY - targetY;
+        if (heightDiff <= 0) return;
+
+        // 复用管道系统的流体传输（自动通过 capability 查询 source / target）
+        AbstractPipeBlockEntity.moveFluid(
+            level,
+            getBlockPos(),   // sourcePos = 接口自身（内部储罐）
+            facing,          // sourceQueryDir（capability 忽略 side，任意方向均可）
+            targetPos,       // 接收方位置
+            targetQueryDir,  // 从接收方面向源
+            heightDiff       // 有效高度差（含扬程）
+        );
     }
 }

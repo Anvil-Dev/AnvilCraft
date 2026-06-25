@@ -1582,7 +1582,7 @@ public class ModBlocks {
         .block("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlock::new)
         .recipe(RegistrumBlockRecipeLoader::cfaFluidInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::horizontalFacingWithActive)
         .properties((properties) -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()

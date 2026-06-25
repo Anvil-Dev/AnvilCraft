@@ -39,6 +39,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Inventory;
@@ -192,11 +193,18 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private List<CelestialRefactorOption> refactorOptions = List.of();
     private int selectedRefactorIndex = -1;
     private int rfScrollRow = 0;
+    private int refactorMaxScroll = 0;
     private boolean isDraggingRfScrollbar = false;
     private int refactorErrorTick = 0;
     @Nullable
     private Component refactorErrorMsg = null;
     private int unlockWarningTick = 0;
+
+    // Built megastructure text display constants
+    private static final int BMT_TEXT_W = 72; // Two button widths (full width of the grid area)
+    private static final int BMT_TEXT_PAD = 2; // Left/right/top padding for text within the panel
+    private static final int BMT_WRAP_W = BMT_TEXT_W - BMT_TEXT_PAD * 2; // 68px, usable wrap width after padding
+    private static final int BMT_TEXT_SPACING = 12; // Line spacing within a text row (makes gaps near-uniform: 3,3,2 px)
 
     // Guide trigger: show celestial maps when anvil counts change
     private final int[] previousAnvilCounts = new int[4];
@@ -339,78 +347,175 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     /**
      * Render the Celestial Restriction Ring Refactor section.
+     * Uses row-based scrolling. When a megastructure is built, the built button,
+     * accelerator options, and usage text are organized in 35px rows sharing one scrollbar.
+     * Text uses spacing=12px so gaps are near-uniform (3,3,2 px pattern vs old 1,1,6).
      */
     private void renderRefactorSection(GuiGraphics guiGraphics, int guiLeft, int guiTop, int relX, int relY) {
-        // Refresh available options for the locked body
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean hasAcceleratorActive = getMenu().getBlockEntity().isAcceleratorActive();
         boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
-        // Show options when locked & body present & search done, and accelerator not active
-        boolean isActive = isLocked() && body != null && searchState == SearchState.DONE
-            && !hasAcceleratorActive;
-        if (isActive) {
+        boolean showOptions = isLocked() && body != null && searchState == SearchState.DONE;
+        boolean isActive = showOptions && !hasAcceleratorActive;
+
+        CelestialRefactorOption activeOption = null;
+        if (hasMegastructure) {
+            activeOption = getMenu().getBlockEntity().getActiveMegastructureOption();
+        }
+
+        if (hasMegastructure && isActive) {
+            refactorOptions = CelestialRefactorRegistry.getOptions(
+                body,
+                getMenu().getBlockEntity().isAmplify(),
+                getMenu().getBlockEntity().getPlanetaryResourceSet()
+            ).stream()
+                .filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure()))
+                .toList();
+        } else if (!hasMegastructure && isActive) {
             refactorOptions = CelestialRefactorRegistry.getOptions(
                 body,
                 getMenu().getBlockEntity().isAmplify(),
                 getMenu().getBlockEntity().getPlanetaryResourceSet()
             );
-            // If another megastructure is built, only show the accelerator (which can coexist)
-            if (hasMegastructure) {
-                refactorOptions = refactorOptions.stream()
-                    .filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure()))
-                    .toList();
-            }
         } else {
             refactorOptions = List.of();
         }
 
+        // On amplified CFA, only stellar bodies can host megastructures
+        boolean isAmplifiedPlanet = getMenu().getBlockEntity().isAmplify()
+            && body != null && !(body instanceof StarData);
+        if (isAmplifiedPlanet) {
+            refactorOptions = List.of();
+        }
+
         int btnCount = refactorOptions.size();
-        int totalRows = btnCount > 0 ? (btnCount + RF_COLS - 1) / RF_COLS : 0;
-        int maxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
-        if (rfScrollRow > maxScroll) rfScrollRow = maxScroll;
+
+        // Compute wrapped usage text for the built megastructure
+        List<FormattedCharSequence> wrappedUsageLines = List.of();
+        if (hasMegastructure && activeOption != null) {
+            String usageKey = "screen.anvilcraft.cfa.megastructure." + activeOption.megastructure() + ".usage";
+            Component usageText = Component.translatable(usageKey);
+            wrappedUsageLines = font.split(usageText, BMT_WRAP_W);
+        }
+
+        // Calculate total content rows
+        int linesPerTextRow = 3; // 3 lines per 35px row with spacing=12 yields near-uniform gaps
+        if (hasMegastructure) {
+            int totalSlots = 1 + btnCount; // 1 for built button + accelerator options
+            int buttonRows = (totalSlots + RF_COLS - 1) / RF_COLS;
+            int textRows = wrappedUsageLines.isEmpty() ? 0
+                : (wrappedUsageLines.size() + linesPerTextRow - 1) / linesPerTextRow;
+            int totalRows = buttonRows + textRows;
+            refactorMaxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
+        } else {
+            int totalRows = btnCount > 0 ? (btnCount + RF_COLS - 1) / RF_COLS : 0;
+            refactorMaxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
+        }
+        if (rfScrollRow > refactorMaxScroll) rfScrollRow = refactorMaxScroll;
         if (rfScrollRow < 0) rfScrollRow = 0;
         if (selectedRefactorIndex >= btnCount) selectedRefactorIndex = -1;
 
-        // Render option buttons (fixed grid, scrolled by rfScrollRow)
+        // Render visible rows (2 rows in the viewport)
         for (int visibleRow = 0; visibleRow < RF_ROWS_VISIBLE; visibleRow++) {
-            for (int col = 0; col < RF_COLS; col++) {
-                int dataRow = rfScrollRow + visibleRow;
-                int optIdx = dataRow * RF_COLS + col;
-                if (optIdx >= btnCount) continue;
+            int contentRow = rfScrollRow + visibleRow;
 
-                int bx = guiLeft + RF_BTN_X[visibleRow * RF_COLS + col];
-                int by = guiTop + RF_BTN_Y[visibleRow * RF_COLS + col];
-                boolean hovered = relX >= RF_BTN_X[visibleRow * RF_COLS + col]
-                                  && relX < RF_BTN_X[visibleRow * RF_COLS + col] + RF_BTN_W
-                                  && relY >= RF_BTN_Y[visibleRow * RF_COLS + col]
-                                  && relY < RF_BTN_Y[visibleRow * RF_COLS + col] + RF_BTN_H;
-                boolean selected = optIdx == selectedRefactorIndex;
+            if (hasMegastructure) {
+                int totalSlots = 1 + btnCount;
+                int buttonRows = (totalSlots + RF_COLS - 1) / RF_COLS;
 
-                // Button background
-                renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H, hovered || selected);
+                if (contentRow < buttonRows) {
+                    // Render button grid row
+                    for (int col = 0; col < RF_COLS; col++) {
+                        boolean isBuiltButton = (contentRow == 0 && col == 0);
+                        int optIdx = isBuiltButton ? -1 : contentRow * RF_COLS + col - 1;
 
-                // Render megastructure model
-                CelestialRefactorOption option = refactorOptions.get(optIdx);
-                renderMegastructureModel(guiGraphics, option, bx, by, RF_BTN_W, RF_BTN_H);
+                        int bx = guiLeft + RF_BTN_X[visibleRow * RF_COLS + col];
+                        int by = guiTop + RF_BTN_Y[visibleRow * RF_COLS + col];
 
-                // Selected indicator (green tint overlay)
-                if (selected) {
-                    guiGraphics.fill(bx, by, bx + RF_BTN_W, by + RF_BTN_H, 0x40_00FF00);
+                        if (isBuiltButton && activeOption != null) {
+                            renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H, true);
+                            renderMegastructureModel(guiGraphics, activeOption, bx, by, RF_BTN_W, RF_BTN_H);
+                        } else if (optIdx >= 0 && optIdx < btnCount) {
+                            boolean hovered = relX >= RF_BTN_X[visibleRow * RF_COLS + col]
+                                              && relX < RF_BTN_X[visibleRow * RF_COLS + col] + RF_BTN_W
+                                              && relY >= RF_BTN_Y[visibleRow * RF_COLS + col]
+                                              && relY < RF_BTN_Y[visibleRow * RF_COLS + col] + RF_BTN_H;
+                            boolean selected = optIdx == selectedRefactorIndex;
+                            renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H,
+                                hovered || selected);
+                            CelestialRefactorOption option = refactorOptions.get(optIdx);
+                            renderMegastructureModel(guiGraphics, option, bx, by, RF_BTN_W, RF_BTN_H);
+                            if (selected) {
+                                guiGraphics.fill(bx, by, bx + RF_BTN_W, by + RF_BTN_H, 0x40_00FF00);
+                            }
+                        }
+                    }
+                } else {
+                    // Render text row: 3 lines with BMT_TEXT_SPACING, gaps nearly uniform (3,3,2 px)
+                    int textRow = contentRow - buttonRows;
+                    int rowBaseY = guiTop + RF_BTN_Y[visibleRow * RF_COLS] + BMT_TEXT_PAD;
+                    for (int li = 0; li < linesPerTextRow; li++) {
+                        int lineIdx = textRow * linesPerTextRow + li;
+                        if (lineIdx >= wrappedUsageLines.size()) break;
+                        guiGraphics.drawString(font, wrappedUsageLines.get(lineIdx),
+                            guiLeft + RF_BTN_X[0] + BMT_TEXT_PAD,
+                            rowBaseY + li * BMT_TEXT_SPACING,
+                            0xAAAAAA, false);
+                    }
+                }
+            } else {
+                // Normal mode: 2-column grid, no megastructure built
+                for (int col = 0; col < RF_COLS; col++) {
+                    int optIdx = (rfScrollRow + visibleRow) * RF_COLS + col;
+                    if (optIdx >= btnCount) continue;
+
+                    int bx = guiLeft + RF_BTN_X[visibleRow * RF_COLS + col];
+                    int by = guiTop + RF_BTN_Y[visibleRow * RF_COLS + col];
+                    boolean hovered = relX >= RF_BTN_X[visibleRow * RF_COLS + col]
+                                      && relX < RF_BTN_X[visibleRow * RF_COLS + col] + RF_BTN_W
+                                      && relY >= RF_BTN_Y[visibleRow * RF_COLS + col]
+                                      && relY < RF_BTN_Y[visibleRow * RF_COLS + col] + RF_BTN_H;
+                    boolean selected = optIdx == selectedRefactorIndex;
+
+                    renderButton(guiGraphics, TEX_REFACTOR_OPTIONS, bx, by, RF_BTN_W, RF_BTN_H,
+                        hovered || selected);
+                    CelestialRefactorOption option = refactorOptions.get(optIdx);
+                    renderMegastructureModel(guiGraphics, option, bx, by, RF_BTN_W, RF_BTN_H);
+                    if (selected) {
+                        guiGraphics.fill(bx, by, bx + RF_BTN_W, by + RF_BTN_H, 0x40_00FF00);
+                    }
                 }
             }
         }
 
         // Render scrollbar
-        if (maxScroll > 0) {
-            renderRefactorScrollbar(guiGraphics, guiLeft, guiTop, totalRows);
+        if (refactorMaxScroll > 0) {
+            renderRefactorScrollbar(guiGraphics, guiLeft, guiTop, refactorMaxScroll);
         }
 
-        // Render start button
-        boolean hoverStart = relX >= RF_START_X && relX < RF_START_X + RF_START_W && relY >= RF_START_Y && relY < RF_START_Y + RF_START_H;
-        renderButton(guiGraphics, TEX_REFACTORING, guiLeft + RF_START_X, guiTop + RF_START_Y, RF_START_W, RF_START_H, hoverStart);
+        // Render start button (always shown unless megastructure built with no accelerator options)
+        boolean showStartButton = !hasMegastructure || !refactorOptions.isEmpty();
+        if (showStartButton) {
+            boolean hoverStart = relX >= RF_START_X && relX < RF_START_X + RF_START_W
+                && relY >= RF_START_Y && relY < RF_START_Y + RF_START_H;
+            renderButton(guiGraphics, TEX_REFACTORING, guiLeft + RF_START_X, guiTop + RF_START_Y,
+                RF_START_W, RF_START_H, hoverStart);
+        }
 
-        // If not locked, show "need to lock first" text centered in the button area
-        if (!isLocked() || body == null || searchState != SearchState.DONE) {
+        // Amplified + planet warning (red text, centered in the button area)
+        if (isAmplifiedPlanet && isLocked() && body != null && searchState == SearchState.DONE) {
+            Component warning = Component.translatable("screen.anvilcraft.cfa.amplified_planet_warning");
+            List<FormattedCharSequence> warningLines = font.split(warning, BMT_TEXT_W);
+            int areaCY = (RF_BTN_Y[0] + RF_BTN_Y[2] + RF_BTN_H) / 2; // 74
+            int startY = guiTop + areaCY - warningLines.size() * (font.lineHeight + 1) / 2;
+            int areaCX = (RF_BTN_X[0] + RF_BTN_X[1] + RF_BTN_W) / 2; // 291
+            for (int i = 0; i < warningLines.size(); i++) {
+                FormattedCharSequence line = warningLines.get(i);
+                int cx = guiLeft + areaCX - font.width(line) / 2;
+                guiGraphics.drawString(font, line, cx, startY + i * (font.lineHeight + 1), 0xFF5555, true);
+            }
+        } else if (!isLocked() || body == null || searchState != SearchState.DONE) {
+            // If not locked, show "need to lock first" text centered in the button area
             Component needLock = Component.translatable("screen.anvilcraft.cfa.need_lock");
             int areaCX = (RF_BTN_X[0] + RF_BTN_X[1] + RF_BTN_W) / 2; // 291
             int areaCY = (RF_BTN_Y[0] + RF_BTN_Y[2] + RF_BTN_H) / 2; // 74
@@ -423,12 +528,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /**
      * Render the scrollbar for the refactor options grid.
      */
-    private void renderRefactorScrollbar(GuiGraphics guiGraphics, int guiLeft, int guiTop, int totalRows) {
-        int i = totalRows - RF_ROWS_VISIBLE;
-        if (i < 1) return;
+    private void renderRefactorScrollbar(GuiGraphics guiGraphics, int guiLeft, int guiTop, int maxScroll) {
+        if (maxScroll < 1) return;
         int scrollX = guiLeft + RF_SCROLL_X;
         int maxY = RF_SCROLL_Y + RF_SCROLL_H - RF_SCROLL_THUMB_H;
-        int scrollY = RF_SCROLL_Y + (rfScrollRow * (RF_SCROLL_H - RF_SCROLL_THUMB_H) / i);
+        int scrollY = RF_SCROLL_Y + (rfScrollRow * (RF_SCROLL_H - RF_SCROLL_THUMB_H) / maxScroll);
         scrollY = Mth.clamp(scrollY, RF_SCROLL_Y, maxY);
         guiGraphics.blit(SharedTextures.SWITCH_TABLE_SLIDER, scrollX, guiTop + scrollY, 0, 0, RF_SCROLL_W, RF_SCROLL_THUMB_H, 8, 12);
     }
@@ -1072,26 +1176,39 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     }
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    // Resource category colors
+    private static final int COLOR_MINERAL = 0xFFFFFF;
+    private static final int COLOR_FLUID = 0x55AAFF;
+    private static final int COLOR_BIOLOGICAL = 0x55FF55;
+    private static final int COLOR_BIOLOGICAL_FLUID = 0xFF88CC;
+    private static final int COLOR_GIANT_ITEM = 0x55FFFF;
+    private static final int COLOR_GIANT_FLUID = 0x5555FF;
+    private static final int COLOR_OFFERING = 0xFFAA00;
+    private static final int COLOR_WASTELAND = 0xAA5500;
+
+    private record ColoredEntry(String text, int color) {}
+
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderResourceBar(GuiGraphics guiGraphics) {
         var be = getMenu().getBlockEntity();
         var resources = be.getPlanetaryResourceSet();
         if (resources == null || resources.isEmpty()) return;
 
-        List<String> entries = new ArrayList<>();
-        collectItemEntries(entries, resources.getMinerals());
-        collectFluidEntries(entries, resources.getFluids());
-        collectItemEntries(entries, resources.getGiantItems());
-        collectFluidEntries(entries, resources.getGiantFluids());
-        collectItemEntries(entries, resources.getBiologicalItems());
-        collectFluidEntries(entries, resources.getBiologicalFluids());
-        collectItemEntries(entries, resources.getOfferings());
-        collectItemEntries(entries, resources.getWastelandItems());
+        List<ColoredEntry> entries = new ArrayList<>();
+        collectItemEntries(entries, resources.getMinerals(), COLOR_MINERAL);
+        collectFluidEntries(entries, resources.getFluids(), COLOR_FLUID);
+        collectItemEntries(entries, resources.getGiantItems(), COLOR_GIANT_ITEM);
+        collectFluidEntries(entries, resources.getGiantFluids(), COLOR_GIANT_FLUID);
+        collectItemEntries(entries, resources.getBiologicalItems(), COLOR_BIOLOGICAL);
+        collectFluidEntries(entries, resources.getBiologicalFluids(), COLOR_BIOLOGICAL_FLUID);
+        collectItemEntries(entries, resources.getOfferings(), COLOR_OFFERING);
+        collectItemEntries(entries, resources.getWastelandItems(), COLOR_WASTELAND);
         if (entries.isEmpty()) return;
 
         // Compute total text width for scroll bounds
         int spacing = 10;
         int totalW = -spacing;
-        for (String e : entries) totalW += font.width(e) + spacing;
+        for (ColoredEntry e : entries) totalW += font.width(e.text()) + spacing;
         int contentX = PV_X + 4;
         int contentW = PV_W - 8;
         int maxScroll = Math.max(0, totalW - contentW);
@@ -1107,10 +1224,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         // Resource entries (GUI-relative coords)
         int x = contentX - resourceScrollOffset;
         int y = PV_RES_Y + font.lineHeight + 1;
-        for (String entry : entries) {
-            int w = font.width(entry);
+        for (ColoredEntry entry : entries) {
+            int w = font.width(entry.text());
             if (x + w >= PV_X && x <= PV_X + PV_W) {
-                guiGraphics.drawString(font, entry, x, y, 0xFFFFFF, true);
+                guiGraphics.drawString(font, entry.text(), x, y, entry.color(), true);
             }
             x += w + spacing;
         }
@@ -1129,24 +1246,30 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
     }
 
-    private void collectItemEntries(List<String> out, List<PlanetaryResourceSet.WeightedItemStack> items) {
+    private void collectItemEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedItemStack> items, int color) {
         int totalW = items.stream().mapToInt(PlanetaryResourceSet.WeightedItemStack::weight).sum();
         for (var entry : items) {
             var it = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(entry.itemId());
             String name = it.getDescription().getString();
             int pct = totalW > 0 ? entry.weight() * 100 / totalW : 0;
-            out.add(name + " " + pct + "%");
+            out.add(new ColoredEntry(name + " " + pct + "%", color));
         }
     }
 
-    private void collectFluidEntries(List<String> out, List<PlanetaryResourceSet.WeightedFluidStack> fluids) {
+    private void collectFluidEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedFluidStack> fluids, int color) {
         int totalW = fluids.stream().mapToInt(PlanetaryResourceSet.WeightedFluidStack::weight).sum();
         for (var entry : fluids) {
-            var f = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(entry.fluidId());
             String name;
-            name = f.getFluidType().getDescription().getString();
+            if (net.minecraft.core.registries.BuiltInRegistries.FLUID.containsKey(entry.fluidId())) {
+                var f = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(entry.fluidId());
+                name = f.getFluidType().getDescription().getString();
+            } else {
+                // Fallback: milk/honey etc. are items, not fluid types
+                var it = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(entry.fluidId());
+                name = it.getDescription().getString();
+            }
             int pct = totalW > 0 ? entry.weight() * 100 / totalW : 0;
-            out.add(name + " " + pct + "%");
+            out.add(new ColoredEntry(name + " " + pct + "%", color));
         }
     }
 
@@ -1468,6 +1591,35 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 y
             );
         }
+        // Built megastructure button tooltip (same format as refactor options: name + material + description)
+        boolean hasMegastructureTip = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
+        if (hasMegastructureTip && isLocked() && searchState == SearchState.DONE) {
+            if (isHoveringBuiltMegastructureButton(relX, relY)) {
+                CelestialRefactorOption activeOption = getMenu().getBlockEntity().getActiveMegastructureOption();
+                if (activeOption != null) {
+                    Component name = Component.translatable(activeOption.displayName());
+                    List<Component> tooltipLines = new ArrayList<>();
+                    tooltipLines.add(name);
+                    if (activeOption.needsMaterial()) {
+                        tooltipLines.add(Component.translatable(
+                            "screen.anvilcraft.cfa.material_required",
+                            activeOption.material().getDisplayName(),
+                            Component.literal(String.valueOf(activeOption.materialCount()))
+                        ));
+                    }
+                    if (hasShiftDown()) {
+                        tooltipLines.add(Component.translatable(activeOption.displayName() + ".description")
+                            .withStyle(ChatFormatting.DARK_GRAY));
+                    } else {
+                        tooltipLines.add(Component.translatable(
+                            "tooltip.anvilcraft.press_key",
+                            Component.literal("Shift").withStyle(ChatFormatting.DARK_GRAY)
+                        ).withStyle(ChatFormatting.DARK_GRAY));
+                    }
+                    guiGraphics.renderTooltip(font, tooltipLines, java.util.Optional.empty(), x, y);
+                }
+            }
+        }
         // Refactor option tooltips
         if (isLocked() && searchState == SearchState.DONE) {
             int refOpt = getRefactorOptionAt(relX, relY);
@@ -1600,9 +1752,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         // Refactor scrollbar drag initiation
         if (isMouseInRefactorScrollbar(relX, relY)) {
-            int totalRows = !refactorOptions.isEmpty() ? (refactorOptions.size() + RF_COLS - 1) / RF_COLS : 0;
-            int maxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
-            if (maxScroll > 0) {
+            if (getRefactorMaxScroll() > 0) {
                 isDraggingRfScrollbar = true;
                 return true;
             }
@@ -1641,10 +1791,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             resourceScrollOffset -= (int) scrollY * 30;
             return true;
         }
-        // Refactor options area: scroll buttons
+        // Refactor options area: scroll grid (includes text when megastructure built)
         if (isMouseInRefactorArea(relX, relY) || isMouseInRefactorScrollbar(relX, relY)) {
-            int totalRows = !refactorOptions.isEmpty() ? (refactorOptions.size() + RF_COLS - 1) / RF_COLS : 0;
-            int maxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
+            int maxScroll = getRefactorMaxScroll();
             if (maxScroll > 0) {
                 rfScrollRow = (int) Mth.clamp(rfScrollRow - scrollY, 0, maxScroll);
             }
@@ -1658,8 +1807,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int relX = (int) mouseX - leftPos;
         int relY = (int) mouseY - topPos;
         if (isDraggingRfScrollbar) {
-            int totalRows = !refactorOptions.isEmpty() ? (refactorOptions.size() + RF_COLS - 1) / RF_COLS : 0;
-            int maxScroll = Math.max(0, totalRows - RF_ROWS_VISIBLE);
+            int maxScroll = getRefactorMaxScroll();
             if (maxScroll > 0) {
                 float scroll = (relY - RF_SCROLL_Y - RF_SCROLL_THUMB_H / 2f) / (RF_SCROLL_H - RF_SCROLL_THUMB_H);
                 rfScrollRow = Mth.clamp((int) (scroll * maxScroll + 0.5f), 0, maxScroll);
@@ -1736,11 +1884,19 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
      */
     private int getRefactorOptionAt(int rx, int ry) {
         if (refactorOptions.isEmpty()) return -1;
+        boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
         for (int visibleRow = 0; visibleRow < RF_ROWS_VISIBLE; visibleRow++) {
             for (int col = 0; col < RF_COLS; col++) {
-                int dataRow = rfScrollRow + visibleRow;
-                int optIdx = dataRow * RF_COLS + col;
-                if (optIdx >= refactorOptions.size()) continue;
+                int contentRow = rfScrollRow + visibleRow;
+                int optIdx;
+                if (hasMegastructure) {
+                    // Slot 0 of row 0 is the built megastructure button (not clickable)
+                    if (contentRow == 0 && col == 0) continue;
+                    optIdx = contentRow * RF_COLS + col - 1;
+                } else {
+                    optIdx = contentRow * RF_COLS + col;
+                }
+                if (optIdx < 0 || optIdx >= refactorOptions.size()) continue;
                 int bx = RF_BTN_X[visibleRow * RF_COLS + col];
                 int by = RF_BTN_Y[visibleRow * RF_COLS + col];
                 if (rx >= bx && rx < bx + RF_BTN_W && ry >= by && ry < by + RF_BTN_H) {
@@ -1760,6 +1916,22 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private boolean isMouseInRefactorScrollbar(int rx, int ry) {
         return rx >= RF_SCROLL_X && rx < RF_SCROLL_X + RF_SCROLL_W && ry >= RF_SCROLL_Y && ry < RF_SCROLL_Y + RF_SCROLL_H;
+    }
+
+    /**
+     * Compute the max scroll value for the refactor options grid.
+     * Uses row-based scrolling for the normal case and flat scrolling when a megastructure is built.
+     * Get the max scroll value computed during the last render pass.
+     * This accounts for button rows + text rows when a megastructure is built.
+     */
+    private int getRefactorMaxScroll() {
+        return refactorMaxScroll;
+    }
+
+    private boolean isHoveringBuiltMegastructureButton(int rx, int ry) {
+        if (rfScrollRow != 0) return false; // Built button is fixed at row 0, scrolled off otherwise
+        return rx >= RF_BTN_X[0] && rx < RF_BTN_X[0] + RF_BTN_W
+            && ry >= RF_BTN_Y[0] && ry < RF_BTN_Y[0] + RF_BTN_H;
     }
 
     private boolean isOverRefactorStart(int rx, int ry) {

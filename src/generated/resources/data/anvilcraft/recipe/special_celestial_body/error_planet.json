@@ -6,6 +6,7 @@
   "liquid_coverage": "none",
   "magnetic_field": -1,
   "mass": 64,
+  "model": "planet_error",
   "name": "error_planet",
   "needs_custom_model": true,
   "resources": {},
@@ -16,6 +17,5 @@
     "minecraft:structure_block"
   ],
   "space": 64,
-  "texture": "planet_error",
   "time": 64
 }

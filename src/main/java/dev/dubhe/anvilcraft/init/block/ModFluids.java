@@ -3,6 +3,10 @@ package dev.dubhe.anvilcraft.init.block;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.fluid.HeliumFluid;
+import dev.dubhe.anvilcraft.fluid.HoneyFluid;
+import dev.dubhe.anvilcraft.fluid.HydrogenFluid;
+import dev.dubhe.anvilcraft.fluid.MilkFluid;
 import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.ColorUtil;
@@ -210,6 +214,46 @@ public class ModFluids {
         .bucket(ModItems.MELT_GEM_BUCKET)
         .tickRate(20)
         .explosionResistance(100);
+    // === Milk（不可放置流体） ===
+
+    public static final DeferredHolder<FluidType, FluidType> MILK_TYPE = FLUID_TYPES.register(
+        "milk", () -> MilkFluid.TYPE
+    );
+
+    public static final DeferredHolder<Fluid, MilkFluid> MILK = FLUIDS.register(
+        "milk", MilkFluid::new
+    );
+
+    // === Honey（不可放置流体） ===
+
+    public static final DeferredHolder<FluidType, FluidType> HONEY_TYPE = FLUID_TYPES.register(
+        "honey", () -> HoneyFluid.TYPE
+    );
+
+    public static final DeferredHolder<Fluid, HoneyFluid> HONEY = FLUIDS.register(
+        "honey", HoneyFluid::new
+    );
+
+    // === Hydrogen（不可放置流体） ===
+
+    public static final DeferredHolder<FluidType, FluidType> HYDROGEN_TYPE = FLUID_TYPES.register(
+        "hydrogen", () -> HydrogenFluid.TYPE
+    );
+
+    public static final DeferredHolder<Fluid, HydrogenFluid> HYDROGEN = FLUIDS.register(
+        "hydrogen", HydrogenFluid::new
+    );
+
+    // === Helium（不可放置流体） ===
+
+    public static final DeferredHolder<FluidType, FluidType> HELIUM_TYPE = FLUID_TYPES.register(
+        "helium", () -> HeliumFluid.TYPE
+    );
+
+    public static final DeferredHolder<Fluid, HeliumFluid> HELIUM = FLUIDS.register(
+        "helium", HeliumFluid::new
+    );
+
     public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(
         NeoForgeRegistries.FLUID_TYPES.key(),
         ResourceLocation.withDefaultNamespace("powder_snow")
@@ -303,6 +347,38 @@ public class ModFluids {
                 0xB7EEDE,
                 2.0f
             ), MELT_GEM_TYPE
+        );
+        e.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.withDefaultNamespace("block/water_still"),
+                ResourceLocation.withDefaultNamespace("block/water_flow"),
+                0xFCFCFC,
+                1.0f
+            ), MILK_TYPE
+        );
+        e.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.withDefaultNamespace("block/water_still"),
+                ResourceLocation.withDefaultNamespace("block/water_flow"),
+                0xFFB82E,
+                2.0f
+            ), HONEY_TYPE
+        );
+        e.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.withDefaultNamespace("block/water_still"),
+                ResourceLocation.withDefaultNamespace("block/water_flow"),
+                0xB3E5FC,
+                0.5f
+            ), HYDROGEN_TYPE
+        );
+        e.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.withDefaultNamespace("block/water_still"),
+                ResourceLocation.withDefaultNamespace("block/water_flow"),
+                0xFFB6C1,
+                0.5f
+            ), HELIUM_TYPE
         );
         e.registerFluidType(
             new ModClientFluidTypeExtensionImpl(

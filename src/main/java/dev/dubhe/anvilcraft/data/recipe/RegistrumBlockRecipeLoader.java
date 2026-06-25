@@ -2062,8 +2062,8 @@ public class RegistrumBlockRecipeLoader {
             .pattern("ABA")
             .pattern("BCB")
             .pattern("ABA")
-            .define('A', ModBlocks.FLUID_TANK)
-            .define('B', ModBlocks.LARGE_FLUID_TANK)
+            .define('A', ModBlocks.PUMP)
+            .define('B', ModBlocks.PUMP)
             .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
                 RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))

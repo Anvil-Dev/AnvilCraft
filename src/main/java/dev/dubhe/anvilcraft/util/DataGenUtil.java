@@ -97,6 +97,30 @@ public class DataGenUtil {
         );
     }
 
+    /// 水平朝向 + ACTIVE 属性的方块 blockstate 生成（如流体接口）
+    public static <T extends RegistrumBlockstateProvider> void horizontalFacingWithActive(
+        DataGenContext<Block, ?> context,
+        T provider
+    ) {
+        ResourceLocation id = context.getId();
+        ModelFile baseModel = new ModelFile.ExistingModelFile(
+            id.withPrefix("block/"),
+            provider.models().existingFileHelper
+        );
+        ModelFile activeModel = new ModelFile.ExistingModelFile(
+            ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "block/" + id.getPath() + "_active"),
+            provider.models().existingFileHelper
+        );
+        provider.getVariantBuilder(context.get()).forAllStates(state -> {
+            boolean active = state.getValue(BlockStateProperties.ENABLED);
+            int rotY = ((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot() + 180) % 360;
+            return ConfiguredModel.builder()
+                .modelFile(active ? activeModel : baseModel)
+                .rotationY(rotY)
+                .build();
+        });
+    }
+
     @SuppressWarnings("unused")
     public static <T> void noLoot(RegistrumBlockLootTables tables, T value) {
     }

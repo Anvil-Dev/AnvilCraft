@@ -80,11 +80,11 @@ public class SpecialCelestialBodyRecipeLoader {
                     item("minecraft:chicken", 5),
                     item("minecraft:leather", 5),
                     item("minecraft:feather", 5),
-                    item("minecraft:white_wool", 10),
-                    item("minecraft:light_gray_wool", 4),
-                    item("minecraft:gray_wool", 4),
-                    item("minecraft:black_wool", 4),
-                    item("minecraft:brown_wool", 4),
+                    item("minecraft:white_wool", 9),
+                    item("minecraft:light_gray_wool", 3),
+                    item("minecraft:gray_wool", 3),
+                    item("minecraft:black_wool", 3),
+                    item("minecraft:brown_wool", 3),
                     item("minecraft:red_wool", 2),
                     item("minecraft:orange_wool", 2),
                     item("minecraft:yellow_wool", 2),
@@ -97,6 +97,7 @@ public class SpecialCelestialBodyRecipeLoader {
                     item("minecraft:magenta_wool", 2),
                     item("minecraft:pink_wool", 2)
                 ),
+                List.of(item("anvilcraft:milk", 50)),
                 List.of(),
                 List.of(),
                 List.of()
@@ -132,6 +133,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(),
                 List.of(),
                 List.of(),
+                List.of(),
                 List.of()
             )
         );
@@ -155,6 +157,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(anvil("spacetime_supercomputer")),
                 List.of(),
                 List.of(item("anvilcraft:exp_fluid", 100)),
+                List.of(),
                 List.of(),
                 List.of(),
                 List.of(),
@@ -189,6 +192,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(),
                 List.of(),
                 List.of(),
+                List.of(),
                 List.of()
             )
         );
@@ -215,6 +219,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(),
                 List.of(),
                 List.of(),
+                List.of(),
                 List.of()
             )
         );
@@ -236,6 +241,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 0,
                 0f,
                 List.of(anvil("creative_generator"), mc("command_block"), mc("structure_block")),
+                List.of(),
                 List.of(),
                 List.of(),
                 List.of(),

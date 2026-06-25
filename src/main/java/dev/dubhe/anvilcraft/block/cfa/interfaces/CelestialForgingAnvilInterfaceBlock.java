@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.cfa.interfaces;
 
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
@@ -12,7 +11,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -23,15 +21,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
 
 public abstract class CelestialForgingAnvilInterfaceBlock
     extends HorizontalDirectionalBlock
-    implements IHammerRemovable, IHammerChangeable {
+    implements IHammerRemovable {
     public static final BooleanProperty ACTIVE = BlockStateProperties.ENABLED;
     public static final VoxelShape BASE_NORTH = ShapeUtil.merge(
         new AABB(0, 0, 2, 16, 4, 16),
@@ -80,18 +76,6 @@ public abstract class CelestialForgingAnvilInterfaceBlock
 
     @Override
     protected abstract void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder);
-
-    @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
-    }
-
-    @Override
-    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        BlockState state = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, state.cycle(FACING));
-        return true;
-    }
 
     @Override
     protected InteractionResult useWithoutItem(

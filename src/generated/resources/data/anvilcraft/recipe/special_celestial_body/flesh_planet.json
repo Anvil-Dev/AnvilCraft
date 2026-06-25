@@ -6,6 +6,7 @@
   "liquid_coverage": "none",
   "magnetic_field": 2,
   "mass": 9,
+  "model": "planet_flesh",
   "name": "flesh_planet",
   "needs_custom_model": true,
   "resources": {
@@ -42,6 +43,5 @@
     "minecraft:bone_block"
   ],
   "space": 10,
-  "texture": "planet_flesh",
   "time": 40
 }

@@ -179,7 +179,7 @@ public final class CelestialRefactorRegistry {
                 ModBlocks.RUBY_PRISM.asItem(), 16));
             options.add(CelestialRefactorOption.withMaterial(1, "planet_exctractor",
                 ringModel(1, "exctractor"), prefix + "planet_exctractor",
-                ModBlocks.FLUID_TANK.asItem(), 16));
+                ModBlocks.PUMP.asItem(), 16));
             options.add(CelestialRefactorOption.withMaterial(1, "eco_station",
                 ringModel(1, "eco_station"), prefix + "eco_station",
                 ModBlocks.TEMPERING_GLASS.asItem(), 64));
@@ -191,7 +191,7 @@ public final class CelestialRefactorRegistry {
             // Ring 2 megastructures (innermost for small giant planets)
             options.add(CelestialRefactorOption.withMaterial(2, "giant_planet_exctractor",
                 ringModel(2, "exctractor"), prefix + "giant_planet_exctractor",
-                ModBlocks.FLUID_TANK.asItem(), 32));
+                ModBlocks.PUMP.asItem(), 32));
         }
         if (innermostRing <= 4 && 4 <= maxRing) {
             // Ring 4 megastructures (innermost for small stars)

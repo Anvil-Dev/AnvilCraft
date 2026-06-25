@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class CelestialForgingAnvilFluidInterfaceBlock extends CelestialForgingAnvilInterfaceBlock
@@ -65,8 +66,12 @@ public class CelestialForgingAnvilFluidInterfaceBlock extends CelestialForgingAn
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> type
+        @NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type
     ) {
-        return null; // No ticking needed; power handled by grid
+        if (level.isClientSide()) return null;
+        if (type == ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get()) {
+            return (lvl, pos, st, be) -> ((CelestialForgingAnvilFluidInterfaceBlockEntity) be).serverTick();
+        }
+        return null;
     }
 }

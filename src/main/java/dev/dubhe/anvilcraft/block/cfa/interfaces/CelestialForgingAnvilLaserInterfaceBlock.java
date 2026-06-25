@@ -54,6 +54,20 @@ public class CelestialForgingAnvilLaserInterfaceBlock extends CelestialForgingAn
     }
 
     @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock,
+                                   BlockPos neighborPos, boolean movedByPiston) {
+        if (!level.isClientSide()) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserBe
+                && laserBe.getReceivedLaserLevel() > 0) {
+                // This interface is actively receiving laser — do not react to redstone signals
+                return;
+            }
+        }
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ACTIVE);
     }

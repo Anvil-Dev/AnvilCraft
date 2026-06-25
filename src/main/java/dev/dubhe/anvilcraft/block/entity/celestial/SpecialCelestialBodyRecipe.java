@@ -25,21 +25,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-/**
- * Recipe defining a hidden (special) celestial body discoverable via seed items
- * in the Celestial Forging Anvil. Modpack authors can add, remove, or modify
- * special bodies via datapack JSON without touching Java code.
- *
- * <p>
- * Temperature is auto-derived from the {@code energy} anvil count using
- * {@link CelestialBodyMatcher#energyToTemperature(int)}. Civilization is
- * auto-detected when {@code offerings} is non-empty.
- * </p>
- */
+/// 特殊天体配方 —— 通过种子物品在锻星砧中发现隐藏天体。
+///
+/// 配方运行流程：
+/// 1. 玩家在种子格放入种子物品（如草方块、泥土等），开始搜索
+/// 2. 服务器在搜索完成时调用 {@link #isEffectiveSeedItem} 检查种子物品
+///    是否匹配（基于世界种子的伪随机选择，每个世界不同）
+/// 3. 匹配成功后，从配方的固定参数（time/space/mass/energy）直接构造
+///    {@link SpecialCelestialBodyData}，跳过常规的三步图表匹配
+/// 4. 温度由 energy 铁砧数自动推导，文明由 offerings 非空自动判定
+/// 5. 资源通过 {@link #generateResources} 从配方的 minerals/fluids/
+///    biologicalItems/biologicalFluids/offerings 列表直接生成
+///
+/// {@code model} 字段在两种渲染模式下含义不同：
+/// - needs_custom_model=false → 贴图名，用于 {@code CelestialBodyTextureBakery} 程序化生成贴图
+/// - needs_custom_model=true  → 模型名，加载 {@code block/celestial_body/<model>} BakedModel
 @SuppressWarnings("checkstyle:LineLength")
 public record SpecialCelestialBodyRecipe(
     String name,
-    String textureName,
+    String model,
     boolean needsCustomModel,
     int time,
     int space,
@@ -54,6 +58,7 @@ public record SpecialCelestialBodyRecipe(
     List<WeightedEntry> minerals,
     List<WeightedEntry> fluids,
     List<WeightedEntry> biologicalItems,
+    List<WeightedEntry> biologicalFluids,
     List<WeightedEntry> offerings,
     List<DemandEntry> templeBlessings,
     List<DemandEntry> templePunishments
@@ -114,6 +119,7 @@ public record SpecialCelestialBodyRecipe(
         List<WeightedEntry> minerals,
         List<WeightedEntry> fluids,
         List<WeightedEntry> biologicalItems,
+        List<WeightedEntry> biologicalFluids,
         List<WeightedEntry> offerings,
         List<DemandEntry> templeBlessings,
         List<DemandEntry> templePunishments
@@ -122,6 +128,7 @@ public record SpecialCelestialBodyRecipe(
             WeightedEntry.CODEC.listOf().optionalFieldOf("minerals", List.of()).forGetter(ResourceFields::minerals),
             WeightedEntry.CODEC.listOf().optionalFieldOf("fluids", List.of()).forGetter(ResourceFields::fluids),
             WeightedEntry.CODEC.listOf().optionalFieldOf("biological_items", List.of()).forGetter(ResourceFields::biologicalItems),
+            WeightedEntry.CODEC.listOf().optionalFieldOf("biological_fluids", List.of()).forGetter(ResourceFields::biologicalFluids),
             WeightedEntry.CODEC.listOf().optionalFieldOf("offerings", List.of()).forGetter(ResourceFields::offerings),
             DemandEntry.CODEC.listOf().optionalFieldOf("temple_blessings", List.of()).forGetter(ResourceFields::templeBlessings),
             DemandEntry.CODEC.listOf().optionalFieldOf("temple_punishments", List.of()).forGetter(ResourceFields::templePunishments)
@@ -136,7 +143,7 @@ public record SpecialCelestialBodyRecipe(
         Codec.INT.fieldOf("space").forGetter(SpecialCelestialBodyRecipe::space),
         Codec.INT.fieldOf("mass").forGetter(SpecialCelestialBodyRecipe::mass),
         Codec.INT.fieldOf("energy").forGetter(SpecialCelestialBodyRecipe::energy),
-        Codec.STRING.fieldOf("texture").forGetter(SpecialCelestialBodyRecipe::textureName),
+        Codec.STRING.fieldOf("model").forGetter(SpecialCelestialBodyRecipe::model),
         Codec.BOOL.fieldOf("has_atmosphere").forGetter(SpecialCelestialBodyRecipe::hasAtmosphere),
         LIQUID_COVERAGE_CODEC.optionalFieldOf("liquid_coverage").forGetter(SpecialCelestialBodyRecipe::liquidCoverage),
         Codec.INT.fieldOf("magnetic_field").forGetter(SpecialCelestialBodyRecipe::magneticFieldStrength),
@@ -145,7 +152,7 @@ public record SpecialCelestialBodyRecipe(
         RESOURCE_LOCATION_CODEC.listOf().fieldOf("seed_items").forGetter(SpecialCelestialBodyRecipe::seedItems),
         Codec.BOOL.optionalFieldOf("needs_custom_model", false).forGetter(SpecialCelestialBodyRecipe::needsCustomModel),
         ResourceFields.CODEC.fieldOf("resources").forGetter(
-            r -> new ResourceFields(r.minerals, r.fluids, r.biologicalItems,
+            r -> new ResourceFields(r.minerals, r.fluids, r.biologicalItems, r.biologicalFluids,
                 r.offerings, r.templeBlessings, r.templePunishments)
         )
     ).apply(ins, SpecialCelestialBodyRecipe::fromCodec));
@@ -164,7 +171,7 @@ public record SpecialCelestialBodyRecipe(
             hasAtmosphere, liquidCoverage,
             magneticField, rotationSpeed, axialTilt,
             seedItems,
-            res.minerals, res.fluids, res.biologicalItems,
+            res.minerals, res.fluids, res.biologicalItems, res.biologicalFluids,
             res.offerings, res.templeBlessings, res.templePunishments
         );
     }
@@ -179,7 +186,7 @@ public record SpecialCelestialBodyRecipe(
             int space = buf.readInt();
             int mass = buf.readInt();
             int energy = buf.readInt();
-            String textureName = buf.readUtf();
+            String model = buf.readUtf();
             boolean hasAtmosphere = buf.readBoolean();
             Optional<LiquidCoverage> liquidCoverage = ByteBufCodecs.optional(LIQUID_COVERAGE_STREAM).decode(buf);
             int magneticFieldStrength = buf.readInt();
@@ -190,16 +197,17 @@ public record SpecialCelestialBodyRecipe(
             List<WeightedEntry> minerals = WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             List<WeightedEntry> fluids = WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             List<WeightedEntry> biologicalItems = WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
+            List<WeightedEntry> biologicalFluids = WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             List<WeightedEntry> offerings = WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             List<DemandEntry> templeBlessings = DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             List<DemandEntry> templePunishments = DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             return new SpecialCelestialBodyRecipe(
-                name, textureName, needsCustomModel,
+                name, model, needsCustomModel,
                 time, space, mass, energy,
                 hasAtmosphere, liquidCoverage,
                 magneticFieldStrength, rotationSpeed, axialTilt,
                 seedItems,
-                minerals, fluids, biologicalItems,
+                minerals, fluids, biologicalItems, biologicalFluids,
                 offerings, templeBlessings, templePunishments
             );
         }
@@ -211,7 +219,7 @@ public record SpecialCelestialBodyRecipe(
             buf.writeInt(r.space());
             buf.writeInt(r.mass());
             buf.writeInt(r.energy());
-            buf.writeUtf(r.textureName());
+            buf.writeUtf(r.model());
             buf.writeBoolean(r.hasAtmosphere());
             ByteBufCodecs.optional(LIQUID_COVERAGE_STREAM).encode(buf, r.liquidCoverage());
             buf.writeInt(r.magneticFieldStrength());
@@ -222,6 +230,7 @@ public record SpecialCelestialBodyRecipe(
             WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.minerals());
             WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.fluids());
             WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.biologicalItems());
+            WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.biologicalFluids());
             WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.offerings());
             DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.templeBlessings());
             DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.templePunishments());
@@ -274,6 +283,9 @@ public record SpecialCelestialBodyRecipe(
         }
         for (WeightedEntry entry : biologicalItems) {
             r.addBiologicalItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
+        }
+        for (WeightedEntry entry : biologicalFluids) {
+            r.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), entry.weight()));
         }
         for (WeightedEntry entry : offerings) {
             r.addOffering(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));

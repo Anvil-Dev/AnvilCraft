@@ -33,6 +33,7 @@ import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -822,11 +823,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
             // Generate planetary resources
             if (!level.isClientSide()) {
+                ResourceLocation seedItemId = lastConsumedSeedItem != null
+                    ? BuiltInRegistries.ITEM.getKey(lastConsumedSeedItem)
+                    : null;
                 this.planetaryResourceSet = PlanetResourceGenerator.generate(
                     this.celestialBodyData,
                     this.ageAnvilCount,
                     level,
-                    this.bodySeed
+                    this.bodySeed,
+                    seedItemId
                 );
             }
             addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);

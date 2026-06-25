@@ -117,8 +117,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     @Override
     protected int getBaseLaserLevel() {
-        if (wormholeLaserLevel > 0) return wormholeLaserLevel;
-        return 0;
+        return Math.max(wormholeLaserLevel, 0);
     }
 
     @Override
@@ -295,15 +294,20 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 connectedPortal.setWormholeLaser(incomingLaserLevel, incomingLaserGamma);
             }
         } else {
-            // Portal closed: clear any stale wormhole laser on the other side
+            // Portal closed: clear stale wormhole laser on BOTH sides.
+            // Don't gate on incomingLaserLevel — the laser may still be hitting
+            // the input-side portal, but the wormhole is closed so no transmission.
             CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
-            if (connectedPortal != null && incomingLaserLevel == 0) {
+            if (connectedPortal != null) {
                 connectedPortal.setWormholeLaser(0, false);
             }
+            wormholeLaserLevel = 0;
+            wormholeLaserGamma = false;
         }
 
         // Emit laser if this portal has a wormhole laser set from connected portal
-        if (wormholeLaserLevel > 0) {
+        // Only emit when the portal is open — a closed portal must not relay lasers.
+        if (wormholeLaserLevel > 0 && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             Direction facing = getFacing();
             if (irradiateSelfLaserBlockSet.isEmpty()) {
                 if (wormholeLaserGamma) {

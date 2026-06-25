@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.cfa.interfaces;
 
 import com.mojang.serialization.MapCodec;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
@@ -26,14 +25,11 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
 
 public class CelestialForgingAnvilInterfacePlaceholderBlock
     extends HorizontalDirectionalBlock
-    implements IHammerRemovable, IHammerChangeable {
+    implements IHammerRemovable {
 
     public CelestialForgingAnvilInterfacePlaceholderBlock(Properties properties) {
         super(properties);
@@ -58,18 +54,6 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
 
     @Override
     protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
-        return true;
-    }
-
-    @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
-    }
-
-    @Override
-    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        BlockState state = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, state.cycle(FACING));
         return true;
     }
 

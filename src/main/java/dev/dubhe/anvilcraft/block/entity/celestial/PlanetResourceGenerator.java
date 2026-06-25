@@ -54,7 +54,8 @@ public final class PlanetResourceGenerator {
         CelestialBodyData body,
         int ageAnvilCount,
         Level level,
-        long seed
+        long seed,
+        @Nullable ResourceLocation seedItemId
     ) {
         PlanetaryResourceSet set = new PlanetaryResourceSet();
         RandomSource random = RandomSource.create(seed);
@@ -94,7 +95,7 @@ public final class PlanetResourceGenerator {
 
         // Generate based on body type
         if (body instanceof RockyPlanetData rocky) {
-            generateMinerals(set, mineralRecipe, level.registryAccess(), random);
+            generateMinerals(set, mineralRecipe, level.registryAccess(), random, seedItemId);
             generateFluids(set, fluidRecipes, rocky);
 
             boolean lifeEligible = isLifeEligible(rocky);
@@ -132,7 +133,8 @@ public final class PlanetResourceGenerator {
         PlanetaryResourceSet set,
         @Nullable PlanetResourceRecipe recipe,
         HolderLookup.Provider registries,
-        RandomSource random
+        RandomSource random,
+        @Nullable ResourceLocation seedItemId
     ) {
         if (recipe == null) return;
         PlanetResourceRecipe.MineralData md = recipe.mineralData();
@@ -163,12 +165,21 @@ public final class PlanetResourceGenerator {
 
         int step = md.step();
         int sum = 0;
+        int candidateIndex = 0;
         for (ResourceLocation candidate : candidates) {
             if (sum >= 100) break;
             int remaining = 100 - sum;
             int maxSteps = remaining / step;
             if (maxSteps <= 0) break;
-            int steps = 1 + random.nextInt(maxSteps);
+            // Weighted random skewed toward low percentages for early candidates.
+            // exponent = 1 + 1/(n+1): starts at 2.0 (heavy skew), asymptotically → 1.0 (uniform).
+            float exponent = 1.0f + 1.0f / (candidateIndex + 1);
+            float skewed = (float) Math.pow(random.nextFloat(), exponent);
+            int steps = 1 + (int) (skewed * maxSteps);
+            // Boost: if seed item matches this mineral, add 1 bonus step
+            if (seedItemId != null && candidate.equals(seedItemId)) {
+                steps += 1;
+            }
             int weight = steps * step;
             if (sum + weight > 100) {
                 weight = remaining;
@@ -176,6 +187,7 @@ public final class PlanetResourceGenerator {
             if (weight <= 0) continue;
             set.addMineral(new PlanetaryResourceSet.WeightedItemStack(candidate, weight));
             sum += weight;
+            candidateIndex++;
         }
     }
 
@@ -339,15 +351,20 @@ public final class PlanetResourceGenerator {
             candidates.removeIf(e -> e.getValue() <= 0);
             Collections.shuffle(candidates, new java.util.Random(random.nextLong()));
 
-            // Same step-based algorithm as minerals: randomly pick weight (10/20/30/…), truncate at 100%
+            // Weighted random skewed toward low percentages — same diversity logic as minerals.
+            // Early candidates (first items from the shuffled list) are more likely to get
+            // moderate percentages, so more distinct biological drops appear.
             final int step = 10;
             int sum = 0;
+            int candidateIndex = 0;
             for (Map.Entry<ResourceLocation, Integer> candidate : candidates) {
                 if (sum >= 100) break;
                 int remaining = 100 - sum;
                 int maxSteps = remaining / step;
                 if (maxSteps <= 0) break;
-                int steps = 1 + random.nextInt(maxSteps);
+                float exponent = 1.0f + 1.0f / (candidateIndex + 1);
+                float skewed = (float) Math.pow(random.nextFloat(), exponent);
+                int steps = 1 + (int) (skewed * maxSteps);
                 int weight = steps * step;
                 if (sum + weight > 100) {
                     weight = remaining;
@@ -355,6 +372,7 @@ public final class PlanetResourceGenerator {
                 if (weight <= 0) continue;
                 set.addBiologicalItem(new PlanetaryResourceSet.WeightedItemStack(candidate.getKey(), weight));
                 sum += weight;
+                candidateIndex++;
             }
         }
 

@@ -6,6 +6,7 @@
   "liquid_coverage": "none",
   "magnetic_field": 3,
   "mass": 1,
+  "model": "planet_hollow",
   "name": "hollow_planet",
   "needs_custom_model": true,
   "resources": {
@@ -29,6 +30,5 @@
     "anvilcraft:negative_matter_block"
   ],
   "space": 10,
-  "texture": "planet_hollow",
   "time": 60
 }

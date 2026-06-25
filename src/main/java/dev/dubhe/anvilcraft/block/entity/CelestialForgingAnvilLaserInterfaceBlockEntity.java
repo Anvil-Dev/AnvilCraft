@@ -160,6 +160,18 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     public void onCancelingIrradiation(BaseLaserBlockEntity source) {
         resetLaser();
+        // Re-sync ACTIVE block state with current redstone signal,
+        // since we are no longer receiving laser and should respond to redstone again.
+        if (level != null && !level.isClientSide()) {
+            BlockState state = getBlockState();
+            if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
+                boolean hasSignal = level.hasNeighborSignal(worldPosition);
+                if (state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE) != hasSignal) {
+                    level.setBlock(worldPosition, state.setValue(
+                        CelestialForgingAnvilInterfaceBlock.ACTIVE, hasSignal), 3);
+                }
+            }
+        }
     }
 
     /**

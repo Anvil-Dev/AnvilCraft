@@ -6,6 +6,7 @@
   "liquid_coverage": "high",
   "magnetic_field": 1,
   "mass": 12,
+  "model": "planet_intelligence",
   "name": "intelligent_planet",
   "needs_custom_model": true,
   "resources": {
@@ -21,6 +22,5 @@
     "anvilcraft:spacetime_supercomputer"
   ],
   "space": 12,
-  "texture": "planet_intelligence",
   "time": 58
 }

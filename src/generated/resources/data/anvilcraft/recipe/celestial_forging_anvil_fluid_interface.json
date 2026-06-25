@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "anvilcraft:fluid_tank"
+      "item": "anvilcraft:pump"
     },
     "B": {
-      "item": "anvilcraft:large_fluid_tank"
+      "item": "anvilcraft:pump"
     },
     "C": {
       "item": "anvilcraft:spacetime_supercomputer"

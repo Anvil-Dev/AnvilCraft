@@ -6,8 +6,15 @@
   "liquid_coverage": "medium",
   "magnetic_field": 2,
   "mass": 20,
+  "model": "planet_overworld",
   "name": "overworld_like",
   "resources": {
+    "biological_fluids": [
+      {
+        "id": "anvilcraft:milk",
+        "weight": 50
+      }
+    ],
     "biological_items": [
       {
         "id": "minecraft:porkchop",
@@ -35,23 +42,23 @@
       },
       {
         "id": "minecraft:white_wool",
-        "weight": 10
+        "weight": 9
       },
       {
         "id": "minecraft:light_gray_wool",
-        "weight": 4
+        "weight": 3
       },
       {
         "id": "minecraft:gray_wool",
-        "weight": 4
+        "weight": 3
       },
       {
         "id": "minecraft:black_wool",
-        "weight": 4
+        "weight": 3
       },
       {
         "id": "minecraft:brown_wool",
-        "weight": 4
+        "weight": 3
       },
       {
         "id": "minecraft:red_wool",
@@ -131,6 +138,5 @@
     "minecraft:mud"
   ],
   "space": 14,
-  "texture": "planet_overworld",
   "time": 32
 }

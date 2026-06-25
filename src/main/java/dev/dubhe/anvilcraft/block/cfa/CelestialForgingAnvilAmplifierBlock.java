@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.cfa;
 
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
@@ -14,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
@@ -43,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class CelestialForgingAnvilAmplifierBlock
     extends FlexibleMultiPartBlock<DirectionCube232PartHalf, DirectionProperty, Direction>
-    implements IHammerChangeable, IHammerRemovable, SimpleWaterloggedBlock {
+    implements IHammerRemovable, SimpleWaterloggedBlock {
     public static final EnumProperty<DirectionCube232PartHalf> HALF = EnumProperty.create("half", DirectionCube232PartHalf.class);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -294,17 +292,6 @@ public class CelestialForgingAnvilAmplifierBlock
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state.setValue(HALF, state.getValue(HALF).mirror(mirror))
             .setValue(FACING, mirror.mirror(state.getValue(FACING)));
-    }
-
-    @Override
-    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, (state) -> state.cycle(FACING));
-        return true;
-    }
-
-    @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
     }
 
     @Override
