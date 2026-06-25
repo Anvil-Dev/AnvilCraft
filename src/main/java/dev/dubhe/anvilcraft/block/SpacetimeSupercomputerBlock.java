@@ -9,12 +9,15 @@ import dev.dubhe.anvilcraft.network.SpacetimeSupercomputerBlockEntitySyncPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -45,6 +48,28 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
 
     public SpacetimeSupercomputerBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        if (level.hasNeighborSignal(pos)) {
+            level.scheduleTick(pos, this, 1);
+        }
+    }
+
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof SpacetimeSupercomputerBlockEntity spacetimeSupercomputerBlockEntity) {
+            spacetimeSupercomputerBlockEntity.runCommand(null);
+        }
     }
 
     @Override

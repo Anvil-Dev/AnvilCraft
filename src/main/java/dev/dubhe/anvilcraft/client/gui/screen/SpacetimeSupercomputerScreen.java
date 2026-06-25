@@ -275,9 +275,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
     }
 
     private void onEdited(String command) {
-        if (this.commandSuggestions != null) {
-            this.commandSuggestions.updateCommandInfo();
-        }
+        this.commandSuggestions.updateCommandInfo();
     }
 
     @Override
@@ -287,7 +285,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
 
     @Override
     protected Component getUsageNarration() {
-        return this.commandSuggestions != null && this.commandSuggestions.isVisible()
+        return this.commandSuggestions.isVisible()
             ? this.commandSuggestions.getUsageNarration()
             : super.getUsageNarration();
     }
@@ -302,7 +300,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (this.commandSuggestions != null && this.commandSuggestions.keyPressed(keyCode, scanCode, modifiers)) {
+        if (this.commandSuggestions.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         } else {
             return super.keyPressed(keyCode, scanCode, modifiers);
@@ -335,7 +333,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
                 return true;
             }
         }
-        if (this.commandSuggestions != null && this.commandSuggestions.mouseScrolled(scrollY)) {
+        if (this.commandSuggestions.mouseScrolled(scrollY)) {
             return true;
         } else {
             return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
@@ -408,8 +406,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
                 }
             }
         }
-        return (this.commandSuggestions != null && this.commandSuggestions.mouseClicked(mouseX, mouseY, button))
-            || super.mouseClicked(mouseX, mouseY, button);
+        return this.commandSuggestions.mouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -464,7 +461,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
         // 渲染标题
         int x = (this.width - 256) / 2;
         int y = (this.height - 166) / 2;
-        guiGraphics.drawString(this.font, this.title, x + (256 - this.font.width(this.title)) / 2, y + 1, 4210752, false);
+        guiGraphics.drawString(this.font, this.title, x + (256 - this.font.width(this.title)) / 2, y, 4210752, false);
 
         // 渲染命令列表标题
         RenderUtil.drawScrollingShadowlessString(
@@ -486,9 +483,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
         guiGraphics.blit(BUTTON_CHARGING_PROGRESS, x + 72, y + 154, 0, 0, getChangingProgress(), 6, 56, 6);
 
         // 渲染命令建议
-        if (this.commandSuggestions != null) {
-            this.commandSuggestions.render(guiGraphics, mouseX, mouseY);
-        }
+        this.commandSuggestions.render(guiGraphics, mouseX, mouseY);
 
         // 渲染滚动条
         this.renderScroller(
