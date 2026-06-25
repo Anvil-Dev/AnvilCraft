@@ -25,9 +25,6 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     private long dysonDestroyTick = -1;
     @Setter
     @Getter
-    private int supernovaFlashTicks = 0;
-    @Setter
-    @Getter
     private int collapseAnimTicks = 0;
 
     @Override
@@ -193,9 +190,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
 
     private void triggerSupernova(CelestialForgingAnvilBlockEntity be) {
         createRemnant(be);
-        // Clear through manager
+        /// 通过管理器清除所有巨构
         be.getMegastructureManager().clearAllMegastructures(be);
-        this.supernovaFlashTicks = 10;
         be.setChanged();
         be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
@@ -454,7 +450,6 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         tag.putInt("acceleratorStage", stage);
         tag.putInt("acceleratorTicksRemaining", ticksRemaining);
         tag.putInt("acceleratorTicksTotal", ticksTotal);
-        tag.putInt("supernovaFlashTicks", supernovaFlashTicks);
         tag.putInt("collapseAnimTicks", collapseAnimTicks);
     }
 
@@ -463,7 +458,6 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.stage = tag.getInt("acceleratorStage");
         this.ticksRemaining = tag.getInt("acceleratorTicksRemaining");
         this.ticksTotal = tag.getInt("acceleratorTicksTotal");
-        this.supernovaFlashTicks = tag.getInt("supernovaFlashTicks");
         this.collapseAnimTicks = tag.getInt("collapseAnimTicks");
     }
 }

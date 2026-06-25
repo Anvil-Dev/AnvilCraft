@@ -41,7 +41,7 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
 
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 
-    // 2px thin slab on the face touching CFA (opposite of FACING)
+    /// 与锻星砧接触面上的2像素薄板（FACING的反方向）
     private static final VoxelShape SHAPE_SLAB_NORTH = Shapes.box(0, 0, 0, 1, 1, 2.0 / 16.0);
     private static final VoxelShape SHAPE_SLAB_SOUTH = Shapes.box(0, 0, 14.0 / 16.0, 1, 1, 1);
     private static final VoxelShape SHAPE_SLAB_WEST = Shapes.box(0, 0, 0, 2.0 / 16.0, 1, 1);
@@ -93,7 +93,7 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        // Slab on the face opposite to FACING (the face touching CFA)
+        /// 返回FACING反方向（与锻星砧接触的面）的薄板形状
         return switch (state.getValue(FACING)) {
             case NORTH -> SHAPE_SLAB_SOUTH;
             case SOUTH -> SHAPE_SLAB_NORTH;
@@ -147,7 +147,7 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide()) {
-            // FACING points away from CFA; look opposite to find CFA
+            /// FACING指向锻星砧反方向；向反方向查找锻星砧
             Direction towardsCfa = state.getValue(FACING).getOpposite();
             BlockPos cfaPos = pos.relative(towardsCfa);
             BlockState cfaState = level.getBlockState(cfaPos);
@@ -168,7 +168,7 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             if (!level.isClientSide()) {
-                // FACING points away from CFA; look opposite to find CFA
+                /// FACING指向锻星砧反方向；向反方向查找锻星砧
                 Direction towardsCfa = state.getValue(FACING).getOpposite();
                 BlockPos cfaPos = pos.relative(towardsCfa);
                 BlockState cfaState = level.getBlockState(cfaPos);
@@ -195,7 +195,7 @@ public class CelestialForgingAnvilPortalBlock extends HorizontalDirectionalBlock
         };
     }
 
-    // === IHammerChangeable ===
+    /// === IHammerChangeable ===
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {

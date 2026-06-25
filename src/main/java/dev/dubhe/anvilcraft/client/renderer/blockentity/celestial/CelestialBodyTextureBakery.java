@@ -82,23 +82,24 @@ public class CelestialBodyTextureBakery {
     }
 
     @SuppressWarnings("Linelength")
-    /*
-      Resolve texture set for a rocky planet.
-
-      <table>
-      <caption>Texture mapping by temperature, liquid coverage, and atmosphere</caption>
-      <tr><th>Temperature</th><th>Liquid</th><th>Atmosphere</th><th>Base</th><th>Palette</th><th>Class</th></tr>
-      <tr><td>FREEZING</td><td>NONE</td><td>no</td><td>planet_atmosphereless</td><td>planet_mix_color_freezing</td><td>Deathly Frozen</td></tr>
-      <tr><td>FREEZING</td><td>NONE</td><td>yes</td><td>planet_arid</td><td>planet_mix_color_freezing</td><td>Desolate Frozen</td></tr>
-      <tr><td>FREEZING</td><td>has</td><td>any</td><td>wet/boggy/oceanic</td><td>planet_mix_color_freezing</td><td>Frozen Planet</td></tr>
-      <tr><td>SCORCHED</td><td>NONE</td><td>no</td><td>planet_atmosphereless</td><td>planet_mix_color_scorched</td><td>Deathly Scorched</td></tr>
-      <tr><td>SCORCHED</td><td>NONE</td><td>yes</td><td>planet_arid</td><td>planet_mix_color_scorched</td><td>Desolate Scorched</td></tr>
-      <tr><td>SCORCHED</td><td>has</td><td>any</td><td>wet/boggy/oceanic</td><td>planet_mix_color_scorched</td><td>Lava Planet</td></tr>
-      <tr><td>COLD/MILD/HOT</td><td>—</td><td>no</td><td>planet_atmosphereless</td><td>planet_atmosphereless_color</td><td>Deathly Planet</td></tr>
-      <tr><td>COLD/MILD/HOT</td><td>NONE</td><td>yes</td><td>planet_desert</td><td>planet_arid_color</td><td>Desert Planet</td></tr>
-      <tr><td>COLD/MILD/HOT</td><td>has</td><td>yes</td><td>wet/boggy/oceanic</td><td>planet_mix_color</td><td>9 types</td></tr>
-      </table>
-     */
+    /// 解析岩石行星的贴图集。
+    ///
+    /// 温度、液体覆盖率、大气层与贴图的对应关系：
+    ///
+    /// 冰冻（FREEZING）：
+    /// - 无液体、无大气层 → planet_atmosphereless / planet_mix_color_freezing（致命冰冻 Deathly Frozen）
+    /// - 无液体、有大气层 → planet_arid / planet_mix_color_freezing（冰冻荒原 Desolate Frozen）
+    /// - 有液体 → wet/boggy/oceanic / planet_mix_color_freezing（冰冻行星 Frozen Planet）
+    ///
+    /// 灼热（SCORCHED）：
+    /// - 无液体、无大气层 → planet_atmosphereless / planet_mix_color_scorched（致命灼热 Deathly Scorched）
+    /// - 无液体、有大气层 → planet_arid / planet_mix_color_scorched（灼热荒原 Desolate Scorched）
+    /// - 有液体 → wet/boggy/oceanic / planet_mix_color_scorched（熔岩行星 Lava Planet）
+    ///
+    /// 寒冷/温和/炎热（COLD/MILD/HOT）：
+    /// - 无大气层 → planet_atmosphereless / planet_atmosphereless_color（致命行星 Deathly Planet）
+    /// - 无液体、有大气层 → planet_desert / planet_arid_color（沙漠行星 Desert Planet）
+    /// - 有液体、有大气层 → wet/boggy/oceanic / planet_mix_color（9种类型）
     private static TexSet resolveRocky(RockyPlanetData rp) {
         String base, overlay = null, palette;
         boolean hasAtmos = rp.hasAtmosphere();
@@ -106,7 +107,7 @@ public class CelestialBodyTextureBakery {
         Temperature temp = rp.temperature();
 
         if (hasLiquid && (temp == Temperature.FREEZING || temp == Temperature.SCORCHED)) {
-            // Extreme temp: liquid takes priority over atmosphere (Frozen Planet / Lava Planet)
+            /// 极端温度：液体优先于大气层（冰冻行星 / 熔岩行星）
             base = switch (rp.liquidCoverage()) {
                 case LOW -> "planet_wet.png";
                 case MEDIUM -> "planet_boggy.png";
@@ -123,7 +124,7 @@ public class CelestialBodyTextureBakery {
                 ? "planet_mix_color_freezing.png"
                 : "planet_mix_color_scorched.png";
         } else if (!hasAtmos) {
-            // No atmosphere: always atmosphereless (Deathly Frozen / Deathly Scorched / Deathly Planet)
+            /// 无大气层：一律使用无大气层贴图（致命冰冻 / 致命灼热 / 致命行星）
             base = "planet_atmosphereless.png";
             palette = switch (temp) {
                 case FREEZING -> "planet_mix_color_freezing.png";
@@ -131,7 +132,7 @@ public class CelestialBodyTextureBakery {
                 default -> "planet_atmosphereless_color.png";
             };
         } else if (hasLiquid) {
-            // Has atmosphere + has liquid + mild temps (Frozen Riverbank / Warm Riverbank / … / Warm Ocean)
+            /// 有大气层、有液体、温度适中（冰冻河岸 / 温暖河岸 / … / 温暖海洋）
             base = switch (rp.liquidCoverage()) {
                 case LOW -> "planet_wet.png";
                 case MEDIUM -> "planet_boggy.png";
@@ -146,7 +147,7 @@ public class CelestialBodyTextureBakery {
             };
             palette = "planet_mix_color.png";
         } else {
-            // Has atmosphere, no liquid (Desolate Frozen / Desolate Scorched / Desert Planet)
+            /// 有大气层、无液体（冰冻荒原 / 灼热荒原 / 沙漠行星）
             base = (temp == Temperature.FREEZING || temp == Temperature.SCORCHED)
                 ? "planet_arid.png"
                 : "planet_desert.png";
@@ -202,9 +203,7 @@ public class CelestialBodyTextureBakery {
         return registerTexture(key, coloredBase);
     }
 
-    /**
-     * Get the star color from the diagram-based StarData.
-     */
+    /// 从图表式恒星数据获取颜色。
     public static float[] starColor(StarData star) {
         return new float[]{
             star.colorR() / 255f,
@@ -213,9 +212,7 @@ public class CelestialBodyTextureBakery {
         };
     }
 
-    /**
-     * Bake a special celestial body — just load the PNG directly without palette coloring.
-     */
+    /// 烘焙特殊天体 —— 直接加载PNG贴图，不进行调色板着色。
     @Nullable
     private static ResourceLocation bakeSpecial(String key, SpecialCelestialBodyData special) {
         String filename = special.model() + ".png";

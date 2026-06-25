@@ -243,12 +243,12 @@ public class CelestialForgingAnvilBlock
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
             .ifPresent(be -> {
                 be.setAmplifierPresent(false);
-                be.removeGravitySource(); // immediately remove gravity
+                be.removeGravitySource(); /// 立即移除重力
                 if (be.getCelestialBodyData() instanceof StarData) {
                     be.setLocked(true);
                     be.getSearchHistory().clear();
-                    // Keep isAmplify true so stellar body stays in data,
-                    // but the renderer hides it when amplifier is missing
+                    /// 保持isAmplify为true以保留天体数据，
+                    /// 但渲染器会在增幅器缺失时隐藏天体显示
                 } else {
                     be.setAmplify(false);
                 }
@@ -274,7 +274,7 @@ public class CelestialForgingAnvilBlock
         BlockPos mainPos = getMainPartPos(pos, state);
         boolean isMain = state.hasProperty(HALF) && state.getValue(HALF) == Cube323PartHalf.BOTTOM_CENTER;
         if (isMain && level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
-            // 1. Drop all inventory contents into the world
+            /// 1. 将所有库存物品掉落至世界中
             for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
                 ItemStack stack = be.getAnvilInventory().getItem(i);
                 if (!stack.isEmpty()) {
@@ -286,25 +286,25 @@ public class CelestialForgingAnvilBlock
                 Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, matStack);
             }
 
-            // 2. Drop the block item, preserving celestial body, megastructure,
-            //    and matching parameters so the body reappears when placed elsewhere.
-            //    Runtime & position-dependent flags are stripped from the item tag.
+            /// 2. 掉落方块物品，保留天体数据、巨构数据和匹配参数，
+            ///    以便在其他位置放置时天体能够重新出现。
+            ///    运行时和位置相关的标志会从物品标签中清除。
             if (!level.isClientSide) {
                 ItemStack blockStack = new ItemStack(asItem());
                 CompoundTag beTag = new CompoundTag();
                 be.saveAdditional(beTag, level.registryAccess());
 
-                // Strip data that is tied to the current world position or transient runtime
-                beTag.remove("anvils");               // inventory — already dropped above
-                beTag.remove("materialFilter");       // UI state — resets on menu close
-                beTag.remove("materialLimit");        // UI state
-                beTag.remove("searchHistory");        // search history — not preserved
-                beTag.remove("searching");            // runtime
-                beTag.remove("searchTicks");          // runtime
-                beTag.remove("searchFailed");         // runtime
-                beTag.remove("powerInsufficient");    // runtime
-                beTag.remove("excavatorLaserActive"); // depends on nearby laser blocks
-                beTag.remove("amplifierPresent");     // depends on multiblock structure
+                /// 清除与当前世界位置或瞬态运行时相关的数据
+                beTag.remove("anvils");               /// 库存 — 已在上方掉落
+                beTag.remove("materialFilter");       /// UI状态 — 关闭菜单时重置
+                beTag.remove("materialLimit");        /// UI状态
+                beTag.remove("searchHistory");        /// 搜索历史 — 不保留
+                beTag.remove("searching");            /// 运行时
+                beTag.remove("searchTicks");          /// 运行时
+                beTag.remove("searchFailed");         /// 运行时
+                beTag.remove("powerInsufficient");    /// 运行时
+                beTag.remove("excavatorLaserActive"); /// 依赖于附近的激光方块
+                beTag.remove("amplifierPresent");     /// 依赖于多方块结构
 
                 if (!beTag.isEmpty()) {
                     BlockItem.setBlockEntityData(blockStack, be.getType(), beTag);
@@ -328,7 +328,7 @@ public class CelestialForgingAnvilBlock
         BlockPos mainPos = getMainPartPos(pos, state);
         BlockEntity be = level.getBlockEntity(mainPos);
         if (be instanceof CelestialForgingAnvilBlockEntity cfaBe) {
-            // Disk right-click: delegate to DiskItem.useOn
+            /// 磁盘右键：委托给 DiskItem.useOn 处理
             InteractionResult diskResult = cfaBe.useDisk(level, player, hand, stack, hitResult);
             if (diskResult == InteractionResult.SUCCESS) {
                 return ItemInteractionResult.SUCCESS;
@@ -336,14 +336,14 @@ public class CelestialForgingAnvilBlock
             if (diskResult == InteractionResult.FAIL) {
                 return ItemInteractionResult.FAIL;
             }
-            // Singularity crystal right-click: store snapshot (apply only via seed slot)
+            /// 奇点水晶右键：存储快照（仅通过种子物品格应用）
             if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
                 if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
                 if (!player.getAbilities().mayBuild) return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
                 if (player.isShiftKeyDown()) return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
                 CompoundTag stored = CelestialForgingAnvilBlockEntity.loadSnapshotFromStack(stack);
                 if (stored != null) {
-                    // Already has data — don't apply here, use seed slot instead
+                    /// 已有数据 — 此处不应用，请改用种子物品格
                     return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
                 }
                 CompoundTag tag = new CompoundTag();

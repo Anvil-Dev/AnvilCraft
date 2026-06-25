@@ -41,45 +41,31 @@ import java.util.stream.Collectors;
 
 public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity {
 
-    /**
-     * Set of entity UUIDs currently touching this portal.
-     * Used to track enter/leave so that teleport fires once per touch,
-     * and resets when the entity steps away.
-     */
+    /// 当前接触此传送门的实体 UUID 集合。用于跟踪进入/离开，使传送每接触一次仅触发一次，并在实体离开时重置。
     private final Set<UUID> touchingEntities = new HashSet<>();
 
-    /**
-     * Last known WATERLOGGED state, used to detect changes and sync to connected portal.
-     */
+    /// 上一次已知的含水状态，用于检测变化并同步到连接的传送门。
     private boolean lastWaterlogged = false;
 
-    /**
-     * Laser level and type received from an external laser source hitting this portal front face.
-     */
+    /// 从外部激光源照射到此传送门前表面所接收的激光等级和类型。
     private int incomingLaserLevel = 0;
     private boolean incomingLaserGamma = false;
 
-    /**
-     * Laser level and type to emit, set by the connected portal via wormhole sync.
-     */
+    /// 要发射的激光等级和类型，由连接的传送门通过虫洞同步设置。
     private int wormholeLaserLevel = 0;
     private boolean wormholeLaserGamma = false;
 
-    /**
-     * Gamma rendering state for client-side laser beam color.
-     */
+    /// 客户端伽马激光束颜色渲染状态。
     @Getter
     private boolean emittingGamma = false;
     private int gammaLevel = 0;
 
-    /**
-     * Gamma laser block breaking: track which block is being irradiated and for how long.
-     */
+    /// 伽马激光方块破坏：跟踪正在被照射的方块及持续时间。
     @Nullable
     private BlockPos gammaIrradiatingPos = null;
     private int gammaExposureTicks = 0;
 
-    // [disabled, ≥4:3s, ≥8:1s, ≥12:5gt, ≥16:1gt]
+    /// [0-4级不破坏, ≥4级3s破坏, ≥8级1s破坏, ≥12级5gt破坏, ≥16级1gt破坏]
     private static final int[] GAMMA_EXPOSURE_TICKS = {
         Integer.MAX_VALUE, 60, 20, 5, 1
     };
@@ -96,7 +82,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         super(type, pos, blockState);
     }
 
-    // === BaseLaserBlockEntity overrides ===
+    /// === BaseLaserBlockEntity 覆写 ===
 
     @Override
     public Direction getFacing() {
@@ -109,7 +95,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     @Override
     public Set<Direction> getIgnoreFace() {
-        // Only accept lasers from the front (the direction opposite to FACING)
+        /// 仅从正面接受激光（即 FACING 的反方向）
         EnumSet<Direction> ignore = EnumSet.allOf(Direction.class);
         ignore.remove(getFacing().getOpposite());
         return ignore;
@@ -133,19 +119,14 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         this.incomingLaserGamma = false;
     }
 
-    /**
-     * Set the wormhole laser output from the connected portal.
-     * Called by the connected portal's tick via wormhole sync.
-     */
+    /// 设置来自已连接传送门的虫洞激光输出。由已连接传送门的 tick 通过虫洞同步调用。
     public void setWormholeLaser(int level, boolean gamma) {
         this.wormholeLaserLevel = level;
         this.wormholeLaserGamma = gamma;
         this.setChanged();
     }
 
-    /**
-     * Client-side update for gamma laser rendering on the portal.
-     */
+    /// 传送门上伽马激光渲染的客户端更新。
     public void clientUpdateGamma(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.emittingGamma = true;
         this.gammaLevel = laserLevel;
@@ -161,16 +142,14 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         super.clientUpdate(irradiateBlockPos, laserLevel);
     }
 
-    /**
-     * Find the parent CFA block entity that this portal is attached to.
-     */
+    /// 查找此传送门所附属的父 CFA 方块实体。
     @Nullable
     public CelestialForgingAnvilBlockEntity findParentCfa() {
         if (level == null) return null;
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof CelestialForgingAnvilPortalBlock)) return null;
 
-        // FACING points away from CFA; look opposite to find CFA
+        /// FACING 指向远离 CFA 的方向；反方向查找 CFA
         Direction towardsCfa = state.getValue(CelestialForgingAnvilPortalBlock.FACING).getOpposite();
         BlockPos cfaPos = worldPosition.relative(towardsCfa);
         BlockState cfaState = level.getBlockState(cfaPos);
@@ -190,13 +169,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof CelestialForgingAnvilPortalBlock)) return;
 
-        // If the parent CFA is gone (destroyed by water, etc.), destroy this portal too
+        /// 如果父 CFA 已消失（被水破坏等），也摧毁此传送门
         if (parent == null) {
             level.destroyBlock(worldPosition, false);
             return;
         }
 
-        // If the amplifier is missing, the portal should be closed
+        /// 如果增幅器缺失，传送门应关闭
         if (!parent.isAmplifierPresent()) {
             if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
                 level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
@@ -208,13 +187,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         Cube323PartHalf side = findSideFromParent(parent);
         if (side == null) return;
 
-        // Query wormhole network to determine if portal should be open.
-        // Portal opens only when exactly 2 CFAs in the network group have a portal
-        // on this same side. If there are more (>2), all doors close for security.
+        /// 查询虫洞网络以确定传送门是否应开启。
+        /// 只有当网络组中恰好有 2 个 CFA 在此同侧有传送门时才开启。
+        /// 如果超过 2 个，出于安全考虑所有门都关闭。
         WormholeNetwork network = WormholeNetwork.get();
         UUID hash = parent.getWormholeParamsHash();
         if (hash == null) {
-            // No wormhole identity — close portal and clean up laser
+            /// 无虫洞标识——关闭传送门并清理激光
             if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
                 level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
                 touchingEntities.clear();
@@ -244,18 +223,18 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             hash, level.dimension(), parent.getBlockPos()
         );
 
-        // Ensure this portal's side is registered in the wormhole network.
-        // After a megastructure clear + rebuild, portal sides may be missing
-        // from the network because onClear() cleared the local portal map.
+        /// 确保此传送门的侧边已在虫洞网络中注册。
+        /// 巨构清除并重建后，传送门侧边可能在网络中缺失，
+        /// 因为 onClear() 清除了本地传送门映射。
         if (!network.hasPortalAt(level.dimension(), parent.getBlockPos(), side)) {
             parent.addPortal(side, worldPosition);
         }
 
-        // Count other CFAs in the group that have a portal on the same side
+        /// 统计组内在此同侧有传送门的其他 CFA 数量
         long sameSideCount = connected.stream()
             .filter(e -> network.hasPortalAt(e.dimension(), e.pos(), side))
             .count();
-        // Include self (this portal)
+        /// 计入自身（此传送门）
         sameSideCount++;
         boolean shouldBeOpen = sameSideCount == 2;
 
@@ -264,7 +243,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, shouldBeOpen);
         }
 
-        // Sync waterlogged state with connected portal (only when this portal's state changed)
+        /// 将含水状态同步到已连接的传送门（仅当此传送门状态发生变化时）
         if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             boolean thisWaterlogged = state.getValue(BlockStateProperties.WATERLOGGED);
             if (thisWaterlogged != lastWaterlogged) {
@@ -288,15 +267,15 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 }
             }
 
-            // Sync laser: transmit incoming laser to connected portal
+            /// 同步激光：将接收到的激光发送到已连接的传送门
             CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
             if (connectedPortal != null) {
                 connectedPortal.setWormholeLaser(incomingLaserLevel, incomingLaserGamma);
             }
         } else {
-            // Portal closed: clear stale wormhole laser on BOTH sides.
-            // Don't gate on incomingLaserLevel — the laser may still be hitting
-            // the input-side portal, but the wormhole is closed so no transmission.
+            /// 传送门关闭：清除两侧残留的虫洞激光。
+            /// 不检查 incomingLaserLevel——激光可能仍照射在输入端传送门上，
+            /// 但虫洞已关闭，因此不传输。
             CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
             if (connectedPortal != null) {
                 connectedPortal.setWormholeLaser(0, false);
@@ -305,8 +284,8 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             wormholeLaserGamma = false;
         }
 
-        // Emit laser if this portal has a wormhole laser set from connected portal
-        // Only emit when the portal is open — a closed portal must not relay lasers.
+        /// 如果此传送门有来自已连接传送门的虫洞激光设置，则发射激光。
+        /// 仅在传送门开启时发射——关闭的传送门不得转发激光。
         if (wormholeLaserLevel > 0 && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             Direction facing = getFacing();
             if (irradiateSelfLaserBlockSet.isEmpty()) {
@@ -319,7 +298,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             this.emittingGamma = wormholeLaserGamma;
             this.gammaLevel = wormholeLaserLevel;
         } else {
-            // Stop laser emission
+            /// 停止激光发射
             if (irradiateBlockPos != null) {
                 BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -335,20 +314,20 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             this.gammaExposureTicks = 0;
         }
 
-        // Increment tickCount for ore extraction cooldown
+        /// 递增 tickCount 用于矿石提取冷却
         this.tickCount++;
 
-        // Send laser render packets
+        /// 发送激光渲染数据包
         sendLaserPackets();
 
-        // Register as heat producer if the laser is hitting a heatable block
+        /// 如果激光正在照射可加热方块，注册为热量产生者
         if (level instanceof ServerLevel serverLevel
             && irradiateBlockPos != null
             && serverLevel.getBlockState(irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)) {
             HeaterManager.addProducer(getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
         }
 
-        // Detect entities in the portal block and teleport them.
+        /// 检测传送门方块内的实体并将其传送。
         if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             AABB detectionBox = new AABB(worldPosition);
             List<Entity> entities = level.getEntitiesOfClass(Entity.class, detectionBox);
@@ -370,12 +349,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
     }
 
-    /**
-     * when an entity overlaps the portal block.
-     * Checks {@link #touchingEntities} to ensure teleport fires only once
-     * per touch — subsequent ticks while still inside the block are skipped.
-     * The BE tick clears the tracking when the entity leaves the block.
-     */
+    /// 当实体与传送门方块重叠时调用。检查 touchingEntities 以确保传送每接触一次仅触发一次——仍在方块内时后续 tick 会被跳过。当实体离开方块时，BE tick 会清除跟踪。
     public void tryTouchTeleport(Entity entity) {
         UUID uuid = entity.getUUID();
         if (touchingEntities.contains(uuid)) return;
@@ -389,7 +363,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         List<WormholeNetwork.Entry> connected = network.getConnected(
             parent.getWormholeParamsHash(), level.dimension(), parent.getBlockPos()
         );
-        // Only teleport if exactly one other CFA has a portal on the same side
+        /// 仅当恰好有另一个 CFA 在此同侧有传送门时才传送
         List<WormholeNetwork.Entry> matching = connected.stream()
             .filter(e -> network.hasPortalAt(e.dimension(), e.pos(), side))
             .toList();
@@ -409,14 +383,14 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         double dy = destPos.getY();
         double dz = destPos.getZ() + 0.5;
 
-        // Items and projectiles spawn 1 block higher so they don't land at feet level
+        /// 物品和弹射物生成时抬高 1 格，以免落在脚部高度
         if (entity instanceof net.minecraft.world.entity.item.ItemEntity
             || entity instanceof net.minecraft.world.entity.projectile.Projectile) {
             dy += 1;
         }
 
-        // Only reverse the component perpendicular to the portal face;
-        // horizontal and vertical movement parallel to the slab is preserved.
+        /// 仅反转垂直于传送门面的分量；
+        /// 平行于平面的水平和垂直运动保持不变。
         net.minecraft.world.phys.Vec3 vel = entity.getDeltaMovement();
         net.minecraft.world.phys.Vec3 momentum;
         if (outwardFacing.getAxis() == Direction.Axis.Z) {
@@ -432,10 +406,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         touchingEntities.add(uuid);
     }
 
-    /**
-     * Find the connected portal block entity on the other side of the wormhole.
-     * Returns null if not connected or target portal is not found.
-     */
+    /// 查找虫洞另一侧已连接的传送门方块实体。如果未连接或目标传送门未找到则返回 null。
     @Nullable
     private CelestialForgingAnvilPortalBlockEntity findConnectedPortal(
         CelestialForgingAnvilBlockEntity parent, Cube323PartHalf side
@@ -464,10 +435,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         return null;
     }
 
-    /**
-     * Gamma laser emission with special properties: 16 block range, air-only pass-through,
-     * prism destruction, 16x entity damage, and block breaking based on gamma level.
-     */
+    /// 伽马激光发射
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void emitPortalGammaLaser(Direction direction) {
         if (this.level == null) return;
@@ -476,10 +444,10 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         BlockPos tempIrradiateBlockPos = getGammaIrradiateBlockPos(direction);
 
-        // Destroy prisms along the beam path
+        /// 沿光束路径摧毁棱镜
         destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
 
-        // Update old target if changed
+        /// 如果旧目标发生变化则更新
         if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
             if (this.irradiateBlockPos != null) {
                 BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
@@ -489,7 +457,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
         }
 
-        // Chain with other BaseLaserBlockEntity targets
+        /// 与其他 BaseLaserBlockEntity 目标链接
         if (this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiated
             && !this.isInIrradiateSelfLaserBlockSet(irradiated)) {
             if (irradiated.getIgnoreFace().isEmpty()) {
@@ -512,7 +480,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             return;
         }
 
-        // Gamma entity damage: 16x normal laser damage
+        /// 伽马实体伤害：16 倍普通激光伤害
         int hurt = Math.min(16, gammaLevel - 4) * 16;
         if (hurt > 0) {
             Vec3 startPos = this.getBlockPos()
@@ -536,7 +504,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             );
         }
 
-        // Gamma laser block breaking — continuous exposure per block position
+        /// 伽马激光方块破坏——每个方块位置累计持续照射时间
         BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
         int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(gammaLevel / 4, 0, 4)];
 
@@ -568,15 +536,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             this.gammaExposureTicks = 0;
         }
 
-        // Gamma laser heating: upgrade ember metal blocks in cross-sectional area
+        /// 伽马激光加热：升级光束横截面区域内的余烬金属方块
         tryHeatEmberMetal(direction);
 
         this.maxTransmissionDistance = originalMaxDistance;
     }
 
-    /**
-     * Find the gamma laser irradiated block position using air-only pass-through rules.
-     */
+    /// 使用仅穿透空气的规则查找伽马激光照射的方块位置。
     private BlockPos getGammaIrradiateBlockPos(Direction direction) {
         for (int length = 1; length <= 16; length++) {
             BlockPos checkPos = this.getBlockPos().relative(direction, length);
@@ -585,18 +551,14 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         return this.getBlockPos().relative(direction, 16);
     }
 
-    /**
-     * Gamma laser can only pass through air and replaceable blocks (tall grass, etc.).
-     */
+    /// 伽马激光只能穿过空气和可替换方块（高草丛等）。
     private boolean gammaCanPassThrough(BlockPos blockPos) {
         if (this.level == null) return false;
         BlockState blockState = this.level.getBlockState(blockPos);
         return blockState.is(net.minecraft.tags.BlockTags.REPLACEABLE);
     }
 
-    /**
-     * Destroy ruby prisms along the gamma laser path.
-     */
+    /// 沿伽马激光路径摧毁红宝石棱镜。
     private void destroyPrismsAlongPath(Direction direction, BlockPos targetPos) {
         if (level == null) return;
         BlockPos.MutableBlockPos checkPos = getBlockPos().relative(direction).mutable();
@@ -609,10 +571,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
     }
 
-    /**
-     * Heat ember metal blocks in a cross-sectional area normal to the beam.
-     * Area scales with gamma level: ≥4→1×1, ≥8→3×3, ≥12→5×5×2, ≥16→7×7×3.
-     */
+    /// 加热光束法向截面区域内的余烬金属方块。面积随伽马等级缩放：≥4→1×1，≥8→3×3，≥12→5×5×2，≥16→7×7×3。
     private void tryHeatEmberMetal(Direction direction) {
         if (this.level == null || gammaLevel < 4) return;
         if (this.level.getGameTime() % 20 != 0) return;
@@ -656,9 +615,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
     }
 
-    /**
-     * Upgrade or refresh a single ember metal block at the given position.
-     */
+    /// 在给定位置升级或刷新单个余烬金属方块。
     private void tryHeatEmberMetalAt(BlockPos pos) {
         BlockState state = this.level.getBlockState(pos);
         if (state.is(dev.dubhe.anvilcraft.init.block.ModBlocks.EMBER_METAL_BLOCK.get())) {
@@ -687,9 +644,8 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 return entry.getKey();
             }
         }
-        // Fallback: compute from position.
-        // The portal is placed adjacent to the CFA side center, so its offset
-        // from the controller is twice the side center offset (±2 instead of ±1).
+        // 传送门放置在 CFA 侧面中心旁，因此其相对于控制器的偏移
+        // 是侧面中心偏移的两倍（±2 而不是 ±1）。
         BlockPos cfaPos = parent.getBlockPos();
         int dx = worldPosition.getX() - cfaPos.getX();
         int dz = worldPosition.getZ() - cfaPos.getZ();
@@ -700,9 +656,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         return null;
     }
 
-    /**
-     * Send laser render packets to clients tracking this chunk.
-     */
+    /// 向追踪此区块的客户端发送激光渲染数据包。
     private void sendLaserPackets() {
         if (level instanceof ServerLevel serverLevel && changed) {
             PacketDistributor.sendToPlayersTrackingChunk(
@@ -722,10 +676,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
     }
 
-    /**
-     * Drop mined items at the broken ore position rather than behind the portal,
-     * so drops don't get trapped inside the CFA structure.
-     */
+    /// 将掉落物生成在破坏的矿石位置而非传送门后方
     @Override
     public void deliverItem(List<ItemStack> drops, Direction direction, BlockPos sourceBlockPos) {
         if (this.level == null) return;

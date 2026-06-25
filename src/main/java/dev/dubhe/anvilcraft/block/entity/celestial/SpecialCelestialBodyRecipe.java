@@ -33,7 +33,7 @@ import java.util.Random;
 ///    是否匹配（基于世界种子的伪随机选择，每个世界不同）
 /// 3. 匹配成功后，从配方的固定参数（time/space/mass/energy）直接构造
 ///    {@link SpecialCelestialBodyData}，跳过常规的三步图表匹配
-/// 4. 温度由 energy 铁砧数自动推导，文明由 offerings 非空自动判定
+/// 4. 温度由 energy 砧子数自动推导，文明由 offerings 非空自动判定
 /// 5. 资源通过 {@link #generateResources} 从配方的 minerals/fluids/
 ///    biologicalItems/biologicalFluids/offerings 列表直接生成
 ///
@@ -64,7 +64,7 @@ public record SpecialCelestialBodyRecipe(
     List<DemandEntry> templePunishments
 ) implements Recipe<SpecialCelestialBodyInput> {
 
-    // === WeightedEntry ===
+    /// === WeightedEntry ===
 
     public record WeightedEntry(String id, int weight) {
         public static final Codec<WeightedEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
@@ -85,7 +85,7 @@ public record SpecialCelestialBodyRecipe(
         }
     }
 
-    // === DemandEntry (temple demand items with count instead of weight) ===
+    /// === DemandEntry（神殿需求物品，使用数量而非权重）===
 
     public record DemandEntry(String id, int count) {
         public static final Codec<DemandEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
@@ -102,7 +102,7 @@ public record SpecialCelestialBodyRecipe(
         );
     }
 
-    // === Codecs for enums ===
+    /// === 枚举编解码器 ===
 
     private static final Codec<LiquidCoverage> LIQUID_COVERAGE_CODEC =
         Codec.STRING.xmap(LiquidCoverage::fromName, LiquidCoverage::getSerializedName);
@@ -113,7 +113,7 @@ public record SpecialCelestialBodyRecipe(
     private static final StreamCodec<ByteBuf, LiquidCoverage> LIQUID_COVERAGE_STREAM =
         ByteBufCodecs.STRING_UTF8.map(LiquidCoverage::fromName, LiquidCoverage::getSerializedName);
 
-    // === ResourceFields (CODEX-only wrapper to stay under the 16-field group() limit) ===
+    /// === ResourceFields（仅用于Codec的包装器，以保持在16字段group()限制内）===
 
     private record ResourceFields(
         List<WeightedEntry> minerals,
@@ -135,7 +135,7 @@ public record SpecialCelestialBodyRecipe(
         ).apply(ins, ResourceFields::new));
     }
 
-    // === Top-level Codec ===
+    /// === 顶层编解码器 ===
 
     public static final MapCodec<SpecialCelestialBodyRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Codec.STRING.fieldOf("name").forGetter(SpecialCelestialBodyRecipe::name),
@@ -176,7 +176,7 @@ public record SpecialCelestialBodyRecipe(
         );
     }
 
-    // === StreamCodec ===
+    /// === 流编解码器 ===
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SpecialCelestialBodyRecipe> STREAM_CODEC = new StreamCodec<>() {
         @Override
@@ -237,27 +237,25 @@ public record SpecialCelestialBodyRecipe(
         }
     };
 
-    // === Derived properties ===
+    /// === 派生属性 ===
 
-    /** Temperature is auto-derived from energy anvil count. */
+    /// 温度由energy砧子数自动推导。
     @NotNull
     public Temperature temperature() {
         return CelestialBodyMatcher.energyToTemperature(energy);
     }
 
-    /** Only the built-in ERROR_PLANET is an error planet. */
+    /// 只有内置的ERROR_PLANET是错误行星。
     public boolean isErrorPlanet() {
         return name.equals("error_planet");
     }
 
-    /**
-     * Whether this body has civilization — true when offerings are defined.
-     */
+    /// 此天体是否有文明 —— 当定义了offerings时为true。
     public boolean hasCivilization() {
         return !offerings.isEmpty();
     }
 
-    // === Core methods ===
+    /// === 核心方法 ===
 
     public Item getEffectiveSeedItem(long worldSeed) {
         if (seedItems.isEmpty()) return Items.AIR;
@@ -301,7 +299,7 @@ public record SpecialCelestialBodyRecipe(
         return liquidCoverage.orElse(null);
     }
 
-    // === Recipe implementation ===
+    /// === 配方实现 ===
 
     @Override
     public boolean matches(@NotNull SpecialCelestialBodyInput input, @NotNull Level level) {

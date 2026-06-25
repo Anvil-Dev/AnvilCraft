@@ -5,12 +5,10 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * /// 特殊天体数据 —— 从 {@link SpecialCelestialBodyRecipe} 创建，
- * /// 绕过常规三步图表匹配和贴图烘焙管线。
- * ///
- * /// 所有属性在创建时从配方缓存，渲染和 NBT 反序列化时无需查配方管理器。
- */
+/// 特殊天体数据 —— 从 {@link SpecialCelestialBodyRecipe} 创建，
+/// 绕过常规三步图表匹配和贴图烘焙管线。
+///
+/// 所有属性在创建时从配方缓存，渲染和 NBT 反序列化时无需查配方管理器。
 @SuppressWarnings("checkstyle:MissingJavadocMethod")
 public record SpecialCelestialBodyData(
     String recipeId,
@@ -27,9 +25,7 @@ public record SpecialCelestialBodyData(
     String model
 ) implements CelestialBodyData {
 
-    /**
-     * Create from a recipe and its resource location ID.
-     */
+    /// 从配方和其资源路径ID创建。
     public static SpecialCelestialBodyData fromRecipe(SpecialCelestialBodyRecipe recipe, String recipeId) {
         return new SpecialCelestialBodyData(
             recipeId,
@@ -90,9 +86,7 @@ public record SpecialCelestialBodyData(
         return tag;
     }
 
-    /**
-     * Deserialize a SpecialCelestialBodyData from NBT.
-     */
+    /// 从NBT反序列化SpecialCelestialBodyData。
     public static SpecialCelestialBodyData fromTag(CompoundTag tag) {
         String recipeId = tag.getString("recipeId");
         String name = tag.getString("name");
@@ -103,7 +97,7 @@ public record SpecialCelestialBodyData(
         boolean hasAtmosphere = tag.getBoolean("hasAtmosphere");
         boolean isErrorPlanet = tag.getBoolean("isErrorPlanet");
         boolean needsCustomModel = tag.getBoolean("needsCustomModel");
-        // 向后兼容：优先读新 key "model"，回退到旧 key "textureName"
+        /// 向后兼容：优先读新 key "model"，回退到旧 key "textureName"
         String model = tag.contains("model")
             ? tag.getString("model")
             : tag.getString("textureName");

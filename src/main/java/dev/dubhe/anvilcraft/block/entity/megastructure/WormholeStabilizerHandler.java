@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLogisticsInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CfaInterfaceScanner;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
@@ -135,14 +136,14 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         cleanupWormholeChunkLoading(be.getLevel());
     }
 
-    public boolean addPortal(Cube323PartHalf side, BlockPos portalPos, CelestialForgingAnvilBlockEntity be) {
+    public void addPortal(Cube323PartHalf side, BlockPos portalPos, CelestialForgingAnvilBlockEntity be) {
         if (side != Cube323PartHalf.BOTTOM_N && side
                                                 != Cube323PartHalf.BOTTOM_S && side
                                                                                != Cube323PartHalf.BOTTOM_E && side
                                                                                                               != Cube323PartHalf.BOTTOM_W) {
-            return false;
+            return;
         }
-        if (portals.containsKey(side)) return false;
+        if (portals.containsKey(side)) return;
         portals.put(side, portalPos);
 
         if (registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
@@ -153,7 +154,6 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         if (be.getLevel() != null) {
             be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
         }
-        return true;
     }
 
     public void removePortal(Cube323PartHalf side, CelestialForgingAnvilBlockEntity be) {
@@ -201,7 +201,9 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             if (targetLevel == null) continue;
             BlockEntity targetBe = targetLevel.getBlockEntity(entry.pos());
             if (!(targetBe instanceof CelestialForgingAnvilBlockEntity targetCfa)) continue;
-            Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> remoteMap = targetCfa.getLogisticsInterfacesMap();
+            Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> remoteMap = CfaInterfaceScanner.getInterfacesMap(
+                    CelestialForgingAnvilLogisticsInterfaceBlockEntity.class, targetCfa.getLevel(), targetCfa.getBlockPos()
+                );
             CelestialForgingAnvilLogisticsInterfaceBlockEntity remoteBe = remoteMap.get(relOffset);
             if (remoteBe == null || remoteBe == localBe) continue;
             IItemHandler remoteHandler = remoteBe.getItemHandler();
@@ -415,7 +417,9 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
                 BlockEntity targetBe = targetLevel.getBlockEntity(entry.pos());
                 if (!(targetBe instanceof CelestialForgingAnvilBlockEntity targetCfa)) continue;
 
-                Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> remoteMap = targetCfa.getLaserInterfacesMap();
+                Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> remoteMap = CfaInterfaceScanner.getInterfacesMap(
+                    CelestialForgingAnvilLaserInterfaceBlockEntity.class, targetCfa.getLevel(), targetCfa.getBlockPos()
+                );
                 CelestialForgingAnvilLaserInterfaceBlockEntity remoteBe = remoteMap.get(relOffset);
                 if (remoteBe == null) continue;
 

@@ -32,23 +32,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Generates a {@link PlanetaryResourceSet} for a celestial body by applying
- * matching {@link PlanetResourceRecipe} instances and random generation logic.
- */
+/// 通过应用匹配的 {@link PlanetResourceRecipe} 实例和随机生成逻辑，
+/// 为天体生成 {@link PlanetaryResourceSet}。
 public final class PlanetResourceGenerator {
 
     private PlanetResourceGenerator() {}
 
-    /**
-     * Generate resources for the given celestial body.
-     *
-     * @param body           the matched celestial body
-     * @param ageAnvilCount  the "time" anvil count (represents age in billion years)
-     * @param level          the server level (for recipe manager and loot table access)
-     * @param seed           deterministic seed for random generation
-     * @return the generated resource set, never null
-     */
+    /// 为给定天体生成资源。
+    ///
+    /// body - 匹配到的天体
+    /// ageAnvilCount - "时间"砧子计数（表示年龄，单位为十亿年）
+    /// level - 服务端世界（用于配方管理器和战利品表访问）
+    /// seed - 确定性随机种子
+    /// 返回生成的资源集，永不为null
     @SuppressWarnings("checkstyle:MissingSwitchDefault")
     public static PlanetaryResourceSet generate(
         CelestialBodyData body,
@@ -67,7 +63,7 @@ public final class PlanetResourceGenerator {
 
         PlanetResourceInput input = new PlanetResourceInput(body, ageAnvilCount);
 
-        // Collect recipes by category
+        /// 按类别收集配方
         PlanetResourceRecipe mineralRecipe = null;
         List<PlanetResourceRecipe> fluidRecipes = new ArrayList<>();
         List<PlanetResourceRecipe> giantItemRecipes = new ArrayList<>();
@@ -93,7 +89,7 @@ public final class PlanetResourceGenerator {
             }
         }
 
-        // Generate based on body type
+        /// 根据天体类型生成资源
         if (body instanceof RockyPlanetData rocky) {
             generateMinerals(set, mineralRecipe, level.registryAccess(), random, seedItemId);
             generateFluids(set, fluidRecipes, rocky);
@@ -102,12 +98,12 @@ public final class PlanetResourceGenerator {
             boolean hasCivilization;
 
             if (lifeEligible) {
-                // Roll for life first: COLD/HOT=5%, MILD=10% (or from recipe)
+                /// 首先检定生命：COLD/HOT=5%，MILD=10%（或由配方指定）
                 int lifeChance = getLifeChance(rocky, biologicalRecipe);
                 boolean lifeExists = lifeChance > 0 && random.nextInt(100) < lifeChance;
 
                 if (lifeExists) {
-                    // Life-bearing planet: 50% chance of civilization, else biological resources
+                    /// 有生命的行星：50%概率有文明，否则有生物资源
                     hasCivilization = tryCivilization(set, offeringRecipe, rocky, ageAnvilCount, random);
                     if (hasCivilization) {
                         set.setHasCivilization();
@@ -115,7 +111,7 @@ public final class PlanetResourceGenerator {
                         tryBiologicalLifeConfirmed(set, biologicalRecipe, rocky, level, random);
                     }
                 } else {
-                    // No life → try wasteland
+                    /// 无生命 → 尝试废土
                     tryWasteland(set, wastelandRecipe, rocky, ageAnvilCount, random);
                 }
             }
@@ -127,7 +123,7 @@ public final class PlanetResourceGenerator {
         return set;
     }
 
-    // === Minerals ===
+    /// === 矿物 ===
 
     private static void generateMinerals(
         PlanetaryResourceSet set,
@@ -171,12 +167,12 @@ public final class PlanetResourceGenerator {
             int remaining = 100 - sum;
             int maxSteps = remaining / step;
             if (maxSteps <= 0) break;
-            // Weighted random skewed toward low percentages for early candidates.
-            // exponent = 1 + 1/(n+1): starts at 2.0 (heavy skew), asymptotically → 1.0 (uniform).
+            /// 加权随机偏向低百分比（对早期候选更友好）。
+            /// 指数 = 1 + 1/(n+1)：从2.0开始（强偏斜），渐近趋向1.0（均匀分布）。
             float exponent = 1.0f + 1.0f / (candidateIndex + 1);
             float skewed = (float) Math.pow(random.nextFloat(), exponent);
             int steps = 1 + (int) (skewed * maxSteps);
-            // Boost: if seed item matches this mineral, add 1 bonus step
+            /// 加成：如果种子物品匹配该矿物，额外增加1步
             if (seedItemId != null && candidate.equals(seedItemId)) {
                 steps += 1;
             }
@@ -191,14 +187,14 @@ public final class PlanetResourceGenerator {
         }
     }
 
-    // === Fluids (rocky planets) ===
+    /// === 流体（岩石行星） ===
 
     private static void generateFluids(PlanetaryResourceSet set, List<PlanetResourceRecipe> recipes, RockyPlanetData rocky) {
         boolean isScorched = rocky.temperature() == Temperature.SCORCHED;
         for (PlanetResourceRecipe recipe : recipes) {
             PlanetResourceRecipe.FluidData fd = recipe.fluidData();
             if (fd != null && !fd.outputFluid().isEmpty()) {
-                // Scorched planets only get lava; other temperatures only get non-lava fluids
+                /// 焦灼行星只产熔岩；其他温度的行星只产非熔岩流体
                 boolean isLava = fd.outputFluid().contains("lava");
                 if (isScorched != isLava) continue;
                 set.addFluid(new PlanetaryResourceSet.WeightedFluidStack(
@@ -208,7 +204,7 @@ public final class PlanetResourceGenerator {
         }
     }
 
-    // === Giant planet items ===
+    /// === 气态行星物品 ===
 
     private static void generateGiantItems(
         PlanetaryResourceSet set,
@@ -227,7 +223,7 @@ public final class PlanetResourceGenerator {
         }
     }
 
-    // === Giant planet fluids ===
+    /// === 气态行星流体 ===
 
     private static void generateGiantFluids(
         PlanetaryResourceSet set,
@@ -246,7 +242,7 @@ public final class PlanetResourceGenerator {
         }
     }
 
-    // === Life prerequisites ===
+    /// === 生命前提条件 ===
 
     private static boolean isLifeEligible(RockyPlanetData rocky) {
         if (rocky.liquidCoverage() == LiquidCoverage.NONE) return false;
@@ -255,10 +251,8 @@ public final class PlanetResourceGenerator {
         return rocky.temperature() != Temperature.SCORCHED;
     }
 
-    /**
-     * Get the life chance percentage for a rocky planet.
-     * Defaults (when no recipe overrides): COLD/HOT = 5%, MILD = 10%.
-     */
+    /// 获取岩石行星生命出现的百分比概率。
+    /// 默认值（配方未覆盖时）：COLD/HOT=5%，MILD=10%。
     private static int getLifeChance(RockyPlanetData rocky, @Nullable PlanetResourceRecipe biologicalRecipe) {
         if (biologicalRecipe != null) {
             PlanetResourceRecipe.BiologicalData bd = biologicalRecipe.biologicalData();
@@ -274,7 +268,7 @@ public final class PlanetResourceGenerator {
         };
     }
 
-    // === Civilization (offerings) ===
+    /// === 文明（祭品） ===
 
     private static boolean tryCivilization(
         PlanetaryResourceSet set,
@@ -309,7 +303,7 @@ public final class PlanetResourceGenerator {
         return true;
     }
 
-    // === Biological resources (life already confirmed by caller) ===
+    /// === 生物资源（调用方已确认存在生命） ===
 
     private static void tryBiologicalLifeConfirmed(
         PlanetaryResourceSet set,
@@ -327,7 +321,7 @@ public final class PlanetResourceGenerator {
         TagKey<Item> blacklistTag = TagKey.create(Registries.ITEM, ResourceLocation.parse(bd.dropBlacklistTag()));
         Set<ResourceLocation> blacklist = buildItemBlacklist(level.registryAccess(), blacklistTag);
 
-        // Collect item drop frequencies from all matching entities
+        /// 从所有匹配实体中收集物品掉落频率
         Map<ResourceLocation, Integer> dropFrequencies = new HashMap<>();
         level.registryAccess().lookupOrThrow(Registries.ENTITY_TYPE)
             .listElements()
@@ -345,15 +339,15 @@ public final class PlanetResourceGenerator {
             });
 
         if (!dropFrequencies.isEmpty()) {
-            // Build flat list of (item, baseWeight) pairs, baseWeight already multiples of 10
+            /// 构建(item, baseWeight)对列表，baseWeight已是10的倍数
             List<Map.Entry<ResourceLocation, Integer>> candidates = new ArrayList<>(dropFrequencies.entrySet());
-            // Filter out zero-weight entries (entities with empty loot tables)
+            /// 过滤掉零权重条目（战利品表为空的实体）
             candidates.removeIf(e -> e.getValue() <= 0);
             Collections.shuffle(candidates, new java.util.Random(random.nextLong()));
 
-            // Weighted random skewed toward low percentages — same diversity logic as minerals.
-            // Early candidates (first items from the shuffled list) are more likely to get
-            // moderate percentages, so more distinct biological drops appear.
+            /// 加权随机偏向低百分比 —— 与矿物相同的多样性逻辑。
+            /// 早期候选（洗牌列表中靠前的物品）更容易获得中等百分比，
+            /// 这样能出现更多不同的生物掉落物。
             final int step = 10;
             int sum = 0;
             int candidateIndex = 0;
@@ -387,7 +381,7 @@ public final class PlanetResourceGenerator {
         }
     }
 
-    // === Wasteland ===
+    /// === 废土 ===
 
     private static void tryWasteland(
         PlanetaryResourceSet set,
@@ -411,12 +405,10 @@ public final class PlanetResourceGenerator {
         }
     }
 
-    // === Entity drop collection ===
+    /// === 实体掉落收集 ===
 
-    /**
-     * Simulate an entity's loot table and collect drop frequencies into the given map.
-     * Entities with empty loot tables or only air drops are skipped (no entries added).
-     */
+    /// 模拟实体的战利品表并将掉落频率收集到给定映射中。
+    /// 战利品表为空或只有空气掉落的实体会被跳过（不添加条目）。
     private static void collectEntityDropFrequencies(
         EntityType<?> entityType,
         Level level,
@@ -439,7 +431,7 @@ public final class PlanetResourceGenerator {
             .reloadableRegistries()
             .getLootTable(lootTableKey);
 
-        // Recreate entity for loot context
+        /// 重新创建实体以构建战利品上下文
         Entity rollEntity = entityType.create(serverLevel);
         if (!(rollEntity instanceof LivingEntity rollLiving)) {
             if (rollEntity != null) rollEntity.discard();
@@ -462,7 +454,7 @@ public final class PlanetResourceGenerator {
             for (ItemStack drop : drops) {
                 if (drop.isEmpty()) continue;
                 ResourceLocation id = BuiltInRegistries.ITEM.getKey(drop.getItem());
-                // Skip air items (entities with empty or invalid loot tables)
+                /// 跳过空气物品（战利品表为空或无效的实体）
                 if ("minecraft:air".equals(id.toString())) continue;
                 if (blacklist.contains(id)) continue;
                 counts.merge(id, drop.getCount(), Integer::sum);
@@ -481,7 +473,7 @@ public final class PlanetResourceGenerator {
         }
     }
 
-    // === Helpers ===
+    /// === 辅助方法 ===
 
     @Nullable
     private static ResourceLocation pickRandomGemAmulet(RandomSource random) {

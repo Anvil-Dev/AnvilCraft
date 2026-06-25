@@ -19,20 +19,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-/**
- * Recipe defining temple demand entries for the Temple megastructure.
- *
- * <p>
- * Each recipe has a category ({@code blessing} or {@code punishment}) and
- * a list of weighted entries. The temple randomly picks one entry per day.
- * </p>
- *
- * <p>
- * For body-specific demands, use the {@code temple_blessings} and
- * {@code temple_punishments} fields in
- * {@link SpecialCelestialBodyRecipe} instead.
- * </p>
- */
+/// 定义神殿巨构的神殿需求条目的配方。
+///
+/// 每个配方有一个类别（{@code blessing} 或 {@code punishment}）和一个
+/// 加权条目列表。神殿每天随机选取一个条目。
+///
+/// 对于天体特定的需求，请改用 {@link SpecialCelestialBodyRecipe} 中的
+/// {@code temple_blessings} 和 {@code temple_punishments} 字段。
 public record TempleDemandRecipe(
     Category category,
     List<Entry> entries

@@ -4,9 +4,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Input wrapper for {@link TempleDemandRecipe#matches}.
- */
+/// {@link TempleDemandRecipe#matches} 的输入包装器。
 public record TempleDemandInput(TempleDemandRecipe.Category category) implements RecipeInput {
     @Override
     public @NotNull ItemStack getItem(int index) {

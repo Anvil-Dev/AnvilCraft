@@ -4,17 +4,15 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
-/**
- * Represents a possible Celestial Restriction Ring refactoring option.
- * Each option turns a ring into a megastructure.
- *
- * @param ring          which ring (R1-R6) to refactor
- * @param megastructure the megastructure model name suffix (e.g. "eco_station", "dyson_sphere")
- * @param modelLocation the full {@link ModelResourceLocation} for the megastructure model
- * @param displayName   translation key for the megastructure display name
- * @param material      required building material as an ItemStack, or {@link ItemStack#EMPTY} if none
- * @param materialCount how many of the material are required
- */
+/// 表示天体约束环的可能重构选项。
+/// 每个选项将一个环转化为巨构建筑。
+///
+/// ring - 要重构的环编号（R1-R6）
+/// megastructure - 巨构模型名称后缀（例如"eco_station"、"dyson_sphere"）
+/// modelLocation - 巨构模型的完整 {@link ModelResourceLocation}
+/// displayName - 巨构显示名称的翻译键
+/// material - 所需建筑材料的物品栈，若无则为 {@link ItemStack#EMPTY}
+/// materialCount - 所需材料的数量
 public record CelestialRefactorOption(
     int ring,
     String megastructure,
@@ -23,9 +21,8 @@ public record CelestialRefactorOption(
     ItemStack material,
     int materialCount
 ) {
-    /**
-     * Create a refactor option that requires no building materials.
-     */
+
+    /// 创建一个不需要建筑材料的重构选项。
     public static CelestialRefactorOption noMaterial(
         int ring, String megastructure, ModelResourceLocation modelLocation, String displayName
     ) {
@@ -34,16 +31,14 @@ public record CelestialRefactorOption(
         );
     }
 
-    /**
-     * Create a refactor option that requires a building material.
-     *
-     * @param ring          ring index (1-6)
-     * @param megastructure megastructure name suffix
-     * @param modelLocation full model location
-     * @param displayName   translation key
-     * @param material      the required item
-     * @param materialCount how many of the item are required
-     */
+    /// 创建一个需要建筑材料的重构选项。
+    ///
+    /// ring - 环编号（1-6）
+    /// megastructure - 巨构名称后缀
+    /// modelLocation - 完整模型定位符
+    /// displayName - 翻译键
+    /// material - 所需物品
+    /// materialCount - 所需物品数量
     public static CelestialRefactorOption withMaterial(
         int ring, String megastructure, ModelResourceLocation modelLocation, String displayName,
         ItemLike material, int materialCount

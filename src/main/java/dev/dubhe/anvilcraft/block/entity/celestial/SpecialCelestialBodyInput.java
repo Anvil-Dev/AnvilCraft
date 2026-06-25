@@ -4,10 +4,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Input wrapper for {@link SpecialCelestialBodyRecipe#matches}.
- * Carries no actual items — matching is done externally via anvil counts and seed item.
- */
+/// {@link SpecialCelestialBodyRecipe#matches} 的输入包装器。
+/// 不携带实际物品 —— 匹配在外部通过砧子计数和种子物品完成。
 public record SpecialCelestialBodyInput() implements RecipeInput {
 
     @Override

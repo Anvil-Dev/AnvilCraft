@@ -82,8 +82,8 @@ public abstract class CelestialForgingAnvilInterfaceBlock
         BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        // Interface FACING points away from CFA — follow opposite direction to the adjacent
-        // CFA block, then navigate to controller (BOTTOM_CENTER) via HALF offset.
+        /// 接口的FACING指向锻星砧反方向——沿反方向到达相邻的
+        /// 锻星砧方块，然后通过HALF偏移导航至控制器（BOTTOM_CENTER）。
         Direction towardsCfa = state.getValue(FACING).getOpposite();
         BlockPos cfaBlockPos = pos.relative(towardsCfa);
         BlockState cfaBlockState = level.getBlockState(cfaBlockPos);

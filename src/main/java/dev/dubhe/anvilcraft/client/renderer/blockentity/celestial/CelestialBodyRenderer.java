@@ -15,6 +15,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Vector3f;
 
+/// 天体渲染器 —— 提供行星体、大气、星晕和行星环的渲染方法。
+///
+/// 光照模型使用 Lambert / 类 BRDF 近似计算面片颜色，
+/// 大气透明度由视线方向与法线点的锐角边缘增强。
 @SuppressWarnings("checkstyle:MultipleVariableDeclarations")
 public class CelestialBodyRenderer {
 
@@ -48,13 +52,13 @@ public class CelestialBodyRenderer {
         return baseAlpha * (1.0f + 3.0f * rim);
     }
 
-    // === Public render methods ===
+    /// === 公共渲染方法 ===
 
     public static void renderPlanetBody(PoseStack ps, VertexConsumer vc, int light, int overlay) {
         renderPlanetCube(ps, vc, light, overlay, LIGHT_DIR);
     }
 
-    // === Atmosphere color ===
+    /// === 大气颜色 ===
 
     public static float[] getAtmosphereColor(Temperature temperature) {
         return switch (temperature) {
@@ -86,7 +90,7 @@ public class CelestialBodyRenderer {
         };
     }
 
-    // === Atmosphere rendering ===
+    /// === 大气渲染 ===
 
     public static void renderAtmosphere(PoseStack ps, MultiBufferSource bufferSource, Temperature temp, int light, int overlay, long seed) {
         float[] rgb = getAtmosphereColor(temp);
@@ -95,7 +99,7 @@ public class CelestialBodyRenderer {
         RandomSource random = RandomSource.create(seed);
         PoseStack.Pose pose = ps.last();
 
-        // Compute view direction
+        /// 计算视图方向
         Vector3f bodyCenter = new Vector3f(0.5f, 0.5f, 0.5f);
         bodyCenter.mulPosition(pose.pose());
         float vx = -bodyCenter.x, vy = -bodyCenter.y, vz = -bodyCenter.z;
@@ -117,7 +121,7 @@ public class CelestialBodyRenderer {
         }
     }
 
-    // === Star halo rendering ===
+    /// === 星晕渲染 ===
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void renderStarHalo(PoseStack ps, MultiBufferSource bufferSource, StarData star, int light, int overlay, long seed) {
@@ -146,7 +150,7 @@ public class CelestialBodyRenderer {
         }
     }
 
-    // === Ring rendering ===
+    /// === 行星环渲染 ===
 
     public static void renderRing(PoseStack ps, VertexConsumer vc, int light, int overlay) {
         float y = 0.5f;
@@ -171,7 +175,7 @@ public class CelestialBodyRenderer {
             .setNormal(pose, 0, -1, 0);
     }
 
-    // === Cube geometry ===
+    /// === 立方体几何 ===
 
     @SuppressWarnings("checkstyle:LocalVariableName")
     private static void renderPlanetCube(
@@ -224,7 +228,7 @@ public class CelestialBodyRenderer {
         faceSouth(ps, vc, x1, x2, y1, y2, z2, 16f / 64, 16f / 64, 32f / 64, 32f / 64, light, overlay, sColor);
     }
 
-    // === Face helpers ===
+    /// === 面辅助方法 ===
 
     private static void faceUp(
         PoseStack ps,

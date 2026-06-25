@@ -62,7 +62,7 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
         ItemStack stack, BlockState state, Level level, BlockPos pos,
         Player player, InteractionHand hand, BlockHitResult hitResult
     ) {
-        // If player is holding an interface block item, replace this placeholder with it
+        /// 如果玩家手持接口方块物品，则用其替换此占位符
         if (stack.getItem() instanceof CelestialForgingAnvilInterfaceBlockItem interfaceItem) {
             Block interfaceBlock = interfaceItem.getBlock();
             if (interfaceBlock instanceof CelestialForgingAnvilInterfaceBlock) {
@@ -74,15 +74,15 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
                     .setValue(CelestialForgingAnvilInterfaceBlock.FACING, facing)
                     .setValue(CelestialForgingAnvilInterfaceBlock.ACTIVE, false);
                 level.setBlockAndUpdate(pos, placementState);
-                // Play placement sound
+                /// 播放放置音效
                 SoundType soundType = placementState.getSoundType();
                 level.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS,
                     (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f);
-                // Consume one interface item if not in creative
+                /// 非创造模式下消耗一个接口物品
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);
                 }
-                // Return a placeholder item
+                /// 返还一个占位符物品
                 ItemStack placeholderStack = new ItemStack(this);
                 if (!player.getInventory().add(placeholderStack)) {
                     player.drop(placeholderStack, false);
@@ -98,7 +98,7 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
         BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        // Scan nearby for the controller (BOTTOM_CENTER of anvil)
+        /// 在附近扫描控制器（锻星砧的 BOTTOM_CENTER）
         for (int dx = -5; dx <= 5; dx++) {
             for (int dz = -5; dz <= 5; dz++) {
                 for (int dy = -1; dy <= 1; dy++) {

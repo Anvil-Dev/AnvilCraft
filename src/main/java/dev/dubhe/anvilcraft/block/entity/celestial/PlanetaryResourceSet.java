@@ -10,15 +10,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Container for all resources generated for a celestial body.
- * Stored alongside {@link CelestialBodyData} in the block entity NBT.
- */
+/// 为天体生成的所有资源的容器。
+/// 与 {@link CelestialBodyData} 一起存储在方块实体NBT中。
 public class PlanetaryResourceSet {
 
-    /**
-     * A weighted item entry — item identifier with its percentage weight.
-     */
+    /// 加权物品条目 —— 物品标识符及其百分比权重。
     public record WeightedItemStack(ResourceLocation itemId, int weight) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
@@ -34,9 +30,7 @@ public class PlanetaryResourceSet {
         }
     }
 
-    /**
-     * A weighted fluid entry — fluid identifier with its percentage weight.
-     */
+    /// 加权流体条目 —— 流体标识符及其百分比权重。
     public record WeightedFluidStack(ResourceLocation fluidId, int weight) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
@@ -52,7 +46,7 @@ public class PlanetaryResourceSet {
         }
     }
 
-    // === Fields ===
+    /// === 字段 ===
 
     private final List<WeightedItemStack> minerals = new ArrayList<>();
     private final List<WeightedFluidStack> fluids = new ArrayList<>();
@@ -66,7 +60,7 @@ public class PlanetaryResourceSet {
     @Getter
     private boolean isWasteland = false;
 
-    // === Getters ===
+    /// === 获取器 ===
 
     public List<WeightedItemStack> getMinerals() {
         return Collections.unmodifiableList(minerals);
@@ -115,7 +109,7 @@ public class PlanetaryResourceSet {
             && wastelandItems.isEmpty();
     }
 
-    // === Mutators (package-private, for PlanetResourceGenerator) ===
+    /// === 修改器（包内可见，供PlanetResourceGenerator使用） ===
 
     void addMineral(WeightedItemStack entry) {
         minerals.add(entry);
@@ -157,7 +151,7 @@ public class PlanetaryResourceSet {
         isWasteland = true;
     }
 
-    // === NBT Serialization ===
+    /// === NBT序列化 ===
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();

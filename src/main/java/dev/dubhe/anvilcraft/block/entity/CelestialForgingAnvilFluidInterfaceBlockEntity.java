@@ -34,8 +34,8 @@ import org.jetbrains.annotations.Nullable;
 public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     implements IPowerConsumer, IFluidHandlerHolder {
     private static final int TANK_COUNT = 4;
-    private static final int CAPACITY_PER_TANK = 80_000; // 80 buckets in mB
-    private static final int PUMP_HEADLIFT = 10; // 10m head lift
+    private static final int CAPACITY_PER_TANK = 80_000; /// 80 桶（以 mB 计）
+    private static final int PUMP_HEADLIFT = 10; /// 10 米扬程
 
     @Getter
     private final FluidTank[] tanks = new FluidTank[TANK_COUNT];
@@ -51,7 +51,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
             tanks[i] = new FluidTank(CAPACITY_PER_TANK) {
                 @Override
                 public boolean isFluidValid(FluidStack stack) {
-                    // Only accept fluid if this tank already has it, or if no other tank has it
+                    /// 仅当此储罐已有该流体，或没有其它储罐存有该流体时才接受
                     FluidStack current = getFluid();
                     if (current.isEmpty()) {
                         for (int j = 0; j < TANK_COUNT; j++) {
@@ -72,9 +72,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         }
     }
 
-    /**
-     * Sync block entity data to all tracking clients.
-     */
+    /// 将方块实体数据同步到所有追踪的客户端。
     public void syncToClients() {
         if (level instanceof ServerLevel serverLevel) {
             Packet<?> packet = getUpdatePacket();
@@ -103,7 +101,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
 
     @Override
     public int getInputPower() {
-        return 128; // 128kW
+        return 128; /// 128kW
     }
 
     @Override
@@ -167,10 +165,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         }
     }
 
-    /**
-     * Returns the fluid handler capability for pipe I/O.
-     * Merges all 4 tanks into a single handler.
-     */
+    /// 返回用于管道输入/输出的流体处理器能力。将全部 4 个储罐合并为一个处理器。
     @SuppressWarnings("unused")
     public IFluidHandler getFluidHandler() {
         return new IFluidHandler() {
@@ -197,7 +192,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
             @Override
             public int fill(FluidStack resource, FluidAction action) {
                 if (resource.isEmpty()) return 0;
-                // Try existing tank first, then empty tanks
+                /// 优先尝试已有流体的储罐，再尝试空储罐
                 for (int i = 0; i < TANK_COUNT; i++) {
                     if (tanks[i].getFluid().is(resource.getFluid())) {
                         return tanks[i].fill(resource, action);
@@ -234,14 +229,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         };
     }
 
-    /**
-     * Server-side tick：在主动模式（红石信号激活）且有电时，向 FACING 方向泵送流体。
-     * <ul>
-     *   <li>前方是管道 → 沿管道追踪到远端再推送</li>
-     *   <li>前方是流体容器 → 直接推送</li>
-     *   <li>扬程 10 米，流速 50 mB/t 每米高度差</li>
-     * </ul>
-     */
+    /// 服务器端 tick：在主动模式（红石信号激活）且有电时，向 FACING 方向泵送流体。前方是管道→沿管道追踪到远端再推送；前方是流体容器→直接推送；扬程 10 米，流速 50 mB/t 每米高度差。
     public void serverTick() {
         if (level == null || level.isClientSide()) return;
         BlockState state = getBlockState();
@@ -250,25 +238,25 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         boolean active = state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
         if (!active) return;
 
-        // 检查电网供电
+        /// 检查电网供电
         if (grid == null || !grid.isWorking()) return;
 
         Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
         BlockPos frontPos = getBlockPos().relative(facing);
         BlockState frontState = level.getBlockState(frontPos);
 
-        // 确定目标：前方是管道 → 追踪到远端；否则直接用前方方块
-        BlockPos targetPos;       // 接收方的位置
-        Direction targetQueryDir; // 从接收方查询 IFluidHandler 的方向
-        int pipeHeight = 0;       // 管道沿途累计的等效高度
+        /// 确定目标：前方是管道 → 追踪到远端；否则直接用前方方块
+        BlockPos targetPos;       /// 接收方的位置
+        Direction targetQueryDir; /// 从接收方查询 IFluidHandler 的方向
+        int pipeHeight = 0;       /// 管道沿途累计的等效高度
 
         if (frontState.getBlock() instanceof PipeBlock) {
-            // 从前方管道沿 facing.getOpposite() 方向追踪到管道远端
-            // getPipeEnd 的参数 direction 是"从管道哪一侧进入"，即接口连接管道的那一侧
+            /// 从前方管道沿 facing.getOpposite() 方向追踪到管道远端
+            /// getPipeEnd 的参数 direction 是"从管道哪一侧进入"，即接口连接管道的那一侧
             AbstractPipeBlockEntity.PipeEnd pipeEnd =
                 AbstractPipeBlockEntity.getPipeEnd(level, frontPos, facing.getOpposite());
             if (pipeEnd == null) return;
-            // pipeEnd.direction() = 从管道末端指向接收方的方向
+            /// pipeEnd.direction() = 从管道末端指向接收方的方向
             targetPos = pipeEnd.pos().relative(pipeEnd.direction());
             targetQueryDir = pipeEnd.direction().getOpposite();
             pipeHeight = pipeEnd.effectiveHeight();
@@ -277,20 +265,20 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
             targetQueryDir = facing.getOpposite();
         }
 
-        // 计算有效高度差（含 10m 扬程，扣除管道累计等效高度）
+        /// 计算有效高度差（含 10m 扬程，扣除管道累计等效高度）
         int sourceY = getBlockPos().getY();
         int targetY = targetPos.getY() - pipeHeight;
         int heightDiff = PUMP_HEADLIFT + sourceY - targetY;
         if (heightDiff <= 0) return;
 
-        // 复用管道系统的流体传输（自动通过 capability 查询 source / target）
+        /// 复用管道系统的流体传输（自动通过 capability 查询 source / target）
         AbstractPipeBlockEntity.moveFluid(
             level,
-            getBlockPos(),   // sourcePos = 接口自身（内部储罐）
-            facing,          // sourceQueryDir（capability 忽略 side，任意方向均可）
-            targetPos,       // 接收方位置
-            targetQueryDir,  // 从接收方面向源
-            heightDiff       // 有效高度差（含扬程）
+            getBlockPos(),   /// sourcePos = 接口自身（内部储罐）
+            facing,          /// sourceQueryDir（capability 忽略 side，任意方向均可）
+            targetPos,       /// 接收方位置
+            targetQueryDir,  /// 从接收方面向源
+            heightDiff       /// 有效高度差（含扬程）
         );
     }
 }

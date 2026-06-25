@@ -6,9 +6,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     CelestialBodyType type();
 
-    /**
-     * The matched body class from the diagram.
-     */
+    /// 从图表中匹配到的天体类别。
     CelestialBodyClass bodyClass();
 
     RingType ringType();
@@ -17,24 +15,18 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     float axialTilt();
 
-    /**
-     * Rotation speed level (0-5).
-     * <ul>
-     *   <li>0 = Very Slow</li>
-     *   <li>1 = Slow</li>
-     *   <li>2 = Medium</li>
-     *   <li>3 = Fast</li>
-     *   <li>4 = Very Fast</li>
-     *   <li>5 = Super Fast</li>
-     * </ul>
-     */
+    /// 自转速度等级（0-5）。
+    /// - 0 = 极慢
+    /// - 1 = 慢
+    /// - 2 = 中等
+    /// - 3 = 快
+    /// - 4 = 极快
+    /// - 5 = 超快
     int rotationSpeed();
 
     int magneticFieldStrength();
 
-    /**
-     * Convert rotation speed level to visual rotation multiplier (deg/tick).
-     */
+    /// 将自转速度等级转换为视觉旋转倍率（度/刻）。
     static float getVisualRotationSpeed(int level) {
         return switch (level) {
             case 0 -> 0.1f;
@@ -42,7 +34,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
             case 2 -> 1.0f;
             case 3 -> 1.5f;
             case 4 -> 3.0f;
-            default -> 100.0f; // 5+ = Super Fast
+            default -> 100.0f; /// 5 = 部分中子星专用
         };
     }
 

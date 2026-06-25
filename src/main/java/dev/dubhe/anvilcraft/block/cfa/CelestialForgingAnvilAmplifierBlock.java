@@ -169,10 +169,10 @@ public class CelestialForgingAnvilAmplifierBlock
         return state.setValue(this.getPart(), part);
     }
 
-    // 增幅器放置时自动检测锻星砧角落并确定朝向
-    // 核心方块始终是 ES 角(BOTTOM_PART)，其余3块在西北侧
-    // 内层方形(3×3)四角检测角落方块 → 确定 FACING
-    // 外层方形(5×5)四角检测 BOTTOM_CENTER  → 确认真在砧角
+    /// 增幅器放置时自动检测锻星砧角落并确定朝向
+    /// 核心方块始终是 ES 角(BOTTOM_PART)，其余3块在西北侧
+    /// 内层方形(3×3)四角检测角落方块 → 确定 FACING
+    /// 外层方形(5×5)四角检测 BOTTOM_CENTER  → 确认真在砧角
     private static final int[][] CORNER_CHECKS = {
         { 1,  1, 0}, {-2,  1, 1}, { 1, -2, 2}, {-2, -2, 3},
     };
@@ -188,7 +188,7 @@ public class CelestialForgingAnvilAmplifierBlock
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
 
-        // 1. 在内层方形四角检测锻星砧角落方块
+        /// 1. 在内层方形四角检测锻星砧角落方块
         Direction facing = null;
         for (int[] c : CORNER_CHECKS) {
             for (int dy = 0; dy <= 1; dy++) {
@@ -203,7 +203,7 @@ public class CelestialForgingAnvilAmplifierBlock
             if (facing != null) break;
         }
 
-        // 2. 在外层方形四角验证锻星砧 BOTTOM_CENTER（排除孤立角落方块）
+        /// 2. 在外层方形四角验证锻星砧 BOTTOM_CENTER（排除孤立角落方块）
         if (facing != null) {
             boolean valid = false;
             for (int[] c : CENTER_CHECKS) {
@@ -303,7 +303,7 @@ public class CelestialForgingAnvilAmplifierBlock
         BlockHitResult hitResult
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        // Scan nearby for the controller (BOTTOM_CENTER of anvil)
+        /// 在附近扫描控制器（锻星砧的 BOTTOM_CENTER）
         for (int dx = -5; dx <= 5; dx++) {
             for (int dz = -5; dz <= 5; dz++) {
                 for (int dy = -1; dy <= 1; dy++) {

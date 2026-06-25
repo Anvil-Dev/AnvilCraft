@@ -10,34 +10,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Registry that maps celestial bodies to their possible Celestial Restriction Ring refactoring options.
- *
- * <p>
- * The innermost ring for each body type:
- * <ul>
- *   <li>Small rocky planets (size &lt; 26): innermost = R1</li>
- *   <li>Small giant planets (size &lt; 26): innermost = R2</li>
- *   <li>Small stars (size &lt; 26): innermost = R4</li>
- *   <li>Large stars (size &gt;= 26): innermost = R5</li>
- * </ul>
- *
- * <p>
- * There are 11 unique megastructures total, distributed across different rings.
- * Variant models (e.g. excavator_off, coil_fix) are rendered in-world separately;
- * in the UI only the main model is shown.
- */
+/// 将天体映射到其可能的天体约束环重构选项的注册表。
+///
+/// 每种天体类型的最内层环：
+/// - 小型岩石行星（size < 26）：最内环 = R1
+/// - 小型气态行星（size < 26）：最内环 = R2
+/// - 小型恒星（size < 26）：最内环 = R4
+/// - 大型恒星（size >= 26）：最内环 = R5
+///
+/// 共有11种独特巨构建筑，分布在不同环上。
+/// 变体模型（如excavator_off、coil_fix）在世界中单独渲染；
+/// UI中仅显示主要模型。
 public final class CelestialRefactorRegistry {
 
     private CelestialRefactorRegistry() {
     }
 
-    /**
-     * Get the innermost ring index for a given celestial body.
-     *
-     * <p>
-     * With amplification, the minimum ring is always 4 (stellar-scale).
-     */
+    /// 获取给定天体的最内环编号。
+    ///
+    /// 启用增幅时，最小环始终为4（恒星级别）。
     public static int getInnermostRing(CelestialBodyData body, boolean amplified) {
         boolean isLarge = body.size() >= 48;
         int ring = switch (body) {
@@ -52,20 +43,17 @@ public final class CelestialRefactorRegistry {
         return ring;
     }
 
-    /**
-     * Get available refactoring options for a locked celestial body.
-     *
-     * <p>
-     * Non-amplified CFA has rings 1-3 → shows ring 1+2 megastructures.<br>
-     * Amplified CFA has rings 3-5 → shows ring 4+5 megastructures.
-     *
-     * @param resources the planetary resource set, used to filter options by resource availability;
-     *                  may be null (most permissive, all ring-eligible options shown)
-     */
+    /// 获取已锁定天体的可用重构选项。
+    ///
+    /// 非增幅锻星砧有环1-3 → 显示环1+2的巨构建筑。
+    /// 增幅锻星砧有环3-5 → 显示环4+5的巨构建筑。
+    ///
+    /// resources - 行星资源集，用于根据资源可用性过滤选项；
+    ///             可以为null（最宽松模式，显示所有符合环条件的选项）
     public static List<CelestialRefactorOption> getOptions(CelestialBodyData body, boolean amplified,
                                                            @Nullable PlanetaryResourceSet resources) {
         if (body == null) return Collections.emptyList();
-        // Error Planet cannot build megastructures
+        /// 错误行星无法建造巨构
         if (body instanceof SpecialCelestialBodyData s && s.isErrorPlanet()) {
             return Collections.emptyList();
         }
@@ -73,22 +61,22 @@ public final class CelestialRefactorRegistry {
         int maxRing = amplified ? 5 : 2;
         List<CelestialRefactorOption> options = getOptionsForRing(innermostRing, maxRing);
 
-        // Filter planet_exctractor: rocky/special planet must have liquid
+        /// 过滤planet_exctractor：岩石/特殊行星必须有液体
         if (!hasLiquid(body)) {
             options.removeIf(opt -> "planet_exctractor".equals(opt.megastructure()));
         }
 
-        // Filter giant_planet_exctractor: only available for giant planets
+        /// 过滤giant_planet_exctractor：仅对气态行星可用
         if (!(body instanceof GiantPlanetData)) {
             options.removeIf(opt -> "giant_planet_exctractor".equals(opt.megastructure()));
         }
 
-        // Filter stellar_ring_collider: only available for small stellar bodies (size < 48)
+        /// 过滤stellar_ring_collider：仅对小型恒星可用（size < 48）
         if (!(body instanceof StarData star && star.size() < 48)) {
             options.removeIf(opt -> "stellar_ring_collider".equals(opt.megastructure()));
         }
 
-        // Filter stellar_evolution_accelerator: not available for stellar remnants
+        /// 过滤stellar_evolution_accelerator：恒星残骸不可用
         if (body instanceof StarData star
             && (star.bodyClass() == CelestialBodyClass.WHITE_DWARF
                 || star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
@@ -96,48 +84,48 @@ public final class CelestialRefactorRegistry {
             options.removeIf(opt -> "stellar_evolution_accelerator".equals(opt.megastructure()));
         }
 
-        // Filter magnetar_coil: only available for neutron stars
+        /// 过滤magnetar_coil：仅对中子星可用
         if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.NEUTRON_STAR)) {
             options.removeIf(opt -> "magnetar_coil".equals(opt.megastructure()));
         }
 
-        // Filter stellar_evolution_accelerator ring variant by star size:
-        // Small stars use ring 5 model, large stars use ring 6 model.
+        /// 按恒星大小过滤stellar_evolution_accelerator的环变体：
+        /// 小型恒星用环5模型，大型恒星用环6模型。
         if (body instanceof StarData star) {
             boolean isLarge = star.size() >= 48;
             options.removeIf(opt -> "stellar_evolution_accelerator".equals(opt.megastructure())
                 && ((isLarge && opt.ring() == 5) || (!isLarge && opt.ring() == 6)));
         }
 
-        // Filter Dyson Sphere: small for small stars, large for large stars
+        /// 过滤戴森球：小型给小型恒星，大型给大型恒星
         if (body instanceof StarData star) {
             boolean isLarge = star.size() >= 48;
             options.removeIf(opt -> "dyson_sphere_small".equals(opt.megastructure()) && isLarge);
             options.removeIf(opt -> "dyson_sphere_large".equals(opt.megastructure()) && !isLarge);
         }
 
-        // Filter penrose_sphere: only available for black holes
+        /// 过滤penrose_sphere：仅对黑洞可用
         if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE)) {
             options.removeIf(opt -> "penrose_sphere".equals(opt.megastructure()));
         }
 
-        // Filter wormhole_stabilizer: only available for black holes when amplified
+        /// 过滤wormhole_stabilizer：仅对增幅模式下的黑洞可用
         if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE && amplified)) {
             options.removeIf(opt -> "wormhole_stabilizer".equals(opt.megastructure()));
         }
 
-        // Filter matter_decompressor: only available for neutron stars or black holes
+        /// 过滤matter_decompressor：仅对中子星或黑洞可用
         if (!(body instanceof StarData star
             && (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
                 || star.bodyClass() == CelestialBodyClass.BLACK_HOLE))) {
             options.removeIf(opt -> "matter_decompressor".equals(opt.megastructure()));
         }
 
-        // Filter eco_station: requires biological resources and no low-level civilization
+        /// 过滤eco_station：需要生物资源且没有低级文明
         if (resources != null) {
             options.removeIf(opt -> "eco_station".equals(opt.megastructure())
                 && !isEcoStationEligible(resources));
-            // Filter temple: requires low-level civilization
+            /// 过滤temple：需要低级文明
             options.removeIf(opt -> "temple".equals(opt.megastructure())
                 && !resources.hasCivilization());
         }
@@ -145,10 +133,7 @@ public final class CelestialRefactorRegistry {
         return options;
     }
 
-    /**
-     * Eco station is only eligible when the planet has biological resources
-     * and does NOT have a low-level civilization.
-     */
+    /// 生态空间站仅在行星拥有生物资源且没有低级文明时可用。
     private static boolean hasLiquid(CelestialBodyData body) {
         if (body instanceof RockyPlanetData rocky) return rocky.liquidCoverage() != LiquidCoverage.NONE;
         if (body instanceof SpecialCelestialBodyData s) {
@@ -164,16 +149,14 @@ public final class CelestialRefactorRegistry {
             || !resources.getBiologicalFluids().isEmpty();
     }
 
-    /**
-     * Get available megastructure options for a ring range [innermostRing, maxRing].
-     * Inner rings can build any megastructure that outer rings can.
-     */
+    /// 获取给定环范围的可用巨构选项。
+    /// 内层环可以建造外层环可以建造的任何巨构。
     public static List<CelestialRefactorOption> getOptionsForRing(int innermostRing, int maxRing) {
         List<CelestialRefactorOption> options = new ArrayList<>();
         String prefix = "screen.anvilcraft.cfa.megastructure.";
 
         if (innermostRing <= 1 && 1 <= maxRing) {
-            // Ring 1 megastructures (innermost for small rocky planets)
+            /// 环1巨构（小型岩石行星的最内环）
             options.add(CelestialRefactorOption.withMaterial(1, "planet_excavator",
                 ringModel(1, "excavator"), prefix + "planet_excavator",
                 ModBlocks.RUBY_PRISM.asItem(), 16));
@@ -188,13 +171,13 @@ public final class CelestialRefactorRegistry {
                 net.minecraft.world.item.Items.GOLD_BLOCK, 64));
         }
         if (innermostRing <= 2 && 2 <= maxRing) {
-            // Ring 2 megastructures (innermost for small giant planets)
+            /// 环2巨构（小型气态行星的最内环）
             options.add(CelestialRefactorOption.withMaterial(2, "giant_planet_exctractor",
                 ringModel(2, "exctractor"), prefix + "giant_planet_exctractor",
                 ModBlocks.PUMP.asItem(), 32));
         }
         if (innermostRing <= 4 && 4 <= maxRing) {
-            // Ring 4 megastructures (innermost for small stars)
+            /// 环4巨构（小型恒星的最内环）
             options.add(CelestialRefactorOption.withMaterial(4, "stellar_ring_collider",
                 ringModel(4, "collider"), prefix + "stellar_ring_collider",
                 ModBlocks.ACCELERATION_RING.asItem(), 16));
@@ -218,7 +201,7 @@ public final class CelestialRefactorRegistry {
                 ModBlocks.CORRUPTED_BEACON.asItem(), 8));
         }
         if (innermostRing <= 5 && 5 <= maxRing) {
-            // Ring 5 megastructures (innermost for large stars)
+            /// 环5巨构（大型恒星的最内环）
             options.add(CelestialRefactorOption.withMaterial(5, "dyson_sphere_large",
                 ringModel(5, "dyson_sphere"), prefix + "dyson_sphere_large",
                 ModItems.DYSON_SPHERE_COMPONENT, 32));

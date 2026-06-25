@@ -25,7 +25,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     static final int MATERIAL_SLOT = 5;
     private final CelestialForgingAnvilBlockEntity blockEntity;
 
-    // Slot indices: 0=time, 1=space, 2=mass, 3=energy, 4=seed, 5=material
+    /// 槽位索引：0=时间，1=空间，2=质量，3=能量，4=种子，5=建材
 
     public CelestialForgingAnvilMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory,
@@ -34,25 +34,25 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.blockEntity = blockEntity;
 
-        // 4 confined anvil slots
+        /// 4 个禁锢砧子槽位
         for (int i = 0; i < ANVIL_SLOTS; i++) {
             this.addSlot(new CFAAnvilSlot(blockEntity.getAnvilInventory(), i, 9, 38 + i * 18));
         }
 
-        // Seed slot (single item, consumed on search)
+        /// 种子槽位（单个物品，搜索时消耗）
         this.addSlot(new SeedSlot(blockEntity.getAnvilInventory(), SEED_SLOT, 9, 121));
 
-        // Material slot (filtered with stack limit, position matches RF_MAT_X/Y)
+        /// 建材槽位（带过滤和堆叠限制，位置匹配 RF_MAT_X/Y）
         this.addSlot(new CFAMaterialSlot(blockEntity, 267, 121));
 
-        // Player inventory (3 rows x 9 columns)
+        /// 玩家物品栏（3 行 x 9 列）
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 this.addSlot(new Slot(inventory, col + row * 9 + 9, 92 + col * 18, 125 + row * 18));
             }
         }
 
-        // Player hotbar
+        /// 玩家快捷栏
         for (int col = 0; col < 9; col++) {
             this.addSlot(new Slot(inventory, col, 92 + col * 18, 183));
         }
@@ -74,12 +74,12 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         ItemStack copy = stack.copy();
 
         if (index <= SEED_SLOT || index == MATERIAL_SLOT) {
-            // From anvil/seed/material slot to player inventory
+            /// 从砧子/种子/建材槽位转移到玩家物品栏
             if (!this.moveItemStackTo(stack, MATERIAL_SLOT + 1, this.slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
         } else {
-            // From player inventory: try anvil slots, then material slot (seed slot is manual-only)
+            /// 从玩家物品栏转移：先尝试砧子槽位，再尝试建材槽位（种子槽位仅手动放入）
             boolean moved = false;
             for (int i = 0; i < ANVIL_SLOTS; i++) {
                 Slot anvilSlot = this.slots.get(i);
@@ -114,36 +114,36 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
             blockEntity.startSearch();
             return true;
         }
-        // Scroll wheel anvil transfer: id 1-4 = add, 5-8 = remove
+        /// 滚轮砧子传输：id 1-4 = 添加，5-8 = 移除
         if (id >= 1 && id <= 8) {
             int slot = (id - 1) % 4;
             boolean add = id <= 4;
             handleAnvilTransfer(slot, add);
             return true;
         }
-        // Refactor option selected: id 9+
+        /// 巨构建材选项选择：id 9+
         if (id >= 9 && id < 100) {
             int optionIndex = id - 9;
             blockEntity.configureMaterialSlot(optionIndex);
             return true;
         }
-        // Build megastructure request: id 100+
+        /// 建造巨构请求：id 100+
         if (id >= 100 && id < 200) {
             int optionIndex = id - 100;
             blockEntity.buildMegastructure(optionIndex);
             return true;
         }
-        // Lock toggle: id 200
+        /// 锁定切换：id 200
         if (id == 200) {
             blockEntity.toggleLocked();
             return true;
         }
-        // History browse prev: id 201
+        /// 浏览历史前一条：id 201
         if (id == 201) {
             blockEntity.browseHistoryPrev();
             return true;
         }
-        // History browse next: id 202
+        /// 浏览历史后一条：id 202
         if (id == 202) {
             blockEntity.browseHistoryNext();
             return true;
@@ -162,7 +162,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         Slot targetSlot = this.slots.get(slot);
         Item targetItem = ANVIL_ITEMS[slot];
         if (add) {
-            // Add from player inventory to anvil slot
+            /// 从玩家物品栏添加到砧子槽位
             if (targetSlot.getItem().getCount() >= targetSlot.getItem().getMaxStackSize()) return;
             for (int i = MATERIAL_SLOT + 1; i < this.slots.size(); i++) {
                 Slot invSlot = this.slots.get(i);
@@ -178,7 +178,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
                 }
             }
         } else {
-            // Remove from anvil slot to player inventory
+            /// 从砧子槽位移除到玩家物品栏
             if (targetSlot.getItem().isEmpty()) return;
             ItemStack toMove = targetSlot.getItem().copyWithCount(1);
             for (int i = this.slots.size() - 1; i >= MATERIAL_SLOT + 1; i--) {
@@ -206,13 +206,12 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        // Reset material slot filter when the UI closes so it always
-        // starts as the barrier ghost on the next open.
+        /// 关闭 UI 时重置建材槽位过滤器，使其下次打开时始终以屏障虚影开始。
         if (!player.level().isClientSide()) {
             blockEntity.setMaterialFilter(new ItemStack(Items.BARRIER));
             blockEntity.setMaterialLimit(0);
             blockEntity.setChanged();
-            // Push to clients so the next UI open sees the barrier ghost
+            /// 推送到客户端，使下次打开 UI 时看到屏障虚影
             var level = blockEntity.getLevel();
             if (level != null) {
                 var state = blockEntity.getBlockState();
@@ -231,9 +230,9 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         );
     }
 
-    // === Precomputed display tables (matching user presets, 1–64 anvil counts) ===
+    /// === 预计算显示表（匹配用户预设，1–64 砧子数量） ===
 
-    // Age: 27 My + 30 By + 7 Ty
+    /// 年龄：27 My + 30 By + 7 Ty
     private static final String[] AGE_TABLE = {
         "2 My", "2.52 My", "3.18 My", "4 My", "5.04 My", "6.35 My", "8 My", "10.1 My",
         "12.7 My", "16 My", "20.2 My", "25.4 My", "32 My", "40.3 My", "50.8 My", "64 My",
@@ -245,7 +244,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "813 By", "1 Ty", "1.26 Ty", "1.59 Ty", "2 Ty", "2.52 Ty", "3.18 Ty", "4 Ty"
     };
 
-    // Radius: 20 R⊕ + 44 R☉
+    /// 半径：20 R⊕ + 44 R☉
     private static final String[] RADIUS_TABLE = {
         "0.125 R⊕", "0.158 R⊕", "0.198 R⊕", "0.25 R⊕",
         "0.32 R⊕", "0.4 R⊕", "0.5 R⊕", "0.63 R⊕",
@@ -265,7 +264,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "1.26k R☉", "1.59k R☉", "2k R☉", "2.52k R☉"
     };
 
-    // Mass: 40 M⊕ + 24 M☉
+    /// 质量：40 M⊕ + 24 M☉
     private static final String[] MASS_TABLE = {
         "0.022 M⊕", "0.031 M⊕", "0.044 M⊕", "0.063 M⊕",
         "0.088 M⊕", "0.125 M⊕", "0.177 M⊕", "0.25 M⊕",
@@ -285,7 +284,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "64 M☉", "90.5 M☉", "128 M☉", "181 M☉"
     };
 
-    // Temperature: 24 ℃ + 40 K
+    /// 温度：24 ℃ + 40 K
     private static final String[] TEMPERATURE_TABLE = {
         "-223 ℃", "-217 ℃", "-210 ℃", "-202 ℃",
         "-194 ℃", "-184 ℃", "-173 ℃", "-161 ℃",
@@ -305,7 +304,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "51200 K", "57500 K", "64500 K", "72400 K"
     };
 
-    // === Parameter calculation methods (lookup from presets) ===
+    /// === 参数计算方法（从预设表中查找） ===
 
     public static String formatAge(int count) {
         if (count == 0) return "---";
@@ -331,40 +330,32 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         return "---";
     }
 
-    // === Offset methods: look up the preset value, offset the number, reformat ===
+    /// === 偏移方法：查找预设值，偏移数值，重新格式化 ===
 
-    /**
-     * Format age with a proportional offset applied to the displayed value.
-     */
+    /// 对显示值应用比例偏移，格式化年龄。
     public static String formatAgeOffset(int count, float offset) {
         if (count == 0) return "---";
         if (count >= 1 && count <= 64) return applyOffset(AGE_TABLE[count - 1], offset);
         return "---";
     }
 
-    /**
-     * Format radius with a proportional offset applied to the displayed value.
-     */
+    /// 对显示值应用比例偏移，格式化半径。
     public static String formatRadiusOffset(int count, float offset) {
         if (count == 0) return "---";
         if (count >= 1 && count <= 64) return applyOffset(RADIUS_TABLE[count - 1], offset);
         return "---";
     }
 
-    /**
-     * Format mass with a proportional offset applied to the displayed value.
-     */
+    /// 对显示值应用比例偏移，格式化质量。
     public static String formatMassOffset(int count, float offset) {
         if (count == 0) return "---";
         if (count >= 1 && count <= 64) return applyOffset(MASS_TABLE[count - 1], offset);
         return "---";
     }
 
-    /**
-     * Extract the numeric part from a table entry (e.g. "2.52 My" → offset(2.52)),
-     * apply the offset, format to 3 significant figures, and reattach the unit.
-     * Handles entries with "k" suffix (e.g. "2.52k R☉" → 2520).
-     */
+    /// 从表项中提取数值部分（如 "2.52 My" → offset(2.52)），应用偏移量，
+    /// 格式化为 3 位有效数字，并重新附加单位。
+    /// 处理带 "k" 后缀的条目（如 "2.52k R☉" → 2520）。
     private static String applyOffset(String entry, float offset) {
         int spaceIdx = entry.indexOf(' ');
         String numStr = entry.substring(0, spaceIdx);
@@ -379,9 +370,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         return format3SigFig(offsetValue) + " " + unit;
     }
 
-    /**
-     * Format to 3 significant figures, without trailing zeros.
-     */
+    /// 格式化为 3 位有效数字，不含尾随零。
     @SuppressWarnings("MalformedFormatString")
     private static String format3SigFig(double value) {
         if (Math.abs(value) < 1e-9) return "0";
@@ -401,7 +390,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         return formatted;
     }
 
-    // === Custom slot for confined anvils ===
+    /// === 禁锢砧子自定义槽位 ===
 
     public static class CFAAnvilSlot extends Slot {
 
@@ -426,7 +415,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         }
     }
 
-    // === Custom slot for building material ===
+    /// === 建材自定义槽位 ===
 
     public static class CFAMaterialSlot extends Slot {
 
@@ -451,7 +440,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         }
     }
 
-    // === Custom slot for seed items ===
+    /// === 种子物品自定义槽位 ===
 
     public static class SeedSlot extends Slot {
 
@@ -461,7 +450,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            // Accept any item — validation happens on search
+            /// 接受任意物品 —— 验证在搜索时进行
             return true;
         }
 

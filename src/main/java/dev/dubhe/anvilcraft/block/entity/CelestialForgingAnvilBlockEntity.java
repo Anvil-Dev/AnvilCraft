@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
@@ -62,12 +61,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,7 +72,7 @@ import java.util.UUID;
 
 public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer, IPowerProducer, IDiskCloneable {
 
-    // === Megastructure delegation ===
+    /// === 巨构建造委托 ===
     @Getter
     private final CfaMegastructureManager megastructureManager = new CfaMegastructureManager();
 
@@ -96,111 +93,72 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Setter
     private long bodySeed = 0;
 
-    /**
-     * Mass anvil count at time of body matching, for gravity calculation.
-     */
+    /// 进行天体匹配时的质量砧子数量，用于引力计算。
     @Getter
     @Setter
     private int stellarMass = 0;
 
-    /**
-     * Age anvil count (time slot) stored for resource generation.
-     */
+    /// 为资源生成存储的时元砧子数量。
     @Getter
     @Setter
     private int ageAnvilCount = 0;
 
-    /**
-     * Resources generated for the matched celestial body.
-     */
+    /// 匹配到的天体所生成的资源。
     @Getter
     @Setter
     @Nullable
     private PlanetaryResourceSet planetaryResourceSet = null;
 
-    /**
-     * Index of the currently built megastructure (refactor option), or -1 if none.
-     * Delegates to CfaMegastructureManager.
-     */
+    /// 当前已建造的巨构（重构选项）索引，-1 表示未建造。委托给 CfaMegastructureManager。
     public int getActiveMegastructureIndex() {
         return megastructureManager.getActiveIndex();
     }
 
-    /**
-     * Whether the excavator has valid laser input (for model switching).
-     * Delegates to ExcavatorHandler.
-     */
+    /// 抽取器是否有有效的激光输入（用于模型切换）。委托给 ExcavatorHandler。
     public boolean isExcavatorLaserActive() {
         ExcavatorHandler h = megastructureManager.findHandler(ExcavatorHandler.class);
         return h != null && h.isLaserActive();
     }
 
-    /**
-     * Whether the Penrose Sphere has valid laser input/output pairs (for model switching).
-     * Delegates to PenroseSphereHandler.
-     */
+    /// 彭罗斯球是否有有效的激光输入/输出对（用于模型切换）。委托给 PenroseSphereHandler。
     public boolean isPenroseSphereLaserActive() {
         PenroseSphereHandler h = megastructureManager.findHandler(PenroseSphereHandler.class);
         return h != null && h.isLaserActive();
     }
 
-    // === Wormhole Stabilizer state ===
-    /**
-     * Hash of the black hole parameters, computed when the stabilizer is built.
-     */
+    /// === 虫洞稳定器状态 ===
+    /// 黑洞参数哈希值，在稳定器建造时计算。
     @Nullable
     public UUID getWormholeParamsHash() {
         WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
         return wh.getBodyUuid();
     }
-    /**
-     * Whether this CFA is currently registered in the wormhole network.
-     * Map from cube part (side center) to the BlockPos of the portal placed there.
-     */
+    /// 此 CFA 当前是否已在虫洞网络中注册。
+    /// 按立方体部件侧边映射到该侧放置的传送门 BlockPos。
 
     private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
-    /**
-     * Tracked chunk-loaded connected CFAs, keyed by dimension + position.
-     */
-    private final Map<WormholeChunkLoadKey, LoadChuckData> wormholeLoadedChunks = new HashMap<>();
+    /// 虫洞规范接口状态现已全局存储于 WormholeInterfaceStates（BetterSavedData），在整个网络组中共享。
 
-    private record WormholeChunkLoadKey(ResourceLocation dimension, BlockPos pos) {}
-    // Wormhole canonical interface state is now stored globally in
-    // WormholeInterfaceStates (BetterSavedData), shared across the entire network group.
-
-    // === Temple state ===
-    /**
-     * Current position in the 3-day cycle: 0=blessing, 1=blessing, 2=punishment.
-     */
+    /// === 神殿状态 ===
+    /// 三天循环中的当前位置：0=赐福，1=赐福，2=惩罚。
     @Getter
     private int templeCycleDay = 0;
-    /**
-     * Last MC day when the demand was refreshed.
-     */
+    /// 上次刷新需求时的 MC 天数。
     private long templeLastDay = -1;
-    /**
-     * The currently demanded item type (count=1, identity only; synced to client for tooltip).
-     */
+    /// 当前需求的物品类型（数量=1，仅标识用；同步到客户端用于提示）。
     @Getter
     private ItemStack templeDemandItem = ItemStack.EMPTY;
-    /**
-     * Total count required for the current demand.
-     */
+    /// 当前需求所需的总物品数量。
     @Getter
     private int templeDemandCount = 0;
-    /**
-     * Cumulative count of items already offered toward the current demand.
-     * Resets when a new demand is picked or the demand is satisfied.
-     */
+    /// 当前需求已供奉的累计物品数量。选择新需求或需求被满足时重置。
     @Getter
     private int templeDemandProgress = 0;
-    /**
-     * Whether the current day's demand has been satisfied.
-     */
+    /// 当天的需求是否已被满足。
     @Getter
     private boolean templeDemandSatisfied = false;
 
-    // === Stellar Evolution Accelerator delegation ===
+    /// === 星体演化加速器委托 ===
     public int getAcceleratorStage() {
         return megastructureManager.getAcceleratorHandler().getStage();
     }
@@ -213,16 +171,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return megastructureManager.getAcceleratorHandler().getTicksTotal();
     }
 
-    public int getSupernovaFlashTicks() {
-        return megastructureManager.getAcceleratorHandler().getSupernovaFlashTicks();
-    }
-
-    public int getCollapseAnimTicks() {
-        return megastructureManager.getAcceleratorHandler().getCollapseAnimTicks();
-    }
-    /**
-     * Whether the stellar evolution accelerator is active (any stage 1-4).
-     */
+    /// 星体演化加速器是否处于活动状态（阶段 1-4 中的任一阶段）。
 
     public boolean isAcceleratorActive() {
         return megastructureManager.getAcceleratorHandler().isActive();
@@ -232,7 +181,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         super(type, pos, blockState);
     }
 
-    // === IPowerConsumer ===
+    /// === 电力消费者接口 ===
 
     @Override
     public int getInputPower() {
@@ -286,7 +235,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Getter
     private int bodyRotation = 0;
 
-    // === Celestial body animation (client-side only, not persisted) ===
+    /// === 天体动画（仅客户端，不持久化）===
     @Getter
     private int animationTicks = 0;
     @Getter
@@ -294,13 +243,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Nullable
     @Getter
     private CelestialBodyData animationPreviousBodyData = null;
-    private static final int ANIMATION_DURATION_TICKS = 20; // 1 second at 20 TPS
+    private static final int ANIMATION_DURATION_TICKS = 20; /// 在 20 TPS 下为 1 秒
 
-    /**
-     * Get the effective celestial body data for rendering, accounting for reverse animation.
-     * During reverse animation, the actual celestialBodyData is already null (server cleared it),
-     * so we use the cached previous data to keep rendering the shrinking body.
-     */
+    /// 获取用于渲染的有效天体数据，考虑到反向动画。在反向动画期间，实际的 celestialBodyData 已经为 null（服务器已清除），因此使用缓存的前一个数据来继续渲染缩小的天体。
     @Nullable
     public CelestialBodyData getEffectiveBodyDataForRendering() {
         if (celestialBodyData != null) return celestialBodyData;
@@ -310,10 +255,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return null;
     }
 
-    /**
-     * Get animation progress from 0 (hidden) to 1 (fully visible).
-     * Uses ease-in-out cubic interpolation.
-     */
+    /// 获取从 0（隐藏）到 1（完全可见）的动画进度。使用 ease-in-out 三次插值。
     public float getAnimationProgress(float partialTick) {
         if (animationTicks <= 0) return animationForward ? 1.0f : 0.0f;
         float t = (ANIMATION_DURATION_TICKS - animationTicks + partialTick) / (float) ANIMATION_DURATION_TICKS;
@@ -321,10 +263,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return animationForward ? eased : (1.0f - eased);
     }
 
-    /**
-     * Get rotation speed multiplier during animation.
-     * Starts fast (5x) and decays to 1x as animation progresses.
-     */
+    /// 获取动画期间的旋转速度倍率。起始速度较快（5 倍），随着动画进行衰减到 1 倍。
     public float getAnimationRotationBoost(float partialTick) {
         float progress = getAnimationProgress(partialTick);
         return 1.0f + 4.0f * (1.0f - progress);
@@ -338,14 +277,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Setter
     private boolean locked = false;
 
-    /**
-     * Whether the amplifier multiblock is physically formed.
-     */
+    /// 增幅器多方块结构是否已物理成型。
     @Getter
     @Setter
     private boolean amplifierPresent = false;
 
-    // Material slot filter (set when a refactor option is selected)
+    /// 材料槽过滤器（选择重构选项时设置）
     @Getter
     @Setter
     private ItemStack materialFilter = new ItemStack(net.minecraft.world.item.Items.BARRIER);
@@ -362,10 +299,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     };
 
-    /**
-     * Configure the material slot for a given refactor option.
-     * Called on the server when the player selects a refactor option.
-     */
+    /// 为给定的重构选项配置材料槽。玩家选择重构选项时在服务器端调用。
     public void configureMaterialSlot(int optionIndex) {
         if (level == null || level.isClientSide()) return;
         if (celestialBodyData == null) return;
@@ -387,7 +321,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }
 
-    // Search timer
+    /// 搜索计时器
     @Getter
     private int searchTicksRemaining = 0;
     @Getter
@@ -397,51 +331,41 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private boolean searchFailed = false;
     @Getter
     private boolean powerInsufficient = false;
-    private static final int SEARCH_TICKS = 200; // 10 second
+    private static final int SEARCH_TICKS = 200; /// 10 秒
 
-    // Track the seed item consumed when the search started (for special body matching)
+    /// 追踪搜索开始时消耗的种子物品（用于特殊天体匹配）
     @javax.annotation.Nullable
     private Item lastConsumedSeedItem = null;
     @javax.annotation.Nullable
     private CompoundTag lastConsumedSeedNbt = null;
 
-    // Power grid
+    /// 电网
     @Setter
     @Nullable
     private PowerGrid grid;
 
-    // Gravity source state
+    /// 引力源状态
     private boolean gravitySourceActive = false;
     private double currentGravityStrength = 0;
     private int currentGravitySize = 0;
-    /**
-     * Y-offset from controller block to the rendered star center.
-     */
+    /// 从控制器方块到渲染的恒星中心点的 Y 轴偏移。
     private static final int GRAVITY_CENTER_Y_OFFSET = 6;
-    /**
-     * Gravity influence radius (blocks), covers the Ring6 7×7×7 area.
-     * Represents ~2× the largest stellar radius (red supergiant ~2580 R☉).
-     */
+    /// 引力影响半径（方块），覆盖 Ring6 的 7×7×7 区域。约为最大恒星半径（红超巨星 ~2580 R☉）的 2 倍。
     private static final int GRAVITY_RADIUS = 4;
-    /**
-     * Unified reference physical radius for all bodies' gravity calculation.
-     * 5000 × R☉, and R☉/R⊕ = 109, so R_ref/R⊕ = 545,000.
-     */
+    /// 所有天体引力计算的统一参考物理半径。5000 × R☉，且 R☉/R⊕ = 109，因此 R_ref/R⊕ = 545,000。
     private static final double GRAVITY_REFERENCE_RADIUS_RATIO = 5000.0 * 109.0;
-    /**
-     * Gameplay multiplier to make gravity perceptible at the block scale.
-     */
+    /// 游戏性倍率，使引力在方块尺度上可感知。
     private static final double GRAVITY_STRENGTH_MULTIPLIER = 10000000.0;
 
     public void startSearch() {
         this.searchFailed = false;
         this.powerInsufficient = false;
 
-        // Check if seed item is present (for pre-check skip and consumption)
+        /// 检查是否有种子物品（用于跳过预检和消耗）
         ItemStack seedStack = this.anvilInventory.getItem(4);
         boolean hasSeedItem = !seedStack.isEmpty();
 
-        // Server-side parameter pre-check (skip when seed item is present)
+        /// 服务端参数预检（有种子物品时跳过）
         if (level != null && !level.isClientSide()) {
             if (!hasSeedItem) {
                 var preCheck = CelestialBodyMatcher.match(
@@ -463,7 +387,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         }
 
-        // Check power availability
+        /// 检查电力是否足够
         if (!hasEnoughPower()) {
             this.powerInsufficient = true;
             this.searching = false;
@@ -475,7 +399,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             return;
         }
 
-        // Capture seed item data but don't consume yet (consumed on successful match)
+        /// 捕获种子物品数据但暂不消耗（匹配成功后消耗）
         if (hasSeedItem) {
             this.lastConsumedSeedItem = seedStack.getItem();
             this.lastConsumedSeedNbt = extractSnapshot(seedStack);
@@ -484,9 +408,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.lastConsumedSeedNbt = null;
         }
 
-        // Only clear the old body once we know the search will actually start
+        /// 确认搜索将启动后才清除旧天体
         this.setCelestialBodyData(null);
-        // Start search
+        /// 启动搜索
         this.searchTicksRemaining = SEARCH_TICKS;
         this.searching = true;
         setChanged();
@@ -496,7 +420,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     public void serverTick() {
-        // Continuous power state refresh — clears stale powerInsufficient when grid recovers
+        /// 持续刷新电力状态——电网恢复时清除过期的 powerInsufficient
         boolean hasEnoughPower = hasEnoughPower();
         if (!hasEnoughPower && !this.powerInsufficient) {
             this.powerInsufficient = true;
@@ -508,7 +432,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
         if (searchTicksRemaining > 0) {
-            // Check if power is still sufficient during search
+            /// 在搜索过程中检查电力是否仍然充足
             if (!hasEnoughPower) {
                 this.searching = false;
                 this.searchTicksRemaining = 0;
@@ -533,38 +457,21 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         }
 
-        // Manage stellar gravity source
+        /// 管理恒星引力源
         updateGravitySource();
 
-        // Destroy entities at the gravity center
+        /// 销毁引力中心的实体
         if (gravitySourceActive && level != null) {
             destroyEntitiesAtCenter();
         }
 
-        // Megastructure logic (delegated to handler classes)
+        /// 巨构建造逻辑（委托给处理类）
         megastructureManager.serverTick(this);
-
-        // Supernova flash timer
-        var accel = megastructureManager.getAcceleratorHandler();
-        if (accel.getSupernovaFlashTicks() > 0) {
-            accel.setSupernovaFlashTicks(accel.getSupernovaFlashTicks() - 1);
-        }
     }
 
-    /**
-     * Update the gravity source for the current celestial body.
-     *
-     * <p>All bodies share a unified reference radius (5000 R☉ ≈ 2 × red supergiant radius)
-     * that corresponds to the {@link #GRAVITY_RADIUS} boundary in blocks.
-     * Gravity falls off as 1/r² from the source center.
-     *
-     * <p>Strength = gravity at the unified reference radius, in multiples of g⊕:
-     * <ul>
-     *   <li>Mass: M/M⊕ = 2^((massAnvilCount - 12) / 2)</li>
-     *   <li>Reference radius: R_ref/R⊕ = 5000 × 109 = 545,000</li>
-     *   <li>Strength = (M/M⊕) / (R_ref/R⊕)²</li>
-     * </ul>
-     */
+    /// 为当前天体更新引力源。所有天体共享一个统一参考半径（5000 R☉，约为红超巨星半径的 2 倍），该半径对应 GRAVITY_RADIUS 的方块边界。
+    /// 引力按 1/r² 从源中心衰减。引力强度为统一参考半径处的引力值，以 g⊕ 的倍数表示：
+    /// M/M⊕ = 2^((massAnvilCount - 12) / 2)，参考半径 R_ref/R⊕ = 5000 × 109 = 545,000，强度 = (M/M⊕) / (R_ref/R⊕)²。
     private void updateGravitySource() {
         if (level == null || level.isClientSide()) return;
 
@@ -577,18 +484,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (shouldHaveGravity) {
             double massRatio = Math.pow(2, (stellarMass - 12) / 2.0);
             newStrength = massRatio * GRAVITY_STRENGTH_MULTIPLIER / (GRAVITY_REFERENCE_RADIUS_RATIO * GRAVITY_REFERENCE_RADIUS_RATIO);
-        } // 引力乘上这个常数得到感官合适的值 ↑
+        } /// 引力乘上这个常数得到感官合适的值 ↑
         int newSize = shouldHaveGravity ? celestialBodyData.size() : 0;
 
         BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
 
         if (shouldHaveGravity) {
             if (!gravitySourceActive || newStrength != currentGravityStrength || newSize != currentGravitySize) {
-                // Remove old source if strength/size changed
+                /// 如果强度/大小发生变化，则移除旧源
                 if (gravitySourceActive) {
                     GravityManager.GravitySourceManager.removeSource(level, centerPos);
                 }
-                // Add new/updated source
+                /// 添加新的/更新后的源
                 GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(newStrength, GRAVITY_RADIUS);
                 GravityManager.GravitySourceManager.addSource(level, centerPos, type);
                 gravitySourceActive = true;
@@ -603,10 +510,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
-    /**
-     * Force remove the gravity source. Called when the amplifier is dismantled
-     * to ensure gravity disappears immediately rather than waiting for next tick.
-     */
+    /// 强制移除引力源。当增幅器被拆除时调用，确保引力立即消失。
     public void removeGravitySource() {
         if (level == null || level.isClientSide()) return;
         BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
@@ -634,16 +538,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
-    /**
-     * Search history, max 10 entries. Index 0 = newest.
-     */
+    /// 搜索历史，最多 10 条。索引 0 = 最新。
     @Getter
     private final List<SearchHistoryEntry> searchHistory = new ArrayList<>();
     private static final int MAX_HISTORY = 10;
 
-    /**
-     * A search history entry bundling a celestial body with its generated resources.
-     */
+    /// 一条搜索历史记录，将天体及其生成的资源捆绑在一起。
     public record SearchHistoryEntry(CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
@@ -664,9 +564,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
-    /**
-     * Browsing index into searchHistory: 0 = showing locked body, 1+ = browsing.
-     */
+    /// 搜索历史的浏览索引：0 = 显示锁定的天体，1+ = 正在浏览。
     @Getter
     private int historyBrowseIndex = 0;
     @Nullable
@@ -687,27 +585,20 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.rotation += 3;
         this.bodyRotation += 1;
 
-        // Animation tick (client-side only)
+        /// 动画计时（仅客户端）
         if (animationTicks > 0) {
             animationTicks--;
             if (animationTicks == 0 && !animationForward) {
                 animationPreviousBodyData = null;
             }
         }
-        // Supernova flash countdown (client-side, for rendering)
+        /// 坍缩动画——在加速器阶段 3 期间，服务器每 tick 同步一次，
+        /// 因此客户端不应独立递减以避免不同步。
+        /// 在阶段 3 之外，客户端独立递减作为后备。
         var accel = megastructureManager.getAcceleratorHandler();
-        if (accel.getSupernovaFlashTicks() > 0) {
-            accel.setSupernovaFlashTicks(accel.getSupernovaFlashTicks() - 1);
-        }
-        // Collapse animation — during accelerator stage 3, the server syncs every tick
-        // so the client should NOT independently decrement to avoid desync.
-        // Outside stage 3, the client decrements independently as a fallback.
         if (accel.getCollapseAnimTicks() > 0 && accel.getStage() != 3) {
             accel.setCollapseAnimTicks(accel.getCollapseAnimTicks() - 1);
         }
-        // Update star color locally during collapse so the renderer picks up the
-        // red→blue transition even when no server sync has arrived yet this frame.
-        // (delegated to AcceleratorHandler; client visuals update via server sync)
     }
 
     public void setAmplify(boolean amplify) {
@@ -716,7 +607,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             if (level != null && !level.isClientSide()) {
                 if (celestialBodyData instanceof StarData) {
                     if (!amplify) {
-                        this.locked = true; // Lock when amplifier removed with stellar body
+                        this.locked = true; /// 移除增幅器且存在恒星天体时锁定
                     }
                 }
             }
@@ -736,19 +627,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 GravityManager.GravitySourceManager.removeSource(level, centerPos);
                 gravitySourceActive = false;
             }
-            // Unregister wormhole and clear megastructures so connected portals close.
-            // Skip during server shutdown to avoid accessing saved data during save.
+            /// 注销虫洞并清除巨构，使已连接的传送门关闭。
+            /// 服务器关闭期间跳过，避免保存时访问已保存数据。
             megastructureManager.clearAllMegastructures(this);
         }
     }
 
-    /**
-     * Get a reproducible ±5% random offset percentage derived from bodySeed.
-     * Used only for UI display of age/radius/mass values.
-     *
-     * @param index 0=age(time), 1=radius(space), 2=mass
-     * @return offset in [-0.05, +0.05]
-     */
+    /// 从 bodySeed 派生出的可复现的 ±5% 随机偏移百分比。仅用于 UI 显示年龄/半径/质量值。index 为 0=时元，1=空间，2=质量。返回在 [-0.05, +0.05] 范围内的偏移值。
     public float getDisplayOffset(int index) {
         if (bodySeed == 0) return 0f;
         net.minecraft.util.RandomSource rand = net.minecraft.util.RandomSource.create(bodySeed + index * 7919L);
@@ -766,9 +651,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.bodySeed = level.getRandom().nextLong();
         this.stellarMass = mass;
 
-        // Verify seed item is still present — if player removed it during the search,
-        // clear captured data so we fall through to normal matching instead of granting
-        // a special planet without deducting the seed item.
+        /// 验证种子物品仍在——如果玩家在搜索期间移除了它，
+        /// 清除捕获的数据，以便回退到普通匹配，而不是在未扣除种子物品的情况下
+        /// 授予特殊行星。
         if (lastConsumedSeedItem != null || lastConsumedSeedNbt != null) {
             ItemStack seedStack = this.anvilInventory.getItem(4);
             if (seedStack.isEmpty()) {
@@ -777,14 +662,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         }
 
-        // First: check for seed item snapshot (disk / singularity crystal)
+        /// 第一步：检查种子物品快照（磁盘 / 奇点晶体）
         if (lastConsumedSeedNbt != null && lastConsumedSeedNbt.contains("celestialBody")) {
             applySnapshot(lastConsumedSeedNbt);
             consumeSeedItem();
             return;
         }
 
-        // Second: check for special celestial body discovery via seed item
+        /// 第二步：通过种子物品检查特殊天体发现
         if (lastConsumedSeedItem != null) {
             SpecialCelestialBodyData specialBody = tryMatchSpecialCelestialBody(
                 time,
@@ -814,14 +699,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         }
 
-        // Fall back to normal three-step matching
+        /// 回退到普通三步匹配
         this.celestialBodyData = CelestialBodyMatcher.match(time, space, mass, energy, this.isAmplify, level.getRandom());
         if (this.celestialBodyData != null) {
-            // Assign a UUID derived from bodySeed for wormhole identity
+            /// 从 bodySeed 派生出 UUID 用于虫洞身份标识
             if (this.celestialBodyData instanceof StarData star && star.bodyUuid() == null) {
                 this.celestialBodyData = star.withBodyUuid(StarData.uuidFromBodySeed(this.bodySeed));
             }
-            // Generate planetary resources
+            /// 生成行星资源
             if (!level.isClientSide()) {
                 ResourceLocation seedItemId = lastConsumedSeedItem != null
                     ? BuiltInRegistries.ITEM.getKey(lastConsumedSeedItem)
@@ -837,7 +722,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
         } else {
             this.planetaryResourceSet = null;
-            this.searchTicksRemaining = 0; // Stop timer on failure
+            this.searchTicksRemaining = 0; /// 失败时停止计时器
         }
         consumeSeedItem();
 
@@ -847,12 +732,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
-    /**
-     * Try to match a special (hidden) celestial body based on anvil parameters
-     * and the consumed seed item. The seed item must be THE effective item for
-     * this world seed (using the same pattern as RoyalPreference).
-     *
-     */
+    /// 尝试根据砧子参数和消耗的种子物品来匹配一个特殊（隐藏）天体。种子物品必须是此世界种子的有效物品（使用与 RoyalPreference 相同的模式）。
     private void consumeSeedItem() {
         if (level == null || level.isClientSide()) return;
         ItemStack seed = this.anvilInventory.getItem(4);
@@ -879,7 +759,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 && recipe.mass() == mass && recipe.energy() == energy
                 && recipe.isEffectiveSeedItem(consumedSeedItem, worldSeed)
             ) {
-                // Find the recipe holder to get the full ID
+                /// 查找配方持有者以获取完整 ID
                 return level.getRecipeManager()
                     .getAllRecipesFor(ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get())
                     .stream()
@@ -892,10 +772,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return null;
     }
 
-    /**
-     * Load a celestial body from a snapshot (disk / singularity crystal seed item).
-     * The snapshot contains all parameters — anvil counts are ignored for matching.
-     */
+    /// 从快照（磁盘 / 奇点晶体种子物品）加载天体。快照包含所有参数——砧子数量在匹配时被忽略。
     private void applySnapshot(CompoundTag tag) {
         if (level == null) return;
         this.celestialBodyData = CelestialBodyData.fromTag(tag.getCompound("celestialBody"));
@@ -912,7 +789,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
-    // === IDiskCloneable ===
+    /// === 磁盘克隆接口 ===
 
     @Override
     public void storeDiskData(CompoundTag tag) {
@@ -938,16 +815,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     @Override
     public void applyDiskData(CompoundTag tag) {
-        // Disk data is only applied via the seed slot, not via right-click.
+        /// 磁盘数据仅通过种子槽应用，不能通过右键。
     }
 
     @Override
     public InteractionResult useDisk(Level level, Player player, InteractionHand hand, ItemStack itemStack, BlockHitResult hitResult) {
         if (!player.getAbilities().mayBuild) return InteractionResult.PASS;
         if (itemStack.is(ModItems.DISK.get())) {
-            // Only allow storing, not applying
+            /// 仅允许存储，不允许应用
             if (!DiskItem.hasDataStored(itemStack)) {
-                // Extreme bodies (black hole / neutron star) require a singularity crystal
+                /// 极端天体（黑洞 / 中子星）需要奇点晶体
                 if (celestialBodyData instanceof StarData star && star.bodyClass().isExtreme()) {
                     player.displayClientMessage(
                         Component.translatable("message.anvilcraft.disk.extreme_body_requires_crystal")
@@ -956,7 +833,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                     );
                     return InteractionResult.FAIL;
                 }
-                // Redirect hit to main block position so DiskItem.useOn finds the BlockEntity
+                /// 将点击重定向到主方块位置，使 DiskItem.useOn 能找到 BlockEntity
                 BlockHitResult mainHit = new BlockHitResult(
                     hitResult.getLocation(),
                     hitResult.getDirection(),
@@ -969,9 +846,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return InteractionResult.PASS;
     }
 
-    /**
-     * Extract a celestial snapshot from a seed item stack.
-     */
+    /// 从种子物品堆中提取天体快照。
     @javax.annotation.Nullable
     public static CompoundTag extractSnapshot(ItemStack stack) {
         if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
@@ -980,17 +855,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return loadSnapshotFromStack(stack);
     }
 
-    /**
-     * Load a celestial snapshot from a disk or singularity crystal.
-     */
+    /// 从磁盘或奇点晶体中加载天体快照。
     @javax.annotation.Nullable
     public static CompoundTag loadSnapshotFromStack(ItemStack stack) {
-        // Disk
+        /// 磁盘
         if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
             CompoundTag data = DiskItem.getData(stack);
             if (data.contains("celestialBody")) return data.copy();
         }
-        // Singularity crystal
+        /// 奇点晶体
         if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
             var customData = stack.getOrDefault(
                 net.minecraft.core.component.DataComponents.CUSTOM_DATA,
@@ -1005,17 +878,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return null;
     }
 
-    /**
-     * Save a snapshot into a disk or singularity crystal.
-     */
+    /// 将快照保存到磁盘或奇点晶体中。
     public static void saveSnapshotToStack(ItemStack stack, CompoundTag snapshot) {
         if (stack.getItem() instanceof DiskItem) {
-            // Extreme bodies (black hole / neutron star) cannot be stored on disks
+            /// 极端天体（黑洞 / 中子星）不能存储在磁盘上
             if (snapshot.contains("celestialBody")) {
                 CompoundTag bodyTag = snapshot.getCompound("celestialBody");
                 String bodyClass = bodyTag.getString("bodyClass");
                 if ("BLACK_HOLE".equals(bodyClass) || "NEUTRON_STAR".equals(bodyClass)) {
-                    return; // silently reject — extreme bodies require singularity crystal
+                    return; /// 静默拒绝——极端天体需要奇点晶体
                 }
             }
             CompoundTag diskTag = DiskItem.createData(stack);
@@ -1031,16 +902,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
-    // === CFA block interaction ===
+    /// === CFA 方块交互 ===
 
     @Override
     public void onLoad() {
         super.onLoad();
         if (level != null && !level.isClientSide()) {
-            // Re-register with power grid to ensure CFA is in both producer and consumer sets
+            /// 重新注册到电网，确保 CFA 同时位于生产者和消费者集合中
             PowerGrid.addComponent(this);
-            // Re-register with wormhole network if wormhole stabilizer is active
-            // Delegated to handler's onBuild which handles re-registration
+            /// 如果虫洞稳定器处于活动状态，则重新注册到虫洞网络
+            /// 委托给 handler 的 onBuild 处理重新注册
             WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
             if (megastructureManager.getActiveIndex() >= 0 && getActiveMegastructureOption() != null && "wormhole_stabilizer".equals(
                 getActiveMegastructureOption().megastructure())) {
@@ -1067,14 +938,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (celestialBodyData != null) {
             tag.put("celestialBody", celestialBodyData.toTag());
         }
-        // Search history
+        /// 搜索历史
         CompoundTag histTag = new CompoundTag();
         histTag.putInt("size", Math.min(searchHistory.size(), MAX_HISTORY));
         for (int i = 0; i < Math.min(searchHistory.size(), MAX_HISTORY); i++) {
             histTag.put("h" + i, searchHistory.get(i).toTag());
         }
         tag.put("searchHistory", histTag);
-        // Anvil inventory
+        /// 砧子物品栏
         CompoundTag invTag = new CompoundTag();
         for (int i = 0; i < 5; i++) {
             ItemStack stack = this.anvilInventory.getItem(i);
@@ -1083,7 +954,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
         }
         tag.put("anvils", invTag);
-        // Material slot
+        /// 材料槽
         if (!materialFilter.isEmpty()) {
             tag.put("materialFilter", materialFilter.save(registries));
         }
@@ -1095,7 +966,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (planetaryResourceSet != null) {
             tag.put("planetaryResources", planetaryResourceSet.toTag());
         }
-        // Wormhole stabilizer state (handled by WormholeStabilizerHandler NBT)
+        /// 虫洞稳定器状态（由 WormholeStabilizerHandler NBT 处理）
         if (!portals.isEmpty()) {
             CompoundTag portalTag = new CompoundTag();
             for (Map.Entry<Cube323PartHalf, BlockPos> entry : portals.entrySet()) {
@@ -1108,7 +979,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             }
             tag.put("portals", portalTag);
         }
-        // Temple state
+        /// 神殿状态
         tag.putInt("templeCycleDay", templeCycleDay);
         tag.putLong("templeLastDay", templeLastDay);
         if (!templeDemandItem.isEmpty()) {
@@ -1118,7 +989,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putInt("templeDemandProgress", templeDemandProgress);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         tag.putInt("historyBrowseIndex", historyBrowseIndex);
-        // Delegate megastructure NBT to manager
+        /// 将巨构建造 NBT 委托给管理器
         megastructureManager.saveAdditional(tag, registries);
     }
 
@@ -1133,22 +1004,22 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.searchTicksRemaining = tag.getInt("searchTicks");
         this.searchFailed = tag.getBoolean("searchFailed");
         this.powerInsufficient = tag.getBoolean("powerInsufficient");
-        // If searching was true but no timer was saved (old data or newly placed),
-        // reset the flag to prevent stuck searching state
+        /// 如果 searching 为 true 但没有保存计时器（旧数据或新放置的），
+        /// 重置标志以防止搜索状态卡住
         if (this.searching && this.searchTicksRemaining <= 0) {
             this.searching = false;
         }
         this.bodySeed = tag.getLong("bodySeed");
-        // Capture old body data for animation transition detection
+        /// 捕获旧天体数据用于动画过渡检测
         CelestialBodyData oldBodyData = this.celestialBodyData;
         if (tag.contains("celestialBody")) {
             this.celestialBodyData = CelestialBodyData.fromTag(tag.getCompound("celestialBody"));
         } else {
             this.celestialBodyData = null;
         }
-        // Detect transitions for animation (client-side only, e.g. singleplayer chunk load)
-        // Skip animation during accelerator evolution or supernova flash
-        boolean skipAnimLoad = getAcceleratorStage() >= 1 || getSupernovaFlashTicks() > 0;
+        /// 检测动画过渡（仅客户端，例如单人游戏区块加载）
+        /// 在加速器演化期间跳过动画
+        boolean skipAnimLoad = getAcceleratorStage() >= 1;
         if (level != null && level.isClientSide() && !skipAnimLoad) {
             boolean hadBody = oldBodyData != null;
             boolean hasBody = this.celestialBodyData != null;
@@ -1168,7 +1039,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         loadSearchHistory(tag);
         loadInventory(tag, registries);
-        // Material filter
+        /// 材料过滤器
         if (tag.contains("materialFilter")) {
             this.materialFilter = ItemStack.parse(registries, tag.getCompound("materialFilter"))
                 .orElse(new ItemStack(net.minecraft.world.item.Items.BARRIER));
@@ -1182,7 +1053,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         } else {
             this.planetaryResourceSet = null;
         }
-        // Wormhole stabilizer state (handled by WormholeStabilizerHandler NBT)
+        /// 虫洞稳定器状态（由 WormholeStabilizerHandler NBT 处理）
         this.portals.clear();
         if (tag.contains("portals")) {
             CompoundTag portalTag = tag.getCompound("portals");
@@ -1193,7 +1064,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 portals.put(side, pos);
             }
         }
-        // Temple state
+        /// 神殿状态
         this.templeCycleDay = tag.getInt("templeCycleDay");
         this.templeLastDay = tag.contains("templeLastDay") ? tag.getLong("templeLastDay") : -1;
         if (tag.contains("templeDemand")) {
@@ -1204,9 +1075,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandCount = tag.getInt("templeDemandCount");
         this.templeDemandProgress = tag.getInt("templeDemandProgress");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
-        // Collider runtime state is not persisted — always start clean on load
+        /// 对撞机运行时状态不持久化——加载时始终从干净状态开始
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
-        // Delegate megastructure NBT to manager (must be last so managers overwrite BE fields)
+        /// 将巨构建造 NBT 委托给管理器（必须放在最后，以便管理器覆盖 BE 字段）
         megastructureManager.loadAdditional(tag, registries);
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -1229,14 +1100,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (celestialBodyData != null) {
             tag.put("celestialBody", celestialBodyData.toTag());
         }
-        // Search history
+        /// 搜索历史
         CompoundTag histTag = new CompoundTag();
         histTag.putInt("size", Math.min(searchHistory.size(), MAX_HISTORY));
         for (int i = 0; i < Math.min(searchHistory.size(), MAX_HISTORY); i++) {
             histTag.put("h" + i, searchHistory.get(i).toTag());
         }
         tag.put("searchHistory", histTag);
-        // Material filter sync
+        /// 材料过滤器同步
         if (!materialFilter.isEmpty()) {
             tag.put("materialFilter", materialFilter.save(registries));
         }
@@ -1245,7 +1116,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (planetaryResourceSet != null) {
             tag.put("planetaryResources", planetaryResourceSet.toTag());
         }
-        // Temple state (client sync)
+        /// 神殿状态（客户端同步）
         tag.putInt("templeCycleDay", templeCycleDay);
         tag.putLong("templeLastDay", templeLastDay);
         if (!templeDemandItem.isEmpty()) {
@@ -1254,9 +1125,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putInt("templeDemandCount", templeDemandCount);
         tag.putInt("templeDemandProgress", templeDemandProgress);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
-        // Collider runtime state not synced to client
+        /// 对撞机运行时状态不同步到客户端
         tag.putInt("historyBrowseIndex", historyBrowseIndex);
-        // Delegate megastructure NBT to manager
+        /// 将巨构建造 NBT 委托给管理器
         megastructureManager.writeUpdateTag(tag, registries);
         return tag;
     }
@@ -1274,31 +1145,31 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.powerInsufficient = tag.getBoolean("powerInsufficient");
         this.bodySeed = tag.getLong("bodySeed");
 
-        // Capture old body data for animation transition detection
+        /// 捕获旧天体数据用于动画过渡检测
         CelestialBodyData oldBodyData = this.celestialBodyData;
         if (tag.contains("celestialBody")) {
             this.celestialBodyData = CelestialBodyData.fromTag(tag.getCompound("celestialBody"));
         } else {
             this.celestialBodyData = null;
         }
-        // Detect transitions for animation (client-side only)
-        // Skip animation during accelerator evolution or supernova flash
-        boolean skipAnim = getAcceleratorStage() >= 1 || getSupernovaFlashTicks() > 0;
+        /// 检测动画过渡（仅客户端）
+        /// 在加速器演化期间跳过动画
+        boolean skipAnim = getAcceleratorStage() >= 1;
         if (level != null && level.isClientSide() && !skipAnim) {
             boolean hadBody = oldBodyData != null;
             boolean hasBody = this.celestialBodyData != null;
             if (!hadBody && hasBody) {
-                // Body appeared — start forward (grow-in) animation
+                /// 天体出现——启动正向（放大淡入）动画
                 this.animationTicks = ANIMATION_DURATION_TICKS;
                 this.animationForward = true;
                 this.animationPreviousBodyData = null;
             } else if (hadBody && !hasBody) {
-                // Body disappeared — start reverse (shrink-out) animation
+                /// 天体消失——启动反向（缩小淡出）动画
                 this.animationTicks = ANIMATION_DURATION_TICKS;
                 this.animationForward = false;
                 this.animationPreviousBodyData = oldBodyData;
             } else if (hadBody && !oldBodyData.toTag().equals(this.celestialBodyData.toTag())) {
-                // Body changed to a different type — animate transition
+                /// 天体变为不同类型——动画过渡
                 this.animationTicks = ANIMATION_DURATION_TICKS;
                 this.animationForward = true;
                 this.animationPreviousBodyData = oldBodyData;
@@ -1306,7 +1177,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         loadSearchHistory(tag);
         loadInventory(tag, lookupProvider);
-        // Material filter (client side — read from sync)
+        /// 材料过滤器（客户端——从同步中读取）
         if (tag.contains("materialFilter")) {
             this.materialFilter = ItemStack.parse(lookupProvider, tag.getCompound("materialFilter"))
                 .orElse(new ItemStack(net.minecraft.world.item.Items.BARRIER));
@@ -1320,7 +1191,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         } else {
             this.planetaryResourceSet = null;
         }
-        // Temple state (client side)
+        /// 神殿状态（客户端）
         this.templeCycleDay = tag.getInt("templeCycleDay");
         this.templeLastDay = tag.contains("templeLastDay") ? tag.getLong("templeLastDay") : -1;
         if (tag.contains("templeDemand")) {
@@ -1331,9 +1202,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandCount = tag.getInt("templeDemandCount");
         this.templeDemandProgress = tag.getInt("templeDemandProgress");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
-        // Collider runtime state not synced to client
+        /// 对撞机运行时状态不同步到客户端
         this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
-        // Delegate megastructure NBT to manager
+        /// 将巨构建造 NBT 委托给管理器
         megastructureManager.readUpdateTag(tag, lookupProvider);
     }
 
@@ -1357,7 +1228,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     public void addToSearchHistory(CelestialBodyData data, @Nullable PlanetaryResourceSet resources) {
-        // Dedup: don't add if it's already the most recent entry
+        /// 去重：如果已是最新条目则不添加
         if (!searchHistory.isEmpty()) {
             SearchHistoryEntry latest = searchHistory.getFirst();
             if (latest.body().toTag().toString().equals(data.toTag().toString())) return;
@@ -1377,10 +1248,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 if (histTag.contains("h" + i)) {
                     CompoundTag entryTag = histTag.getCompound("h" + i);
                     if (entryTag.contains("body")) {
-                        // New format: SearchHistoryEntry
+                        /// 新格式：SearchHistoryEntry
                         searchHistory.add(SearchHistoryEntry.fromTag(entryTag));
                     } else {
-                        // Old format: bare CelestialBodyData (no resources saved)
+                        /// 旧格式：裸 CelestialBodyData（未保存资源）
                         CelestialBodyData body = CelestialBodyData.fromTag(entryTag);
                         searchHistory.add(new SearchHistoryEntry(body, null));
                     }
@@ -1389,7 +1260,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
-    // === History browsing (server-side) ===
+    /// === 搜索历史浏览（服务端）===
 
     public boolean hasPreviousHistory() {
         int sz = searchHistory.size();
@@ -1403,11 +1274,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void browseHistoryPrev() {
         if (level == null || level.isClientSide()) return;
         int sz = searchHistory.size();
-        // Need at least 2 entries: index 0 is the current locked body
+        /// 至少需要 2 条记录：索引 0 是当前锁定的天体
         if (sz <= 1 || historyBrowseIndex >= sz) return;
         if (historyBrowseIndex == 0) {
             historyOriginalEntry = new SearchHistoryEntry(celestialBodyData, planetaryResourceSet);
-            historyBrowseIndex = 1; // skip the current-body entry
+            historyBrowseIndex = 1; /// 跳过当前天体条目
         }
         historyBrowseIndex++;
         if (historyBrowseIndex > sz) return;
@@ -1469,20 +1340,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    // === Megastructure ===
+    /// === 巨构建造 ===
 
-    /**
-     * Toggle the lock state. Called from the server when the player clicks the lock button.
-     */
+    /// 切换锁定状态。玩家点击锁定按钮时在服务器端调用。
     public void toggleLocked() {
         if (level == null || level.isClientSide()) return;
         if (isAcceleratorActive()) {
-            // Cannot unlock during stellar evolution
+            /// 星体演化期间无法解锁
             return;
         }
         this.locked = !this.locked;
         if (!this.locked) {
-            // Unlocking: clear megastructure and accelerator to revert to restriction ring
+            /// 解锁：清除巨构和加速器，恢复为束星环
             clearMegastructure();
             clearAcceleratorState();
         }
@@ -1494,22 +1363,17 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         megastructureManager.getAcceleratorHandler().onClear(this);
     }
 
-    /**
-     * Clear the active megastructure and all related state, reverting to the restriction ring.
-     */
+    /// 清除活动巨构及所有相关状态，恢复为束星环。
     private void clearMegastructure() {
         megastructureManager.clearMegastructure(this);
-        // Clear material filter (still owned by BE)
+        /// 清除材料过滤器（仍由 BE 持有）
         this.materialFilter = new ItemStack(Items.BARRIER);
         this.materialLimit = 0;
-        // Re-register with power grid to restore CONSUMER type
+        /// 重新注册到电网以恢复 CONSUMER 类型
         PowerGrid.addComponent(this);
     }
 
-    /**
-     * Get the option list matching what the client sees (applies the same filtering).
-     * When a megastructure is already built, only the accelerator is visible.
-     */
+    /// 获取与客户端看到的匹配的选项列表（应用相同的过滤）。当巨构已建造时，仅加速器可见。
     public List<CelestialRefactorOption> getClientVisibleOptions() {
         List<CelestialRefactorOption> options = CelestialRefactorRegistry.getOptions(
             celestialBodyData,
@@ -1522,27 +1386,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return options;
     }
 
-    /**
-     * Get the currently active megastructure option, or null if none is built.
-     */
+    /// 获取当前活动的巨构选项，如果未建造则返回 null。
     @Nullable
     public CelestialRefactorOption getActiveMegastructureOption() {
         return megastructureManager.getActiveOption(this);
     }
 
-    /**
-     * Get the portals placed on this CFA's sides (unmodifiable).
-     */
+    /// 获取放置在此 CFA 各侧的传送门（不可修改）。
     public Map<Cube323PartHalf, BlockPos> getPortals() {
         WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
         return wh.getPortals();
     }
 
-    /**
-     * Attempt to build a megastructure. Called from the server when the player clicks "Start Refactoring".
-     *
-     * @param optionIndex the selected refactor option index
-     */
+    /// 尝试建造巨构。玩家点击"开始重构"时在服务器端调用。optionIndex 为选中的重构选项索引。
     public void buildMegastructure(int optionIndex) {
         if (level == null || level.isClientSide()) return;
         if (celestialBodyData == null) return;
@@ -1551,7 +1407,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         CelestialRefactorOption option = options.get(optionIndex);
 
-        // Check materials first
+        /// 先检查材料
         if (option.needsMaterial()) {
             ItemStack contained = materialContainer.getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
@@ -1561,108 +1417,30 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             contained.shrink(required.getCount());
         }
 
-        // Delegate to megastructure manager
+        /// 委托给巨构建造管理器
         megastructureManager.buildMegastructure(optionIndex, this);
 
-        // Re-register with power grid so the component type change takes effect
+        /// 重新注册到电网以使组件类型变更生效
         PowerGrid.addComponent(this);
         this.setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }
 
-    private List<CelestialForgingAnvilLaserInterfaceBlockEntity> findLaserInterfaces() {
-        return CfaInterfaceScanner.findLaserInterfaces(level, worldPosition);
-    }
+    /// === 虫洞内容同步 ===
 
-    /**
-     * Sync laser requirements to all connected laser interfaces based on the active megastructure.
-     * This enables the laser interface tooltip to show "Required: Lv.X" / "Required: Gamma Lv.X"
-     * and the ✓/✗ valid status.
-     */
-
-    private List<IItemHandler> findLogisticsInterfaces() {
-        return CfaInterfaceScanner.findLogisticsInterfaces(level, worldPosition);
-    }
-
-    private static void setHandlerSlot(IItemHandler handler, int slot, ItemStack stack) {
-        ItemStack existing = handler.getStackInSlot(slot);
-        if (!existing.isEmpty()) {
-            handler.extractItem(slot, existing.getCount(), false);
-        }
-        if (!stack.isEmpty()) {
-            handler.insertItem(slot, stack, false);
-        }
-    }
-
-    /**
-     * Scan the 12 face-adjacent positions at the CFA bottom layer (Y = controller Y).
-     * The CFA occupies X=-1..1, Z=-1..1 at Y=0. The 12 positions are the blocks
-     * directly touching each face of this 3×3 base, excluding the 4 corners
-     * (which are edge-adjacent, not face-adjacent).
-     */
-    private void scanAdjacentBlocks(java.util.function.Consumer<BlockPos> consumer) {
-        CfaInterfaceScanner.scanAdjacentBlocks(worldPosition, level, consumer);
-    }
-
-    // === Wormhole interface scanning (public for cross-CFA access) ===
-
-    /**
-     * Generic helper: scan adjacent blocks and map any that are instances of the given type
-     * keyed by relative offset from this CFA's controller.
-     */
-    private <T extends BlockEntity> Map<BlockPos, T> getInterfacesMap(Class<T> type) {
-        return CfaInterfaceScanner.getInterfacesMap(type, level, worldPosition);
-    }
-
-    /**
-     * Get all laser interfaces mapped by relative offset from this CFA's controller.
-     */
-    public Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> getLaserInterfacesMap() {
-        return getInterfacesMap(CelestialForgingAnvilLaserInterfaceBlockEntity.class);
-    }
-
-    /**
-     * Get all logistics interfaces mapped by relative offset from this CFA's controller.
-     */
-    public Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> getLogisticsInterfacesMap() {
-        return getInterfacesMap(CelestialForgingAnvilLogisticsInterfaceBlockEntity.class);
-    }
-
-    /**
-     * Get all fluid interfaces mapped by relative offset from this CFA's controller.
-     */
-    public Map<BlockPos, CelestialForgingAnvilFluidInterfaceBlockEntity> getFluidInterfacesMap() {
-        return getInterfacesMap(CelestialForgingAnvilFluidInterfaceBlockEntity.class);
-    }
-
-    // === Wormhole content syncing ===
-
-    /**
-     * Called immediately when a player inserts/removes items in a logistics interface.
-     * Delegates to WormholeStabilizerHandler.
-     */
+    /// 当玩家在物流接口中放入或取出物品时立即调用。委托给 WormholeStabilizerHandler。
     public void syncLogisticsOnChange(BlockPos interfacePos, int changedSlot) {
         WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
         wh.syncLogisticsOnChange(interfacePos, changedSlot, this);
     }
 
-    private List<CelestialForgingAnvilFluidInterfaceBlockEntity> findFluidInterfaces() {
-        return CfaInterfaceScanner.findFluidInterfaces(level, worldPosition);
-    }
-
-    /**
-     * Register a portal on a specific side of the CFA.
-     *
-     * @return true if successful, false if side already has a portal or invalid side
-     */
-    public boolean addPortal(Cube323PartHalf side, BlockPos portalPos) {
+    /// 在 CFA 的特定侧面上注册一个传送门。
+    public void addPortal(Cube323PartHalf side, BlockPos portalPos) {
         WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
-        return wh.addPortal(side, portalPos, this);
+        wh.addPortal(side, portalPos, this);
     }
 
-    /**
-     * Unregister a portal from a specific side.
-     */
+    /// 从特定侧面注销一个传送门。
     public void removePortal(Cube323PartHalf side) {
         WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
         wh.removePortal(side, this);

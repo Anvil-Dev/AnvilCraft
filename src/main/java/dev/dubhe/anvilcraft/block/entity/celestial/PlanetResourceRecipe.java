@@ -20,14 +20,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Recipe defining what resources a planet produces based on its celestial parameters.
- *
- * <p>
- * A single recipe type ({@code anvilcraft:planet_resource}) with a {@code category} discriminator
- * determines the resource generation rules. Each category's data is stored in a nested sub-record.
- * </p>
- */
+/// 定义行星根据其天体参数产出哪些资源的配方。
+///
+/// 使用单一配方类型（{@code anvilcraft:planet_resource}），
+/// 通过 {@code category} 鉴别器确定资源生成规则。
+/// 每个类别的数据存储在嵌套子记录中。
 public record PlanetResourceRecipe(
     Category category,
     Optional<MineralData> mineral,
@@ -38,7 +35,7 @@ public record PlanetResourceRecipe(
     Optional<WastelandData> wasteland
 ) implements Recipe<PlanetResourceInput> {
 
-    // === Category ===
+    /// === 类别 ===
 
     public enum Category {
         MINERAL("mineral"), FLUID("fluid"), GIANT_ITEM("giant_item"), GIANT_FLUID("giant_fluid"), BIOLOGICAL("biological"), OFFERING(
@@ -64,7 +61,7 @@ public record PlanetResourceRecipe(
         }
     }
 
-    // === WeightedEntry ===
+    /// === 加权条目 ===
 
     public record WeightedEntry(String id, int weight) {
         public static final Codec<WeightedEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
@@ -86,7 +83,7 @@ public record PlanetResourceRecipe(
         }
     }
 
-    // === LifeChances ===
+    /// === 生命概率 ===
 
     public record LifeChances(int cold, int hot, int mild) {
         public static final LifeChances DEFAULT = new LifeChances(5, 5, 10);
@@ -117,12 +114,10 @@ public record PlanetResourceRecipe(
         }
     }
 
-    // === Per-category data records ===
+    /// === 各类别数据记录 ===
 
-    /**
-     * Mineral resource configuration.
-     * category=mineral: all rocky planets produce minerals from the source tag.
-     */
+    /// 矿物资源配置。
+    /// category=mineral：所有岩石行星从来源标签产出矿物。
     public record MineralData(String sourceTag, String blacklistTag, int step) {
         public static final Codec<MineralData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.optionalFieldOf("source_tag", "c:raw_materials").forGetter(MineralData::sourceTag),
@@ -141,10 +136,8 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Fluid resource mapping.
-     * category=fluid: defines what fluid a rocky planet's surface produces.
-     */
+    /// 流体资源映射。
+    /// category=fluid：定义岩石行星表面产出何种流体。
     public record FluidData(String planetType, String temperature, String liquidMin, String outputFluid) {
         public static final Codec<FluidData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             Codec.STRING.optionalFieldOf("planet_type", "rocky_planet").forGetter(FluidData::planetType),
@@ -166,10 +159,8 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Giant planet item or fluid resources.
-     * category=giant_item or giant_fluid: weighted entries for giant planet resources.
-     */
+    /// 气态行星物品或流体资源。
+    /// category=giant_item或giant_fluid：气态行星资源的加权条目。
     public record GiantData(List<WeightedEntry> entries, String pressureType) {
         public static final Codec<GiantData> CODEC = RecordCodecBuilder.create(ins -> ins.group(
             WeightedEntry.CODEC.listOf()
@@ -187,10 +178,8 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Biological resource configuration.
-     * category=biological: defines life chances, entity tags, and mild-temperature extra fluids.
-     */
+    /// 生物资源配置。
+    /// category=biological：定义生命概率、实体标签和温和温度下的额外流体。
     public record BiologicalData(
         LifeChances lifeChances, String landEntityTag, String aquaticEntityTag, String dropBlacklistTag, List<WeightedEntry> mildExtraFluids
     ) {
@@ -219,10 +208,8 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Offering (civilization) resource entries.
-     * category=offering: weighted items for low civilizations.
-     */
+    /// 祭品（文明）资源条目。
+    /// category=offering：低级文明的加权物品。
     public record OfferingData(
         List<WeightedEntry> entries, int civilizationChance, int ageMin, int ageMax
     ) {
@@ -246,10 +233,8 @@ public record PlanetResourceRecipe(
         );
     }
 
-    /**
-     * Wasteland resource entries.
-     * category=wasteland: weighted items for wasteland worlds.
-     */
+    /// 废土资源条目。
+    /// category=wasteland：废土世界的加权物品。
     public record WastelandData(
         List<WeightedEntry> entries, int ageMin, int wastelandChance
     ) {
@@ -270,7 +255,7 @@ public record PlanetResourceRecipe(
         );
     }
 
-    // === Codec ===
+    /// === 编解码器 ===
 
     public static final MapCodec<PlanetResourceRecipe> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
         Category.CODEC.fieldOf("category").forGetter(PlanetResourceRecipe::category),
@@ -282,7 +267,7 @@ public record PlanetResourceRecipe(
         WastelandData.CODEC.optionalFieldOf("wasteland").forGetter(PlanetResourceRecipe::wasteland)
     ).apply(ins, PlanetResourceRecipe::new));
 
-    // === StreamCodec ===
+    /// === 流编解码器 ===
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PlanetResourceRecipe> STREAM_CODEC = new StreamCodec<>() {
         @Override
@@ -309,7 +294,7 @@ public record PlanetResourceRecipe(
         }
     };
 
-    // === Recipe implementation ===
+    /// === 配方实现 ===
 
     @Override
     public boolean matches(PlanetResourceInput input, @NotNull Level level) {
@@ -374,7 +359,7 @@ public record PlanetResourceRecipe(
         return true;
     }
 
-    // === Convenience accessors (for generator) ===
+    /// === 便捷访问器（供生成器使用） ===
 
     public MineralData mineralData() {
         return mineral.orElse(null);
@@ -400,7 +385,7 @@ public record PlanetResourceRecipe(
         return wasteland.orElse(null);
     }
 
-    // === Serializer ===
+    /// === 序列化器 ===
 
     public static final class Serializer implements RecipeSerializer<PlanetResourceRecipe> {
         @Override

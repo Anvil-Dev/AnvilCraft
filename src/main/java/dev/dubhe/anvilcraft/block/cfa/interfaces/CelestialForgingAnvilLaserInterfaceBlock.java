@@ -60,7 +60,7 @@ public class CelestialForgingAnvilLaserInterfaceBlock extends CelestialForgingAn
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserBe
                 && laserBe.getReceivedLaserLevel() > 0) {
-                // This interface is actively receiving laser — do not react to redstone signals
+                /// 此接口正在主动接收激光——不响应红石信号
                 return;
             }
         }

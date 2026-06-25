@@ -29,13 +29,13 @@ public class CelestialForgingAnvilPortalBlockItem extends BlockItem {
         BlockPos pos = context.getClickedPos();
         if (player == null) return null;
 
-        // Scan adjacent positions for CFA side centers
+        /// 扫描相邻位置寻找锻星砧侧面中心
         for (Direction dir : Direction.Plane.HORIZONTAL) {
             BlockPos cfaPos = pos.relative(dir);
             BlockState cfaState = level.getBlockState(cfaPos);
             if (cfaState.is(ModBlocks.CELESTIAL_FORGING_ANVIL)) {
                 Cube323PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
-                // Only allow placement on side centers (BOTTOM_N/S/E/W)
+                /// 只允许在侧面中心放置（BOTTOM_N/S/E/W）
                 if (half == Cube323PartHalf.BOTTOM_N || half == Cube323PartHalf.BOTTOM_S
                     || half == Cube323PartHalf.BOTTOM_E || half == Cube323PartHalf.BOTTOM_W) {
                     return getBlock().defaultBlockState()

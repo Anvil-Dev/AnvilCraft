@@ -31,15 +31,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Logistics interface for the Celestial Forging Anvil.
- * Stores up to 16 different item types, one stack per type.
- * Items auto-route to their type's slot and don't overflow to other slots.
- */
+/// 锻星砧的物流接口。最多存储 16 种不同的物品类型，每种类型一个堆叠。物品自动路由到对应类型的槽位，不会溢出到其他槽位。
 public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity {
     private static final int TYPE_COUNT = 16;
     @Setter
-    private boolean syncing = false; // re-entrancy guard
+    private boolean syncing = false; /// 重入保护
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(TYPE_COUNT) {
         @Override
@@ -69,9 +65,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         super(type, pos, blockState);
     }
 
-    /**
-     * Sync block entity data to all tracking clients.
-     */
+    /// 将方块实体数据同步到所有追踪的客户端。
     public void syncToClients() {
         if (level instanceof ServerLevel serverLevel) {
             Packet<?> packet = getUpdatePacket();
@@ -103,11 +97,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return itemHandler;
     }
 
-    /**
-     * Called from {@code onContentsChanged} when a player inserts or removes items.
-     * Immediately triggers the parent CFA's wormhole sync for this specific interface,
-     * pushing the change to the canonical and to other CFAs in the same tick.
-     */
+    /// 当玩家放入或取出物品时从 onContentsChanged 调用。立即触发父 CFA 对此特定接口的虫洞同步，在同一 tick 内将更改推送到规范存储和其它 CFA。
     private void triggerWormholeSync(int changedSlot) {
         if (level == null || level.isClientSide()) return;
         BlockPos cfaPos = findParentCfa();
@@ -117,12 +107,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         }
     }
 
-    /**
-     * Find the parent CFA controller by following the FACING direction.
-     * The interface faces AWAY from the CFA, so the adjacent block in the
-     * opposite direction is always a CFA part. From there, HALF offset
-     * navigates to the controller (BOTTOM_CENTER).
-     */
+    /// 通过沿 FACING 方向追踪来查找父 CFA 控制器。接口背对 CFA，因此反方向的相邻方块始终是 CFA 部件。从那里通过 HALF 偏移导航到控制器（BOTTOM_CENTER）。
     @Nullable
     private BlockPos findParentCfa() {
         if (level == null) return null;
@@ -141,19 +126,14 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return null;
     }
 
-    private static final int MAX_EJECT_PER_OP = 64; // Max 1 stack per ejection
-    public static final int EJECT_COOLDOWN = 8;     // 8gt between ejections (like MagneticChute)
+    private static final int MAX_EJECT_PER_OP = 64; /// 每次弹出最多 1 组
+    public static final int EJECT_COOLDOWN = 8;     /// 弹出间隔 8gt（类似磁力溜槽）
 
     @Setter
     private int ejectCooldown = 0;
     private int lastEjectSlot = 0;
 
-    /**
-     * Server-side tick. When active (redstone powered), auto-ejects items
-     * from internal inventory toward the facing direction every 8gt,
-     * max 1 stack per ejection, with velocity like MagneticChute.
-     * Uses round-robin across slots to prevent one slot from being starved.
-     */
+    /// 服务器端 tick。当主动模式（红石激活）时，每 8gt 自动将物品从内部库存向面向方向弹出，每次最多 1 组，速度类似于磁力溜槽。使用跨槽位轮询以防某个槽位被饿死。
     public void serverTick() {
         if (level == null || level.isClientSide()) return;
         BlockState state = getBlockState();
@@ -170,7 +150,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         boolean ejected = false;
         int totalSlots = itemHandler.getSlots();
 
-        // Round-robin: start from lastEjectSlot, iterate all slots
+        /// 轮询：从 lastEjectSlot 开始，遍历所有槽位
         for (int offset = 0; offset < totalSlots; offset++) {
             int slot = (lastEjectSlot + offset) % totalSlots;
             ItemStack stack = itemHandler.getStackInSlot(slot);
@@ -179,7 +159,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
             ItemStack extracted = itemHandler.extractItem(slot, toExtract, false);
             if (extracted.isEmpty()) continue;
 
-            // Try to insert into target container
+            /// 尝试插入到目标容器中
             IItemHandler targetHandler = level.getCapability(
                 Capabilities.ItemHandler.BLOCK, targetPos, facing.getOpposite()
             );
@@ -194,7 +174,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
                     break;
                 }
             } else {
-                // No target container — eject items into the world with velocity
+                /// 无目标容器——将物品以速度弹出到世界中
                 Vec3 ejectPos = worldPosition.relative(facing).getCenter();
                 Vec3 velocity = new Vec3(
                     facing.getStepX() * 0.25,
@@ -217,7 +197,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         }
     }
 
-    // === Temple demand display (pushed by CFA controller) ===
+    /// === 神殿需求显示（由 CFA 控制器推送）===
     @Getter @Setter
     private ItemStack templeDemandItem = ItemStack.EMPTY;
     @Getter @Setter
@@ -227,7 +207,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     @Getter @Setter
     private boolean templeDemandSatisfied = false;
 
-    // === Collider target items display (pushed by CFA controller) ===
+    /// === 对撞机目标物品显示（由 CFA 控制器推送）===
     @Getter @Setter
     private List<ItemStack> colliderTargetItems = new ArrayList<>();
     @Getter @Setter
