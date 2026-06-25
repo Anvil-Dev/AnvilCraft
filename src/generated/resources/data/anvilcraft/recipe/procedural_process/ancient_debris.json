@@ -1,0 +1,55 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:ancient_debris"
+  },
+  "initial_block": {
+    "blocks": "anvilcraft:tungsten_block"
+  },
+  "loop": 1,
+  "result_block": {
+    "block": "minecraft:ancient_debris"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:tungsten_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "minecraft:netherite_scrap"
+          }
+        ]
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:block_processing",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:wip_block"
+          },
+          {
+            "blocks": "anvilcraft:corrupted_beacon",
+            "properties": [
+              {
+                "lit": "true"
+              }
+            ]
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 1
+    }
+  ]
+}

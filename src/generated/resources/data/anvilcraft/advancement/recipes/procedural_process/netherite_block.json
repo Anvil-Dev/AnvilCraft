@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:time_warp/ancient_debris"
+        "recipe": "anvilcraft:procedural_process/netherite_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:time_warp/ancient_debris"
+      "anvilcraft:procedural_process/netherite_block"
     ]
   }
 }

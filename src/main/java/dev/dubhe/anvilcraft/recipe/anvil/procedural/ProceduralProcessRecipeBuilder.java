@@ -96,6 +96,17 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     }
 
     /**
+     * 设置结果方块
+     *
+     * @param resultBlock 结果方块
+     * @return 当前构建器实例，支持链式调用
+     */
+    public ProceduralProcessRecipeBuilder result(Block resultBlock) {
+        this.resultBlock = new ChanceBlockState(resultBlock.defaultBlockState(), 1.0f);
+        return this;
+    }
+
+    /**
      * 添加结果方块
      *
      * @param resultBlock 结果方块，必须是方块对象

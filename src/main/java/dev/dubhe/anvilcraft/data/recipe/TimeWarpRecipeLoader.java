@@ -41,7 +41,6 @@ public class TimeWarpRecipeLoader {
         timeWarp(provider, ModBlocks.NETHER_DUST, 1, Items.SOUL_SOIL, 1);
         timeWarp(provider, ModBlocks.END_DUST, 1, Items.END_STONE, 1);
         timeWarp(provider, ModItems.LIME_POWDER, 8, Items.CALCITE, 1);
-        timeWarp(provider, ModItems.NETHERITE_CRYSTAL_NUCLEUS, 1, Items.ANCIENT_DEBRIS, 1);
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_ZINC, 1, ModItems.RAW_ZINC, 3);
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TIN, 1, ModItems.RAW_TIN, 3);
         timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TITANIUM, 1, ModItems.RAW_TITANIUM, 3);

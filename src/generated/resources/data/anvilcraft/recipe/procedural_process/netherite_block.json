@@ -1,0 +1,92 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:netherite_block"
+  },
+  "initial_block": {
+    "blocks": "minecraft:ancient_debris"
+  },
+  "loop": 3,
+  "multiple_loop_first_step": {
+    "content": {
+      "type": "anvilcraft:block_compress",
+      "inputs": [
+        {
+          "blocks": "minecraft:gold_block"
+        },
+        {
+          "blocks": "anvilcraft:wip_block"
+        }
+      ],
+      "result": {
+        "block": "anvilcraft:wip_block"
+      }
+    },
+    "index": 0
+  },
+  "result_block": {
+    "block": "minecraft:netherite_block"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:block_compress",
+        "inputs": [
+          {
+            "blocks": "minecraft:gold_block"
+          },
+          {
+            "blocks": "minecraft:ancient_debris"
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:block_compress",
+        "inputs": [
+          {
+            "blocks": "minecraft:ancient_debris"
+          },
+          {
+            "blocks": "anvilcraft:wip_block"
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 1
+    },
+    {
+      "content": {
+        "type": "anvilcraft:block_processing",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:wip_block"
+          },
+          {
+            "blocks": "anvilcraft:heater",
+            "properties": [
+              {
+                "overload": "false"
+              },
+              {
+                "level": "2"
+              }
+            ]
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 2
+    }
+  ]
+}

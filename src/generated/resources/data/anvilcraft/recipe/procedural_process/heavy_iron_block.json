@@ -1,0 +1,72 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "icon": {
+    "count": 1,
+    "id": "anvilcraft:heavy_iron_block"
+  },
+  "initial_block": {
+    "blocks": "minecraft:iron_block"
+  },
+  "loop": 2,
+  "multiple_loop_first_step": {
+    "content": {
+      "type": "anvilcraft:block_compress",
+      "inputs": [
+        {
+          "blocks": "minecraft:iron_block"
+        },
+        {
+          "blocks": "anvilcraft:wip_block"
+        }
+      ],
+      "result": {
+        "block": "anvilcraft:wip_block"
+      }
+    },
+    "index": 0
+  },
+  "result_block": {
+    "block": "anvilcraft:heavy_iron_block"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:block_compress",
+        "inputs": [
+          {
+            "blocks": "minecraft:iron_block"
+          },
+          {
+            "blocks": "minecraft:iron_block"
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:block_processing",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:wip_block"
+          },
+          {
+            "blocks": "anvilcraft:neutron_irradiator",
+            "properties": [
+              {
+                "type": "mass"
+              }
+            ]
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 1
+    }
+  ]
+}

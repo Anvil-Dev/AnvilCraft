@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
+import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +114,7 @@ public class BlockProcessingRecipe extends AbstractProcessRecipe<BlockProcessing
         /**
          * 结果方块
          */
-        private ChanceBlockState result = null;
+        private @Nullable ChanceBlockState result = null;
 
         /**
          * 添加输入方块
@@ -160,6 +162,8 @@ public class BlockProcessingRecipe extends AbstractProcessRecipe<BlockProcessing
             this.inputs.add(BlockStatePredicate.builder()
                 .of(ModBlocks.HEATER.get())
                 .with(HeaterBlock.OVERLOAD, false)
+                .or()
+                .with(BurningHeaterBlock.LEVEL, 2)
                 .build());
             return this;
         }
