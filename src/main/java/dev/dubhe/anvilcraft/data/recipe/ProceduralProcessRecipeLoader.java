@@ -5,8 +5,8 @@ import dev.dubhe.anvilcraft.block.state.IrradiatorType;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipeBuilder;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.ReversedSmearAlikeRecipe;
 import net.minecraft.world.level.block.Blocks;
 
 public class ProceduralProcessRecipeLoader {
@@ -39,64 +39,62 @@ public class ProceduralProcessRecipeLoader {
 
         ProceduralProcessRecipeBuilder.of(ModBlocks.REDSTONE_COMPUTER.get())
             .addStep(
-                ItemInjectRecipe.builder()
-                    .inputBlock(ModBlocks.REDSTONE_COMPUTER.get())
-                    .requires(ModItems.TRANSCENDIUM_NUGGET)
-                    .resultBlock(ModBlocks.WIP_BLOCK)
-                    .buildRecipe()
-            )
-            .addStep(
-                ReversedSmearAlikeRecipe.builder()
-                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.TIME)
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.REDSTONE_COMPUTER.get(), IrradiatorType.TIME)
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
             .addStep(
-                ReversedSmearAlikeRecipe.builder()
+                BlockProcessingRecipe.builder()
                     .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.SPACE)
                     .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK.get())
+                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .icon(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack())
             .loop(3)
             .multipleLoopFirstStep(
-                ItemInjectRecipe.builder()
-                    .inputBlock(ModBlocks.WIP_BLOCK)
-                    .requires(ModItems.TRANSCENDIUM_NUGGET)
-                    .resultBlock(ModBlocks.WIP_BLOCK)
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.TIME)
+                    .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
             .save(provider, "spacetime_supercomputer_from_redstone_computer");
 
         ProceduralProcessRecipeBuilder.of(ModBlocks.REDSTONE_COMPUTER.get())
             .addStep(
-                ItemInjectRecipe.builder()
-                    .inputBlock(ModBlocks.REDSTONE_COMPUTER.get())
-                    .requires(ModItems.TRANSCENDIUM_NUGGET)
-                    .resultBlock(ModBlocks.WIP_BLOCK)
-                    .buildRecipe()
-            )
-            .addStep(
-                ReversedSmearAlikeRecipe.builder()
-                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.SPACE)
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.REDSTONE_COMPUTER.get(), IrradiatorType.SPACE)
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
             .addStep(
-                ReversedSmearAlikeRecipe.builder()
+                BlockProcessingRecipe.builder()
                     .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.TIME)
                     .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK.get())
+                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .icon(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack())
             .loop(3)
             .multipleLoopFirstStep(
-                ItemInjectRecipe.builder()
-                    .inputBlock(ModBlocks.WIP_BLOCK)
-                    .requires(ModItems.TRANSCENDIUM_NUGGET)
-                    .resultBlock(ModBlocks.WIP_BLOCK)
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.SPACE)
+                    .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
             )
             .save(provider, "spacetime_supercomputer_from_redstone_computer_2");
