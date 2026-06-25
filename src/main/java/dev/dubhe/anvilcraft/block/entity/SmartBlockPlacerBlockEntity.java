@@ -24,6 +24,8 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.network.SmartBlockPlacerAnimSyncPacket;
+import dev.dubhe.anvilcraft.network.SmartBlockPlacerDataSyncPacket;
 import dev.dubhe.anvilcraft.util.StructureBookUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -78,6 +80,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -403,9 +406,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 Block.UPDATE_CLIENTS
             );
             if (level instanceof ServerLevel serverLevel) {
-                serverLevel.getPlayers(_ -> true).forEach(
-                    player -> player.connection.send(this.getUpdatePacket())
-                );
+                var animPacket = new SmartBlockPlacerAnimSyncPacket(
+                    this.getBlockPos(), this.placeCooldown, this.currentHeldBlock,
+                    this.currentPlacementIndex, this.isPowered, this.hasRedstoneSignal);
+                var dataTag = new CompoundTag();
+                this.saveAdditionalDataToTag(dataTag);
+                var dataPacket = new SmartBlockPlacerDataSyncPacket(this.getBlockPos(), dataTag);
+                for (var player : serverLevel.getPlayers(_ -> true)) {
+                    PacketDistributor.sendToPlayer(player, animPacket);
+                    PacketDistributor.sendToPlayer(player, dataPacket);
+                }
             }
         }
     }
@@ -3793,6 +3803,39 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public void setSkipMissingMode(boolean skipMissingMode) {
         this.isSkipMissingMode = skipMissingMode;
         this.onChanged();
+    }
+
+    // ---- 网络包同步字段设置（客户端调用） ----
+
+    public void applyAnimSyncData(int placeCooldown, ItemStack heldBlock, int placementIndex,
+                                  boolean powered, boolean hasRedstoneSignal) {
+        this.placeCooldown = placeCooldown;
+        this.currentHeldBlock = heldBlock.copy();
+        this.currentPlacementIndex = placementIndex;
+        this.isPowered = powered;
+        this.hasRedstoneSignal = hasRedstoneSignal;
+        // 触发 tickClient 检测状态变化
+        this.lastPlaceCooldown = 0;
+        this.tickClient();
+    }
+
+    /**
+     * 从网络包应用结构/预览数据（客户端调用）
+     */
+    public void applyDataSyncFromPacket(CompoundTag tag) {
+        if (tag.contains("cachedStructure")) {
+            this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
+            this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
+            if (tag.contains("cachedStructureUuid")) {
+                this.loadedStructureUuid = java.util.UUID.fromString(tag.getStringOr("cachedStructureUuid", ""));
+            }
+            this.hasStructureDisk = true;
+            this.hasInvalidStructure = false;
+        }
+        this.selectedLayer = tag.getIntOr("selectedLayer", 0);
+        this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
+        this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
+        this.loadLayerPositions(tag);
     }
 
     public void togglePosition(int layer, int position, boolean selected) {
