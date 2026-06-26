@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     private final CreativeFluidHandler fluidHandler = new CreativeFluidHandler();

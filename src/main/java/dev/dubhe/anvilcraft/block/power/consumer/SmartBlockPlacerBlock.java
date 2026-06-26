@@ -35,7 +35,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");

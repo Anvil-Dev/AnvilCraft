@@ -37,16 +37,16 @@ public final class CelestialBodyMatcher {
     private static final String AGE_RADIUS = DIR + "/age_radius_diagram_pixel.png";
     private static final String STAR_COLOR_TEMP = "assets/anvilcraft/textures/block/celestial_body/star_color_temperature.png";
 
-    private static BufferedImage massRadiusImage;
-    private static BufferedImage ageTempImage;
-    private static BufferedImage ageTempSpImage;
-    private static BufferedImage ageRadiusImage;
-    private static BufferedImage starColorTempImage;
+    private static @Nullable BufferedImage massRadiusImage;
+    private static @Nullable BufferedImage ageTempImage;
+    private static @Nullable BufferedImage ageTempSpImage;
+    private static @Nullable BufferedImage ageRadiusImage;
+    private static @Nullable BufferedImage starColorTempImage;
     private static boolean loadAttempted = false;
 
     // Precomputed valid (time,space,mass,energy) combinations
-    private static BitSet validAmplified;
-    private static BitSet validNormal;
+    private static @Nullable BitSet validAmplified;
+    private static @Nullable BitSet validNormal;
     private static boolean precomputed = false;
 
     private CelestialBodyMatcher() {
@@ -108,7 +108,6 @@ public final class CelestialBodyMatcher {
 
     // === Precomputation of all valid combinations ===
 
-    @SuppressWarnings("checkstyle:NeedBraces")
     private static void ensurePrecomputed() {
         if (precomputed) return;
         ensureLoaded();
@@ -227,7 +226,6 @@ public final class CelestialBodyMatcher {
 
     // === Diagram loading (classloader-based — works server-side) ===
 
-    @SuppressWarnings("checkstyle:NeedBraces")
     private static void ensureLoaded() {
         if (loadAttempted) return;
         loadAttempted = true;
@@ -264,7 +262,7 @@ public final class CelestialBodyMatcher {
      * Extract RGB from a {@link BufferedImage} pixel.
      * {@code BufferedImage.getRGB()} returns ARGB format: {@code 0xAARRGGBB}.
      */
-    private static int getRgb(BufferedImage image, int x, int y) {
+    private static int getRgb(@Nullable BufferedImage image, int x, int y) {
         if (image == null) return 0;
         int xi = Math.clamp(x, 0, image.getWidth() - 1);
         int yi = Math.clamp(y, 0, image.getHeight() - 1);
@@ -277,7 +275,7 @@ public final class CelestialBodyMatcher {
     }
 
     @Nullable
-    private static CelestialBodyClass lookupClass(BufferedImage image, int x, int y) {
+    private static CelestialBodyClass lookupClass(@Nullable BufferedImage image, int x, int y) {
         if (image == null) return null;
         int rgb = getRgb(image, x, y);
         return CelestialBodyClass.fromRgb(rgb);
@@ -303,7 +301,6 @@ public final class CelestialBodyMatcher {
 
     // === Body data generation ===
 
-    @SuppressWarnings("checkstyle:MethodLength")
     private static CelestialBodyData generateBodyData(
         CelestialBodyClass bodyClass, int time, int space, int mass, int energy, RandomSource random
     ) {
@@ -457,7 +454,6 @@ public final class CelestialBodyMatcher {
         return 5;
     }
 
-    @SuppressWarnings("checkstyle:NeedBraces")
     private static int[] getStarColorFromTempDiagram(int energy) {
         BufferedImage img = loadStarColorTemp();
         if (img == null) return new int[] {255, 255, 255};

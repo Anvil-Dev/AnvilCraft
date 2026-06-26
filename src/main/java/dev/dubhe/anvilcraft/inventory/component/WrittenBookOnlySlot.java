@@ -1,11 +1,9 @@
 package dev.dubhe.anvilcraft.inventory.component;
 
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.BooleanSupplier;
 
@@ -25,11 +23,6 @@ public class WrittenBookOnlySlot extends Slot {
     @Override
     public boolean mayPlace(ItemStack stack) {
         return false;
-    }
-
-    @Override
-    public boolean mayPickup(Player player) {
-        return true;
     }
 
     @Override

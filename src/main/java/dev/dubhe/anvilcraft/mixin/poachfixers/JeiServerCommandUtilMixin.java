@@ -22,8 +22,7 @@ public class JeiServerCommandUtilMixin {
             ordinal = 0
         )
     )
-    @SuppressWarnings("checkstyle:MethodName")
-    private static ItemEntity shouldNotPoach_PreVeNTDUpLICatioN(
+    private static ItemEntity shouldNotPoachPreVeNTDUpLICatioN(
         ServerPlayer instance, ItemStack stack, boolean b, Operation<ItemEntity> original
     ) {
         return original.call(instance, stack, b);

@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.api.heat.collector.IHeatCollector;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
-import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +28,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     private int time = 0;
     @Getter
     @Setter
-    private PowerGrid grid = null;
+    private @Nullable PowerGrid grid = null;
     @Getter
     private int outputPower = 0;
     private int inputtingPower = 0;

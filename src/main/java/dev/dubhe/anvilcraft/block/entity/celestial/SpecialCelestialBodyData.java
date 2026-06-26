@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Celestial body data for hidden (special) bodies discovered via seed items.

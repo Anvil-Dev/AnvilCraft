@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.container;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -11,12 +11,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class CreativeFluidTankBlock extends BaseEntityBlock implements IHammerRemovable {
@@ -28,11 +27,6 @@ public class CreativeFluidTankBlock extends BaseEntityBlock implements IHammerRe
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(CreativeFluidTankBlock::new);
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Nullable
@@ -47,11 +41,9 @@ public class CreativeFluidTankBlock extends BaseEntityBlock implements IHammerRe
         Player player, InteractionHand hand, BlockHitResult hitResult
     ) {
         if (level.getBlockEntity(pos) instanceof CreativeFluidTankBlockEntity tank) {
-            if (tank.getFluidHandler() != null) {
-                return tank.onPlayerUse(player, hand)
-                    ? InteractionResult.SUCCESS
-                    : InteractionResult.PASS;
-            }
+            return tank.onPlayerUse(player, hand)
+                   ? InteractionResult.SUCCESS
+                   : InteractionResult.PASS;
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }

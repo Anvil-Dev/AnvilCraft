@@ -327,8 +327,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     @Nullable
     private BlockPos expectedShuttleTarget = null;
 
-
-    @SuppressWarnings("checkstyle:EmptyLineSeparator")
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.SMART_BLOCK_PLACER.get(), pos, blockState);
     }
@@ -974,7 +972,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 完全使用Minecraft原生的Rotation API
      * 注意：当前实现返回原始数据，旋转逻辑由调用方（如buildBlueprintPositions、getBlueprintBlockState）单独处理
      */
-    @SuppressWarnings("checkstyle:OperatorWrap")
     public static StructureLoadUtil.StructureData rotateStructureDataStatic(
         StructureLoadUtil.StructureData originalData
     ) {
@@ -2007,7 +2004,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     /**
      * 放置蓝图中的方块（pickup逻辑：从容器提取物品）
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void placeBlueprintBlocks(Level level, BlockPos placerPos) {
         Direction facing = this.getFacing(placerPos, level);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
@@ -2039,7 +2035,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         for (int i = 0; i < orderedIndices.size(); i++) {
             int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
             int index = orderedIndices.get(orderIndex);  // 获取原始数据中的真实索引
-            BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
+            final BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
 
             // 获取当前索引需要的方块
             Block requiredBlock = this.getRequiredBlockForPosition(index);
@@ -3851,11 +3847,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     /**
      * 计算目标位置
      */
-    @SuppressWarnings("checkstyle:LocalVariableName")
     public static BlockPos calculateTargetPosition(BlockPos basePos, Direction facing, int row, int col, int layer, boolean upsideDown) {
         Direction right = facing.getClockWise();
-        int yOffset = upsideDown ? layer - 4 : layer;
-        return basePos.atY(basePos.getY() + yOffset)
+        int offsetY = upsideDown ? layer - 4 : layer;
+        return basePos.atY(basePos.getY() + offsetY)
             .relative(right, col - 2)
             .relative(right.getClockWise(), row - 2);
     }

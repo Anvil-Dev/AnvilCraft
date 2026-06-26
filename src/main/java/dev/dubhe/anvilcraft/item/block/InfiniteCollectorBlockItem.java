@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block.item;
+package dev.dubhe.anvilcraft.item.block;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;

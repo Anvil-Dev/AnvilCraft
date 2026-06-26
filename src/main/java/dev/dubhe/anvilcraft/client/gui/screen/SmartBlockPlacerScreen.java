@@ -125,7 +125,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         super(menu, inventory, title, 256, 201);
     }
 
-    @SuppressWarnings("checkstyle:LocalVariableName")
     @Override
     protected void init() {
         super.init();
@@ -644,7 +643,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 渲染3D预览
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderPreview(GuiGraphicsExtractor graphics) {
         if (this.minecraft.level == null) return;
 
@@ -927,7 +925,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 构建预览用的 LevelLike 实例
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Nullable
     private LevelLike buildPreviewLevelLike() {
         if (this.minecraft.level == null) return null;

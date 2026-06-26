@@ -21,8 +21,7 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +31,6 @@ import java.util.Random;
  * Recipe defining a hidden (special) celestial body discoverable via seed items
  * in the Celestial Forging Anvil.
  */
-@SuppressWarnings("checkstyle:LineLength")
 public record SpecialCelestialBodyRecipe(
     String name,
     String textureName,
@@ -133,7 +131,7 @@ public record SpecialCelestialBodyRecipe(
         )
     ).apply(ins, SpecialCelestialBodyRecipe::fromCodec));
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
     private static SpecialCelestialBodyRecipe fromCodec(
         String name, int time, int space, int mass, int energy,
         String texture, boolean hasAtmosphere,
@@ -154,7 +152,7 @@ public record SpecialCelestialBodyRecipe(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SpecialCelestialBodyRecipe> STREAM_CODEC = new StreamCodec<>() {
         @Override
-        public @NotNull SpecialCelestialBodyRecipe decode(RegistryFriendlyByteBuf buf) {
+        public SpecialCelestialBodyRecipe decode(RegistryFriendlyByteBuf buf) {
             String name = buf.readUtf();
             int time = buf.readInt();
             int space = buf.readInt();
@@ -213,7 +211,6 @@ public record SpecialCelestialBodyRecipe(
         CODEC, STREAM_CODEC
     );
 
-    @NotNull
     public Temperature temperature() {
         return energyToTemperature(this.energy);
     }
@@ -274,18 +271,18 @@ public record SpecialCelestialBodyRecipe(
     }
 
     @Override
-    public boolean matches(@NotNull SpecialCelestialBodyInput input, @NotNull Level level) {
+    public boolean matches(SpecialCelestialBodyInput input, Level level) {
         return true;
     }
 
     @Deprecated
     @Override
-    public @NotNull ItemStack assemble(@NotNull SpecialCelestialBodyInput input) {
+    public ItemStack assemble(SpecialCelestialBodyInput input) {
         return Items.AIR.getDefaultInstance();
     }
 
     @Override
-    public @NotNull RecipeType<SpecialCelestialBodyRecipe> getType() {
+    public RecipeType<SpecialCelestialBodyRecipe> getType() {
         return ModRecipeTypes.SPECIAL_CELESTIAL_BODY.get();
     }
 
@@ -300,7 +297,7 @@ public record SpecialCelestialBodyRecipe(
     }
 
     @Override
-    public @NotNull RecipeSerializer<SpecialCelestialBodyRecipe> getSerializer() {
+    public RecipeSerializer<SpecialCelestialBodyRecipe> getSerializer() {
         return SERIALIZER;
     }
 
@@ -315,7 +312,7 @@ public record SpecialCelestialBodyRecipe(
     }
 
     @Override
-    public @NotNull String group() {
+    public String group() {
         return "special_celestial_body";
     }
 

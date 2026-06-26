@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.data.lang;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class AdvancementLang {
-    @SuppressWarnings("checkstyle:LineLength")
+    // 禁用行长警告"""
     public static void init(RegistrumLangProvider provider) {
         // region root
         provider.add("advancements.anvilcraft.root.title", "Welcome to AnvilCraft");
@@ -174,4 +174,5 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.iron_meter_reversal.description", "Use an anvil to smash the iron golem to obtain an iron ingot, and then use a dispenser to repair the iron golem");
         // endregion
     }
+    // 启用行长警告"""
 }

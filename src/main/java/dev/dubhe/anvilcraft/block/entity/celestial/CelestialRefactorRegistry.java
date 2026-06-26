@@ -61,8 +61,11 @@ public final class CelestialRefactorRegistry {
      * @param resources the planetary resource set, used to filter options by resource availability;
      *                  may be null (most permissive, all ring-eligible options shown)
      */
-    public static List<CelestialRefactorOption> getOptions(CelestialBodyData body, boolean amplified,
-                                                           @Nullable PlanetaryResourceSet resources) {
+    public static List<CelestialRefactorOption> getOptions(
+        @Nullable CelestialBodyData body,
+        boolean amplified,
+        @Nullable PlanetaryResourceSet resources
+    ) {
         if (body == null) return Collections.emptyList();
         // Error Planet cannot build megastructures
         if (body instanceof SpecialCelestialBodyData s && s.isErrorPlanet()) {

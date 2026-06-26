@@ -120,94 +120,82 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.addRenderableWidget(new TextWidget(
             this.leftPos + 97, this.topPos + 49, 20, 8, this.minecraft.font, () -> {
             var blockEntity = this.menu.getBlockEntity();
-            return Component.literal(blockEntity != null ? blockEntity.getRangeX().get().toString() : "?");
+            return Component.literal(blockEntity.getRangeX().get().toString());
         }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
             this.leftPos + 84, this.topPos + 48, "minus",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
-            if (blockEntity != null) {
                 blockEntity.getRangeX().previous();
                 ClientPacketDistributor.sendToServer(
                     new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeX().index(), RangeAxis.X));
             }
-        }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
             this.leftPos + 122, this.topPos + 48, "add",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
-            if (blockEntity != null) {
                 blockEntity.getRangeX().next();
                 ClientPacketDistributor.sendToServer(
                     new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeX().index(), RangeAxis.X));
             }
-        }
         ));
 
         // 添加Z轴范围控制按钮和数值显示
         this.addRenderableWidget(new TextWidget(
             this.leftPos + 97, this.topPos + 63, 20, 8, this.minecraft.font, () -> {
             var blockEntity = this.menu.getBlockEntity();
-            return Component.literal(blockEntity != null ? blockEntity.getRangeZ().get().toString() : "?");
+            return Component.literal(blockEntity.getRangeZ().get().toString());
         }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
             this.leftPos + 84, this.topPos + 62, "minus",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
-            if (blockEntity != null) {
                 blockEntity.getRangeZ().previous();
                 ClientPacketDistributor.sendToServer(
                     new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeZ().index(), RangeAxis.Z)
                 );
             }
-        }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
             this.leftPos + 122, this.topPos + 62, "add",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
-            if (blockEntity != null) {
                 blockEntity.getRangeZ().next();
                 ClientPacketDistributor.sendToServer(
                     new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeZ().index(), RangeAxis.Z)
                 );
             }
-        }
         ));
 
         // 添加Y轴范围控制按钮和数值显示
         this.addRenderableWidget(new TextWidget(
             this.leftPos + 97, this.topPos + 77, 20, 8, this.minecraft.font, () -> {
             var blockEntity = this.menu.getBlockEntity();
-            return Component.literal(blockEntity != null ? blockEntity.getRangeY().get().toString() : "?");
+            return Component.literal(blockEntity.getRangeY().get().toString());
         }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
             this.leftPos + 84, this.topPos + 76, "minus",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
-            if (blockEntity != null) {
                 blockEntity.getRangeY().previous();
                 ClientPacketDistributor.sendToServer(
                     new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeY().index(), RangeAxis.Y)
                 );
             }
-        }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
             this.leftPos + 122, this.topPos + 76, "add",
             _ -> {
             var blockEntity = this.menu.getBlockEntity();
-            if (blockEntity != null) {
                 blockEntity.getRangeY().next();
                 ClientPacketDistributor.sendToServer(
                     new StructureScannerActionPacket(Action.RANGE_CHANGE, blockEntity.getRangeY().index(), RangeAxis.Y)
                 );
             }
-        }
         ));
 
         // 添加模式切换按钮
@@ -274,7 +262,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         // 渲染磁盘槽位的虚影（当槽位为空时）
         var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity != null && blockEntity.getDiskInventory().getItem(0).isEmpty()) {
+        if (blockEntity.getDiskInventory().getItem(0).isEmpty()) {
             ItemStack diskStack = ModItems.STRUCTURE_DISK.get().getDefaultInstance();
             if (!diskStack.isEmpty()) {
                 int diskSlotX = this.leftPos + 8;
@@ -351,8 +339,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.cachedRangeZ = -1;
         }
 
-        if (blockEntity == null) return;
-
         boolean newHasDisk = !blockEntity.getDiskInventory().getItem(0).isEmpty();
         if (newHasDisk != this.cachedHasDisk) {
             this.cachedHasDisk = newHasDisk;
@@ -407,11 +393,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     /// 渲染信息栏
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderInfoPanel(GuiGraphicsExtractor graphics) {
         if (!this.cachedHasDisk) return;
 
-        StructureScannerBlockEntity.InfoStatus status = this.cachedInfoStatus;
+        final StructureScannerBlockEntity.InfoStatus status = this.cachedInfoStatus;
 
         int infoX = this.leftPos + 9;
         int infoY = this.topPos + 52;
@@ -442,7 +427,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             }
             case LARGE_STRUCTURE, UNKNOWN_BLOCKS, TOO_LARGE -> {
                 boolean isWarning = status == StructureScannerBlockEntity.InfoStatus.LARGE_STRUCTURE;
-                int iconColor = isWarning ? 0xFFFFAA00 : 0xFFFF3333;
+                final int iconColor = isWarning ? 0xFFFFAA00 : 0xFFFF3333;
                 float iconScale = 1.5f;
 
                 graphics.pose().pushMatrix();
@@ -545,7 +530,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     /// 渲染3D预览内容
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderPreviewContent(GuiGraphicsExtractor graphics) {
         if (this.minecraft.level == null) return;
         if (this.cachedBlockEntity == null) return;
@@ -814,7 +798,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         if (this.modeToggleButton == null) return;
 
         var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) return;
 
         if (this.isScanMode) {
             ClientPacketDistributor.sendToServer(new StructureScannerActionPacket(Action.START));
@@ -840,7 +823,6 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         if (this.nameInput == null) return;
 
         var blockEntity = this.menu.getBlockEntity();
-        if (blockEntity == null) return;
 
         String structureName = this.nameInput.getValue().trim();
         if (structureName.isEmpty()) {

@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.LevelResource;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,6 @@ public class StructureSaveUtil {
      * @param blockEntity   扫描器方块实体
      * @param structureName 结构名称
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
         if (level.isClientSide()) {
             LOGGER.error("Failed to save structure: level is null or on client side");
@@ -59,7 +58,7 @@ public class StructureSaveUtil {
 
         try {
             // 构建结构NBT
-            CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
+            final CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
 
             // 从输入槽取出磁盘
             ItemStack diskStack = blockEntity.getDiskStack();

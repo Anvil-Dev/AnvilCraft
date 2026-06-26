@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -89,7 +89,6 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         return new CFARenderState();
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void extractRenderState(
         CelestialForgingAnvilBlockEntity be,
@@ -106,7 +105,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setAmplified(amplified);
         state.setOffsetY(amplified ? 6.5 : 4.5);
 
-        CelestialBodyData bodyData = be.getCelestialBodyData();
+        final CelestialBodyData bodyData = be.getCelestialBodyData();
 
         // === Megastructure detection ===
         String megastructure = null;
@@ -224,7 +223,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float rot = state.getRotation();
 
         // === Outermost ring (Ring 3 non-amplified, Ring 6 amplified) ===
-        float outermostRot = state.isAmplified() ? -rot : -rot;
+        float outermostRot = -rot;
         pose.mulPose(Axis.YP.rotationDegrees(outermostRot));
         pose.mulPose(Axis.XP.rotationDegrees(14.5f));
         pose.mulPose(Axis.YP.rotationDegrees(-3.84f));
@@ -233,11 +232,11 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         pose.pushPose();
         pose.scale(RING_SCALE, RING_SCALE, RING_SCALE);
         if (state.isAmplified()) {
-            if (state.isHasRing6() && state.getRing6Model() != null) {
+            if (state.isHasRing6()) {
                 submitModel(state.getRing6Model(), pose, collector, state);
             }
         } else {
-            if (state.isHasRing4() && state.getRing4Model() != null) {
+            if (state.isHasRing4()) {
                 submitModel(state.getRing4Model(), pose, collector, state);
             }
         }
@@ -248,13 +247,11 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         pose.pushPose();
         pose.scale(RING_SCALE, RING_SCALE, RING_SCALE);
         if (state.isAmplified()) {
-            if (state.isHasRing5() && state.getRing5Model() != null) {
+            if (state.isHasRing5()) {
                 submitModel(state.getRing5Model(), pose, collector, state);
             }
         } else {
-            if (state.getBig() != null) {
-                state.getBig().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-            }
+            state.getBig().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         }
         pose.popPose();
 
@@ -263,18 +260,14 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         pose.pushPose();
         pose.scale(RING_SCALE, RING_SCALE, RING_SCALE);
         if (state.isAmplified()) {
-            if (state.getRing4Model() != null) {
-                submitModel(state.getRing4Model(), pose, collector, state);
-            }
+            submitModel(state.getRing4Model(), pose, collector, state);
         } else {
-            if (state.getSmall() != null) {
-                state.getSmall().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-            }
+            state.getSmall().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         }
         pose.popPose();
 
         // === Celestial body placeholder ===
-        if (state.isHasBody() && state.getBodyModel() != null) {
+        if (state.isHasBody()) {
             pose.pushPose();
             pose.scale(state.getBodyScale(), state.getBodyScale(), state.getBodyScale());
             pose.mulPose(Axis.YP.rotationDegrees(state.getBodyRotation()));

@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block.item;
+package dev.dubhe.anvilcraft.item.block;
 
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
@@ -30,7 +30,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 管道放置物品，负责处理所有管道放置和连接的交互逻辑。

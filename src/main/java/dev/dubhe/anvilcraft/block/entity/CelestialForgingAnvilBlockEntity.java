@@ -644,9 +644,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             if (entity instanceof LivingEntity living) {
                 if (this.celestialBodyData instanceof StarData star
                     && star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                    living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+                    // noinspection deprecation
+                    living.hurtOrSimulate(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
                 } else {
-                    living.hurt(level.damageSources().inFire(), 1.0E12f);
+                    // noinspection deprecation
+                    living.hurtOrSimulate(level.damageSources().inFire(), 1.0E12f);
                 }
             } else {
                 entity.discard();
@@ -772,13 +774,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         return (rand.nextFloat() - 0.5f) * 0.1f;
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public void tryMatchCelestialBody() {
         if (level == null) return;
         int time = this.getAnvilCount(0);
-        int space = this.getAnvilCount(1);
+        final int space = this.getAnvilCount(1);
         int mass = this.getAnvilCount(2);
-        int energy = this.getAnvilCount(3);
+        final int energy = this.getAnvilCount(3);
         this.ageAnvilCount = time;
         this.bodySeed = level.getRandom().nextLong();
         this.stellarMass = mass;
@@ -822,7 +823,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
                     ResourceKey<net.minecraft.world.item.crafting.Recipe<?>> key =
                         ResourceKey.create(Registries.RECIPE, recipeId);
                     net.minecraft.world.item.crafting.RecipeHolder<?> holder =
-                        RecipesRecord.getRecipes((ServerLevel) level).byKey(key);
+                        RecipesRecord.getRecipes(this.level).byKey(key);
                     if (holder != null && holder.value() instanceof SpecialCelestialBodyRecipe recipe) {
                         this.planetaryResourceSet = recipe.generateResources();
                     }
@@ -1155,7 +1156,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         // Search history
         input.read("searchHistory", CompoundTag.CODEC).ifPresent(this::loadSearchHistory);
         // Inventory
-        input.read("anvils", CompoundTag.CODEC).ifPresent(invTag -> this.loadInventoryFromTag(invTag));
+        input.read("anvils", CompoundTag.CODEC).ifPresent(this::loadInventoryFromTag);
         // Material filter
         this.materialFilter = input.read("materialFilter", ItemStack.OPTIONAL_CODEC)
             .orElse(new ItemStack(Items.BARRIER));

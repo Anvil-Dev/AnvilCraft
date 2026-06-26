@@ -57,14 +57,13 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         }
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void onBuild(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
 
-        CelestialBodyClass cls = star.bodyClass();
-        int ageX = CelestialBodyMatcher.toX(be.getAgeAnvilCount());
-        int energyY = CelestialBodyMatcher.toY(star.energy());
+        final CelestialBodyClass cls = star.bodyClass();
+        final int ageX = CelestialBodyMatcher.toX(be.getAgeAnvilCount());
+        final int energyY = CelestialBodyMatcher.toY(star.energy());
 
         this.originalMass = be.getStellarMass();
         this.originalEnergy = star.energy();

@@ -227,7 +227,6 @@ public class CelestialForgingAnvilBlock
 
     // === Destruction (26.1: onRemove removed, use playerWillDestroy + setRemoved) ===
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockPos mainPos = getMainPartPos(pos, state);
@@ -249,7 +248,7 @@ public class CelestialForgingAnvilBlock
             // and matching parameters so the body reappears when placed elsewhere.
             // Runtime & position-dependent flags are stripped from the item tag.
             if (!level.isClientSide()) {
-                ItemStack blockStack = new ItemStack(asItem());
+                final ItemStack blockStack = new ItemStack(asItem());
                 CompoundTag beTag = be.saveCustomOnly(level.registryAccess());
 
                 // Strip data that is tied to the current world position or transient runtime

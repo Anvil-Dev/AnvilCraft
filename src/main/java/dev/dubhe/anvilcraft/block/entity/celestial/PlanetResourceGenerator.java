@@ -21,7 +21,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,10 +41,9 @@ public final class PlanetResourceGenerator {
     private PlanetResourceGenerator() {
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static PlanetaryResourceSet generate(CelestialBodyData body, int ageAnvilCount, Level level, long seed) {
         PlanetaryResourceSet set = new PlanetaryResourceSet();
-        RandomSource random = RandomSource.create(seed);
+        final RandomSource random = RandomSource.create(seed);
         if (!(level instanceof ServerLevel serverLevel)) return set;
 
         List<PlanetResourceRecipe> recipes = new ArrayList<>();
@@ -367,6 +366,7 @@ public final class PlanetResourceGenerator {
             lootTable.getRandomItems(
                 params, random.nextLong(), drop -> {
                     if (drop.isEmpty()) return;
+                    @SuppressWarnings("deprecation")
                     Identifier id = drop.getItem().builtInRegistryHolder().key().identifier();
                     if ("minecraft:air".equals(id.toString())) return;
                     if (blacklist.contains(id)) return;

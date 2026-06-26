@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 public enum WindSpeed implements StringRepresentable {
     HIGH("high"),
@@ -14,7 +13,7 @@ public enum WindSpeed implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 

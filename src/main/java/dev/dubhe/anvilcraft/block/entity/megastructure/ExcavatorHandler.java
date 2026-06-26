@@ -30,7 +30,6 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         return "planet_excavator";
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
@@ -50,7 +49,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
 
         if (!hasValidLaser) return;
-        int efficiency = Math.min(laserCount, MAX_LASERS);
+        final int efficiency = Math.min(laserCount, MAX_LASERS);
 
         List<PlanetaryResourceSet.WeightedItemStack> miningPool = new ArrayList<>();
         miningPool.addAll(be.getPlanetaryResourceSet().getMinerals());

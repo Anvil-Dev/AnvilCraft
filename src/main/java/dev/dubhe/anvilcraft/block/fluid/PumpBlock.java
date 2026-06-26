@@ -32,7 +32,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 泵（Pump），管道系统的主动流体输送设备。消耗 32kW 电力，
@@ -143,8 +143,12 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
 
     @Override
     protected void neighborChanged(
-        BlockState state, Level level, BlockPos pos,
-        Block neighborBlock, @Nullable net.minecraft.world.level.redstone.Orientation redstoneOrientation, boolean movedByPiston
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        net.minecraft.world.level.redstone.@Nullable Orientation redstoneOrientation,
+        boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
         boolean hasSignal = level.hasNeighborSignal(pos);
