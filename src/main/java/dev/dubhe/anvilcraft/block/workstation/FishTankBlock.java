@@ -210,6 +210,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         }
         ResourceHandler<ItemResource> items = level.getCapability(Capabilities.Item.BLOCK, pos, null);
         FishTankBlockEntity.insertItemToTank(items, itemEntity);
+        if (this.isIgnited(new BlockCache(level), pos) && !itemEntity.isRemoved()) {
+            itemEntity.discard();
+        }
     }
 
     @Override

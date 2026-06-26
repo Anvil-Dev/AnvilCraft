@@ -151,7 +151,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
 
         BlockCache cache = new BlockCache(level);
         // noinspection deprecation
-        if (!cauldron.getFluid(cache, this.cauldronPos).builtInRegistryHolder().is(ModFluidTags.OIL)) return;
+        if (!cauldron.getFluid(cache, this.cauldronPos).is(ModFluidTags.OIL)) return;
         cauldron.setIgnited(cache, this.cauldronPos, true);
         cache.accept();
     }
