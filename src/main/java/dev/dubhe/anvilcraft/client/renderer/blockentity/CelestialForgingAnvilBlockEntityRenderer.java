@@ -676,12 +676,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (scale < 0.001f) return;
 
         float fullRScale = ringSystemScale(star, true);
-        float rScale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
+        float rscale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
 
         /// === Ring 模型（机械旋转，与原 R4 内环相同） ===
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.scale(rScale, rScale, rScale);
+        poseStack.scale(rscale, rscale, rscale);
         /// 应用完整骨骼层级以定位到 "in" 骨骼层级
         poseStack.mulPose(Axis.YP.rotationDegrees(-rot));
         poseStack.mulPose(Axis.XP.rotationDegrees(14.5108f));
@@ -695,7 +695,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// === Fix 模型（完全静态，无旋转） ===
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.scale(rScale, rScale, rScale);
+        poseStack.scale(rscale, rscale, rscale);
         renderRingCutout(R4_COIL_FIX, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
     }
@@ -719,12 +719,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (scale < 0.001f) return;
 
         float fullRScale = ringSystemScale(star, true);
-        float rScale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
+        float rscale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
 
         /// === Laser/Off 模型（恒星同步，反向 Y 旋转） ===
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.scale(rScale, rScale, rScale);
+        poseStack.scale(rscale, rscale, rscale);
         /// 与黑洞相同的轴倾斜，但反方向旋转
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(-bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
@@ -735,7 +735,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// === Fix 模型（恒星同步旋转，与黑洞同方向） ===
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.scale(rScale, rScale, rScale);
+        poseStack.scale(rscale, rscale, rscale);
         /// 应用恒星轴倾斜和 Y 旋转（与黑洞同方向）
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
@@ -761,12 +761,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (scale < 0.001f) return;
 
         float fullRScale = ringSystemScale(star, true);
-        float rScale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
+        float rscale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
 
         /// === Ring 模型（机械旋转，与原 R4 内环相同） ===
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.scale(rScale, rScale, rScale);
+        poseStack.scale(rscale, rscale, rscale);
         /// 应用完整骨骼层级以定位到 "in" 骨骼层级
         poseStack.mulPose(Axis.YP.rotationDegrees(-rot));
         poseStack.mulPose(Axis.XP.rotationDegrees(14.5108f));
@@ -780,7 +780,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// === Fix 模型（恒星同步旋转，与恒星残骸同方向） ===
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.scale(rScale, rScale, rScale);
+        poseStack.scale(rscale, rscale, rscale);
         /// 应用恒星轴倾斜和 Y 旋转（与天体同方向）
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));

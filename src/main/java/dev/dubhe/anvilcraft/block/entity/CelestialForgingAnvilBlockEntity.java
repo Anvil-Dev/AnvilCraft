@@ -588,7 +588,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         double vy = worldPosition.getY() + baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
         double vz = worldPosition.getZ() + 0.5;
         double r = currentBodyRadius;
-        double rSq = r * r;
+        double rsq = r * r;
 
         /// 包围盒查找范围内的实体，再按球形距离过滤
         AABB bodyBox = new AABB(vx - r, vy - r, vz - r, vx + r, vy + r, vz + r);
@@ -598,7 +598,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             double dx = ec.x - vx;
             double dy = ec.y - vy;
             double dz = ec.z - vz;
-            if (dx * dx + dy * dy + dz * dz > rSq) continue;
+            if (dx * dx + dy * dy + dz * dz > rsq) continue;
 
             if (entity instanceof LivingEntity living) {
                 applyCelestialDamage(living);

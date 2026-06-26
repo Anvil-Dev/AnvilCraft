@@ -620,14 +620,14 @@ public class ScreenLang {
 
         // Planet resource bar
         provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —"); // — 天体资源 —
-        provider.add("screen.anvilcraft.cfa.resource.mineral", "Mineral Resources: "); // 矿物资源：
-        provider.add("screen.anvilcraft.cfa.resource.fluid", "Fluid Resources: "); // 液体资源：
-        provider.add("screen.anvilcraft.cfa.resource.giant_item", "Giant Planet Solid Resources: "); // 巨行星资源：
-        provider.add("screen.anvilcraft.cfa.resource.giant_fluid", "Giant Planet Fluid Resources: "); // 巨行星液体资源：
-        provider.add("screen.anvilcraft.cfa.resource.biological_item", "Biological Resources: "); // 生物资源：
-        provider.add("screen.anvilcraft.cfa.resource.biological_fluid", "Biological Fluid Resources: "); // 生物液体资源：
+        provider.add("screen.anvilcraft.cfa.resource.mineral", "Mineral: "); // 矿物资源：
+        provider.add("screen.anvilcraft.cfa.resource.fluid", "Fluid: "); // 液体资源：
+        provider.add("screen.anvilcraft.cfa.resource.giant_item", "Giant Planet: "); // 巨行星资源：
+        provider.add("screen.anvilcraft.cfa.resource.giant_fluid", "Giant Planet Fluid: "); // 巨行星液体资源：
+        provider.add("screen.anvilcraft.cfa.resource.biological_item", "Biological: "); // 生物资源：
+        provider.add("screen.anvilcraft.cfa.resource.biological_fluid", "Biological Fluid: "); // 生物液体资源：
         provider.add("screen.anvilcraft.cfa.resource.offering", "Offerings: "); // 祭品资源：
-        provider.add("screen.anvilcraft.cfa.resource.wasteland", "Wasteland Resources: "); // 废土资源：
+        provider.add("screen.anvilcraft.cfa.resource.wasteland", "Wasteland: "); // 废土资源：
 
         // Seed slot tooltip
         provider.add("screen.anvilcraft.cfa.seed_slot.title", "Seed Item"); // 种子物品
