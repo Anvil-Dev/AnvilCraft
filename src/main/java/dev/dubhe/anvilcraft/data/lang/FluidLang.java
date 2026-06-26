@@ -10,7 +10,6 @@ public class FluidLang {
         // Non-placeable fluids
         provider.add("block.anvilcraft.milk", "Milk");
         provider.add("block.anvilcraft.honey", "Honey");
-        provider.add("block.anvilcraft.hydrogen", "Hydrogen");
-        provider.add("block.anvilcraft.helium", "Helium");
+        provider.add("block.anvilcraft.primordial_matter", "Primordial Matter");
     }
 }

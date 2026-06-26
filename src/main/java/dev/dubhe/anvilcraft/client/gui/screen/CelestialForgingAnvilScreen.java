@@ -58,6 +58,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -1239,7 +1240,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final int COLOR_OFFERING = 0xFFAA00;
     private static final int COLOR_WASTELAND = 0xAA5500;
 
-    private record ColoredEntry(String text, int color) {}
+    private record ColoredEntry(String text, int color, boolean isHeader) {}
 
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderResourceBar(GuiGraphics guiGraphics) {
@@ -1248,20 +1249,31 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (resources == null || resources.isEmpty()) return;
 
         List<ColoredEntry> entries = new ArrayList<>();
-        collectItemEntries(entries, resources.getMinerals(), COLOR_MINERAL);
-        collectFluidEntries(entries, resources.getFluids(), COLOR_FLUID);
-        collectItemEntries(entries, resources.getGiantItems(), COLOR_GIANT_ITEM);
-        collectFluidEntries(entries, resources.getGiantFluids(), COLOR_GIANT_FLUID);
-        collectItemEntries(entries, resources.getBiologicalItems(), COLOR_BIOLOGICAL);
-        collectFluidEntries(entries, resources.getBiologicalFluids(), COLOR_BIOLOGICAL_FLUID);
-        collectItemEntries(entries, resources.getOfferings(), COLOR_OFFERING);
-        collectItemEntries(entries, resources.getWastelandItems(), COLOR_WASTELAND);
+        collectItemEntries(entries, resources.getMinerals(), COLOR_MINERAL, "screen.anvilcraft.cfa.resource.mineral");
+        collectFluidEntries(entries, resources.getFluids(), COLOR_FLUID, "screen.anvilcraft.cfa.resource.fluid");
+        collectItemEntries(entries, resources.getGiantItems(), COLOR_GIANT_ITEM, "screen.anvilcraft.cfa.resource.giant_item");
+        collectFluidEntries(entries, resources.getGiantFluids(), COLOR_GIANT_FLUID, "screen.anvilcraft.cfa.resource.giant_fluid");
+        collectItemEntries(entries, resources.getBiologicalItems(), COLOR_BIOLOGICAL, "screen.anvilcraft.cfa.resource.biological_item");
+        collectFluidEntries(entries, resources.getBiologicalFluids(), COLOR_BIOLOGICAL_FLUID, "screen.anvilcraft.cfa.resource.biological_fluid");
+        collectItemEntries(entries, resources.getOfferings(), COLOR_OFFERING, "screen.anvilcraft.cfa.resource.offering");
+        collectItemEntries(entries, resources.getWastelandItems(), COLOR_WASTELAND, "screen.anvilcraft.cfa.resource.wasteland");
         if (entries.isEmpty()) return;
 
         /// 计算总文本宽度以确定滚动范围
-        int spacing = 10;
-        int totalW = -spacing;
-        for (ColoredEntry e : entries) totalW += font.width(e.text()) + spacing;
+        /// 同类别内条目用", "分隔；类别头部前有间距
+        String itemSep = ", ";
+        int headerSpacing = 12;
+        int totalW = 0;
+        for (int i = 0; i < entries.size(); i++) {
+            ColoredEntry e = entries.get(i);
+            if (e.isHeader()) {
+                if (i > 0) totalW += headerSpacing;
+                totalW += font.width(e.text());
+            } else {
+                if (i > 0 && !entries.get(i - 1).isHeader()) totalW += font.width(itemSep);
+                totalW += font.width(e.text());
+            }
+        }
         int contentX = PV_X + 4;
         int contentW = PV_W - 8;
         int maxScroll = Math.max(0, totalW - contentW);
@@ -1277,12 +1289,22 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         /// 资源条目（GUI相对坐标）
         int x = contentX - resourceScrollOffset;
         int y = PV_RES_Y + font.lineHeight + 1;
-        for (ColoredEntry entry : entries) {
+        for (int i = 0; i < entries.size(); i++) {
+            ColoredEntry entry = entries.get(i);
             int w = font.width(entry.text());
-            if (x + w >= PV_X && x <= PV_X + PV_W) {
-                guiGraphics.drawString(font, entry.text(), x, y, entry.color(), true);
+            if (entry.isHeader()) {
+                if (i > 0) x += headerSpacing;
+                if (x + w >= PV_X && x <= PV_X + PV_W) {
+                    guiGraphics.drawString(font, entry.text(), x, y, entry.color(), true);
+                }
+                x += w;
+            } else {
+                if (i > 0 && !entries.get(i - 1).isHeader()) x += font.width(itemSep);
+                if (x + w >= PV_X && x <= PV_X + PV_W) {
+                    guiGraphics.drawString(font, entry.text(), x, y, entry.color(), true);
+                }
+                x += w;
             }
-            x += w + spacing;
         }
 
         guiGraphics.disableScissor();
@@ -1299,31 +1321,28 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
     }
 
-    private void collectItemEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedItemStack> items, int color) {
-        int totalW = items.stream().mapToInt(PlanetaryResourceSet.WeightedItemStack::weight).sum();
-        for (var entry : items) {
-            var it = BuiltInRegistries.ITEM.get(entry.itemId());
-            String name = it.getDescription().getString();
-            int pct = totalW > 0 ? entry.weight() * 100 / totalW : 0;
-            out.add(new ColoredEntry(name + " " + pct + "%", color));
-        }
+    private void collectItemEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedItemStack> items, int color, String headerKey) {
+        if (items.isEmpty()) return;
+        out.add(new ColoredEntry(Component.translatable(headerKey).getString(), color, true));
+        items.stream()
+            .sorted(Comparator.comparingInt(PlanetaryResourceSet.WeightedItemStack::weight).reversed())
+            .forEach(entry -> {
+                var it = BuiltInRegistries.ITEM.get(entry.itemId());
+                String name = it.getDescription().getString();
+                out.add(new ColoredEntry(name, color, false));
+            });
     }
 
-    private void collectFluidEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedFluidStack> fluids, int color) {
-        int totalW = fluids.stream().mapToInt(PlanetaryResourceSet.WeightedFluidStack::weight).sum();
-        for (var entry : fluids) {
-            String name;
-            if (BuiltInRegistries.FLUID.containsKey(entry.fluidId())) {
+    private void collectFluidEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedFluidStack> fluids, int color, String headerKey) {
+        if (fluids.isEmpty()) return;
+        out.add(new ColoredEntry(Component.translatable(headerKey).getString(), color, true));
+        fluids.stream()
+            .sorted(Comparator.comparingInt(PlanetaryResourceSet.WeightedFluidStack::weight).reversed())
+            .forEach(entry -> {
                 var f = BuiltInRegistries.FLUID.get(entry.fluidId());
-                name = f.getFluidType().getDescription().getString();
-            } else {
-                /// 降级方案：牛奶/蜂蜜等作为物品注册，而非流体类型
-                var it = BuiltInRegistries.ITEM.get(entry.fluidId());
-                name = it.getDescription().getString();
-            }
-            int pct = totalW > 0 ? entry.weight() * 100 / totalW : 0;
-            out.add(new ColoredEntry(name + " " + pct + "%", color));
-        }
+                String name = f.getFluidType().getDescription().getString();
+                out.add(new ColoredEntry(name, color, false));
+            });
     }
 
     private List<Component> buildInfoLines(

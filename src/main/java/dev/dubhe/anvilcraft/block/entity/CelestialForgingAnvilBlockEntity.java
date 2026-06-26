@@ -31,6 +31,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -83,6 +84,22 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     @Getter
     private boolean isAmplify = false;
+
+    /// 获取锻星砧 3×2×3 结构接收到的最大红石信号强度（0–15）。
+    /// 遍历结构包围盒内全部 18 个方块位置，取各方块邻居信号的最大值。
+    public int getRedstoneSignal() {
+        if (level == null) return 0;
+        int signal = 0;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    BlockPos partPos = worldPosition.offset(dx, dy, dz);
+                    signal = Math.max(signal, level.getBestNeighborSignal(partPos));
+                }
+            }
+        }
+        return Math.min(signal, 15);
+    }
 
     @Getter
     @Setter
@@ -669,14 +686,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             return;
         }
 
-        /// 第二步：检查玩家头颅种子物品 → 玩家头颅天体（4种砧子各1个）
+        /// 第二步：检查玩家头颅种子物品 → 玩家头颅天体
         if (lastConsumedSeedItem == Items.PLAYER_HEAD
-            && time == 1 && space == 1 && mass == 1 && energy == 1
+
         ) {
             ItemStack headSeedStack = this.anvilInventory.getItem(4);
             CompoundTag profileTag = extractProfileNbt(headSeedStack);
             if (profileTag != null) {
-                this.celestialBodyData = SpecialCelestialBodyData.fromPlayerHead(profileTag);
+                this.celestialBodyData = SpecialCelestialBodyData.fromPlayerHead(profileTag, space);
                 this.planetaryResourceSet = new PlanetaryResourceSet();
                 addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
                 consumeSeedItem();

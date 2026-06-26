@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -232,8 +233,28 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         ModelBlockRenderer modelRenderer = Minecraft.getInstance().getBlockRenderer().getModelRenderer();
         float rot = blockEntity.getRotation() + (blockEntity.getRotation() - blockEntity.getPreRotation()) * partialTick;
         CelestialBodyData bodyData = blockEntity.getCelestialBodyData();
-        float centerY = dynamicCenterY(bodyData, blockEntity.isAmplify());
-        float ringScale = ringSystemScale(bodyData, blockEntity.isAmplify());
+        boolean isAmplify = blockEntity.isAmplify();
+
+        /// 红石信号控制缩放倍率：0 级时使用固定原始值（天体=最小，环=6，高度=4.5/6.5），
+        /// 15 级时达到完整动态缩放。中间级别线性插值。
+        float redstoneFactor = blockEntity.getRedstoneSignal() / 15.0f;
+
+        float fullRingScale = ringSystemScale(bodyData, isAmplify);
+        float fullCenterY = dynamicCenterY(bodyData, isAmplify);
+        float baseRingScale = 6.0f;
+        float baseCenterY = isAmplify ? 6.5f : 4.5f;
+        float ringScale = baseRingScale + (fullRingScale - baseRingScale) * redstoneFactor;
+        float centerY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
+
+        /// 天体缩放跟随红石信号：0 级为原始比例（bodyScale，最小~0.3 格 / 最大~3.9 格），
+        /// 15 级为完整放大（getBodyScale = bodyScale × BODY_SCALE_FACTOR）。
+        /// 各尺寸天体的比例关系在所有红石级别下保持不变。
+        float bodyScaleMultiplier = 2.0f; // 无天体时的默认值
+        if (bodyData != null) {
+            float rawBodyScale = bodyScale(bodyData);           // 信号 0 时的缩放
+            float fullBodyScale = getBodyScale(bodyData);       // 信号 15 时的缩放
+            bodyScaleMultiplier = rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
+        }
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
@@ -392,6 +413,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     bodyRot,
                     star,
                     animProgress,
+                    redstoneFactor,
                     poseStack,
                     multiBufferSource,
                     packedOverlay,
@@ -428,7 +450,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
             renderPenroseSphereRings(centerY, rot, bodyRot, star, animProgress,
-                blockEntity.isPenroseSphereLaserActive(),
+                blockEntity.isPenroseSphereLaserActive(), redstoneFactor,
                 poseStack, multiBufferSource, packedOverlay, modelRenderer);
         }
 
@@ -436,7 +458,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (blockEntity.isAmplify() && isMagnetarCoilActive(blockEntity) && bodyData instanceof StarData star) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
-            renderMagnetarCoilRings(centerY, rot, bodyRot, star, animProgress, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+            renderMagnetarCoilRings(centerY, rot, bodyRot, star, animProgress, redstoneFactor, poseStack, multiBufferSource, packedOverlay, modelRenderer);
         }
 
         /// 渲染物质解压器圆环：fix（恒星同步，类似戴森球）+ ring（机械旋转）
@@ -449,6 +471,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 bodyRot,
                 star,
                 animProgress,
+                redstoneFactor,
                 poseStack,
                 multiBufferSource,
                 packedOverlay,
@@ -472,9 +495,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 multiBufferSource,
                 packedOverlay,
                 blockEntity.getBlockPos().asLong(),
-                animProgress
+                animProgress,
+                bodyScaleMultiplier
             );
-            renderCelestialRing(effectiveBodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay, animProgress);
+            renderCelestialRing(effectiveBodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay, animProgress, bodyScaleMultiplier);
         }
 
     }
@@ -602,6 +626,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float bodyRot,
         StarData star,
         float scale,
+        float redstoneFactor,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
@@ -610,7 +635,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (!renderR4 && !renderR5) return;
         if (scale < 0.001f) return;
 
-        float rScale = ringSystemScale(star, true);
+        float fullRScale = ringSystemScale(star, true);
+        float rScale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
@@ -631,13 +657,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     /// 在 R4 位置用两个模型渲染磁星线圈圆环：
     /// - ring_4_coil_ring —— 机械旋转（与原 R4 内环相同的骨骼层级）
     /// - ring_4_coil_fix —— 恒星同步旋转（类似戴森球，相对恒星静止）
-    ///
     private void renderMagnetarCoilRings(
         float centerY,
         float rot,
         float bodyRot,
         StarData star,
         float scale,
+        float redstoneFactor,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
@@ -645,7 +671,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         if (scale < 0.001f) return;
 
-        float rScale = ringSystemScale(star, true);
+        float fullRScale = ringSystemScale(star, true);
+        float rScale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
 
         /// === Ring 模型（机械旋转，与原 R4 内环相同） ===
         poseStack.pushPose();
@@ -672,7 +699,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     /// 在 R4 位置用两个模型渲染彭罗斯球圆环：
     /// - ring_4_penrose_sphere_laser / ring_4_penrose_sphere_laser_off —— 机械旋转（与原 R4 内环相同的骨骼层级）
     /// - ring_4_penrose_sphere_fix —— 恒星同步旋转（类似戴森球，相对黑洞静止）
-    ///
     private void renderPenroseSphereRings(
         float centerY,
         float rot,
@@ -680,6 +706,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         StarData star,
         float scale,
         boolean laserActive,
+        float redstoneFactor,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
@@ -687,7 +714,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         if (scale < 0.001f) return;
 
-        float rScale = ringSystemScale(star, true);
+        float fullRScale = ringSystemScale(star, true);
+        float rScale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
 
         /// === Laser/Off 模型（恒星同步，反向 Y 旋转） ===
         poseStack.pushPose();
@@ -714,13 +742,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     /// 在 R4 位置用两个模型渲染物质解压器圆环：
     /// - ring_4_matter_decompressor_ring —— 机械旋转（与原 R4 内环相同的骨骼层级）
     /// - ring_4_matter_decompressor_fix —— 恒星同步旋转（类似戴森球，相对恒星残骸静止）
-    ///
     private void renderMatterDecompressorRings(
         float centerY,
         float rot,
         float bodyRot,
         StarData star,
         float scale,
+        float redstoneFactor,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
@@ -728,7 +756,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         if (scale < 0.001f) return;
 
-        float rScale = ringSystemScale(star, true);
+        float fullRScale = ringSystemScale(star, true);
+        float rScale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
 
         /// === Ring 模型（机械旋转，与原 R4 内环相同） ===
         poseStack.pushPose();
@@ -808,13 +837,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             /// 始终可见 —— 正常以 cutout 渲染
             renderRingCutout(modelId, poseStack, bufferSource, packedOverlay, modelRenderer);
         } else if (visibleNow) {
-            /// 隐藏 → 可见：从近零缩放到 1.0 并升入位置
+            /// 隐藏 → 可见：从 0.0 缩放到 1.0
             float scale = animForward ? animProgress : (1.0f - animProgress);
             if (scale > 0.01f) {
                 renderRingScaled(modelId, scale, poseStack, bufferSource, packedOverlay, modelRenderer);
             }
         } else if (wasVisible) {
-            /// 可见 → 隐藏：从 1.0 缩放到近零并沉入砧子
+            /// 可见 → 隐藏：从 1.0 缩放到 0.0
             float scale = animForward ? (1.0f - animProgress) : animProgress;
             if (scale > 0.01f) {
                 renderRingScaled(modelId, scale, poseStack, bufferSource, packedOverlay, modelRenderer);
@@ -904,11 +933,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         MultiBufferSource bufferSource,
         int packedOverlay,
         long seed,
-        float animProgress
+        float animProgress,
+        float bodyScale
     ) {
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        float baseScale = getBodyScale(bodyData);
+        float baseScale = bodyScale;
         if (bodyData instanceof SpecialCelestialBodyData s && s.isErrorPlanet()) {
             baseScale *= 0.25f;
         }
@@ -923,13 +953,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRotation * CelestialBodyData.getVisualRotationSpeed(bodyData.rotationSpeed())));
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        /// 复杂自定义模型（破碎、空心、血肉、智械、错误）和玩家头颅天体
+        /// 复杂自定义模型（破碎、空心、血肉、智慧、错误）和玩家头颅天体
         if (bodyData instanceof SpecialCelestialBodyData s && s.needsCustomModel()) {
             if (s.isPlayerHead()) {
                 renderPlayerHeadBody(s, poseStack, bufferSource, packedOverlay);
             } else {
                 renderComplexModelBody(s, poseStack, bufferSource, packedOverlay);
-                /// 具有大气层的复杂模型天体的大气渲染（血肉、智械）
+                /// 具有大气层的复杂模型天体的大气渲染（血肉、智慧）
                 if (s.hasAtmosphere() && s.temperature() != null) {
                     poseStack.pushPose();
                     poseStack.translate(0.5, 0.5, 0.5);
@@ -966,7 +996,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         return STAR_MODEL;
     }
 
-    /// 通过方块模型文件渲染复杂模型天体（破碎行星、空心行星等）。
+    /// 通过方块模型文件渲染复杂模型天体（破碎星球、空心星球等）。
     private void renderComplexModelBody(
         SpecialCelestialBodyData special,
         PoseStack poseStack,
@@ -1013,9 +1043,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         RenderType renderType = RenderType.entityTranslucent(skinTexture);
         VertexConsumer vc = bufferSource.getBuffer(renderType);
 
-        /// 模拟 SkullBlockRenderer.renderSkull 的坐标变换：将头颅居中于方块空间
+        /// 将头颅居中于方块空间：头颅模型高度 0.5 格（从 Y=0 到 Y=0.5），
+        /// 模型中心在 Y=0.25，方块中心在 Y=0.5，故 Y 偏移 = 0.5 − 0.25 = 0.25
         poseStack.pushPose();
-        poseStack.translate(0.5f, 0.0f, 0.5f);
+        poseStack.translate(0.5f, 0.25f, 0.5f);
         poseStack.scale(-1.0f, -1.0f, 1.0f);
         skullModel.setupAnim(0f, 0f, 0f);
         skullModel.renderToBuffer(poseStack, vc, LightTexture.FULL_BRIGHT, packedOverlay);
@@ -1100,7 +1131,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
-        float animProgress
+        float animProgress,
+        float bodyScaleMultiplier
     ) {
         if (bodyData.ringType() == RingType.NONE) return;
         ResourceLocation ringTexture = CelestialBodyTextureBakery.getOrBakeRing(bodyData);
@@ -1108,7 +1140,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        float ringScale = getRingScale(bodyData) * animProgress;
+        float ringMultiplier = switch (bodyData) {
+            case RockyPlanetData rp -> 1.35f;
+            case GiantPlanetData gp -> 1.3f;
+            default -> 1.4f;
+        };
+        float ringScale = bodyScaleMultiplier * ringMultiplier * animProgress;
         if (ringScale < 0.001f) {
             poseStack.popPose();
             return;

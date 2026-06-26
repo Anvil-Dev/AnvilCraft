@@ -14,11 +14,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidType;
 
-/// 氦气流体——不可放置，仅存在于储罐/管道中。
-public class HeliumFluid extends Fluid {
+/// 原始物质流体——不可放置，仅存在于储罐/管道中。
+public class PrimordialMatterFluid extends Fluid {
 
     public static final FluidType TYPE = new FluidType(FluidType.Properties.create()
-        .descriptionId("block.anvilcraft.helium")
+        .descriptionId("block.anvilcraft.primordial_matter")
     );
 
     @Override

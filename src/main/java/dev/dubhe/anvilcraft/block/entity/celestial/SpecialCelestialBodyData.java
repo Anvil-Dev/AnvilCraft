@@ -46,11 +46,12 @@ public record SpecialCelestialBodyData(
     }
 
     /// 从玩家头颅的 profile NBT 创建动态天体（无资源，使用头颅模型渲染）。
-    public static SpecialCelestialBodyData fromPlayerHead(CompoundTag profileNbt) {
+    /// size 由空间砧子数量决定。
+    public static SpecialCelestialBodyData fromPlayerHead(CompoundTag profileNbt, int space) {
         return new SpecialCelestialBodyData(
             "player_head",
             "player_head",
-            10,
+            space,
             0f,
             2,
             0,
