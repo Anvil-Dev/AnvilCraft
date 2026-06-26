@@ -16,9 +16,6 @@ public class LoadChuckData {
     private final boolean isNeedRandomTick;
     private final ServerLevel serverLevel;
 
-    @Getter
-    private boolean removed = false;
-
     private LoadChuckData(
         BlockPos centerPos,
         List<ChunkPos> chunkPosList,
@@ -66,13 +63,9 @@ public class LoadChuckData {
                 RandomChuckTickLoadManager.register(this.centerPos, this);
             }
             for (ChunkPos chunkPos : chunkPosList) {
-                level.setChunkForced(chunkPos.x, chunkPos.z, true);
+                LevelLoadManager.addRef(level, chunkPos);
             }
         });
-    }
-
-    public void markRemoved() {
-        this.removed = true;
     }
 
     /**
@@ -84,7 +77,7 @@ public class LoadChuckData {
                 RandomChuckTickLoadManager.unregister(this.centerPos);
             }
             for (ChunkPos chunkPos : chunkPosList) {
-                level.setChunkForced(chunkPos.x, chunkPos.z, false);
+                LevelLoadManager.removeRef(level, chunkPos);
             }
         });
     }
