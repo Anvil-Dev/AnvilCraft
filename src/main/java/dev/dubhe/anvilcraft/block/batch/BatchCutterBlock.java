@@ -15,7 +15,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -49,7 +48,6 @@ public class BatchCutterBlock extends BaseBatchCraftingBlock {
     ) {
         if (!(be instanceof BatchCutterBlockEntity entity)) return InteractionResult.PASS;
         if (!(player instanceof ServerPlayer serverPlayer)) return InteractionResult.PASS;
-        if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
 
         ModMenuTypes.open(serverPlayer, entity, pos);
         PacketDistributor.sendToPlayer(serverPlayer, new MachineOutputDirectionPacket(entity.getDirection()));

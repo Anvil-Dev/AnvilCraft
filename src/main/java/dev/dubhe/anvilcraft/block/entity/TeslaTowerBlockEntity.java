@@ -30,6 +30,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -55,6 +56,7 @@ import net.neoforged.neoforge.event.EventHooks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -294,7 +296,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
     private void clearTargetEntity(BlockState state) {
         this.targetEntity = null;
         this.targetEntityUUID = null;
-        this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
+        Objects.requireNonNull(this.level).sendBlockUpdated(this.getBlockPos(), state, state, 2);
     }
 
     public void initWhiteList(Player player) {
@@ -343,13 +345,18 @@ public class TeslaTowerBlockEntity extends BlockEntity
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        if (this.level == null || player.isSpectator()) return null;
+        if (this.level == null) return null;
         BlockState blockState = this.level.getBlockState(getBlockPos());
         int offsetY = blockState.getValue(TeslaTowerBlock.HALF).getOffsetY();
         if (this.level.getBlockEntity(getBlockPos().above(-offsetY)) instanceof TeslaTowerBlockEntity teslaTowerBlockEntity) {
             return new TeslaTowerMenu(ModMenuTypes.TESLA_TOWER.get(), i, inventory, teslaTowerBlockEntity);
         }
         return null;
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 
     public List<Pair<TeslaFilter, String>> getWhiteList() {

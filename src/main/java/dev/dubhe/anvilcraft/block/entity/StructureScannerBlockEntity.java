@@ -407,7 +407,6 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
         return new StructureScannerMenu(ModMenuTypes.STRUCTURE_SCANNER.get(), containerId, inventory, this);
     }
 

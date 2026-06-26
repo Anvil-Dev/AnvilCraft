@@ -4,7 +4,9 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,4 +23,9 @@ public abstract class BaseMachineBlockEntity
     public abstract Direction getDirection();
 
     public abstract void setDirection(Direction direction);
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
+    }
 }

@@ -12,7 +12,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -93,7 +92,6 @@ public abstract class CelestialForgingAnvilInterfaceBlock
             BlockEntity be = level.getBlockEntity(controllerPos);
             if (be instanceof CelestialForgingAnvilBlockEntity cfaBe
                 && player instanceof ServerPlayer sp) {
-                if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                 ModMenuTypes.open(sp, cfaBe, controllerPos);
                 return InteractionResult.SUCCESS;
             }

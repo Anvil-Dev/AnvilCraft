@@ -16,7 +16,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -125,7 +124,6 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
                 return be.useDisk(level, player, hand, player.getItemInHand(hand), hit);
             }
             if (player instanceof ServerPlayer serverPlayer) {
-                if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                 ModMenuTypes.open(serverPlayer, be, pos);
             }
         }

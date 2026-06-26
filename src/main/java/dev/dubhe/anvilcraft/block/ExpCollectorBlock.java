@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -143,9 +142,6 @@ public class ExpCollectorBlock extends BetterBaseEntityBlock implements IHammerR
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ExpCollectorBlockEntity expCollectorBlockEntity) {
             if (player instanceof ServerPlayer serverPlayer) {
-                if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
-                    return InteractionResult.PASS;
-                }
                 ModMenuTypes.open(serverPlayer, expCollectorBlockEntity, pos);
             }
         }
