@@ -1648,7 +1648,7 @@ public class ModBlocks {
             .noCollision()
             .strength(-1.0F, 3600000.0F)
             .noLootTable())
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .register();
 
     public static final BlockEntry<PropelPistonBlock> PROPEL_PISTON = REGISTRUM.block("propel_piston", PropelPistonBlock::new)

@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
@@ -13,6 +15,7 @@ import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -21,7 +24,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -127,6 +129,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         if (this.tryRaise()) return;
 
         this.refreshCauldronPos(level);
+        this.tryIgniteValidCauldron(level);
         this.checkTubeWallIntegrity(level);
         this.refreshDuration(level);
 
@@ -140,6 +143,17 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     private void clientTick(Level level) {
         this.refreshCauldronPos(level);
         this.summonParticles(level);
+    }
+
+    protected void tryIgniteValidCauldron(Level level) {
+        BlockState state = level.getBlockState(this.cauldronPos);
+        if (!(state.getBlock() instanceof IIgnitableCauldron cauldron)) return;
+
+        BlockCache cache = new BlockCache(level);
+        // noinspection deprecation
+        if (!cauldron.getFluid(cache, this.cauldronPos).builtInRegistryHolder().is(ModFluidTags.OIL)) return;
+        cauldron.setIgnited(cache, this.cauldronPos, true);
+        cache.accept();
     }
 
     protected void checkTubeWallIntegrity(Level level) {
@@ -157,9 +171,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
                 break;
             }
         }
-        boolean cauldronExisting = PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
-                                   || level.getBlockState(this.cauldronPos).is(ModBlocks.OIL_CAULDRON)
-                                   || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON);
+        boolean cauldronExisting = PlasmaJetsBlock.isValidBaseCauldron(level, this.cauldronPos);
         boolean belowCauldronIsNotHeater = !level.getBlockState(this.cauldronPos.below(1))
             .is(ModBlocks.HEATER);
         boolean heaterOverload = level.getBlockState(this.cauldronPos.below(1))
@@ -225,7 +237,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         RandomSource random = level.getRandom();
         for (int i = 0; i < 5; i++) {
             level.addParticle(
-                ModParticles.PLASMA_JETS::get,
+                ModParticles.PLASMA_JETS.get(),
                 false,
                 true,
                 start.x,
@@ -239,21 +251,13 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     protected void refreshCauldronPos(Level level) {
-        if (this.cauldronPos != null
-            && (
-                PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
-                || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON)
-            )
-        ) {
+        if (this.cauldronPos != null && PlasmaJetsBlock.isValidBaseCauldron(level, this.cauldronPos)) {
             return;
         }
         for (int i = 1; i < 6; i++) {
-            if (
-                PlasmaJetsBlock.isIgnitedOilCauldron(level, this.getBlockPos().below(i))
-                || level.getBlockState(this.getBlockPos().below(i)).is(ModBlocks.OIL_CAULDRON)
-                || level.getBlockState(this.getBlockPos().below(i)).is(Blocks.CAULDRON)
-            ) {
-                this.cauldronPos = this.getBlockPos().below(i);
+            BlockPos pos = this.getBlockPos().below(i);
+            if (PlasmaJetsBlock.isValidBaseCauldron(level, pos)) {
+                this.cauldronPos = pos;
                 break;
             }
         }

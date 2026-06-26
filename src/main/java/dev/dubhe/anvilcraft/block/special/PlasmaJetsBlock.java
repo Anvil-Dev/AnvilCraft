@@ -13,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,6 +33,7 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         return simpleCodec(PlasmaJetsBlock::new);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean trySpawn(BlockPos pos, Level level) {
         BlockState heater = level.getBlockState(pos.below().below());
         if (
@@ -78,6 +80,15 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         BlockCache cache = new BlockCache(level);
         if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
         return cauldron.isIgnited(cache, pos) && cauldron.getFluid(cache, pos).is(ModFluidTags.OIL);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static boolean isValidBaseCauldron(Level level, BlockPos pos) {
+        BlockCache cache = new BlockCache(level);
+        BlockState state = cache.getBlockState(pos);
+        if (state.is(Blocks.CAULDRON)) return true;
+        if (!(state.getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+        return cauldron.getFluid(cache, pos).is(ModFluidTags.OIL) || cauldron.isEmpty(cache, pos);
     }
 
     public static boolean tryConsumeOnce(Level level, BlockPos pos) {

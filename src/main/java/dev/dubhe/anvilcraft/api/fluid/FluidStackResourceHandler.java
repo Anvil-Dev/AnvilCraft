@@ -48,7 +48,7 @@ public class FluidStackResourceHandler implements ResourceHandler<FluidResource>
 
     @Override
     public long getCapacityAsLong(int index, FluidResource resource) {
-        return this.isValid(index, resource) ? this.capacity : 0;
+        return this.capacity;
     }
 
     @Override

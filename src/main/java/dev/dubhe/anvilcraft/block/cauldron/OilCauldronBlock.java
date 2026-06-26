@@ -19,6 +19,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -111,5 +112,17 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
     @Override
     public Fluid getFluid(BlockCache cache, BlockPos pos) {
         return ModFluids.OIL.get();
+    }
+
+    @Override
+    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
+        BlockState state = cache.getBlockState(pos);
+        int layer = state.getValue(OilCauldronBlock.LEVEL) - 1;
+        if (layer <= 0) {
+            cache.setBlock(pos, Blocks.CAULDRON);
+            return true;
+        }
+        cache.setBlock(pos, state.setValue(OilCauldronBlock.LEVEL, layer));
+        return true;
     }
 }

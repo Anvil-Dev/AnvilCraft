@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
+import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
@@ -49,7 +50,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 public class FishTankBlock extends Block implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable, IIgnitableCauldron {
@@ -278,6 +281,13 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    public boolean isEmpty(BlockCache cache, BlockPos pos) {
+        return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
+            .map(be -> be.getFluidHandler().getAmountAsLong(0) == 0)
+            .orElseThrow();
+    }
+
+    @Override
     public boolean isIgnited(BlockCache cache, BlockPos pos) {
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(FishTankBlockEntity::isIgnited)
@@ -295,5 +305,23 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(be -> be.getFluidHandler().getStack().getFluid())
             .orElseThrow();
+    }
+
+    @Override
+    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
+        BlockEntity blockEntity = cache.getBlockEntity(pos);
+        if (!(blockEntity instanceof FishTankBlockEntity be)) {
+            return false;
+        }
+        try (Transaction transaction = Transaction.openRoot()) {
+            FluidStackResourceHandler handler = be.getFluidHandler();
+            FluidResource resource = handler.getResource(0);
+            int extracted = handler.extract(resource, 250, transaction);
+            if (extracted < 250) {
+                return false;
+            }
+            transaction.commit();
+            return true;
+        }
     }
 }

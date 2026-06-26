@@ -123,11 +123,15 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         super.submit(state, pose, collector, camera);
         if (state.isIgnited()) {
             pose.pushPose();
-            pose.translate(0, state.getMaxY() - (1 - TANK_W), 0);
+            if (state.getFill() != 0) {
+                pose.translate(0, (state.getMaxY() - state.getMinY()) * (state.getFill() - 1), 0);
+            } else {
+                pose.translate(0, TANK_W - 1, 0);
+            }
             state.getFire().submit(
                 pose,
                 collector,
-                state.lightCoords,
+                LightCoordsUtil.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY,
                 0
             );
