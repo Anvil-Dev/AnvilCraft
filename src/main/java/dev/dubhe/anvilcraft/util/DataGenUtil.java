@@ -171,7 +171,7 @@ public class DataGenUtil {
                                 .apply(
                                     CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
                                         .include(DataComponents.CUSTOM_NAME)
-                                        .include(DataComponents.CONTAINER)
+                                        .include(ModComponents.OVER_LIMIT_CONTAINER)
                                 )
                         )
                 )

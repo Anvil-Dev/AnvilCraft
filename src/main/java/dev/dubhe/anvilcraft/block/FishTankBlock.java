@@ -11,13 +11,17 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -43,9 +47,13 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class FishTankBlock extends Block implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable, IIgnitableCauldron {
     public static final BooleanProperty TROPICAL = BooleanProperty.create("tropical");
@@ -173,6 +181,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         }
         IItemHandler items = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
         FishTankBlockEntity.insertItemToTank(items, itemEntity);
+        if (this.isIgnited(new BlockCache(level), pos) && !itemEntity.isRemoved()) {
+            itemEntity.discard();
+        }
     }
 
     @Override
@@ -261,10 +272,46 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean ignored) {
+        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
+            level.scheduleTick(pos, this, 2);
+        }
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
+            level.scheduleTick(pos, this, 2);
+        }
+    }
+
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        BlockState below = level.getBlockState(pos.below());
+        if (below.is(ModBlocks.HEATER) && !below.getValue(HeaterBlock.OVERLOAD) && !PlasmaJetsBlock.trySpawn(pos.above(), level)) {
+            level.scheduleTick(pos, this, 10);
+        }
+    }
+
+    @Override
+    public boolean isEmpty(BlockCache cache, BlockPos pos) {
+        return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
+            .map(be -> be.getFluidHandler().getFluid().isEmpty())
+            .orElse(false);
+    }
+
+    @Override
     public boolean isIgnited(BlockCache cache, BlockPos pos) {
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(FishTankBlockEntity::isIgnited)
-            .orElseThrow();
+            .orElse(false);
     }
 
     @Override
@@ -277,6 +324,17 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     public Fluid getFluid(BlockCache cache, BlockPos pos) {
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(be -> be.getFluidHandler().getFluid().getFluid())
-            .orElseThrow();
+            .orElseThrow(() -> new IllegalStateException("Cannot get fluid when the block entity is null"));
+    }
+
+    @Override
+    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
+        Optional<FishTankBlockEntity> beOp = Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class);
+        if (beOp.isEmpty()) return false;
+        FishTankBlockEntity be = beOp.get();
+        FluidStack drained = be.getFluidHandler().drain(250, IFluidHandler.FluidAction.SIMULATE);
+        if (!drained.is(ModFluidTags.OIL) || drained.getAmount() != 250) return false;
+        be.getFluidHandler().drain(250, IFluidHandler.FluidAction.EXECUTE);
+        return true;
     }
 }

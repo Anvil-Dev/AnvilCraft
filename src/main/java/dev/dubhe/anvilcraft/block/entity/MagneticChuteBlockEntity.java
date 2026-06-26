@@ -74,7 +74,6 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
         return new MagneticChuteMenu(ModMenuTypes.MAGNETIC_CHUTE.get(), i, inventory, this);
     }
 }

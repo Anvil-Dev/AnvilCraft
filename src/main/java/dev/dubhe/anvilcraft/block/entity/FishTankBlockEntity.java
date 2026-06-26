@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.block.ExpFluidBlock;
 import dev.dubhe.anvilcraft.block.FishTankBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -957,6 +958,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             } else if (stack.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
                 this.setIgnited(true);
             }
+        }
+        Level level = this.getLevel();
+        if (level != null && this.isIgnited() && level.getBlockState(this.getBlockPos().below()).is(ModBlocks.HEATER)) {
+            level.scheduleTick(this.getBlockPos(), this.getBlockState().getBlock(), 2);
         }
     }
     // endregion

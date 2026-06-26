@@ -68,11 +68,6 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
     }
 
     @Override
-    public boolean isIgnited(BlockCache cache, BlockPos pos) {
-        return false;
-    }
-
-    @Override
     public void setIgnited(BlockCache cache, BlockPos pos, boolean ignited) {
         if (!ignited) return;
         cache.setBlock(

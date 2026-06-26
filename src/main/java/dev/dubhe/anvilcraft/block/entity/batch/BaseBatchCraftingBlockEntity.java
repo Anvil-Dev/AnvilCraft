@@ -32,12 +32,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 @Getter
 public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntity
@@ -45,7 +45,7 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
 
     protected final int inputPower = 4;
     @Setter
-    protected PowerGrid grid;
+    protected @javax.annotation.Nullable PowerGrid grid;
 
     @Getter(AccessLevel.NONE)
     protected final PollableFilteredItemStackHandler handler = this.constructHandler();
@@ -80,6 +80,7 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
 
     protected abstract int getCooldownDuration();
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean canCraft() {
         if (this.grid == null || !this.grid.isWorking()) return false;
         if (!this.handler.isFilterEnabled()) return true;

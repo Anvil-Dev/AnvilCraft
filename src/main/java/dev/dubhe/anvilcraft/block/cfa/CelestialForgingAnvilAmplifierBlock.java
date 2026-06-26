@@ -17,7 +17,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -336,7 +335,6 @@ public class CelestialForgingAnvilAmplifierBlock
                             be instanceof CelestialForgingAnvilBlockEntity cfaBe
                             && player instanceof ServerPlayer sp
                         ) {
-                            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                             ModMenuTypes.open(sp, cfaBe, checkPos);
                             return InteractionResult.SUCCESS;
                         }

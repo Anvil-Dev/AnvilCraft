@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -80,7 +81,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
 
         if (!this.level.isClientSide) {
             PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
-                this.getDisplayingStack(),
+                Objects.requireNonNull(this.getDisplayingStack()),
                 this.getPos()
             ));
         }
@@ -145,7 +146,6 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
         return new BatchCrafterMenu(ModMenuTypes.BATCH_CRAFTER.get(), i, inventory, this);
     }
 
