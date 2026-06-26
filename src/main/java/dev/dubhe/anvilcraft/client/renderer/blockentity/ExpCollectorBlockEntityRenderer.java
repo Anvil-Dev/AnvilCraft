@@ -47,7 +47,8 @@ public class ExpCollectorBlockEntityRenderer implements BlockEntityRenderer<ExpC
             sprite,
             renderProps.getTintColor(),
             0.07f, 0.15f, 0.07f,
-            0.93f, fill, 0.93f
+            0.93f, fill, 0.93f,
+            fluidStack
         );
     }
 }

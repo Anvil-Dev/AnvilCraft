@@ -90,7 +90,7 @@ public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<La
         }
 
         // 使用平移复制裁切方式渲染液体材质
-        FluidTankRenderUtil.renderFluidCube(ps, mbs, light, sprite, color, minX, minY, minZ, maxX, maxY, maxZ);
+        FluidTankRenderUtil.renderFluidCube(ps, mbs, light, sprite, color, minX, minY, minZ, maxX, maxY, maxZ, fluid);
     }
 
     public static class RenderManager {

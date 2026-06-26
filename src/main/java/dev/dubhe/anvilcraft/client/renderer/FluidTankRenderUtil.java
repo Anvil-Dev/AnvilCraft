@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
+import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import lombok.experimental.UtilityClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,6 +13,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 @UtilityClass
@@ -41,7 +43,7 @@ public class FluidTankRenderUtil {
             maxY = minY + fill * height;
         }
 
-        renderFluidCube(ps, mbs, light, sprite, color, TANK_W, minY, TANK_W, maxX, maxY, maxZ);
+        renderFluidCube(ps, mbs, light, sprite, color, TANK_W, minY, TANK_W, maxX, maxY, maxZ, fluid);
     }
 
     public static void renderFluidCube(
@@ -55,9 +57,18 @@ public class FluidTankRenderUtil {
         float minZ,
         float maxX,
         float maxY,
-        float maxZ
+        float maxZ,
+        @Nullable FluidStack fluid
     ) {
-        VertexConsumer consumer = mbs.getBuffer(RenderType.translucent());
+        boolean opaque = false;
+        if (fluid != null) {
+            var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
+            if (renderProps instanceof ModClientFluidTypeExtensionImpl ext) {
+                opaque = ext.isOpaque();
+            }
+        }
+        RenderType renderType = opaque ? RenderType.cutout() : RenderType.translucent();
+        VertexConsumer consumer = mbs.getBuffer(renderType);
         Matrix4f pose = ps.last().pose();
         LargeFluidTankBlockEntityRenderer.RenderManager renderManager =
             new LargeFluidTankBlockEntityRenderer.RenderManager(consumer, light, sprite, pose, color, minX, minY, minZ, maxX, maxY, maxZ);
