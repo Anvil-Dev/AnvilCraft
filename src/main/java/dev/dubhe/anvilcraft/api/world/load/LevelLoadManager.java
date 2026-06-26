@@ -39,7 +39,8 @@ public class LevelLoadManager {
     /** 减少引用 */
     static void removeRef(ServerLevel level, ChunkPos pos) {
         Map<ChunkPos, Integer> refs = getRefMap(level);
-        int c = refs.getOrDefault(pos, 0) - 1;
+        if (!refs.containsKey(pos)) return;
+        int c = refs.get(pos) - 1;
         if (c <= 0) {
             refs.remove(pos);
             level.setChunkForced(pos.x, pos.z, false);
@@ -89,10 +90,11 @@ public class LevelLoadManager {
      * @param level     世界
      */
     public static void unregister(BlockPos centerPos, Level level) {
+        if (!(level instanceof ServerLevel serverLevel)) return;
         Map<BlockPos, LoadChuckData> dimMap = LEVEL_LOAD_CHUCK_AREA_MAP.get(level.dimension());
         if (dimMap == null) return;
         LoadChuckData data = dimMap.remove(centerPos);
-        if (data != null) data.discard((ServerLevel) level);
+        if (data != null) data.discard(serverLevel);
     }
 
     public static void reload(ServerLevel serverLevel, BlockPos centerPos, LoadChuckData newData) {
