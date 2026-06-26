@@ -31,7 +31,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -62,6 +61,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -365,14 +365,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private boolean gravitySourceActive = false;
     private double currentGravityStrength = 0;
     private int currentGravitySize = 0;
-    /// 从控制器方块到渲染的恒星中心点的 Y 轴偏移。
-    private static final int GRAVITY_CENTER_Y_OFFSET = 6;
-    /// 引力影响半径（方块），覆盖 Ring6 的 7×7×7 区域。约为最大恒星半径（红超巨星 ~2580 R☉）的 2 倍。
-    private static final int GRAVITY_RADIUS = 4;
-    /// 所有天体引力计算的统一参考物理半径。5000 × R☉，且 R☉/R⊕ = 109，因此 R_ref/R⊕ = 545,000。
-    private static final double GRAVITY_REFERENCE_RADIUS_RATIO = 5000.0 * 109.0;
-    /// 游戏性倍率，使引力在方块尺度上可感知。
-    private static final double GRAVITY_STRENGTH_MULTIPLIER = 10000000.0;
+    private int currentGravityRadius = 4;
+    private int currentGravityCenterY = 6;
+    private double currentBodyRadius = 0;
+    /// 基础引力影响半径（方块），对应 ringScale=6.0 时覆盖最外层束星环。
+    private static final int BASE_GRAVITY_RADIUS = 4;
+
+    /// === 束星环/天体缩放常量（与渲染器 CelestialForgingAnvilBlockEntityRenderer 保持一致） ===
+    private static final float BODY_SCALE_FACTOR = 10.0f / 1.5f;
+    private static final float RING_TO_BODY_RATIO = 1.8f;
+    private static final float RING_SMALL_INNER_RADIUS_FACTOR = 2.0f;
+    private static final float INNER_BONE_BOOST_MAX = 5.5f;
+    private static final float INNER_BONE_BOOST_RATE = 0.8f;
+    private static final float BASE_RING_SCALE = 6.0f;
 
     public void startSearch() {
         this.searchFailed = false;
@@ -477,7 +482,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         /// 管理恒星引力源
         updateGravitySource();
 
-        /// 销毁引力中心的实体
+        /// 销毁进入天体视觉边界内的实体
         if (gravitySourceActive && level != null) {
             destroyEntitiesAtCenter();
         }
@@ -486,73 +491,200 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         megastructureManager.serverTick(this);
     }
 
-    /// 为当前天体更新引力源。所有天体共享一个统一参考半径（5000 R☉，约为红超巨星半径的 2 倍），该半径对应 GRAVITY_RADIUS 的方块边界。
-    /// 引力按 1/r² 从源中心衰减。引力强度为统一参考半径处的引力值，以 g⊕ 的倍数表示：
-    /// M/M⊕ = 2^((massAnvilCount - 12) / 2)，参考半径 R_ref/R⊕ = 5000 × 109 = 545,000，强度 = (M/M⊕) / (R_ref/R⊕)²。
+    /// 为当前天体更新引力源。恒星和行星均产生引力。引力中心、半径和天体半径均随红石信号动态缩放。
+    /// 天体外部按 1/r² 衰减；天体内部使用均匀球壳近似（g ∝ r，越靠近中心越弱，中心处为 0）。
+    /// 强度 = 质量比（以 M⊕ 为单位），使 1M⊕、1R⊕（bodyRadius=1）天体在视觉表面处
+    /// 引力正好与 Overworld 重力平衡，实体可在此悬停。
+    /// M/M⊕ = 2^((massAnvilCount - 12) / 2)。
     private void updateGravitySource() {
         if (level == null || level.isClientSide()) return;
 
-        boolean shouldHaveGravity = amplifierPresent
-                                    && celestialBodyData instanceof StarData
+        /// 恒星和行星均产生引力（只要有天体数据和质量砧子）
+        boolean shouldHaveGravity = celestialBodyData != null
                                     && stellarMass > 0
                                     && celestialBodyData.size() > 0;
 
         double newStrength = 0;
+        int newRadius = BASE_GRAVITY_RADIUS;
+        int newCenterY = 6;
+        double newBodyRadius = 0;
+
         if (shouldHaveGravity) {
+            /// 对数压缩质量比：log₂(1 + M/M⊕)，使小质量行星之间有可感知的差异，
+            /// 同时避免大质量恒星的引力过强。
             double massRatio = Math.pow(2, (stellarMass - 12) / 2.0);
-            newStrength = massRatio * GRAVITY_STRENGTH_MULTIPLIER / (GRAVITY_REFERENCE_RADIUS_RATIO * GRAVITY_REFERENCE_RADIUS_RATIO);
-        } /// 引力乘上这个常数得到感官合适的值 ↑
+            newStrength = Math.log(1.0 + massRatio) / Math.log(2.0); // log₂(1 + M/M⊕)
+
+            newRadius = computeGravityRadius();
+            newCenterY = computeGravityCenterOffset();
+            newBodyRadius = computeGravityBodyRadius();
+
+            /// 缩放补偿：ratio² 放在对数外面，保持表面引力不随缩放漂移。
+            /// F_surface = g × log₂(1+M) × ratio² / (bodyRadius₀ × ratio)² = g × log₂(1+M) / bodyRadius₀² ✓
+            float rawBodyScale = celestialBodyData.bodyScale();
+            float bodyRadius0 = rawBodyScale / 2.0f;
+            if (bodyRadius0 > 1e-6f && newBodyRadius > 1e-6) {
+                double ratio = newBodyRadius / bodyRadius0;
+                newStrength *= ratio * ratio;
+            }
+        }
         int newSize = shouldHaveGravity ? celestialBodyData.size() : 0;
 
-        BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
+        BlockPos newCenterPos = worldPosition.offset(0, newCenterY, 0);
+        BlockPos oldCenterPos = worldPosition.offset(0, currentGravityCenterY, 0);
 
         if (shouldHaveGravity) {
-            if (!gravitySourceActive || newStrength != currentGravityStrength || newSize != currentGravitySize) {
-                /// 如果强度/大小发生变化，则移除旧源
+            boolean centerChanged = newCenterY != currentGravityCenterY;
+            if (!gravitySourceActive || newStrength != currentGravityStrength
+                || newRadius != currentGravityRadius || centerChanged || newSize != currentGravitySize
+                || newBodyRadius != currentBodyRadius) {
+                /// 如果参数或中心位置发生变化，先移除旧源
                 if (gravitySourceActive) {
-                    GravityManager.GravitySourceManager.removeSource(level, centerPos);
+                    GravityManager.GravitySourceManager.removeSource(level, oldCenterPos);
                 }
-                /// 添加新的/更新后的源
-                GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(newStrength, GRAVITY_RADIUS);
-                GravityManager.GravitySourceManager.addSource(level, centerPos, type);
+                /// 注册新的/更新后的源（含天体半径用于内部引力递减）
+                GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(newStrength, newRadius, newBodyRadius);
+                GravityManager.GravitySourceManager.addSource(level, newCenterPos, type);
                 gravitySourceActive = true;
                 currentGravityStrength = newStrength;
+                currentGravityRadius = newRadius;
+                currentGravityCenterY = newCenterY;
                 currentGravitySize = newSize;
+                currentBodyRadius = newBodyRadius;
             }
         } else if (gravitySourceActive) {
-            GravityManager.GravitySourceManager.removeSource(level, centerPos);
+            GravityManager.GravitySourceManager.removeSource(level, oldCenterPos);
             gravitySourceActive = false;
             currentGravityStrength = 0;
+            currentGravityRadius = BASE_GRAVITY_RADIUS;
+            currentGravityCenterY = 6;
             currentGravitySize = 0;
+            currentBodyRadius = 0;
         }
     }
 
     /// 强制移除引力源。当增幅器被拆除时调用，确保引力立即消失。
     public void removeGravitySource() {
         if (level == null || level.isClientSide()) return;
-        BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
+        BlockPos centerPos = worldPosition.offset(0, currentGravityCenterY, 0);
         GravityManager.GravitySourceManager.removeSource(level, centerPos);
         gravitySourceActive = false;
         currentGravityStrength = 0;
+        currentGravityRadius = BASE_GRAVITY_RADIUS;
+        currentGravityCenterY = 6;
         currentGravitySize = 0;
     }
 
+    /// 销毁进入天体视觉边界内的实体。恒星用火焰伤害，行星用摔落伤害，
+    /// 非生物实体直接丢弃。黑洞使用特殊伤害类型。
     private void destroyEntitiesAtCenter() {
-        BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
-        AABB centerBox = new AABB(centerPos);
-        List<Entity> entities = level.getEntitiesOfClass(Entity.class, centerBox);
+        if (currentBodyRadius <= 0) return;
+
+        /// 视觉中心坐标（与渲染一致，位于方块中心 + 动态 centerY）
+        float redstoneFactor = getRedstoneSignal() / 15.0f;
+        float fullCenterY = computeDynamicCenterY();
+        float baseCenterY = isAmplify ? 6.5f : 4.5f;
+        double vx = worldPosition.getX() + 0.5;
+        double vy = worldPosition.getY() + baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
+        double vz = worldPosition.getZ() + 0.5;
+        double r = currentBodyRadius;
+        double rSq = r * r;
+
+        /// 包围盒查找范围内的实体，再按球形距离过滤
+        AABB bodyBox = new AABB(vx - r, vy - r, vz - r, vx + r, vy + r, vz + r);
+        List<Entity> entities = level.getEntitiesOfClass(Entity.class, bodyBox);
         for (Entity entity : entities) {
+            Vec3 ec = entity.getBoundingBox().getCenter();
+            double dx = ec.x - vx;
+            double dy = ec.y - vy;
+            double dz = ec.z - vz;
+            if (dx * dx + dy * dy + dz * dz > rSq) continue;
+
             if (entity instanceof LivingEntity living) {
-                if (celestialBodyData instanceof StarData star
-                    && star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                    living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
-                } else {
-                    living.hurt(level.damageSources().inFire(), 1.0E12f);
-                }
+                applyCelestialDamage(living);
             } else {
                 entity.discard();
             }
         }
+    }
+
+    /// 对进入天体视觉边界的生物施加对应伤害。
+    private void applyCelestialDamage(LivingEntity living) {
+        if (celestialBodyData instanceof StarData star) {
+            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
+                living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+            } else {
+                /// 普通恒星 / 中子星 → 火焰烧死
+                living.hurt(level.damageSources().inFire(), Float.MAX_VALUE);
+            }
+        } else {
+            /// 行星 / 特殊天体 → 高额摔落伤害（类似撞上表面）
+            living.hurt(level.damageSources().generic(), Float.MAX_VALUE);
+        }
+    }
+
+    /// === 引力动态计算（与渲染器 CelestialForgingAnvilBlockEntityRenderer 保持相同逻辑） ===
+
+    /// 计算束星环系统缩放（与渲染器 ringSystemScale 逻辑一致）。
+    private float computeRingSystemScale() {
+        if (celestialBodyData == null) return BASE_RING_SCALE;
+        float bodyS = celestialBodyData.bodyScale();
+        float proportional = bodyS * BODY_SCALE_FACTOR * RING_TO_BODY_RATIO;
+        if (celestialBodyData instanceof StarData) {
+            float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX - bodyS * INNER_BONE_BOOST_RATE);
+            return proportional + inBoneBoost;
+        } else {
+            float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX * 1.5f - bodyS * INNER_BONE_BOOST_RATE);
+            return proportional * RING_SMALL_INNER_RADIUS_FACTOR + inBoneBoost;
+        }
+    }
+
+    /// 计算动态天体中心高度（与渲染器 dynamicCenterY 逻辑一致）。
+    private float computeDynamicCenterY() {
+        if (celestialBodyData == null) return isAmplify ? 6.5f : 4.5f;
+        float ringScale = computeRingSystemScale();
+        float baseHeight = isAmplify ? 2.5f : 1.5f;
+        float height = baseHeight + ringScale * 0.74f;
+        if (!(celestialBodyData instanceof StarData)) {
+            float bodyS = celestialBodyData.bodyScale();
+            float planetMinBS = 0.3f;
+            float planetMaxBS = 1.5f;
+            float t = Math.min(1.0f, Math.max(0.0f, (bodyS - planetMinBS) / (planetMaxBS - planetMinBS)));
+            float planetReduction = isAmplify
+                ? 0.5f + t * 1.5f
+                : 4.0f + t * 1.5f;
+            height -= planetReduction;
+        }
+        return height;
+    }
+
+    /// 计算当前红石信号下引力中心相对于控制器方块的 Y 偏移（整数，四舍五入）。
+    private int computeGravityCenterOffset() {
+        float redstoneFactor = getRedstoneSignal() / 15.0f;
+        float fullCenterY = computeDynamicCenterY();
+        float baseCenterY = isAmplify ? 6.5f : 4.5f;
+        float centerY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
+        return Math.round(centerY);
+    }
+
+    /// 计算当前红石信号下引力影响半径（方块数）。
+    /// ringScale=6.0 时半径 = BASE_GRAVITY_RADIUS=4，随环缩放线性变化。
+    private int computeGravityRadius() {
+        float redstoneFactor = getRedstoneSignal() / 15.0f;
+        float fullRingScale = computeRingSystemScale();
+        float ringScale = BASE_RING_SCALE + (fullRingScale - BASE_RING_SCALE) * redstoneFactor;
+        return Math.max(1, Math.round(BASE_GRAVITY_RADIUS * ringScale / BASE_RING_SCALE));
+    }
+
+    /// 计算当前红石信号下天体视觉半径（方块），用于引力内部递减边界。
+    /// 天体渲染为 1×1×1 立方体，缩放 bodyScaleMultiplier 后居中，视觉半径 = bodyScaleMultiplier / 2。
+    private double computeGravityBodyRadius() {
+        if (celestialBodyData == null) return 0;
+        float redstoneFactor = getRedstoneSignal() / 15.0f;
+        float rawBodyScale = celestialBodyData.bodyScale();
+        float fullBodyScale = rawBodyScale * BODY_SCALE_FACTOR;
+        float bodyScaleMultiplier = rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
+        return bodyScaleMultiplier / 2.0;
     }
 
     /// 搜索历史，最多 10 条。索引 0 = 最新。
@@ -640,7 +772,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         super.setRemoved();
         if (level != null && !level.isClientSide() && !PowerGrid.isServerClosing) {
             if (gravitySourceActive) {
-                BlockPos centerPos = worldPosition.offset(0, GRAVITY_CENTER_Y_OFFSET, 0);
+                BlockPos centerPos = worldPosition.offset(0, currentGravityCenterY, 0);
                 GravityManager.GravitySourceManager.removeSource(level, centerPos);
                 gravitySourceActive = false;
             }

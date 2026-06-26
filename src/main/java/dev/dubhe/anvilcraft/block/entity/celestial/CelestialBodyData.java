@@ -38,6 +38,22 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
         };
     }
 
+    /// 根据天体数据计算原始视觉缩放（不含 BODY_SCALE_FACTOR 倍率）。
+    /// 黑洞中子星使用固定值，普通天体使用分段函数映射 size→scale。
+    default float bodyScale() {
+        if (this instanceof StarData star) {
+            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return 1.5f;
+            if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) return 0.8f;
+        }
+        int size = size();
+        if (size <= 20) {
+            return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
+        } else {
+            float t = (size - 20) / 44f;
+            return 1.5f * (1.0f + t * t * 1.63f);
+        }
+    }
+
     CompoundTag toTag();
 
     static CelestialBodyData fromTag(CompoundTag tag) {

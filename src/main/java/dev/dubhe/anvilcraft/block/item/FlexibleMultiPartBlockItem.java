@@ -39,8 +39,8 @@ public class FlexibleMultiPartBlockItem<
         Level level = context.getLevel();
         for (P part : this.block.getParts()) {
             BlockPos offset = pos.offset(part.getOffset(state.getValue(block.getAdditionalProperty())));
-            BlockState blockState =
-                level.isWaterAt(offset) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
+            /// 用该位置实际流体状态创建残留方块，保留水源/流动水的区别，不然会把流动水强制转成水源。
+            BlockState blockState = level.getFluidState(offset).createLegacyBlock();
             level.setBlock(offset, blockState, 27);
         }
         return super.placeBlock(context, state);

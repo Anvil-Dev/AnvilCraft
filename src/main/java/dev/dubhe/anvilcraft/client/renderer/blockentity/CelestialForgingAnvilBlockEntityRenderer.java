@@ -28,7 +28,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -133,14 +132,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         this.blockRenderer = context.getBlockRenderDispatcher();
     }
 
-    /// 缩放倍率：使最小天体（size=1）渲染大小等于当前最大红超巨星（size=64）的一半
+    /// 缩放倍率：
     private static final float BODY_SCALE_FACTOR = 10.0f / 1.5f;
 
-    /// 束星环系统缩放与天体缩放的比值（使内环始终贴近天体表面）
+    /// 束星环系统缩放与天体缩放的比值
     private static final float RING_TO_BODY_RATIO = 1.8f;
 
-    /// ring_small（R1-R3，非增幅）的内半径约为 ring_big（R4-R6，增幅）的 1/2。
-    /// 为使非增幅环在世界空间获得与增幅环相同的天体间距，需额外乘以此系数。
+    /// R1-R3非增幅的内半径约为R4-R6增幅的 1/2，额外乘以此系数使非增幅环获得与增幅环相同的天体间距。
     private static final float RING_SMALL_INNER_RADIUS_FACTOR = 2.0f;
 
     /// "in" 骨骼（挂载 R1/R4）比 "mid" 骨骼（挂载 R2/R5）多一层 Z 旋转，
@@ -154,14 +152,12 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     /// 恒星（StarData）始终使用 ring_big 模型族（恒星仅出现在增幅 CFA）。
     /// 行星等其他天体统一使用 ring_small 模型族 —— 无论增幅与否，
     /// 因为 ring_small 内半径约为 ring_big 的 1/2，需额外缩放补偿。
-    /// <p>
     /// 恒星（ring_big，R4-R6）：
     ///   bodyScale × BODY_SCALE_FACTOR × RING_TO_BODY_RATIO
     ///   + max(0, INNER_BONE_BOOST_MAX − bodyScale × INNER_BONE_BOOST_RATE)
-    /// 行星等（ring_small，R1-R3）：
+    /// 行星（ring_small，R1-R3）：
     ///   bodyScale × BODY_SCALE_FACTOR × RING_TO_BODY_RATIO × RING_SMALL_INNER_RADIUS_FACTOR
     ///   + max(0, INNER_BONE_BOOST_MAX × 1.5 − bodyScale × INNER_BONE_BOOST_RATE)
-    /// <p>
     /// 无天体时保持原始默认大小。
     private static float ringSystemScale(@Nullable CelestialBodyData bodyData, boolean isAmplify) {
         if (bodyData == null) return 6.0f;
@@ -180,11 +176,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     /// 根据天体数据计算动态天体中心高度。
     /// 高度与环缩放线性相关，仅保留最小固定基线。
-    /// <p>
-    /// 恒星高度公式：baseHeight + ringScale × 0.74 —— 高度恰好，不做额外调整。
-    /// 行星高度在恒星公式基础上再减去行星修正值。
+    /// 恒星高度：baseHeight + ringScale × 0.74
+    /// 行星高度在恒星基础上再减去行星修正值。
     /// 增幅行星的修正值较小（环更大需要更高），非增幅修正值较大。
-    /// <p>
     /// 无天体时保持原始默认高度。
     private static float dynamicCenterY(@Nullable CelestialBodyData bodyData, boolean isAmplify) {
         if (bodyData == null) return isAmplify ? 6.5f : 4.5f;
@@ -206,19 +200,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         return height;
     }
 
-    /// 获取原始天体视觉缩放（不含全局倍率）。
+    /// 获取原始天体视觉缩放（委托给 CelestialBodyData 接口的默认方法）。
     private static float bodyScale(CelestialBodyData data) {
-        if (data instanceof StarData star) {
-            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return 1.5f;
-            if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) return 0.8f;
-        }
-        int size = data.size();
-        if (size <= 20) {
-            return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
-        } else {
-            float t = (size - 20) / 44f;
-            return 1.5f * (1.0f + t * t * 1.63f);
-        }
+        return data.bodyScale();
     }
 
     @Override
@@ -458,7 +442,18 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (blockEntity.isAmplify() && isMagnetarCoilActive(blockEntity) && bodyData instanceof StarData star) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
-            renderMagnetarCoilRings(centerY, rot, bodyRot, star, animProgress, redstoneFactor, poseStack, multiBufferSource, packedOverlay, modelRenderer);
+            renderMagnetarCoilRings(
+                centerY,
+                rot,
+                bodyRot,
+                star,
+                animProgress,
+                redstoneFactor,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                modelRenderer
+            );
         }
 
         /// 渲染物质解压器圆环：fix（恒星同步，类似戴森球）+ ring（机械旋转）
@@ -482,7 +477,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 使用有效天体数据（考虑 celestialBodyData 已置为 null 的逆向动画情形）
         CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
         boolean canRender = effectiveBodyData != null
-            && (effectiveBodyData instanceof StarData ? blockEntity.isAmplifierPresent() : true);
+            && (!(effectiveBodyData instanceof StarData) || blockEntity.isAmplifierPresent());
         if (canRender) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
@@ -498,7 +493,16 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 animProgress,
                 bodyScaleMultiplier
             );
-            renderCelestialRing(effectiveBodyData, centerY, bodyRot, poseStack, multiBufferSource, packedOverlay, animProgress, bodyScaleMultiplier);
+            renderCelestialRing(
+                effectiveBodyData,
+                centerY,
+                bodyRot,
+                poseStack,
+                multiBufferSource,
+                packedOverlay,
+                animProgress,
+                bodyScaleMultiplier
+            );
         }
 
     }
@@ -636,11 +640,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (scale < 0.001f) return;
 
         float fullRScale = ringSystemScale(star, true);
-        float rScale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
+        float rscale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
-        poseStack.scale(rScale, rScale, rScale);
+        poseStack.scale(rscale, rscale, rscale);
         /// 应用恒星的轴倾斜和 Y 旋转 —— 与恒星本体渲染相同
         poseStack.mulPose(Axis.XP.rotationDegrees(star.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed())));
@@ -1326,18 +1330,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
     }
 
-    /// 获取天体的视觉缩放比例（含全局倍率）。
     private static float getBodyScale(CelestialBodyData data) {
-        return bodyScale(data) * BODY_SCALE_FACTOR;
-    }
-
-    private float getRingScale(CelestialBodyData data) {
-        float bodyScale = getBodyScale(data);
-        return switch (data) {
-            case RockyPlanetData rp -> bodyScale * 1.35f;
-            case GiantPlanetData gp -> bodyScale * 1.3f;
-            default -> bodyScale * 1.4f;
-        };
+        return data.bodyScale() * BODY_SCALE_FACTOR;
     }
 
     private float[] getAtmosphereColor(Temperature temperature) {

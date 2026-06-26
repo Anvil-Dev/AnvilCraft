@@ -1249,14 +1249,54 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (resources == null || resources.isEmpty()) return;
 
         List<ColoredEntry> entries = new ArrayList<>();
-        collectItemEntries(entries, resources.getMinerals(), COLOR_MINERAL, "screen.anvilcraft.cfa.resource.mineral");
-        collectFluidEntries(entries, resources.getFluids(), COLOR_FLUID, "screen.anvilcraft.cfa.resource.fluid");
-        collectItemEntries(entries, resources.getGiantItems(), COLOR_GIANT_ITEM, "screen.anvilcraft.cfa.resource.giant_item");
-        collectFluidEntries(entries, resources.getGiantFluids(), COLOR_GIANT_FLUID, "screen.anvilcraft.cfa.resource.giant_fluid");
-        collectItemEntries(entries, resources.getBiologicalItems(), COLOR_BIOLOGICAL, "screen.anvilcraft.cfa.resource.biological_item");
-        collectFluidEntries(entries, resources.getBiologicalFluids(), COLOR_BIOLOGICAL_FLUID, "screen.anvilcraft.cfa.resource.biological_fluid");
-        collectItemEntries(entries, resources.getOfferings(), COLOR_OFFERING, "screen.anvilcraft.cfa.resource.offering");
-        collectItemEntries(entries, resources.getWastelandItems(), COLOR_WASTELAND, "screen.anvilcraft.cfa.resource.wasteland");
+        collectItemEntries(
+            entries,
+            resources.getMinerals(),
+            COLOR_MINERAL,
+            "screen.anvilcraft.cfa.resource.mineral"
+        );
+        collectFluidEntries(
+            entries,
+            resources.getFluids(),
+            COLOR_FLUID,
+            "screen.anvilcraft.cfa.resource.fluid"
+        );
+        collectItemEntries(
+            entries,
+            resources.getGiantItems(),
+            COLOR_GIANT_ITEM,
+            "screen.anvilcraft.cfa.resource.giant_item"
+        );
+        collectFluidEntries(
+            entries,
+            resources.getGiantFluids(),
+            COLOR_GIANT_FLUID,
+            "screen.anvilcraft.cfa.resource.giant_fluid"
+        );
+        collectItemEntries(
+            entries,
+            resources.getBiologicalItems(),
+            COLOR_BIOLOGICAL,
+            "screen.anvilcraft.cfa.resource.biological_item"
+        );
+        collectFluidEntries(
+            entries,
+            resources.getBiologicalFluids(),
+            COLOR_BIOLOGICAL_FLUID,
+            "screen.anvilcraft.cfa.resource.biological_fluid"
+        );
+        collectItemEntries(
+            entries,
+            resources.getOfferings(),
+            COLOR_OFFERING,
+            "screen.anvilcraft.cfa.resource.offering"
+        );
+        collectItemEntries(
+            entries,
+            resources.getWastelandItems(),
+            COLOR_WASTELAND,
+            "screen.anvilcraft.cfa.resource.wasteland"
+        );
         if (entries.isEmpty()) return;
 
         /// 计算总文本宽度以确定滚动范围
@@ -1321,7 +1361,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
     }
 
-    private void collectItemEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedItemStack> items, int color, String headerKey) {
+    private void collectItemEntries(
+        List<ColoredEntry> out,
+        List<PlanetaryResourceSet.WeightedItemStack> items,
+        int color,
+        String headerKey
+    ) {
         if (items.isEmpty()) return;
         out.add(new ColoredEntry(Component.translatable(headerKey).getString(), color, true));
         items.stream()
@@ -1333,7 +1378,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             });
     }
 
-    private void collectFluidEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedFluidStack> fluids, int color, String headerKey) {
+    private void collectFluidEntries(
+        List<ColoredEntry> out,
+        List<PlanetaryResourceSet.WeightedFluidStack> fluids,
+        int color,
+        String headerKey
+    ) {
         if (fluids.isEmpty()) return;
         out.add(new ColoredEntry(Component.translatable(headerKey).getString(), color, true));
         fluids.stream()
