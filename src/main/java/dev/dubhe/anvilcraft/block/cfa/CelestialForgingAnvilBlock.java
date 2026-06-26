@@ -374,4 +374,22 @@ public class CelestialForgingAnvilBlock
         }
         return InteractionResult.PASS;
     }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        if (!level.isClientSide()) {
+            BlockPos mainPos = getMainPartPos(pos, state);
+            if (level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
+                be.markRedstoneSignalDirty();
+            }
+        }
+    }
 }

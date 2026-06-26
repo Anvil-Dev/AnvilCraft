@@ -87,8 +87,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     /// 获取锻星砧 3×2×3 结构接收到的最大红石信号强度（0–15）。
     /// 遍历结构包围盒内全部 18 个方块位置，取各方块邻居信号的最大值。
+    /// 结果缓存 REDSTONE_SIGNAL_CACHE_TICKS 刻，到期或 neighborChanged 触发时重算。
     public int getRedstoneSignal() {
         if (level == null) return 0;
+        long now = level.getGameTime();
+        if (redstoneSignalCacheTick >= 0 && now - redstoneSignalCacheTick < REDSTONE_SIGNAL_CACHE_TICKS) {
+            return cachedRedstoneSignal;
+        }
         int signal = 0;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = 0; dy <= 1; dy++) {
@@ -98,8 +103,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 }
             }
         }
-        return Math.min(signal, 15);
+        cachedRedstoneSignal = Math.min(signal, 15);
+        redstoneSignalCacheTick = now;
+        return cachedRedstoneSignal;
     }
+
+    /// neighborChanged 回调时调用，立即失效红石信号缓存。
+    public void markRedstoneSignalDirty() {
+        redstoneSignalCacheTick = -1;
+    }
+
+    private int cachedRedstoneSignal = 0;
+    private long redstoneSignalCacheTick = -1;
+    private static final int REDSTONE_SIGNAL_CACHE_TICKS = 5;
 
     @Getter
     @Setter
@@ -860,7 +876,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     /// 从玩家头颅种子物品中提取 profile 数据并序列化为 NBT。
-    @javax.annotation.Nullable
+    @Nullable
     private static CompoundTag extractProfileNbt(ItemStack stack) {
         if (!stack.is(Items.PLAYER_HEAD)) return null;
         net.minecraft.world.item.component.ResolvableProfile profile = stack.get(
