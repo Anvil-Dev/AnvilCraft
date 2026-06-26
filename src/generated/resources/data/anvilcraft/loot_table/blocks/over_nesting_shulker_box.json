@@ -16,7 +16,7 @@
               "function": "minecraft:copy_components",
               "include": [
                 "minecraft:custom_name",
-                "minecraft:container"
+                "anvilcraft:over_limit_item_container_contents"
               ],
               "source": "block_entity"
             }
