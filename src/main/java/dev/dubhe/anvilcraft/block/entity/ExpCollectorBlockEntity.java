@@ -16,6 +16,7 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -35,13 +36,13 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public class ExpCollectorBlockEntity extends BlockEntity
     implements MenuProvider,
@@ -63,7 +64,7 @@ public class ExpCollectorBlockEntity extends BlockEntity
 
     @Getter
     @Setter
-    private PowerGrid grid;
+    private @Nullable PowerGrid grid;
 
     @Getter
     private final OnlyDrainFluidTank fluidTank = new OnlyDrainFluidTank(4000, (fluid) -> fluid.is(ModFluids.EXP_FLUID)) {
@@ -250,10 +251,12 @@ public class ExpCollectorBlockEntity extends BlockEntity
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        if (player.isSpectator()) {
-            return null;
-        }
         return new ExpCollectorMenu(ModMenuTypes.EXP_COLLECTOR.get(), containerId, playerInventory, this);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 
     @Override

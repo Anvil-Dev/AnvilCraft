@@ -16,6 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -38,10 +39,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 import static dev.dubhe.anvilcraft.block.ItemDetectorBlock.POWERED;
 
@@ -60,7 +61,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     @Getter
     private int range = 0;
     private boolean rangeChanged = true;
-    private AABB detectionRange;
+    private @Nullable AABB detectionRange;
     @Getter
     private final ContainerData dataAccess = new ContainerData() {
         @Override
@@ -254,8 +255,12 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
         return new ItemDetectorMenu(ModMenuTypes.ITEM_DETECTOR.get(), id, inventory, this);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 
     @Override

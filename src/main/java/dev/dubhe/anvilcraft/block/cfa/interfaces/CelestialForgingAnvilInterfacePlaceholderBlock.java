@@ -17,7 +17,6 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -75,6 +74,7 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
                     .setValue(CelestialForgingAnvilInterfaceBlock.ACTIVE, false);
                 level.setBlockAndUpdate(pos, placementState);
                 /// 播放放置音效
+                @SuppressWarnings("deprecation")
                 SoundType soundType = placementState.getSoundType();
                 level.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS,
                     (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f);
@@ -114,7 +114,6 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
                             be instanceof CelestialForgingAnvilBlockEntity cfaBe
                             && player instanceof ServerPlayer sp
                         ) {
-                            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                             ModMenuTypes.open(sp, cfaBe, checkPos);
                             return InteractionResult.SUCCESS;
                         }

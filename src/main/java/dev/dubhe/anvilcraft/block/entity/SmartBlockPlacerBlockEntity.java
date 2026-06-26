@@ -35,6 +35,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -155,7 +156,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     // 标记当前是否有方块正在被智能放置器移动
     private static final ThreadLocal<Boolean> IS_BEING_MOVED_BY_PLACER = ThreadLocal.withInitial(() -> false);
 
-    private PowerGrid grid = null;
+    private @Nullable PowerGrid grid = null;
     private boolean isPowered = false;
     private boolean hasRedstoneSignal = false;
     private int selectedLayer = 0;
@@ -3739,10 +3740,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-        if (player.isSpectator()) {
-            return null;
-        }
         return new SmartBlockPlacerMenu(ModMenuTypes.SMART_BLOCK_PLACER.get(), containerId, inventory, this);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 
     @Override

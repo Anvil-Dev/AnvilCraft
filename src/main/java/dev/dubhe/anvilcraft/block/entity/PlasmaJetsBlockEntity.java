@@ -3,9 +3,10 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
+import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
-import dev.dubhe.anvilcraft.block.FireCauldronBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
@@ -14,6 +15,7 @@ import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -29,7 +31,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,11 +45,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import javax.annotation.Nullable;
 
 public class PlasmaJetsBlockEntity extends BlockEntity {
     private static final int MAX_DURATION = 10 * 60 * 20;
     private final Set<TubeWallLayer> tubeWalls = new HashSet<>();
-    private BlockPos cauldronPos = null;
+    private @Nullable BlockPos cauldronPos = null;
     private int duration = 0;
 
     public PlasmaJetsBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -137,6 +139,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         if (this.tryRaise()) return;
 
         this.refreshCauldronPos(level);
+        this.tryIgniteValidCauldron(level);
         this.checkTubeWallIntegrity(level);
         this.refreshDuration(level);
 
@@ -151,6 +154,18 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     private void clientTick(ClientLevel level) {
         this.refreshCauldronPos(level);
         this.summonParticles(level);
+    }
+
+    protected void tryIgniteValidCauldron(Level level) {
+        if (this.cauldronPos == null) return;
+        BlockState state = level.getBlockState(this.cauldronPos);
+        if (!(state.getBlock() instanceof IIgnitableCauldron cauldron)) return;
+
+        BlockCache cache = new BlockCache(level);
+        // noinspection deprecation
+        if (!cauldron.getFluid(cache, this.cauldronPos).is(ModFluidTags.OIL)) return;
+        cauldron.setIgnited(cache, this.cauldronPos, true);
+        cache.accept();
     }
 
     protected void checkTubeWallIntegrity(Level level) {
@@ -168,12 +183,10 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
                 break;
             }
         }
-        boolean cauldronExisting = PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
-                                   || level.getBlockState(this.cauldronPos).is(ModBlocks.OIL_CAULDRON)
-                                   || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON);
-        boolean belowCauldronIsNotHeater = !level.getBlockState(this.cauldronPos.below(1))
+        boolean cauldronExisting = this.cauldronPos != null && PlasmaJetsBlock.isValidBaseCauldron(level, this.cauldronPos);
+        boolean belowCauldronIsNotHeater = this.cauldronPos != null && !level.getBlockState(this.cauldronPos.below(1))
             .is(ModBlocks.HEATER);
-        boolean heaterOverload = level.getBlockState(this.cauldronPos.below(1))
+        boolean heaterOverload = this.cauldronPos != null && level.getBlockState(this.cauldronPos.below(1))
             .getOptionalValue(HeaterBlock.OVERLOAD).orElse(true);
         if (wallBroken || blocked || !cauldronExisting || belowCauldronIsNotHeater || heaterOverload) {
             level.removeBlockEntity(this.getBlockPos());
@@ -185,11 +198,12 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
 
     protected void refreshDuration(Level level) {
         this.duration--;
-        if (level.getBlockState(this.cauldronPos).getOptionalValue(FireCauldronBlock.LEVEL).orElse(0) > 0
-            && this.duration + MAX_DURATION / 2 < MAX_DURATION
+        if (
+            this.duration + MAX_DURATION / 2 < MAX_DURATION
+            && this.cauldronPos != null
+            && PlasmaJetsBlock.tryConsumeOnce(level, this.cauldronPos)
         ) {
             this.duration += MAX_DURATION / 2;
-            FireCauldronBlock.lowerFillLevel(level.getBlockState(this.cauldronPos), level, this.cauldronPos);
         }
         if (this.duration < 0) {
             level.removeBlock(this.getBlockPos(), false);
@@ -269,21 +283,11 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     protected void refreshCauldronPos(Level level) {
-        if (
-            this.cauldronPos != null
-            && (
-                PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
-                || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON)
-            )
-        ) {
+        if (this.cauldronPos != null && PlasmaJetsBlock.isValidBaseCauldron(level, this.cauldronPos)) {
             return;
         }
         for (int i = 1; i < 6; i++) {
-            if (
-                PlasmaJetsBlock.isIgnitedOilCauldron(level, this.getBlockPos().below(i))
-                || level.getBlockState(this.getBlockPos().below(i)).is(ModBlocks.OIL_CAULDRON)
-                || level.getBlockState(this.getBlockPos().below(i)).is(Blocks.CAULDRON)
-            ) {
+            if (PlasmaJetsBlock.isValidBaseCauldron(level, this.getBlockPos().below(i))) {
                 this.cauldronPos = this.getBlockPos().below(i);
                 break;
             }

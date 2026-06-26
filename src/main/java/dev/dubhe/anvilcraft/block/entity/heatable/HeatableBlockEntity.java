@@ -63,13 +63,15 @@ public abstract class HeatableBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.duration = 200;
+        this.duration = tag.contains("duration") ? tag.getInt("duration") : 200;
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
-        HeaterManager.addHeatableBlock(this.getBlockPos(), this.getLevel());
+        if (this.getLevel() != null) {
+            HeaterManager.addHeatableBlock(this.getBlockPos(), this.getLevel());
+        }
     }
 
     public static void tick(Level level, BlockPos pos) {

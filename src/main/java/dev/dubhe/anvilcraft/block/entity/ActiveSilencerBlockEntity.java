@@ -17,6 +17,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -39,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -93,7 +95,7 @@ public class ActiveSilencerBlockEntity
     @Override
     public void setRemoved() {
         super.setRemoved();
-        DistExecutor.run(Dist.CLIENT, () -> () -> SoundHelper.INSTANCE.unregister(this.level, this));
+        DistExecutor.run(Dist.CLIENT, () -> () -> SoundHelper.INSTANCE.unregister(Objects.requireNonNull(this.level), this));
     }
 
     @Override
@@ -110,8 +112,12 @@ public class ActiveSilencerBlockEntity
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        if (player.isSpectator()) return null;
         return new ActiveSilencerMenu(ModMenuTypes.ACTIVE_SILENCER.get(), i, inventory, this);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 
     /**

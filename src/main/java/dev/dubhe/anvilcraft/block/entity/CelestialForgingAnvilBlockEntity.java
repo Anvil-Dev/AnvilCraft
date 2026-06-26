@@ -34,6 +34,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -455,11 +456,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (!hasEnoughPower && !this.powerInsufficient) {
             this.powerInsufficient = true;
             setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            Objects.requireNonNull(this.level).sendBlockUpdated(this.getBlockPos(), getBlockState(), getBlockState(), 3);
         } else if (hasEnoughPower && this.powerInsufficient) {
             this.powerInsufficient = false;
             setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            Objects.requireNonNull(this.level).sendBlockUpdated(this.getBlockPos(), getBlockState(), getBlockState(), 3);
         }
         if (searchTicksRemaining > 0) {
             /// 在搜索过程中检查电力是否仍然充足
@@ -1433,7 +1434,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         /// 至少需要 2 条记录：索引 0 是当前锁定的天体
         if (sz <= 1 || historyBrowseIndex >= sz) return;
         if (historyBrowseIndex == 0) {
-            historyOriginalEntry = new SearchHistoryEntry(celestialBodyData, planetaryResourceSet);
+            historyOriginalEntry = new SearchHistoryEntry(Objects.requireNonNull(celestialBodyData), planetaryResourceSet);
             historyBrowseIndex = 1; /// 跳过当前天体条目
         }
         historyBrowseIndex++;
@@ -1487,8 +1488,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-        if (this.level == null || player.isSpectator()) return null;
+        if (this.level == null) return null;
         return new CelestialForgingAnvilMenu(ModMenuTypes.CFA.get(), containerId, inventory, this);
+    }
+
+    @Override
+    public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.getBlockPos());
     }
 
     @Override
