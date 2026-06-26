@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.anvil.BeaconConversionBehavior;
 import dev.dubhe.anvilcraft.anvil.BlockDevourerBehavior;
 import dev.dubhe.anvilcraft.anvil.BlockPlacerBehavior;
 import dev.dubhe.anvilcraft.anvil.CementStainingBehavior;
+import dev.dubhe.anvilcraft.anvil.FishTankCompressBehavior;
 import dev.dubhe.anvilcraft.anvil.GunpowderBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.HitBeeNestBehavior;
 import dev.dubhe.anvilcraft.anvil.HitCrabTrapBehavior;
@@ -43,6 +44,7 @@ public class ModAnvilBehaviors {
         event.registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
         event.registerBehavior(ModBlocks.CRAB_TRAP.get(), new HitCrabTrapBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof CementCauldronBlock, new CementStainingBehavior());
+        event.registerBehavior(ModBlocks.FISH_TANK.get(), new FishTankCompressBehavior());
         event.registerBehavior(ModBlocks.STAMPING_PLATFORM.get(), new ItemStampingBehavior());
         event.registerBehavior(ModBlocks.SPACE_OVERCOMPRESSOR.get(), new MassInjectBehavior());
         event.registerBehavior(state -> state.is(ModBlockTags.STORAGE_BLOCKS_LEAD), new ResetVaultBehavior());
