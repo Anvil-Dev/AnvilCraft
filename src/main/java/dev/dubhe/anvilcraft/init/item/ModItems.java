@@ -917,11 +917,6 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::brassNugget)
         .register();
 
-    public static final ItemEntry<Item> NETHERITE_CRYSTAL_NUCLEUS = REGISTRUM.item("netherite_crystal_nucleus", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .recipe(RegistrumItemRecipeLoader::netheriteCrystalNucleus)
-        .register();
-
     public static final ItemEntry<Item> LIME_POWDER = REGISTRUM.item("lime_powder", Item::new).register();
 
     public static final ItemEntry<LevitationItem> LEVITATION_POWDER = REGISTRUM.item("levitation_powder", LevitationItem::new)

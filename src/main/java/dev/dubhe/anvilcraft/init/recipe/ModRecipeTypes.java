@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessSerializer;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
@@ -26,7 +27,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.NeutronIrradiationRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.ReversedSmearAlikeRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
@@ -147,10 +147,10 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MeshRecipe>> MESH_SERIALIZER =
         RECIPE_SERIALIZERS.register("mesh", MeshRecipe.Serializer::new);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<ReversedSmearAlikeRecipe>> REVERSED_SMEAR_ALIKE_TYPE =
-        registerType("reversed_smear_alike");
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ReversedSmearAlikeRecipe>> REVERSED_SMEAR_ALIKE_SERIALIZER =
-        RECIPE_SERIALIZERS.register("reversed_smear_alike", ReversedSmearAlikeRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BlockProcessingRecipe>> BLOCK_PROCESSING_TYPE =
+        registerType("block_processing");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockProcessingRecipe>> BLOCK_PROCESSING_SERIALIZER =
+        RECIPE_SERIALIZERS.register("block_processing", BlockProcessingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<MobTransformRecipe>> MOB_TRANSFORM_TYPE =
         registerType("mob_transform");

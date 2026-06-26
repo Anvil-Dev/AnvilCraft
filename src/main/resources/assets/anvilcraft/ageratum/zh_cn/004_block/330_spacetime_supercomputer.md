@@ -10,6 +10,11 @@ items:
 
 <color=#886611> 操纵时间与空间 </color>
 
+<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_redstone_computer"/>
+<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_redstone_computer_2"/>
+
+合成需要[砧子辐照](../002_material/321_anvilon.md#砧子辐照)
+
 1. 持续耗能512kW，工作前需要充能
 2. 每 3s 充能 1%
 3. 通过指令的方式干涉时空，每次消耗 20% 充能进度

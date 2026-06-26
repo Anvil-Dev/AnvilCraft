@@ -61,7 +61,7 @@ navigation:
 
 转化方块，并在炼药锅中生成资源
 
-<structure id="../structures/squeeze.snbt"/>
+<structure id="../../structures/squeeze.snbt"/>
 
 - 湿海绵 → 海绵 + 水
 - 苔藓块 → 覆地苔藓 + 水
@@ -73,4 +73,14 @@ navigation:
 <info>
 本模组改进：当炼药锅集满4层蜂蜜时，可以用漏斗等物流方块取出蜂蜜块
 </info>
+
+# 方块流程处理
+
+接受包括但不限于上述各种加工方式作为单个环节，可以进行多个不同环节的加工，并循环数次
+
+<info>
+以<ref item="anvilcraft:redstone_computer"/>为例，它需要依次压入<ref item="anvilcraft:circuit_board"/>、<ref item="anvilcraft:processor"/>、<ref item="anvilcraft:disk"/>
+</info>
+
+<recipe id="anvilcraft:procedural_process/redstone_computer_from_procedural"/>
     

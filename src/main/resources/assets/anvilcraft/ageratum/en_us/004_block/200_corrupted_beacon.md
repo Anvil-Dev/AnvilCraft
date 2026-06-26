@@ -63,9 +63,21 @@ items:
 
 <row halign="center">
 <recipe id="anvilcraft:time_warp/raw_copper"/>
-> Metal blocks can be time-warped into raw ore form
 <recipe id="anvilcraft:time_warp/budding_amethyst"/>
 <recipe id="anvilcraft:time_warp/wither_skeleton_skull"/>
 <recipe id="anvilcraft:time_warp/wither_rose"/>
 <recipe id="anvilcraft:time_warp/crying_obsidian"/>
 </row>
+
+<info>
+All metal blocks can be time-warped into raw ore form, used for <ref item="anvilcraft:mineral_fountain"/>
+</info>
+
+# Uses
+
+- [Mass Production of World Base Blocks](../008_recipe/200_world_block.md)
+- [Mass Production of Diamond](../008_recipe/201_diamond.md)
+- [Mass Production of Heart of the Sea](../008_recipe/202_sea_heart.md)
+- [Trident Regeneration](../008_recipe/203_prismarine.md)
+- [Mass Production of Gems](../008_recipe/204_gem.md)
+- [Mass Production of Netherite](../008_recipe/210_netherite_ingot.md)

@@ -63,9 +63,21 @@ items:
 
 <row halign="center">
 <recipe id="anvilcraft:time_warp/raw_copper"/>
-> 金属块可被时移为粗矿形式
 <recipe id="anvilcraft:time_warp/budding_amethyst"/>
 <recipe id="anvilcraft:time_warp/wither_skeleton_skull"/>
 <recipe id="anvilcraft:time_warp/wither_rose"/>
 <recipe id="anvilcraft:time_warp/crying_obsidian"/>
 </row>
+
+<info>
+金属块都可被时移为粗矿形式，用于<ref item="anvilcraft:mineral_fountain"/>
+</info>
+
+# 用途
+
+- [量产世界基底方块](../008_recipe/200_world_block.md)
+- [量产钻石](../008_recipe/201_diamond.md)
+- [量产海洋之心](../008_recipe/202_sea_heart.md)
+- [再生三叉戟](../008_recipe/203_prismarine.md)
+- [量产宝石](../008_recipe/204_gem.md)
+- [量产下界合金](../008_recipe/210_netherite_ingot.md)

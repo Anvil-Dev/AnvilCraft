@@ -1065,19 +1065,6 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Item> void netheriteCrystalNucleus(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("ABA")
-            .define('A', ModItemTags.TUNGSTEN_PLATES)
-            .define('B', Items.NETHERITE_SCRAP)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItemTags.TUNGSTEN_PLATES),
-                RegistrumRecipeProvider.has(ModItemTags.TUNGSTEN_PLATES)
-            )
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.NETHERITE_SCRAP), RegistrumRecipeProvider.has(Items.NETHERITE_SCRAP))
-            .save(provider);
-    }
-
     public static <T extends Item> void levitationPowder(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.LEVITATION_POWDER_BLOCK)

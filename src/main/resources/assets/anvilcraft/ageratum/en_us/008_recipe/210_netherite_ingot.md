@@ -8,12 +8,12 @@ navigation:
 
 - Use <ref item="anvilcraft:mineral_fountain"/> to mass-produce <ref item="minecraft:gold_ingot"/> and <ref item="anvilcraft:tungsten_ingot"/>
 
-<recipe id="anvilcraft:stamping/tungsten_pressure_plate"/>
+# <ref item="minecraft:netherite_scrap"/>
 
-<row halign="center">
-<recipe id="anvilcraft:netherite_crystal_nucleus"/>
-<recipe id="anvilcraft:time_warp/ancient_debris"/>
+<recipe id="anvilcraft:procedural_process/ancient_debris"/>
 <recipe id="anvilcraft:super_heating_warp_ancient_debris_2_netherite_scrap"/>
-</row>
+
+# <ref item="minecraft:netherite_ingot"/>
 
 <recipe id="minecraft:netherite_ingot"/>
+<recipe id="anvilcraft:procedural_process/netherite_block"/>

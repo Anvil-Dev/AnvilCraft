@@ -10,6 +10,11 @@ items:
 
 <color=#886611> Manipulates time and space </color>
 
+<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_redstone_computer"/>
+<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_redstone_computer_2"/>
+
+Crafting requires [Anvilon Irradiation](../002_material/321_anvilon.md#anvilon-irradiation)
+
 1. Continuously consumes 512kW of power, requires charging before operation
 2. Charges 1% every 3 seconds
 3. Interferes with spacetime via commands, consuming 20% charge per use

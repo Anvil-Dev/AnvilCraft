@@ -50,8 +50,6 @@ public class OtherLang {
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.plasma_jets", "%1$s tried to high-five the plasma jets. They did not high-five back.");
 
-        provider.add("effect.anvilcraft.rage", "Rage");
-
         provider.add("item.anvilcraft.pill.tooltip",
             "Pills made together with potion to achieve corresponding effects, can be taken quickly");
 

@@ -74,7 +74,14 @@ items:
 
 # <ref item="anvilcraft:redstone_computer"/>
 
+<row halign="center">
 <recipe id="anvilcraft:redstone_computer"/>
+<recipe id="anvilcraft:procedural_process/redstone_computer_from_procedural"/>
+</row>
+
+<info>
+使用[方块流程处理](../007_struct/000_block_processing.md#方块流程处理)合成虽复杂，但更省材料
+</info>
 
 - 输出三个输入端的信号强度之和，最高不超过15
 

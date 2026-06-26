@@ -10,18 +10,23 @@
   "loop": 3,
   "multiple_loop_first_step": {
     "content": {
-      "type": "anvilcraft:item_inject",
-      "block_ingredient": {
-        "blocks": "anvilcraft:wip_block"
-      },
-      "block_result": {
-        "block": "anvilcraft:wip_block"
-      },
-      "ingredients": [
+      "type": "anvilcraft:block_processing",
+      "inputs": [
         {
-          "items": "anvilcraft:transcendium_nugget"
+          "blocks": "anvilcraft:wip_block"
+        },
+        {
+          "blocks": "anvilcraft:neutron_irradiator",
+          "properties": [
+            {
+              "type": "time"
+            }
+          ]
         }
-      ]
+      ],
+      "result": {
+        "block": "anvilcraft:wip_block"
+      }
     },
     "index": 0
   },
@@ -31,27 +36,10 @@
   "steps": [
     {
       "content": {
-        "type": "anvilcraft:item_inject",
-        "block_ingredient": {
-          "blocks": "anvilcraft:redstone_computer"
-        },
-        "block_result": {
-          "block": "anvilcraft:wip_block"
-        },
-        "ingredients": [
-          {
-            "items": "anvilcraft:transcendium_nugget"
-          }
-        ]
-      },
-      "index": 0
-    },
-    {
-      "content": {
-        "type": "anvilcraft:reversed_smear_alike",
+        "type": "anvilcraft:block_processing",
         "inputs": [
           {
-            "blocks": "anvilcraft:wip_block"
+            "blocks": "anvilcraft:redstone_computer"
           },
           {
             "blocks": "anvilcraft:neutron_irradiator",
@@ -66,11 +54,11 @@
           "block": "anvilcraft:wip_block"
         }
       },
-      "index": 1
+      "index": 0
     },
     {
       "content": {
-        "type": "anvilcraft:reversed_smear_alike",
+        "type": "anvilcraft:block_processing",
         "inputs": [
           {
             "blocks": "anvilcraft:wip_block"
@@ -87,6 +75,23 @@
         "result": {
           "block": "anvilcraft:wip_block"
         }
+      },
+      "index": 1
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:transcendium_nugget"
+          }
+        ]
       },
       "index": 2
     }
