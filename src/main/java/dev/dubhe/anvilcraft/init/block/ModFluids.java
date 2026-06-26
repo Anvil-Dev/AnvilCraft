@@ -350,8 +350,8 @@ public class ModFluids {
         );
         e.registerFluidType(
             new ModClientFluidTypeExtensionImpl(
-                ResourceLocation.withDefaultNamespace("block/water_still"),
-                ResourceLocation.withDefaultNamespace("block/water_flow"),
+                ResourceLocation.withDefaultNamespace("block/white_concrete"),
+                ResourceLocation.withDefaultNamespace("block/white_concrete"),
                 0xFFFFFF,
                 1.0f,
                 true
