@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.HitResult;
@@ -67,6 +68,11 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
     }
 
     @Override
+    public boolean isIgnited(BlockCache cache, BlockPos pos) {
+        return true;
+    }
+
+    @Override
     public void setIgnited(BlockCache cache, BlockPos pos, boolean ignited) {
         if (ignited) return;
         cache.setBlock(
@@ -79,5 +85,17 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
     @Override
     public Fluid getFluid(BlockCache cache, BlockPos pos) {
         return ModFluids.OIL.get();
+    }
+
+    @Override
+    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
+        BlockState state = cache.getBlockState(pos);
+        int remaining = state.getValue(FireCauldronBlock.LEVEL) - 1;
+        if (remaining <= 0) {
+            cache.setBlock(pos, Blocks.CAULDRON.defaultBlockState());
+            return true;
+        }
+        cache.setBlock(pos, state.setValue(FireCauldronBlock.LEVEL, remaining));
+        return true;
     }
 }

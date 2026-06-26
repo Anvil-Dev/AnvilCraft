@@ -31,6 +31,7 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         return simpleCodec(PlasmaJetsBlock::new);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean trySpawn(BlockPos pos, Level level) {
         BlockState heater = level.getBlockState(pos.below().below());
         if (
@@ -77,5 +78,20 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         BlockCache cache = new BlockCache(level);
         if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
         return cauldron.isIgnited(cache, pos) && cauldron.getFluid(cache, pos).is(ModFluidTags.OIL);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static boolean isValidBaseCauldron(Level level, BlockPos pos) {
+        BlockCache cache = new BlockCache(level);
+        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+        return cauldron.isEmpty(cache, pos) || cauldron.getFluid(cache, pos).is(ModFluidTags.OIL);
+    }
+
+    public static boolean tryConsumeOnce(Level level, BlockPos pos) {
+        BlockCache cache = new BlockCache(level);
+        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+        if (!cauldron.consumeOnce(cache, pos)) return false;
+        cache.accept();
+        return true;
     }
 }
