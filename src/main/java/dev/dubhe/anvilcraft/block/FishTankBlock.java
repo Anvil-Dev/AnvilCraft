@@ -304,14 +304,14 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     public boolean isEmpty(BlockCache cache, BlockPos pos) {
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(be -> be.getFluidHandler().getFluid().isEmpty())
-            .orElseThrow();
+            .orElse(false);
     }
 
     @Override
     public boolean isIgnited(BlockCache cache, BlockPos pos) {
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(FishTankBlockEntity::isIgnited)
-            .orElseThrow();
+            .orElse(false);
     }
 
     @Override
@@ -324,7 +324,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     public Fluid getFluid(BlockCache cache, BlockPos pos) {
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(be -> be.getFluidHandler().getFluid().getFluid())
-            .orElseThrow();
+            .orElseThrow(() -> new IllegalStateException("Cannot get fluid when the block entity is null"));
     }
 
     @Override
