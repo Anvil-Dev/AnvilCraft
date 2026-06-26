@@ -33,22 +33,22 @@ import java.util.concurrent.ConcurrentHashMap;
 @EventBusSubscriber(modid = "anvilcraft")
 public class GravityManager {
 
-    // 维度 -> 区块索引 -> 重力源列表
+    /// 维度 -> 区块索引 -> 重力源列表
     private static final Map<ResourceKey<Level>, Map<Long, List<GravitySource>>> GRAVITY_CACHE = new ConcurrentHashMap<>();
 
-    // 维度重力倍率表
+    /// 维度重力倍率表
     private static final Map<ResourceKey<Level>, Double> DIMENSION_GRAVITY_MAP = new HashMap<>();
 
     static {
         GravitySourceManager.registerSourceType(BlackHoleBlock.class, 7, 10);
         GravitySourceManager.registerSourceType(WhiteHoleBlock.class, 7, -10);
-        // 在这里注册更多重力源，strength -> 距离该重力源 1 格处的重力是主世界重力的 strength 倍
+        /// 在这里注册更多简单点状重力源，strength -> 距离该重力源 1 格处的重力是主世界重力的 strength 倍
 
         // registerDimensionGravity(Level.MUN, 0.1653061224489796);
-        // 在这里注册更多维度重力，gravity -> 该维度重力是主世界重力的 gravity 倍
+        /// 在这里注册更多维度重力，gravity -> 该维度重力是主世界重力的 gravity 倍
     }
 
-    // 区块卸载事件，移除记录的重力源
+    /// 区块卸载事件，移除记录的重力源
     @SubscribeEvent
     public static void onChunkUnload(ChunkEvent.Unload event) {
         if (event.getLevel() instanceof Level level && !level.isClientSide) {
@@ -59,7 +59,7 @@ public class GravityManager {
         }
     }
 
-    // 世界卸载事件，清除所有缓存
+    /// 世界卸载事件，清除所有缓存
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof Level level && !level.isClientSide) {
@@ -79,7 +79,7 @@ public class GravityManager {
                 .asItem());
             if (isLevitationPowder) return GravityType.MICRO_ANTI_GRAVITY; // 漂浮粉
 
-            // 在这里注册物品的重力类型
+            /// 在这里注册物品的重力类型
         }
 
         if (entity instanceof LevitatingBlockEntity) { // 漂浮粉块
@@ -93,7 +93,7 @@ public class GravityManager {
         if (entity instanceof StandableLevitatingBlockEntity) { // 上升的可控沙
             return GravityType.ANTI_GRAVITY;
         }
-        // 在这里注册下落方块的重力类型
+        /// 在这里注册下落方块的重力类型
 
         return GravityType.NORMAL; // 默认
     }
@@ -105,7 +105,7 @@ public class GravityManager {
         return GravityType.NORMAL; // 普通下落方块
     }
 
-    // 得到重力向量
+    /// 得到重力向量
     public static Vec3 getGravityVector(Entity entity) {
         // 获取计算的引力
         Vec3 gravityVector = GravitySourceManager.calculateGravityVector(entity);
@@ -119,7 +119,7 @@ public class GravityManager {
         return gravityVector.scale(GravityManager.getGravityType(entity).getScalar());
     }
 
-    // 得到含维度的总体重力向量（仅用于下落方块方块）
+    /// 得到含维度的总体重力向量（仅用于下落方块方块）
     public static Vec3 getNetGravityVectorForFallingBlock(Level level, Vec3 pos, GravityType gravityType) {
         // 确定基础重力的大小和方向
         double baseGravity = 0.04 * getDimensionGravity(level);
@@ -144,7 +144,7 @@ public class GravityManager {
         return getNetGravityVectorForFallingBlock(entity.level(), entity.getBoundingBox().getCenter(), getGravityType(entity));
     }
 
-    // 应用维度重力
+    /// 应用维度重力
     public static void registerDimensionGravity(ResourceKey<Level> dimension, double gravity) {
         DIMENSION_GRAVITY_MAP.put(dimension, gravity);
     }
@@ -153,16 +153,28 @@ public class GravityManager {
         return DIMENSION_GRAVITY_MAP.getOrDefault(level.dimension(), 1.0);
     }
 
-    // 重力源定义与存储
+    /// 重力源定义与存储
     public static class GravitySourceType {
         final double strength;
         final int radius;
         final double radiusSqr;
+        // 天体视觉半径（方块），0 表示无内部区域（点源，始终保持 1/r² 衰减）。
+        // > 0 时在天体内部使用均匀球壳近似（g ∝ r 衰减到 0），外部仍为 1/r²。
+        final double bodyRadius;
+        final double bodyRadiusCubed; // bodyRadius³，内部引力计算用
 
+        /// 不带天体半径的构造器（黑洞方块/白洞方块等点源）。
         public GravitySourceType(double strength, int radius) {
+            this(strength, radius, 0);
+        }
+
+        /// 带天体半径的构造器，用于恒星/行星等有视觉大小的天体。
+        public GravitySourceType(double strength, int radius, double bodyRadius) {
             this.strength = strength;
             this.radius = radius;
             this.radiusSqr = radius * radius;
+            this.bodyRadius = bodyRadius;
+            this.bodyRadiusCubed = bodyRadius * bodyRadius * bodyRadius;
         }
     }
 
@@ -176,7 +188,7 @@ public class GravityManager {
         }
     }
 
-    // 重力源管理器
+    /// 重力源管理器
     public static class GravitySourceManager {
         private static final Map<Class<? extends Block>, GravitySourceType> REGISTRY = new HashMap<>();
 
@@ -276,8 +288,16 @@ public class GravityManager {
                         double radiusSquare = dx * dx + dy * dy + dz * dz;
 
                         if (radiusSquare <= s.type.radiusSqr) {
-                            // 使用传入的 g
-                            double f = (g * s.type.strength) / (Math.max(radiusSquare, 1.0) * Math.sqrt(radiusSquare));
+                            double dist = Math.sqrt(radiusSquare);
+                            double f;
+                            if (s.type.bodyRadius > 0 && dist < s.type.bodyRadius) {
+                                // 天体内部：均匀球壳近似，g ∝ r（越靠近中心越弱，中心处为 0）。
+                                // f = g * strength / bodyRadius³，力的大小 = f * dist = g * strength * dist / bodyRadius³
+                                f = (g * s.type.strength) / s.type.bodyRadiusCubed;
+                            } else {
+                                // 天体外部：标准 1/r² 衰减
+                                f = (g * s.type.strength) / (Math.max(radiusSquare, 1.0) * dist);
+                            }
                             fx += dx * f;
                             fy += dy * f;
                             fz += dz * f;

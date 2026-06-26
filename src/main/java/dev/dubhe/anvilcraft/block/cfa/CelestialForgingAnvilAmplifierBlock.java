@@ -12,7 +12,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
@@ -229,7 +231,21 @@ public class CelestialForgingAnvilAmplifierBlock
         FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
         return this.defaultBlockState()
             .setValue(FACING, facing)
-            .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+            .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER && fluidState.isSource());
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        if (!state.hasProperty(this.getPart())) return;
+        for (DirectionCube232PartHalf part : this.getParts()) {
+            if (part == state.getValue(this.getPart())) continue;
+            BlockPos blockPos = pos.offset(this.offsetFrom(state, part));
+            /// 每个 part 独立检测放置位置是否有水源，而不是都沿用主方块的含水状态
+            FluidState fluidState = level.getFluidState(blockPos);
+            BlockState newState = this.placedState(part, state)
+                .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER && fluidState.isSource());
+            level.setBlockAndUpdate(blockPos, newState);
+        }
     }
 
     @Override

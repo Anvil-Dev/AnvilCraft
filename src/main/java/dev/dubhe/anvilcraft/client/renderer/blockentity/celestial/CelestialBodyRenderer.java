@@ -13,10 +13,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 /// 天体渲染器 —— 提供行星体、大气、星晕和行星环的渲染方法。
-///
 /// 光照模型使用 Lambert / 类 BRDF 近似计算面片颜色，
 /// 大气透明度由视线方向与法线点的锐角边缘增强。
 @SuppressWarnings("checkstyle:MultipleVariableDeclarations")
@@ -183,7 +183,7 @@ public class CelestialBodyRenderer {
         VertexConsumer vc,
         int light,
         int overlay,
-        @org.jetbrains.annotations.Nullable Vector3f lightDir
+        @Nullable Vector3f lightDir
     ) {
         float x1 = 0, x2 = 1, y1 = 0, y2 = 1, z1 = 0, z2 = 1;
         PoseStack.Pose pose = ps.last();

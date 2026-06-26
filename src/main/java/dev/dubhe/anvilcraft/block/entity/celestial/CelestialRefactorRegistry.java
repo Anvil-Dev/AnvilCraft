@@ -11,13 +11,11 @@ import java.util.Collections;
 import java.util.List;
 
 /// 将天体映射到其可能的天体约束环重构选项的注册表。
-///
 /// 每种天体类型的最内层环：
 /// - 小型岩石行星（size < 26）：最内环 = R1
 /// - 小型气态行星（size < 26）：最内环 = R2
 /// - 小型恒星（size < 26）：最内环 = R4
 /// - 大型恒星（size >= 26）：最内环 = R5
-///
 /// 共有11种独特巨构建筑，分布在不同环上。
 /// 变体模型（如excavator_off、coil_fix）在世界中单独渲染；
 /// UI中仅显示主要模型。
@@ -27,7 +25,6 @@ public final class CelestialRefactorRegistry {
     }
 
     /// 获取给定天体的最内环编号。
-    ///
     /// 启用增幅时，最小环始终为4（恒星级别）。
     public static int getInnermostRing(CelestialBodyData body, boolean amplified) {
         boolean isLarge = body.size() >= 48;
@@ -44,10 +41,8 @@ public final class CelestialRefactorRegistry {
     }
 
     /// 获取已锁定天体的可用重构选项。
-    ///
     /// 非增幅锻星砧有环1-3 → 显示环1+2的巨构建筑。
     /// 增幅锻星砧有环3-5 → 显示环4+5的巨构建筑。
-    ///
     /// resources - 行星资源集，用于根据资源可用性过滤选项；
     ///             可以为null（最宽松模式，显示所有符合环条件的选项）
     public static List<CelestialRefactorOption> getOptions(CelestialBodyData body, boolean amplified,
@@ -61,22 +56,24 @@ public final class CelestialRefactorRegistry {
         int maxRing = amplified ? 5 : 2;
         List<CelestialRefactorOption> options = getOptionsForRing(innermostRing, maxRing);
 
-        /// 过滤planet_exctractor：岩石/特殊行星必须有液体
+        /// 过滤行星开采器：岩石/特殊行星必须有液体
         if (!hasLiquid(body)) {
             options.removeIf(opt -> "planet_exctractor".equals(opt.megastructure()));
         }
 
-        /// 过滤giant_planet_exctractor：仅对气态行星可用
+        /// 过滤巨行星抽取器：仅对巨行星可用
         if (!(body instanceof GiantPlanetData)) {
             options.removeIf(opt -> "giant_planet_exctractor".equals(opt.megastructure()));
         }
 
-        /// 过滤stellar_ring_collider：仅对小型恒星可用（size < 48）
-        if (!(body instanceof StarData star && star.size() < 48)) {
+        /// 过滤星环对撞机：仅对小型恒星可用（size < 48），黑洞和中子星不可用
+        if (!(body instanceof StarData star && star.size() < 48
+              && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
+              && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)) {
             options.removeIf(opt -> "stellar_ring_collider".equals(opt.megastructure()));
         }
 
-        /// 过滤stellar_evolution_accelerator：恒星残骸不可用
+        /// 过滤恒星演化加速器：恒星残骸不可用
         if (body instanceof StarData star
             && (star.bodyClass() == CelestialBodyClass.WHITE_DWARF
                 || star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
@@ -84,12 +81,12 @@ public final class CelestialRefactorRegistry {
             options.removeIf(opt -> "stellar_evolution_accelerator".equals(opt.megastructure()));
         }
 
-        /// 过滤magnetar_coil：仅对中子星可用
+        /// 过滤磁星线圈：仅对中子星可用
         if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.NEUTRON_STAR)) {
             options.removeIf(opt -> "magnetar_coil".equals(opt.megastructure()));
         }
 
-        /// 按恒星大小过滤stellar_evolution_accelerator的环变体：
+        /// 按恒星大小过滤恒星演化加速器的环变体：
         /// 小型恒星用环5模型，大型恒星用环6模型。
         if (body instanceof StarData star) {
             boolean isLarge = star.size() >= 48;
@@ -97,35 +94,40 @@ public final class CelestialRefactorRegistry {
                 && ((isLarge && opt.ring() == 5) || (!isLarge && opt.ring() == 6)));
         }
 
-        /// 过滤戴森球：小型给小型恒星，大型给大型恒星
-        if (body instanceof StarData star) {
+        /// 过滤戴森球：仅恒星可用（黑洞和中子星不可用），小型给小型恒星，大型给大型恒星
+        if (!(body instanceof StarData star
+              && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
+              && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)) {
+            options.removeIf(opt -> "dyson_sphere_small".equals(opt.megastructure())
+                || "dyson_sphere_large".equals(opt.megastructure()));
+        } else {
             boolean isLarge = star.size() >= 48;
             options.removeIf(opt -> "dyson_sphere_small".equals(opt.megastructure()) && isLarge);
             options.removeIf(opt -> "dyson_sphere_large".equals(opt.megastructure()) && !isLarge);
         }
 
-        /// 过滤penrose_sphere：仅对黑洞可用
+        /// 过滤彭罗斯球：仅对黑洞可用
         if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE)) {
             options.removeIf(opt -> "penrose_sphere".equals(opt.megastructure()));
         }
 
-        /// 过滤wormhole_stabilizer：仅对增幅模式下的黑洞可用
+        /// 过滤虫洞稳定器：仅对增幅模式下的黑洞可用
         if (!(body instanceof StarData star && star.bodyClass() == CelestialBodyClass.BLACK_HOLE && amplified)) {
             options.removeIf(opt -> "wormhole_stabilizer".equals(opt.megastructure()));
         }
 
-        /// 过滤matter_decompressor：仅对中子星或黑洞可用
+        /// 过滤物质解压器：仅对中子星或黑洞可用
         if (!(body instanceof StarData star
             && (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
                 || star.bodyClass() == CelestialBodyClass.BLACK_HOLE))) {
             options.removeIf(opt -> "matter_decompressor".equals(opt.megastructure()));
         }
 
-        /// 过滤eco_station：需要生物资源且没有低级文明
+        /// 过滤生态站：需要生物资源且没有低级文明
         if (resources != null) {
             options.removeIf(opt -> "eco_station".equals(opt.megastructure())
                 && !isEcoStationEligible(resources));
-            /// 过滤temple：需要低级文明
+            /// 过滤神庙：需要低级文明
             options.removeIf(opt -> "temple".equals(opt.megastructure())
                 && !resources.hasCivilization());
         }
@@ -133,7 +135,7 @@ public final class CelestialRefactorRegistry {
         return options;
     }
 
-    /// 生态空间站仅在行星拥有生物资源且没有低级文明时可用。
+    /// 生态站仅在行星拥有生物资源且没有低级文明时可用。
     private static boolean hasLiquid(CelestialBodyData body) {
         if (body instanceof RockyPlanetData rocky) return rocky.liquidCoverage() != LiquidCoverage.NONE;
         if (body instanceof SpecialCelestialBodyData s) {

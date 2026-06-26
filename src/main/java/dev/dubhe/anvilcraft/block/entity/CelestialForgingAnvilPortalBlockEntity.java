@@ -47,6 +47,12 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     /// 上一次已知的含水状态，用于检测变化并同步到连接的传送门。
     private boolean lastWaterlogged = false;
 
+    /// 刚放置在水中且尚未完成首次同步时为 true。
+    /// 用于在双向同步中保护刚放置的含水传送门不被对侧不含水状态覆盖。
+    boolean isJustPlacedWaterlogged() {
+        return !lastWaterlogged && getBlockState().getValue(BlockStateProperties.WATERLOGGED);
+    }
+
     /// 从外部激光源照射到此传送门前表面所接收的激光等级和类型。
     private int incomingLaserLevel = 0;
     private boolean incomingLaserGamma = false;
@@ -171,7 +177,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         /// 如果父 CFA 已消失（被水破坏等），也摧毁此传送门
         if (parent == null) {
-            level.destroyBlock(worldPosition, false);
+            level.destroyBlock(worldPosition, true);
             return;
         }
 
@@ -238,37 +244,83 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         sameSideCount++;
         boolean shouldBeOpen = sameSideCount == 2;
 
-        if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN) != shouldBeOpen) {
-            level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, shouldBeOpen), 3);
-            state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, shouldBeOpen);
+        boolean justOpened = state.hasProperty(CelestialForgingAnvilPortalBlock.OPEN)
+            && !state.getValue(CelestialForgingAnvilPortalBlock.OPEN)
+            && shouldBeOpen;
+
+        if (justOpened) {
+            level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true), 3);
+            state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true);
         }
 
-        /// 将含水状态同步到已连接的传送门（仅当此传送门状态发生变化时）
+        /// 将含水状态同步到已连接的传送门。
+        /// 双向同步：舀水/放水都会同步到对侧。
+        /// 特殊处理1：本传送门变为不含水时，若对侧传送门刚被放置（含水且尚未完成首次同步），
+        ///           则不对其推送 false，改为本传送门重新含水——刚放置的含水传送门优先级更高。
+        /// 特殊处理2：传送门刚建立连接（justOpened）时，若两侧含水状态不一致，
+        ///           则含水方优先——不含水方变为含水。
         if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             boolean thisWaterlogged = state.getValue(BlockStateProperties.WATERLOGGED);
+            CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
+
             if (thisWaterlogged != lastWaterlogged) {
                 lastWaterlogged = thisWaterlogged;
-                CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
                 if (connectedPortal != null) {
                     BlockPos targetPortalPos = connectedPortal.getBlockPos();
                     Level targetLevel = connectedPortal.getLevel();
                     if (targetLevel != null) {
                         BlockState targetState = targetLevel.getBlockState(targetPortalPos);
-                        if (targetState.getBlock() instanceof CelestialForgingAnvilPortalBlock
-                            && targetState.getValue(BlockStateProperties.WATERLOGGED) != thisWaterlogged) {
-                            targetLevel.setBlock(targetPortalPos,
-                                targetState.setValue(BlockStateProperties.WATERLOGGED, thisWaterlogged), 3);
+                        if (targetState.getBlock() instanceof CelestialForgingAnvilPortalBlock) {
+                            boolean targetWaterlogged = targetState.getValue(BlockStateProperties.WATERLOGGED);
                             if (thisWaterlogged) {
-                                targetLevel.scheduleTick(targetPortalPos, Fluids.WATER,
-                                    Fluids.WATER.getTickDelay(targetLevel));
+                                if (!targetWaterlogged) {
+                                    targetLevel.setBlock(targetPortalPos,
+                                        targetState.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+                                    targetLevel.scheduleTick(targetPortalPos, Fluids.WATER,
+                                        Fluids.WATER.getTickDelay(targetLevel));
+                                }
+                            } else {
+                                if (targetWaterlogged && connectedPortal.isJustPlacedWaterlogged()) {
+                                    level.setBlock(worldPosition,
+                                        state.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+                                    level.scheduleTick(worldPosition, Fluids.WATER,
+                                        Fluids.WATER.getTickDelay(level));
+                                    this.lastWaterlogged = true;
+                                } else if (targetWaterlogged) {
+                                    targetLevel.setBlock(targetPortalPos,
+                                        targetState.setValue(BlockStateProperties.WATERLOGGED, false), 3);
+                                }
                             }
                         }
                     }
                 }
             }
 
+            /// 刚建立连接时：若两侧含水状态不一致，含水方胜出
+            if (justOpened && connectedPortal != null) {
+                BlockPos targetPortalPos = connectedPortal.getBlockPos();
+                Level targetLevel = connectedPortal.getLevel();
+                if (targetLevel != null) {
+                    BlockState targetState = targetLevel.getBlockState(targetPortalPos);
+                    if (targetState.getBlock() instanceof CelestialForgingAnvilPortalBlock) {
+                        boolean targetWaterlogged = targetState.getValue(BlockStateProperties.WATERLOGGED);
+                        if (thisWaterlogged && !targetWaterlogged) {
+                            targetLevel.setBlock(targetPortalPos,
+                                targetState.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+                            targetLevel.scheduleTick(targetPortalPos, Fluids.WATER,
+                                Fluids.WATER.getTickDelay(targetLevel));
+                        } else if (!thisWaterlogged && targetWaterlogged) {
+                            level.setBlock(worldPosition,
+                                state.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+                            level.scheduleTick(worldPosition, Fluids.WATER,
+                                Fluids.WATER.getTickDelay(level));
+                            this.lastWaterlogged = true;
+                        }
+                    }
+                }
+            }
+
             /// 同步激光：将接收到的激光发送到已连接的传送门
-            CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
             if (connectedPortal != null) {
                 connectedPortal.setWormholeLaser(incomingLaserLevel, incomingLaserGamma);
             }
