@@ -63,7 +63,7 @@ public abstract class HeatableBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.duration = tag.getInt("duration");
+        this.duration = tag.contains("duration") ? tag.getInt("duration") : 200;
     }
 
     @Override
