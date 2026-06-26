@@ -69,7 +69,6 @@ public class FluidStackResourceHandler implements ResourceHandler<FluidResource>
             if (inserted > 0) {
                 this.snapshotJournal.updateSnapshots(transaction);
                 this.stack = resource.toStack(currentAmount + inserted);
-                this.onContentChanged(this.stack);
                 return inserted;
             }
         }
@@ -89,7 +88,6 @@ public class FluidStackResourceHandler implements ResourceHandler<FluidResource>
             if (extracted > 0) {
                 this.snapshotJournal.updateSnapshots(transaction);
                 this.stack = resource.toStack(currentAmount - extracted);
-                this.onContentChanged(this.stack);
                 return extracted;
             }
         }
@@ -103,8 +101,9 @@ public class FluidStackResourceHandler implements ResourceHandler<FluidResource>
             throw new IllegalArgumentException("Resource is empty but the amount is positive: " + amount);
         }
 
+        FluidStack original = this.stack;
         this.stack = resource.toStack(amount);
-        this.onContentChanged(this.stack);
+        this.onContentChanged(original);
     }
 
     @Override
@@ -126,7 +125,7 @@ public class FluidStackResourceHandler implements ResourceHandler<FluidResource>
         return (float) this.stack.amount() / this.capacity;
     }
 
-    protected void onContentChanged(FluidStack stack) {
+    protected void onContentChanged(FluidStack original) {
     }
 
     private class StackJournal extends SnapshotJournal<FluidStack> {
