@@ -5,14 +5,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
-import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.storage.MagnetBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,7 +24,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -322,11 +319,12 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         // 在这里继续添加特判...
     }
 
-    @SuppressWarnings("checkstyle:NeedBraces")
     @Unique
     private @Nullable String anvilcraft$getMaterialKey(ItemStack stack) {
         String id = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
-        for (String black : SPECIAL_BLACKLIST) if (id.contains(black)) return null; // 黑名单检查
+        for (String black : SPECIAL_BLACKLIST) {
+            if (id.contains(black)) return null; // 黑名单检查
+        }
         if (SPECIAL_MAP.containsKey(id)) return SPECIAL_MAP.get(id); // 别名/特判检查
         for (String key : MATERIAL_MAP.keySet()) { // 关键词匹配
             if (id.contains(key)) return key;

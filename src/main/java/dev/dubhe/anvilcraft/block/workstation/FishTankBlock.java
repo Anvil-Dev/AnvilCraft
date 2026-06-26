@@ -6,17 +6,23 @@ import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
+import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
+import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
+import dev.dubhe.anvilcraft.block.special.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -36,6 +42,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -43,8 +50,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 public class FishTankBlock extends Block implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable, IIgnitableCauldron {
     public static final BooleanProperty TROPICAL = BooleanProperty.create("tropical");
@@ -128,6 +137,35 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
+            level.scheduleTick(pos, this, 2);
+        }
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block block,
+        @Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
+        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
+            level.scheduleTick(pos, this, 2);
+        }
+    }
+
+    @Override
+    protected void tick(BlockState cauldronState, ServerLevel level, BlockPos pos, RandomSource random) {
+        BlockState below = level.getBlockState(pos.below());
+        if (below.is(ModBlocks.HEATER) && !below.getValue(HeaterBlock.OVERLOAD) && !PlasmaJetsBlock.trySpawn(pos.above(), level)) {
+            level.scheduleTick(pos, this, 10);
+        }
+    }
+
+    @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (level.isClientSide()) return;
         if (entity.isOnFire()) {
@@ -172,6 +210,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         }
         ResourceHandler<ItemResource> items = level.getCapability(Capabilities.Item.BLOCK, pos, null);
         FishTankBlockEntity.insertItemToTank(items, itemEntity);
+        if (this.isIgnited(new BlockCache(level), pos) && !itemEntity.isRemoved()) {
+            itemEntity.discard();
+        }
     }
 
     @Override
@@ -243,6 +284,13 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    public boolean isEmpty(BlockCache cache, BlockPos pos) {
+        return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
+            .map(be -> be.getFluidHandler().getAmountAsLong(0) == 0)
+            .orElseThrow();
+    }
+
+    @Override
     public boolean isIgnited(BlockCache cache, BlockPos pos) {
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(FishTankBlockEntity::isIgnited)
@@ -260,5 +308,23 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
             .map(be -> be.getFluidHandler().getStack().getFluid())
             .orElseThrow();
+    }
+
+    @Override
+    public boolean consumeOnce(BlockCache cache, BlockPos pos) {
+        BlockEntity blockEntity = cache.getBlockEntity(pos);
+        if (!(blockEntity instanceof FishTankBlockEntity be)) {
+            return false;
+        }
+        try (Transaction transaction = Transaction.openRoot()) {
+            FluidStackResourceHandler handler = be.getFluidHandler();
+            FluidResource resource = handler.getResource(0);
+            int extracted = handler.extract(resource, 250, transaction);
+            if (extracted < 250) {
+                return false;
+            }
+            transaction.commit();
+            return true;
+        }
     }
 }

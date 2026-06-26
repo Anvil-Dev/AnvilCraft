@@ -352,7 +352,6 @@ public class ItemCollectorBlockEntity extends BlockEntity
         getOrCreateCollectorList(blockEntity).remove(blockEntity);
     }
 
-    @SuppressWarnings("checkstyle:MissingSwitchDefault")
     public static void poachItemEntity(ItemEntity itemEntity) {
         ChunkPos currentPos = ChunkPos.containing(itemEntity.blockPosition());
         for (int x = -1; x <= 1; x++) {

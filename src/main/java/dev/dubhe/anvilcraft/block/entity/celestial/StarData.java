@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 

@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 public enum LiquidCoverage implements StringRepresentable {
     NONE("none"),
@@ -16,7 +15,7 @@ public enum LiquidCoverage implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 

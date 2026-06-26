@@ -80,8 +80,8 @@ import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CFAPortalRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilPortalRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
@@ -447,7 +447,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<CelestialForgingAnvilPortalBlockEntity> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .blockEntity("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL)
-        .renderer(() -> CelestialForgingAnvilPortalRenderer::new)
+        .renderer(() -> CFAPortalRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilLogisticsInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE =

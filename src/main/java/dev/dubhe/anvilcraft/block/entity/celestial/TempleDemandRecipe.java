@@ -17,7 +17,6 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -94,18 +93,18 @@ public record TempleDemandRecipe(
     );
 
     @Override
-    public boolean matches(TempleDemandInput input, @NotNull Level level) {
+    public boolean matches(TempleDemandInput input, Level level) {
         return this.category == input.category();
     }
 
     @Deprecated
     @Override
-    public @NotNull ItemStack assemble(@NotNull TempleDemandInput input) {
+    public ItemStack assemble(TempleDemandInput input) {
         return Items.AIR.getDefaultInstance();
     }
 
     @Override
-    public @NotNull RecipeType<TempleDemandRecipe> getType() {
+    public RecipeType<TempleDemandRecipe> getType() {
         return ModRecipeTypes.TEMPLE_DEMAND.get();
     }
 
@@ -120,7 +119,7 @@ public record TempleDemandRecipe(
     }
 
     @Override
-    public @NotNull RecipeSerializer<TempleDemandRecipe> getSerializer() {
+    public RecipeSerializer<TempleDemandRecipe> getSerializer() {
         return SERIALIZER;
     }
 
@@ -135,7 +134,7 @@ public record TempleDemandRecipe(
     }
 
     @Override
-    public @NotNull String group() {
+    public String group() {
         return "temple_demand";
     }
 }

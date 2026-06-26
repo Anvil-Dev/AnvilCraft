@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRende
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
+import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
@@ -29,8 +30,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -480,10 +479,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
      * Gamma laser emission with special properties: 16 block range, air-only pass-through,
      * prism destruction, 16x entity damage, and block breaking based on gamma level.
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void emitPortalGammaLaser(Direction direction) {
         if (this.level == null) return;
-        int originalMaxDistance = this.maxTransmissionDistance;
+        final int originalMaxDistance = this.maxTransmissionDistance;
         this.maxTransmissionDistance = 16;
 
         BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(direction);
@@ -493,11 +491,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         // Update old target if changed
         if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
-            if (this.irradiateBlockPos != null) {
-                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
-                if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
-                    lastIrradiated.onCancelingIrradiation(this);
-                }
+            BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
+            if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
+                lastIrradiated.onCancelingIrradiation(this);
             }
         }
 
@@ -537,6 +533,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                     .getCenter()
                     .add(0.0625, 0.0625, 0.0625)
             );
+            // noinspection deprecation
             this.level.getEntities(
                 EntityTypeTest.forClass(LivingEntity.class),
                 trackBoundingBox,
@@ -672,14 +669,12 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     private void tryHeatEmberMetalAt(BlockPos pos) {
         BlockState state = this.level.getBlockState(pos);
         if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
-            Block overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
+            OverheatedEmberMetalBlock overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
             this.level.setBlock(pos, overheatedBlock.defaultBlockState(), 3);
-            if (overheatedBlock instanceof EntityBlock entityBlock) {
-                BlockEntity be = entityBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
-                if (be instanceof dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity heatable) {
-                    this.level.setBlockEntity(heatable);
-                    heatable.addDurationInTick(80);
-                }
+            BlockEntity be = overheatedBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
+            if (be instanceof dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity heatable) {
+                this.level.setBlockEntity(heatable);
+                heatable.addDurationInTick(80);
             }
         } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
             BlockEntity be = this.level.getBlockEntity(pos);

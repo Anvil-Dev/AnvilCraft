@@ -16,6 +16,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -49,7 +50,7 @@ public record StructureScannerActionPacket(
         this(action, 0, Optional.empty(), RangeAxis.NONE);
     }
 
-    public StructureScannerActionPacket(Action action, String name) {
+    public StructureScannerActionPacket(Action action, @Nullable String name) {
         this(action, 0, Optional.ofNullable(name), RangeAxis.NONE);
     }
 
@@ -76,16 +77,12 @@ public record StructureScannerActionPacket(
         return TYPE;
     }
 
-    @SuppressWarnings("checkstyle:MissingSwitchDefault")
     @Override
     public void handleOnServer(Player player) {
         if (!(player.containerMenu instanceof StructureScannerMenu menu)) {
             return;
         }
         StructureScannerBlockEntity blockEntity = menu.getBlockEntity();
-        if (blockEntity == null) {
-            return;
-        }
 
         switch (this.action) {
             case START -> {
@@ -150,6 +147,7 @@ public record StructureScannerActionPacket(
                     player.level(), blockEntity, structureName
                 );
             }
+            default -> {}
         }
     }
 

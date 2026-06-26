@@ -1,4 +1,4 @@
 @NullMarked
-package dev.anvilcraft.lib.v2.util1.stack;
+package dev.dubhe.anvilcraft.api.block.entity;
 
 import org.jspecify.annotations.NullMarked;

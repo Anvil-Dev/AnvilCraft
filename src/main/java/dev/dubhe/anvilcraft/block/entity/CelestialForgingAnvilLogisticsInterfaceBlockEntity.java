@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
@@ -44,7 +45,7 @@ import java.util.List;
  * Items auto-route to their type's slot and don't overflow to other slots.
  * When active (redstone powered), auto-ejects items toward the facing direction.
  */
-public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity {
+public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     private static final int TYPE_COUNT = 16;
     @Setter
     private boolean syncing = false; // re-entrancy guard

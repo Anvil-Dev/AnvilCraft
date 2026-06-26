@@ -16,10 +16,9 @@
 
 ## 各类注解的使用
 
-1. 在所有软件包下放置 `package-info.java`  文件，并在其中为软件包添加以下注解
-    - `net.minecraft.MethodsReturnNonnullByDefault`
-    - `javax.annotation.ParametersAreNonnullByDefault`
-2. 对于需要表示为 `null` 的`参数`/`字段`/`返回值`等，请使用 `javax.annotation.Nullable`
+1. 在所有软件包下放置 `package-info.java` 文件，并在其中为软件包添加以下注解
+    - `org.jspecify.annotations.NullMarked`
+2. 对于需要表示为 `null` 的`参数`/`字段`/`返回值`等，请使用 `org.jspecify.annotations.Nullable`
 
 ## 提交规范
 
@@ -28,6 +27,8 @@
 3. 我们不限制在 `commit message` 中使用的语言，但请至少包含一个英文的简单描述，并将其放置在其它语言的描述之前
 4. 如果你在 `dev.dubhe.anvilcraft.api` 软件包中添加了新的类和公开方法，请为他们添加完善的 `Javadoc`，
    如果你修改了此软件包内的任何公开或非公开的方法，请保证它们的二进制兼容性
+5. 禁止在代码中以任何形式抑制 `checkstyle` 相关警告，但是以下情景除外：
+   - 在 `dev.dubhe.anvilcraft.data.lang` 软件包下允许抑制 `LineLength` 警告
 
 ## Pull requests
 

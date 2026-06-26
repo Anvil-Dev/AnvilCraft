@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +37,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private String command = "";
 
     @Getter
-    private EvictingQueue<String> historyCommands = EvictingQueue.create(16);
+    private final EvictingQueue<String> historyCommands = EvictingQueue.create(16);
 
     @Getter
     private float chargingProgress = 0;
@@ -103,7 +103,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         input.getString("command").ifPresent((command) -> this.command = command);
         this.chargingProgress = input.getFloatOr("chargingProgress", 0);
         for (ValueInput command : input.childrenListOrEmpty("historyCommands")) {
-            command.getString("command").ifPresent((cmd) -> this.historyCommands.add(cmd));
+            command.getString("command").ifPresent(this.historyCommands::add);
         }
     }
 

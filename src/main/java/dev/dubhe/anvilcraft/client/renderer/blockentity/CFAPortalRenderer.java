@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PortalRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -22,7 +23,7 @@ import org.jspecify.annotations.Nullable;
  * Renders the wormhole portal gate model with open/close states.
  * Uses 26.1 standalone model keys and submit-based rendering.
  */
-public class CelestialForgingAnvilPortalRenderer
+public class CFAPortalRenderer
     implements BlockEntityRenderer<CelestialForgingAnvilPortalBlockEntity, PortalRenderState> {
 
     public static final StandaloneModelKey<BlockStateModel> GATE_MODEL = new StandaloneModelKey<>(
@@ -32,7 +33,7 @@ public class CelestialForgingAnvilPortalRenderer
         () -> "AnvilCraft: CFA Gate Open Model"
     );
 
-    public CelestialForgingAnvilPortalRenderer(BlockEntityRendererProvider.Context ignored) {
+    public CFAPortalRenderer(BlockEntityRendererProvider.Context ignored) {
     }
 
     @Override
@@ -61,8 +62,6 @@ public class CelestialForgingAnvilPortalRenderer
     @Override
     public void submit(PortalRenderState state, PoseStack pose, SubmitNodeCollector collector,
                        CameraRenderState camera) {
-        var model = state.isOpen() ? state.getGateOpenModel() : state.getGateModel();
-        if (model == null) return;
         pose.pushPose();
         pose.translate(0.5, 0.94375, 0.5);
         float yrot = switch (state.getFacing()) {
@@ -74,6 +73,7 @@ public class CelestialForgingAnvilPortalRenderer
         };
         pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(yrot));
         pose.translate(-0.5, 0, -0.5);
+        BlockModelRenderState model = state.isOpen() ? state.getGateOpenModel() : state.getGateModel();
         model.submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         pose.popPose();
     }

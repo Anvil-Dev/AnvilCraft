@@ -22,7 +22,6 @@ abstract class PistonMovingBlockEntityMixin {
     @Shadow
     public abstract Direction getDirection();
 
-    @SuppressWarnings("checkstyle:MissingSwitchDefault")
     @Inject(
         method = "tick",
         at = @At(
@@ -42,6 +41,7 @@ abstract class PistonMovingBlockEntityMixin {
             case UP, DOWN -> {
                 return;
             }
+            default -> {}
         }
         BlockPos belowPos = pos.below();
         BlockState below = level.getBlockState(belowPos);

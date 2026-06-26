@@ -7,7 +7,7 @@ import dev.dubhe.anvilcraft.util.CauldronUtil;
 import lombok.Getter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

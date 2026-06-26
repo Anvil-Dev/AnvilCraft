@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 
 public class InfiniteCollectorRenderer extends PowerProducerRenderer<InfiniteCollectorBlockEntity, PowerGeneratorRenderState> {
-    public static final StandaloneModelKey<BlockStateModel> MODEL = new StandaloneModelKey<>(
+    public static final StandaloneModelKey<BlockStateModel> HEAD = new StandaloneModelKey<>(
         () -> "AnvilCraft: Infinite Collector Head Model"
     );
 
@@ -15,22 +15,22 @@ public class InfiniteCollectorRenderer extends PowerProducerRenderer<InfiniteCol
     }
 
     @Override
-    protected float elevation() {
-        return 0.75f;
-    }
-
-    @Override
-    protected float rotation(InfiniteCollectorBlockEntity blockEntity, float partialTick) {
-        return blockEntity.getRotation() + (float) (Math.log(blockEntity.getServerPower() + 1) * 0.5f * partialTick);
+    public PowerGeneratorRenderState createRenderState() {
+        return new PowerGeneratorRenderState();
     }
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return MODEL;
+        return HEAD;
     }
 
     @Override
-    public PowerGeneratorRenderState createRenderState() {
-        return new PowerGeneratorRenderState();
+    protected float elevation() {
+        return 0.75F;
+    }
+
+    @Override
+    protected float magic() {
+        return 0.055F;
     }
 }

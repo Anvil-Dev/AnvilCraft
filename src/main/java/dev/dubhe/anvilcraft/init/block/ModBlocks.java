@@ -11,10 +11,6 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
-import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
-import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
-import dev.dubhe.anvilcraft.block.SpacetimeSupercomputerBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -42,6 +38,8 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsI
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
+import dev.dubhe.anvilcraft.block.container.CreativeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
@@ -122,6 +120,7 @@ import dev.dubhe.anvilcraft.block.power.generator.ChargerBlock;
 import dev.dubhe.anvilcraft.block.power.generator.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.HeatCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
@@ -165,6 +164,7 @@ import dev.dubhe.anvilcraft.block.utility.ControllableSandBlock;
 import dev.dubhe.anvilcraft.block.utility.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.utility.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
+import dev.dubhe.anvilcraft.block.utility.SpacetimeSupercomputerBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.ItemDetectorBlock;
@@ -207,6 +207,7 @@ import dev.dubhe.anvilcraft.item.block.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatableBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeliostatsItem;
+import dev.dubhe.anvilcraft.item.block.InfiniteCollectorBlockItem;
 import dev.dubhe.anvilcraft.item.block.LevitationBlockItem;
 import dev.dubhe.anvilcraft.item.block.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.item.block.MultiphaseMatterBlockItem;
@@ -799,10 +800,8 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .register();
 
-    public static final BlockEntry<? extends Block> REMOTE_TRANSMISSION_POLE = REGISTRUM.block(
-            "remote_transmission_pole",
-            RemoteTransmissionPoleBlock::new
-        )
+    public static final BlockEntry<RemoteTransmissionPoleBlock> REMOTE_TRANSMISSION_POLE = REGISTRUM
+        .block("remote_transmission_pole", RemoteTransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
@@ -936,7 +935,7 @@ public class ModBlocks {
                     .dispatch()
                 )))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .item(dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem::new)
+        .item(InfiniteCollectorBlockItem::new)
         .build()
         .register();
 
@@ -1650,7 +1649,7 @@ public class ModBlocks {
             .noCollision()
             .strength(-1.0F, 3600000.0F)
             .noLootTable())
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .register();
 
     public static final BlockEntry<PropelPistonBlock> PROPEL_PISTON = REGISTRUM.block("propel_piston", PropelPistonBlock::new)

@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.CapacityModifiableFluidHandler;
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -25,7 +25,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
-public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
+public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     public static final int CAPACITY = 16 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 640 * FluidType.BUCKET_VOLUME;
     @Getter

@@ -19,6 +19,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");
         provider.add("tooltip.anvilcraft.jade.item_detector", "Detection Range: %d");
+        provider.add("tooltip.anvilcraft.jade.infinity", "∞");
 
         provider.add("tooltip.anvilcraft.charger.jade.working_progress", "Working Progress: %s");
         provider.add("tooltip.anvilcraft.charger.jade.time", "%1$s / %2$s");

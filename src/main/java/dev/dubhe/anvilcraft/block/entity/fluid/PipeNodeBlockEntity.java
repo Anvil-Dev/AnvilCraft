@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.CapacityModifiableFluidHandler;
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
@@ -36,7 +36,7 @@ import java.util.TreeSet;
  * <p>26.1 版本使用 {@link CapacityModifiableFluidHandler} 替代旧的 FluidTank。
  */
 @Getter
-public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFluidHandlerHolder {
+public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFluidResourceHandlerHolder {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 4;
 

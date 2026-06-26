@@ -15,7 +15,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -99,7 +99,6 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     private static final int VANILLA_SLOT_COUNT = PLAYER_INVENTORY_SLOT_COUNT + HOTBAR_SLOT_COUNT;
     private static final int TOTAL_SLOT_COUNT = STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT + VANILLA_SLOT_COUNT;
 
-    @SuppressWarnings("checkstyle:RightCurly")
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
@@ -118,23 +117,18 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
                     STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
-            }
-            // Book槽位（索引1）的物品移动到玩家物品栏
-            else if (index < STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT) {
+            } else if (index < STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT) { // Book槽位（索引1）的物品移动到玩家物品栏
                 if (!this.moveItemStackTo(originalStack, 
                     STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
-            }
-            // Output Book槽位（索引2）的物品移动到玩家物品栏
-            else if (index < STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT) {
+            } else if (index < STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT) {
+                // Output Book槽位（索引2）的物品移动到玩家物品栏
                 if (!this.moveItemStackTo(originalStack, 
                     STRUCTURE_DISK_SLOT_COUNT + BOOK_SLOT_COUNT + OUTPUT_BOOK_SLOT_COUNT, TOTAL_SLOT_COUNT, true)) {
                     return ItemStack.EMPTY;
                 }
-            }
-            // 玩家物品栏的物品移动
-            else if (index < TOTAL_SLOT_COUNT) {
+            } else if (index < TOTAL_SLOT_COUNT) { // 玩家物品栏的物品移动
                 // 检查是否是蓝图模式
                 boolean isBlueprintMode = this.blockEntity != null && !this.blockEntity.getDiskInventory().getItem(0).isEmpty();
                 

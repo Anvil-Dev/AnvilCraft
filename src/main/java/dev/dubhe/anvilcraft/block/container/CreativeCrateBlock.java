@@ -1,4 +1,4 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.container;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -11,12 +11,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class CreativeCrateBlock extends BaseEntityBlock implements IHammerRemovable {
@@ -28,11 +27,6 @@ public class CreativeCrateBlock extends BaseEntityBlock implements IHammerRemova
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(CreativeCrateBlock::new);
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Nullable

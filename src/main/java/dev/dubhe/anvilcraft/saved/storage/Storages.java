@@ -43,7 +43,7 @@ public class Storages extends SavedData {
     }
 
     private Storages(Map<UUID, BaseStorage> storages, RecoverStation<BaseStorage> recover) {
-        this.storages = storages;
+        this.storages = new HashMap<>(storages);
         this.recover = recover;
     }
 

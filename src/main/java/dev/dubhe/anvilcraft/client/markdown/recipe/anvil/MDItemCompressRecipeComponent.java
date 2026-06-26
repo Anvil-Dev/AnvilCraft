@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import lombok.Getter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRende
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
+import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
@@ -27,7 +28,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,6 +40,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -249,7 +250,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     /**
      * Server-side tick called by the block ticker.
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public void serverTick() {
         if (level == null || level.isClientSide()) return;
         BlockState state = getBlockState();
@@ -280,7 +280,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             // We borrow gammaLevel for the emission but restore it afterward so Penrose Sphere
             // state is preserved. emittingGamma is left true so tickWithGamma sends a gamma
             // packet; it will be reset by the cleanup at the end of serverTick().
-            int savedGammaLevel = this.gammaLevel;
+            final int savedGammaLevel = this.gammaLevel;
             this.gammaLevel = this.wormholeOutputLevel;
             this.emittingGamma = true;
             Direction facing = this.getFacing();
@@ -384,10 +384,9 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
      * - 16x entity damage
      * - Heats ember metal blocks in a cross-sectional area to overheated state
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void emitGammaLaserBeam(Direction direction) {
         if (this.level == null) return;
-        int originalMaxDistance = this.maxTransmissionDistance;
+        final int originalMaxDistance = this.maxTransmissionDistance;
         this.maxTransmissionDistance = 16;
 
         // Gamma laser: only pass through air/replaceable blocks.
@@ -402,7 +401,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
 
         // Update old target if changed
-        if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
+        if (!Objects.equals(tempIrradiateBlockPos, this.irradiateBlockPos)) {
             if (this.irradiateBlockPos != null) {
                 BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -449,6 +448,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
                     .getCenter()
                     .add(0.0625, 0.0625, 0.0625)
             );
+            // noinspection deprecation
             this.level.getEntities(
                 EntityTypeTest.forClass(LivingEntity.class),
                 trackBoundingBox,
@@ -556,14 +556,12 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         BlockState state = this.level.getBlockState(pos);
 
         if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
-            Block overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
+            OverheatedEmberMetalBlock overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
             this.level.setBlock(pos, overheatedBlock.defaultBlockState(), Block.UPDATE_CLIENTS);
-            if (overheatedBlock instanceof EntityBlock entityBlock) {
-                BlockEntity be = entityBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
-                if (be instanceof HeatableBlockEntity heatable) {
-                    this.level.setBlockEntity(heatable);
-                    heatable.addDurationInTick(80);
-                }
+            BlockEntity be = overheatedBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
+            if (be instanceof HeatableBlockEntity heatable) {
+                this.level.setBlockEntity(heatable);
+                heatable.addDurationInTick(80);
             }
         } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
             BlockEntity be = this.level.getBlockEntity(pos);
@@ -592,6 +590,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
      * Gamma-specific target finder: only passes through air/replaceable blocks.
      * All other blocks (including glass and laser-transparent blocks) stop the gamma laser.
      */
+    @SuppressWarnings("SameParameterValue")
     private BlockPos getGammaIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
         for (int length = 1; length <= expectedLength; length++) {
             BlockPos checkPos = originPos.relative(direction, length);

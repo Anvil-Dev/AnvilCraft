@@ -17,7 +17,7 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -247,7 +247,7 @@ public record PlanetResourceRecipe(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PlanetResourceRecipe> STREAM_CODEC = new StreamCodec<>() {
         @Override
-        public @NotNull PlanetResourceRecipe decode(RegistryFriendlyByteBuf buf) {
+        public PlanetResourceRecipe decode(RegistryFriendlyByteBuf buf) {
             Category category = Category.fromName(buf.readUtf());
             Optional<MineralData> mineral = ByteBufCodecs.optional(MineralData.STREAM_CODEC).decode(buf);
             Optional<FluidData> fluid = ByteBufCodecs.optional(FluidData.STREAM_CODEC).decode(buf);
@@ -275,10 +275,10 @@ public record PlanetResourceRecipe(
     );
 
     @Override
-    public boolean matches(PlanetResourceInput input, @NotNull Level level) {
+    public boolean matches(PlanetResourceInput input, Level level) {
         CelestialBodyData body = input.body();
         return switch (this.category) {
-            case MINERAL -> body instanceof RockyPlanetData;
+            case MINERAL, BIOLOGICAL, OFFERING, WASTELAND -> body instanceof RockyPlanetData;
             case FLUID -> {
                 if (!(body instanceof RockyPlanetData rocky)) yield false;
                 FluidData fd = this.fluid.orElse(null);
@@ -301,20 +301,17 @@ public record PlanetResourceRecipe(
                 if (gd == null) yield false;
                 yield gd.pressureType.isEmpty() || gd.pressureType.equals(giantBody.pressureType().getSerializedName());
             }
-            case BIOLOGICAL -> body instanceof RockyPlanetData;
-            case OFFERING -> body instanceof RockyPlanetData;
-            case WASTELAND -> body instanceof RockyPlanetData;
         };
     }
 
     @Deprecated
     @Override
-    public @NotNull ItemStack assemble(@NotNull PlanetResourceInput input) {
+    public ItemStack assemble(PlanetResourceInput input) {
         return Items.AIR.getDefaultInstance();
     }
 
     @Override
-    public @NotNull RecipeType<PlanetResourceRecipe> getType() {
+    public RecipeType<PlanetResourceRecipe> getType() {
         return ModRecipeTypes.PLANET_RESOURCE.get();
     }
 
@@ -329,7 +326,7 @@ public record PlanetResourceRecipe(
     }
 
     @Override
-    public @NotNull RecipeSerializer<PlanetResourceRecipe> getSerializer() {
+    public RecipeSerializer<PlanetResourceRecipe> getSerializer() {
         return SERIALIZER;
     }
 
@@ -344,31 +341,31 @@ public record PlanetResourceRecipe(
     }
 
     @Override
-    public @NotNull String group() {
+    public String group() {
         return "planet_resource";
     }
 
-    public MineralData mineralData() {
+    public @Nullable MineralData mineralData() {
         return this.mineral.orElse(null);
     }
 
-    public FluidData fluidData() {
+    public @Nullable FluidData fluidData() {
         return this.fluid.orElse(null);
     }
 
-    public GiantData giantData() {
+    public @Nullable GiantData giantData() {
         return this.giant.orElse(null);
     }
 
-    public BiologicalData biologicalData() {
+    public @Nullable BiologicalData biologicalData() {
         return this.biological.orElse(null);
     }
 
-    public OfferingData offeringData() {
+    public @Nullable OfferingData offeringData() {
         return this.offering.orElse(null);
     }
 
-    public WastelandData wastelandData() {
+    public @Nullable WastelandData wastelandData() {
         return this.wasteland.orElse(null);
     }
 }
