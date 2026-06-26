@@ -132,75 +132,15 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         this.blockRenderer = context.getBlockRenderDispatcher();
     }
 
-    /// 缩放倍率：
-    private static final float BODY_SCALE_FACTOR = 10.0f / 1.5f;
-
-    /// 束星环系统缩放与天体缩放的比值
-    private static final float RING_TO_BODY_RATIO = 1.8f;
-
-    /// R1-R3非增幅的内半径约为R4-R6增幅的 1/2，额外乘以此系数使非增幅环获得与增幅环相同的天体间距。
-    private static final float RING_SMALL_INNER_RADIUS_FACTOR = 2.0f;
-
-    /// "in" 骨骼（挂载 R1/R4）比 "mid" 骨骼（挂载 R2/R5）多一层 Z 旋转，
-    /// 累积倾斜使其内开口在视觉上需要额外的缩放补偿。
-    /// 该补偿在 bodyScale→0 时达到最大值，随 bodyScale 增长线性衰减。
-    /// 衰减至 bodyScale≈6.875 归零 —— 覆盖所有天体尺寸（最大 64 砧子 bodyScale≈3.945）。
-    private static final float INNER_BONE_BOOST_MAX = 5.5f;
-    private static final float INNER_BONE_BOOST_RATE = 0.8f;
-
-    /// 根据天体数据计算束星环系统缩放。
-    /// 恒星（StarData）始终使用 ring_big 模型族（恒星仅出现在增幅 CFA）。
-    /// 行星等其他天体统一使用 ring_small 模型族 —— 无论增幅与否，
-    /// 因为 ring_small 内半径约为 ring_big 的 1/2，需额外缩放补偿。
-    /// 恒星（ring_big，R4-R6）：
-    ///   bodyScale × BODY_SCALE_FACTOR × RING_TO_BODY_RATIO
-    ///   + max(0, INNER_BONE_BOOST_MAX − bodyScale × INNER_BONE_BOOST_RATE)
-    /// 行星（ring_small，R1-R3）：
-    ///   bodyScale × BODY_SCALE_FACTOR × RING_TO_BODY_RATIO × RING_SMALL_INNER_RADIUS_FACTOR
-    ///   + max(0, INNER_BONE_BOOST_MAX × 1.5 − bodyScale × INNER_BONE_BOOST_RATE)
-    /// 无天体时保持原始默认大小。
+    /// 环缩放和动态中心高度委托给 CelestialBodyData 统一计算（渲染与引力共用）。
     private static float ringSystemScale(@Nullable CelestialBodyData bodyData, boolean isAmplify) {
-        if (bodyData == null) return 6.0f;
-        float bodyS = bodyScale(bodyData);
-        float proportional = bodyS * BODY_SCALE_FACTOR * RING_TO_BODY_RATIO;
-        if (bodyData instanceof StarData) {
-            // 恒星：ring_big 模型族
-            float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX - bodyS * INNER_BONE_BOOST_RATE);
-            return proportional + inBoneBoost;
-        } else {
-            // 行星等：ring_small 模型族（内半径约为 ring_big 的 1/2，需 2× 基础缩放）
-            float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX * 1.5f - bodyS * INNER_BONE_BOOST_RATE);
-            return proportional * RING_SMALL_INNER_RADIUS_FACTOR + inBoneBoost;
-        }
+        return CelestialBodyData.ringSystemScale(bodyData, isAmplify);
     }
 
-    /// 根据天体数据计算动态天体中心高度。
-    /// 高度与环缩放线性相关，仅保留最小固定基线。
-    /// 恒星高度：baseHeight + ringScale × 0.74
-    /// 行星高度在恒星基础上再减去行星修正值。
-    /// 增幅行星的修正值较小（环更大需要更高），非增幅修正值较大。
-    /// 无天体时保持原始默认高度。
     private static float dynamicCenterY(@Nullable CelestialBodyData bodyData, boolean isAmplify) {
-        if (bodyData == null) return isAmplify ? 6.5f : 4.5f;
-        float ringScale = ringSystemScale(bodyData, isAmplify);
-        float baseHeight = isAmplify ? 2.5f : 1.5f;
-        float height = baseHeight + ringScale * 0.74f;
-        // 行星高度修正
-        if (!(bodyData instanceof StarData)) {
-            float bodyS = bodyScale(bodyData);
-            float planetMinBS = 0.3f;
-            float planetMaxBS = 1.5f;
-            float t = Math.min(1.0f, Math.max(0.0f, (bodyS - planetMinBS) / (planetMaxBS - planetMinBS)));
-            // 增幅行星环更大 → 修正较小使位置更高（比非增幅高约 4.5 格）；非增幅修正较大
-            float planetReduction = isAmplify
-                ? 0.5f + t * 1.5f  // 增幅：0.5 → 2.0
-                : 4.0f + t * 1.5f; // 非增幅：4.0 → 5.5
-            height -= planetReduction;
-        }
-        return height;
+        return CelestialBodyData.dynamicCenterY(bodyData, isAmplify);
     }
 
-    /// 获取原始天体视觉缩放（委托给 CelestialBodyData 接口的默认方法）。
     private static float bodyScale(CelestialBodyData data) {
         return data.bodyScale();
     }
@@ -231,7 +171,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float centerY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
 
         /// 天体缩放跟随红石信号：0 级为原始比例（bodyScale，最小~0.3 格 / 最大~3.9 格），
-        /// 15 级为完整放大（getBodyScale = bodyScale × BODY_SCALE_FACTOR）。
+        /// 15 级为完整放大（getBodyScale = bodyScale × CelestialBodyData.BODY_SCALE_FACTOR）。
         /// 各尺寸天体的比例关系在所有红石级别下保持不变。
         float bodyScaleMultiplier = 2.0f; // 无天体时的默认值
         if (bodyData != null) {
@@ -1331,7 +1271,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     }
 
     private static float getBodyScale(CelestialBodyData data) {
-        return data.bodyScale() * BODY_SCALE_FACTOR;
+        return data.bodyScale() * CelestialBodyData.BODY_SCALE_FACTOR;
     }
 
     private float[] getAtmosphereColor(Temperature temperature) {
@@ -1360,7 +1300,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         BlockState state = blockEntity.getBlockState();
         CelestialBodyData body = blockEntity.getCelestialBodyData();
         float centerY = dynamicCenterY(body, blockEntity.isAmplify());
-        float bs = body != null ? bodyScale(body) * BODY_SCALE_FACTOR : 6.0f;
+        float bs = body != null ? bodyScale(body) * CelestialBodyData.BODY_SCALE_FACTOR : 6.0f;
         float maxHeight = Math.max(centerY + bs * 1.5f, blockEntity.isAmplify() ? 18.0f : 12.0f);
         float horizInset = bs * 0.8f;
         if (!blockEntity.isAmplify()) {

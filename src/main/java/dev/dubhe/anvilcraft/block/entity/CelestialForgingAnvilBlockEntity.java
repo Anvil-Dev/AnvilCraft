@@ -371,14 +371,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     /// 基础引力影响半径（方块），对应 ringScale=6.0 时覆盖最外层束星环。
     private static final int BASE_GRAVITY_RADIUS = 4;
 
-    /// === 束星环/天体缩放常量（与渲染器 CelestialForgingAnvilBlockEntityRenderer 保持一致） ===
-    private static final float BODY_SCALE_FACTOR = 10.0f / 1.5f;
-    private static final float RING_TO_BODY_RATIO = 1.8f;
-    private static final float RING_SMALL_INNER_RADIUS_FACTOR = 2.0f;
-    private static final float INNER_BONE_BOOST_MAX = 5.5f;
-    private static final float INNER_BONE_BOOST_RATE = 0.8f;
-    private static final float BASE_RING_SCALE = 6.0f;
-
     public void startSearch() {
         this.searchFailed = false;
         this.powerInsufficient = false;
@@ -582,7 +574,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         /// 视觉中心坐标（与渲染一致，位于方块中心 + 动态 centerY）
         float redstoneFactor = getRedstoneSignal() / 15.0f;
-        float fullCenterY = computeDynamicCenterY();
+        float fullCenterY = CelestialBodyData.dynamicCenterY(celestialBodyData, isAmplify);
         float baseCenterY = isAmplify ? 6.5f : 4.5f;
         double vx = worldPosition.getX() + 0.5;
         double vy = worldPosition.getY() + baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
@@ -623,45 +615,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
     }
 
-    /// === 引力动态计算（与渲染器 CelestialForgingAnvilBlockEntityRenderer 保持相同逻辑） ===
-
-    /// 计算束星环系统缩放（与渲染器 ringSystemScale 逻辑一致）。
-    private float computeRingSystemScale() {
-        if (celestialBodyData == null) return BASE_RING_SCALE;
-        float bodyS = celestialBodyData.bodyScale();
-        float proportional = bodyS * BODY_SCALE_FACTOR * RING_TO_BODY_RATIO;
-        if (celestialBodyData instanceof StarData) {
-            float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX - bodyS * INNER_BONE_BOOST_RATE);
-            return proportional + inBoneBoost;
-        } else {
-            float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX * 1.5f - bodyS * INNER_BONE_BOOST_RATE);
-            return proportional * RING_SMALL_INNER_RADIUS_FACTOR + inBoneBoost;
-        }
-    }
-
-    /// 计算动态天体中心高度（与渲染器 dynamicCenterY 逻辑一致）。
-    private float computeDynamicCenterY() {
-        if (celestialBodyData == null) return isAmplify ? 6.5f : 4.5f;
-        float ringScale = computeRingSystemScale();
-        float baseHeight = isAmplify ? 2.5f : 1.5f;
-        float height = baseHeight + ringScale * 0.74f;
-        if (!(celestialBodyData instanceof StarData)) {
-            float bodyS = celestialBodyData.bodyScale();
-            float planetMinBS = 0.3f;
-            float planetMaxBS = 1.5f;
-            float t = Math.min(1.0f, Math.max(0.0f, (bodyS - planetMinBS) / (planetMaxBS - planetMinBS)));
-            float planetReduction = isAmplify
-                ? 0.5f + t * 1.5f
-                : 4.0f + t * 1.5f;
-            height -= planetReduction;
-        }
-        return height;
-    }
+    /// === 引力动态计算（委托给 CelestialBodyData 统一计算，渲染与引力共用） ===
 
     /// 计算当前红石信号下引力中心相对于控制器方块的 Y 偏移（整数，四舍五入）。
     private int computeGravityCenterOffset() {
         float redstoneFactor = getRedstoneSignal() / 15.0f;
-        float fullCenterY = computeDynamicCenterY();
+        float fullCenterY = CelestialBodyData.dynamicCenterY(celestialBodyData, isAmplify);
         float baseCenterY = isAmplify ? 6.5f : 4.5f;
         float centerY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
         return Math.round(centerY);
@@ -671,9 +630,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     /// ringScale=6.0 时半径 = BASE_GRAVITY_RADIUS=4，随环缩放线性变化。
     private int computeGravityRadius() {
         float redstoneFactor = getRedstoneSignal() / 15.0f;
-        float fullRingScale = computeRingSystemScale();
-        float ringScale = BASE_RING_SCALE + (fullRingScale - BASE_RING_SCALE) * redstoneFactor;
-        return Math.max(1, Math.round(BASE_GRAVITY_RADIUS * ringScale / BASE_RING_SCALE));
+        float fullRingScale = CelestialBodyData.ringSystemScale(celestialBodyData, isAmplify);
+        float ringScale = CelestialBodyData.BASE_RING_SCALE + (fullRingScale - CelestialBodyData.BASE_RING_SCALE) * redstoneFactor;
+        return Math.max(1, Math.round(BASE_GRAVITY_RADIUS * ringScale / CelestialBodyData.BASE_RING_SCALE));
     }
 
     /// 计算当前红石信号下天体视觉半径（方块），用于引力内部递减边界。
@@ -682,7 +641,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (celestialBodyData == null) return 0;
         float redstoneFactor = getRedstoneSignal() / 15.0f;
         float rawBodyScale = celestialBodyData.bodyScale();
-        float fullBodyScale = rawBodyScale * BODY_SCALE_FACTOR;
+        float fullBodyScale = rawBodyScale * CelestialBodyData.BODY_SCALE_FACTOR;
         float bodyScaleMultiplier = rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
         return bodyScaleMultiplier / 2.0;
     }
