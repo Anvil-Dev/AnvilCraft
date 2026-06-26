@@ -22,7 +22,8 @@ public record SpecialCelestialBodyData(
     @Nullable LiquidCoverage liquidCoverage,
     boolean isErrorPlanet,
     boolean needsCustomModel,
-    String model
+    String model,
+    @javax.annotation.Nullable CompoundTag playerHeadProfile
 ) implements CelestialBodyData {
 
     /// 从配方和其资源路径ID创建。
@@ -39,8 +40,33 @@ public record SpecialCelestialBodyData(
             recipe.getLiquidCoverage(),
             recipe.isErrorPlanet(),
             recipe.needsCustomModel(),
-            recipe.model()
+            recipe.model(),
+            null
         );
+    }
+
+    /// 从玩家头颅的 profile NBT 创建动态天体（无资源，使用头颅模型渲染）。
+    public static SpecialCelestialBodyData fromPlayerHead(CompoundTag profileNbt) {
+        return new SpecialCelestialBodyData(
+            "player_head",
+            "player_head",
+            10,
+            0f,
+            2,
+            0,
+            Temperature.MILD,
+            false,
+            LiquidCoverage.NONE,
+            false,
+            true,
+            "player_head",
+            profileNbt
+        );
+    }
+
+    /// 此天体是否为玩家头颅动态天体。
+    public boolean isPlayerHead() {
+        return playerHeadProfile != null;
     }
 
     @Override
@@ -83,6 +109,9 @@ public record SpecialCelestialBodyData(
         if (liquidCoverage != null) {
             tag.putString("liquidCoverage", liquidCoverage.getSerializedName());
         }
+        if (playerHeadProfile != null) {
+            tag.put("playerHeadProfile", playerHeadProfile);
+        }
         return tag;
     }
 
@@ -105,10 +134,12 @@ public record SpecialCelestialBodyData(
             ? Temperature.fromName(tag.getString("temperature")) : null;
         LiquidCoverage liquidCoverage = tag.contains("liquidCoverage")
             ? LiquidCoverage.fromName(tag.getString("liquidCoverage")) : null;
+        CompoundTag playerHeadProfile = tag.contains("playerHeadProfile")
+            ? tag.getCompound("playerHeadProfile") : null;
         return new SpecialCelestialBodyData(
             recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength,
             temperature, hasAtmosphere, liquidCoverage,
-            isErrorPlanet, needsCustomModel, model
+            isErrorPlanet, needsCustomModel, model, playerHeadProfile
         );
     }
 }

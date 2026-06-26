@@ -498,7 +498,7 @@ public class ScreenLang {
                 ———————
                 Outputs:
                 §e[Log Int]§r
-                §fPramitive civilization offering§r
+                §fPrimitive civilization offering§r
                 ———————
                 Side Effects:
                 §7None§r"""

@@ -29,13 +29,19 @@ import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.model.SkullModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -46,6 +52,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +60,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class CelestialForgingAnvilScreen extends AbstractContainerScreen<CelestialForgingAnvilMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "celestial_forging_anvil");
@@ -632,9 +640,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             case DONE -> {
                 CelestialBodyData cur = getMenu().getBlockEntity().getCelestialBodyData();
                 if (cur != null) {
-                    renderBodyPreview(guiGraphics, cur);
-                    renderBodyInfo(guiGraphics, cur);
-                    renderResourceBar(guiGraphics);
+                    if (cur instanceof SpecialCelestialBodyData s && s.isPlayerHead()) {
+                        renderPlayerHeadFullPreview(guiGraphics, s);
+                    } else {
+                        renderBodyPreview(guiGraphics, cur);
+                        renderBodyInfo(guiGraphics, cur);
+                        renderResourceBar(guiGraphics);
+                    }
                 }
             }
             /// IDLE与default相同，不显示内容
@@ -786,6 +798,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     }
 
     private void renderBodyPreview(GuiGraphics guiGraphics, CelestialBodyData body) {
+        /// 玩家头颅天体
+        if (body instanceof SpecialCelestialBodyData s && s.isPlayerHead()) {
+            renderPlayerHeadFullPreview(guiGraphics, s);
+            return;
+        }
         /// 复杂自定义模型（粉碎、空洞、血肉、智能、错误天体）
         if (body instanceof SpecialCelestialBodyData s && s.needsCustomModel()) {
             renderComplexModelPreview(guiGraphics, s);
@@ -982,7 +999,72 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guiGraphics.pose().popPose();
     }
 
-    @org.jetbrains.annotations.Nullable
+    /// 在全部预览区域居中放大渲染玩家头颅天体，显示玩家名，无信息栏和资源栏。
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    private void renderPlayerHeadFullPreview(GuiGraphics guiGraphics, SpecialCelestialBodyData special) {
+        if (minecraft == null) return;
+        CompoundTag profileTag = special.playerHeadProfile();
+        if (profileTag == null) return;
+
+        ResolvableProfile profile =
+            ResolvableProfile.CODEC
+                .parse(NbtOps.INSTANCE, profileTag)
+                .getOrThrow();
+
+        String playerName = profile.name().orElse(
+            profile.id().map(UUID::toString).orElse("???")
+        );
+
+        /// 在预览区域内顶部居中绘制玩家名
+        int nameWidth = font.width(playerName);
+        int nameX = PV_X + (PV_W - nameWidth) / 2;
+        int nameY = PV_Y + 4;
+        guiGraphics.drawString(font, playerName, nameX, nameY, 0xFFFFFF, true);
+
+        ResourceLocation skinTexture = minecraft.getSkinManager()
+            .getInsecureSkin(profile.gameProfile()).texture();
+
+        SkullModel skullModel = new SkullModel(
+            minecraft.getEntityModels().bakeLayer(
+                new ModelLayerLocation(
+                    ResourceLocation.withDefaultNamespace("player_head"), "main"))
+        );
+
+        /// 放大至预览区域宽度的2/3
+        float scale = PV_W * 0.45f;
+        int cx = PV_X + PV_W / 2;
+        int cy = PV_Y + PV_H / 2 - 12;
+        float rotY = (previewRotTick * CelestialBodyData.getVisualRotationSpeed(special.rotationSpeed()))
+            * (float) Math.PI / 180f;
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(cx, cy, 100);
+        guiGraphics.pose().scale(scale, -scale, scale);
+        guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(UI_AXIAL_TILT));
+        guiGraphics.pose().mulPose(Axis.YP.rotation(rotY));
+        guiGraphics.pose().translate(-0.5, -0.5, -0.5);
+
+        /// 模拟 SkullBlockRenderer 的坐标变换
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.5f, 0.0f, 0.5f);
+        guiGraphics.pose().scale(-1.0f, -1.0f, 1.0f);
+
+        var buf = guiGraphics.bufferSource();
+        /// 使用 translucent 渲染类型（与世界中 renderPlayerHeadBody 一致）；
+        /// 传递正确的 Light 和 Overlay 值，避免 row 0 的红色覆盖层
+        RenderType renderType = RenderType.entityTranslucent(skinTexture);
+        VertexConsumer vc = buf.getBuffer(renderType);
+        skullModel.setupAnim(0f, 0f, 0f);
+        skullModel.renderToBuffer(guiGraphics.pose(), vc,
+            LightTexture.FULL_BRIGHT,
+            OverlayTexture.NO_OVERLAY);
+
+        guiGraphics.pose().popPose();
+        buf.endBatch();
+        guiGraphics.pose().popPose();
+    }
+
+    @Nullable
     private static Temperature getUiAtmosphereTemp(CelestialBodyData body) {
         if (body instanceof RockyPlanetData rp && rp.hasAtmosphere()) return rp.temperature();
         if (body instanceof SpecialCelestialBodyData s && s.hasAtmosphere()) return s.temperature();
@@ -1220,7 +1302,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void collectItemEntries(List<ColoredEntry> out, List<PlanetaryResourceSet.WeightedItemStack> items, int color) {
         int totalW = items.stream().mapToInt(PlanetaryResourceSet.WeightedItemStack::weight).sum();
         for (var entry : items) {
-            var it = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(entry.itemId());
+            var it = BuiltInRegistries.ITEM.get(entry.itemId());
             String name = it.getDescription().getString();
             int pct = totalW > 0 ? entry.weight() * 100 / totalW : 0;
             out.add(new ColoredEntry(name + " " + pct + "%", color));
@@ -1231,12 +1313,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int totalW = fluids.stream().mapToInt(PlanetaryResourceSet.WeightedFluidStack::weight).sum();
         for (var entry : fluids) {
             String name;
-            if (net.minecraft.core.registries.BuiltInRegistries.FLUID.containsKey(entry.fluidId())) {
-                var f = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(entry.fluidId());
+            if (BuiltInRegistries.FLUID.containsKey(entry.fluidId())) {
+                var f = BuiltInRegistries.FLUID.get(entry.fluidId());
                 name = f.getFluidType().getDescription().getString();
             } else {
                 /// 降级方案：牛奶/蜂蜜等作为物品注册，而非流体类型
-                var it = net.minecraft.core.registries.BuiltInRegistries.ITEM.get(entry.fluidId());
+                var it = BuiltInRegistries.ITEM.get(entry.fluidId());
                 name = it.getDescription().getString();
             }
             int pct = totalW > 0 ? entry.weight() * 100 / totalW : 0;
@@ -1293,7 +1375,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         switch (body) {
             case SpecialCelestialBodyData s -> {
-                if (s.isErrorPlanet()) {
+                if (s.isErrorPlanet() || s.isPlayerHead()) {
                     lines.add(Component.translatable("screen.anvilcraft.cfa.temp", Component.literal("???")));
                     lines.add(Component.translatable("screen.anvilcraft.cfa.atmos", Component.literal("???")));
                     lines.add(Component.translatable("screen.anvilcraft.cfa.liquid", Component.literal("???")));
@@ -1303,15 +1385,19 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 } else {
                     lines.add(Component.translatable(
                         "screen.anvilcraft.cfa.temp",
-                        Component.translatable("screen.anvilcraft.cfa.temp." + s.temperature().getSerializedName())
+                        s.temperature() != null
+                            ? Component.translatable("screen.anvilcraft.cfa.temp." + s.temperature().getSerializedName())
+                            : Component.literal("???")
                     ));
                     lines.add(Component.translatable(
                         "screen.anvilcraft.cfa.atmos",
                         Component.translatable(s.hasAtmosphere() ? "screen.anvilcraft.cfa.atmos.yes" : "screen.anvilcraft.cfa.none")
                     ));
+                    LiquidCoverage lc = s.liquidCoverage();
                     lines.add(Component.translatable(
                         "screen.anvilcraft.cfa.liquid",
-                        Component.translatable("screen.anvilcraft.cfa.liquid." + s.liquidCoverage().getSerializedName())
+                        Component.translatable("screen.anvilcraft.cfa.liquid."
+                            + (lc != null ? lc.getSerializedName() : LiquidCoverage.NONE.getSerializedName()))
                     ));
                     lines.add(magText(s.magneticFieldStrength()));
                     lines.add(spinText(s.rotationSpeed()));

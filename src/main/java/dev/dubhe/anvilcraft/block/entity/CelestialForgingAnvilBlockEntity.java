@@ -669,7 +669,26 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             return;
         }
 
-        /// 第二步：通过种子物品检查特殊天体发现
+        /// 第二步：检查玩家头颅种子物品 → 玩家头颅天体（4种砧子各1个）
+        if (lastConsumedSeedItem == Items.PLAYER_HEAD
+            && time == 1 && space == 1 && mass == 1 && energy == 1
+        ) {
+            ItemStack headSeedStack = this.anvilInventory.getItem(4);
+            CompoundTag profileTag = extractProfileNbt(headSeedStack);
+            if (profileTag != null) {
+                this.celestialBodyData = SpecialCelestialBodyData.fromPlayerHead(profileTag);
+                this.planetaryResourceSet = new PlanetaryResourceSet();
+                addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
+                consumeSeedItem();
+                if (!level.isClientSide()) {
+                    this.setChanged();
+                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                }
+                return;
+            }
+        }
+
+        /// 第三步：通过种子物品检查特殊天体发现
         if (lastConsumedSeedItem != null) {
             SpecialCelestialBodyData specialBody = tryMatchSpecialCelestialBody(
                 time,
@@ -730,6 +749,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             this.setChanged();
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
+    }
+
+    /// 从玩家头颅种子物品中提取 profile 数据并序列化为 NBT。
+    @javax.annotation.Nullable
+    private static CompoundTag extractProfileNbt(ItemStack stack) {
+        if (!stack.is(Items.PLAYER_HEAD)) return null;
+        net.minecraft.world.item.component.ResolvableProfile profile = stack.get(
+            net.minecraft.core.component.DataComponents.PROFILE
+        );
+        if (profile == null) return null;
+        return (CompoundTag) net.minecraft.world.item.component.ResolvableProfile.CODEC
+            .encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, profile)
+            .getOrThrow();
     }
 
     /// 尝试根据砧子参数和消耗的种子物品来匹配一个特殊（隐藏）天体。种子物品必须是此世界种子的有效物品（使用与 RoyalPreference 相同的模式）。
