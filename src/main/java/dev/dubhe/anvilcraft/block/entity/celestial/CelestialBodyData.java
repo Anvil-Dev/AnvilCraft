@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.nbt.CompoundTag;
 
+import javax.annotation.Nullable;
+
 public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetData, StarData, SpecialCelestialBodyData {
 
     CelestialBodyType type();
@@ -70,7 +72,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
     float BASE_RING_SCALE = 6.0f;
 
     /// 根据天体数据计算束星环系统完整缩放（不含红石插值），与 whether amplifies 有关。
-    static float ringSystemScale(@org.jetbrains.annotations.Nullable CelestialBodyData data, boolean isAmplify) {
+    static float ringSystemScale(@Nullable CelestialBodyData data, boolean isAmplify) {
         if (data == null) return BASE_RING_SCALE;
         float bodyS = data.bodyScale();
         float proportional = bodyS * BODY_SCALE_FACTOR * RING_TO_BODY_RATIO;
@@ -84,7 +86,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
     }
 
     /// 根据天体数据计算动态天体中心高度（不含红石插值）。
-    static float dynamicCenterY(@org.jetbrains.annotations.Nullable CelestialBodyData data, boolean isAmplify) {
+    static float dynamicCenterY(@Nullable CelestialBodyData data, boolean isAmplify) {
         if (data == null) return isAmplify ? 6.5f : 4.5f;
         float ringScale = ringSystemScale(data, isAmplify);
         float baseHeight = isAmplify ? 2.5f : 1.5f;

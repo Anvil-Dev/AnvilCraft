@@ -150,9 +150,6 @@ public final class CelestialBodyMatcher {
     /// 返回 {@code [min, max]} 或 {@code null}（如果不存在合法范围）
     public static int[] getValidRange(int time, int space, int mass, int energy, boolean isAmplified, int targetIndex) {
         ensurePrecomputed();
-        BitSet bitset = isAmplified ? validAmplified : validNormal;
-        if (bitset == null) return null;
-
         int[] counts = {time, space, mass, energy};
 
         /// 快速路径：如果其他槽位没有砧子，则整个1-64范围都有效
@@ -166,7 +163,7 @@ public final class CelestialBodyMatcher {
         if (allUnknown) return new int[] {1, 64};
 
         /// 收集未知索引（排除当前目标）
-        java.util.List<Integer> unknownIndices = new ArrayList<>();
+        List<Integer> unknownIndices = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             if (i != targetIndex && counts[i] <= 0) {
                 unknownIndices.add(i);
@@ -177,6 +174,7 @@ public final class CelestialBodyMatcher {
         int max = 0;
         int[] test = counts.clone();
 
+        BitSet bitset = isAmplified ? validAmplified : validNormal;
         for (int candidate = 1; candidate <= 64; candidate++) {
             test[targetIndex] = candidate;
             if (anyValid(bitset, test, unknownIndices)) {
