@@ -36,8 +36,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+
+import javax.annotation.Nullable;
 
 @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity> {

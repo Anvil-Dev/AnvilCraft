@@ -25,8 +25,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /// 锻星砧流体接口。
 /// 被动模式：存储最多 4 种流体，各 80 桶，供管道和巨构读写。
@@ -125,26 +125,26 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registries) {
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         writeTanks(tag, registries);
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registries) {
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         readTanks(tag, registries);
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(@NotNull HolderLookup.Provider registries) {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         writeTanks(tag, registries);
         return tag;
     }
 
     @Override
-    public void handleUpdateTag(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registries) {
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.handleUpdateTag(tag, registries);
         readTanks(tag, registries);
     }
@@ -175,7 +175,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
             }
 
             @Override
-            public @NotNull FluidStack getFluidInTank(int tank) {
+            public FluidStack getFluidInTank(int tank) {
                 return tanks[tank].getFluid();
             }
 
@@ -185,7 +185,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
             }
 
             @Override
-            public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+            public boolean isFluidValid(int tank, FluidStack stack) {
                 return tanks[tank].isFluidValid(stack);
             }
 
@@ -207,7 +207,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
             }
 
             @Override
-            public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
+            public FluidStack drain(FluidStack resource, FluidAction action) {
                 if (resource.isEmpty()) return FluidStack.EMPTY;
                 for (int i = 0; i < TANK_COUNT; i++) {
                     if (tanks[i].getFluid().is(resource.getFluid())) {
@@ -218,7 +218,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
             }
 
             @Override
-            public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
+            public FluidStack drain(int maxDrain, FluidAction action) {
                 for (int i = 0; i < TANK_COUNT; i++) {
                     if (!tanks[i].getFluid().isEmpty()) {
                         return tanks[i].drain(maxDrain, action);

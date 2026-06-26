@@ -17,7 +17,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 public class CelestialForgingAnvilPortalBlockItem extends BlockItem {
     public CelestialForgingAnvilPortalBlockItem(Block block, Properties properties) {

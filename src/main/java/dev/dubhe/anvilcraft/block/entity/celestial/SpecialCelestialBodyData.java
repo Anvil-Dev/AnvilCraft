@@ -3,7 +3,8 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /// 特殊天体数据 —— 从 {@link SpecialCelestialBodyRecipe} 创建，
 /// 绕过常规三步图表匹配和贴图烘焙管线。

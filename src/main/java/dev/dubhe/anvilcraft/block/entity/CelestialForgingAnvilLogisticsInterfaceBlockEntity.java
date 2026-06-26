@@ -26,10 +26,10 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /// 锻星砧的物流接口。最多存储 16 种不同的物品类型，每种类型一个堆叠。物品自动路由到对应类型的槽位，不会溢出到其他槽位。
 public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity {

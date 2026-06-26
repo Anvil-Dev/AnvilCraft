@@ -19,11 +19,11 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import javax.annotation.Nullable;
 
 /// 特殊天体配方 —— 通过种子物品在锻星砧中发现隐藏天体。
 ///

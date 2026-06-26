@@ -3,12 +3,12 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.util.RandomSource;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /// 三步天体匹配引擎，通过图表PNG进行匹配。
 /// 每张64x64图表将砧子计数映射到像素颜色，从而识别天体类别。
@@ -148,7 +148,7 @@ public final class CelestialBodyMatcher {
     /// isAmplified - 是否启用了增幅器模式
     /// targetIndex - 要查询的砧子类型（0=时间, 1=空间, 2=质量, 3=能量）
     /// 返回 {@code [min, max]} 或 {@code null}（如果不存在合法范围）
-    public static int @Nullable [] getValidRange(int time, int space, int mass, int energy, boolean isAmplified, int targetIndex) {
+    public static int[] getValidRange(int time, int space, int mass, int energy, boolean isAmplified, int targetIndex) {
         ensurePrecomputed();
         BitSet bitset = isAmplified ? validAmplified : validNormal;
         if (bitset == null) return null;

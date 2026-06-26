@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /// 从天体质径图可识别的所有天体类别枚举。
 /// 每个常量存储其图表像素颜色（RGB）和分类标志。

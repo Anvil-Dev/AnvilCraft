@@ -19,10 +19,10 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public class CfaMegastructureManager {
     private int activeMegastructureIndex = -1;

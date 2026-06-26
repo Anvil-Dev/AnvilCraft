@@ -17,9 +17,9 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 public class CelestialForgingAnvilInterfaceBlockItem extends BlockItem {
     public CelestialForgingAnvilInterfaceBlockItem(Block block, Properties properties) {

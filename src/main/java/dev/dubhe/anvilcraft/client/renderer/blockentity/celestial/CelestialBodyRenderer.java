@@ -13,8 +13,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+
+import javax.annotation.Nullable;
 
 /// 天体渲染器 —— 提供行星体、大气、星晕和行星环的渲染方法。
 /// 光照模型使用 Lambert / 类 BRDF 近似计算面片颜色，

@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.nbt.CompoundTag;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 public record StarData(
     CelestialBodyClass bodyClass,
