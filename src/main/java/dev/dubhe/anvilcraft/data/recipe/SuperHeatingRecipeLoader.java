@@ -130,6 +130,12 @@ public class SuperHeatingRecipeLoader {
             .requires(ModBlocks.CHROMATIC_STONE)
             .save(provider, AnvilCraft.of("super_heating/melt_gem_cauldron_from_chromatic_stone"));
 
+        SuperHeatingRecipe.builder()
+            .transform(ModBlocks.HONEY_CAULDRON.get())
+            .produce(1000)
+            .requires(Items.HONEY_BLOCK)
+            .save(provider, AnvilCraft.of("super_heating/honey_cauldron_from_honey_block"));
+
         // metalBlockFromRaw
         metalBlockFromRaw(provider, Tags.Items.STORAGE_BLOCKS_RAW_COPPER, Items.COPPER_BLOCK);
         metalBlockFromRaw(provider, Tags.Items.STORAGE_BLOCKS_RAW_IRON, Items.IRON_BLOCK);

@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:super_heating",
+  "fluid": "minecraft:null",
+  "ingredients": [
+    {
+      "items": "minecraft:honey_block"
+    }
+  ],
+  "produce": 1000,
+  "transform": "anvilcraft:honey"
+}

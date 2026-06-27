@@ -35,7 +35,9 @@ public class CompatUtil {
     ));
     public static final BiMap<ResourceLocation, Supplier<? extends AbstractCauldronBlock>> F2C_TRANSFORM = HashBiMap.create(Map.of(
         ResourceLocation.withDefaultNamespace("lava"),
-        ModBlocks.LAVA_CAULDRON
+        ModBlocks.LAVA_CAULDRON,
+        ResourceLocation.withDefaultNamespace("milk"),
+        ModBlocks.MILK_CAULDRON
     ));
 
     public static @Nullable ResourceLocation getFluidFromCauldron(Block cauldron) {
