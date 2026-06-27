@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.fluid.FluidTintSource;
 public class ClientModFluidModels {
     @SubscribeEvent
     public static void registerFluidModel(RegisterFluidModelsEvent event) {
-        FluidTintSource tint = state -> 0xFFFFFFFF;
+        FluidTintSource tint = _ -> 0xFFFFFFFF;
         event.register(new FluidModel.Unbaked(
             new Material(AnvilCraft.of("block/exp_fluid")),
             new Material(AnvilCraft.of("block/exp_fluid_flow")),
