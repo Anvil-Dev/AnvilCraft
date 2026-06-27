@@ -27,6 +27,8 @@ import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CauldronBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -34,10 +36,12 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
 import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.BucketResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.CauldronWrapper;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
@@ -99,6 +103,7 @@ public class ModCapabilities {
         );
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PIPE_NODE.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.CREATIVE_FLUID_TANK.get(), ModCapabilities::fluid);
+
 
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.MILK_BUCKET);
