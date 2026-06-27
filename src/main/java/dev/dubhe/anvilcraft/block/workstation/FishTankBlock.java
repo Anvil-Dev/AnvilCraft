@@ -254,8 +254,16 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     public boolean tryIgnite(Level level, BlockPos pos) {
         if (!(level.getBlockEntity(pos) instanceof FishTankBlockEntity tank)) return false;
         if (!FishTankBlockEntity.canIgnite(tank.getFluidHandler().getStack())) return false;
-        if (tank.isIgnited()) return false;
+        if (tank.isIgnited()) {
+            if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
+                level.scheduleTick(pos, this, 2);
+            }
+            return false;
+        }
         tank.setIgnited(true);
+        if (this.isIgnited(new BlockCache(level), pos) && level.getBlockState(pos.below()).is(ModBlocks.HEATER)) {
+            level.scheduleTick(pos, this, 2);
+        }
         return true;
     }
 

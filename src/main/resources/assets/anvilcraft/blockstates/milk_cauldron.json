@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "level=1": {
+      "model": "anvilcraft:block/milk_cauldron_level1"
+    },
+    "level=2": {
+      "model": "anvilcraft:block/milk_cauldron_level2"
+    },
+    "level=3": {
+      "model": "anvilcraft:block/milk_cauldron_level3"
+    },
+    "level=4": {
+      "model": "anvilcraft:block/milk_cauldron_full"
+    }
+  }
+}

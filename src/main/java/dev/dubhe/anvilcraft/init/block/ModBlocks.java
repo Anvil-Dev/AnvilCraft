@@ -27,6 +27,7 @@ import dev.dubhe.anvilcraft.block.cauldron.ExpFluidCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.MeltGemCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.MilkCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
@@ -3333,6 +3334,14 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<HoneyCauldronBlock> HONEY_CAULDRON = REGISTRUM.block("honey_cauldron", HoneyCauldronBlock::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
+        .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
+        .register();
+
+    public static final BlockEntry<MilkCauldronBlock> MILK_CAULDRON = REGISTRUM.block("milk_cauldron", MilkCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))

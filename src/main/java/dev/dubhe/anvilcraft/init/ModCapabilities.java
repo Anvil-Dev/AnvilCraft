@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
+import dev.dubhe.anvilcraft.api.fluid.HoneyBottleResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
@@ -40,6 +41,8 @@ import net.neoforged.neoforge.transfer.fluid.BucketResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModCapabilities {
@@ -97,7 +100,15 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PIPE_NODE.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.CREATIVE_FLUID_TANK.get(), ModCapabilities::fluid);
 
+
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);
+        event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.MILK_BUCKET);
+        event.registerItem(
+            Capabilities.Fluid.ITEM,
+            (_, ctx) -> new HoneyBottleResourceHandler(ctx),
+            Items.HONEY_BOTTLE,
+            Items.GLASS_BOTTLE
+        );
 
         event.registerItem(
             Capabilities.Energy.ITEM,
@@ -139,17 +150,20 @@ public class ModCapabilities {
     }
 
     /// 物品
-    private static <T extends BlockEntity & IItemResourceHandlerHolder, S> ResourceHandler<ItemResource> item(T be, S ignored) {
+    private static <T extends BlockEntity & IItemResourceHandlerHolder, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
         return be.getItemHandler();
     }
 
     /// 存储容器的物品
-    private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, S ignored) {
-        return Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getItems();
+    private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
+        return Storages.get().getOrCreate(Objects.requireNonNull(be.getId()), be.getStorageType().clazz()).getItems();
     }
 
     /// 流体
-    private static <T extends BlockEntity & IFluidResourceHandlerHolder, S> ResourceHandler<FluidResource> fluid(T be, S ignored) {
+    private static <T extends BlockEntity & IFluidResourceHandlerHolder, S> ResourceHandler<FluidResource> fluid(
+        T be,
+        @Nullable S ignored
+    ) {
         return be.getFluidHandler();
     }
 
@@ -172,7 +186,7 @@ public class ModCapabilities {
     }
 
     /// 能量
-    private static <T extends BlockEntity & IEnergyHandlerHolder> EnergyHandler energy(T be, @Nullable Direction dir) {
+    private static <T extends BlockEntity & IEnergyHandlerHolder> @Nullable EnergyHandler energy(T be, @Nullable Direction dir) {
         return be.getEnergyHandler(dir);
     }
 }

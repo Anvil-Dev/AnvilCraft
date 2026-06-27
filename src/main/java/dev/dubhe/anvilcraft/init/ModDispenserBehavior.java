@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -34,6 +35,12 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.List;
 import java.util.UUID;
@@ -45,6 +52,78 @@ public class ModDispenserBehavior {
     // "all_players".hashcode() == 75a6b114
     public static final UUID ANVILCRAFT_DISPENSER = new UUID(0x976850D40E652AB5L, 0x83D24BBA75A6B114L);
     private static final DefaultDispenseItemBehavior DEFAULT_BEHAVIOUR = new DefaultDispenseItemBehavior();
+
+    /// 装满的液体容器（液体桶 / 蜂蜜瓶）：尝试将容器内液体注入目标方块的流体能力，成功后返回对应空容器
+    private static final DefaultDispenseItemBehavior FLUID_BUCKET = new DefaultDispenseItemBehavior() {
+        @Override
+        public ItemStack execute(BlockSource source, ItemStack stack) {
+            BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            Level level = source.level();
+            ResourceHandler<FluidResource> target = level.getCapability(Capabilities.Fluid.BLOCK, blockpos, null);
+            if (target != null) {
+                // 单独取一份容器物品用于读取其流体内容，避免影响发射器槽内的整组堆叠
+                ItemStack single = stack.copyWithCount(1);
+                ResourceHandler<FluidResource> itemHandler =
+                    single.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(single));
+                if (itemHandler != null) {
+                    for (int i = 0; i < itemHandler.size(); i++) {
+                        FluidResource resource = itemHandler.getResource(i);
+                        int available = itemHandler.getAmountAsInt(i);
+                        if (resource.isEmpty() || available <= 0) continue;
+                        try (Transaction transaction = Transaction.openRoot()) {
+                            int filled = target.insert(resource, available, transaction);
+                            if (filled < available) continue;
+                            transaction.commit();
+                            return this.consumeWithRemainder(source, stack, emptyContainerFor(stack));
+                        }
+                    }
+                }
+            }
+            return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
+        }
+    };
+
+    /// 根据装满的液体容器返回其对应的空容器
+    private static ItemStack emptyContainerFor(ItemStack filled) {
+        if (filled.is(Items.HONEY_BOTTLE)) {
+            return new ItemStack(Items.GLASS_BOTTLE);
+        }
+        return new ItemStack(Items.BUCKET);
+    }
+
+    /// 空液体容器（空桶/玻璃瓶）：尝试从目标方块的流体能力抽取液体，装入对应容器
+    private static final DefaultDispenseItemBehavior EMPTY_FLUID_CONTAINER = new DefaultDispenseItemBehavior() {
+        @Override
+        public ItemStack execute(BlockSource source, ItemStack stack) {
+            BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            Level level = source.level();
+            ResourceHandler<FluidResource> target = level.getCapability(Capabilities.Fluid.BLOCK, blockpos, null);
+            if (target != null) {
+                boolean isBottle = stack.is(Items.GLASS_BOTTLE);
+                int amount = isBottle ? FluidType.BUCKET_VOLUME / 4 : FluidType.BUCKET_VOLUME;
+                for (int i = 0; i < target.size(); i++) {
+                    FluidResource resource = target.getResource(i);
+                    if (resource.isEmpty()) continue;
+                    try (Transaction transaction = Transaction.openRoot()) {
+                        int drained = target.extract(i, resource, amount, transaction);
+                        if (drained < amount) continue;
+                        ItemStack result;
+                        if (isBottle && resource.getFluid() instanceof dev.dubhe.anvilcraft.fluid.HoneyFluid) {
+                            result = new ItemStack(Items.HONEY_BOTTLE);
+                        } else if (!isBottle && resource.getFluid().getBucket() != Items.AIR) {
+                            result = new ItemStack(resource.getFluid().getBucket());
+                        } else {
+                            continue;
+                        }
+                        transaction.commit();
+                        return this.consumeWithRemainder(source, stack, result);
+                    }
+                }
+            }
+            return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
+        }
+    };
+
     private static final DefaultDispenseItemBehavior BUCKET = new DefaultDispenseItemBehavior() {
         @Override
         public ItemStack execute(BlockSource source, ItemStack stack) {
@@ -65,12 +144,41 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(Items.BOWL, ModDispenserBehavior::bowl);
         DispenserBlock.registerBehavior(Items.GOLDEN_APPLE, ModDispenserBehavior::goldenApple);
         DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, ModDispenserBehavior::resinBlock);
+        DispenserBlock.registerBehavior(Items.MILK_BUCKET, FLUID_BUCKET);
+        DispenserBlock.registerBehavior(Items.HONEY_BOTTLE, FLUID_BUCKET);
         DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, BUCKET);
         DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, BUCKET);
         DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);
         for (ItemEntry<BucketItem> cementBucket : ModItems.CEMENT_BUCKETS.values()) {
             DispenserBlock.registerBehavior(cementBucket, BUCKET);
         }
+
+        // 空桶：优先尝试从目标方块的流体能力抽取液体生成对应桶物品，未命中时降级到原版行为
+        DispenseItemBehavior originalBucket = DispenserBlock.DISPENSER_REGISTRY.get(Items.BUCKET);
+        DispenserBlock.registerBehavior(Items.BUCKET, new DefaultDispenseItemBehavior() {
+            @Override
+            public ItemStack execute(BlockSource source, ItemStack stack) {
+                BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+                Level level = source.level();
+                ResourceHandler<FluidResource> target = level.getCapability(Capabilities.Fluid.BLOCK, blockpos, null);
+                if (target != null) {
+                    int amount = FluidType.BUCKET_VOLUME;
+                    for (int i = 0; i < target.size(); i++) {
+                        FluidResource resource = target.getResource(i);
+                        if (resource.isEmpty() || resource.getFluid().getBucket() == Items.AIR) continue;
+                        try (Transaction transaction = Transaction.openRoot()) {
+                            int drained = target.extract(i, resource, amount, transaction);
+                            if (drained < amount) continue;
+                            ItemStack bucket = new ItemStack(resource.getFluid().getBucket());
+                            transaction.commit();
+                            return this.consumeWithRemainder(source, stack, bucket);
+                        }
+                    }
+                }
+                return originalBucket.dispense(source, stack);
+            }
+        });
+        DispenserBlock.registerBehavior(Items.GLASS_BOTTLE, EMPTY_FLUID_CONTAINER);
     }
 
     private static ItemStack mengerSponge(BlockSource source, ItemStack stack) {
