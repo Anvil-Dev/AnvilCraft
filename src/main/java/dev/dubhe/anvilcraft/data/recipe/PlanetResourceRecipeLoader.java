@@ -127,7 +127,7 @@ public class PlanetResourceRecipeLoader {
                 "anvilcraft:planetary_aquatic_animals",
                 "anvilcraft:non_planetary_mob_drops",
                 List.of(
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:milk", 50),
+                    new PlanetResourceRecipe.WeightedEntry("minecraft:milk", 50),
                     new PlanetResourceRecipe.WeightedEntry("anvilcraft:honey", 50)
                 )
             )),

@@ -29,6 +29,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class FluidRenderHelper {
@@ -49,7 +50,8 @@ public final class FluidRenderHelper {
         boolean invertGasses
     ) {
         var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
-        boolean opaque = renderProps instanceof ModClientFluidTypeExtensionImpl ext && ext.isOpaque();
+        boolean opaque = (renderProps instanceof ModClientFluidTypeExtensionImpl ext && ext.isOpaque())
+            || fluid.is(NeoForgeMod.MILK.value());
         RenderType renderType = opaque ? RenderType.cutout() : RenderType.translucent();
         VertexConsumer builder = buffer.getBuffer(renderType);
         this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light, renderBottom, invertGasses);

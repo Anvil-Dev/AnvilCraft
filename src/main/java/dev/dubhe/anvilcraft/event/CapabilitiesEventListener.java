@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
 import dev.dubhe.anvilcraft.api.fluid.HoneyBottleWrapper;
-import dev.dubhe.anvilcraft.api.fluid.MilkBucketWrapper;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
@@ -90,12 +89,6 @@ public class CapabilitiesEventListener {
             Capabilities.FluidHandler.ITEM,
             (stack, ctx) -> new PowderSnowWrapper(stack),
             Items.POWDER_SNOW_BUCKET
-        );
-
-        event.registerItem(
-            Capabilities.FluidHandler.ITEM,
-            (stack, ctx) -> new MilkBucketWrapper(stack),
-            Items.MILK_BUCKET
         );
 
         event.registerItem(

@@ -97,7 +97,7 @@ public class SpecialCelestialBodyRecipeLoader {
                     item("minecraft:magenta_wool", 2),
                     item("minecraft:pink_wool", 2)
                 ),
-                List.of(item("anvilcraft:milk", 50)),
+                List.of(item("minecraft:milk", 50)),
                 List.of(),
                 List.of(),
                 List.of()

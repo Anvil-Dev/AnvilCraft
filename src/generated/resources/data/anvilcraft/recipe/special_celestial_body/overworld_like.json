@@ -11,7 +11,7 @@
   "resources": {
     "biological_fluids": [
       {
-        "id": "anvilcraft:milk",
+        "id": "minecraft:milk",
         "weight": 50
       }
     ],

@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.fluid.HoneyFluid;
-import dev.dubhe.anvilcraft.fluid.MilkFluid;
 import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
 import dev.dubhe.anvilcraft.fluid.PrimordialMatterFluid;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -213,15 +212,6 @@ public class ModFluids {
         .bucket(ModItems.MELT_GEM_BUCKET)
         .tickRate(20)
         .explosionResistance(100);
-    // === Milk（不可放置流体） ===
-
-    public static final DeferredHolder<FluidType, FluidType> MILK_TYPE = FLUID_TYPES.register(
-        "milk", () -> MilkFluid.TYPE
-    );
-
-    public static final DeferredHolder<Fluid, MilkFluid> MILK = FLUIDS.register(
-        "milk", MilkFluid::new
-    );
 
     // === Honey（不可放置流体） ===
 
@@ -336,15 +326,6 @@ public class ModFluids {
                 0xB7EEDE,
                 2.0f
             ), MELT_GEM_TYPE
-        );
-        e.registerFluidType(
-            new ModClientFluidTypeExtensionImpl(
-                AnvilCraft.of("block/milk"),
-                AnvilCraft.of("block/milk_flow"),
-                0xFFFFFF,
-                1.0f,
-                true
-            ), MILK_TYPE
         );
         e.registerFluidType(
             new ModClientFluidTypeExtensionImpl(
