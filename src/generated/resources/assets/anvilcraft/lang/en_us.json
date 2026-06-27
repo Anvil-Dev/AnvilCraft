@@ -289,7 +289,6 @@
   "block.anvilcraft.cake_base_block": "Cake Base Block",
   "block.anvilcraft.cake_block": "Cake Block",
   "block.anvilcraft.celestial_forging_anvil": "Celestial Forging Anvil",
-  "block.anvilcraft.celestial_forging_anvil.placement_too_close_to_another": "Too close to another Celestial Forging Anvil",
   "block.anvilcraft.celestial_forging_anvil_amplifier": "Celestial Forging Anvil Amplifier",
   "block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner": "Needs to be placed on the corner of the Celestial Forging Anvil",
   "block.anvilcraft.celestial_forging_anvil_fluid_interface": "Celestial Forging Anvil Fluid Interface",

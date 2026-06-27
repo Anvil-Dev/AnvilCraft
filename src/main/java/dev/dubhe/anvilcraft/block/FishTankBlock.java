@@ -213,18 +213,23 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (stack.is(ModItemTags.ANVIL_HAMMER) && hitResult.getDirection().getAxis() != Direction.Axis.Y) {
-            return this.changeOutlet(level, pos, state, player, hitResult);
+        if (stack.is(ModItemTags.ANVIL_HAMMER)) {
+            Direction clickedFace = hitResult.getDirection();
+            // 侧面直接对应输出口方向；从顶部开口对着内部某个边右键时按玩家朝向选取输出口的面
+            if (clickedFace.getAxis() != Direction.Axis.Y) {
+                return this.changeOutlet(level, pos, state, player, clickedFace);
+            } else if (clickedFace == Direction.UP) {
+                return this.changeOutlet(level, pos, state, player, player.getDirection());
+            }
         }
         CauldronInteraction interaction = ModInteractionMap.FISH_TANK.map().get(stack.getItem());
         if (interaction != null) return interaction.interact(state, level, pos, player, hand, stack);
         return this.useItemOnTank(stack, state, level, pos, player, hand, hitResult);
     }
 
-    public ItemInteractionResult changeOutlet(Level level, BlockPos pos, BlockState state, Player player, BlockHitResult hitResult) {
+    public ItemInteractionResult changeOutlet(Level level, BlockPos pos, BlockState state, Player player, Direction outletDir) {
         if (!level.isClientSide()) {
             // 水平的四个方向根据被右键的方向转换
-            Direction outletDir = hitResult.getDirection();
             boolean hasOutlet = outletDir != state.getValue(FishTankBlock.FACING) || !state.getValue(FishTankBlock.OUTLET);
             BlockState newState = state.setValue(FishTankBlock.OUTLET, hasOutlet).setValue(FishTankBlock.FACING, outletDir);
 

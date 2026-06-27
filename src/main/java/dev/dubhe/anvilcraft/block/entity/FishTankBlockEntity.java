@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,7 +31,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -298,6 +298,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             BlockPos pos = FishTankBlockEntity.this.getBlockPos();
             List<IItemHandler> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
             if (targets == null || targets.isEmpty()) {
+                // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
+                if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;
                 FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, this.extractItem(slot, Integer.MAX_VALUE, false));
                 return;
             }
@@ -610,6 +612,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
         List<IItemHandler> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
         if (targets == null || targets.isEmpty()) {
+            // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
+            if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;
             for (int i = 0; i < 8; i++) {
                 ItemStack stack = this.output.extractItem(i, Integer.MAX_VALUE, false);
                 if (!stack.isEmpty()) FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, stack);
@@ -682,17 +686,38 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         return ImmutableList.copyOf(result);
     }
 
+    /**
+     * 判断输出口开口处是否被前方方块的碰撞形状堵住。
+     *
+     * @param level     世界
+     * @param pos       鱼缸坐标
+     * @param direction 输出口朝向
+     * @return 被堵返回 true
+     */
+    private static boolean isOutletBlocked(Level level, BlockPos pos, Direction direction) {
+        // 开口中心紧贴鱼缸与前方方块的交界面
+        Vec3 openingCenter = new Vec3(
+            pos.getX() + 0.5 + direction.getStepX() * 0.5,
+            pos.getY() + 0.5 + direction.getStepY() * 0.5,
+            pos.getZ() + 0.5 + direction.getStepZ() * 0.5
+        );
+        return AnvilUtil.isOutletBlocked(level, pos.relative(direction), openingCenter, direction);
+    }
+
     private static void popResourceFromFace(Level level, BlockPos pos, Direction direction, ItemStack stack) {
         int stepX = direction.getStepX();
         int stepY = direction.getStepY();
         int stepZ = direction.getStepZ();
-        double extra = 0.5 + (double) EntityType.ITEM.getWidth() / 2.0;
-        double posX = (double) pos.getX() + 0.5 + stepX * extra;
-        double posY = (double) pos.getY() + 0.5 + stepY * extra;
-        double posZ = (double) pos.getZ() + 0.5 + stepZ * extra;
-        Vec3 delta = new Vec3(stepX, stepY, stepZ).multiply(0.25, 0.25, 0.25);
+        // 在方块交界面再向外 0.25（与炼药锅输出口一致），避免物品中心落在紧贴的炼药锅壁内导致卡住乱飞
+        double outward = 0.5 + 0.25;
+        double posX = (double) pos.getX() + 0.5 + stepX * outward;
+        // 视觉上输出位置偏高，下降 3px
+        double posY = (double) pos.getY() + 0.5 + stepY * outward - 3.0 / 16.0;
+        double posZ = (double) pos.getZ() + 0.5 + stepZ * outward;
+        Vec3 delta = new Vec3(stepX, stepY, stepZ).multiply(0.1, 0.1, 0.1);
         ItemEntity entity = new ItemEntity(level, posX, posY, posZ, stack, delta.x, delta.y, delta.z);
-        entity.anvilcraft$setIsAdsorbable(false);
+        // 标记为可吸附，使其与炼药锅输出口一致：掉入其它鱼缸时能被吸入容器，而不是一直保持掉落物状态
+        entity.anvilcraft$setIsAdsorbable(true);
         level.addFreshEntity(entity);
     }
     // endregion
