@@ -92,9 +92,11 @@ public class PipeCornerBlock extends PipeBlock {
         }
 
         if (!corner.containsDirection(neighborDir)) {
-            // 非弯管方向（侧面）：有对准的管道或泵 → 转节点
+            // 非弯管方向（侧面）：有对准的管道，或连接面正对本方块的泵 → 转节点
             BlockState neighborState = level.getBlockState(neighborPos);
-            if (isNeighborPipeToward(level, pos, neighborDir) || neighborState.getBlock() instanceof PumpBlock) {
+            boolean neighborIsPump = neighborState.getBlock() instanceof PumpBlock
+                && PumpBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
+            if (isNeighborPipeToward(level, pos, neighborDir) || neighborIsPump) {
                 BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
                 for (Direction dir : Direction.values()) {
                     nodeState = nodeState.setValue(getPropertyForDirection(dir), PipeNodeBlock.evaluateNeighbor(level, pos, dir));

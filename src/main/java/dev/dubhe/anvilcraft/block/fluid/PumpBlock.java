@@ -144,7 +144,25 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     }
 
     /**
-     * 放置后将侧面连接的直管/弯管转为三通节点，使其能正确吸附管道。
+     * 判断泵是否在指定面方向上与邻居形成流体连接。
+     *
+     * <p>泵的模型为沿朝向轴延伸的管体，仅有朝向轴两端（输入端 / 输出端）开口，
+     * 垂直于朝向轴的面为实体面，不连接流体。
+     *
+     * @param pumpState      泵的方块状态
+     * @param faceToNeighbor 从泵看向邻居的方向
+     * @return 该面是否为泵的连接面（输入端或输出端）
+     */
+    public static boolean isConnectableFace(BlockState pumpState, Direction faceToNeighbor) {
+        if (!(pumpState.getBlock() instanceof PumpBlock)) {
+            return false;
+        }
+        return faceToNeighbor.getAxis() == pumpState.getValue(ORIENTATION).getDirection().getAxis();
+    }
+
+    /**
+     * 放置后将朝向轴上连接的直管/弯管转为三通节点，使其能正确吸附管道。
+     * 仅处理泵的连接面（输入端 / 输出端），垂直于朝向轴的侧面不形成连接。
      */
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
@@ -152,6 +170,10 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         if (level.isClientSide) return;
 
         for (Direction dir : Direction.values()) {
+            // 仅泵的连接面（输入/输出端）才可能形成连接
+            if (!isConnectableFace(state, dir)) {
+                continue;
+            }
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (neighborState.getBlock() instanceof PipeStraightBlock) {

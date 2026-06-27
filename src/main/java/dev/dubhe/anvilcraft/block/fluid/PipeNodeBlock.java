@@ -159,7 +159,11 @@ public class PipeNodeBlock extends PipeBlock {
         if (neighborState.getBlock() instanceof PipeBlock && hasConnectionToward(neighborState, dir.getOpposite())) {
             return NodePipe.PIPE;
         }
-        if (isFluidHandler(level, neighborPos) || neighborState.getBlock() instanceof PumpBlock) {
+        if (neighborState.getBlock() instanceof PumpBlock) {
+            // 泵仅在其连接面（朝向轴两端）正对节点时才形成端头连接
+            return PumpBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
+        }
+        if (isFluidHandler(level, neighborPos)) {
             return NodePipe.END;
         }
         return NodePipe.NONE;

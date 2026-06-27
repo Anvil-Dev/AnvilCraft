@@ -19,9 +19,9 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
 /**
  * 管道节点的 BlockEntity，持有内部 {@link FluidTank} 并负责 per-tick 流体分发。
@@ -115,8 +115,8 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             return;
         }
 
-        // 按等效高度降序排列 PipeEnd
-        Set<EndAndDirection> pipeEnds = new TreeSet<>(Comparator.comparingInt(e -> -e.end().effectiveHeight()));
+        // 按等效高度降序排列 PipeEnd（保留全部端点，等高端点不去重）
+        List<EndAndDirection> pipeEnds = new ArrayList<>();
 
         for (Direction direction : Direction.values()) {
             EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
@@ -191,7 +191,8 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             return;
         }
 
-        // 按等效高度降序分发流体
+        // 按等效高度降序分发流体（高优先），等高端点保持收集顺序
+        pipeEnds.sort(Comparator.comparingInt((EndAndDirection e) -> e.end().effectiveHeight()).reversed());
         for (EndAndDirection endAndDirection : pipeEnds) {
             AbstractPipeBlockEntity.moveFluidWithHeightCheck(
                 level,
