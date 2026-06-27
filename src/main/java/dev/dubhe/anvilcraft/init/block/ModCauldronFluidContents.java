@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.RegisterCauldronFluidContentEvent;
 
@@ -25,7 +26,7 @@ public class ModCauldronFluidContents {
         );
         event.register(
             ModBlocks.MILK_CAULDRON.get(),
-            ModFluids.MILK.get(),
+            NeoForgeMod.MILK.value(),
             FluidType.BUCKET_VOLUME,
             Layered4LevelCauldronBlock.LEVEL
         );
