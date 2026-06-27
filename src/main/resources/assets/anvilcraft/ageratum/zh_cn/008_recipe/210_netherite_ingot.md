@@ -17,3 +17,7 @@ navigation:
 
 <recipe id="minecraft:netherite_ingot"/>
 <recipe id="anvilcraft:procedural_process/netherite_block"/>
+
+<tip>
+如果不想自己设计机器，可以参考手册的[机器](../009_machine/201_netherite_block.md)
+</tip>

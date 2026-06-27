@@ -17,3 +17,7 @@ navigation:
 
 <recipe id="minecraft:netherite_ingot"/>
 <recipe id="anvilcraft:procedural_process/netherite_block"/>
+
+<tip>
+If you don't want to design your own machine, refer to the [machine](../009_machine/201_netherite_block.md) in the manual
+</tip>
