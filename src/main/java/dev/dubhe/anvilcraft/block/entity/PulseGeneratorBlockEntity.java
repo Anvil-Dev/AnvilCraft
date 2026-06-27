@@ -194,6 +194,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
         buffer.writeBlockPos(this.getBlockPos());
+        buffer.writeNbt(this.constructDataNbt());
     }
 
     public enum State {
