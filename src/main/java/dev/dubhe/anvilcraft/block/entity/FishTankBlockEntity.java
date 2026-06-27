@@ -1008,7 +1008,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
                 if (resource.isEmpty()) continue;
                 int extracted = handler.extract(slot, resource, Integer.MAX_VALUE, transaction);
                 if (extracted > 0) {
-                    Block.popResource(this.level, pos, resource.toStack(extracted));
+                    Block.popResource(Objects.requireNonNull(this.level), pos, resource.toStack(extracted));
                 }
                 transaction.commit();
             }
