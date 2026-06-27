@@ -229,6 +229,10 @@ public class ModFluids {
         "primordial_matter", () -> PrimordialMatterFluid.TYPE
     );
 
+    public static final DeferredHolder<Fluid, PrimordialMatterFluid> PRIMORDIAL_MATTER = FLUIDS.register(
+        "primordial_matter", PrimordialMatterFluid::new
+    );
+
     public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(
         NeoForgeRegistries.FLUID_TYPES.key(),
         ResourceLocation.withDefaultNamespace("powder_snow")
