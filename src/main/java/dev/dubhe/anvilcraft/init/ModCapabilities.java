@@ -42,6 +42,8 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModCapabilities {
     @SubscribeEvent
@@ -147,17 +149,20 @@ public class ModCapabilities {
     }
 
     /// 物品
-    private static <T extends BlockEntity & IItemResourceHandlerHolder, S> ResourceHandler<ItemResource> item(T be, S ignored) {
+    private static <T extends BlockEntity & IItemResourceHandlerHolder, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
         return be.getItemHandler();
     }
 
     /// 存储容器的物品
-    private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, S ignored) {
-        return Storages.get().getOrCreate(be.getId(), be.getStorageType().clazz()).getItems();
+    private static <T extends StorageBlockEntity, S> ResourceHandler<ItemResource> item(T be, @Nullable S ignored) {
+        return Storages.get().getOrCreate(Objects.requireNonNull(be.getId()), be.getStorageType().clazz()).getItems();
     }
 
     /// 流体
-    private static <T extends BlockEntity & IFluidResourceHandlerHolder, S> ResourceHandler<FluidResource> fluid(T be, S ignored) {
+    private static <T extends BlockEntity & IFluidResourceHandlerHolder, S> ResourceHandler<FluidResource> fluid(
+        T be,
+        @Nullable S ignored
+    ) {
         return be.getFluidHandler();
     }
 
@@ -180,7 +185,7 @@ public class ModCapabilities {
     }
 
     /// 能量
-    private static <T extends BlockEntity & IEnergyHandlerHolder> EnergyHandler energy(T be, @Nullable Direction dir) {
+    private static <T extends BlockEntity & IEnergyHandlerHolder> @Nullable EnergyHandler energy(T be, @Nullable Direction dir) {
         return be.getEnergyHandler(dir);
     }
 }

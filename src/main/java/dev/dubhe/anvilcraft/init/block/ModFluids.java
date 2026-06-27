@@ -253,7 +253,7 @@ public class ModFluids {
         Blocks.ANDESITE
     };
 
-    public static void registerFluidInteractions(FMLCommonSetupEvent event) {
+    public static void registerFluidInteractions(FMLCommonSetupEvent ignored) {
         FluidInteractionRegistry.addInteraction(
             MELT_GEM.get().getFluidType(),
             new InteractionInformation(

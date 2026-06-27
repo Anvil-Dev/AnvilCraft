@@ -39,6 +39,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class PlasmaJetsBlockEntity extends BlockEntity {
@@ -150,7 +151,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     protected void tryIgniteValidCauldron(Level level) {
-        BlockState state = level.getBlockState(this.cauldronPos);
+        BlockState state = level.getBlockState(Objects.requireNonNull(this.cauldronPos));
         if (!(state.getBlock() instanceof IIgnitableCauldron cauldron)) return;
 
         BlockCache cache = new BlockCache(level);
@@ -175,7 +176,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
                 break;
             }
         }
-        boolean cauldronExisting = PlasmaJetsBlock.isValidBaseCauldron(level, this.cauldronPos);
+        boolean cauldronExisting = PlasmaJetsBlock.isValidBaseCauldron(level, Objects.requireNonNull(this.cauldronPos));
         boolean belowCauldronIsNotHeater = !level.getBlockState(this.cauldronPos.below(1))
             .is(ModBlocks.HEATER);
         boolean heaterOverload = level.getBlockState(this.cauldronPos.below(1))
@@ -190,7 +191,10 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
 
     protected void refreshDuration(Level level) {
         this.duration--;
-        if (this.duration + MAX_DURATION / 2 < MAX_DURATION && PlasmaJetsBlock.tryConsumeOnce(level, this.cauldronPos)) {
+        if (
+            this.duration + MAX_DURATION / 2 < MAX_DURATION
+            && PlasmaJetsBlock.tryConsumeOnce(level, Objects.requireNonNull(this.cauldronPos))
+        ) {
             this.duration += MAX_DURATION / 2;
         }
         if (this.duration < 0) {
