@@ -255,7 +255,7 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
     }
 
     /**
-     * 检查指定方向的邻居是否被"占用"（有管道对准 或 是流体处理器）。
+     * 检查指定方向的邻居是否被"占用"（有管道对准、是流体处理器、或连接面正对本方块的泵）。
      * 用于判断管道端头是否应该打开（无端头连接）。
      *
      * @param level 世界
@@ -267,7 +267,7 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
         if (isNeighborPipeToward(level, pos, dir)) {
             return true;
         }
-        return isFluidHandler(level, pos.relative(dir));
+        return isFluidHandlerOrConnectablePump(level, pos.relative(dir), dir.getOpposite());
     }
 
     @Override
