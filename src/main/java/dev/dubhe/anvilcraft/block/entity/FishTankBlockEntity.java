@@ -972,6 +972,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             return;
         }
         if (this.isIgnited()) {
+            Level level = this.getLevel();
+            if (level != null && this.isIgnited() && level.getBlockState(this.getBlockPos().below()).is(ModBlocks.HEATER)) {
+                level.scheduleTick(this.getBlockPos(), this.getBlockState().getBlock(), 2);
+            }
             return;
         }
         for (int i = 0; i < this.proxy.size(); i++) {
