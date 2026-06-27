@@ -8,9 +8,7 @@ import javax.annotation.Nullable;
 
 /// 特殊天体数据 —— 从 {@link SpecialCelestialBodyRecipe} 创建，
 /// 绕过常规三步图表匹配和贴图烘焙管线。
-///
 /// 所有属性在创建时从配方缓存，渲染和 NBT 反序列化时无需查配方管理器。
-@SuppressWarnings("checkstyle:MissingJavadocMethod")
 public record SpecialCelestialBodyData(
     String recipeId,
     String name,
@@ -24,7 +22,7 @@ public record SpecialCelestialBodyData(
     boolean isErrorPlanet,
     boolean needsCustomModel,
     String model,
-    @javax.annotation.Nullable CompoundTag playerHeadProfile
+    @Nullable CompoundTag playerHeadProfile
 ) implements CelestialBodyData {
 
     /// 从配方和其资源路径ID创建。

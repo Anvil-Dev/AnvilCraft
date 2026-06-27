@@ -367,7 +367,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.g_main", "G-Star"); // Yellow Dwarf 黄矮星
         provider.add("screen.anvilcraft.cfa.class.f_main", "F-Star"); // Yellow-White Main 黄白主序星
         provider.add("screen.anvilcraft.cfa.class.a_main", "A-Star"); // White Main 白主序星
-        provider.add("screen.anvilcraft.cfa.class.b_main", "B-Star"); // Blue-White Main 蓝主序星
+        provider.add("screen.anvilcraft.cfa.class.b_main", "B-Star"); // Blue-White Main 蓝白主序星
         provider.add("screen.anvilcraft.cfa.class.o_main", "O-Star"); // Blue Main 蓝主序星
         provider.add("screen.anvilcraft.cfa.class.m_giant", "M-Giant"); // Red Giant 红巨星
         provider.add("screen.anvilcraft.cfa.class.k_giant", "K-Giant"); // Orange Giant 橙巨星

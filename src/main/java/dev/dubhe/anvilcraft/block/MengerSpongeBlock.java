@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -77,7 +76,7 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
                 }
                 BlockState blockState = level.getBlockState(checkedPos);
                 FluidState fluidState = level.getFluidState(checkedPos);
-                if (!fluidState.is(ModFluidTags.MENGER_SPONGE_CAN_ABSORB)) {
+                if (fluidState.isEmpty()) {
                     return false;
                 }
                 Block block = blockState.getBlock();
