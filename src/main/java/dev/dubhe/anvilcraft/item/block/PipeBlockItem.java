@@ -86,9 +86,9 @@ public class PipeBlockItem extends Item {
         BlockState placeState = level.getBlockState(placePos);
 
         boolean targetIsPipe = targetState.getBlock() instanceof PipeBlock;
-        boolean targetIsFluid = PipeBlock.isFluidHandlerOrPump(level, targetPos);
+        boolean targetIsFluid = PipeBlock.isFluidHandlerOrConnectablePump(level, targetPos, clickedFace);
         boolean placeIsPipe = placeState.getBlock() instanceof PipeBlock;
-        boolean placeIsFluid = PipeBlock.isFluidHandlerOrPump(level, placePos);
+        boolean placeIsFluid = PipeBlock.isFluidHandlerOrConnectablePump(level, placePos, clickedFace.getOpposite());
 
         // 双方至少有一方是管道/IFluidHandler 且另一方也是
         if ((!targetIsPipe && !targetIsFluid) || (!placeIsPipe && !placeIsFluid)) {
@@ -366,7 +366,7 @@ public class PipeBlockItem extends Item {
 
         boolean shiftDown = player != null && player.isShiftKeyDown();
         boolean clickedOnPipe = targetBlock instanceof PipeBlock;
-        boolean clickedOnFluidHandler = PipeBlock.isFluidHandlerOrPump(level, targetPos);
+        boolean clickedOnFluidHandler = PipeBlock.isFluidHandlerOrConnectablePump(level, targetPos, clickedFace);
 
         if (shiftDown || (!clickedOnPipe && !clickedOnFluidHandler)) {
             Direction.Axis axis = getLookAxis(player);
