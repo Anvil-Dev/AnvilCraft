@@ -15,7 +15,7 @@ navigation:
 - <ref item="anvilcraft:pulse_generator"/>设为(循环模式| 15gt | 0gt)
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
 
-## <ref item="minecraft:ancient_debris"/>机
+## <ref item="minecraft:netherite_block"/>机
 
 <structure id="../../structures/machine/netherite_block.nbt"/>
 
