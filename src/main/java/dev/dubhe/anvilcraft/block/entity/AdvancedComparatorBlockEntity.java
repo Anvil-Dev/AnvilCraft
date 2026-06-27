@@ -168,6 +168,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
     @Override
     public void writeClientSideData(AbstractContainerMenu menu, RegistryFriendlyByteBuf buffer) {
         buffer.writeBlockPos(this.getBlockPos());
+        buffer.writeNbt(this.constructDataNbt());
     }
 
     public void notifyMoved() {

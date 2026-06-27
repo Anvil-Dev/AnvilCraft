@@ -23,7 +23,7 @@ public class MilkFluid extends Fluid {
 
     @Override
     public Item getBucket() {
-        return Items.AIR;
+        return Items.MILK_BUCKET;
     }
 
     @Override

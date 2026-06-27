@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.block.sliding;
 
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.injection.block.IBlockExtension;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
@@ -115,7 +115,7 @@ public interface ISlidingRail extends IBlockExtension {
     static boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
         SlidingBlockStructureResolver resolver = new SlidingBlockStructureResolver(level, pos, facing, true);
         if (!resolver.resolve()) return false;
-        List<Triple<BlockPos, BlockState, Optional<CompoundTag>>> toPushes = new ArrayList<>();
+        List<Triple<BlockPos, BlockState, Optional<BlockEntity>>> toPushes = new ArrayList<>();
         List<BlockPos> toPushPoses = resolver.getToPush();
 
         for (BlockPos toPushPos : toPushPoses) {
@@ -124,9 +124,16 @@ public interface ISlidingRail extends IBlockExtension {
             if (toPushState.hasProperty(BlockStateProperties.WATERLOGGED)) {
                 toPushState = toPushState.setValue(BlockStateProperties.WATERLOGGED, false);
             }
-            Optional<CompoundTag> toPushEntityData = Optional.ofNullable(level.getBlockEntity(toPushPos))
-                .map(entity -> entity.saveCustomOnly(level.registryAccess()));
-            toPushes.add(Triple.of(toPushPos, toPushState, toPushEntityData));
+
+            Optional<BlockEntity> blockEntity = Optional.empty();
+            if (toPushState.getBlock() instanceof IMoveableEntityBlock) {
+                BlockEntity be = level.getBlockEntity(toPushPos);
+                if (be != null) {
+                    blockEntity = Optional.of(be);
+                    level.removeBlockEntity(toPushPos);
+                }
+            }
+            toPushes.add(Triple.of(toPushPos, toPushState, blockEntity));
         }
 
         List<BlockPos> toDestroys = resolver.getToDestroy();
@@ -154,9 +161,11 @@ public interface ISlidingRail extends IBlockExtension {
         for (var toPushEntry : toPushes) {
             BlockPos toPushPos = toPushEntry.getLeft();
             BlockState toPushState = toPushEntry.getMiddle();
-            toPushState.updateIndirectNeighbourShapes(level, toPushPos, 0b0000010);
-            air.updateNeighbourShapes(level, toPushPos, 0b0000010);
-            air.updateIndirectNeighbourShapes(level, toPushPos, 0b0000010);
+            if (!(toPushState.getBlock() instanceof IMoveableEntityBlock)) {
+                toPushState.updateIndirectNeighbourShapes(level, toPushPos, 0b0000010);
+                air.updateNeighbourShapes(level, toPushPos, 0b0000010);
+                air.updateIndirectNeighbourShapes(level, toPushPos, 0b0000010);
+            }
         }
 
         int j = 0;
@@ -169,7 +178,10 @@ public interface ISlidingRail extends IBlockExtension {
         }
 
         for (var toPushEntry : toPushes) {
-            level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
+            BlockState toPushState = toPushEntry.getMiddle();
+            if (!(toPushState.getBlock() instanceof IMoveableEntityBlock)) {
+                level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
+            }
         }
 
         SlidingBlockEntity.slid(level, pos, facing, toPushes);

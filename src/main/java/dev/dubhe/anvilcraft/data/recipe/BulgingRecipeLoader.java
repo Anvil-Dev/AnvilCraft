@@ -69,6 +69,19 @@ public class BulgingRecipeLoader {
             .consume(1000)
             .result(ModItems.EXP_GEM)
             .save(provider);
+
+        BulgingRecipe.builder()
+            .cauldron(ModFluids.MILK.getId())
+            .consume(1000)
+            .result(ModFoodItems.CREAM, 4)
+            .save(provider, AnvilCraft.of("bulging/cream_from_milk"));
+
+        BulgingRecipe.builder()
+            .cauldron(ModFluids.HONEY.getId())
+            .consume(1000)
+            .result(Items.HONEY_BLOCK)
+            .save(provider, AnvilCraft.of("bulging/honey_block"));
+
         BulgingRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .transform(ModBlocks.EXP_FLUID_CAULDRON.get())

@@ -18,6 +18,9 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
     public final boolean noFog;
     public final int fogColor;
     public final float fogDistance;
+    public final int tintColor;
+    @Getter
+    private final boolean opaque;
 
     public ModClientFluidTypeExtensionImpl(
         ResourceLocation stillTexture,
@@ -30,6 +33,24 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         this.noFog = false;
         this.fogColor = fogColor;
         this.fogDistance = fogDistance;
+        this.tintColor = 0xFF000000 | fogColor;
+        this.opaque = false;
+    }
+
+    public ModClientFluidTypeExtensionImpl(
+        ResourceLocation stillTexture,
+        ResourceLocation flowingTexture,
+        int fogColor,
+        float fogDistance,
+        boolean opaque
+    ) {
+        this.stillTexture = stillTexture;
+        this.flowingTexture = flowingTexture;
+        this.noFog = false;
+        this.fogColor = fogColor;
+        this.fogDistance = fogDistance;
+        this.tintColor = 0xFF000000 | fogColor;
+        this.opaque = opaque;
     }
 
     public ModClientFluidTypeExtensionImpl(
@@ -39,12 +60,10 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         this.stillTexture = stillTexture;
         this.flowingTexture = flowingTexture;
         this.noFog = true;
-        this.fogColor = 0xFF0000;
+        this.fogColor = 0xFFFFFF;
         this.fogDistance = 96.0f;
-    }
-
-    public ModClientFluidTypeExtensionImpl(ResourceLocation texture) {
-        this(texture, texture);
+        this.tintColor = 0xFFFFFFFF;
+        this.opaque = false;
     }
 
     @Override
@@ -61,6 +80,11 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         float fogGreen = ((this.fogColor >> 8) & 255) / 255.0F;
         float fogBlue = (this.fogColor & 255) / 255.0F;
         return new Vector3f(fogRed, fogGreen, fogBlue);
+    }
+
+    @Override
+    public int getTintColor() {
+        return this.tintColor;
     }
 
     @Override
