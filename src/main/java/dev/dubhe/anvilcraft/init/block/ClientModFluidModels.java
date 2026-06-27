@@ -44,11 +44,6 @@ public class ClientModFluidModels {
             null, tint
         ), ModFluids.POWDER_SNOW);
         event.register(new FluidModel.Unbaked(
-            new Material(Identifier.fromNamespaceAndPath("neoforge", "block/milk_still")),
-            new Material(Identifier.fromNamespaceAndPath("neoforge", "block/milk_flowing")),
-            null, tint
-        ), ModFluids.MILK);
-        event.register(new FluidModel.Unbaked(
             new Material(Identifier.withDefaultNamespace("block/honey_block_top")),
             new Material(Identifier.withDefaultNamespace("block/honey_block_top")),
             null, tint

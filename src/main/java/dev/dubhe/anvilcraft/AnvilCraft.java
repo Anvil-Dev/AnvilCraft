@@ -58,6 +58,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -81,6 +82,7 @@ public class AnvilCraft {
 
     public AnvilCraft(IEventBus modEventBus, ModContainer modContainer) {
         MOD_BUS = modEventBus;
+        NeoForgeMod.enableMilkFluid();
         ModAttachments.register(modEventBus);
         ModItemGroups.register(modEventBus);
         ModBlocks.register();

@@ -16,6 +16,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.NeoForgeMod;
 
 public class BulgingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -77,7 +78,7 @@ public class BulgingRecipeLoader {
             .save(provider, AnvilCraft.of("bulging/exp_fluid_cauldron"));
 
         BulgingRecipe.builder()
-            .cauldron(ModFluids.MILK.getId())
+            .cauldron(NeoForgeMod.MILK.getId())
             .consume(1000)
             .result(ModItems.CREAM, 4)
             .save(provider, AnvilCraft.of("bulging/cream_from_milk"));

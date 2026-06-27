@@ -327,6 +327,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
         try (Transaction transaction = Transaction.openRoot()) {
             FluidStackResourceHandler handler = be.getFluidHandler();
             FluidResource resource = handler.getResource(0);
+            if (resource.isEmpty()) {
+                return false;
+            }
             int extracted = handler.extract(resource, 250, transaction);
             if (extracted < 250) {
                 return false;
