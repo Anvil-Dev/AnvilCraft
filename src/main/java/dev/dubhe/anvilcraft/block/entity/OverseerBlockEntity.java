@@ -56,7 +56,7 @@ public class OverseerBlockEntity extends BlockEntity {
         if (level instanceof ServerLevel serverLevel) {
             // 如果底座上方不是监督者，直接破坏底座，结束方法
             if (!isBaseValid()) {
-                if (LevelLoadManager.checkRegistered(pos)) {
+                if (LevelLoadManager.checkRegistered(pos, level)) {
                     LevelLoadManager.unregister(pos, level);
                 }
                 return;
@@ -66,20 +66,14 @@ public class OverseerBlockEntity extends BlockEntity {
             if (newlevel == oldlevel && newRandomTick == oldRandomTick) {
                 return;
             }
-            if (oldlevel > -1 || LevelLoadManager.checkRegistered(pos)) {
-                LevelLoadManager.unregister(pos, level);
-                oldlevel = -1;
-                oldRandomTick = false;
-            }
             if (newlevel >= 0) {
-                LevelLoadManager.register(
+                LevelLoadManager.reload(
+                    serverLevel,
                     pos,
-                    LoadChuckData.createLoadChuckData(
-                        newlevel,
-                        pos,
-                        (this.waterLoggedBlockCount >= 4),
-                        serverLevel),
-                    serverLevel);
+                    LoadChuckData.createLoadChuckData(newlevel, pos, newRandomTick, serverLevel)
+                );
+            } else {
+                LevelLoadManager.unregister(pos, level);
             }
             oldlevel = newlevel;
             oldRandomTick = newRandomTick;

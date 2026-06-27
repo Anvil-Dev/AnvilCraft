@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
@@ -27,6 +26,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -90,7 +90,7 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
     @Override
     public void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity) {
         Direction moveTo = entity.getMoveDirection();
-        if (this.canMoveSlidingTo(level, pos, moveTo)) {
+        if (this.canMoveSlidingTo(level, pos, Objects.requireNonNull(moveTo))) {
             return;
         } else if (this.canMoveSlidingTo(level, pos, moveTo.getCounterClockWise())) {
             entity.setMoveDirection(moveTo.getCounterClockWise());
@@ -112,7 +112,7 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
         BlockState topBlock = level.getBlockState(pos.above());
         if (!PistonBaseBlock.isPushable(topBlock, level, pos, null, true, null)) return;
         Direction moveTo = MathUtil.getDirection(fromPos, pos);
-        if (moveTo.getAxis() == Direction.Axis.Y) return;
+        if (Objects.requireNonNull(moveTo).getAxis() == Direction.Axis.Y) return;
         if (this.canMoveBlockTo(level, pos, topBlock, moveTo)) {
             SlidingRailStopBlock.moveBlocksAbove(level, pos, moveTo);
         } else if (this.canMoveBlockTo(level, pos, topBlock, moveTo.getCounterClockWise())) {
@@ -143,7 +143,7 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
     private static void moveBlocksAbove(Level level, BlockPos pos, Direction moveToSide) {
         SlidingBlockStructureResolver resolver = new SlidingBlockStructureResolver(level, pos.above(), moveToSide, true);
         if (!resolver.resolve()) return;
-        List<Triple<BlockPos, BlockState, Optional<CompoundTag>>> toPushes = new ArrayList<>();
+        List<Triple<BlockPos, BlockState, Optional<BlockEntity>>> toPushes = new ArrayList<>();
         List<BlockPos> toPushPoses = new ArrayList<>(resolver.getToPush());
 
         for (Iterator<BlockPos> iterator = toPushPoses.iterator(); iterator.hasNext(); ) {
@@ -156,9 +156,7 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
             if (toPushState.hasProperty(BlockStateProperties.WATERLOGGED)) {
                 toPushState = toPushState.setValue(BlockStateProperties.WATERLOGGED, false);
             }
-            Optional<CompoundTag> toPushEntityData = Optional.ofNullable(level.getBlockEntity(toPushPos))
-                .map(entity -> entity.saveCustomOnly(level.registryAccess()));
-            toPushes.add(Triple.of(toPushPos, toPushState, toPushEntityData));
+            toPushes.add(Triple.of(toPushPos, toPushState, Optional.empty()));
         }
 
         List<BlockPos> toDestroys = resolver.getToDestroy();

@@ -339,16 +339,17 @@ public class ModFluids {
         );
         e.registerFluidType(
             new ModClientFluidTypeExtensionImpl(
-                ResourceLocation.withDefaultNamespace("block/water_still"),
-                ResourceLocation.withDefaultNamespace("block/water_flow"),
-                0xFCFCFC,
-                1.0f
+                AnvilCraft.of("block/milk"),
+                AnvilCraft.of("block/milk_flow"),
+                0xFFFFFF,
+                1.0f,
+                true
             ), MILK_TYPE
         );
         e.registerFluidType(
             new ModClientFluidTypeExtensionImpl(
-                ResourceLocation.withDefaultNamespace("block/water_still"),
-                ResourceLocation.withDefaultNamespace("block/water_flow"),
+                ResourceLocation.withDefaultNamespace("block/honey_block_top"),
+                ResourceLocation.withDefaultNamespace("block/honey_block_top"),
                 0xFFB82E,
                 2.0f
             ), HONEY_TYPE

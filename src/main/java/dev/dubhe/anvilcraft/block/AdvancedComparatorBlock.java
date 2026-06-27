@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity.Mode;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity.State;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.SignalGetter;
@@ -268,11 +268,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         }
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof AdvancedComparatorBlockEntity blockEntity && player instanceof ServerPlayer sp) {
-            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-            sp.openMenu(blockEntity, buf -> {
-                buf.writeBlockPos(pos);
-                buf.writeNbt(blockEntity.constructDataNbt());
-            });
+            ModMenuTypes.open(sp, blockEntity);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;

@@ -6,16 +6,14 @@ import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.MathUtil;
-import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
-import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AabbUtil;
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -25,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.DirectionalPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
@@ -44,7 +43,7 @@ public final class SlidingBlockSection {
     public static final Codec<SlidingBlockSection> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         SlidingBlockInfo.CODEC.listOf().fieldOf("blocks").forGetter(SlidingBlockSection::blocks)
     ).apply(ins, SlidingBlockSection::new));
-    public static final StreamCodec<ByteBuf, SlidingBlockSection> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlidingBlockSection> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.collection(ArrayList::new, SlidingBlockInfo.STREAM_CODEC), SlidingBlockSection::blocks,
         SlidingBlockSection::new
     );
@@ -55,14 +54,14 @@ public final class SlidingBlockSection {
         this.blocks = blocks;
     }
 
-    public static SlidingBlockSection create(BlockPos center, Iterable<Triple<BlockPos, BlockState, Optional<CompoundTag>>> infos) {
+    public static SlidingBlockSection create(BlockPos center, Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos) {
         ImmutableList.Builder<SlidingBlockInfo> builder = ImmutableList.builder();
         for (var infoRaw : infos) {
             BlockPos otherPos = infoRaw.getLeft();
             BlockState other = infoRaw.getMiddle();
-            Optional<CompoundTag> data = infoRaw.getRight();
+            Optional<BlockEntity> blockEntity = infoRaw.getRight();
             Vec3i pos = MathUtil.dist(otherPos, center);
-            SlidingBlockInfo info = new SlidingBlockInfo(pos, other, data.orElse(new CompoundTag()));
+            SlidingBlockInfo info = new SlidingBlockInfo(pos, other, blockEntity.orElse(null));
             builder.add(info);
         }
         return new SlidingBlockSection(builder.build());
@@ -132,20 +131,16 @@ public final class SlidingBlockSection {
                 Block.dropResources(state, level, pos);
                 continue;
             }
-            if (level.getFluidState(pos).getType() == Fluids.WATER
-                && state.hasProperty(BlockStateProperties.WATERLOGGED)) {
+            if (
+                level.getFluidState(pos).getType() == Fluids.WATER
+                && state.hasProperty(BlockStateProperties.WATERLOGGED)
+            ) {
                 state = state.setValue(BlockStateProperties.WATERLOGGED, true);
             }
 
-            if (state.is(ModBlockTags.HEATABLE_BLOCKS)) {
-                Optional<Block> prevTierBlock = HeatRecorder.getPrevTierHeatableBlock(level, pos, state);
-                if (prevTierBlock.isPresent()) {
-                    state = prevTierBlock.get().defaultBlockState();
-                }
-            }
-
             boolean canBeReplaced = level.getBlockState(pos).canBeReplaced(
-                new DirectionalPlaceContext(level, pos, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
+                new DirectionalPlaceContext(level, pos, Direction.DOWN, ItemStack.EMPTY, Direction.UP)
+            );
             boolean canSurvive = state.canSurvive(level, pos);
             if (!canBeReplaced || !canSurvive) {
                 Block.dropResources(state, level, pos);
@@ -154,8 +149,16 @@ public final class SlidingBlockSection {
 
             state = Block.updateFromNeighbourShapes(state, level, pos);
             if (!level.setBlock(pos, state, Block.UPDATE_ALL)) continue;
-            Optional.ofNullable(level.getBlockEntity(pos))
-                .ifPresent(entity1 -> entity1.loadCustomOnly(info.entityData(), level.registryAccess()));
+
+            BlockEntity be = info.blockEntity();
+            if (be != null && state.getBlock() instanceof IMoveableEntityBlock moveableBlock) {
+                be.worldPosition = pos;
+                be.clearRemoved();
+                level.removeBlockEntity(pos);
+                level.setBlockEntity(be);
+                moveableBlock.notifyMoved(level, pos, state, be);
+            }
+
             level.neighborChanged(pos, state.getBlock(), pos);
 
             ((ServerLevel) level)

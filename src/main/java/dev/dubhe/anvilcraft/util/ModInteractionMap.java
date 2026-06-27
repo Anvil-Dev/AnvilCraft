@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.FishTankBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
+import dev.dubhe.anvilcraft.block.MilkCauldronBlock;
 import dev.dubhe.anvilcraft.block.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -31,6 +32,7 @@ public class ModInteractionMap {
     public static final CauldronInteraction.InteractionMap OIL = CauldronInteraction.newInteractionMap("oil");
     public static final CauldronInteraction.InteractionMap CEMENT = CauldronInteraction.newInteractionMap("cement");
     public static final CauldronInteraction.InteractionMap HONEY = CauldronInteraction.newInteractionMap("honey");
+    public static final CauldronInteraction.InteractionMap MILK = CauldronInteraction.newInteractionMap("milk");
     public static final CauldronInteraction.InteractionMap MELT_GEM = CauldronInteraction.newInteractionMap("melt_gem");
     public static final CauldronInteraction.InteractionMap FISH_TANK = CauldronInteraction.newInteractionMap("fish_tank");
 
@@ -204,6 +206,34 @@ public class ModInteractionMap {
             }
         );
 
+        var milkInteractionMap = MILK.map();
+        milkInteractionMap.put(
+            Items.BUCKET,
+            (state, level, pos, player, hand, stack) -> CauldronInteraction.fillBucket(
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                new ItemStack(Items.MILK_BUCKET),
+                s -> true,
+                SoundEvents.BUCKET_FILL
+            )
+        );
+        milkInteractionMap.put(
+            Items.MILK_BUCKET,
+            (state, level, pos, player, hand, stack) -> CauldronInteraction.emptyBucket(
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                ModBlocks.MILK_CAULDRON.get().defaultBlockState().setValue(MilkCauldronBlock.LEVEL, 3),
+                SoundEvents.BUCKET_EMPTY
+            )
+        );
+
         var meltGemInteractionMap = MELT_GEM.map();
         meltGemInteractionMap.put(
             Items.BUCKET,
@@ -243,6 +273,18 @@ public class ModInteractionMap {
                 hand,
                 stack,
                 ModBlocks.EXP_FLUID_CAULDRON.get().fullFilled(),
+                SoundEvents.BUCKET_EMPTY
+            )
+        );
+        emptyInteractionMap.put(
+            Items.MILK_BUCKET,
+            (state, level, pos, player, hand, stack) -> CauldronInteraction.emptyBucket(
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                ModBlocks.MILK_CAULDRON.get().defaultBlockState().setValue(MilkCauldronBlock.LEVEL, 4),
                 SoundEvents.BUCKET_EMPTY
             )
         );

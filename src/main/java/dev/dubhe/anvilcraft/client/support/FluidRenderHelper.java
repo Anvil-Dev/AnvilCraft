@@ -18,6 +18,7 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -47,7 +48,11 @@ public final class FluidRenderHelper {
         boolean renderBottom,
         boolean invertGasses
     ) {
-        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, getFluidBuilder(buffer), ms, light, renderBottom, invertGasses);
+        var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
+        boolean opaque = renderProps instanceof ModClientFluidTypeExtensionImpl ext && ext.isOpaque();
+        RenderType renderType = opaque ? RenderType.cutout() : RenderType.translucent();
+        VertexConsumer builder = buffer.getBuffer(renderType);
+        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light, renderBottom, invertGasses);
     }
 
     public void renderFluidBox(
@@ -107,10 +112,6 @@ public final class FluidRenderHelper {
         }
 
         ms.popPose();
-    }
-
-    public static VertexConsumer getFluidBuilder(MultiBufferSource buffer) {
-        return buffer.getBuffer(RenderType.TRANSLUCENT);
     }
 
     public static void renderStillTiledFace(

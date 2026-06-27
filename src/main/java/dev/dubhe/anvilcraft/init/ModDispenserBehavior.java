@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.animal.MushroomCow;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.DispensibleContainerItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -33,6 +35,11 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.List;
 import java.util.UUID;
@@ -48,6 +55,61 @@ public class ModDispenserBehavior {
      */
     public static final UUID ANVILCRAFT_DISPENSER = new UUID(0x976850D40E652AB5L, 0x83D24BBA75A6B114L);
     private static final DefaultDispenseItemBehavior DEFAULT_BEHAVIOUR = new DefaultDispenseItemBehavior();
+    private static final DefaultDispenseItemBehavior FLUID_BUCKET = new DefaultDispenseItemBehavior() {
+        @Override
+        public ItemStack execute(BlockSource source, ItemStack stack) {
+            BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            Level level = source.level();
+            IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, blockpos, null);
+            if (target != null) {
+                var fluidHandler = FluidUtil.getFluidHandler(stack).orElse(null);
+                if (fluidHandler != null) {
+                    FluidStack drained = fluidHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE);
+                    if (!drained.isEmpty()) {
+                        int filled = target.fill(drained, IFluidHandler.FluidAction.SIMULATE);
+                        if (filled >= drained.getAmount()) {
+                            fluidHandler.drain(drained, IFluidHandler.FluidAction.EXECUTE);
+                            target.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+                            return this.consumeWithRemainder(source, stack, fluidHandler.getContainer());
+                        }
+                    }
+                }
+            }
+            return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
+        }
+    };
+
+    private static final DefaultDispenseItemBehavior EMPTY_FLUID_CONTAINER = new DefaultDispenseItemBehavior() {
+        @Override
+        public ItemStack execute(BlockSource source, ItemStack stack) {
+            BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            Level level = source.level();
+            IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, blockpos, null);
+            if (target != null) {
+                boolean isBottle = stack.is(Items.GLASS_BOTTLE);
+                int amount = isBottle ? FluidType.BUCKET_VOLUME / 4 : FluidType.BUCKET_VOLUME;
+
+                FluidStack drained = target.drain(amount, IFluidHandler.FluidAction.SIMULATE);
+                if (drained.getAmount() >= amount) {
+                    if (isBottle && drained.getFluid() instanceof dev.dubhe.anvilcraft.fluid.HoneyFluid) {
+                        if (!level.isClientSide()) {
+                            target.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+                        }
+                        return this.consumeWithRemainder(source, stack, new ItemStack(Items.HONEY_BOTTLE));
+                    }
+                    Item bucketItem = drained.getFluid().getBucket();
+                    if (bucketItem != Items.AIR) {
+                        if (!level.isClientSide()) {
+                            target.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+                        }
+                        return this.consumeWithRemainder(source, stack, new ItemStack(bucketItem));
+                    }
+                }
+            }
+            return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
+        }
+    };
+
     private static final DefaultDispenseItemBehavior BUCKET = new DefaultDispenseItemBehavior() {
         @Override
         public ItemStack execute(BlockSource source, ItemStack stack) {
@@ -68,12 +130,38 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(Items.BOWL, ModDispenserBehavior::bowl);
         DispenserBlock.registerBehavior(Items.GOLDEN_APPLE, ModDispenserBehavior::goldenApple);
         DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, ModDispenserBehavior::resinBlock);
+        DispenserBlock.registerBehavior(Items.MILK_BUCKET, FLUID_BUCKET);
         DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, BUCKET);
         DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, BUCKET);
         DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);
         for (ItemEntry<BucketItem> cementBucket : ModItems.CEMENT_BUCKETS.values()) {
             DispenserBlock.registerBehavior(cementBucket, BUCKET);
         }
+
+        DispenseItemBehavior originalBucket = DispenserBlock.DISPENSER_REGISTRY.get(Items.BUCKET);
+        DispenserBlock.registerBehavior(Items.BUCKET, new DefaultDispenseItemBehavior() {
+            @Override
+            public ItemStack execute(BlockSource source, ItemStack stack) {
+                BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+                Level level = source.level();
+                IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, blockpos, null);
+                if (target != null) {
+                    int amount = FluidType.BUCKET_VOLUME;
+                    FluidStack drained = target.drain(amount, IFluidHandler.FluidAction.SIMULATE);
+                    if (drained.getAmount() >= amount) {
+                        Item bucketItem = drained.getFluid().getBucket();
+                        if (bucketItem != Items.AIR) {
+                            if (!level.isClientSide()) {
+                                target.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+                            }
+                            return this.consumeWithRemainder(source, stack, new ItemStack(bucketItem));
+                        }
+                    }
+                }
+                return originalBucket.dispense(source, stack);
+            }
+        });
+        DispenserBlock.registerBehavior(Items.GLASS_BOTTLE, EMPTY_FLUID_CONTAINER);
     }
 
     private static ItemStack mengerSponge(BlockSource source, ItemStack stack) {
