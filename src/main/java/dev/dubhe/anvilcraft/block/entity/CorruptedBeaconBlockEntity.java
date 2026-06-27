@@ -71,12 +71,16 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
      */
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state, CorruptedBeaconBlockEntity blockEntity) {
+        work(level, pos, state, blockEntity, false);
+    }
+
+    public static void work(Level level, BlockPos pos, BlockState state, CorruptedBeaconBlockEntity blockEntity, boolean forceCheck) {
         int posX = pos.getX();
         int posY = pos.getY();
         int posZ = pos.getZ();
         BlockPos blockpos;
         // 初始化光柱检查位置
-        if (blockEntity.lastCheckY < posY) {
+        if (blockEntity.lastCheckY < posY || forceCheck) {
             blockpos = pos;
             blockEntity.checkingBeamSections = Lists.newArrayList();
             blockEntity.lastCheckY = pos.getY() - 1;
@@ -126,8 +130,12 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         // 保存当前信标等级
         int lastLevel = blockEntity.levels;
 
+        if (forceCheck && blockEntity.lastCheckY >= height) {
+            blockEntity.beamSections = blockEntity.checkingBeamSections;
+        }
+
         // 每 80 tick 检查一次信标光柱状态是否正确
-        if (level.getGameTime() % 80L == 0L) {
+        if (level.getGameTime() % 80L == 0L || forceCheck) {
             if (!blockEntity.beamSections.isEmpty()) {
                 blockEntity.levels = CorruptedBeaconBlockEntity.updateBase(level, posX, posY, posZ);
             }
@@ -140,7 +148,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         }
 
         // 如果已完成光柱检查
-        if (blockEntity.lastCheckY >= height) {
+        if (blockEntity.lastCheckY >= height || forceCheck) {
             blockEntity.lastCheckY = level.getMinBuildHeight() - 1;
             blockEntity.beamSections = blockEntity.checkingBeamSections;
             if (!level.isClientSide) {
@@ -205,7 +213,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     }
 
     private static void tryTransformEntity(LivingEntity livingEntity, ServerLevel level, RecipeManager manager) {
-        MobTransformInput input = new  MobTransformInput(livingEntity);
+        MobTransformInput input = new MobTransformInput(livingEntity);
         Optional<RecipeHolder<MobTransformRecipe>> optionalRecipeHolder = manager.getRecipeFor(
             ModRecipeTypes.MOB_TRANSFORM_TYPE.get(), input, level);
         MobTransformWithItemRecipe.Input input2 = MobTransformWithItemRecipe.Input.of(livingEntity);

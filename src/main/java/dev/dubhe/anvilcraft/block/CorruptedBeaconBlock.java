@@ -80,4 +80,20 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
             CorruptedBeaconBlockEntity::tick
         );
     }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+
+        if (level.getBlockEntity(pos) instanceof CorruptedBeaconBlockEntity entity) {
+            CorruptedBeaconBlockEntity.work(level, pos, state, entity, true);
+        }
+    }
 }
