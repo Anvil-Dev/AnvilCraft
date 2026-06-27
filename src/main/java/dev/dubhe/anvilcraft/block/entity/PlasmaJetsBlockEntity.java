@@ -12,14 +12,17 @@ import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.special.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModParticles;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
@@ -137,6 +140,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         HeaterManager.addProducer(this.getBlockPos(), level, ModHeaterInfos.MAGNET_PLASMA_JETS);
         this.hurtEntities(level);
         this.provideCharge(level);
+        this.playJetSound(level);
     }
 
     // @OnlyIn(Dist.CLIENT)
@@ -204,11 +208,11 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         for (Entity entity : entities) {
             entity.igniteForSeconds(15.0F);
             if (level.isClientSide()) {
-                if (entity.hurtClient(entity.damageSources().inFire())) {
+                if (entity.hurtClient(ModDamageTypes.plasmaJet(level))) {
                     entity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + RandomSource.create().nextFloat() * 0.4F);
                 }
             } else {
-                if (entity.hurtServer(Util.cast(level), entity.damageSources().inFire(), 16.0F)) {
+                if (entity.hurtServer(Util.cast(level), ModDamageTypes.plasmaJet(level), 16.0F)) {
                     entity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + RandomSource.create().nextFloat() * 0.4F);
                 }
             }
@@ -227,6 +231,31 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
             ChargeCollectorManager instance = ChargeCollectorManager.getInstance(level);
             instance.charge(256, posPair.getFirst());
             instance.charge(256, posPair.getSecond());
+        }
+    }
+
+    protected void playJetSound(ServerLevel level) {
+        // 主音效：自定义声音事件，烈焰人持续咆哮
+        if (level.getGameTime() % 5 == 0) {
+            level.playSound(
+                null,
+                this.getBlockPos(),
+                ModSoundEvents.PLASMA_JET.get(),
+                SoundSource.BLOCKS,
+                3.0f,
+                0.8f + level.getRandom().nextFloat() * 0.2f
+            );
+        }
+        // 岩浆咝咝声：较低频率，模拟高压喷射气流
+        if (level.getGameTime() % 60 == 0) {
+            level.playSound(
+                null,
+                this.getBlockPos(),
+                ModSoundEvents.PLASMA_JET_LAVA.get(),
+                SoundSource.BLOCKS,
+                1.0f,
+                1.0f + level.getRandom().nextFloat() * 0.3f
+            );
         }
     }
 
