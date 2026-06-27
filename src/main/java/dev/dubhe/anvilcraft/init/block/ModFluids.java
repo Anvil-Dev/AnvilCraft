@@ -350,8 +350,8 @@ public class ModFluids {
         );
         e.registerFluidType(
             new ModClientFluidTypeExtensionImpl(
-                ResourceLocation.withDefaultNamespace("block/white_concrete"),
-                ResourceLocation.withDefaultNamespace("block/white_concrete"),
+                AnvilCraft.of("block/milk"),
+                AnvilCraft.of("block/milk_flow"),
                 0xFFFFFF,
                 1.0f,
                 true
