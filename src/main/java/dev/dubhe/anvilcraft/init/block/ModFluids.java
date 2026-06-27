@@ -298,7 +298,9 @@ public class ModFluids {
                 AnvilCraft.of("block/exp_fluid"),
                 AnvilCraft.of("block/exp_fluid_flow"),
                 0xC1E8A9,
-                1.0f
+                1.0f,
+                0xFFFFFFFF,
+                false
             ), EXP_FLUID_TYPE
         );
         e.registerFluidType(
@@ -306,7 +308,9 @@ public class ModFluids {
                 AnvilCraft.of("block/oil"),
                 AnvilCraft.of("block/oil_flow"),
                 0x1B061F,
-                1.0f
+                1.0f,
+                0xFFFFFFFF,
+                false
             ), OIL_TYPE
         );
         for (Color color : Color.values()) {
@@ -324,7 +328,9 @@ public class ModFluids {
                 AnvilCraft.of("block/melt_gem"),
                 AnvilCraft.of("block/melt_gem_flow"),
                 0xB7EEDE,
-                2.0f
+                2.0f,
+                0xFFFFFFFF,
+                false
             ), MELT_GEM_TYPE
         );
         e.registerFluidType(
@@ -332,7 +338,9 @@ public class ModFluids {
                 ResourceLocation.withDefaultNamespace("block/honey_block_top"),
                 ResourceLocation.withDefaultNamespace("block/honey_block_top"),
                 0xFFB82E,
-                2.0f
+                2.0f,
+                0xFFFFFFFF,
+                false
             ), HONEY_TYPE
         );
         e.registerFluidType(
