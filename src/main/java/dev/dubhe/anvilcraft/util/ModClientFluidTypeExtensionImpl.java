@@ -37,22 +37,6 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         this.opaque = false;
     }
 
-    public ModClientFluidTypeExtensionImpl(
-        ResourceLocation stillTexture,
-        ResourceLocation flowingTexture,
-        int fogColor,
-        float fogDistance,
-        boolean opaque
-    ) {
-        this.stillTexture = stillTexture;
-        this.flowingTexture = flowingTexture;
-        this.noFog = false;
-        this.fogColor = fogColor;
-        this.fogDistance = fogDistance;
-        this.tintColor = 0xFF000000 | fogColor;
-        this.opaque = opaque;
-    }
-
     /// 雾色与贴图染色分离：贴图本身已有正确颜色时，用白色 tint 避免被雾色染暗
     public ModClientFluidTypeExtensionImpl(
         ResourceLocation stillTexture,

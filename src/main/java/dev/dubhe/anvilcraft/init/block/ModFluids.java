@@ -229,10 +229,6 @@ public class ModFluids {
         "primordial_matter", () -> PrimordialMatterFluid.TYPE
     );
 
-    public static final DeferredHolder<Fluid, PrimordialMatterFluid> PRIMORDIAL_MATTER = FLUIDS.register(
-        "primordial_matter", PrimordialMatterFluid::new
-    );
-
     public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(
         NeoForgeRegistries.FLUID_TYPES.key(),
         ResourceLocation.withDefaultNamespace("powder_snow")
@@ -253,7 +249,7 @@ public class ModFluids {
         Blocks.ANDESITE
     };
 
-    public static void registerFluidInteractions(FMLCommonSetupEvent event) {
+    public static void registerFluidInteractions(FMLCommonSetupEvent ignore) {
         FluidInteractionRegistry.addInteraction(
             MELT_GEM.get().getFluidType(),
             new InteractionInformation(
