@@ -15,9 +15,9 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,11 +31,9 @@ import java.util.List;
  * 客户端同步包和邻居更新。
  *
  * <h3>Per-tick 逻辑</h3>
- * <ol>
- *   <li>END + UP 方向：向上方排液</li>
- *   <li>END + DOWN 方向：向下方排液</li>
- *   <li>所有 PIPE 方向：收集 PipeEnd，按等效高度降序排序后逐一分发</li>
- * </ol>
+ * 检测六个方向的出口，沿管道/泵追踪到各自的实际目标容器及其等效高度，
+ * 再将节点内部储罐一并视为节点自身高度处的一个出口，统一按高度从高到低
+ * 在各出口之间搬运流体（高处出口流向低处出口，流速由高度差决定）。
  */
 @Getter
 public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFluidHandlerHolder {
@@ -107,107 +105,95 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
     // ---- Per-tick 流体分发 ----
 
     /**
-     * Per-tick 流体分发逻辑。使用等效高度排序 PipeEnd（高优先），
-     * 再依次向各终点排液。
+     * Per-tick 流体分发逻辑。
+     *
+     * <p>检测六个方向的出口（PIPE 沿管追踪、END 直连容器/经泵追踪），解析出每个出口
+     * 对应的实际目标容器及其等效高度；再把节点内部储罐作为节点自身高度处的一个出口，
+     * 统一收集后按等效高度从高到低，在每一对「高 → 低」出口之间搬运流体。
      */
     public static void tick(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof PipeNodeBlock)) {
             return;
         }
 
-        // 按等效高度降序排列 PipeEnd（保留全部端点，等高端点不去重）
-        List<EndAndDirection> pipeEnds = new ArrayList<>();
+        List<Exit> exits = new ArrayList<>();
+        // 节点内部储罐作为节点自身高度处的一个出口
+        exits.add(new Exit(pos, null, pos.getY()));
 
         for (Direction direction : Direction.values()) {
-            EnumProperty<PipeBlock.NodePipe> property = PipeBlock.getPropertyForDirection(direction);
-            PipeBlock.NodePipe value = state.getValue(property);
-
-            // END + UP：向上方排液（若端头指向泵则透传追踪）
-            if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.UP)) {
-                BlockPos neighborPos = pos.relative(Direction.UP);
-                if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
-                    PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.UP);
-                    if (pumpEnd != null) {
-                        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                            level,
-                            pos,
-                            Direction.UP,
-                            pumpEnd.pos(),
-                            pumpEnd.direction(),
-                            pumpEnd.effectiveHeight()
-                        );
-                    }
-                } else {
-                    AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                        level,
-                        pos,
-                        Direction.UP,
-                        pos.relative(Direction.UP),
-                        Direction.DOWN,
-                        0
-                    );
-                }
+            PipeBlock.NodePipe value = state.getValue(PipeBlock.getPropertyForDirection(direction));
+            Exit exit = resolveExit(level, pos, direction, value);
+            if (exit != null) {
+                exits.add(exit);
             }
-            // END + DOWN：向下方排液（若端头指向泵则透传追踪）
-            if (value.equals(PipeBlock.NodePipe.END) && direction.equals(Direction.DOWN)) {
-                BlockPos neighborPos = pos.relative(Direction.DOWN);
-                if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
-                    PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, Direction.DOWN);
-                    if (pumpEnd != null) {
-                        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                            level,
-                            pos.relative(Direction.DOWN),
-                            Direction.UP,
-                            pumpEnd.pos(),
-                            pumpEnd.direction(),
-                            pumpEnd.effectiveHeight()
-                        );
-                    }
-                } else {
-                    AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                        level,
-                        pos.relative(Direction.DOWN),
-                        Direction.UP,
-                        pos,
-                        Direction.DOWN,
-                        0
-                    );
-                }
-            }
-
-            if (!value.equals(PipeBlock.NodePipe.PIPE)) {
-                continue;
-            }
-
-            // PIPE 方向：追踪 PipeEnd（沿途累加各段的 heightBonus）
-            PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos.relative(direction), direction.getOpposite());
-            if (pipeEnd == null) {
-                continue;
-            }
-            pipeEnds.add(new EndAndDirection(pipeEnd, direction, pipeEnd.effectiveHeight()));
         }
 
-        if (pipeEnds.isEmpty()) {
+        if (exits.size() < 2) {
             return;
         }
 
-        // 按等效高度降序分发流体（高优先），等高端点保持收集顺序
-        pipeEnds.sort(Comparator.comparingInt((EndAndDirection e) -> e.end().effectiveHeight()).reversed());
-        for (EndAndDirection endAndDirection : pipeEnds) {
-            AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-                level,
-                pos.relative(endAndDirection.direction()),
-                endAndDirection.direction().getOpposite(),
-                endAndDirection.end().pos(),
-                endAndDirection.end().direction(),
-                endAndDirection.effectiveHeight()
-            );
+        // 按等效高度降序：高处出口优先作为源，向低处出口排液
+        exits.sort(Comparator.comparingInt((Exit e) -> e.effectiveHeight()).reversed());
+        for (int i = 0; i < exits.size(); i++) {
+            Exit source = exits.get(i);
+            for (int j = i + 1; j < exits.size(); j++) {
+                Exit target = exits.get(j);
+                if (source.effectiveHeight() <= target.effectiveHeight()) {
+                    continue;
+                }
+                AbstractPipeBlockEntity.moveFluidByEffectiveHeight(
+                    level,
+                    source.pos(),
+                    source.direction(),
+                    source.effectiveHeight(),
+                    target.pos(),
+                    target.direction(),
+                    target.effectiveHeight()
+                );
+            }
         }
     }
 
     /**
-     * PipeEnd + 方向对
+     * 解析某方向出口对应的目标容器位置、朝向和等效高度。
+     *
+     * @return 该方向的出口；该方向无连接或不可达时返回 {@code null}
      */
-    record EndAndDirection(PipeEnd end, Direction direction, int effectiveHeight) {
+    private static @Nullable Exit resolveExit(Level level, BlockPos pos, Direction direction, PipeBlock.NodePipe value) {
+        if (value == PipeBlock.NodePipe.PIPE) {
+            // 沿管道追踪至端点容器
+            PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos.relative(direction), direction.getOpposite());
+            if (pipeEnd == null) {
+                return null;
+            }
+            BlockPos containerPos = pipeEnd.pos().relative(pipeEnd.direction());
+            return new Exit(pipeEnd.pos(), pipeEnd.direction(), containerPos.getY() - pipeEnd.effectiveHeight());
+        }
+        if (value == PipeBlock.NodePipe.END) {
+            BlockPos neighborPos = pos.relative(direction);
+            // 端头指向泵：经泵追踪至其输出端容器
+            if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
+                PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, direction);
+                if (pumpEnd == null) {
+                    return null;
+                }
+                BlockPos containerPos = pumpEnd.pos().relative(pumpEnd.direction());
+                return new Exit(pumpEnd.pos(), pumpEnd.direction(), containerPos.getY() - pumpEnd.effectiveHeight());
+            }
+            // 端头直连流体容器
+            return new Exit(pos, direction, neighborPos.getY());
+        }
+        return null;
+    }
+
+    /**
+     * 节点的一个出口。
+     *
+     * @param pos             用于 {@link AbstractPipeBlockEntity#moveFluidByEffectiveHeight} 的当前位置
+     *                        （目标容器位于 {@code pos.relative(direction)}）
+     * @param direction       出口朝向；{@code null} 表示节点自身内部储罐
+     * @param effectiveHeight 该出口目标容器的等效高度（已计入泵扬程修正）
+     */
+    record Exit(BlockPos pos, @Nullable Direction direction, int effectiveHeight) {
     }
 }
