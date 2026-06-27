@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:bulging",
+  "consume": 1000,
+  "fluid": "anvilcraft:milk",
+  "ingredients": [],
+  "results": [
+    {
+      "count": 4,
+      "id": "anvilcraft:cream"
+    }
+  ]
+}

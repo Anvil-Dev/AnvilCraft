@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.init.block;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.fluid.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.fluid.HoneyFluid;
+import dev.dubhe.anvilcraft.fluid.MilkFluid;
 import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.ColorUtil;
@@ -215,6 +217,23 @@ public class ModFluids {
         .bucket(() -> ModItems.MELT_GEM_BUCKET.asItem())
         .tickRate(20)
         .explosionResistance(100);
+
+    // === Milk（不可放置流体，仅存在于储罐/管道中） ===
+    public static final DeferredHolder<FluidType, FluidType> MILK_TYPE = FLUID_TYPES.register(
+        "milk", () -> MilkFluid.TYPE
+    );
+    public static final DeferredHolder<Fluid, MilkFluid> MILK = FLUIDS.register(
+        "milk", MilkFluid::new
+    );
+
+    // === Honey（不可放置流体，仅存在于储罐/管道中） ===
+    public static final DeferredHolder<FluidType, FluidType> HONEY_TYPE = FLUID_TYPES.register(
+        "honey", () -> HoneyFluid.TYPE
+    );
+    public static final DeferredHolder<Fluid, HoneyFluid> HONEY = FLUIDS.register(
+        "honey", HoneyFluid::new
+    );
+
     public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(
         NeoForgeRegistries.FLUID_TYPES.key(),
         Identifier.withDefaultNamespace("powder_snow")
@@ -285,6 +304,8 @@ public class ModFluids {
             );
         }
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xB7EEDE, 2.0F), MELT_GEM_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xFFFFFF, 1.0F), MILK_TYPE);
+        e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xFFC200, 1.0F), HONEY_TYPE);
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(), POWDER_SNOW_TYPE);
     }
 

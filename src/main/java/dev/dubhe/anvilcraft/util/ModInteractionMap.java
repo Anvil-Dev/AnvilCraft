@@ -37,6 +37,7 @@ public class ModInteractionMap {
     public static final CauldronInteraction.Dispatcher OIL = new CauldronInteraction.Dispatcher();
     public static final CauldronInteraction.Dispatcher CEMENT = new CauldronInteraction.Dispatcher();
     public static final CauldronInteraction.Dispatcher HONEY = new CauldronInteraction.Dispatcher();
+    public static final CauldronInteraction.Dispatcher MILK = new CauldronInteraction.Dispatcher();
     public static final CauldronInteraction.Dispatcher MELT_GEM = new CauldronInteraction.Dispatcher();
     public static final CauldronInteraction.Dispatcher FISH_TANK = new CauldronInteraction.Dispatcher();
     public static final CauldronInteraction.Dispatcher OBSIDIAN = new CauldronInteraction.Dispatcher();
@@ -48,6 +49,7 @@ public class ModInteractionMap {
         event.register(AnvilCraft.of("oil"), ModInteractionMap.OIL);
         event.register(AnvilCraft.of("cement"), ModInteractionMap.CEMENT);
         event.register(AnvilCraft.of("honey"), ModInteractionMap.HONEY);
+        event.register(AnvilCraft.of("milk"), ModInteractionMap.MILK);
         event.register(AnvilCraft.of("melt_gem"), ModInteractionMap.MELT_GEM);
         event.register(AnvilCraft.of("fish_tank"), ModInteractionMap.FISH_TANK);
         event.register(AnvilCraft.of("obsidian"), ModInteractionMap.OBSIDIAN);
@@ -239,6 +241,23 @@ public class ModInteractionMap {
                 SoundEvents.BUCKET_FILL
             )
         );
+
+        Identifier milk = AnvilCraft.of("milk");
+        event.register(
+            milk,
+            Items.BUCKET,
+            (state, level, pos, player, hand, stack) -> CauldronInteractions.fillBucket(
+                state,
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                Items.MILK_BUCKET.getDefaultInstance(),
+                _ -> true,
+                SoundEvents.BUCKET_FILL
+            )
+        );
         
         Identifier fishTank = AnvilCraft.of("fish_tank");
         event.register(
@@ -380,6 +399,19 @@ public class ModInteractionMap {
                 hand,
                 stack,
                 ModBlocks.MELT_GEM_CAULDRON.getDefaultState(),
+                SoundEvents.BUCKET_EMPTY
+            )
+        );
+        event.register(
+            empty,
+            Items.MILK_BUCKET,
+            (_, level, pos, player, hand, stack) -> CauldronInteractions.emptyBucket(
+                level,
+                pos,
+                player,
+                hand,
+                stack,
+                ModBlocks.MILK_CAULDRON.get().fullFilled(),
                 SoundEvents.BUCKET_EMPTY
             )
         );

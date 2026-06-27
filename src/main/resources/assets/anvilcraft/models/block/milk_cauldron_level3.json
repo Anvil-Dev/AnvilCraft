@@ -1,0 +1,11 @@
+{
+  "parent": "anvilcraft:block/template_cauldron_level3of4",
+  "textures": {
+    "bottom": "minecraft:block/cauldron_bottom",
+    "content": "neoforge:block/milk_still",
+    "inside": "minecraft:block/cauldron_inner",
+    "particle": "minecraft:block/cauldron_side",
+    "side": "minecraft:block/cauldron_side",
+    "top": "minecraft:block/cauldron_top"
+  }
+}
