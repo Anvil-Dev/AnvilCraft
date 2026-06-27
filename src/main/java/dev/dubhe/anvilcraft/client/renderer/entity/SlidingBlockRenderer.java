@@ -3,8 +3,10 @@ package dev.dubhe.anvilcraft.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockInfo;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -14,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -30,15 +33,29 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity> {
     @Override
     public void render(SlidingBlockEntity entity, float yaw, float partialTick, PoseStack pose, MultiBufferSource buffer, int packedLight) {
         for (SlidingBlockInfo info : entity.getSection().blocks()) {
-            this.renderSingleBlock(info, entity.level(), entity.getStartPos(), entity.blockPosition(), pose, buffer);
+            this.renderSingleBlock(
+                info,
+                entity.level(),
+                entity.getStartPos(),
+                entity.blockPosition(),
+                pose,
+                buffer,
+                partialTick,
+                packedLight
+            );
         }
         super.render(entity, yaw, partialTick, pose, buffer, packedLight);
     }
 
     private void renderSingleBlock(
-        SlidingBlockInfo info, Level level,
-        BlockPos startPos, BlockPos center,
-        PoseStack pose, MultiBufferSource buffer
+        SlidingBlockInfo info,
+        Level level,
+        BlockPos startPos,
+        BlockPos center,
+        PoseStack pose,
+        MultiBufferSource buffer,
+        float partialTick,
+        int packedLight
     ) {
         BlockState state = info.state();
         if (state.getRenderShape() != RenderShape.MODEL) return;
@@ -48,6 +65,17 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity> {
         startPos = info.getPos(startPos);
         pose.translate(-0.5, 0.0, -0.5);
         pose.translate(info.offsetX(), info.offsetY(), info.offsetZ());
+
+        BlockEntity blockEntity = info.blockEntity();
+        if (blockEntity != null) {
+            BlockEntityRenderer<BlockEntity> renderer = Minecraft.getInstance()
+                .getBlockEntityRenderDispatcher()
+                .getRenderer(blockEntity);
+            if (renderer != null) {
+                renderer.render(blockEntity, partialTick, pose, buffer, packedLight, OverlayTexture.NO_OVERLAY);
+            }
+        }
+
         var model = this.dispatcher.getBlockModel(state);
         for (var renderType : model.getRenderTypes(state, RandomSource.create(state.getSeed(startPos)), ModelData.EMPTY)) {
             this.dispatcher.getModelRenderer().tesselateBlock(

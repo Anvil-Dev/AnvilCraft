@@ -26,6 +26,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -33,6 +34,7 @@ import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class SlidingBlockEntity extends Entity {
     public static final double DEFAULT_MOVEMENT = 0.35;
@@ -42,7 +44,7 @@ public class SlidingBlockEntity extends Entity {
     @Setter
     private SlidingBlockSection section;
     @Getter
-    private Direction moveDirection;
+    private @Nullable Direction moveDirection;
     private int time = 0;
 
     public SlidingBlockEntity(EntityType<? extends SlidingBlockEntity> entityType, Level level) {
@@ -54,7 +56,7 @@ public class SlidingBlockEntity extends Entity {
 
     public SlidingBlockEntity(
         Level level, BlockPos pos, Direction moveDirection,
-        Iterable<Triple<BlockPos, BlockState, Optional<CompoundTag>>> infos
+        Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos
     ) {
         this(ModEntities.SLIDING_BLOCK.get(), level);
         this.blocksBuilding = true;
@@ -72,7 +74,7 @@ public class SlidingBlockEntity extends Entity {
     @SuppressWarnings("UnusedReturnValue")
     public static SlidingBlockEntity slid(
         Level level, BlockPos pos, Direction moveDirection,
-        Iterable<Triple<BlockPos, BlockState, Optional<CompoundTag>>> infos
+        Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos
     ) {
         SlidingBlockEntity entity = new SlidingBlockEntity(level, pos, moveDirection, infos);
         for (var entry : infos) {
@@ -82,7 +84,7 @@ public class SlidingBlockEntity extends Entity {
         Util.castSafely(level, ServerLevel.class)
             .ifPresent(it -> PacketDistributor.sendToPlayersTrackingChunk(
                 it, new ChunkPos(pos),
-                new SlidingEntitySyncPacket(entity.getId(), entity.section.blocks(), entity.moveDirection)
+                new SlidingEntitySyncPacket(entity.getId(), entity.section.blocks(), Objects.requireNonNull(entity.moveDirection))
             ));
         return entity;
     }
@@ -101,7 +103,7 @@ public class SlidingBlockEntity extends Entity {
         if (belowState.getBlock() instanceof ISlidingRail slidingRail && !this.level().isClientSide) {
             slidingRail.onSlidingAbove(this.level(), belowPos, belowState, this);
         }
-        Direction.Axis horizontalAnother = this.moveDirection.getClockWise().getAxis();
+        Direction.Axis horizontalAnother = Objects.requireNonNull(this.moveDirection).getClockWise().getAxis();
         this.setPos(this.position().with(horizontalAnother, Math.ceil(this.position().get(horizontalAnother)) - 0.5));
 
         if (this.level().isOutsideBuildHeight(pos)) {
@@ -123,7 +125,7 @@ public class SlidingBlockEntity extends Entity {
     protected boolean checkCanMove() {
         if (!(this.level().getBlockState(this.blockPosition().below()).getBlock() instanceof ISlidingRail)) return false;
         if (this.time > 1 && this.getDeltaMovement().equals(Vec3.ZERO)) return false;
-        for (Vec3i pos : this.section.getWallsOnSide(this.moveDirection)) {
+        for (Vec3i pos : this.section.getWallsOnSide(Objects.requireNonNull(this.moveDirection))) {
             BlockPos checking = this.blockPosition().offset(pos);
             if (!this.level().getBlockState(checking).isAir()) return false;
             if (!this.level().getBlockState(checking.relative(this.moveDirection)).isAir()) return false;
@@ -182,7 +184,7 @@ public class SlidingBlockEntity extends Entity {
     protected void addAdditionalSaveData(CompoundTag compound) {
         SlidingBlockSection.CODEC.encode(this.section, NbtOps.INSTANCE, new CompoundTag())
             .ifSuccess(tag -> compound.put("SlidingBlocks", tag));
-        Direction.CODEC.encode(this.moveDirection, NbtOps.INSTANCE, EndTag.INSTANCE)
+        Direction.CODEC.encode(Objects.requireNonNull(this.moveDirection), NbtOps.INSTANCE, EndTag.INSTANCE)
             .ifSuccess(tag -> compound.put("MovingDirection", tag));
     }
 
@@ -212,7 +214,7 @@ public class SlidingBlockEntity extends Entity {
 
     @Override
     public Vec3 getLookAngle() {
-        return Vec3.ZERO.relative(this.moveDirection, 1);
+        return Vec3.ZERO.relative(Objects.requireNonNull(this.moveDirection), 1);
     }
 
     @Override
