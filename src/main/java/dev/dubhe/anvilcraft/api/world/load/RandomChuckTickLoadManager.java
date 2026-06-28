@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.world.load;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 
@@ -24,23 +25,41 @@ public class RandomChuckTickLoadManager {
         RANDOM_TICK_LOAD_CHUCK_AREA_MAP.remove(centerPos);
     }
 
+    private static boolean isInPlayerRandomTickRange(ServerLevel serverLevel, ChunkPos chunkPos) {
+        double chunkCenterX = (chunkPos.x << 4) + 8;
+        double chunkCenterZ = (chunkPos.z << 4) + 8;
+
+        for (ServerPlayer player : serverLevel.players()) {
+            if (player.isSpectator()) continue;
+            double dx = chunkCenterX - player.getX();
+            double dz = chunkCenterZ - player.getZ();
+            if (dx * dx + dz * dz < 16384.0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * tick
-     * 修复：多个监督者区块位置重叠时，随机刻会重复计算。
-     * 使用 Set 对每个 ServerLevel 的 ChunkPos 去重，确保同一区块每 tick 只执行一次随机刻。
+     * 修复1：多个监督者范围重叠时，使用 Set 去重，同一区块每 tick 只执行一次。
+     * 修复2：与原版玩家随机刻范围重叠时，监督者跳过，避免额外运算。
      */
     public static void tick() {
         Map<ServerLevel, Set<Long>> tickedChunksByLevel = new HashMap<>();
 
         for (LoadChuckData loadChuckData : RANDOM_TICK_LOAD_CHUCK_AREA_MAP.values()) {
             ServerLevel serverLevel = loadChuckData.getServerLevel();
+            if (!serverLevel.tickRateManager().runsNormally()) {
+                continue;
+            }
             Set<Long> tickedChunks = tickedChunksByLevel.computeIfAbsent(
                 serverLevel, k -> new HashSet<>()
             );
 
             for (ChunkPos chunkPos : loadChuckData.getChunkPosList()) {
                 long chunkKey = chunkPos.toLong();
-                if (!tickedChunks.add(chunkKey)) {
+                if (!tickedChunks.add(chunkKey) || isInPlayerRandomTickRange(serverLevel, chunkPos)) {
                     continue;
                 }
 
