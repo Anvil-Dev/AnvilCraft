@@ -34,8 +34,8 @@ public class CompatUtil {
         Util.cast(Blocks.NETHER_PORTAL), Map.entry(ModBlocks.NETHER_DUST.getDefaultState(), new CompoundTag())
     ));
     public static final BiMap<ResourceLocation, Supplier<? extends AbstractCauldronBlock>> F2C_TRANSFORM = HashBiMap.create(Map.of(
-        ResourceLocation.withDefaultNamespace("lava"),
-        ModBlocks.LAVA_CAULDRON
+        ResourceLocation.withDefaultNamespace("lava"), ModBlocks.LAVA_CAULDRON,
+        ResourceLocation.withDefaultNamespace("milk"), ModBlocks.MILK_CAULDRON
     ));
 
     public static @Nullable ResourceLocation getFluidFromCauldron(Block cauldron) {
