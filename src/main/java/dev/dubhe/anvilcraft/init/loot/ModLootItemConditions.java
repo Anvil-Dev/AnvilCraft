@@ -17,5 +17,8 @@ public class ModLootItemConditions {
         LOOT_CONDITION_TYPES.register("match_data_component", () -> new LootItemConditionType(MatchDataComponent.CODEC));
 
     public static final Supplier<LootItemConditionType> RANDOM_CHANCE_WITH_FORTUNE =
-        LOOT_CONDITION_TYPES.register("random_chance_with_fortune", () -> new LootItemConditionType(RandomChanceWithFortuneCondition.CODEC));
+        LOOT_CONDITION_TYPES.register(
+            "random_chance_with_fortune",
+            () -> new LootItemConditionType(RandomChanceWithFortuneCondition.CODEC)
+        );
 }
