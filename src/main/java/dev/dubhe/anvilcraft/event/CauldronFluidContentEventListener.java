@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
-import dev.dubhe.anvilcraft.block.OilCauldronBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import net.minecraft.world.level.block.Blocks;
