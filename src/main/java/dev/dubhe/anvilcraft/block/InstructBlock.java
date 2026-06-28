@@ -40,7 +40,9 @@ public class InstructBlock extends HorizontalDirectionalBlock implements IHammer
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        boolean isSneaking = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
+        Direction facing = context.getHorizontalDirection();
         return this.defaultBlockState()
-            .setValue(FACING, context.getHorizontalDirection().getOpposite());
+            .setValue(FACING, isSneaking ? facing : facing.getOpposite());
     }
 }

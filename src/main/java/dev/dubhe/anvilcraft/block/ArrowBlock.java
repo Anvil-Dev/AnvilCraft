@@ -40,7 +40,9 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        boolean isSneaking = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
+        Direction facing = context.getNearestLookingDirection();
         return this.defaultBlockState()
-            .setValue(FACING, context.getNearestLookingDirection().getOpposite());
+            .setValue(FACING, isSneaking ? facing : facing.getOpposite());
     }
 }
