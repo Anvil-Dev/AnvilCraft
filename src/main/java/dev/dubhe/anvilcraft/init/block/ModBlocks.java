@@ -222,6 +222,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
+import dev.dubhe.anvilcraft.loot.conditions.RandomChanceWithFortuneCondition;
 import dev.dubhe.anvilcraft.util.DangerUtil;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -270,7 +271,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
@@ -4073,56 +4073,57 @@ public class ModBlocks {
         .simpleItem()
         .loot((tables, block) -> {
             var silkTouch = DataGenUtil.hasSilkTouch(tables.getRegistries());
-            tables.add(block, LootTable.lootTable()
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(block))
-                    .when(silkTouch))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA))
-                    .when(silkTouch.invert()))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.PRISMARINE_SHARD)
-                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4.0f))))
-                    .when(silkTouch.invert()))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.PRISMARINE_CRYSTALS)
-                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4.0f))))
-                    .when(silkTouch.invert()))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.TUBE_CORAL))
-                    .when(silkTouch.invert()))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.BRAIN_CORAL))
-                    .when(silkTouch.invert()))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.BUBBLE_CORAL))
-                    .when(silkTouch.invert()))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.FIRE_CORAL))
-                    .when(silkTouch.invert()))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.HORN_CORAL))
-                    .when(silkTouch.invert()))
-                .withPool(LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f))
-                    .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA)
-                        .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
-                            0.1f,
-                            LevelBasedValue.perLevel(0.0f, 0.1f),
-                            tables.getRegistries()
-                                .lookupOrThrow(Registries.ENCHANTMENT)
-                                .getOrThrow(Enchantments.FORTUNE)
-                        )))
-                    .when(silkTouch.invert()))
+            tables.add(
+                block, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(block))
+                        .when(silkTouch))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.PRISMARINE_SHARD)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4.0f))))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.PRISMARINE_CRYSTALS)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4.0f))))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.TUBE_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.BRAIN_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.BUBBLE_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.FIRE_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.HORN_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f))
+                        .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA)
+                            .when(() -> new RandomChanceWithFortuneCondition(
+                                0.1f,
+                                LevelBasedValue.perLevel(0.1f, 0.1f),
+                                tables.getRegistries()
+                                    .lookupOrThrow(Registries.ENCHANTMENT)
+                                    .getOrThrow(Enchantments.FORTUNE)
+                            )))
+                        .when(silkTouch.invert()))
             );
         })
         .register();

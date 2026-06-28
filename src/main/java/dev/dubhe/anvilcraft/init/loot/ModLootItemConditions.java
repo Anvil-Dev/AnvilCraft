@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init.loot;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.loot.conditions.MatchDataComponent;
+import dev.dubhe.anvilcraft.loot.conditions.RandomChanceWithFortuneCondition;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -14,4 +15,7 @@ public class ModLootItemConditions {
 
     public static final Supplier<LootItemConditionType> MATCH_DATA_COMPONENT =
         LOOT_CONDITION_TYPES.register("match_data_component", () -> new LootItemConditionType(MatchDataComponent.CODEC));
+
+    public static final Supplier<LootItemConditionType> RANDOM_CHANCE_WITH_FORTUNE =
+        LOOT_CONDITION_TYPES.register("random_chance_with_fortune", () -> new LootItemConditionType(RandomChanceWithFortuneCondition.CODEC));
 }

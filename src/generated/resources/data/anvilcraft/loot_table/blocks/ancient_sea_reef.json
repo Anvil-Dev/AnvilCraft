@@ -309,10 +309,10 @@
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "minecraft:random_chance_with_enchanted_bonus",
+              "condition": "anvilcraft:random_chance_with_fortune",
               "enchanted_chance": {
                 "type": "minecraft:linear",
-                "base": 0.0,
+                "base": 0.1,
                 "per_level_above_first": 0.1
               },
               "enchantment": "minecraft:fortune",
