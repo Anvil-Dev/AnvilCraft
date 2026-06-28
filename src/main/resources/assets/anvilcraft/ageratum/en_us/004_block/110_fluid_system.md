@@ -41,3 +41,8 @@ items:
 - Multiple <ref item="anvilcraft:pump"/>s can be connected in series to stack the *head*
 
 <structure id="../../structures/pump.nbt"/>
+
+# <ref item="minecraft:cauldron"/> Support
+
+- Pipes support <ref item="minecraft:cauldron"/>
+- However, <ref item="minecraft:cauldron"/> is special because it has layered (250mB) or full cauldron (1000mB) states, requiring the pipe to input a sufficient amount of fluid in 1gt to successfully inject

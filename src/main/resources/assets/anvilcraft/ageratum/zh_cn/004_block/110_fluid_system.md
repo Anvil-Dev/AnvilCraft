@@ -41,3 +41,8 @@ items:
 - 可以将多个<ref item="anvilcraft:pump"/>串联以叠加*扬程*
 
 <structure id="../../structures/pump.nbt"/>
+
+# <ref item="minecraft:cauldron"/>支持
+
+- 管道支持<ref item="minecraft:cauldron"/>
+- 但是<ref item="minecraft:cauldron"/>较为特殊，因为它是分层(250mB)或只有一整锅(1000mB)的形态，需要管道在1gt输入足量的液体才能成功注入
