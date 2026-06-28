@@ -22,5 +22,9 @@ The following two machines implement [Mass Production of Netherite](../008_recip
 
 <structure id="../../structures/machine/netherite_block.nbt"/>
 
-- Set the <ref item="anvilcraft:pulse_generator"/> to (Loop Mode | 15gt | 0gt)
+- Fill both barrels with sufficient <ref item="minecraft:gold_block"/> and <ref item="minecraft:ancient_debris"/>
+- Set the main loop <ref item="anvilcraft:pulse_generator"/> (controlled by <ref item="minecraft:lever"/>) to (Loop Mode | 15gt | 0gt)
+- Set the <ref item="anvilcraft:pulse_generator"/> for the <ref item="minecraft:gold_block"/> side to (Rising Edge Mode | 1gt | 50gt)
+- Set the <ref item="anvilcraft:pulse_generator"/> for the <ref item="minecraft:ancient_debris"/> side to (Rising Edge Mode | 22gt | 30gt)
+- Set the <ref item="anvilcraft:pulse_generator"/> for the <ref item="minecraft:piston"/> side to (Rising Edge Mode | 8"90 | 0gt)
 - All <ref item="minecraft:smooth_stone"/> can be replaced with any full opaque block
