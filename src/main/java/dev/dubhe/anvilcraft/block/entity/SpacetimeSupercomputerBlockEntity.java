@@ -39,7 +39,7 @@ import java.util.function.Supplier;
 public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IPowerConsumer {
     @Getter
     @Setter
-    private PowerGrid grid;
+    private @Nullable PowerGrid grid;
 
     @Getter
     private String command = "";
@@ -51,13 +51,15 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private float chargingProgress = 0;
 
     @Getter
-    private final List<CommandInfo> availableCommands = Util.make(new ObjectArrayList<>(), (list) -> {
-        list.add(new CommandInfo("/locate biome", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateBiomeCommand));
-        list.add(new CommandInfo("/locate structure", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateStructureCommand));
-        list.add(new CommandInfo("/locate poi", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocatePoiCommand));
-        list.add(new CommandInfo("/time add", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTimeAddCommand));
-        list.add(new CommandInfo("/tick sprint", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand));
-    });
+    private final List<CommandInfo> availableCommands = Util.make(
+        new ObjectArrayList<>(), (list) -> {
+            list.add(new CommandInfo("/locate biome", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateBiomeCommand));
+            list.add(new CommandInfo("/locate structure", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateStructureCommand));
+            list.add(new CommandInfo("/locate poi", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocatePoiCommand));
+            list.add(new CommandInfo("/time add", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTimeAddCommand));
+            list.add(new CommandInfo("/tick sprint", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand));
+        }
+    );
 
     public SpacetimeSupercomputerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -197,7 +199,8 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                     int timeAddConsumeProcess = getTimeAddConsumeProcess(cmd);
                     if (this.chargingProgress >= 20f + timeAddConsumeProcess) {
                         Objects.requireNonNull(
-                            this.level.getServer()).getCommands().performPrefixedCommand(commandSourceStack,
+                            this.level.getServer()).getCommands().performPrefixedCommand(
+                            commandSourceStack,
                             this.command
                         );
                         this.chargingProgress -= 20f + timeAddConsumeProcess;
@@ -226,7 +229,8 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                     int tickSprintConsumeProcess = getTickSprintConsumeProcess(cmd);
                     if (this.chargingProgress >= 20f + tickSprintConsumeProcess) {
                         Objects.requireNonNull(
-                            this.level.getServer()).getCommands().performPrefixedCommand(commandSourceStack,
+                            this.level.getServer()).getCommands().performPrefixedCommand(
+                            commandSourceStack,
                             this.command
                         );
                         this.chargingProgress -= 20f + tickSprintConsumeProcess;
@@ -239,7 +243,8 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                     }
                 } else if (cmd.startsWith("locate")) {
                     Objects.requireNonNull(
-                        this.level.getServer()).getCommands().performPrefixedCommand(commandSourceStack,
+                        this.level.getServer()).getCommands().performPrefixedCommand(
+                        commandSourceStack,
                         this.command
                     );
                     this.chargingProgress -= 20f;
@@ -267,7 +272,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                     .getPlayerList()
                     .broadcastSystemMessage(
                         Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command")
-                        .withStyle(ChatFormatting.RED),
+                            .withStyle(ChatFormatting.RED),
                         false
                     );
             } else {
@@ -333,7 +338,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     }
 
     public void tick() {
-        if (this.grid.isWorking()) {
+        if (this.grid != null && this.grid.isWorking()) {
             if (this.chargingProgress < 100f) {
                 this.chargingProgress += Math.clamp(0.01667f, 0f, 100.0f);
             }
