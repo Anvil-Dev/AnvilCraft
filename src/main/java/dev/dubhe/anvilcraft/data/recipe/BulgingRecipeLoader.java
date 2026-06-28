@@ -32,7 +32,6 @@ public class BulgingRecipeLoader {
         BulgingRecipeLoader.bulging(provider, ModItems.SPONGE_GEMMULE, Items.WET_SPONGE, 250);
         BulgingRecipeLoader.bulging(provider, ModItemTags.FLOUR, ModFoodItems.DOUGH);
         BulgingRecipeLoader.bulging(provider, Items.DRIED_KELP, Items.KELP);
-        BulgingRecipeLoader.crystallize(provider, ModItems.SEA_HEART_SHELL_SHARD, ModItems.PRISMARINE_CLUSTER, 250);
 
         VanillaConstants.CONCRETE_POWDERS.forEach(block -> bulging(provider, block, block.concrete));
 

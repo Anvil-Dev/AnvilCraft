@@ -181,5 +181,31 @@ public class ProceduralProcessRecipeLoader {
                     .buildRecipe()
             )
             .save(provider);
+
+        // 远古海礁
+        ProceduralProcessRecipeBuilder.of(Blocks.WET_SPONGE)
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(Blocks.WET_SPONGE)
+                    .requires(Items.HEART_OF_THE_SEA)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK)
+                    .requires(ModItems.SAPPHIRE)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockProcessingRecipe.builder()
+                    .fakeTimeWarp(ModBlocks.WIP_BLOCK.get())
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .result(ModBlocks.ANCIENT_SEA_REEF)
+            .icon(ModBlocks.ANCIENT_SEA_REEF.asItem().getDefaultInstance())
+            .save(provider);
     }
 }

@@ -821,10 +821,6 @@ public class ModItems {
     public static final ItemEntry<Item> PROCESSOR = REGISTRUM.item("processor", Item::new)
         .recipe(RegistrumItemRecipeLoader::processor)
         .register();
-    public static final ItemEntry<Item> PRISMARINE_BLADE = REGISTRUM.item("prismarine_blade", Item::new).register();
-    public static final ItemEntry<Item> PRISMARINE_CLUSTER = REGISTRUM.item("prismarine_cluster", Item::new).register();
-    public static final ItemEntry<Item> SEA_HEART_SHELL = REGISTRUM.item("sea_heart_shell", Item::new).register();
-    public static final ItemEntry<Item> SEA_HEART_SHELL_SHARD = REGISTRUM.item("sea_heart_shell_shard", Item::new).register();
 
     public static final ItemEntry<Item> TUNGSTEN_NUGGET = REGISTRUM.item("tungsten_nugget", Item::new)
         .initialProperties(() -> new Item.Properties().fireResistant())

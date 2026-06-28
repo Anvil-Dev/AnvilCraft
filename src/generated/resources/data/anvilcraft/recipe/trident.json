@@ -3,16 +3,16 @@
   "category": "equipment",
   "key": {
     "A": {
-      "item": "anvilcraft:prismarine_blade"
+      "item": "minecraft:prismarine_shard"
     },
     "B": {
-      "item": "minecraft:prismarine_bricks"
+      "item": "anvilcraft:sapphire"
     }
   },
   "pattern": [
     " AA",
     " BA",
-    "B  "
+    "A  "
   ],
   "result": {
     "count": 1,

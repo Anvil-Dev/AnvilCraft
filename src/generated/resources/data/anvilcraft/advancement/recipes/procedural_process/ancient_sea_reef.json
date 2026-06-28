@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:stamping/sea_heart_shell_shard"
+        "recipe": "anvilcraft:procedural_process/ancient_sea_reef"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:stamping/sea_heart_shell_shard"
+      "anvilcraft:procedural_process/ancient_sea_reef"
     ]
   }
 }

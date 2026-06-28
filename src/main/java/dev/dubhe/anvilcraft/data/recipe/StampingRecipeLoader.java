@@ -46,13 +46,6 @@ public class StampingRecipeLoader {
             .result(Items.SUGAR)
             .save(provider, AnvilCraft.of("stamping/paper_from_sugar_cane"));
         StampingRecipe.builder()
-            .requires(Items.HEART_OF_THE_SEA)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 3)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5f)
-            .result(ModItems.SEA_HEART_SHELL_SHARD, 0.5f)
-            .result(ModItems.SAPPHIRE)
-            .save(provider);
-        StampingRecipe.builder()
             .requires(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE)
             .requires(ModItems.EMBER_METAL_INGOT)
             .result(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE)
@@ -74,13 +67,6 @@ public class StampingRecipeLoader {
             .requires(Items.COCOA_BEANS)
             .result(ModFoodItems.COCOA_BUTTER)
             .result(ModFoodItems.COCOA_POWDER)
-            .save(provider);
-        StampingRecipe.builder()
-            .requires(ModItems.PRISMARINE_CLUSTER)
-            .result(Items.PRISMARINE_CRYSTALS, 2)
-            .result(Items.PRISMARINE_SHARD)
-            .result(Items.PRISMARINE_CRYSTALS, 0.5f)
-            .result(ModItems.PRISMARINE_BLADE, 0.15f)
             .save(provider);
 
         StampingRecipe.builder()

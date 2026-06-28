@@ -64,19 +64,11 @@ public class VanillaRecipesLoader {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.TRIDENT)
             .pattern(" AA")
             .pattern(" BA")
-            .pattern("B  ")
-            .define('A', ModItems.PRISMARINE_BLADE)
-            .define('B', Items.PRISMARINE_BRICKS)
-            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.PRISMARINE_BLADE))
-            .save(provider, AnvilCraft.of("trident"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Items.HEART_OF_THE_SEA)
-            .pattern("A")
-            .pattern("B")
-            .pattern("A")
-            .define('A', ModItems.SEA_HEART_SHELL)
+            .pattern("A  ")
+            .define('A', Items.PRISMARINE_SHARD)
             .define('B', ModItems.SAPPHIRE)
-            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.SEA_HEART_SHELL))
-            .save(provider, AnvilCraft.of("heart_of_the_sea"));
+            .unlockedBy("hasitem", AnvilCraftDatagen.has(ModItems.SAPPHIRE))
+            .save(provider, AnvilCraft.of("trident"));
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Items.WET_SPONGE)
             .pattern("AA")
             .pattern("AA")
