@@ -77,7 +77,6 @@ items:
 
 - [量产世界基底方块](../008_recipe/200_world_block.md)
 - [量产钻石](../008_recipe/201_diamond.md)
-- [量产海洋之心](../008_recipe/202_sea_heart.md)
-- [再生三叉戟](../008_recipe/203_prismarine.md)
+- [量产海洋之星](../008_recipe/205_sea_heart.md)
 - [量产宝石](../008_recipe/204_gem.md)
 - [量产下界合金](../008_recipe/210_netherite_ingot.md)

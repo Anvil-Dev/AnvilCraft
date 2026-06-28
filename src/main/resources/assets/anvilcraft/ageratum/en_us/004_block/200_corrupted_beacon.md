@@ -77,7 +77,6 @@ All metal blocks can be time-warped into raw ore form, used for <ref item="anvil
 
 - [Mass Production of World Base Blocks](../008_recipe/200_world_block.md)
 - [Mass Production of Diamond](../008_recipe/201_diamond.md)
-- [Mass Production of Heart of the Sea](../008_recipe/202_sea_heart.md)
-- [Trident Regeneration](../008_recipe/203_prismarine.md)
+- [Mass Production of Heart of the Sea](../008_recipe/205_sea_heart.md)
 - [Mass Production of Gems](../008_recipe/204_gem.md)
 - [Mass Production of Netherite](../008_recipe/210_netherite_ingot.md)
