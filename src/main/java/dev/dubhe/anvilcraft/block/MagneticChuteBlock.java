@@ -39,6 +39,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -154,6 +155,16 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             if (player != null) player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
             return null;
         }
+        // 新方块朝上且下方有朝上的磁性溜槽或简易磁性溜槽时，直接以简易磁性溜槽形态放置
+        if (facing == Direction.UP) {
+            BlockState belowState = level.getBlockState(pos.below());
+            if ((belowState.is(ModBlocks.MAGNETIC_CHUTE.get()) && belowState.getValue(FACING) == Direction.UP)
+                || belowState.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())) {
+                return ModBlocks.SIMPLE_MAGNETIC_CHUTE.getDefaultState()
+                    .setValue(SimpleMagneticChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
+                    .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
+            }
+        }
         return this.defaultBlockState()
             .setValue(FACING, facing)
             .setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
@@ -176,6 +187,15 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+        if (!level.isClientSide && fromPos.equals(pos.below()) && state.getValue(FACING) == Direction.UP) {
+            BlockState belowState = level.getBlockState(pos.below());
+            if ((belowState.is(ModBlocks.MAGNETIC_CHUTE.get()) && belowState.getValue(FACING) == Direction.UP)
+                || belowState.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())) {
+                level.setBlockAndUpdate(pos, ModBlocks.SIMPLE_MAGNETIC_CHUTE.getDefaultState()
+                    .setValue(SimpleMagneticChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
+                    .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER));
+            }
+        }
         this.checkPoweredState(level, pos, state);
     }
 

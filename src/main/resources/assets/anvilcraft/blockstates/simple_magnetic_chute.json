@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "": {
+            "model": "anvilcraft:block/simple_magnetic_chute"
+        }
+    }
+}

@@ -55,6 +55,7 @@ import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
@@ -146,6 +147,11 @@ public class ModBlockEntities {
         "simple_chute",
         SimpleChuteBlockEntity::new
     ).validBlock(ModBlocks.SIMPLE_CHUTE).register();
+
+    public static final BlockEntityEntry<SimpleMagneticChuteBlockEntity> SIMPLE_MAGNETIC_CHUTE = REGISTRUM.blockEntity(
+        "simple_magnetic_chute",
+        SimpleMagneticChuteBlockEntity::new
+    ).validBlock(ModBlocks.SIMPLE_MAGNETIC_CHUTE).register();
 
     public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRUM.blockEntity("crab_trap", CrabTrapBlockEntity::new)
         .validBlock(ModBlocks.CRAB_TRAP)

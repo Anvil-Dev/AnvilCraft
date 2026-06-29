@@ -35,6 +35,7 @@ public class CapabilitiesEventListener {
             ModBlockEntities.DISCHARGER.get(),
             ModBlockEntities.CHUTE.get(),
             ModBlockEntities.SIMPLE_CHUTE.get(),
+            ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(),
             ModBlockEntities.ITEM_COLLECTOR.get(),
             ModBlockEntities.MAGNETIC_CHUTE.get(),
             ModBlockEntities.CONFINEMENT_CHAMBER.get(),
