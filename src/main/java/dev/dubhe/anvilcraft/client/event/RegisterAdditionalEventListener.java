@@ -19,7 +19,6 @@ public class RegisterAdditionalEventListener {
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         event.register(standaloneItem("crab_claw_holding_block"));
         event.register(standaloneItem("crab_claw_holding_item"));
-//        event.register(ModelResourceLocation.standalone(AnvilCraft.of("item/crab_claw_holding_item")));
         event.register(standaloneBlock("heliostats_head"));
         event.register(standaloneBlock("heliostats_head_sunflower"));
         event.register(standaloneBlock("creative_generator_head"));
