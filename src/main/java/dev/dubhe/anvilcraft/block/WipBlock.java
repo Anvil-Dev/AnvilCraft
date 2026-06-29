@@ -54,6 +54,11 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
     }
 
     @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         BlockEntity e = level.getBlockEntity(pos);
         if (e instanceof WipBlockEntity wipBlockEntity) {
