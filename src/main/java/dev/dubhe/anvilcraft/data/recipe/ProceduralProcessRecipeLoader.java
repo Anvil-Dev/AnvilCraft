@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -38,6 +39,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .result(ModBlocks.REDSTONE_COMPUTER)
             .icon(ModBlocks.REDSTONE_COMPUTER.asStack())
+            .displayedModel(AnvilCraft.of("block/redstone_computer_wip"))
             .save(provider, "redstone_computer_from_procedural");
 
         // 时空超算
@@ -63,6 +65,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .icon(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack())
+            .displayedModel(AnvilCraft.of("block/spacetime_supercomputer_wip"))
             .loop(3)
             .multipleLoopFirstStep(
                 BlockProcessingRecipe.builder()
@@ -93,6 +96,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .icon(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack())
+            .displayedModel(AnvilCraft.of("block/spacetime_supercomputer_wip"))
             .loop(3)
             .multipleLoopFirstStep(
                 BlockProcessingRecipe.builder()
@@ -119,6 +123,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .result(Blocks.ANCIENT_DEBRIS)
             .icon(Blocks.ANCIENT_DEBRIS.asItem().getDefaultInstance())
+            .displayedModel(AnvilCraft.of("block/ancient_debris_wip"))
             .save(provider);
 
         // 下界合金块
@@ -145,6 +150,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .result(Blocks.NETHERITE_BLOCK)
             .icon(Blocks.NETHERITE_BLOCK.asItem().getDefaultInstance())
+            .displayedModel(AnvilCraft.of("block/netherite_block_wip"))
             .loop(3)
             .multipleLoopFirstStep(
                 BlockCompressRecipe.builder()
@@ -172,6 +178,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .result(ModBlocks.HEAVY_IRON_BLOCK)
             .icon(ModBlocks.HEAVY_IRON_BLOCK.asStack())
+            .displayedModel(AnvilCraft.of("block/heavy_iron_block_wip"))
             .loop(2)
             .multipleLoopFirstStep(
                 BlockCompressRecipe.builder()
@@ -206,6 +213,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .result(ModBlocks.ANCIENT_SEA_REEF)
             .icon(ModBlocks.ANCIENT_SEA_REEF.asItem().getDefaultInstance())
+            .displayedModel(AnvilCraft.of("block/ancient_sea_reef_wip"))
             .save(provider);
     }
 }
