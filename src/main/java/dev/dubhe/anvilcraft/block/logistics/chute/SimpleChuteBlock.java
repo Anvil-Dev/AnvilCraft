@@ -136,9 +136,6 @@ public class SimpleChuteBlock
         BlockPos pos,
         RandomSource random
     ) {
-        if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(ENABLED), 2);
-        }
     }
 
     @Override
@@ -248,6 +245,7 @@ public class SimpleChuteBlock
         boolean success = false;
         boolean tall = false;
         BlockState result = level.getBlockState(pos);
+
         // 遍历六个方向 获取指向自己的溜槽
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
@@ -259,7 +257,6 @@ public class SimpleChuteBlock
                         tall = !neighborState.is(ModBlocks.MAGNETIC_CHUTE.get());
                     }
                 }
-
             }
         }
         if (!success) {

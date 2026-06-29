@@ -82,6 +82,7 @@ import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.logistics.chute.ChuteBlock;
 import dev.dubhe.anvilcraft.block.logistics.chute.MagneticChuteBlock;
 import dev.dubhe.anvilcraft.block.logistics.chute.SimpleChuteBlock;
+import dev.dubhe.anvilcraft.block.logistics.chute.SimpleMagneticChuteBlock;
 import dev.dubhe.anvilcraft.block.logistics.sliding.ActivatorSlidingRailBlock;
 import dev.dubhe.anvilcraft.block.logistics.sliding.DetectorSlidingRailBlock;
 import dev.dubhe.anvilcraft.block.logistics.sliding.PoweredSlidingRailBlock;
@@ -1383,6 +1384,15 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<SimpleMagneticChuteBlock> SIMPLE_MAGNETIC_CHUTE = REGISTRUM
+        .block("simple_magnetic_chute", SimpleMagneticChuteBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.dropOther(block, ModBlocks.MAGNETIC_CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

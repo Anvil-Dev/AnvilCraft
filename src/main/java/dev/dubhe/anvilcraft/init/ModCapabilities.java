@@ -55,6 +55,7 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.DISCHARGER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SIMPLE_CHUTE.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ITEM_COLLECTOR.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.MAGNETIC_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CONFINEMENT_CHAMBER.get(), ModCapabilities::item);
