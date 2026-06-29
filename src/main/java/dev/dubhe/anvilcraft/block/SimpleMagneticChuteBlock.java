@@ -27,14 +27,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
@@ -42,21 +41,24 @@ import org.jetbrains.annotations.Nullable;
 public class SimpleMagneticChuteBlock
     extends BaseEntityBlock
     implements SimpleWaterloggedBlock, IHammerRemovable {
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public static final VoxelShape AABB = Shapes.join(
-        Block.box(4, 0, 4, 12, 16, 12),
-        Block.box(3.975, 4.025, 3.975, 12.025, 20.025, 12.025),
-        BooleanOp.OR
-    );
+    public static final VoxelShape SHAPE_UP = Block.box(4, 0, 4, 12, 16, 12);
+    public static final VoxelShape SHAPE_DOWN = Block.box(4, 0, 4, 12, 16, 12);
+    public static final VoxelShape SHAPE_N = Block.box(4, 4, 0, 12, 12, 16);
+    public static final VoxelShape SHAPE_S = Block.box(4, 4, 0, 12, 12, 16);
+    public static final VoxelShape SHAPE_W = Block.box(0, 4, 4, 16, 12, 12);
+    public static final VoxelShape SHAPE_E = Block.box(0, 4, 4, 16, 12, 12);
 
     public SimpleMagneticChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(WATERLOGGED, false)
-            .setValue(ENABLED, true));
+            .setValue(FACING, Direction.UP)
+            .setValue(ENABLED, true)
+            .setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -72,19 +74,38 @@ public class SimpleMagneticChuteBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(WATERLOGGED, ENABLED);
+        builder.add(FACING, ENABLED, WATERLOGGED);
     }
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (level.isClientSide) return;
-        // 将上方相邻的磁性溜槽磁化为简易磁性溜槽，形成磁化传播链
-        BlockPos abovePos = pos.above();
-        BlockState aboveState = level.getBlockState(abovePos);
-        if (aboveState.is(ModBlocks.MAGNETIC_CHUTE.get())) {
-            level.setBlockAndUpdate(abovePos, state);
+        // 将前方同向的磁性溜槽磁化为简易磁性溜槽，形成磁化传播链
+        Direction facing = state.getValue(FACING);
+        BlockPos forwardPos = pos.relative(facing);
+        BlockState forwardState = level.getBlockState(forwardPos);
+        if (forwardState.is(ModBlocks.MAGNETIC_CHUTE.get())
+            && forwardState.getValue(MagneticChuteBlock.FACING) == facing) {
+            level.setBlockAndUpdate(forwardPos, state);
         }
+    }
+
+    /**
+     * 判断指定方块状态能否作为简易磁性溜槽的"支撑源"（即位于输入侧、朝向相同方向输送物品的溜槽）。
+     * 支持磁性溜槽、简易磁性溜槽，以及朝向相同的普通溜槽 / 简易溜槽。
+     */
+    public static boolean isMagnetizeSupport(BlockState state, Direction facing) {
+        if (state.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())) {
+            return state.getValue(FACING) == facing;
+        }
+        if (state.is(ModBlocks.MAGNETIC_CHUTE.get())) {
+            return state.getValue(MagneticChuteBlock.FACING) == facing;
+        }
+        if (state.is(ModBlocks.CHUTE.get()) || state.is(ModBlocks.SIMPLE_CHUTE.get())) {
+            return ChuteBlock.getFacing(state) == facing;
+        }
+        return false;
     }
 
     @Override
@@ -96,23 +117,17 @@ public class SimpleMagneticChuteBlock
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (!level.isClientSide && neighborPos.equals(pos.below())) {
-            // 下方磁性溜槽被拆除时，自己变回正常磁性溜槽
-            BlockState belowState = level.getBlockState(pos.below());
-            if (!belowState.is(ModBlocks.MAGNETIC_CHUTE.get())
-                && !belowState.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())) {
-                level.setBlockAndUpdate(pos, ModBlocks.MAGNETIC_CHUTE.get().defaultBlockState()
-                    .setValue(MagneticChuteBlock.FACING, Direction.UP)
-                    .setValue(MagneticChuteBlock.ENABLED, state.getValue(ENABLED)));
+        if (!level.isClientSide) {
+            Direction facing = state.getValue(FACING);
+            BlockPos backPos = pos.relative(facing.getOpposite());
+            if (neighborPos.equals(backPos)) {
+                // 后方支撑源被拆除时，自己变回正常磁性溜槽
+                BlockState backState = level.getBlockState(backPos);
+                if (!isMagnetizeSupport(backState, facing)) {
+                    level.setBlockAndUpdate(pos, ModBlocks.MAGNETIC_CHUTE.get().defaultBlockState()
+                        .setValue(MagneticChuteBlock.FACING, facing));
+                }
             }
-        }
-        this.checkPoweredState(level, pos, state);
-    }
-
-    private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
-        boolean flag = !level.hasNeighborSignal(pos);
-        if (flag != state.getValue(ENABLED)) {
-            level.setBlock(pos, state.setValue(ENABLED, flag), 2);
         }
     }
 
@@ -139,7 +154,7 @@ public class SimpleMagneticChuteBlock
         BlockPos pos,
         Player player
     ) {
-        return new ItemStack(ModBlocks.CHUTE);
+        return new ItemStack(ModBlocks.MAGNETIC_CHUTE);
     }
 
     @Override
@@ -149,9 +164,6 @@ public class SimpleMagneticChuteBlock
         BlockPos pos,
         RandomSource random
     ) {
-        if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(ENABLED), 2);
-        }
     }
 
     @Override
@@ -187,7 +199,14 @@ public class SimpleMagneticChuteBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return AABB;
+        return switch (state.getValue(FACING)) {
+            case DOWN -> SHAPE_DOWN;
+            case NORTH -> SHAPE_N;
+            case SOUTH -> SHAPE_S;
+            case WEST -> SHAPE_W;
+            case EAST -> SHAPE_E;
+            default -> SHAPE_UP;
+        };
     }
 
     @Override

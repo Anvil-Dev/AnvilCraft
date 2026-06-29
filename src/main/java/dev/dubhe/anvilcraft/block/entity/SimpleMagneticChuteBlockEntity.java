@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.List;
@@ -59,18 +58,28 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
     /**
      * tick
      */
+    protected Direction getDirection() {
+        if (level == null) return Direction.UP;
+        BlockState state = level.getBlockState(getBlockPos());
+        if (state.getBlock() instanceof SimpleMagneticChuteBlock) {
+            return state.getValue(SimpleMagneticChuteBlock.FACING);
+        }
+        return Direction.UP;
+    }
+
     @SuppressWarnings("DuplicatedCode")
     public void tick() {
         if (level == null) return;
         if (cooldown > 0) cooldown--;
         tickedGameTime = level.getGameTime();
+        Direction facing = getDirection();
         boolean resetCD = false;
         if (cooldown <= 0 && isEnabled()) {
-            // 向上方容器输出物品
-            BlockPos targetPos = getBlockPos().relative(Direction.UP);
+            // 面向方向输出物品
+            BlockPos targetPos = getBlockPos().relative(facing);
             List<IItemHandler> targetList = getTargetItemHandlerList(
                 targetPos,
-                Direction.DOWN,
+                facing.getOpposite(),
                 level
             );
             if (targetList != null && !targetList.isEmpty()) {
@@ -85,7 +94,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
                     }
                 }
             } else {
-                Vec3 center = getBlockPos().relative(Direction.UP).getCenter();
+                Vec3 center = getBlockPos().relative(facing).getCenter();
                 AABB aabb = new AABB(
                     center.add(-0.125, -0.125, -0.125),
                     center.add(0.125, 0.125, 0.125)
@@ -97,7 +106,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
                         List<ItemEntity> itemEntities = getLevel()
                             .getEntitiesOfClass(
                                 ItemEntity.class,
-                                new AABB(getBlockPos().relative(Direction.UP)),
+                                new AABB(getBlockPos().relative(facing)),
                                 itemEntity -> !itemEntity.getItem().isEmpty()
                             );
                         int sameItemCount = 0;
@@ -116,7 +125,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
                             ItemEntity itemEntity = new ItemEntity(
                                 getLevel(), center.x, center.y, center.z, droppedItemStack, 0, 0, 0
                             );
-                            itemEntity.setDeltaMovement(0, 0.25, 0);
+                            itemEntity.setDeltaMovement(MagneticChuteBlockEntity.getOutputSpeed(facing));
                             itemEntity.setDefaultPickUpDelay();
                             getLevel().addFreshEntity(itemEntity);
                             this.itemHandler.setStackInSlot(i, stack);
@@ -124,31 +133,6 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
                             break;
                         }
                     }
-                }
-            }
-
-            // 从下方吸引物品（磁性效果）
-            if (!inventoryFull()) {
-                BlockPos belowPos = getBlockPos().relative(Direction.DOWN);
-                List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
-                    .getEntitiesOfClass(
-                        ItemEntity.class,
-                        new AABB(belowPos),
-                        itemEntity -> !itemEntity.getItem().isEmpty()
-                    );
-                for (ItemEntity itemEntity : itemEntities) {
-                    ItemStack itemStack = itemEntity.getItem();
-                    ItemStack remaining = ItemHandlerHelper.insertItem(this.itemHandler, itemStack, true);
-                    if (remaining.getCount() == itemStack.getCount()) continue;
-                    // 给掉落物一个向上速度，表现磁性吸引效果
-                    itemEntity.setDeltaMovement(
-                        itemEntity.getDeltaMovement().x,
-                        0.3,
-                        itemEntity.getDeltaMovement().z
-                    );
-                    ItemHandlerHelper.insertItem(this.itemHandler, itemEntity.getItem(), false);
-                    itemEntity.setItem(remaining);
-                    resetCD = true;
                 }
             }
         }
@@ -210,13 +194,5 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
         BlockState state = getBlockState();
         if (!(state.getBlock() instanceof SimpleMagneticChuteBlock)) return true;
         return state.getValue(SimpleMagneticChuteBlock.ENABLED);
-    }
-
-    private boolean inventoryFull() {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            ItemStack itemstack = itemHandler.getStackInSlot(i);
-            if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize()) return false;
-        }
-        return true;
     }
 }
