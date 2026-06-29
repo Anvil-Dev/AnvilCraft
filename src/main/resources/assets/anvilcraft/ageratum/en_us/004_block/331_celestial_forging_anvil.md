@@ -189,20 +189,4 @@ The original star's mass determines what type of stellar remnant it becomes
 - Place this <ref item="anvilcraft:disk"/> into another celestial forging anvil, consuming the <ref item="anvilcraft:disk"/> to search for another celestial body with the exact same parameters — they become *Identical Celestial Bodies*
 - For extreme celestial bodies (neutron stars, black holes), use <ref item="anvilcraft:singularity_crystal"/> as the medium instead
 
-# Hidden Celestial Bodies
-
-- By consuming specific seed items and inputting specific parameters, hidden celestial bodies can be discovered
-- Some planets have more than one corresponding seed item, but **only one randomly selected one** takes effect per save
-
-| Hidden Celestial Body | Anvil Parameters | Seed Items                                                                                                                                                                                                                                                                   |
-|:---------------------:|:----------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Overworld-like Planet | (32, 14, 20, 16) | <ref item="minecraft:grass_block"/>, <ref item="minecraft:podzol"/>, <ref item="minecraft:podzol"/>, <ref item="minecraft:dirt"/>, <ref item="minecraft:coarse_dirt"/>, <ref item="minecraft:rooted_dirt"/>, <ref item="minecraft:moss_block"/>, <ref item="minecraft:mud"/> |
-|     Flesh Planet      | (40, 10, 9, 17)  | <ref item="anvilcraft:rotten_flesh_block"/>, <ref item="minecraft:bone_block"/>                                                                                                                                                                                              |
-|  Intelligent Planet   | (58, 12, 12, 18) | <ref item="anvilcraft:spacetime_supercomputer"/>                                                                                                                                                                                                                             |
-|   Shattered Planet    | (13, 9, 13, 27)  | <ref item="minecraft:magma_block"/>, <ref item="minecraft:netherrack"/>, <ref item="minecraft:blackstone"/>, <ref item="minecraft:basalt"/>, <ref item="anvilcraft:earth_core_shard_block"/>                                                                                 |
-|     Hollow Planet     | (60, 10, 1, 17)  | <ref item="anvilcraft:negative_matter_block"/>                                                                                                                                                                                                                               |
-|     Error Planet      | (64, 64, 64, 64) | <ref item="anvilcraft:creative_generator"/>, <ref item="minecraft:command_block"/>, <ref item="minecraft:structure_block"/>                                                                                                                                                  |
-
-<info>
-Planets with abnormal data from old version upgrades, or planets forcibly assigned data that cannot be rendered, all become Error Planets
-</info>
+> There s■■■s to be ■n■■■■■tion here, but it has been ■■a■■■ by ■■■■

@@ -189,20 +189,4 @@ items:
 - 将此<ref item="anvilcraft:disk"/>放入另一锻星砧，消耗该<ref item="anvilcraft:disk"/>搜索另一个天体，和源天体拥有完全相同的参数，它们互相为*全同天体*
 - 对极端天体（中子星、黑洞），需改为使用<ref item="anvilcraft:singularity_crystal"/>作为承载天体信息的媒介来完成搜索
 
-# 隐秘天体
-
-- 消耗特定的种子物品和输入特定的参数，可以搜索到隐秘的天体
-- 有些星球对应的种子物品不止一个，但每个存档**只有随机一个生效**
-
-| 隐秘天体 |       砧子参数       | 种子物品                                                                                                                                                                                                                                                                  |
-|:----:|:----------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 类主世界 | (32, 14, 20, 16) | <ref item="minecraft:grass_block"/>、<ref item="minecraft:podzol"/>、<ref item="minecraft:podzol"/>、<ref item="minecraft:dirt"/>、<ref item="minecraft:coarse_dirt"/>、<ref item="minecraft:rooted_dirt"/>、<ref item="minecraft:moss_block"/>、<ref item="minecraft:mud"/> |
-| 血肉星球 | (40, 10, 9, 17)  | <ref item="anvilcraft:rotten_flesh_block"/>、<ref item="minecraft:bone_block"/>                                                                                                                                                                                        |
-| 智慧星球 | (58, 12, 12, 18) | <ref item="anvilcraft:spacetime_supercomputer"/>                                                                                                                                                                                                                      |
-| 破碎星球 | (13, 9, 13, 27)  | <ref item="minecraft:magma_block"/>、<ref item="minecraft:netherrack"/>、<ref item="minecraft:blackstone"/>、<ref item="minecraft:basalt"/>、<ref item="anvilcraft:earth_core_shard_block"/>                                                                              |
-| 中空星球 | (60, 10, 1, 17)  | <ref item="anvilcraft:negative_matter_block"/>                                                                                                                                                                                                                        |
-| 错误星球 | (64, 64, 64, 64) | <ref item="anvilcraft:creative_generator"/>、<ref item="minecraft:command_block"/>、<ref item="minecraft:structure_block"/>                                                                                                                                             |
-
-<info>
-有旧版本升级导致的数据不正常星球、强行赋予数据产生的无法渲染的星球，都变为错误星球
-</info>
+> 这⬛⬛乎有⬛⬛⬛息，但被⬛⬛⬛⬛抹去了 

@@ -20,3 +20,7 @@ Mining <ref item="anvilcraft:ancient_sea_reef"/> drops the following items:
 - 4 <ref item="minecraft:prismarine_shard"/>
 - 4 <ref item="minecraft:prismarine_crystals"/>
 - 1 of each coral type
+
+# <ref item="minecraft:trident"/>
+
+<recipe id="anvilcraft:trident"/>

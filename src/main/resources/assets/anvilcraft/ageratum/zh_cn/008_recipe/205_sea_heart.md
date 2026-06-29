@@ -20,3 +20,7 @@ items:
 - <ref item="minecraft:prismarine_shard"/> 4个
 - <ref item="minecraft:prismarine_crystals"/> 4个
 - 每种珊瑚各1个
+
+# <ref item="minecraft:trident"/>
+
+<recipe id="anvilcraft:trident"/>
