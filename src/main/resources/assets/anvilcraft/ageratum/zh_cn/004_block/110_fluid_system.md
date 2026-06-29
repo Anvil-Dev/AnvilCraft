@@ -27,9 +27,6 @@ items:
 <block id="anvilcraft:pipe_node"/>
 
 - 一条管道有3个或更多方向被连接时，自身会变为*节点*
-- 节点在管道系统中被视为容器，可以自然接受高处的流体，向低处排放流体，不能向同层传输流体
-
-<structure id="../../structures/pipe_node.nbt"/>
 
 # <ref item="anvilcraft:pump"/>
 

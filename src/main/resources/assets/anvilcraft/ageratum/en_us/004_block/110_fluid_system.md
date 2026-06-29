@@ -27,9 +27,6 @@ items:
 <block id="anvilcraft:pipe_node"/>
 
 - When a pipe is connected on 3 or more sides, it automatically becomes a *node*
-- A node is treated as a container in the pipe system, can naturally receive fluid from above and discharge fluid downward, but cannot transfer fluid on the same level
-
-<structure id="../../structures/pipe_node.nbt"/>
 
 # <ref item="anvilcraft:pump"/>
 
