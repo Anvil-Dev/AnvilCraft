@@ -2764,7 +2764,6 @@ public class ModBlocks {
                 .lightLevel(bs -> 1)
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
         .register();
 
     public static final BlockEntry<CakeBaseBlock> CAKE_BASE_BLOCK = REGISTRUM.block("cake_base_block", CakeBaseBlock::new)
