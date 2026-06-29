@@ -1,5 +1,5 @@
 {
-	"format_version": "1.21.11",
+	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
 	"render_type": "minecraft:cutout",
@@ -13,12 +13,12 @@
 			"to": [14, 14, 14],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
-				"north": {"uv": [2, 2, 14, 14], "texture": "#missing"},
-				"east": {"uv": [2, 2, 14, 14], "texture": "#missing"},
-				"south": {"uv": [2, 2, 14, 14], "texture": "#missing"},
-				"west": {"uv": [2, 2, 14, 14], "texture": "#missing"},
-				"up": {"uv": [2, 2, 14, 14], "texture": "#missing"},
-				"down": {"uv": [2, 2, 14, 14], "texture": "#missing"}
+				"north": {"uv": [2, 2, 14, 14], "texture": "#out"},
+				"east": {"uv": [2, 2, 14, 14], "texture": "#out"},
+				"south": {"uv": [2, 2, 14, 14], "texture": "#out"},
+				"west": {"uv": [2, 2, 14, 14], "texture": "#out"},
+				"up": {"uv": [2, 2, 14, 14], "texture": "#out"},
+				"down": {"uv": [2, 2, 14, 14], "texture": "#out"}
 			}
 		},
 		{
