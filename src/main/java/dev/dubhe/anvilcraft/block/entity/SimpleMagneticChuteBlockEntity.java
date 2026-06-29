@@ -143,16 +143,12 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
     }
 
     private boolean isTargetEmpty(BlockEntity blockEntity) {
-        if (blockEntity instanceof SimpleChuteBlockEntity chute) {
-            return chute.isEmpty();
-        }
-        if (blockEntity instanceof BaseChuteBlockEntity chute) {
-            return chute.isEmpty();
-        }
-        if (blockEntity instanceof SimpleMagneticChuteBlockEntity chute) {
-            return chute.isEmpty();
-        }
-        return false;
+        return switch (blockEntity) {
+            case SimpleChuteBlockEntity chute -> chute.isEmpty();
+            case BaseChuteBlockEntity chute -> chute.isEmpty();
+            case SimpleMagneticChuteBlockEntity chute -> chute.isEmpty();
+            default -> false;
+        };
     }
 
     private void setChuteCD(BlockEntity targetBE) {
