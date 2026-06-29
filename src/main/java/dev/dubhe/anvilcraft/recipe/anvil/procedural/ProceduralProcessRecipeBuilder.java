@@ -163,9 +163,9 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     }
 
     /**
-     * 为配方指定一个在配方执行过程中渲染的半成品模型。 <p>
+     * 为配方指定一个在配方执行过程中渲染的半成品模型。
      *
-     *  注意：该模型必须在 {@link dev.dubhe.anvilcraft.client.event.RegisterAdditionalEventListener#registerModels} 中
+     * <p>注意：该模型必须在 {@link dev.dubhe.anvilcraft.client.event.RegisterAdditionalEventListener#registerModels} 中
      *  注册，否则渲染出来是紫黑！
      *
      * @param modelId 模型的资源包地址
