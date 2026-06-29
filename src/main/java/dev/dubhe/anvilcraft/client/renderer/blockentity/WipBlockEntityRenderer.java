@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.Optional;
 
-public class  WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntity> {
+public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntity> {
 
     public WipBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
