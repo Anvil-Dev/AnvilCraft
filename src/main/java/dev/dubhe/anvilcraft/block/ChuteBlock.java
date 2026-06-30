@@ -108,14 +108,16 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             return state.is(ModBlocks.CHUTE.get())
                 || state.is(ModBlocks.SIMPLE_CHUTE.get())
                 || state.is(ModBlocks.MAGNETIC_CHUTE.get())
+                || state.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())
                 || (state.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get())
                     && state.hasProperty(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE)
-                    && state.getValue(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE));
+                    && state.getValue(dev.dubhe.anvilcraft.block.cfa.interfaces .CelestialForgingAnvilInterfaceBlock.ACTIVE));
         }
         if (obj instanceof Block block) {
             return block == ModBlocks.CHUTE.get()
                 || block == ModBlocks.SIMPLE_CHUTE.get()
                 || block == ModBlocks.MAGNETIC_CHUTE.get()
+                || block == ModBlocks.SIMPLE_MAGNETIC_CHUTE.get()
                 || block == ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get();
         }
         return false;

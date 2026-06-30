@@ -147,6 +147,9 @@ public class SimpleChuteBlock
         BlockPos pos,
         RandomSource random
     ) {
+        if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(ENABLED), 2);
+        }
     }
 
     @Override
