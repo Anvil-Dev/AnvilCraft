@@ -68,10 +68,10 @@ public class PlayerTickEventHandler {
 
             int current = item.getOrDefault(ModComponents.STORED_ENERGY, 0);
             int maxEnergy = storage.getMaxEnergyStored();
-            int added = Math.min(energyAmount, maxEnergy - current);
-            if (added <= 0) continue;
+            // 仅当剩余缺口能完整容纳一个电容器的电量时才充能，避免浪费电容器电量
+            if (maxEnergy - current < energyAmount) continue;
 
-            item.set(ModComponents.STORED_ENERGY, current + added);
+            item.set(ModComponents.STORED_ENERGY, current + energyAmount);
             inventory.removeItem(capacitorSlot, 1);
             inventory.placeItemBackInInventory(emptyCapacitor);
             return;

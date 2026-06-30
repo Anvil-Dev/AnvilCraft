@@ -4,8 +4,13 @@
 
 # 铁砧工艺 | [AnvilCraft](./README_en.md)
 
+[![TeaCon JiaChen](https://cdn.jsdelivr.net/npm/@gugle/devins-badges-plus/assets/cozy/mc/teacon/teacon_jiachen-participated_vector.svg)][TeaCon JiaChen]
+[![TeaCon 2026](https://cdn.jsdelivr.net/npm/@gugle/devins-badges-plus/assets/cozy/mc/teacon/teacon2026-participated_vector.svg)][TeaCon 2026]
+
 ![Java21](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/built-with/java21_vector.svg)
 ![NeoForge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/neoforge_vector.svg)
+
+[![AnvilLib](https://cdn.jsdelivr.net/npm/@gugle/devins-badges-plus/assets/cozy/mc/anvillib_vector.svg)][AnvilLib]
 
 ![Unsupported Fabric](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/fabric_vector.svg)
 ![Unsupported Forge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/forge_vector.svg)
@@ -30,6 +35,8 @@
 [![Modrinth downloads](https://img.shields.io/modrinth/dt/anvilcraft?color=00AF5C&label=Modrinth%20downloads&logo=modrinth)][Modrinth]
 [![GitHub downloads](https://img.shields.io/github/downloads/Anvil-Dev/AnvilCraft/total?label=Github%20downloads&logo=github)][Github Releases]
 
+[AnvilLib]: https://lib.anvilcraft.dev
+
 [HeyBox Chat]: https://chat.xiaoheihe.cn/378432
 
 [GitHub CI]: https://github.com/Anvil-Dev/AnvilCraft/actions/workflows/ci.yml
@@ -49,6 +56,10 @@
 [Documentation]: https://www.anvilcraft.dev/
 
 [Discord]: https://discord.gg/gAnWeZNKGh
+
+[TeaCon JiaChen]: https://www.teacon.cn/jiachen
+
+[TeaCon 2026]: https://www.teacon.cn/2026
 </div>
 
 ## Minecraft模组 by [古镇天Gugle@bilibili](https://space.bilibili.com/19822751) & [XeKr@bilibili](https://space.bilibili.com/5930630)

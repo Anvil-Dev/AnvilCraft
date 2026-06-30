@@ -73,7 +73,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
         updateLaserLevel(calculateLaserLevel());
         if (changed) {
             delay = 0;
-            power = laserLevel * 15;
+            power = laserLevel * 30000;
         }
         if (!changed) {
             if (storedEnergy < 160000000) {
@@ -99,7 +99,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     @Override
     public Set<Direction> getIgnoreFace() {
         Set<Direction> directions = new HashSet<>(List.of(Direction.values()));
-        directions.remove(getBlockState().getValue(PropelPiston.FACING).getOpposite());
+        directions.remove(getBlockState().getValue(PropelPiston.FACING));
         return directions;
     }
 

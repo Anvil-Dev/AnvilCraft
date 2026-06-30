@@ -24,7 +24,6 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -45,6 +44,7 @@ import javax.annotation.Nullable;
 public abstract class EntityMixin implements IEntityExtension {
     @Unique
     public Vec3 anvil$fixedDeltaMovement;
+
     @Unique
     public Boolean anvil$isDeflected;
 
@@ -258,14 +258,12 @@ public abstract class EntityMixin implements IEntityExtension {
                      + "Lnet/minecraft/world/entity/Entity;"
         )
     )
-    @SuppressWarnings("deprecation")
     private Entity handlePortal(Entity instance, DimensionTransition transition, Operation<Entity> original) {
         if (!(this.portalProcess instanceof PortalProcessorAccessor accessor)) return original.call(instance, transition);
-        Block portal = Util.cast(accessor.getPortal());
         EntityThroughPortalEvent event = NeoForge.EVENT_BUS.post(new EntityThroughPortalEvent(
             this.level,
             instance,
-            new PortalType(portal.builtInRegistryHolder().key().location())
+            PortalType.assume(accessor.getPortal())
         ));
         if (event.isCanceled()) return instance;
         return original.call(event.getEntity(), transition);

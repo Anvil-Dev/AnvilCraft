@@ -27,7 +27,12 @@ import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItem
 
 @Getter
 public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
-    private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+    private final ItemStackHandler itemHandler = new ItemStackHandler(9) {
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return super.insertItem(0, stack, simulate);
+        }
+
         @Override
         public void onContentsChanged(int slot) {
             setChanged();
@@ -63,8 +68,13 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
         if (level == null) return;
         if (cooldown > 0) cooldown--;
         tickedGameTime = level.getGameTime();
-        if (cooldown == 0 && !this.itemHandler.getStackInSlot(0).isEmpty()) {
-            cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
+        if (cooldown == 0) {
+            for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                if (!this.itemHandler.getStackInSlot(i).isEmpty()) {
+                    cooldown = AnvilCraft.CONFIG.chuteMaxCooldown + 1;
+                    break;
+                }
+            }
         }
         if (cooldown == 1) {
             BlockPos targetPos = getBlockPos().relative(getOutputDirection());
