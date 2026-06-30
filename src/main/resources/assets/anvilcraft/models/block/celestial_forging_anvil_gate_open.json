@@ -482,6 +482,7 @@
 		{
 			"from": [-8, -12, 10],
 			"to": [24, 26, 10],
+			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, -12, 10]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 16], "texture": "#4"},
