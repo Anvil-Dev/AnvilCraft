@@ -144,9 +144,8 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
         return 0;
     }
 
-    
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Player player = context.getPlayer();

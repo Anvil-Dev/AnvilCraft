@@ -93,7 +93,6 @@ public class SimpleMagneticChuteBlock
         return simpleCodec(SimpleMagneticChuteBlock::new);
     }
 
-    
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new SimpleMagneticChuteBlockEntity(ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(), pos, state);
@@ -207,9 +206,8 @@ public class SimpleMagneticChuteBlock
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         if (level.isClientSide) return null;
         return createTickerHelper(
