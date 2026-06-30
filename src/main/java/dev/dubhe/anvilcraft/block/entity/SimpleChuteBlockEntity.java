@@ -19,7 +19,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +29,7 @@ import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItem
 public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
     private final ItemStackHandler itemHandler = new ItemStackHandler(9) {
         @Override
-        public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             return super.insertItem(0, stack, simulate);
         }
 
