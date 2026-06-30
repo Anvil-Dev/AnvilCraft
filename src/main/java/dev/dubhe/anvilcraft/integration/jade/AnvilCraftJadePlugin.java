@@ -20,9 +20,12 @@ import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvide
 import dev.dubhe.anvilcraft.integration.jade.provider.client.BurningHeaterClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ChargerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CrabTrapStorageClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeCrateClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeFluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.DischargerClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.HeatableBlockClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ItemDetectorClientProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.client.LargeFluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.PowerBlockClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.RubyPrismClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.SmartBlockPlacerClientProvider;
@@ -66,8 +69,8 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(ChargerClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(DischargerClientProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(SmartBlockPlacerClientProvider.INSTANCE, Block.class);
-        registration.registerItemStorageClient(CreativeCrateProvider.INSTANCE);
-        registration.registerFluidStorageClient(CreativeFluidTankProvider.INSTANCE);
-        registration.registerFluidStorageClient(LargeFluidTankProvider.INSTANCE);
+        registration.registerItemStorageClient(CreativeCrateClientProvider.INSTANCE);
+        registration.registerFluidStorageClient(CreativeFluidTankClientProvider.INSTANCE);
+        registration.registerFluidStorageClient(LargeFluidTankClientProvider.INSTANCE);
     }
 }
