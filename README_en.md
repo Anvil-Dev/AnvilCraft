@@ -10,6 +10,8 @@
 ![Java21](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/built-with/java21_vector.svg)
 ![NeoForge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/neoforge_vector.svg)
 
+[![AnvilLib](https://cdn.jsdelivr.net/npm/@gugle/devins-badges-plus/assets/cozy/mc/anvillib_vector.svg)][AnvilLib]
+
 ![Unsupported Fabric](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/fabric_vector.svg)
 ![Unsupported Forge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/unsupported/forge_vector.svg)
 
@@ -32,6 +34,8 @@
 [![CurseForge downloads](http://cf.way2muchnoise.eu/full_986251_downloads.svg)][CurseForge]
 [![Modrinth downloads](https://img.shields.io/modrinth/dt/anvilcraft?color=00AF5C&label=Modrinth%20downloads&logo=modrinth)][Modrinth]
 [![GitHub downloads](https://img.shields.io/github/downloads/Anvil-Dev/AnvilCraft/total?label=Github%20downloads&logo=github)][Github Releases]
+
+[AnvilLib]: https://lib.anvilcraft.dev
 
 [HeyBox Chat]: https://chat.xiaoheihe.cn/378432
 
