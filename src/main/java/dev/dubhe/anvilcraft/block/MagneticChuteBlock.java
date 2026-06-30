@@ -169,9 +169,8 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
             if (player != null) player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
             return null;
         }
-        // 反方向（输入侧）有同向支撑源时，直接以简易磁性溜槽形态放置
-        BlockState backState = level.getBlockState(pos.relative(facing.getOpposite()));
-        if (SimpleMagneticChuteBlock.isMagnetizeSupport(backState, facing)) {
+        // 被任意溜槽指向时，直接以简易磁性溜槽形态放置
+        if (SimpleMagneticChuteBlock.isPointedByChute(level, pos)) {
             return ModBlocks.SIMPLE_MAGNETIC_CHUTE.getDefaultState()
                 .setValue(SimpleMagneticChuteBlock.FACING, facing)
                 .setValue(SimpleMagneticChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
@@ -200,16 +199,13 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
         if (!level.isClientSide) {
-            Direction facing = state.getValue(FACING);
-            BlockPos backPos = pos.relative(facing.getOpposite());
-            if (fromPos.equals(backPos)) {
-                BlockState backState = level.getBlockState(backPos);
-                if (SimpleMagneticChuteBlock.isMagnetizeSupport(backState, facing)) {
-                    level.setBlockAndUpdate(pos, ModBlocks.SIMPLE_MAGNETIC_CHUTE.getDefaultState()
-                        .setValue(SimpleMagneticChuteBlock.FACING, facing)
-                        .setValue(SimpleMagneticChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
-                        .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER));
-                }
+            // 被任意溜槽指向时，降级为简易磁性溜槽
+            if (SimpleMagneticChuteBlock.isPointedByChute(level, pos)) {
+                level.setBlockAndUpdate(pos, ModBlocks.SIMPLE_MAGNETIC_CHUTE.getDefaultState()
+                    .setValue(SimpleMagneticChuteBlock.FACING, state.getValue(FACING))
+                    .setValue(SimpleMagneticChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
+                    .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER));
+                return;
             }
         }
         this.checkPoweredState(level, pos, state);
