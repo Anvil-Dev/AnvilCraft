@@ -246,7 +246,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         return scale;
     }
 
-    private static final Map<ResourceLocation, MDImageComponent.Size> IMAGE_SIZE_CACHE = new HashMap<>();
+    public static final Map<ResourceLocation, MDImageComponent.Size> IMAGE_SIZE_CACHE = new HashMap<>();
 
     /**
      * 获取图片原始尺寸，缺失时使用缓存或回退默认值。
