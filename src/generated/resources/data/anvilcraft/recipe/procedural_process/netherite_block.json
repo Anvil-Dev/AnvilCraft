@@ -1,5 +1,6 @@
 {
   "type": "anvilcraft:procedural_process",
+  "displayed_model": "anvilcraft:block/netherite_block_wip",
   "icon": {
     "count": 1,
     "id": "minecraft:netherite_block"

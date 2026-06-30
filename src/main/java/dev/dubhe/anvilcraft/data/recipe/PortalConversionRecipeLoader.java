@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
-import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.portal.PortalType;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import net.minecraft.world.level.block.Block;
@@ -22,7 +22,7 @@ public class PortalConversionRecipeLoader {
     @SuppressWarnings("deprecation")
     private static void spectral(RegistrumRecipeProvider provider, Block anvil, float chance) {
         PortalConversionRecipe.builder()
-            .type(Util.cast(Blocks.END_PORTAL))
+            .type(PortalType.END_PORTAL)
             .input(anvil)
             .result(ModBlocks.SPECTRAL_ANVIL.getDefaultState(), chance)
             .save(provider, anvil.builtInRegistryHolder().key().location().getPath());
@@ -30,7 +30,7 @@ public class PortalConversionRecipeLoader {
 
     private static void spectral(RegistrumRecipeProvider provider, BlockEntry<? extends Block> anvil, float chance) {
         PortalConversionRecipe.builder()
-            .type(Util.cast(Blocks.END_PORTAL))
+            .type(PortalType.END_PORTAL)
             .input(anvil)
             .result(ModBlocks.SPECTRAL_ANVIL.getDefaultState(), chance)
             .save(provider, anvil.getId().getPath());

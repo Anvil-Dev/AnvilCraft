@@ -63,6 +63,9 @@ public class WipBlockEntity extends BlockEntity {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag data = super.getUpdateTag(registries);
         data.put("InitialBlock", NbtUtils.writeBlockState(initialBlock));
+        if (recipeId != null) {
+            data.putString("Recipe", recipeId.toString());
+        }
         return data;
     }
 

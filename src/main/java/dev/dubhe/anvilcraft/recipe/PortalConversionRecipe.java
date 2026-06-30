@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
@@ -141,14 +142,22 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
     @Accessors(fluent = true)
     public static class Builder extends AbstractRecipeBuilder<PortalConversionRecipe> {
         @Setter(AccessLevel.NONE)
-        private ResourceLocation typeId;
+        private @Nullable ResourceLocation typeId;
         private final BlockStatePredicate.Builder input = BlockStatePredicate.builder();
-        private ChanceBlockState result = null;
+        private @Nullable ChanceBlockState result = null;
+
+        public Builder type(ResourceLocation id) {
+            this.typeId = id;
+            return this;
+        }
+
+        public Builder type(PortalType type) {
+            return this.type(type.getId());
+        }
 
         @SuppressWarnings("deprecation")
         public <T extends Block & Portal> Builder type(T portal) {
-            this.typeId = portal.builtInRegistryHolder().key().location();
-            return this;
+            return this.type(portal.builtInRegistryHolder().key().location());
         }
 
         public Builder input(Block... blocks) {
@@ -251,7 +260,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
 
         @Override
         public PortalConversionRecipe buildRecipe() {
-            return new PortalConversionRecipe(new PortalType(this.typeId), this.input.build(), this.result);
+            return new PortalConversionRecipe(new PortalType(this.typeId), this.input.build(), Objects.requireNonNull(this.result));
         }
 
         @Override
@@ -261,7 +270,7 @@ public class PortalConversionRecipe implements Recipe<PortalConversionRecipe.Inp
 
         @Override
         public Item getResult() {
-            return this.result.state().getBlock().asItem();
+            return Objects.requireNonNull(this.result).state().getBlock().asItem();
         }
     }
 }

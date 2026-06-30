@@ -27,7 +27,12 @@ import static dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil.getTargetItem
 
 @Getter
 public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItemHandlerHolder {
-    private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
+    private final ItemStackHandler itemHandler = new ItemStackHandler(9) {
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return super.insertItem(0, stack, simulate);
+        }
+
         @Override
         public void onContentsChanged(int slot) {
             setChanged();
@@ -74,7 +79,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
         tickedGameTime = level.getGameTime();
         Direction facing = getDirection();
         boolean resetCD = false;
-        if (cooldown <= 0 && isEnabled()) {
+        if (cooldown <= 0) {
             // 面向方向输出物品
             BlockPos targetPos = getBlockPos().relative(facing);
             List<IItemHandler> targetList = getTargetItemHandlerList(
@@ -186,9 +191,4 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
         return true;
     }
 
-    private boolean isEnabled() {
-        BlockState state = getBlockState();
-        if (!(state.getBlock() instanceof SimpleMagneticChuteBlock)) return true;
-        return state.getValue(SimpleMagneticChuteBlock.ENABLED);
-    }
 }

@@ -85,6 +85,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -1696,6 +1697,31 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             () -> buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
             (index) -> sourceItem,  // 忽略 index，总是源方块
             () -> sourceItem,
+            (ignoredTargetPos) -> {
+                // 移动前删除源方块
+                IS_BEING_MOVED_BY_PLACER.set(true);
+                try {
+                    level.removeBlock(sourcePos, false);
+                } finally {
+                    IS_BEING_MOVED_BY_PLACER.set(false);
+                }
+            },
+            () -> {
+                // 放置失败时回滚：把源方块放回去
+                IS_BEING_MOVED_BY_PLACER.set(true);
+                try {
+                    level.setBlock(sourcePos, sourceState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+                    if (sourceBlockEntityData != null) {
+                        BlockEntity sourceBe = level.getBlockEntity(sourcePos);
+                        if (sourceBe != null) {
+                            sourceBe.loadWithComponents(sourceBlockEntityData, level.registryAccess());
+                            sourceBe.setChanged();
+                        }
+                    }
+                } finally {
+                    IS_BEING_MOVED_BY_PLACER.set(false);
+                }
+            },
             (blockItem, blockItemObj, targetPos) -> {
                 BlockState stateToPlace = sourceState;
 
@@ -1715,16 +1741,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     );
                 }
 
-                // 先删除源方块
-                IS_BEING_MOVED_BY_PLACER.set(true);
-                try {
-                    level.removeBlock(sourcePos, false);
-                } finally {
-                    IS_BEING_MOVED_BY_PLACER.set(false);
-                }
-
-                // 放置方块到目标位置
-                level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+                // 修正朝向
+                level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS);
 
                 if (sourceBlockEntityData != null) {
                     BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
@@ -2088,26 +2106,38 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
             }
 
-            // 使用 FakePlayer 放置方块
+            // 先删除源方块，再使用 FakePlayer 放置方块
+            IS_BEING_MOVED_BY_PLACER.set(true);
+            try {
+                level.removeBlock(sourcePos, false);
+            } finally {
+                IS_BEING_MOVED_BY_PLACER.set(false);
+            }
+
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
                 level, targetPos, placementFacing, upsideDown,
                 (BlockItem) sourceItem.getItem(), sourceItem
             );
 
             if (!placeSuccess) {
-                // 放置失败，回退索引
+                // 放置失败，回滚源方块
+                IS_BEING_MOVED_BY_PLACER.set(true);
+                try {
+                    level.setBlock(sourcePos, sourceState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+                    if (sourceBlockEntityData != null) {
+                        BlockEntity sourceBe = level.getBlockEntity(sourcePos);
+                        if (sourceBe != null) {
+                            sourceBe.loadWithComponents(sourceBlockEntityData, level.registryAccess());
+                            sourceBe.setChanged();
+                        }
+                    }
+                } finally {
+                    IS_BEING_MOVED_BY_PLACER.set(false);
+                }
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
                 this.onChanged();
                 return;
-            }
-
-            // 先删除源方块
-            IS_BEING_MOVED_BY_PLACER.set(true);
-            try {
-                level.removeBlock(sourcePos, false);
-            } finally {
-                IS_BEING_MOVED_BY_PLACER.set(false);
             }
 
             // 放置成功后，修正方块的朝向为蓝图中的朝向
@@ -2162,6 +2192,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         Supplier<List<BlockPos>> positionProvider,
         IntFunction<ItemStack> itemExtractor,
         @Nullable Supplier<ItemStack> itemPeeker,
+        @Nullable Consumer<BlockPos> onBeforePlace,
+        @Nullable Runnable onRollback,
         BlockOperationSuccessHandler onSuccess
     ) {
 
@@ -2212,16 +2244,27 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 return;
             }
 
+            // 再次确认目标位置可放置（无方块阻挡且无实体阻挡碰撞箱），然后前置处理
+            if (this.isPositionOccupied(level, targetPos, blockItemObj)
+                || !level.noCollision(blockItemObj.getBlock().defaultBlockState()
+                    .getCollisionShape(level, targetPos).bounds().move(targetPos))) {
+                this.onChanged();
+                return;
+            }
+            if (onBeforePlace != null) {
+                onBeforePlace.accept(targetPos);
+            }
+
             // 使用 FakePlayer 放置方块
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
 
-            // 放置失败时直接返回（move模式不需要回滚，源方块仍在原位）
             if (!placeSuccess) {
+                if (onRollback != null) onRollback.run();
                 this.onChanged();
                 return;
             }
 
-            // 执行成功回调
+            // 执行成功回调（move模式在此修正朝向）
             boolean canStack = onSuccess.handle(blockItem, blockItemObj, targetPos);
 
             if (canStack) {

@@ -29,6 +29,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     private ChanceBlockState resultBlock = null;
     private ItemStack icon = null;
     private int loop = 1;
+    private Optional<ResourceLocation> displayedModel = Optional.empty();
     private Optional<ProceduralProcessStep> mfs = Optional.empty();
 
     /**
@@ -161,6 +162,20 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         return this.multipleLoopFirstStep(step);
     }
 
+    /**
+     * 为配方指定一个在配方执行过程中渲染的半成品模型。
+     *
+     * <p>注意：该模型必须在 {@link dev.dubhe.anvilcraft.client.event.RegisterAdditionalEventListener#registerModels} 中
+     *  注册，否则渲染出来是紫黑！
+     *
+     * @param modelId 模型的资源包地址
+     * @return 当前构建器实例，支持链式调用
+     */
+    public ProceduralProcessRecipeBuilder displayedModel(ResourceLocation modelId) {
+        this.displayedModel = Optional.of(modelId);
+        return this;
+    }
+
     @Override
     public @NotNull ProceduralProcessRecipe buildRecipe() {
         if (this.resultBlock == null) {
@@ -179,6 +194,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
             this.resultBlock,
             this.icon,
             this.loop,
+            this.displayedModel,
             this.mfs
         );
     }

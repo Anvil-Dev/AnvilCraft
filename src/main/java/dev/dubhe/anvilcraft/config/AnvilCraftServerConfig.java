@@ -108,6 +108,10 @@ public class AnvilCraftServerConfig {
     @BoundedDiscrete(max = 20, min = 1)
     public int heliostatsDetectionInterval = 4;
 
+    @Comment("Working interval of mineral fountain")
+    @BoundedDiscrete(min = 2, max = 1200)
+    public int mineralFountainInterval = 20;
+
     @Comment("Giant anvil maxCount fall damage")
     @BoundedDiscrete(max = 100, min = 0)
     public int giantAnvilFallDamageMax = 40;

@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformWithItemCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MultipleToOneSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.PortalConversionCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.ProceduralProcessCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.TranscendiumRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.VoidDecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
@@ -59,6 +60,7 @@ import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
@@ -167,6 +169,9 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<RecipeHolder<AnvilCollisionCraftRecipe>> ANVIL_COLLISION =
         createRecipeHolderType("anvil_collision");
 
+    public static final RecipeType<RecipeHolder<ProceduralProcessRecipe>> PROCEDURAL_PROCESS =
+        createRecipeHolderType("procedural_process");
+
     @Override
     public ResourceLocation getPluginUid() {
         return AnvilCraft.of("jei_plugin");
@@ -205,6 +210,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MobTransformWithItemCategory.registerRecipes(registration);
         AnvilCollisionCraftCategory.registerRecipes(registration);
         TranscendiumRecipeCategory.registerRecipes(registration);
+        ProceduralProcessCategory.registerRecipes(registration);
 
         registration.addItemStackInfo(
             new ItemStack(ModItems.GEODE.get()),
@@ -269,13 +275,16 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MobTransformWithItemCategory.registerRecipeCatalysts(registration);
         AnvilCollisionCraftCategory.registerRecipeCatalysts(registration);
         TranscendiumRecipeCategory.registerRecipeCatalysts(registration);
+        ProceduralProcessCategory.registerRecipeCatalysts(registration);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BATCH_CRAFTER), RecipeTypes.CRAFTING);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_ANVIL), RecipeTypes.ANVIL);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_ANVIL), RecipeTypes.ANVIL);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FROST_ANVIL), RecipeTypes.ANVIL);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.GIANT_ANVIL), RecipeTypes.ANVIL);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.SPECTRAL_ANVIL), RecipeTypes.ANVIL);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.TRANSCENDENCE_ANVIL), RecipeTypes.ANVIL);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_SMITHING_TABLE), RecipeTypes.SMITHING);
     }
@@ -316,6 +325,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new MobTransformWithItemCategory(guiHelper));
         registration.addRecipeCategories(new AnvilCollisionCraftCategory(guiHelper));
         registration.addRecipeCategories(new TranscendiumRecipeCategory(guiHelper));
+        registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));
     }
 
     @Override

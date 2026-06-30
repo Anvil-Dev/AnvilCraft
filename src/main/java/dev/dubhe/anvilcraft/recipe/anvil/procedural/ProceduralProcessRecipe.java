@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -54,6 +55,10 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
      */
     public final int loop;
     /**
+     * 配方执行过程中用于展示的半成品模型
+     */
+    public final Optional<ResourceLocation> displayedModel;
+    /**
      * 需要执行多个循环的配方中，后续循环（即不是第一圈）中每个循环的初始步骤
      * 对于单圈的配方来说不需要有
      */
@@ -67,6 +72,7 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
         ChanceBlockState resultBlock,
         ItemStack icon,
         int loop,
+        Optional<ResourceLocation> displayedModel,
         Optional<ProceduralProcessStep> multiLoopFirstStep
     ) {
         this.initialBlock = initialBlock;
@@ -74,6 +80,7 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
         this.resultBlock = resultBlock;
         this.icon = icon;
         this.loop = loop;
+        this.displayedModel = displayedModel;
         this.multiLoopFirstStep = multiLoopFirstStep;
     }
 

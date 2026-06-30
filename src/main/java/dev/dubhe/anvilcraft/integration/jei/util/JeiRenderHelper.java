@@ -49,6 +49,12 @@ public class JeiRenderHelper {
             .build();
     }
 
+    public static IDrawable getArrowLong(IGuiHelper helper) {
+        return helper.drawableBuilder(JeiTextureConstants.ARROW_LONG, 0, 0, 64, 10)
+            .setTextureSize(64, 10)
+            .build();
+    }
+
     // Slot
     public static IDrawable getSlotDefault(IGuiHelper helper) {
         return helper.drawableBuilder(JeiTextureConstants.SLOT_DEFAULT, 0, 0, 18, 18)
@@ -72,6 +78,12 @@ public class JeiRenderHelper {
     public static IDrawable getExplosion(IGuiHelper helper) {
         return helper.drawableBuilder(JeiTextureConstants.EXPLOSION, 0, 0, 32, 32)
             .setTextureSize(32, 32)
+            .build();
+    }
+
+    public static IDrawable getCycle(IGuiHelper helper) {
+        return helper.drawableBuilder(JeiTextureConstants.CYCLE, 0, 0, 16, 16)
+            .setTextureSize(16, 16)
             .build();
     }
 
