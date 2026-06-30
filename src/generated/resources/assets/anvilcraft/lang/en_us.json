@@ -203,6 +203,8 @@
   "anvilcraft.configuration.magnet_attracts_distance.tooltip": "Maximum length a magnet attracts",
   "anvilcraft.configuration.magnet_item_attracts_radius": "Magnet Item Attracts Radius",
   "anvilcraft.configuration.magnet_item_attracts_radius.tooltip": "Maximum radius a handheld magnet attracts",
+  "anvilcraft.configuration.mineral_fountain_interval": "Mineral Fountain Interval",
+  "anvilcraft.configuration.mineral_fountain_interval.tooltip": "Working interval of mineral fountain",
   "anvilcraft.configuration.multiphase_recover_max_size": "Multiphase Recover Max Size",
   "anvilcraft.configuration.multiphase_recover_max_size.tooltip": "The max size of the entries in multiphases' recover station",
   "anvilcraft.configuration.power_converter": "Power Converter",

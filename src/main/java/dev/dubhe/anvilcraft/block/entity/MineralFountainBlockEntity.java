@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -125,6 +126,6 @@ public class MineralFountainBlockEntity extends BlockEntity {
     }
 
     public void resetTickCount() {
-        if (this.tickCount <= 0) this.tickCount = 20;
+        if (this.tickCount <= 0) this.tickCount = AnvilCraft.CONFIG.mineralFountainInterval;
     }
 }
