@@ -26,11 +26,13 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -40,8 +42,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -115,7 +115,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                 || state.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get())
                 || (state.is(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get())
                     && state.hasProperty(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE)
-                    && state.getValue(dev.dubhe.anvilcraft.block.cfa.interfaces .CelestialForgingAnvilInterfaceBlock.ACTIVE));
+                    && state.getValue(dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock.ACTIVE));
         }
         if (obj instanceof Block block) {
             return block == ModBlocks.CHUTE.get()
@@ -186,7 +186,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     }
 
     @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+    public Property<?> getChangeableProperty(BlockState blockState) {
         return FACING;
     }
 

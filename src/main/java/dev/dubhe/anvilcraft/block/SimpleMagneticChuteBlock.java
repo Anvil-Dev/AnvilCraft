@@ -39,7 +39,9 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +52,7 @@ public class SimpleMagneticChuteBlock
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final BooleanProperty HEAD = BooleanProperty.create("head");
 
     public static final VoxelShape SHAPE_UP = Block.box(4, 4, 4, 12, 16, 12);
     public static final VoxelShape SHAPE_DOWN = Block.box(4, 0, 4, 12, 12, 12);
@@ -58,13 +61,31 @@ public class SimpleMagneticChuteBlock
     public static final VoxelShape SHAPE_W = Block.box(0, 4, 4, 12, 12, 12);
     public static final VoxelShape SHAPE_E = Block.box(4, 4, 4, 16, 12, 12);
 
+    public static final VoxelShape SHAPE_N_HEAD = Shapes.join(
+        Block.box(4, 4, 0, 12, 12, 12),
+        Block.box(2, 10, 2, 14, 16, 14),
+        BooleanOp.OR);
+    public static final VoxelShape SHAPE_S_HEAD = Shapes.join(
+        Block.box(4, 4, 4, 12, 12, 16),
+        Block.box(2, 10, 2, 14, 16, 14),
+        BooleanOp.OR);
+    public static final VoxelShape SHAPE_W_HEAD = Shapes.join(
+        Block.box(0, 4, 4, 12, 12, 12),
+        Block.box(2, 10, 2, 14, 16, 14),
+        BooleanOp.OR);
+    public static final VoxelShape SHAPE_E_HEAD = Shapes.join(Block.box(
+        4, 4, 4, 16, 12, 12),
+        Block.box(2, 10, 2, 14, 16, 14),
+        BooleanOp.OR);
+
     public SimpleMagneticChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
             .setValue(FACING, Direction.UP)
             .setValue(ENABLED, true)
-            .setValue(WATERLOGGED, false));
+            .setValue(WATERLOGGED, false)
+            .setValue(HEAD, false));
     }
 
     @Override
@@ -72,7 +93,7 @@ public class SimpleMagneticChuteBlock
         return simpleCodec(SimpleMagneticChuteBlock::new);
     }
 
-    @Nullable
+    
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new SimpleMagneticChuteBlockEntity(ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(), pos, state);
@@ -80,7 +101,7 @@ public class SimpleMagneticChuteBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ENABLED, WATERLOGGED);
+        builder.add(FACING, ENABLED, WATERLOGGED, HEAD);
     }
 
     /**
@@ -94,7 +115,8 @@ public class SimpleMagneticChuteBlock
     public static boolean isPointedByChute(BlockGetter level, BlockPos pos) {
         for (Direction dir : Direction.values()) {
             BlockState neighborState = level.getBlockState(pos.relative(dir));
-            if (ChuteBlock.isChuteBlock(neighborState) && ChuteBlock.getFacing(neighborState) == dir.getOpposite()) {
+            if ((neighborState.is(ModBlocks.MAGNETIC_CHUTE.get()) || neighborState.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get()))
+                && ChuteBlock.getFacing(neighborState) == dir.getOpposite()) {
                 return true;
             }
         }
@@ -111,10 +133,18 @@ public class SimpleMagneticChuteBlock
         boolean movedByPiston
     ) {
         if (!level.isClientSide) {
-            // 不再被任意溜槽指向时，升级回正常磁性溜槽
+            // 不再被任意磁性溜槽指向时，升级回正常磁性溜槽
             if (!isPointedByChute(level, pos)) {
                 level.setBlockAndUpdate(pos, ModBlocks.MAGNETIC_CHUTE.get().defaultBlockState()
                     .setValue(MagneticChuteBlock.FACING, state.getValue(FACING)));
+                return;
+            }
+            // 上方有朝下的普通溜槽/简易溜槽时，附加连接头模型
+            BlockState aboveState = level.getBlockState(pos.above());
+            boolean hasHead = (aboveState.is(ModBlocks.CHUTE.get()) || aboveState.is(ModBlocks.SIMPLE_CHUTE.get()))
+                && aboveState.getValue(ChuteBlock.FACING) == Direction.DOWN;
+            if (state.getValue(HEAD) != hasHead) {
+                level.setBlockAndUpdate(pos, state.setValue(HEAD, hasHead));
             }
         }
     }
@@ -177,7 +207,7 @@ public class SimpleMagneticChuteBlock
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
-    @Nullable
+    
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> blockEntityType) {
@@ -192,10 +222,10 @@ public class SimpleMagneticChuteBlock
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(FACING)) {
             case DOWN -> SHAPE_DOWN;
-            case NORTH -> SHAPE_N;
-            case SOUTH -> SHAPE_S;
-            case WEST -> SHAPE_W;
-            case EAST -> SHAPE_E;
+            case NORTH -> state.getValue(HEAD) ? SHAPE_N_HEAD : SHAPE_N;
+            case SOUTH -> state.getValue(HEAD) ? SHAPE_S_HEAD : SHAPE_S;
+            case WEST -> state.getValue(HEAD) ? SHAPE_W_HEAD : SHAPE_W;
+            case EAST -> state.getValue(HEAD) ? SHAPE_E_HEAD : SHAPE_E;
             default -> SHAPE_UP;
         };
     }
@@ -247,7 +277,7 @@ public class SimpleMagneticChuteBlock
     }
 
     @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+public Property<?> getChangeableProperty(BlockState blockState) {
         return FACING;
     }
 

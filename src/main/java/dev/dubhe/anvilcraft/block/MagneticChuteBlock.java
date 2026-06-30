@@ -24,11 +24,13 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -38,8 +40,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -57,6 +57,7 @@ import org.jetbrains.annotations.Nullable;
 public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerRotateBehavior, IHammerRemovable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
+    public static final BooleanProperty HEAD = BooleanProperty.create("head");
 
     public static final VoxelShape SHAPE_UP =
         Shapes.join(Block.box(4, 8, 4, 12, 16, 12), Block.box(0, 0, 0, 16, 8, 16), BooleanOp.OR);
@@ -79,7 +80,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     public MagneticChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(ENABLED, true));
+            this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(ENABLED, true).setValue(HEAD, false));
     }
 
     @Override
@@ -143,7 +144,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
         return 0;
     }
 
-    @Nullable
+    
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Level level = context.getLevel();
@@ -154,16 +155,9 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
         // 点击某溜槽的输出口面放置时，新方块顺延其输出方向
         Direction clickedFace = context.getClickedFace();
         BlockState behindState = level.getBlockState(pos.relative(clickedFace.getOpposite()));
-        if (ChuteBlock.isChuteBlock(behindState) && ChuteBlock.getFacing(behindState) == clickedFace) {
+        if ((behindState.is(ModBlocks.MAGNETIC_CHUTE.get()) || behindState.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get()))
+            && ChuteBlock.getFacing(behindState) == clickedFace) {
             facing = clickedFace;
-        }
-        BlockState neighborState = level.getBlockState(pos.relative(facing));
-        boolean cannotPlace = facing == Direction.UP
-            && (neighborState.is(ModBlocks.SIMPLE_CHUTE) || neighborState.is(ModBlocks.CHUTE))
-            && neighborState.getValue(FACING_HOPPER) == Direction.DOWN;
-        if (cannotPlace) {
-            if (player != null) player.displayClientMessage(Component.translatable("message.anvilcraft.chute.cannot_place"), true);
-            return null;
         }
         // 嘴对嘴：输入侧与输出侧两端都有溜槽输出对着自己（夹心），禁止放置
         BlockState inputState = level.getBlockState(pos.relative(facing.getOpposite()));
@@ -207,7 +201,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     }
 
     @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+public Property<?> getChangeableProperty(BlockState blockState) {
         return FACING;
     }
 
@@ -223,7 +217,7 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ENABLED);
+        builder.add(FACING, ENABLED, HEAD);
     }
 
     @Override
@@ -235,6 +229,14 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
                     .setValue(SimpleMagneticChuteBlock.FACING, state.getValue(FACING))
                     .setValue(SimpleMagneticChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
                     .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER));
+                return;
+            }
+            // 上方有朝下的普通溜槽/简易溜槽时，附加连接头模型
+            BlockState aboveState = level.getBlockState(pos.above());
+            boolean hasHead = (aboveState.is(ModBlocks.CHUTE.get()) || aboveState.is(ModBlocks.SIMPLE_CHUTE.get()))
+                && aboveState.getValue(ChuteBlock.FACING) == Direction.DOWN;
+            if (state.getValue(HEAD) != hasHead) {
+                level.setBlockAndUpdate(pos, state.setValue(HEAD, hasHead));
                 return;
             }
         }

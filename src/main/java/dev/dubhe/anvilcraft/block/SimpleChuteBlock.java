@@ -86,7 +86,7 @@ public class SimpleChuteBlock
         return simpleCodec(SimpleChuteBlock::new);
     }
 
-    @Nullable
+    
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new SimpleChuteBlockEntity(ModBlockEntities.SIMPLE_CHUTE.get(), pos, state);
@@ -182,7 +182,7 @@ public class SimpleChuteBlock
 
     }
 
-    @Nullable
+    
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> blockEntityType) {
@@ -262,7 +262,7 @@ public class SimpleChuteBlock
     }
 
     @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+public Property<?> getChangeableProperty(BlockState blockState) {
         return FACING;
     }
 
@@ -277,7 +277,7 @@ public class SimpleChuteBlock
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
-    @Nullable
+    
     BlockState getState(Level level, BlockPos pos, Direction facing) {
         boolean success = false;
         boolean tall = false;
