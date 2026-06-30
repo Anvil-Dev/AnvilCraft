@@ -28,7 +28,7 @@ public class JeiTextureConstants {
     public static final ResourceLocation BLOCK_CONVERSION = texture("multiblock/multiblock_conversion");
     public static final ResourceLocation BLOCK_CRAFTING = texture("multiblock/multiblock_crafting");
 
-    private static ResourceLocation texture(String path) {
+    public static ResourceLocation texture(String path) {
         return AnvilCraft.of("textures/gui/jei/" + path + ".png");
     }
 }

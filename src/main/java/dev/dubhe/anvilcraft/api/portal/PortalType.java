@@ -10,12 +10,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Portal;
 
 import java.util.Objects;
 
 @Getter
 public class PortalType {
+    public static final PortalType NETHER_PORTAL = PortalType.assume(Blocks.NETHER_PORTAL);
+    public static final PortalType END_PORTAL = PortalType.assume(Blocks.END_PORTAL);
+    public static final PortalType END_GATEWAY = PortalType.assume(Blocks.END_GATEWAY);
     public static final MapCodec<PortalType> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
         ResourceLocation.CODEC
             .fieldOf("portal")
@@ -42,6 +46,24 @@ public class PortalType {
     public <T extends Block & Portal> PortalType(T portal) {
         this.id = portal.builtInRegistryHolder().key().location();
         this.portal = portal;
+    }
+
+    public static PortalType assume(Block portal) {
+        var casted = PortalType.cast(portal);
+        return new PortalType(casted);
+    }
+
+    public static PortalType assume(Portal portal) {
+        var casted = PortalType.cast(portal);
+        return new PortalType(casted);
+    }
+
+    private static <T extends Block & Portal> T cast(Block portal) {
+        return Util.cast(portal);
+    }
+
+    private static <T extends Block & Portal> T cast(Portal portal) {
+        return Util.cast(portal);
     }
 
     public Component getPortalName() {
