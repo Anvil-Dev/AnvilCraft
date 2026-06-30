@@ -4,6 +4,9 @@
 
 # AnvilCraft | [铁砧工艺](./README.md)
 
+[![TeaCon JiaChen](https://cdn.jsdelivr.net/npm/@gugle/devins-badges-plus/assets/cozy/mc/teacon/teacon_jiachen-participated_vector.svg)][TeaCon JiaChen]
+[![TeaCon 2026](https://cdn.jsdelivr.net/npm/@gugle/devins-badges-plus/assets/cozy/mc/teacon/teacon2026-participated_vector.svg)][TeaCon 2026]
+
 ![Java21](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/built-with/java21_vector.svg)
 ![NeoForge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/neoforge_vector.svg)
 
@@ -49,6 +52,10 @@
 [Documentation]: https://www.anvilcraft.dev/
 
 [Discord]: https://discord.gg/gAnWeZNKGh
+
+[TeaCon JiaChen]: https://www.teacon.cn/jiachen
+
+[TeaCon 2026]: https://www.teacon.cn/2026
 </div>
 
 ## Minecraft mod by [古镇天Gugle@bilibili](https://space.bilibili.com/19822751) & [XeKr@bilibili](https://space.bilibili.com/5930630)
