@@ -127,6 +127,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.anvil_collision.consume", "Consume Anvil: %d");
         provider.add("gui.anvilcraft.category.anvil_collision.speed", "Need Speed: %s");
 
+        provider.add("gui.anvilcraft.category.procedural_process", "Block Procedural Process");
+
         provider.add("gui.anvilcraft.category.transcendium_recipe", "Transcendium Recipe");
         provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_0", "The amount of enchantments is 0");
         provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_1_10", "The amount of enchantments is 1-10");

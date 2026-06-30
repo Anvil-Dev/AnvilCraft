@@ -771,6 +771,7 @@
   "gui.anvilcraft.category.neutron_irradiation": "Neutron Irradiation",
   "gui.anvilcraft.category.portal_conversion": "Block Falls Into Portal",
   "gui.anvilcraft.category.portal_conversion.fall_through": "Converted when fall through %s",
+  "gui.anvilcraft.category.procedural_process": "Block Procedural Process",
   "gui.anvilcraft.category.squeezing": "Squeezing",
   "gui.anvilcraft.category.stamping": "Stamping",
   "gui.anvilcraft.category.super_heating": "Super Heating",

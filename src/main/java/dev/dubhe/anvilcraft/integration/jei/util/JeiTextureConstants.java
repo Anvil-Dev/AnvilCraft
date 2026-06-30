@@ -10,6 +10,7 @@ public class JeiTextureConstants {
     public static final ResourceLocation ARROW_INPUT = texture("arrow_input");
     public static final ResourceLocation ARROW_OUTPUT = texture("arrow_output");
     public static final ResourceLocation ARROW_OUTPUT_FROM_BELOW = texture("arrow_output_from_below");
+    public static final ResourceLocation ARROW_LONG = texture("arrow_long");
 
     // Slot
     public static final ResourceLocation SLOT_CHOICE = texture("slot_choice");
@@ -24,6 +25,7 @@ public class JeiTextureConstants {
 
     // Other
     public static final ResourceLocation EXPLOSION = texture("explosion");
+    public static final ResourceLocation CYCLE = texture("cycle");
     public static final ResourceLocation PRE_RENDERED_END_PORTAL = texture("pre_rendered_end_portal");
     public static final ResourceLocation BLOCK_CONVERSION = texture("multiblock/multiblock_conversion");
     public static final ResourceLocation BLOCK_CRAFTING = texture("multiblock/multiblock_crafting");
