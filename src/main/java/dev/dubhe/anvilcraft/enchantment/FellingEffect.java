@@ -5,9 +5,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -30,7 +30,7 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
 
     @Override
     public void apply(ServerLevel level, int i, EnchantedItemInUse enchantedItemInUse, Entity entity, Vec3 vec3) {
-        if (!level.getBlockState(BlockPos.containing(vec3)).is(BlockTags.LOGS)) return;
+        if (!level.getBlockState(BlockPos.containing(vec3)).is(ModBlockTags.FELLING_APPLICABLE)) return;
         if (entity.isShiftKeyDown()) return;
         int max = (i * AnvilCraft.CONFIG.fellingBlockPerLevel) + 1;
         if (!(entity instanceof Player player)) return;
@@ -64,7 +64,7 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
             Util::acceptDirections,
             blockPos -> {
                 BlockState blockState = level.getBlockState(blockPos);
-                if (blockState.is(BlockTags.LOGS)) {
+                if (blockState.is(ModBlockTags.FELLING_APPLICABLE)) {
                     BlockEntity blockEntity = level.getBlockEntity(blockPos);
                     level.removeBlock(blockPos, false);
                     if (!player.isCreative()) {
