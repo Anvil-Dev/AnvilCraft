@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
@@ -37,8 +38,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -182,6 +186,32 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     }
 
     @Override
+    public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
+        BlockState oldState = level.getBlockState(pos);
+        Direction oldFacing = oldState.getValue(FACING);
+        Direction newFacing = switch (oldFacing) {
+            case WEST -> Direction.UP;
+            case UP -> Direction.DOWN;
+            case DOWN -> Direction.NORTH;
+            default -> oldFacing.getClockWise();
+        };
+        BlockState facingState = level.getBlockState(pos.relative(newFacing));
+        if (ChuteBlock.isChuteBlock(facingState) && ChuteBlock.getFacing(facingState) == newFacing.getOpposite()) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+            level.levelEvent(2001, pos, Block.getId(oldState));
+            Block.dropResources(oldState, level, pos);
+            return true;
+        }
+        HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
+        return true;
+    }
+
+    @Override
+    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+        return FACING;
+    }
+
+    @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
@@ -241,6 +271,10 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     ) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
+        }
+        // 手持铁砧锤时由 change 方法处理旋转/爆炸，不打开 GUI
+        if (player.getItemInHand(hand).is(ModItemTags.ANVIL_HAMMER)) {
+            return InteractionResult.PASS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof MagneticChuteBlockEntity entity) {

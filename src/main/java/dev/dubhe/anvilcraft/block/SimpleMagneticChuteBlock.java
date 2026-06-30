@@ -20,6 +20,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -50,8 +51,8 @@ public class SimpleMagneticChuteBlock
     public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public static final VoxelShape SHAPE_UP = Block.box(4, 0, 4, 12, 16, 12);
-    public static final VoxelShape SHAPE_DOWN = Block.box(4, 0, 4, 12, 16, 12);
+    public static final VoxelShape SHAPE_UP = Block.box(4, 4, 4, 12, 16, 12);
+    public static final VoxelShape SHAPE_DOWN = Block.box(4, 0, 4, 12, 12, 12);
     public static final VoxelShape SHAPE_N = Block.box(4, 4, 0, 12, 12, 12);
     public static final VoxelShape SHAPE_S = Block.box(4, 4, 4, 12, 12, 16);
     public static final VoxelShape SHAPE_W = Block.box(0, 4, 4, 12, 12, 12);
@@ -225,14 +226,23 @@ public class SimpleMagneticChuteBlock
 
     @Override
     public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
-        HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
-        BlockState state = level.getBlockState(pos);
-        BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
-        if (ChuteBlock.isChuteBlock(facingState)) {
-            if (ChuteBlock.getFacing(facingState) == state.getValue(FACING).getOpposite()) {
-                return this.change(player, pos, level, anvilHammer);
-            }
+        BlockState oldState = level.getBlockState(pos);
+        Direction oldFacing = oldState.getValue(FACING);
+        Direction newFacing = switch (oldFacing) {
+            case WEST -> Direction.UP;
+            case UP -> Direction.DOWN;
+            case DOWN -> Direction.NORTH;
+            default -> oldFacing.getClockWise();
+        };
+        BlockState facingState = level.getBlockState(pos.relative(newFacing));
+        if (ChuteBlock.isChuteBlock(facingState)
+            && ChuteBlock.getFacing(facingState) == newFacing.getOpposite()) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+            level.levelEvent(2001, pos, Block.getId(oldState));
+            Block.dropResources(oldState, level, pos);
+            return true;
         }
+        HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
         return true;
     }
 
