@@ -5,8 +5,10 @@ import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.block.entity.BaseChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -224,10 +226,30 @@ public Property<?> getChangeableProperty(BlockState blockState) {
         if (!level.isClientSide) {
             // 被任意溜槽指向时，降级为简易磁性溜槽
             if (SimpleMagneticChuteBlock.isPointedByChute(level, pos)) {
+                // 保存物品栏（按槽位）
+                java.util.Map<Integer, ItemStack> savedItems = new java.util.HashMap<>();
+                BlockEntity oldBe = level.getBlockEntity(pos);
+                if (oldBe instanceof BaseChuteBlockEntity chuteBe) {
+                    FilteredItemStackHandler oldHandler = chuteBe.getItemHandler();
+                    for (int i = 0; i < oldHandler.getSlots(); i++) {
+                        ItemStack stack = oldHandler.getStackInSlot(i);
+                        if (!stack.isEmpty()) {
+                            savedItems.put(i, stack.copy());
+                            oldHandler.setStackInSlot(i, ItemStack.EMPTY);
+                        }
+                    }
+                }
                 level.setBlockAndUpdate(pos, ModBlocks.SIMPLE_MAGNETIC_CHUTE.getDefaultState()
                     .setValue(SimpleMagneticChuteBlock.FACING, state.getValue(FACING))
                     .setValue(SimpleMagneticChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
                     .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER));
+                // 恢复物品栏（原槽位）
+                BlockEntity newBe = level.getBlockEntity(pos);
+                if (newBe instanceof SimpleMagneticChuteBlockEntity simpleBe) {
+                    for (java.util.Map.Entry<Integer, ItemStack> entry : savedItems.entrySet()) {
+                        simpleBe.getItemHandler().setStackInSlot(entry.getKey(), entry.getValue());
+                    }
+                }
                 return;
             }
             // 上方有朝下的普通溜槽/简易溜槽时，附加连接头模型

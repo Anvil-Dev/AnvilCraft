@@ -219,7 +219,26 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         Block neighborBlock1 = neighborState.getBlock();
         if (isChuteBlock(neighborBlock) || isChuteBlock(neighborBlock1)) {
             BlockState newState = getState(level, pos, state.getValue(FACING));
-            if (newState != null && newState != state) level.setBlockAndUpdate(pos, newState);
+            if (newState != null && newState != state) {
+                // 降级为简易溜槽时继承物品
+                java.util.Map<Integer, ItemStack> savedItems = new java.util.HashMap<>();
+                if (newState.is(ModBlocks.SIMPLE_CHUTE.get()) && level.getBlockEntity(pos) instanceof ChuteBlockEntity chuteBe) {
+                    IItemHandler oldHandler = chuteBe.getItemHandler();
+                    for (int i = 0; i < oldHandler.getSlots(); i++) {
+                        ItemStack stack = oldHandler.getStackInSlot(i);
+                        if (!stack.isEmpty()) {
+                            savedItems.put(i, stack.copy());
+                            oldHandler.extractItem(i, stack.getCount(), false);
+                        }
+                    }
+                }
+                level.setBlockAndUpdate(pos, newState);
+                if (!savedItems.isEmpty() && level.getBlockEntity(pos) instanceof SimpleChuteBlockEntity simpleBe) {
+                    for (java.util.Map.Entry<Integer, ItemStack> entry : savedItems.entrySet()) {
+                        simpleBe.getItemHandler().setStackInSlot(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
         }
         this.checkPoweredState(level, pos, state);
     }
