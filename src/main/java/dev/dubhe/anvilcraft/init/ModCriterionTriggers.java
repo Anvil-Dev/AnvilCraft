@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
@@ -134,6 +135,11 @@ public class ModCriterionTriggers {
     public static final DeferredHolder<CriterionTrigger<?>, MineralFountainCreateTrigger> MINERAL_FOUNTAIN_CREATE = REGISTER.register(
         "mineral_fountain_crate",
         MineralFountainCreateTrigger::new
+    );
+
+    public static final DeferredHolder<CriterionTrigger<?>, UseItemTrigger> USE_ITEM = REGISTER.register(
+        "use_item",
+        UseItemTrigger::new
     );
 
     public static void register(IEventBus eventBus) {
