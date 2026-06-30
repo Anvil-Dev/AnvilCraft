@@ -47,6 +47,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.CURSED_GOLD_INGOT.get(), "Carriers will be cursed");
         NORMAL.put(ModItems.CURSED_GOLD_NUGGET.get(), "Carriers will be cursed");
         NORMAL.put(ModItems.TOPAZ.get(), "Containing the power of lightning");
+        NORMAL.put(ModItems.RUBY.get(), "Containing the power of fire");
+        NORMAL.put(ModItems.SAPPHIRE.get(), "Containing the power of frost");
         NORMAL.put(ModBlocks.RESIN_BLOCK.asItem(), "Use to capture friendly or weak hostile creatures LivingEntity");
         NORMAL.put(ModBlocks.CRAB_TRAP.asItem(), "Placing it in the water to help you catch aquatic products");
         NORMAL.put(ModItems.CRAB_CLAW.get(), "Increase touch length when holding");

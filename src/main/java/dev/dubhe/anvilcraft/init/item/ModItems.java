@@ -66,6 +66,8 @@ import dev.dubhe.anvilcraft.item.RoyalPickaxeItem;
 import dev.dubhe.anvilcraft.item.RoyalShovelItem;
 import dev.dubhe.anvilcraft.item.RoyalSteelIngotItem;
 import dev.dubhe.anvilcraft.item.RoyalSwordItem;
+import dev.dubhe.anvilcraft.item.RubyItem;
+import dev.dubhe.anvilcraft.item.SapphireItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.item.StructureDiskItem;
@@ -793,11 +795,11 @@ public class ModItems {
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, Tags.Items.GEMS, ModItemTags.GEMS_TOPAZ)
         .recipe(RegistrumItemRecipeLoader::topaz)
         .register();
-    public static final ItemEntry<Item> RUBY = REGISTRUM.item("ruby", Item::new)
+    public static final ItemEntry<RubyItem> RUBY = REGISTRUM.item("ruby", RubyItem::new)
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, Tags.Items.GEMS, ModItemTags.GEMS_RUBY)
         .recipe(RegistrumItemRecipeLoader::ruby)
         .register();
-    public static final ItemEntry<Item> SAPPHIRE = REGISTRUM.item("sapphire", Item::new)
+    public static final ItemEntry<SapphireItem> SAPPHIRE = REGISTRUM.item("sapphire", SapphireItem::new)
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, Tags.Items.GEMS, ModItemTags.GEMS_SAPPHIRE)
         .recipe(RegistrumItemRecipeLoader::sapphire)
         .register();
