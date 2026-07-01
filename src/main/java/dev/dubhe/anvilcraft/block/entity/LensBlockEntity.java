@@ -59,15 +59,23 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public void onIrradiated(BaseLaserBlockEntity source) {
-        determineEmissionDirection(source);
-        super.onIrradiated(source);
-        this.enabled = true;
+        if (determineEmissionDirection(source)) {
+            super.onIrradiated(source);
+            this.enabled = true;
+        }
     }
 
-    private void determineEmissionDirection(BaseLaserBlockEntity source) {
+    private boolean determineEmissionDirection(BaseLaserBlockEntity source) {
         Direction.Axis axis = getBlockState().getValue(LensBlock.AXIS);
         BlockPos sourcePos = source.getBlockPos();
         BlockPos myPos = getBlockPos();
+        boolean aligned = switch (axis) {
+            case X -> sourcePos.getY() == myPos.getY() && sourcePos.getZ() == myPos.getZ();
+            case Y -> sourcePos.getX() == myPos.getX() && sourcePos.getZ() == myPos.getZ();
+            case Z -> sourcePos.getX() == myPos.getX() && sourcePos.getY() == myPos.getY();
+        };
+        if (!aligned) return false;
+
         int travel = switch (axis) {
             case X -> myPos.getX() - sourcePos.getX();
             case Y -> myPos.getY() - sourcePos.getY();
@@ -77,6 +85,7 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
             ? Direction.AxisDirection.POSITIVE
             : Direction.AxisDirection.NEGATIVE;
         this.emittingDirection = Direction.fromAxisAndDirection(axis, axisDir);
+        return true;
     }
 
     @Override
@@ -101,7 +110,7 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
 
     private List<ItemStack> getFrostDrops(ServerLevel serverLevel) {
         List<ItemStack> drops = new ArrayList<>();
-        if (serverLevel.random.nextFloat() < 0.1f) {
+        if (serverLevel.random.nextFloat() <= 0.25f) {
             drops.add(new ItemStack(ModItems.EXP_GEM.get()));
         }
         return drops;
@@ -178,13 +187,7 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
                 List<ItemStack> drops = switch (lensType) {
                     case ROYAL -> BreakBlockUtil.dropSilkTouch(serverLevel, this.irradiateBlockPos);
                     case FROST -> getFrostDrops(serverLevel);
-                    case EMBER -> {
-                        if (irradiateBlock.is(ModBlocks.VOID_STONE) || irradiateBlock.is(ModBlocks.EARTH_CORE_SHARD_ORE)) {
-                            yield BreakBlockUtil.drop(serverLevel, this.irradiateBlockPos);
-                        } else {
-                            yield BreakBlockUtil.dropSmelt(serverLevel, this.irradiateBlockPos);
-                        }
-                    }
+                    case EMBER -> BreakBlockUtil.dropSmelt(serverLevel, this.irradiateBlockPos, 2);
                     default -> BreakBlockUtil.drop(serverLevel, this.irradiateBlockPos);
                 };
                 this.deliverItem(drops, direction, this.irradiateBlockPos);

@@ -1,216 +1,55 @@
 {
   "variants": {
-    "orientation=north_up,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator"
-    },
-    "orientation=south_up,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "y": 180
-    },
-    "orientation=west_up,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "y": 270
-    },
-    "orientation=east_up,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "y": 90
-    },
-    "orientation=up_north,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "x": 270,
-      "y": 180
-    },
-    "orientation=up_south,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "x": 270
-    },
-    "orientation=up_west,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "x": 270,
-      "y": 90
-    },
-    "orientation=up_east,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "x": 270,
-      "y": 270
-    },
-    "orientation=down_north,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "x": 90
-    },
-    "orientation=down_south,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "x": 90,
-      "y": 180
-    },
-    "orientation=down_west,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "x": 90,
-      "y": 270
-    },
-    "orientation=down_east,precise=false,powered=false": {
-      "model": "anvilcraft:block/block_comparator",
-      "x": 90,
-      "y": 90
-    },
-    "orientation=north_up,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise"
-    },
-    "orientation=south_up,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "y": 180
-    },
-    "orientation=west_up,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "y": 270
-    },
-    "orientation=east_up,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "y": 90
-    },
-    "orientation=up_north,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "x": 270,
-      "y": 180
-    },
-    "orientation=up_south,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "x": 270
-    },
-    "orientation=up_west,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "x": 270,
-      "y": 90
-    },
-    "orientation=up_east,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "x": 270,
-      "y": 270
-    },
-    "orientation=down_north,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "x": 90
-    },
-    "orientation=down_south,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "x": 90,
-      "y": 180
-    },
-    "orientation=down_west,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "x": 90,
-      "y": 270
-    },
-    "orientation=down_east,precise=true,powered=false": {
-      "model": "anvilcraft:block/block_comparator_precise",
-      "x": 90,
-      "y": 90
-    },
-    "orientation=north_up,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on"
-    },
-    "orientation=south_up,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "y": 180
-    },
-    "orientation=west_up,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "y": 270
-    },
-    "orientation=east_up,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "y": 90
-    },
-    "orientation=up_north,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "x": 270,
-      "y": 180
-    },
-    "orientation=up_south,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "x": 270
-    },
-    "orientation=up_west,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "x": 270,
-      "y": 90
-    },
-    "orientation=up_east,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "x": 270,
-      "y": 270
-    },
-    "orientation=down_north,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "x": 90
-    },
-    "orientation=down_south,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "x": 90,
-      "y": 180
-    },
-    "orientation=down_west,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "x": 90,
-      "y": 270
-    },
-    "orientation=down_east,precise=false,powered=true": {
-      "model": "anvilcraft:block/block_comparator_on",
-      "x": 90,
-      "y": 90
-    },
-    "orientation=north_up,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on"
-    },
-    "orientation=south_up,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "y": 180
-    },
-    "orientation=west_up,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "y": 270
-    },
-    "orientation=east_up,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "y": 90
-    },
-    "orientation=up_north,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "x": 270,
-      "y": 180
-    },
-    "orientation=up_south,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "x": 270
-    },
-    "orientation=up_west,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "x": 270,
-      "y": 90
-    },
-    "orientation=up_east,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "x": 270,
-      "y": 270
-    },
-    "orientation=down_north,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "x": 90
-    },
-    "orientation=down_south,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "x": 90,
-      "y": 180
-    },
-    "orientation=down_west,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "x": 90,
-      "y": 270
-    },
-    "orientation=down_east,precise=true,powered=true": {
-      "model": "anvilcraft:block/block_comparator_precise_on",
-      "x": 90,
-      "y": 90
-    }
+    "facing_with_axis=north_x,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator" },
+    "facing_with_axis=north_y,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator_y" },
+    "facing_with_axis=south_x,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator", "y": 180 },
+    "facing_with_axis=south_y,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator_y", "y": 180 },
+    "facing_with_axis=east_z,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator", "y": 90 },
+    "facing_with_axis=east_y,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator_y", "y": 90 },
+    "facing_with_axis=west_z,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator", "y": 270 },
+    "facing_with_axis=west_y,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator_y", "y": 270 },
+    "facing_with_axis=up_x,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator", "x": 270 },
+    "facing_with_axis=up_z,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator", "x": 270, "y": 90 },
+    "facing_with_axis=down_x,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator", "x": 90 },
+    "facing_with_axis=down_z,precise=false,powered=false": { "model": "anvilcraft:block/block_comparator", "x": 90, "y": 90 },
+
+    "facing_with_axis=north_x,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_precise" },
+    "facing_with_axis=north_y,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_y_precise" },
+    "facing_with_axis=south_x,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_precise", "y": 180 },
+    "facing_with_axis=south_y,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_y_precise", "y": 180 },
+    "facing_with_axis=east_z,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_precise", "y": 90 },
+    "facing_with_axis=east_y,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_y_precise", "y": 90 },
+    "facing_with_axis=west_z,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_precise", "y": 270 },
+    "facing_with_axis=west_y,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_y_precise", "y": 270 },
+    "facing_with_axis=up_x,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_precise", "x": 270 },
+    "facing_with_axis=up_z,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_precise", "x": 270, "y": 90 },
+    "facing_with_axis=down_x,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_precise", "x": 90 },
+    "facing_with_axis=down_z,precise=true,powered=false": { "model": "anvilcraft:block/block_comparator_precise", "x": 90, "y": 90 },
+
+    "facing_with_axis=north_x,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_on" },
+    "facing_with_axis=north_y,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_y_on" },
+    "facing_with_axis=south_x,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_on", "y": 180 },
+    "facing_with_axis=south_y,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_y_on", "y": 180 },
+    "facing_with_axis=east_z,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_on", "y": 90 },
+    "facing_with_axis=east_y,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_y_on", "y": 90 },
+    "facing_with_axis=west_z,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_on", "y": 270 },
+    "facing_with_axis=west_y,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_y_on", "y": 270 },
+    "facing_with_axis=up_x,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_on", "x": 270 },
+    "facing_with_axis=up_z,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_on", "x": 270, "y": 90 },
+    "facing_with_axis=down_x,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_on", "x": 90 },
+    "facing_with_axis=down_z,precise=false,powered=true": { "model": "anvilcraft:block/block_comparator_on", "x": 90, "y": 90 },
+
+    "facing_with_axis=north_x,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_precise_on" },
+    "facing_with_axis=north_y,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_y_precise_on" },
+    "facing_with_axis=south_x,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_precise_on", "y": 180 },
+    "facing_with_axis=south_y,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_y_precise_on", "y": 180 },
+    "facing_with_axis=east_z,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_precise_on", "y": 90 },
+    "facing_with_axis=east_y,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_y_precise_on", "y": 90 },
+    "facing_with_axis=west_z,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_precise_on", "y": 270 },
+    "facing_with_axis=west_y,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_y_precise_on", "y": 270 },
+    "facing_with_axis=up_x,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_precise_on", "x": 270 },
+    "facing_with_axis=up_z,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_precise_on", "x": 270, "y": 90 },
+    "facing_with_axis=down_x,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_precise_on", "x": 90 },
+    "facing_with_axis=down_z,precise=true,powered=true": { "model": "anvilcraft:block/block_comparator_precise_on", "x": 90, "y": 90 }
   }
 }

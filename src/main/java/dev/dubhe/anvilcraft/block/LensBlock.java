@@ -1,15 +1,18 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +36,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class LensBlock extends BaseLaserBlock {
+public class LensBlock extends BaseLaserBlock implements IHammerRemovable {
 
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final EnumProperty<LensType> TYPE = EnumProperty.create("type", LensType.class);
@@ -139,6 +142,19 @@ public class LensBlock extends BaseLaserBlock {
             return ItemInteractionResult.SUCCESS;
         }
 
+        // Anvil hammer cycles the lens axis: X → Y → Z → X
+        if (stack.is(ModItemTags.ANVIL_HAMMER)) {
+            Direction.Axis currentAxis = state.getValue(AXIS);
+            Direction.Axis newAxis = switch (currentAxis) {
+                case X -> Direction.Axis.Y;
+                case Y -> Direction.Axis.Z;
+                case Z -> Direction.Axis.X;
+            };
+            level.setBlockAndUpdate(pos, state.setValue(AXIS, newAxis));
+            resetLensLaserState(level, pos);
+            return ItemInteractionResult.SUCCESS;
+        }
+
         LensType currentType = state.getValue(TYPE);
         LensType newType = getGlassType(stack);
 
@@ -160,12 +176,41 @@ public class LensBlock extends BaseLaserBlock {
         // Update block state
         level.setBlockAndUpdate(pos, state.setValue(TYPE, newType));
 
-        // Notify the laser rendering pipeline so the beam halo color updates immediately
-        if (level.getBlockEntity(pos) instanceof BaseLaserBlockEntity be) {
-            be.markChanged();
-        }
+        // Reset laser state so upstream/downstream re-scan with new glass type
+        resetLensLaserState(level, pos);
 
         return ItemInteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
+    ) {
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
+
+        LensType currentType = state.getValue(TYPE);
+        if (currentType == LensType.NONE) {
+            return InteractionResult.PASS;
+        }
+
+        // Remove glass and return it to the player
+        ItemStack returnedGlass = getGlassItem(currentType);
+        if (!player.getInventory().add(returnedGlass)) {
+            player.drop(returnedGlass, false);
+        }
+
+        level.setBlockAndUpdate(pos, state.setValue(TYPE, LensType.NONE));
+
+        // Reset laser state since the lens is now pass-through
+        resetLensLaserState(level, pos);
+
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -180,6 +225,24 @@ public class LensBlock extends BaseLaserBlock {
         LensType type = state.getValue(TYPE);
         if (type != LensType.NONE) {
             popResource(level, pos, getGlassItem(type));
+        }
+    }
+
+    /**
+     * 重置透镜的激光状态，取消下游照射、清除上游来源，
+     * 使上游激光在下一 tick 重新扫描。
+     */
+    private static void resetLensLaserState(Level level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof LensBlockEntity lensBe) {
+            if (lensBe.getIrradiateBlockPos() != null) {
+                BlockEntity targetBe = level.getBlockEntity(lensBe.getIrradiateBlockPos());
+                if (targetBe instanceof BaseLaserBlockEntity targetLaserBe) {
+                    targetLaserBe.onCancelingIrradiation(lensBe);
+                }
+            }
+            lensBe.updateIrradiateBlockPos(null);
+            lensBe.clearIrradiateSelfLaserBlockSet();
+            lensBe.markChanged();
         }
     }
 

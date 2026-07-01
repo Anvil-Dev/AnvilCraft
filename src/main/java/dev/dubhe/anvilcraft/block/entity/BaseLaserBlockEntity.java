@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
+import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
@@ -71,6 +73,12 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             || blockState.is(Tags.Blocks.GLASS_PANES)
             || blockState.is(BlockTags.REPLACEABLE)
         ) {
+            return true;
+        }
+        // Empty lens aligned with the laser axis is transparent
+        if (blockState.getBlock() instanceof LensBlock
+            && blockState.getValue(LensBlock.TYPE) == LensType.NONE
+            && direction.getAxis() == blockState.getValue(LensBlock.AXIS)) {
             return true;
         }
         if (!AnvilCraft.CONFIG.isLaserDoImpactChecking) return false;

@@ -70,6 +70,10 @@ public class BreakBlockUtil {
     }
 
     public static List<ItemStack> dropSmelt(ServerLevel level, BlockPos pos) {
+        return dropSmelt(level, pos, 1);
+    }
+
+    public static List<ItemStack> dropSmelt(ServerLevel level, BlockPos pos, int multiplier) {
         List<ItemStack> drops = drop(level, pos);
         if (
             drops.size() == 1
@@ -78,7 +82,11 @@ public class BreakBlockUtil {
         ) {
             return List.of(
                 HeatRecorder.getNextTierHeatableBlock(level, pos, Block.byItem(drops.getFirst().getItem()).defaultBlockState())
-                    .map(block -> block.asItem().getDefaultInstance())
+                    .map(block -> {
+                        ItemStack result = block.asItem().getDefaultInstance();
+                        result.setCount(result.getCount() * multiplier);
+                        return result;
+                    })
                     .orElse(ItemStack.EMPTY)
             );
         }
@@ -87,7 +95,11 @@ public class BreakBlockUtil {
                 SingleRecipeInput cont = new SingleRecipeInput(it);
                 return level.getRecipeManager()
                     .getRecipeFor(RecipeType.SMELTING, cont, level)
-                    .map(smeltingRecipe -> smeltingRecipe.value().assemble(cont, level.registryAccess()))
+                    .map(smeltingRecipe -> {
+                        ItemStack result = smeltingRecipe.value().assemble(cont, level.registryAccess());
+                        result.setCount(result.getCount() * multiplier);
+                        return result;
+                    })
                     .orElse(it);
             })
             .collect(Collectors.toList());
