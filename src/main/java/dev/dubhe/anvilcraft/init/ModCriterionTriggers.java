@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConnectFluidContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
@@ -141,6 +142,9 @@ public class ModCriterionTriggers {
         "use_item",
         UseItemTrigger::new
     );
+
+    public static final DeferredHolder<CriterionTrigger<?>, BlockComparatorTurnOverTrigger> BLOCK_COMPARATOR_TURN_OVER =
+        REGISTER.register("block_comparator_turn_over", BlockComparatorTurnOverTrigger::new);
 
     public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);

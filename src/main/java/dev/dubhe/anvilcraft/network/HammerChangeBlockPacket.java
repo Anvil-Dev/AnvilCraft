@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.HammerChangeBlockEvent;
 import dev.dubhe.anvilcraft.block.logistics.chute.ChuteBlock;
+import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.StateUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -84,5 +85,13 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
         }
         level.setBlock(this.pos, this.state, Block.UPDATE_ALL_IMMEDIATE);
         TriggerUtil.anvilHammerChangeBlock(level, this.pos, blockState, this.state);
+        if (blockState.getBlock() instanceof BlockComparatorBlock
+            && this.state.getBlock() instanceof BlockComparatorBlock) {
+            Direction.Axis oldAxis = blockState.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getAxis();
+            Direction.Axis newAxis = this.state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getAxis();
+            if (oldAxis == Direction.Axis.Y && newAxis != Direction.Axis.Y) {
+                TriggerUtil.blockComparatorTurnOver(level, this.pos);
+            }
+        }
     }
 }

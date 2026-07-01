@@ -186,4 +186,12 @@ public class TriggerUtil {
             }
         }
     }
+
+    public static void blockComparatorTurnOver(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.BLOCK_COMPARATOR_TURN_OVER.get().trigger(player);
+            }
+        }
+    }
 }

@@ -1,6 +1,7 @@
 {
   "parent": "anvilcraft:anvilcraft/all_in_one",
   "criteria": {
+<<<<<<< HEAD
     "bend_back_block_comparator": {
       "conditions": {
         "new_state": {
@@ -27,13 +28,24 @@
         }
       },
       "trigger": "anvilcraft:anvil_hammer_change_block"
+=======
+    "block_comparator_turn_over": {
+      "trigger": "anvilcraft:block_comparator_turn_over"
+>>>>>>> a36019ccf (Added Block Comparator achievement 新增方块比较器成就 (#3953))
     }
   },
   "display": {
     "description": {
       "translate": "advancements.anvilcraft.salted_fish_turns_over.description"
     },
+<<<<<<< HEAD
     "icon": {
+=======
+    "frame": "goal",
+    "hidden": true,
+    "icon": {
+      "count": 1,
+>>>>>>> a36019ccf (Added Block Comparator achievement 新增方块比较器成就 (#3953))
       "id": "anvilcraft:block_comparator"
     },
     "title": {
@@ -42,7 +54,11 @@
   },
   "requirements": [
     [
+<<<<<<< HEAD
       "bend_back_block_comparator"
+=======
+      "block_comparator_turn_over"
+>>>>>>> a36019ccf (Added Block Comparator achievement 新增方块比较器成就 (#3953))
     ]
   ],
   "sends_telemetry_event": true
