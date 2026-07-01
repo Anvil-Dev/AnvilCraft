@@ -95,8 +95,10 @@ public class MDProceduralProcessRecipeComponent extends MDRecipeComponent {
         int blockSize = Math.min(stepRecipe.getInputBlocks().size(), 2);
         for (int i = 0; i < blockSize; i++) {
             BlockStatePredicate inputBlock = stepRecipe.getInputBlocks().get(i);
+            int blockX = this.getStepX(idx, true);
             int blockY = AgeratumUtil.getRenderY(ANVIL_Y, i + 3);
-            AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, this.getStepX(idx, true), blockY, (blockSize - i) * 10);
+            AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, blockX, blockY, (blockSize - i) * 10);
+            // TODO: 遇到WIP方式时，需渲染内部displaymodel
         }
 
         // Item

@@ -130,7 +130,7 @@ public class ProceduralProcessRecipeLoader {
         ProceduralProcessRecipeBuilder.of(Blocks.ANCIENT_DEBRIS)
             .addStep(
                 BlockCompressRecipe.builder()
-                    .input(Blocks.GOLD_BLOCK)
+                    .input(Blocks.RAW_GOLD_BLOCK)
                     .input(Blocks.ANCIENT_DEBRIS)
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()
@@ -151,10 +151,10 @@ public class ProceduralProcessRecipeLoader {
             .result(Blocks.NETHERITE_BLOCK)
             .icon(Blocks.NETHERITE_BLOCK.asItem().getDefaultInstance())
             .displayedModel(AnvilCraft.of("block/netherite_block_wip"))
-            .loop(3)
+            .loop(2)
             .multipleLoopFirstStep(
                 BlockCompressRecipe.builder()
-                    .input(Blocks.GOLD_BLOCK)
+                    .input(Blocks.RAW_GOLD_BLOCK)
                     .input(ModBlocks.WIP_BLOCK.get())
                     .result(ModBlocks.WIP_BLOCK.get())
                     .buildRecipe()

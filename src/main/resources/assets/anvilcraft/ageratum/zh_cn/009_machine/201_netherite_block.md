@@ -24,7 +24,7 @@ navigation:
 
 - 两侧木桶填充足量的<ref item="minecraft:gold_block"/>和<ref item="minecraft:ancient_debris"/>
 - <ref item="minecraft:lever"/>控制的主循环<ref item="anvilcraft:pulse_generator"/>设为(循环模式| 18gt | 2gt)
-- <ref item="minecraft:gold_block"/>侧对应的<ref item="anvilcraft:pulse_generator"/>设为(上升沿模式| 1gt | 50gt)
+- <ref item="minecraft:raw_gold_block"/>侧对应的<ref item="anvilcraft:pulse_generator"/>设为(上升沿模式| 2gt | 50gt)
 - <ref item="minecraft:ancient_debris"/>侧对应的<ref item="anvilcraft:pulse_generator"/>设为(上升沿模式| 22gt | 30gt)
-- <ref item="minecraft:piston"/>侧对应的<ref item="anvilcraft:pulse_generator"/>设为(上升沿模式| 8"90 | 0gt)
+- <ref item="minecraft:piston"/>侧对应的<ref item="anvilcraft:pulse_generator"/>设为(上升沿模式| 5"90 | 0gt)
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块

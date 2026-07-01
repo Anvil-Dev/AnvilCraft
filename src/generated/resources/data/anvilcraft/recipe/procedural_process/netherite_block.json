@@ -8,13 +8,13 @@
   "initial_block": {
     "blocks": "minecraft:ancient_debris"
   },
-  "loop": 3,
+  "loop": 2,
   "multiple_loop_first_step": {
     "content": {
       "type": "anvilcraft:block_compress",
       "inputs": [
         {
-          "blocks": "minecraft:gold_block"
+          "blocks": "minecraft:raw_gold_block"
         },
         {
           "blocks": "anvilcraft:wip_block"
@@ -35,7 +35,7 @@
         "type": "anvilcraft:block_compress",
         "inputs": [
           {
-            "blocks": "minecraft:gold_block"
+            "blocks": "minecraft:raw_gold_block"
           },
           {
             "blocks": "minecraft:ancient_debris"
