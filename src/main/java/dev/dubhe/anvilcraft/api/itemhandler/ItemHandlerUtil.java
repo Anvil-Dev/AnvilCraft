@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -263,6 +265,10 @@ public class ItemHandlerUtil {
     }
 
     public static boolean isEmptyContainer(ItemStack stack) {
+        if (stack.has(ModComponents.OVER_LIMIT_CONTAINER)) {
+            OverLimitItemContainerContents contents = stack.get(ModComponents.OVER_LIMIT_CONTAINER);
+            return contents != null && contents != OverLimitItemContainerContents.EMPTY;
+        }
         return ItemHandlerUtil.isEmptyContainer(stack.getCapability(Capabilities.ItemHandler.ITEM));
     }
 

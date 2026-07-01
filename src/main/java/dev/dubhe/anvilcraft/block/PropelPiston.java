@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.piston.injection.IPistonMovingBlockEntityExtension;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
@@ -178,7 +177,9 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
 
     @Override
     public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
-        Util.<PropelPistonBlockEntity>cast(be).notifyMoved();
+        if (be instanceof PropelPistonBlockEntity piston) {
+            piston.notifyMoved();
+        }
     }
 
     @Override

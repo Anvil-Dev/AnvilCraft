@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.heatable;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -26,6 +26,8 @@ public class HeatedBlock extends HeatableBlock implements IMoveableEntityBlock {
 
     @Override
     public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
-        Util.<HeatableBlockEntity>cast(be).setDuration(0);
+        if (be instanceof HeatedBlockEntity heated) {
+            heated.setDuration(0);
+        }
     }
 }

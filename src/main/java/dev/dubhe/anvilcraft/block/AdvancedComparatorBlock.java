@@ -296,6 +296,8 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
-        Util.<AdvancedComparatorBlockEntity>cast(be).notifyMoved();
+        if (be instanceof AdvancedComparatorBlockEntity comparator) {
+            comparator.notifyMoved();
+        }
     }
 }

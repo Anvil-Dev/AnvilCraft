@@ -323,7 +323,10 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     @Override
     public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be1) {
-        PulseGeneratorBlockEntity be = Util.cast(be1);
+        if (!(be1 instanceof PulseGeneratorBlockEntity be)) {
+            level.setBlock(pos, state.setValue(POWERED, false), 3);
+            return;
+        }
         switch (be.getState()) {
             case WAITING -> level.scheduleTick(pos, state.getBlock(), be.getWaitingTime());
             case OUTPUTTING -> level.scheduleTick(pos, state.getBlock(), be.getSignalDuration());

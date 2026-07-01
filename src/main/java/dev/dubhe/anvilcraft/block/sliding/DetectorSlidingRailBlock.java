@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.sliding;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
@@ -162,7 +161,9 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     @Override
     public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
         level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
-        Util.<DetectorSlidingRailBlockEntity>cast(be).cleanPower();
+        if (be instanceof DetectorSlidingRailBlockEntity detector) {
+            detector.cleanPower();
+        }
     }
 
     @Override
