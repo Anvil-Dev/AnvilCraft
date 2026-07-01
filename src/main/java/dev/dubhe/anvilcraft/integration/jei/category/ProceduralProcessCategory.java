@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -174,6 +175,17 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                 if (input.isEmpty()) continue;
                 BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
                 if (renderedState == null) continue;
+                if (renderedState.getBlock() instanceof WipBlock) {
+                    RenderSupport.renderBlock(
+                        guiGraphics,
+                        renderedState,
+                        stepX + i * stepDx,
+                        BLOCK_Y + 10 * j,
+                        10 - 10 * j,
+                        12,
+                        RenderSupport.WIP_ENTITY(recipeHolder.id())
+                    );
+                }
                 RenderSupport.renderBlock(
                     guiGraphics,
                     renderedState,

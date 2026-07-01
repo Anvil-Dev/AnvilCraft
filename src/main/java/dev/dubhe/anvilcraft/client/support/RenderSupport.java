@@ -8,6 +8,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Axis;
 import com.mojang.math.MatrixUtil;
+import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.VertexConsumerWithPose;
 import lombok.AccessLevel;
@@ -105,6 +108,16 @@ public class RenderSupport {
             renderBlockEntity(blockEntity, poseStack, buffers);
         });
     };
+
+    public static BlockRenderFunction WIP_ENTITY(ResourceLocation recipeId) {
+        return (blockState, poseStack, buffers) -> {
+            WipBlockEntity blockEntity = WipBlockEntity.createInstance(ModBlockEntities.WIP_BLOCK.get(),
+                BlockPos.ZERO, ModBlocks.WIP_BLOCK.getDefaultState());
+            blockEntity.setLevel(currentClientLevel);
+            blockEntity.setRecipeId(recipeId);
+            renderBlockEntity(blockEntity, poseStack, buffers);
+        };
+    }
 
     public static void renderBlockWithRotationNoTranslate(
         GuiGraphics guiGraphics,
