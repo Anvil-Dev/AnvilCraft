@@ -127,13 +127,13 @@ public class SpawningManager {
             BlockState state = level.getBlockState(lightPos);
 
             // 电感灯是否开启
-            if (!(state.getBlock() instanceof InductionLightBlock) || InductionLightBlock.isLit(state)) {
+            if (!(state.getBlock() instanceof InductionLightBlock && InductionLightBlock.isLit(state))) {
                 iterator.remove();
                 continue;
             }
 
             // 电感灯模式是否正确
-            if (isAnimal ? InductionLightBlock.canBlockAnimalSummoning(state) : InductionLightBlock.canBlockMobSummoning(state)) {
+            if (isAnimal ? !InductionLightBlock.canBlockAnimalSummoning(state) : !InductionLightBlock.canBlockMobSummoning(state)) {
                 iterator.remove();
                 continue;
             }
