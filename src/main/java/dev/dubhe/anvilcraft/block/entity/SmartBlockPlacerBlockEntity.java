@@ -648,15 +648,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                     this.currentPlacementIndex = 0;
                 }
             } else {
-                // 加载失败，标记为无效结构
-                if (this.loadedStructure != null) {
-                    this.loadedStructure = null;
-                    this.loadedStructureName = "";
+                // 客户端的结构数据来自服务端同步缓存，不以磁盘加载结果为准
+                if (this.level.isClientSide()) {
                     this.hasInvalidStructure = true;
-                    structureChanged = true;
                 } else {
-                    // 之前就没有结构，现在也加载失败
-                    this.hasInvalidStructure = true;
+                    // 服务端：加载失败，标记为无效结构
+                    if (this.loadedStructure != null) {
+                        this.loadedStructure = null;
+                        this.loadedStructureName = "";
+                        this.hasInvalidStructure = true;
+                        structureChanged = true;
+                    } else {
+                        // 之前就没有结构，现在也加载失败
+                        this.hasInvalidStructure = true;
+                    }
                 }
             }
         }
