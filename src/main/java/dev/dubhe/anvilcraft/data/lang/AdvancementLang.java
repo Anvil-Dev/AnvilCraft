@@ -163,6 +163,11 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.super_heat.description", "Making a heat collector reach the max efficiency");
         // endregion
 
+        // region block comparator line
+        provider.add("advancements.anvilcraft.salted_fish_turns_over.title", "The salted fish turns over");
+        provider.add("advancements.anvilcraft.salted_fish_turns_over.description", "Use an anvil hammer to turn a Block Comparator from a vertical state to a horizontal state");
+        // endregion
+
         // region automation line
         provider.add("advancements.anvilcraft.redstone_milker.title", "Redstone milker");
         provider.add("advancements.anvilcraft.redstone_milker.description", "Using a dispenser to milk cows");
