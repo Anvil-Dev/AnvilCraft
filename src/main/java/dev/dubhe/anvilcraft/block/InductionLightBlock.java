@@ -177,7 +177,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
             level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.DARK));
             return InteractionResult.SUCCESS;
         }
-        return InteractionResult.SUCCESS;
+        return super.use(state, level, pos, player, hand, hit);
     }
 
     @Override
