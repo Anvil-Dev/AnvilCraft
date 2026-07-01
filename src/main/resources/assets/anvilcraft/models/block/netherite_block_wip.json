@@ -4,8 +4,8 @@
 	"parent": "minecraft:block/cube",
 	"ambientocclusion": false,
 	"textures": {
-		"1": "anvilcraft:block/netherite_block_wip_top",
-		"particle": "anvilcraft:block/netherite_block_wip_top"
+		"1": "anvilcraft:block/netherite_block_wip",
+		"particle": "anvilcraft:block/netherite_block_wip"
 	},
 	"elements": [
 		{
