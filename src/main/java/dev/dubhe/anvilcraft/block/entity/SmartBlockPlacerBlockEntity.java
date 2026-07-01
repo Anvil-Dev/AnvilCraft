@@ -45,6 +45,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -461,18 +462,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.setChanged();
         Level level = this.getLevel();
         if (level != null) {
-            level.sendBlockUpdated(
-                this.getBlockPos(),
-                this.getBlockState(),
-                this.getBlockState(),
-                Block.UPDATE_CLIENTS
-            );
             // 通过 SyncProxy 自动同步动画状态到客户端
             this.placeCooldownProxy.setValue(this.placeCooldown);
             this.currentHeldBlockProxy.setValue(this.currentHeldBlock);
             this.currentPlacementIndexProxy.setValue(this.currentPlacementIndex);
             this.isPoweredProxy.setValue(this.isPowered);
             this.hasRedstoneSignalProxy.setValue(this.hasRedstoneSignal);
+            // 强制同步方块实体数据包到客户端，确保动画数据立即到达
+            if (!level.isClientSide()) {
+                ClientboundBlockEntityDataPacket packet = ClientboundBlockEntityDataPacket.create(this);
+                level.players().forEach(p -> ((ServerPlayer) p).connection.send(packet));
+            }
         }
     }
 
