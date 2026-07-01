@@ -161,7 +161,7 @@ items:
 |  虫洞稳定器  |     黑洞     |   无    | [虫洞](332_wormhole.md)                                                                                                                                  |
 |  彭罗斯球   |     黑洞     |   激光   | 同等级[伽马激光](../001_feature/332_gamma_laser.md)                                                                                                           |
 |  物质解压器  |    中子星     | *伽马激光* | 每级*伽马激光*提供一倍工作效率，每 10s 开采一次，大概率产出1个<ref item="anvilcraft:neutronium_ingot"/>，小概率产出<ref item="anvilcraft:charged_neutronium_ingot"/>（需要磁场强度够高，概率正相关于磁场） |
-|  物质解压器  |     黑洞     | *伽马激光* | ，每级*伽马激光*提供一倍工作效率，每 gt 开采一次，大概率产出1个<ref item="anvilcraft:void_matter"/>，小概率产出<ref item="anvilcraft:excited_state_void_matter"/>（需要磁场强度够高，概率正相关于磁场）     |
+|  物质解压器  |     黑洞     | *伽马激光* | 每级*伽马激光*提供一倍工作效率，每 gt 开采一次，大概率产出1个<ref item="anvilcraft:void_matter"/>，小概率产出<ref item="anvilcraft:excited_state_void_matter"/>（需要磁场强度够高，概率正相关于磁场）      |
 
 <info>
 **彭罗斯球**输入和输出的[激光](201_basic_laser.md#激光)需成组的输入和输出于锻星砧同侧，位于左边和右边的<ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>

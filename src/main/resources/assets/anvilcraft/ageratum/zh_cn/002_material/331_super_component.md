@@ -17,7 +17,7 @@ items:
 
 <recipe id="anvilcraft:dyson_sphere_component"/>
 
-## <ref item="anvilcraft:dyson_sphere_component"/>
+## <ref item="anvilcraft:penrose_sphere_component"/>
 
 <recipe id="anvilcraft:penrose_sphere_component"/>
 
