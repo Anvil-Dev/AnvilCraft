@@ -1,0 +1,28 @@
+{
+  "parent": "anvilcraft:anvilcraft/all_in_one",
+  "criteria": {
+    "block_comparator_turn_over": {
+      "trigger": "anvilcraft:block_comparator_turn_over"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.salted_fish_turns_over.description"
+    },
+    "frame": "goal",
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:block_comparator"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.salted_fish_turns_over.title"
+    }
+  },
+  "requirements": [
+    [
+      "block_comparator_turn_over"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

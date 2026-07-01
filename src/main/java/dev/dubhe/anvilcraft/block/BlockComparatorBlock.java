@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -127,7 +128,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         }
         Direction.Axis axis;
         if (facing.getAxis() == Direction.Axis.Y) {
-            axis = context.getHorizontalDirection().getAxis();
+            axis = context.getHorizontalDirection().getClockWise().getAxis();
         } else {
             axis = facing.getClockWise().getAxis();
         }
@@ -279,7 +280,11 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
         FacingWithAxis fwa = state.getValue(FACING_WITH_AXIS);
-        level.setBlockAndUpdate(blockPos, state.setValue(FACING_WITH_AXIS, fwa.toggleAxis()));
+        FacingWithAxis newFwa = fwa.toggleAxis();
+        level.setBlockAndUpdate(blockPos, state.setValue(FACING_WITH_AXIS, newFwa));
+        if (fwa.getAxis() == Direction.Axis.Y && newFwa.getAxis() != Direction.Axis.Y) {
+            TriggerUtil.blockComparatorTurnOver(level, blockPos);
+        }
         return true;
     }
 

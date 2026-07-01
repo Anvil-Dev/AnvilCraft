@@ -81,6 +81,8 @@ public class ModAdvancements {
     public static final AdvancementHolder NUCLEAR_POWER_10A;
     public static final AdvancementHolder TRANSCENDENCE;
 
+    public static final AdvancementHolder SALTED_FISH_TURNS_OVER;
+
     static {
         AdvancementLineHelper mainLine = new AdvancementLineHelper();
         ROOT = mainLine.next()
@@ -147,7 +149,7 @@ public class ModAdvancements {
                 AdvancementType.GOAL,
                 true,
                 true,
-                false
+                true
             )
             .placerShuttle("placer_shuttle")
             .build("placer_shuttle");
@@ -386,6 +388,20 @@ public class ModAdvancements {
                 List.of("hurt_entity")
             )
             .build("all_in_one");
+
+        SALTED_FISH_TURNS_OVER = mainLine.createBranch().next()
+            .display(
+                ModBlocks.BLOCK_COMPARATOR,
+                Component.translatable("advancements.anvilcraft.salted_fish_turns_over.title"),
+                Component.translatable("advancements.anvilcraft.salted_fish_turns_over.description"),
+                null,
+                AdvancementType.GOAL,
+                true,
+                true,
+                true
+            )
+            .blockComparatorTurnOver("block_comparator_turn_over")
+            .build("salted_fish_turns_over");
 
         AdvancementLineHelper killingLine = mainLine.createBranch();
         HAMMER_AND_NAIL = killingLine.next()

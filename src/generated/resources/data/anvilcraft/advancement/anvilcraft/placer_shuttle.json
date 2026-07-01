@@ -10,6 +10,7 @@
       "translate": "advancements.anvilcraft.placer_shuttle.description"
     },
     "frame": "goal",
+    "hidden": true,
     "icon": {
       "count": 1,
       "id": "anvilcraft:smart_block_placer"
