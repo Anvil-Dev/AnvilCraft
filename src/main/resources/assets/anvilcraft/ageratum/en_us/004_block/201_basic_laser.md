@@ -7,6 +7,7 @@ items:
   - anvilcraft:ruby_prism
   - anvilcraft:laser_receiver
   - anvilcraft:large_laser
+  - anvilcraft:lens
 ---
 
 # Laser
@@ -62,6 +63,17 @@ If the back of <ref item="anvilcraft:ruby_prism"/> also has a <ref item="anvilcr
 
 - Does not consume power
 - Combines lasers and their levels from the other 5 directions, emits forward [Range: 128 blocks]
+
+# <ref item="anvilcraft:lens"/>
+
+<recipe id="anvilcraft:lens"/>
+
+- Grants different abilities to lasers
+- Right-click with <ref item="anvilcraft:tempering_glass"/>, <ref item="anvilcraft:frost_glass"/>, or <ref item="anvilcraft:ember_glass"/> to change its type:
+  - Default: standard laser
+  - <ref item="anvilcraft:tempering_glass"/>: mining yields raw ore blocks
+  - <ref item="anvilcraft:frost_glass"/>: mining only yields <ref item="anvilcraft:exp_gem"/>
+  - <ref item="anvilcraft:ember_glass"/>: mining attempts to smelt products
 
 # <ref item="anvilcraft:laser_receiver"/>
 

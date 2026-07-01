@@ -76,7 +76,8 @@ Mod Improvement: When the cauldron is filled with 4 layers of honey, you can ext
 
 # Block Procedural Processing
 
-Accepts various processing methods including but not limited to those above as individual steps, allowing multiple different steps to be performed in sequence, cycled several times
+- Accepts various processing methods including but not limited to those above as individual steps, allowing multiple different steps to be performed in sequence, cycled several times
+- If the block being processed is destroyed, the processing fails and the dropped items of the original block are returned, but it can be pushed by <ref item="minecraft:piston"/> and <ref item="anvilcraft:sliding_rail"/>
 
 <info>
 Taking <ref item="anvilcraft:redstone_computer"/> as an example, it requires sequentially pressing <ref item="anvilcraft:circuit_board"/>, <ref item="anvilcraft:processor"/>, <ref item="anvilcraft:disk"/>

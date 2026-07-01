@@ -31,11 +31,11 @@ items:
 
 In addition to <ref item="minecraft:emerald"/>, the mod adds:
 
-- <ref item="anvilcraft:ruby"/> representing the fire element
-- <ref item="anvilcraft:sapphire"/> representing the water element
-- <ref item="anvilcraft:topaz"/> representing the lightning element
+- <ref item="anvilcraft:ruby"/> representing the fire element, right-click on <ref item="minecraft:stone"/> to produce *lava* and <ref item="minecraft:magma_block"/>
+- <ref item="anvilcraft:sapphire"/> representing the water element, right-click on *water* or *air* to produce <ref item="minecraft:ice"/> or <ref item="minecraft:magma_block"/>
+- <ref item="anvilcraft:topaz"/> representing the lightning element, right-click on <ref item="minecraft:lightning_rod"/> to produce *lightning*
 
-Together with <ref item="minecraft:emerald"/>, these are collectively referred to as gems.
+Together with <ref item="minecraft:emerald"/>, these are collectively referred to as *gems*.
 
 ## First Acquisition
 
@@ -45,4 +45,4 @@ Together with <ref item="minecraft:emerald"/>, these are collectively referred t
 
 ## Mass Production
 
-After obtaining a <ref item="anvilcraft:corrupted_beacon"/>, you can [mass-produce gems](../008_recipe/204_gem.md). But that's for later; you can skip it for now.
+After obtaining a <ref item="anvilcraft:corrupted_beacon"/>, you can [mass-produce gems](../008_recipe/204_gem.md). But that's for later.

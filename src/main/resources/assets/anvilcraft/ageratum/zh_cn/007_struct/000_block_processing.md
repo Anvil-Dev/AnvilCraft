@@ -76,7 +76,8 @@ navigation:
 
 # 方块流程处理
 
-接受包括但不限于上述各种加工方式作为单个环节，可以进行多个不同环节的加工，并循环数次
+- 接受包括但不限于上述各种加工方式作为单个环节，可以进行多个不同环节的加工，并循环数次
+- 加工过程中的方块被破坏视为加工失败，返还初始方块的掉落物，但时可以被<ref item="minecraft:piston"/>和<ref item="anvilcraft:sliding_rail"/>推动
 
 <info>
 以<ref item="anvilcraft:redstone_computer"/>为例，它需要依次压入<ref item="anvilcraft:circuit_board"/>、<ref item="anvilcraft:processor"/>、<ref item="anvilcraft:disk"/>

@@ -7,6 +7,7 @@ items:
   - anvilcraft:ruby_prism
   - anvilcraft:laser_receiver
   - anvilcraft:large_laser
+  - anvilcraft:lens
 ---
 
 # 激光
@@ -62,6 +63,17 @@ items:
 
 - 不消耗电能
 - 汇总其他5个方向的激光及其等级，向前发射[射程: 128格]
+
+# <ref item="anvilcraft:lens"/>
+
+<recipe id="anvilcraft:lens"/>
+
+- 赋予激光不同的能力
+- 手持<ref item="anvilcraft:tempering_glass"/>、<ref item="anvilcraft:frost_glass"/>、<ref item="anvilcraft:ember_glass"/>右键改变其类型：
+  - 默认：默认激光
+  - <ref item="anvilcraft:tempering_glass"/>：采矿时获得原矿方块
+  - <ref item="anvilcraft:frost_glass"/>：采矿只获得<ref item="anvilcraft:exp_gem"/>
+  - <ref item="anvilcraft:ember_glass"/>：采矿时尝试熔炼产物
 
 # <ref item="anvilcraft:laser_receiver"/>
 

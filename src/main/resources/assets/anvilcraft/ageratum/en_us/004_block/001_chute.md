@@ -11,29 +11,16 @@ items:
 
 <recipe id="anvilcraft:chute"/>
 
-## Function
-
-- <ref item="anvilcraft:chute"/> is a special type of hopper with 9 slots of capacity, transporting one stack of items at a time
+- <ref item="anvilcraft:chute"/> is a special type of <ref item="minecraft:hopper"/> with 9 slots of capacity, transporting one stack of items at a time
 - Can both input items into containers and drop items into the world
+- Can be locked by redstone signal
 - Opening the GUI allows you to:
   - View inventory, change output direction, and set filters
   - Use the scroll wheel on slots to set item limits
 
-> More filtering can be set via <ref item="anvilcraft:filter"/>
-
-## Properties
-
-- Can be locked by redstone signal
-- When <ref item="anvilcraft:chute"/> forms a chain, the chute being pointed at becomes a **Simple Chute**
-
-<block id="anvilcraft:simple_chute"/>
-
-## Simple Chute
-
-- Does not pull items
-- Holds only 1 stack of items
-- Cannot set filters
-- Not controlled by redstone signals
+<tip>
+More filtering can be set via <ref item="anvilcraft:filter"/>
+</tip>
 
 # Magnetic Chute
 
@@ -43,9 +30,19 @@ items:
 
 - Has all the functions of <ref item="anvilcraft:chute"/>
 - <ref item="anvilcraft:magnetic_chute"/> can pull items from the sides and even below, but cannot freely adjust output
-
-## Properties
-
 - If outputting items into the world, it ejects items at a certain velocity
-- Does not become a **Simple Chute**
 
+# Simple Chute
+
+- When a <ref item="anvilcraft:chute"/> is pointed at by a <ref item="anvilcraft:chute"/> or <ref item="anvilcraft:magnetic_chute"/>, it becomes a **Simple Chute**
+- When a <ref item="anvilcraft:magnetic_chute"/> is pointed at by a <ref item="anvilcraft:magnetic_chute"/>, it becomes a **Simple Magnetic Chute**
+
+<row>
+<block id="anvilcraft:simple_chute"/>
+<block id="anvilcraft:simple_magnetic_chute"/>
+</row>
+
+- Does not pull items
+- Holds only 1 stack of items
+- Cannot set filters
+- Not controlled by redstone signals

@@ -67,6 +67,10 @@ In the center of the GUI, you can check whether a star can be searched based on 
 For more information, see [Celestial Types](../001_feature/331_celestial_type.md)
 </info>
 
+<info>
+<ref item="anvilcraft:celestial_forging_anvil"/> receiving a redstone signal will amplify the celestial body
+</info>
+
 # Extracting Celestial Resources
 
 1. After successfully binding a celestial body
@@ -125,13 +129,13 @@ In some cases, a large number of the same item may be output. If there are not e
 - Can be built when not in *Amplified State*
 - Generally only one mega structure can be built at a time
 
-|     Mega Structure     |            Construction Condition            |                   Input                    |                Output                |
-|:----------------------:|:--------------------------------------------:|:------------------------------------------:|:------------------------------------:|
-|  Planetary Excavator   |        Large satellite, rocky planet         | Level 16 [Laser](201_basic_laser.md#laser) |           Items (minerals)           |
-|  Planetary Extractor   |         Rocky planet with **liquid**         |                    None                    |     Fluid (planetary resources)      |
-|      Eco Station       |  Rocky planet with **biological resources**  |                 Power 1MW                  | Items & Fluid (biological resources) |
-|         Temple         | Rocky planet with **low-level civilization** |               Specific items               |          Items (offerings)           |
-| Giant Planet Extractor |             Gas giant, ice giant             |                    None                    | Items & Fluid (planetary resources)  |
+|     Mega Structure     |            Construction Condition            |                   Input                    |                                       Output                                        |
+|:----------------------:|:--------------------------------------------:|:------------------------------------------:|:-----------------------------------------------------------------------------------:|
+|  Planetary Excavator   |        Large satellite, rocky planet         | Level 16 [Laser](201_basic_laser.md#laser) |                                  Items (minerals)                                   |
+|  Planetary Extractor   |         Rocky planet with **liquid**         |                    None                    |                             Fluid (planetary resources)                             |
+|      Eco Station       |  Rocky planet with **biological resources**  |                 Power 1MW                  |                        Items & Fluid (biological resources)                         |
+|         Temple         | Rocky planet with **low-level civilization** |               Specific items               |                                  Items (offerings)                                  |
+| Giant Planet Extractor |             Gas giant, ice giant             |                    None                    | Items & Fluid (planetary resources), must collect fluid to bring up items alongside |
 
 <info>
 For *Planetary Excavator*, at most 4 <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/> can receive input this way, granting up to 4x collection efficiency
@@ -148,15 +152,16 @@ After inputting items, the civilization will continue to offer worship until the
 - Can be built when in *Amplified State*
 - Generally only one mega structure can be built at a time
 
-|        Mega Structure         |    Construction Condition    |     Input     |                                                                                                             Output/Effect                                                                                                             |
-|:-----------------------------:|:----------------------------:|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|         Ring Collider         |          Small star          |   Power 4MW   | Executes [Anvil Impact Crafting](215_large_electromagnet.md#anvil-impact-crafting) recipes. The stronger the star's gravity and magnetic field, the faster it works; the higher the speed required by the recipe, the slower it works |
-|         Dyson Sphere          |             Star             |     None      |                                                           Continuously generates power. Power output is positively correlated with the celestial body's *temperature* and *radius*                                                           |
-| Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                                                     Accelerates stellar evolution                                                                                                     |
-|         Magnetar Coil         |         Neutron star         |   Power 4MW   |                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                              |
-|      Wormhole Stabilizer      |          Black hole          |     None      |                                                                                                      [Wormhole](332_wormhole.md)                                                                                                      |
-|        Penrose Sphere         |          Black hole          |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
-|      Matter Decompressor      |   Neutron star, black hole   | *Gamma Laser* |                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole). Each level of *Gamma Laser* doubles efficiency                                                |
+|        Mega Structure         |    Construction Condition    |     Input     |                                                                                                                                                             Output/Effect                                                                                                                                                             |
+|:-----------------------------:|:----------------------------:|:-------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|         Ring Collider         |          Small star          |   Power 4MW   |                                                 Executes [Anvil Impact Crafting](215_large_electromagnet.md#anvil-impact-crafting) recipes. The stronger the star's gravity and magnetic field, the faster it works; the higher the speed required by the recipe, the slower it works                                                 |
+|         Dyson Sphere          |             Star             |     None      |                                                                                                       Continuously generates power. Power output is positively correlated with the celestial body's *temperature* and *radius*                                                                                                        |
+| Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                                                                                                     Accelerates stellar evolution                                                                                                                                                     |
+|         Magnetar Coil         |         Neutron star         |     None      |                                                                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                                                                              |
+|      Wormhole Stabilizer      |          Black hole          |     None      |                                                                                                                                                      [Wormhole](332_wormhole.md)                                                                                                                                                      |
+|        Penrose Sphere         |          Black hole          |     Laser     |                                                                                                                                                       Same-level *Gamma Laser*                                                                                                                                                        |
+|      Matter Decompressor      |         Neutron star         | *Gamma Laser* | Each level of *Gamma Laser* doubles efficiency. Extracts once every 10 seconds, mostly producing 1 <ref item="anvilcraft:neutronium_ingot"/>, with a small chance of producing <ref item="anvilcraft:charged_neutronium_ingot"/> (requires sufficient magnetic field strength, probability positively correlated with magnetic field) |
+|      Matter Decompressor      |          Black hole          | *Gamma Laser* |     Each level of *Gamma Laser* doubles efficiency. Extracts once per gametick, mostly producing 1 <ref item="anvilcraft:void_matter"/>, with a small chance of producing <ref item="anvilcraft:excited_state_void_matter"/> (requires sufficient magnetic field strength, probability positively correlated with magnetic field)     |
 
 <info>
 *Penrose Sphere* input and output [Lasers](201_basic_laser.md#laser) must be grouped on the same side of the forging anvil, using the left and right <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>

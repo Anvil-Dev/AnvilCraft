@@ -13,19 +13,18 @@ items:
 
 # Acquisition
 
-- Mining Budding Amethyst (Fortune does not work)
+- Mining <ref item="minecraft:budding_amethyst"/>
 - Trading with a [Jeweler](../001_feature/001_jeweler.md)
 - Starting bonus chest (must enable the bonus chest option when creating a world)
 
 # Function
 
-- When used, can locate nearby Amethyst Geodes (world features)
-- Used in crafting recipes
+- Locates nearby Amethyst Geodes
 
 # Crafting Usage
 
-- When a Geode undergoes [Item Stamping](../007_struct/000_block_processing.md), it always yields 4 Amethyst Shards, with a chance to yield [Topaz, Sapphire, and Ruby](../002_material/000_gems.md)
-- Using Time Warp on a Geode can craft Budding Amethyst
+- When a Geode undergoes [Item Stamping](../007_struct/000_block_processing.md), it always yields 4 <ref item="minecraft:lightning_rod"/>, with a chance to yield [Topaz, Sapphire, and Ruby](../002_material/000_gems.md)
+- Using Time Warp on a Geode can craft <ref item="minecraft:budding_amethyst"/>
 
 <row halign="center">
 <recipe id="anvilcraft:stamping/geode_gems"/>
