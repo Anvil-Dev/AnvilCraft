@@ -45,6 +45,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -323,6 +324,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     // 比较器信号状态
     private int lastComparatorSignal = 0;
 
+    // 客户端结构缓存标记：首次从服务端同步后置为 true，避免重复同步检查
+    private transient boolean clientStructureCached = false;
+
     // 穿梭进度：记录预期邻居放置到的目标位置，邻居完成放置后触发进度
     @Nullable
     private BlockPos expectedShuttleTarget = null;
@@ -458,18 +462,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.setChanged();
         Level level = this.getLevel();
         if (level != null) {
-            level.sendBlockUpdated(
-                this.getBlockPos(),
-                this.getBlockState(),
-                this.getBlockState(),
-                Block.UPDATE_CLIENTS
-            );
             // 通过 SyncProxy 自动同步动画状态到客户端
             this.placeCooldownProxy.setValue(this.placeCooldown);
             this.currentHeldBlockProxy.setValue(this.currentHeldBlock);
             this.currentPlacementIndexProxy.setValue(this.currentPlacementIndex);
             this.isPoweredProxy.setValue(this.isPowered);
             this.hasRedstoneSignalProxy.setValue(this.hasRedstoneSignal);
+            // 强制同步方块实体数据包到客户端，确保动画数据立即到达
+            if (!level.isClientSide()) {
+                ClientboundBlockEntityDataPacket packet = ClientboundBlockEntityDataPacket.create(this);
+                level.players().forEach(p -> ((ServerPlayer) p).connection.send(packet));
+            }
         }
     }
 
@@ -618,6 +621,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 更新状态
         this.hasStructureDisk = nowHasDisk;
         this.loadedStructureUuid = currentUuid;
+        this.clientStructureCached = false;
 
         boolean structureChanged = false;
 
@@ -644,15 +648,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                     this.currentPlacementIndex = 0;
                 }
             } else {
-                // 加载失败，标记为无效结构
-                if (this.loadedStructure != null) {
-                    this.loadedStructure = null;
-                    this.loadedStructureName = "";
+                // 客户端的结构数据来自服务端同步缓存，不以磁盘加载结果为准
+                if (this.level.isClientSide()) {
                     this.hasInvalidStructure = true;
-                    structureChanged = true;
                 } else {
-                    // 之前就没有结构，现在也加载失败
-                    this.hasInvalidStructure = true;
+                    // 服务端：加载失败，标记为无效结构
+                    if (this.loadedStructure != null) {
+                        this.loadedStructure = null;
+                        this.loadedStructureName = "";
+                        this.hasInvalidStructure = true;
+                        structureChanged = true;
+                    } else {
+                        // 之前就没有结构，现在也加载失败
+                        this.hasInvalidStructure = true;
+                    }
                 }
             }
         }
@@ -671,6 +680,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 获取已加载的结构数据
      */
     public StructureLoadUtil.@Nullable StructureData getLoadedStructure() {
+        // 客户端已缓存结构数据，不再重复同步
+        if (this.level != null && this.level.isClientSide() && this.clientStructureCached) {
+            return this.loadedStructure;
+        }
         // 检查 SyncProxy 数据同步是否更新
         CompoundTag tag = this.dataSyncProxy.getValue();
         if (tag != null && !tag.isEmpty()) {
@@ -1870,67 +1883,93 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         final ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
 
-        this.executeUnifiedBlockOperation(
-            level, facing, upsideDown,
-            () -> this.buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
-            _ -> sourceItem,  // 忽略 index，总是源方块
-            () -> sourceItem,
-            (_, _, targetPos) -> {
-                BlockState stateToPlace = sourceState;
+        List<BlockPos> allPositions = this.buildOrderedPositionsFromLayers(placerPos, facing, upsideDown);
+        if (allPositions.isEmpty()) {
+            return;
+        }
 
-                // 侦测器不继承POWERED状态
-                if (stateToPlace.is(Blocks.OBSERVER)
-                    && stateToPlace.hasProperty(BlockStateProperties.POWERED)) {
-                    stateToPlace = stateToPlace.setValue(
-                        BlockStateProperties.POWERED,
-                        false
-                    );
-                }
+        if (this.currentPlacementIndex >= allPositions.size()) {
+            this.currentPlacementIndex = 0;
+        }
 
-                if (sourceState.hasProperty(BlockStateProperties.WATERLOGGED)) {
-                    stateToPlace = sourceState.setValue(
-                        BlockStateProperties.WATERLOGGED,
-                        false
-                    );
-                }
+        for (int i = 0; i < allPositions.size(); i++) {
+            int index = (this.currentPlacementIndex + i) % allPositions.size();
+            BlockPos targetPos = allPositions.get(index);
 
-                // 先删除源方块
+            if (this.isPositionOccupied(level, targetPos, null)) {
+                continue;
+            }
+
+            BlockState stateToPlace = sourceState;
+
+            if (stateToPlace.is(Blocks.OBSERVER)
+                && stateToPlace.hasProperty(BlockStateProperties.POWERED)) {
+                stateToPlace = stateToPlace.setValue(BlockStateProperties.POWERED, false);
+            }
+            if (sourceState.hasProperty(BlockStateProperties.WATERLOGGED)) {
+                stateToPlace = sourceState.setValue(BlockStateProperties.WATERLOGGED, false);
+            }
+
+            // 先删除源方块，再放置，放置失败则回滚
+            IS_BEING_MOVED_BY_PLACER.set(true);
+            try {
+                level.removeBlock(sourcePos, false);
+            } finally {
+                IS_BEING_MOVED_BY_PLACER.set(false);
+            }
+
+            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
+                level, targetPos, facing, upsideDown,
+                (BlockItem) sourceItem.getItem(), sourceItem
+            );
+
+            if (!placeSuccess) {
+                // 放置失败，回滚源方块
                 IS_BEING_MOVED_BY_PLACER.set(true);
                 try {
-                    level.removeBlock(sourcePos, false);
+                    level.setBlock(sourcePos, sourceState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+                    if (sourceBlockEntityData != null) {
+                        BlockEntity sourceBe = level.getBlockEntity(sourcePos);
+                        if (sourceBe != null) {
+                            sourceBe.loadWithComponents(
+                                TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
+                            sourceBe.setChanged();
+                        }
+                    }
                 } finally {
                     IS_BEING_MOVED_BY_PLACER.set(false);
                 }
-
-                // 放置方块到目标位置
-                level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
-
-                if (sourceBlockEntityData != null) {
-                    BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
-                    if (targetBlockEntity != null) {
-                        targetBlockEntity.loadWithComponents(
-                            TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
-                        targetBlockEntity.setChanged();
-                    }
-                }
-
-                // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的红石信号更新状态
-                level.neighborChanged(targetPos, stateToPlace.getBlock(), null);
-
-                // 检查是否是穿梭进度的回程：放置到了预期的穿梭目标位置
-                if (targetPos.equals(this.expectedShuttleTarget)) {
-                    TriggerUtil.placerShuttle(level, targetPos);
-                    this.expectedShuttleTarget = null;
-                }
-
-                // 检测穿梭行为：当前放置器的目标位置是否是另一个放置器的源位置
-                this.checkAndTriggerShuttle(level, targetPos);
-
-                // 放置成功，清空 currentHeldBlock；下一轮 prepareHeldBlock 会重新设置
                 this.currentHeldBlock = ItemStack.EMPTY;
-                return false;
+                this.currentPlacementIndex = (index + 1) % allPositions.size();
+                this.onChanged();
+                return;
             }
-        );
+
+            // 修正朝向
+            level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS);
+
+            if (sourceBlockEntityData != null) {
+                BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
+                if (targetBlockEntity != null) {
+                    targetBlockEntity.loadWithComponents(
+                        TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
+                    targetBlockEntity.setChanged();
+                }
+            }
+
+            level.neighborChanged(targetPos, stateToPlace.getBlock(), null);
+
+            if (targetPos.equals(this.expectedShuttleTarget)) {
+                TriggerUtil.placerShuttle(level, targetPos);
+                this.expectedShuttleTarget = null;
+            }
+            this.checkAndTriggerShuttle(level, targetPos);
+
+            this.currentHeldBlock = ItemStack.EMPTY;
+            this.currentPlacementIndex = (index + 1) % allPositions.size();
+            this.onChanged();
+            return;
+        }
     }
 
     /**
@@ -2268,18 +2307,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 }
             }
 
-            // 使用 FakePlayer 放置方块
-            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
-                level, targetPos, placementFacing, upsideDown,
-                (BlockItem) sourceItem.getItem(), sourceItem
-            );
-
-            if (!placeSuccess) {
-                // 放置失败，回退索引
-                this.currentHeldBlock = ItemStack.EMPTY;
-                this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
-                this.onChanged();
-                return;
+            // 先删除源方块，再使用 FakePlayer 放置方块
+            IS_BEING_MOVED_BY_PLACER.set(true);
+            try {
+                level.removeBlock(sourcePos, false);
+            } finally {
+                IS_BEING_MOVED_BY_PLACER.set(false);
             }
 
             // 先删除源方块
@@ -2288,6 +2321,33 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 level.removeBlock(sourcePos, false);
             } finally {
                 IS_BEING_MOVED_BY_PLACER.set(false);
+            }
+
+            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
+                level, targetPos, placementFacing, upsideDown,
+                (BlockItem) sourceItem.getItem(), sourceItem
+            );
+
+            if (!placeSuccess) {
+                // 放置失败，回滚源方块
+                IS_BEING_MOVED_BY_PLACER.set(true);
+                try {
+                    level.setBlock(sourcePos, sourceState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+                    if (sourceBlockEntityData != null) {
+                        BlockEntity sourceBe = level.getBlockEntity(sourcePos);
+                        if (sourceBe != null) {
+                            sourceBe.loadWithComponents(
+                                TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), sourceBlockEntityData));
+                            sourceBe.setChanged();
+                        }
+                    }
+                } finally {
+                    IS_BEING_MOVED_BY_PLACER.set(false);
+                }
+                this.currentHeldBlock = ItemStack.EMPTY;
+                this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
+                this.onChanged();
+                return;
             }
 
             // 放置成功后，修正方块的朝向为蓝图中的朝向
@@ -3891,12 +3951,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             }
             this.hasStructureDisk = true;
             this.hasInvalidStructure = false;
+            this.clientStructureCached = true;
         } else {
             this.loadedStructure = null;
             this.loadedStructureName = "";
             this.loadedStructureUuid = null;
             this.hasStructureDisk = false;
             this.hasInvalidStructure = false;
+            this.clientStructureCached = false;
         }
         this.loadLayerPositions(tag);
     }
