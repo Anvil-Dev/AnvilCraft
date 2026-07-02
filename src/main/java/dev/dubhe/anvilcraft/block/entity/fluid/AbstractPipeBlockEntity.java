@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -309,6 +310,11 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, targetPos, targetDirection);
         if (source == null || target == null || target.equals(source)) {
             return;
+        }
+
+        // 流体管道成功连接两个不同容器时触发进度
+        if (!level.isClientSide()) {
+            TriggerUtil.pipeConnectContainers(level, sourcePos);
         }
 
         int maxSpeed = heightDiff * 50; // 每格等效高度差 50 mB/tick

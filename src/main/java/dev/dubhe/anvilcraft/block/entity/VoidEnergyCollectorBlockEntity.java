@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -115,6 +116,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         this.blockCount = countBlocksInRange();
         this.power = getPowerFromBlockCount(this.blockCount);
         if (this.power > 0 && this.getBlockState().getBlock() instanceof VoidEnergyCollectorBlock voidEnergyCollector) {
+            TriggerUtil.voidEnergyCollectorWorking(this.level, this.getBlockPos());
             voidEnergyCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
             if (this.decayCooldownCount-- <= 1) {
                 makeBlocksDecay();

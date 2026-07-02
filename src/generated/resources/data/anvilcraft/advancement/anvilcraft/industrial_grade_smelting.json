@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/electric_filed_rhythm",
+  "parent": "anvilcraft:anvilcraft/all_in_one",
   "criteria": {
     "super_heating": {
       "conditions": {

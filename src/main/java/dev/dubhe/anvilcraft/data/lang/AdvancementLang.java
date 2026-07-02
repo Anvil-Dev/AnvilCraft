@@ -87,6 +87,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.industrial_grade_smelting.title", "Industrial grade smelting");
         provider.add("advancements.anvilcraft.industrial_grade_smelting.description", "Use super heating to melt any item");
 
+        provider.add("advancements.anvilcraft.water_flows_downhill.title", "Water flows downhill");
+        provider.add("advancements.anvilcraft.water_flows_downhill.description", "Connect two fluid containers at different heights with pipes");
+
         provider.add("advancements.anvilcraft.noble_metal.title", "Noble metal");
         provider.add("advancements.anvilcraft.noble_metal.description", "Smelting royal steel");
 
@@ -120,6 +123,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.forged_over_eons.title", "Forged over eons");
         provider.add("advancements.anvilcraft.forged_over_eons.description", "Obtain any ember metal");
 
+        provider.add("advancements.anvilcraft.ice_and_fire.title", "Ice and Fire");
+        provider.add("advancements.anvilcraft.ice_and_fire.description", "Obtain ember workstations and frost workstations");
+
         provider.add("advancements.anvilcraft.self_in_flaming.title", "Self in flaming");
         provider.add("advancements.anvilcraft.self_in_flaming.description", "Using fire reforge to repair any ember metal tools or weapons");
 
@@ -141,6 +147,12 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.transcendence.title", "Transcendence");
         provider.add("advancements.anvilcraft.transcendence.description", "Injecting an charged neutronium ingot into an overheated ember metal block to craft transcendium");
 
+        provider.add("advancements.anvilcraft.the_end.title", "The end?");
+        provider.add("advancements.anvilcraft.the_end.description", "Obtain transcendence anvil, and lift all enchantment limits");
+
+        provider.add("advancements.anvilcraft.the_start.title", "The start");
+        provider.add("advancements.anvilcraft.the_start.description", "Obtain celestial forging anvil");
+
         provider.add("advancements.anvilcraft.nuclear_power_10a.title", "Nuclear power, piece of cake!");
         provider.add("advancements.anvilcraft.nuclear_power_10a.description", "Using heat collector to collect overheated blocks' heat");
 
@@ -152,6 +164,24 @@ public class AdvancementLang {
 
         provider.add("advancements.anvilcraft.ore_point.title", "Ore point");
         provider.add("advancements.anvilcraft.ore_point.description", "Create a mineral fountain, and start producing ores continually");
+
+        provider.add("advancements.anvilcraft.mining_void.title", "Mining void");
+        provider.add("advancements.anvilcraft.mining_void.description", "Obtain void matter");
+
+        provider.add("advancements.anvilcraft.void_generate_energy.title", "The void gives energy its purpose");
+        provider.add("advancements.anvilcraft.void_generate_energy.description", "Use void collector to generate energy");
+
+        provider.add("advancements.anvilcraft.saikou_scrubber.title", "Saikou scrubber");
+        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain menger sponge");
+
+        provider.add("advancements.anvilcraft.infinity_capacity.title", "Infinity capacity");
+        provider.add("advancements.anvilcraft.infinity_capacity.description", "Construct infinity capacity fluid tank with large fluid tank and menger sponge");
+
+        provider.add("advancements.anvilcraft.shulker_box_within_shulker_box.title", "Shulker box within shulker box");
+        provider.add("advancements.anvilcraft.shulker_box_within_shulker_box.description", "Obtain space overcompressor");
+
+        provider.add("advancements.anvilcraft.spoon_of_neutron_star.title", "A teaspoon of neutron star");
+        provider.add("advancements.anvilcraft.spoon_of_neutron_star.description", "Obtain neutronium ingot");
 
         provider.add("advancements.anvilcraft.heat_utilizing.title", "Heat utilizing");
         provider.add("advancements.anvilcraft.heat_utilizing.description", "Craft heat collector");
@@ -165,7 +195,7 @@ public class AdvancementLang {
 
         // region block comparator line
         provider.add("advancements.anvilcraft.salted_fish_turns_over.title", "The salted fish turns over");
-        provider.add("advancements.anvilcraft.salted_fish_turns_over.description", "Use an anvil hammer to turn a Block Comparator from a vertical state to a horizontal state");
+        provider.add("advancements.anvilcraft.salted_fish_turns_over.description", "Use an anvil hammer to turn a block comparator from a vertical state to a horizontal state");
         // endregion
 
         // region automation line

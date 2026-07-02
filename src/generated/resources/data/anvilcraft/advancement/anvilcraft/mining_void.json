@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/ore_point",
+  "criteria": {
+    "has_void_matter": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:void_matter"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.mining_void.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:void_matter"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.mining_void.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_void_matter"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

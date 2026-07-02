@@ -1,0 +1,99 @@
+{
+  "parent": "anvilcraft:anvilcraft/forged_over_eons",
+  "criteria": {
+    "has_ember_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:ember_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_ember_grindstone": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:ember_grindstone"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_ember_smithing_table": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:ember_smithing_table"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_frost_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:frost_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_frost_grindstone": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:frost_grindstone"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_frost_smithing_table": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:frost_smithing_table"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.ice_and_fire.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:ember_anvil"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.ice_and_fire.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_ember_smithing_table"
+    ],
+    [
+      "has_ember_anvil"
+    ],
+    [
+      "has_ember_grindstone"
+    ],
+    [
+      "has_frost_smithing_table"
+    ],
+    [
+      "has_frost_anvil"
+    ],
+    [
+      "has_frost_grindstone"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

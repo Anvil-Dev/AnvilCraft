@@ -1,0 +1,34 @@
+{
+  "parent": "anvilcraft:anvilcraft/shulker_box_within_shulker_box",
+  "criteria": {
+    "has_neutronium_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:neutronium_ingot"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.spoon_of_neutron_star.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:neutronium_ingot"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.spoon_of_neutron_star.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_neutronium_ingot"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

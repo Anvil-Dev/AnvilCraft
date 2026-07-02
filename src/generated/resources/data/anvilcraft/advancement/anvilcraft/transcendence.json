@@ -36,7 +36,7 @@
     "description": {
       "translate": "advancements.anvilcraft.transcendence.description"
     },
-    "frame": "challenge",
+    "frame": "goal",
     "icon": {
       "count": 1,
       "id": "anvilcraft:transcendium_block"

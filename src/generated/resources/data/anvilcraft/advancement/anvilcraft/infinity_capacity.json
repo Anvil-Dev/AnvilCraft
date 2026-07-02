@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/saikou_scrubber",
+  "criteria": {
+    "multi_block_form": {
+      "trigger": "anvilcraft:multi_block_form"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.infinity_capacity.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:large_fluid_tank"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.infinity_capacity.title"
+    }
+  },
+  "requirements": [
+    [
+      "multi_block_form"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

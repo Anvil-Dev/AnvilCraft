@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/mining_void",
+  "criteria": {
+    "has_menger_sponge": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:menger_sponge"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.saikou_scrubber.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:menger_sponge"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.saikou_scrubber.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_menger_sponge"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

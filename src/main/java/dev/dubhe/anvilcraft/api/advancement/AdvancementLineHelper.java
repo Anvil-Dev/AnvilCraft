@@ -17,11 +17,14 @@ import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -368,6 +371,18 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper blockComparatorTurnOver(String key) {
             return this.addCriterion(key, BlockComparatorTurnOverTrigger.TriggerInstance.turnOver());
+        }
+
+        public AdvancementHelper pipeConnectContainers(String key) {
+            return this.addCriterion(key, PipeConnectContainersTrigger.TriggerInstance.connect());
+        }
+
+        public AdvancementHelper voidEnergyCollectorWorking(String key) {
+            return this.addCriterion(key, VoidEnergyCollectorWorkingTrigger.TriggerInstance.collect());
+        }
+
+        public AdvancementHelper multiBlockForm(String key) {
+            return this.addCriterion(key, MultiBlockFormTrigger.TriggerInstance.form());
         }
 
         public AdvancementHolder build(String id) {

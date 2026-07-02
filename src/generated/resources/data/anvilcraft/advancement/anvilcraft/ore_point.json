@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/laser",
+  "parent": "anvilcraft:anvilcraft/rip_van_winkle",
   "criteria": {
     "mineral_fountain_create": {
       "trigger": "anvilcraft:mineral_fountain_crate"

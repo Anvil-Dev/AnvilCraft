@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/mining_void",
+  "criteria": {
+    "has_space_overcompressor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:space_overcompressor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.shulker_box_within_shulker_box.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:space_overcompressor"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.shulker_box_within_shulker_box.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_space_overcompressor"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
