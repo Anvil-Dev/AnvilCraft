@@ -8,9 +8,12 @@ import com.mojang.blaze3d.platform.CompareOp;
 import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import com.mojang.blaze3d.shaders.UniformType;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.anvilcraft.lib.v2.rendering.ALRPipelines;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -46,9 +49,11 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/translucent_laser"))
         .build();
 
-    public static final RenderPipeline LIGHTNING = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+    public static final RenderPipeline LIGHTNING = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
         .withColorTargetState(new ColorTargetState(LASER_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
+        .withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
+        .withVertexShader(Identifier.withDefaultNamespace("core/position_tex_color"))
         .withFragmentShader(AnvilCraft.of("core/rendertype_lightning"))
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
