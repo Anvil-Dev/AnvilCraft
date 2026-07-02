@@ -1,12 +1,22 @@
 {
   "variants": {
-    "facing=north,open=false": { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
-    "facing=north,open=true":  { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
-    "facing=south,open=false": { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 180 },
-    "facing=south,open=true":  { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 180 },
-    "facing=west,open=false":  { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 270 },
-    "facing=west,open=true":   { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 270 },
-    "facing=east,open=false":  { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 90 },
-    "facing=east,open=true":   { "model": "anvilcraft:block/celestial_forging_anvil_portal", "y": 90 }
+    "half=bottom_center": { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "half=bottom_left":   { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "half=bottom_right":  { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "half=mid_left":      { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "half=mid_right":     { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "half=top_center":    { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "half=top_left":      { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+    "half=top_right":     { "model": "anvilcraft:block/celestial_forging_anvil_portal" },
+
+    "half=mid_center,open=false,facing=north": { "model": "anvilcraft:block/celestial_forging_anvil_gate_block" },
+    "half=mid_center,open=false,facing=east":  { "model": "anvilcraft:block/celestial_forging_anvil_gate_block", "y": 90 },
+    "half=mid_center,open=false,facing=south": { "model": "anvilcraft:block/celestial_forging_anvil_gate_block", "y": 180 },
+    "half=mid_center,open=false,facing=west":  { "model": "anvilcraft:block/celestial_forging_anvil_gate_block", "y": 270 },
+
+    "half=mid_center,open=true,facing=north":  { "model": "anvilcraft:block/celestial_forging_anvil_gate_open_block" },
+    "half=mid_center,open=true,facing=east":   { "model": "anvilcraft:block/celestial_forging_anvil_gate_open_block", "y": 90 },
+    "half=mid_center,open=true,facing=south":  { "model": "anvilcraft:block/celestial_forging_anvil_gate_open_block", "y": 180 },
+    "half=mid_center,open=true,facing=west":   { "model": "anvilcraft:block/celestial_forging_anvil_gate_open_block", "y": 270 }
   }
 }

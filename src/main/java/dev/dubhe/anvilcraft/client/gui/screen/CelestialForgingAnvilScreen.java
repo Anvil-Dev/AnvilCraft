@@ -292,16 +292,17 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         // Refactor section
         this.renderRefactorSection(graphics, guiLeft, guiTop, relX, relY);
 
-        // Celestial maps guide (when triggered + not locked + not searching)
+        // Celestial maps guide (when triggered + not locked + not searching)。
+        // 指南显示时完全取代天体预览/信息/资源框——不再叠加渲染，避免混乱（对齐 1.21：指南分支 return）。
         boolean showGuide = !this.isLocked() && this.guideTriggered && this.searchState != SearchState.LOADING;
         if (showGuide) {
             this.renderCelestialMapsGuide(graphics, guiLeft, guiTop);
             // Re-render preview buttons on top of the guide map
             this.renderPreviewBottomButtons(graphics, guiLeft, guiTop, relX, relY);
+        } else {
+            // Preview area content (body preview + info panel + resource bar)
+            this.renderPreviewAreaContents(graphics, guiLeft, guiTop);
         }
-
-        // Preview area content (body preview + info panel + resource bar)
-        this.renderPreviewAreaContents(graphics, guiLeft, guiTop);
 
         // Ghost slot items
         this.renderSlotGhosts(graphics, guiLeft, guiTop);

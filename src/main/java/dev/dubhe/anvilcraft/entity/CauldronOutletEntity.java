@@ -1,11 +1,10 @@
 package dev.dubhe.anvilcraft.entity;
 
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
-import dev.dubhe.anvilcraft.util.PacketDistributingHelper;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -15,7 +14,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -26,9 +26,11 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Set;
+import java.util.List;
 
 public class CauldronOutletEntity extends Entity {
     private static final EntityDataAccessor<BlockPos> DATA_CAULDRON_POS = SynchedEntityData.defineId(
@@ -193,7 +195,52 @@ public class CauldronOutletEntity extends Entity {
             cauldronPos.getZ() + 1.01
         );
         Direction attachedDirection = this.getAttachedDirection();
-        level().getEntities(EntityType.ITEM, aabb, entity -> !entity.anvilcraft$isAdsorbable()).forEach(entity -> {
+
+        // 输出口前方的方块，如果是容器则优先输入进容器，输入不进的部分再作为掉落物输出
+        ResourceHandler<ItemResource> containerTarget = null;
+        if (this.level() instanceof ServerLevel) {
+            List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getTargetItemHandlerList(
+                cauldronPos.relative(attachedDirection),
+                attachedDirection.getOpposite(),
+                this.level()
+            );
+            if (targets != null) {
+                for (ResourceHandler<ItemResource> handler : targets) {
+                    if (handler != null) {
+                        containerTarget = handler;
+                        break;
+                    }
+                }
+            }
+        }
+        // 前方没有容器时，若开口被有碰撞的方块堵住则不输出（探测开口处的方块碰撞形状）
+        final boolean blocked = containerTarget == null
+            && this.level() instanceof ServerLevel
+            && AnvilUtil.isOutletBlocked(
+                this.level(), cauldronPos.relative(attachedDirection), this.position(), attachedDirection);
+
+        // 物品输出仅在服务端处理：通过销毁原实体并生成新实体来输出，避免对已被客户端追踪的
+        // 实体使用传送包导致的插值拉扯（客户端会先按自身速度穿过去再被同步拉回）
+        if (!(this.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        final ResourceHandler<ItemResource> finalContainerTarget = containerTarget;
+        serverLevel.getEntities(EntityType.ITEM, aabb, entity -> !entity.anvilcraft$isAdsorbable()).forEach(entity -> {
+            if (finalContainerTarget != null) {
+                ItemStack stack = entity.getItem();
+                ItemStack remainder = ItemHandlerUtil.insertItem(finalContainerTarget, stack, false);
+                if (remainder.isEmpty()) {
+                    entity.discard();
+                    return;
+                }
+                if (remainder.getCount() != stack.getCount()) {
+                    entity.setItem(remainder);
+                }
+            } else if (blocked) {
+                // 开口被堵住，物品留在原地，下一 tick 再尝试
+                return;
+            }
+
             Vec3 ejectPos = this.position()
                 .add(attachedDirection.getStepX() * 0.25, attachedDirection.getStepY() * 0.25, attachedDirection.getStepZ() * 0.25);
             Vec3 motion = new Vec3(
@@ -201,21 +248,14 @@ public class CauldronOutletEntity extends Entity {
                 attachedDirection.getStepY() * 0.1,
                 attachedDirection.getStepZ() * 0.1
             );
-            entity.moveOrInterpolateTo(ejectPos);
-            entity.setDeltaMovement(motion);
-            entity.anvilcraft$setIsAdsorbable(true);
-            if (!this.level().isClientSide() && this.level() instanceof ServerLevel) {
-                PacketDistributingHelper.sendToPlayersTrackingEntity(
-                    entity,
-                    new ClientboundTeleportEntityPacket(
-                        entity.getId(),
-                        PositionMoveRotation.of(this),
-                        Set.of(),
-                        false
-                    )
-                );
-                PacketDistributingHelper.sendToPlayersTrackingEntity(entity, new ClientboundSetEntityMotionPacket(entity));
-            }
+            // 销毁原实体并在输出位置生成新实体，客户端会收到干净的生成包并自行模拟物理
+            ItemStack outputStack = entity.getItem().copy();
+            entity.discard();
+            ItemEntity ejected = new ItemEntity(
+                serverLevel, ejectPos.x, ejectPos.y, ejectPos.z, outputStack, motion.x, motion.y, motion.z
+            );
+            ejected.anvilcraft$setIsAdsorbable(true);
+            serverLevel.addFreshEntity(ejected);
         });
     }
 

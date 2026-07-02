@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CFAPortalRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
@@ -200,15 +199,31 @@ public class RegisterAdditionalEventListener {
             CFARenderer.BODY_BLACK_HOLE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/black_hole"))
         );
-        // CFA portal gate models
-        event.register(
-            CFAPortalRenderer.GATE_MODEL,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_gate"))
-        );
-        event.register(
-            CFAPortalRenderer.GATE_OPEN_MODEL,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_gate_open"))
-        );
+        // CFA body models — planets (static-texture fallback)
+        event.register(CFARenderer.BODY_PLANET_ARID,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_arid")));
+        event.register(CFARenderer.BODY_PLANET_WET,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_wet")));
+        event.register(CFARenderer.BODY_PLANET_BOGGY,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_boggy")));
+        event.register(CFARenderer.BODY_PLANET_OCEANIC,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_oceanic")));
+        event.register(CFARenderer.BODY_PLANET_ATMOSPHERELESS,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_atmosphereless")));
+        event.register(CFARenderer.BODY_PLANET_GIANT,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_giant_0")));
+        event.register(CFARenderer.BODY_PLANET_OVERWORLD,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_overworld")));
+        event.register(CFARenderer.BODY_PLANET_FLESH,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_flesh")));
+        event.register(CFARenderer.BODY_PLANET_INTELLIGENCE,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_intelligence")));
+        event.register(CFARenderer.BODY_PLANET_SHATTERED,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_shattered")));
+        event.register(CFARenderer.BODY_PLANET_HOLLOW,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_hollow")));
+        event.register(CFARenderer.BODY_PLANET_ERROR,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_error")));
         event.register(
             FishTankRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))

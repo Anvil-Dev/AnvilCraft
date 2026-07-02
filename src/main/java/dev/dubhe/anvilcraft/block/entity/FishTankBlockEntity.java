@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -587,6 +588,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
         List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
         if (targets == null || targets.isEmpty()) {
+            // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
+            if (isOutletBlocked(level, pos, outletDir)) return;
             for (int i = 0; i < 8; i++) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     ItemResource resource = this.output.getResource(i);
@@ -622,6 +625,24 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.setChanged();
         this.refreshIgnited();
         this.sendUpdate();
+    }
+
+    /**
+     * 判断输出口开口处是否被前方方块的碰撞形状堵住。
+     *
+     * @param level     世界
+     * @param pos       鱼缸坐标
+     * @param direction 输出口朝向
+     * @return 被堵返回 true
+     */
+    private static boolean isOutletBlocked(Level level, BlockPos pos, Direction direction) {
+        // 开口中心紧贴鱼缸与前方方块的交界面
+        Vec3 openingCenter = new Vec3(
+            pos.getX() + 0.5 + direction.getStepX() * 0.5,
+            pos.getY() + 0.5 + direction.getStepY() * 0.5,
+            pos.getZ() + 0.5 + direction.getStepZ() * 0.5
+        );
+        return AnvilUtil.isOutletBlocked(level, pos.relative(direction), openingCenter, direction);
     }
 
     /// 从鱼缸中提取出所有物品

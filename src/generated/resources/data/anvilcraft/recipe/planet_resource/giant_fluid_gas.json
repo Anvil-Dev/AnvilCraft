@@ -4,12 +4,8 @@
   "giant": {
     "entries": [
       {
-        "id": "anvilcraft:hydrogen",
-        "weight": 90
-      },
-      {
-        "id": "anvilcraft:helium",
-        "weight": 10
+        "id": "anvilcraft:primordial_matter",
+        "weight": 100
       }
     ],
     "pressure_type": "gas"

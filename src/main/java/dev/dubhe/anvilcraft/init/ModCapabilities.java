@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
 import dev.dubhe.anvilcraft.api.fluid.HoneyBottleResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
@@ -99,6 +100,17 @@ public class ModCapabilities {
         );
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PIPE_NODE.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.CREATIVE_FLUID_TANK.get(), ModCapabilities::fluid);
+        event.registerBlockEntity(
+            Capabilities.Fluid.BLOCK,
+            ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get(),
+            ModCapabilities::fluid
+        );
+
+        event.registerBlock(
+            Capabilities.Fluid.BLOCK,
+            (level, pos, state, blockEntity, side) -> VoidFluidHandler.INSTANCE,
+            ModBlocks.MENGER_SPONGE.get()
+        );
 
 
         event.registerItem(Capabilities.Fluid.ITEM, (_, ctx) -> new BucketResourceHandler(ctx), Items.POWDER_SNOW_BUCKET);

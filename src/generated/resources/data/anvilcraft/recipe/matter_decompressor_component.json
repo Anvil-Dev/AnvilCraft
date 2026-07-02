@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "anvilcraft:transcendium_ingot",
+    "B": "anvilcraft:laser_receiver",
+    "C": "anvilcraft:singularity_crystal"
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "count": 8,
+    "id": "anvilcraft:matter_decompressor_component"
+  }
+}

@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -309,6 +310,16 @@ public class CelestialForgingAnvilBlock
                     be.syncToClient();
                 }
             });
+    }
+
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos,
+                                   Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
+        // Invalidate the CFA's cached redstone signal so the renderer picks up the change promptly.
+        if (level.getBlockEntity(getMainPartPos(pos, state)) instanceof CelestialForgingAnvilBlockEntity be) {
+            be.markRedstoneSignalDirty();
+        }
     }
 
     @Override

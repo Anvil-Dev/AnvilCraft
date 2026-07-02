@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "anvilcraft:item/excited_state_void_matter"
+  }
+}

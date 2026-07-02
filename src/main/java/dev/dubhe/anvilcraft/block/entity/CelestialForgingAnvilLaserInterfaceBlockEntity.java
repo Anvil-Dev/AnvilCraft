@@ -136,9 +136,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         );
     }
 
-    /**
-     * Whether this laser interface is in active (redstone-powered) mode.
-     */
+    /// 此激光接口是否处于主动模式（由铁砧锤切换的 ACTIVE 属性，而非红石信号）。
     public boolean isActive() {
         BlockState state = getBlockState();
         return state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)

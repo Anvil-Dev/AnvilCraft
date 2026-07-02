@@ -2,10 +2,9 @@ package dev.dubhe.anvilcraft.block.utility.redstone;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
-import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.state.FacingWithAxis;
-import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -20,7 +19,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,7 +36,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-public class BlockComparatorBlock extends HorizontalDirectionalBlock implements HammerRotateBehavior, IHammerRemovable {
+public class BlockComparatorBlock extends Block implements IHammerRemovable, IHammerChangeable {
 
     public static final MapCodec<BlockComparatorBlock> CODEC = simpleCodec(BlockComparatorBlock::new);
 
@@ -86,7 +84,7 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+    protected MapCodec<? extends Block> codec() {
         return CODEC;
     }
 
@@ -162,14 +160,20 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected InteractionResult useWithoutItem(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        BlockHitResult hitResult
+    ) {
         if (!player.getAbilities().mayBuild) {
             return InteractionResult.PASS;
         } else {
             BlockState newState = state.cycle(PRECISE);
             level.setBlock(pos, newState.setValue(POWERED, this.checkBlocks(level, pos, newState)), 2);
             this.updateNeighborsInFront(level, pos, state);
-            return Util.sidedSuccess(level);
+            return InteractionResult.SUCCESS;
         }
     }
 
@@ -241,7 +245,12 @@ public class BlockComparatorBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    protected int getDirectSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
+    protected int getDirectSignal(
+        BlockState blockState,
+        BlockGetter blockAccess,
+        BlockPos pos,
+        Direction side
+    ) {
         return blockState.getSignal(blockAccess, pos, side);
     }
 
