@@ -24,7 +24,7 @@ abstract class InventoryMixin {
     )
     private void preInventoryTick(CallbackInfo ci) {
         if (this.player instanceof ServerPlayer player) {
-            AmuletManager.INSTANCE.inventoryTick(player);
+            AmuletManager.get(player.registryAccess()).inventoryTick(player);
         }
     }
 }

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.tags;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
+import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.EntityTypeTags;
@@ -21,6 +22,7 @@ public class EntityTypeTagLoader {
         provider.addTag(ModEntityTypeTags.AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.EMERALD_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.SAPPHIRE_AMULET_VALID)
+            .addOptionalTag(ModEntityTypeTags.ANVIL_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.CAT_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.DOG_AMULET_VALID)
             .addOptionalTag(ModEntityTypeTags.SILENCE_AMULET_VALID);
@@ -33,6 +35,10 @@ public class EntityTypeTagLoader {
             .add(findResourceKey(EntityType.GUARDIAN))
             .add(findResourceKey(EntityType.ELDER_GUARDIAN));
 
+        provider.addTag(ModEntityTypeTags.ANVIL_AMULET_VALID)
+            .add(findResourceKey(EntityType.FALLING_BLOCK))
+            .add(ModEntities.FALLING_GIANT_ANVIL.getKey());
+
         provider.addTag(ModEntityTypeTags.CAT_AMULET_VALID)
             .add(findResourceKey(EntityType.CREEPER))
             .add(findResourceKey(EntityType.PHANTOM));
@@ -42,5 +48,8 @@ public class EntityTypeTagLoader {
 
         provider.addTag(ModEntityTypeTags.SILENCE_AMULET_VALID)
             .add(findResourceKey(EntityType.WARDEN));
+
+        provider.addTag(ModEntityTypeTags.FALLING_GIANT_ANVIL_DAMAGE_IMMUNE)
+            .addTag(EntityTypeTags.FALL_DAMAGE_IMMUNE);
     }
 }

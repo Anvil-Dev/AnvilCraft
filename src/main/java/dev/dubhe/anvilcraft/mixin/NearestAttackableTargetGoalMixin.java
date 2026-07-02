@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.mixin;
 
-import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.init.item.ModAmulets;
+import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.mixin.accessor.TargetingConditionsAccessor;
-import dev.dubhe.anvilcraft.util.function.SafePredicate;
+import dev.dubhe.anvilcraft.util.mixin.ModifiedSelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -11,7 +12,7 @@ import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Creeper;
-import net.neoforged.neoforge.attachment.AttachmentType;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,20 +43,26 @@ public abstract class NearestAttackableTargetGoalMixin extends TargetGoal {
         index = 0
     )
     private TargetingConditions addAmuletScare(TargetingConditions conditions) {
-        AttachmentType<Boolean> type;
+        IAmulet amulet;
         switch (this.mob.getClass()) {
-            case Class<?> clazz when clazz.isAssignableFrom(AbstractSkeleton.class) -> type = ModDataAttachments.SCARE_SKELETONS.get();
-            case Class<?> clazz when clazz.isAssignableFrom(Creeper.class) -> type = ModDataAttachments.SCARE_CREEPERS.get();
+            case Class<?> clazz when clazz.isAssignableFrom(AbstractSkeleton.class) -> amulet = ModAmulets.DOG;
+            case Class<?> clazz when clazz.isAssignableFrom(Creeper.class) -> amulet = ModAmulets.CAT;
             default -> {
                 return conditions;
             }
         }
         return conditions.selector(
             Optional.ofNullable(((TargetingConditionsAccessor) conditions).getSelector())
-                .flatMap(p -> Util.castSafely(p, SafePredicate.class))
-                .map(Util::<SafePredicate<LivingEntity>>cast)
-                .map(predicate -> predicate.and(entity -> !entity.getData(type)))
-                .orElse(entity -> !entity.getData(type))
+                .map(p -> ModifiedSelector.toModified(
+                    p,
+                    () -> entity ->
+                        entity instanceof Player player
+                        && !AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, amulet)
+                ))
+                .orElse(entity ->
+                            entity instanceof Player player
+                            && !AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, amulet)
+                )
         );
     }
 }

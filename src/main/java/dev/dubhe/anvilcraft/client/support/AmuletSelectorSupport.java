@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -13,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 public class AmuletSelectorSupport {
     public static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "amulet_box");
@@ -21,10 +21,11 @@ public class AmuletSelectorSupport {
 
     private static ItemStack currentHoveringItemStack = ItemStack.EMPTY;
     private static int maxSelection = -1;
-    private static Layout layout = null;
-    private static BoxContents contents = null;
+    private static @Nullable Layout layout = null;
+    private static @Nullable BoxContents contents = null;
 
     public static void render(GuiGraphics guiGraphics, int x, int y) {
+        // noinspection ConstantValue
         if (currentHoveringItemStack == null) return;
         int left = x - BACKGROUND_WIDTH / 2;
         int top = y - BACKGROUND_HEIGHT - 5;
@@ -322,8 +323,10 @@ public class AmuletSelectorSupport {
                 return NO_AMULET;
             }
             List<ItemStack> amulets = content.amulets();
-            boolean firstBigAmulet = amulets.getFirst().getItem() instanceof AmuletItem amuletItem && amuletItem.getWeight() > 6;
-            boolean firstSmallAmulet = amulets.getFirst().getItem() instanceof AmuletItem amuletItem && amuletItem.getWeight() <= 6;
+            boolean firstBigAmulet = amulets.getFirst().has(ModComponents.AMULET)
+                                     && Objects.requireNonNull(amulets.getFirst().get(ModComponents.AMULET)).getWeight() > 6;
+            boolean firstSmallAmulet = amulets.getFirst().has(ModComponents.AMULET)
+                                       && Objects.requireNonNull(amulets.getFirst().get(ModComponents.AMULET)).getWeight() <= 6;
             if (firstBigAmulet) {
                 return BIG_AMULET_1;
             }

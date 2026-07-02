@@ -2,7 +2,8 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
+import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.monster.Phantom;
@@ -32,18 +33,19 @@ public abstract class PhantomGoalMixin {
             opcode = Opcodes.PUTFIELD
         )
     )
-    @SuppressWarnings("resource")
     private void addAvoidPlayerGoal(Phantom.PhantomSweepAttackGoal instance, boolean value, Operation<Void> original) {
-        List<Player> players = this.this$0.level()
-            .getEntitiesOfClass(
-                Player.class, this.this$0.getBoundingBox().inflate(16.0), EntitySelector.NO_SPECTATORS.and(
-                    player -> player.getData(ModDataAttachments.SCARE_PHANTOMS)
-                )
-            );
+        List<Player> players = this.this$0.level().getEntitiesOfClass(
+            Player.class,
+            this.this$0.getBoundingBox().inflate(16.0),
+            EntitySelector.NO_SPECTATORS.and(
+                entity -> entity instanceof Player player
+                          && AmuletManager.get(player.registryAccess()).hasAmuletInInventory(player, ModAmulets.CAT)
+            )
+        );
         for (Player player : players) {
             player.makeSound(SoundEvents.CAT_HISS);
         }
 
-        instance.isScaredOfCat = value || !players.isEmpty();
+        original.call(instance, value || !players.isEmpty());
     }
 }
