@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -122,6 +123,9 @@ public class ModCriterionTriggers {
 
     public static final DeferredHolder<CriterionTrigger<?>, PipeConnectContainersTrigger> PIPE_CONNECT_CONTAINERS =
         REGISTER.register("pipe_connect_containers", PipeConnectContainersTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, VoidEnergyCollectorWorkingTrigger> VOID_ENERGY_COLLECTOR_WORKING =
+        REGISTER.register("void_energy_collector_working", VoidEnergyCollectorWorkingTrigger::new);
 
     public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);

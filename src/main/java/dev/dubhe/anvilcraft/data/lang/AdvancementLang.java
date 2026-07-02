@@ -156,6 +156,12 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.ore_point.title", "Ore point");
         provider.add("advancements.anvilcraft.ore_point.description", "Create a mineral fountain, and start producing ores continually");
 
+        provider.add("advancements.anvilcraft.mining_void.title", "Mining Void");
+        provider.add("advancements.anvilcraft.mining_void.description", "Obtain Void Matter");
+
+        provider.add("advancements.anvilcraft.void_generate_energy.title", "The emptiness gives energy its purpose.");
+        provider.add("advancements.anvilcraft.void_generate_energy.description", "Get a Void Energy Collector working to generate power");
+
         provider.add("advancements.anvilcraft.heat_utilizing.title", "Heat utilizing");
         provider.add("advancements.anvilcraft.heat_utilizing.description", "Craft heat collector");
 

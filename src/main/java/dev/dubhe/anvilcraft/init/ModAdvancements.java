@@ -70,6 +70,8 @@ public class ModAdvancements {
     public static final AdvancementHolder GEM_TRANSFORM;
     public static final AdvancementHolder LASER;
     public static final AdvancementHolder ORE_POINT;
+    public static final AdvancementHolder MINING_VOID;
+    public static final AdvancementHolder VOID_GENERATE_ENERGY;
     public static final AdvancementHolder HEAT_UTILIZING;
     public static final AdvancementHolder ISOTOPE_DECAY_BATTERY;
     public static final AdvancementHolder SUPER_HEAT;
@@ -734,6 +736,50 @@ public class ModAdvancements {
             .fireReforge("fire_reforge")
             .build("self_in_flaming");
 
+        AdvancementLineHelper oreLine = industrialLine.createBranch();
+        ORE_POINT = oreLine.next()
+            .display(
+                ModBlocks.MINERAL_FOUNTAIN,
+                Component.translatable("advancements.anvilcraft.ore_point.title"),
+                Component.translatable("advancements.anvilcraft.ore_point.description"),
+                null,
+                AdvancementType.TASK,
+                true,
+                true,
+                false
+            )
+            .mineralFountainCreate("mineral_fountain_create")
+            .build("ore_point");
+        MINING_VOID = oreLine.next()
+            .display(
+                ModItems.VOID_MATTER,
+                Component.translatable("advancements.anvilcraft.mining_void.title"),
+                Component.translatable("advancements.anvilcraft.mining_void.description"),
+                null,
+                AdvancementType.TASK,
+                true,
+                true,
+                false
+            )
+            .hasItems("has_void_matter", ModItems.VOID_MATTER)
+            .build("mining_void");
+
+        AdvancementLineHelper voidLine = oreLine.createBranch();
+        VOID_GENERATE_ENERGY = voidLine.next()
+            .display(
+                ModBlocks.VOID_ENERGY_COLLECTOR,
+                Component.translatable("advancements.anvilcraft.void_generate_energy.title"),
+                Component.translatable("advancements.anvilcraft.void_generate_energy.description"),
+                null,
+                AdvancementType.TASK,
+                true,
+                true,
+                false
+            )
+            .voidEnergyCollectorWorking("void_energy_collector_working")
+            .build("void_generate_energy");
+
+
         AdvancementLineHelper gemLine = industrialLine.createBranch();
         GEM_TRANSFORM = gemLine.next()
             .display(
@@ -767,20 +813,6 @@ public class ModAdvancements {
             )
             .hasItems("has_ruby_laser", ModBlocks.RUBY_LASER)
             .build("laser");
-        ORE_POINT = laserLine.next()
-            .display(
-                ModBlocks.MINERAL_FOUNTAIN,
-                Component.translatable("advancements.anvilcraft.ore_point.title"),
-                Component.translatable("advancements.anvilcraft.ore_point.description"),
-                null,
-                AdvancementType.TASK,
-                true,
-                true,
-                false
-            )
-            .mineralFountainCreate("mineral_fountain_create")
-            .build("ore_point");
-
         HEAT_UTILIZING = gemLine.next()
             .display(
                 ModBlocks.HEAT_COLLECTOR,

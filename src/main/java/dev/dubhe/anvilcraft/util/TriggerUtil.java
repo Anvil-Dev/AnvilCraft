@@ -176,4 +176,12 @@ public class TriggerUtil {
             }
         }
     }
+
+    public static void voidEnergyCollectorWorking(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.VOID_ENERGY_COLLECTOR_WORKING.get().trigger(player);
+            }
+        }
+    }
 }

@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidEnergyCollectorWorkingTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -373,6 +374,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper pipeConnectContainers(String key) {
             return this.addCriterion(key, PipeConnectContainersTrigger.TriggerInstance.connect());
+        }
+
+        public AdvancementHelper voidEnergyCollectorWorking(String key) {
+            return this.addCriterion(key, VoidEnergyCollectorWorkingTrigger.TriggerInstance.collect());
         }
 
         public AdvancementHolder build(String id) {
