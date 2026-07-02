@@ -64,5 +64,7 @@ public class OtherLang {
         provider.add("subtitles.anvilcraft.smart_block_placer_extend", "Smart Block Placer extended");
         provider.add("subtitles.anvilcraft.smart_block_placer_retract", "Smart Block Placer retracted");
         provider.add("subtitles.anvilcraft.smart_block_placer_shulker_open", "Smart Block Placer whirs");
+
+        provider.add("subtitles.anvilcraft.anvil_hammer_rotate_block", "Anvil Hammer rotates block");
     }
 }
