@@ -162,6 +162,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.void_generate_energy.title", "The emptiness gives energy its purpose.");
         provider.add("advancements.anvilcraft.void_generate_energy.description", "Get a Void Energy Collector working to generate power");
 
+        provider.add("advancements.anvilcraft.saikou_scrubber.title", "Saikou Scrubber");
+        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain Menger Sponge");
+
         provider.add("advancements.anvilcraft.heat_utilizing.title", "Heat utilizing");
         provider.add("advancements.anvilcraft.heat_utilizing.description", "Craft heat collector");
 

@@ -72,6 +72,7 @@ public class ModAdvancements {
     public static final AdvancementHolder ORE_POINT;
     public static final AdvancementHolder MINING_VOID;
     public static final AdvancementHolder VOID_GENERATE_ENERGY;
+    public static final AdvancementHolder SAIKOU_SCRUBBER;
     public static final AdvancementHolder HEAT_UTILIZING;
     public static final AdvancementHolder ISOTOPE_DECAY_BATTERY;
     public static final AdvancementHolder SUPER_HEAT;
@@ -778,6 +779,19 @@ public class ModAdvancements {
             )
             .voidEnergyCollectorWorking("void_energy_collector_working")
             .build("void_generate_energy");
+        SAIKOU_SCRUBBER = voidLine.next()
+            .display(
+                ModBlocks.MENGER_SPONGE,
+                Component.translatable("advancements.anvilcraft.saikou_scrubber.title"),
+                Component.translatable("advancements.anvilcraft.saikou_scrubber.description"),
+                null,
+                AdvancementType.TASK,
+                true,
+                true,
+                false
+            )
+            .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
+            .build("saikou_scrubber");
 
 
         AdvancementLineHelper gemLine = industrialLine.createBranch();
