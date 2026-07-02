@@ -1,0 +1,9 @@
+{
+	"parent": "anvilcraft:block/block_comparator_y",
+	"textures": {
+		"particle": "anvilcraft:block/block_comparator",
+		"switch": "anvilcraft:block/block_comparator",
+		"body": "anvilcraft:block/block_comparator_body",
+		"eyes": "anvilcraft:block/block_comparator_eyes_precise"
+	}
+}

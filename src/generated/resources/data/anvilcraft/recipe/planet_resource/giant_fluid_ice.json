@@ -4,12 +4,8 @@
   "giant": {
     "entries": [
       {
-        "id": "anvilcraft:hydrogen",
-        "weight": 80
-      },
-      {
-        "id": "anvilcraft:helium",
-        "weight": 10
+        "id": "anvilcraft:primordial_matter",
+        "weight": 90
       },
       {
         "id": "minecraft:water",

@@ -173,6 +173,25 @@ public class CelestialBodyRenderer {
     }
 
     /**
+     * Render an opaque cube with a single constant vertex color on all six faces.
+     * Used for the star color overlay (multiplicative blend).
+     */
+    public static void renderColorCube(PoseStack ps, VertexConsumer vc, float r, float g, float b, float a, int light, int overlay) {
+        float x1 = 0;
+        float x2 = 1;
+        float y1 = 0;
+        float y2 = 1;
+        float z1 = 0;
+        float z2 = 1;
+        tintedFaceUp(ps, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceDown(ps, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceNorth(ps, vc, x1, x2, y1, y2, z1, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceSouth(ps, vc, x1, x2, y1, y2, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceEast(ps, vc, x2, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceWest(ps, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+    }
+
+    /**
      * Render a flat ring plane at y=0.5 spanning from rmin to rmax.
      */
     public static void renderRing(PoseStack ps, VertexConsumer vc, int light, int overlay) {

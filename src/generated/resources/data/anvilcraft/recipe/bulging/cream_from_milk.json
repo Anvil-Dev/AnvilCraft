@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:bulging",
   "consume": 1000,
-  "fluid": "anvilcraft:milk",
+  "fluid": "minecraft:milk",
   "ingredients": [],
   "results": [
     {

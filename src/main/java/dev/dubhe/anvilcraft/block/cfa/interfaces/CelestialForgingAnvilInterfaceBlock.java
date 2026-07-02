@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -52,24 +51,6 @@ public abstract class CelestialForgingAnvilInterfaceBlock
     }
 
     @Override
-    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        if (!level.isClientSide()) {
-            this.neighborChanged(state, level, pos, state.getBlock(), null, false);
-        }
-    }
-
-    @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos,
-                                   Block block, @Nullable Orientation orientation, boolean movedByPiston) {
-        if (!level.isClientSide()) {
-            boolean hasSignal = level.hasNeighborSignal(pos);
-            if (state.getValue(ACTIVE) != hasSignal) {
-                level.setBlock(pos, state.setValue(ACTIVE, hasSignal), 3);
-            }
-        }
-    }
-
-    @Override
     protected float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
         return 1.0F;
     }
@@ -82,15 +63,19 @@ public abstract class CelestialForgingAnvilInterfaceBlock
     @Override
     protected abstract void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder);
 
+    /// 用铁砧锤右键在主动/被动模式之间切换（替代红石信号控制）。
+    /// 返回 ACTIVE 属性使锤子选择轮切换主被动并预览两种模型，
+    /// 而非旋转朝向——接口的朝向必须始终指向锻星砧。
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return ACTIVE;
     }
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, state.cycle(FACING));
+        if (!state.hasProperty(ACTIVE)) return false;
+        level.setBlock(blockPos, state.cycle(ACTIVE), 3);
         return true;
     }
 
