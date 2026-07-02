@@ -742,7 +742,7 @@ public class ModAdvancements {
             )
             .requireAll()
             .hasItems("has_ember_smithing_table", ModBlocks.EMBER_SMITHING_TABLE)
-            .hasItems("has_ember_metal_block", ModBlocks.EMBER_METAL_BLOCK)
+            .hasItems("has_ember_anvil", ModBlocks.EMBER_ANVIL)
             .hasItems("has_ember_grindstone", ModBlocks.EMBER_GRINDSTONE)
             .hasItems("has_frost_smithing_table", ModBlocks.FROST_SMITHING_TABLE)
             .hasItems("has_frost_anvil", ModBlocks.FROST_ANVIL)
