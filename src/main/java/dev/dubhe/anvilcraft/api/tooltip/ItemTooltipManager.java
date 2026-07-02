@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ItemTooltipManager {
 
@@ -251,7 +252,14 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.COMRADE_AMULET.asItem(), "Signable by players via right-click, prevents damage from signed players");
         NORMAL.put(ModItems.PILL_BOX.asItem(), "Store pills for quick use");
         NORMAL.put(ModItems.AMULET_BOX.asItem(), "Stores multiple active amulets or totems");
+        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), "Forge celestial bodies, build megastructures");
 
+        SHIFT.put(
+            ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), """
+                Place an anvil to determine celestial parameters
+                Once a suitable celestial body is found, lock it to build a megastructure
+                Unlocking the celestial body will destroy the megastructure
+                Different megastructures serve different purposes — check the megastructure button for details""");
         SHIFT.put(
             ModBlocks.SPECTRAL_ANVIL.asItem(),
             "When the upper magnet is demagnetized, a phantom shadow is created and falls downward, "
@@ -352,7 +360,7 @@ public class ItemTooltipManager {
                     "multiphase.id",
                     tooltip,
                     0xDD91FA,
-                    stack.get(ModComponents.MULTIPHASE).id().toString()
+                    Objects.requireNonNull(stack.get(ModComponents.MULTIPHASE)).id().toString()
                 );
             }
             propertyTooltip(
