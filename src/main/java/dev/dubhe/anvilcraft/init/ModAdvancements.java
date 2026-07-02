@@ -729,9 +729,9 @@ public class ModAdvancements {
             .hasItems("has_ember_metal_ingot", ModItems.EMBER_METAL_INGOT)
             .hasItems("has_ember_metal_nugget", ModItems.EMBER_METAL_NUGGET)
             .build("forged_over_eons");
-        ICE_AND_FIRE = emberLine.next()
+        ICE_AND_FIRE = emberLine.createBranch().next()
             .display(
-                ModBlocks.FROST_ANVIL,
+                ModBlocks.EMBER_ANVIL,
                 Component.translatable("advancements.anvilcraft.ice_and_fire.title"),
                 Component.translatable("advancements.anvilcraft.ice_and_fire.description"),
                 null,

@@ -69,7 +69,7 @@
     "frame": "challenge",
     "icon": {
       "count": 1,
-      "id": "anvilcraft:frost_anvil"
+      "id": "anvilcraft:ember_anvil"
     },
     "title": {
       "translate": "advancements.anvilcraft.ice_and_fire.title"

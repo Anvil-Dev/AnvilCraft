@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/ice_and_fire",
+  "parent": "anvilcraft:anvilcraft/forged_over_eons",
   "criteria": {
     "fire_reforge": {
       "trigger": "anvilcraft:fire_reforge"
