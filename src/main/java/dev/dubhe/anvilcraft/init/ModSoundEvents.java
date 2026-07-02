@@ -52,6 +52,10 @@ public class ModSoundEvents {
         "smart_block_placer_shulker_open", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("smart_block_placer_shulker_open"))
     );
 
+    public static final Supplier<SoundEvent> ANVIL_HAMMER_ROTATE_BLOCK = REGISTER.register(
+        "anvil_hammer_rotate_block", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("anvil_hammer_rotate_block"))
+    );
+
     public static void register(IEventBus modBus) {
         REGISTER.register(modBus);
     }
