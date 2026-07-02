@@ -127,6 +127,19 @@ public class ModAdvancements {
             )
             .placerPlace("placer_place_placer", ModBlocks.BLOCK_PLACER)
             .build("block_placer");
+        PLACER_SHUTTLE = clawLine.createBranch().next()
+            .display(
+                ModBlocks.SMART_BLOCK_PLACER.asItem(),
+                Component.translatable("advancements.anvilcraft.placer_shuttle.title"),
+                Component.translatable("advancements.anvilcraft.placer_shuttle.description"),
+                null,
+                AdvancementType.GOAL,
+                true,
+                true,
+                true
+            )
+            .placerShuttle("placer_shuttle")
+            .build("placer_shuttle");
         DEVOURER = clawLine.next()
             .display(
                 ModBlocks.BLOCK_DEVOURER.asItem(),
@@ -140,19 +153,6 @@ public class ModAdvancements {
             )
             .devourerDevour("devourer_devour_devourer", ModBlocks.BLOCK_DEVOURER)
             .build("block_devourer");
-        PLACER_SHUTTLE = clawLine.next()
-            .display(
-                ModBlocks.SMART_BLOCK_PLACER.asItem(),
-                Component.translatable("advancements.anvilcraft.placer_shuttle.title"),
-                Component.translatable("advancements.anvilcraft.placer_shuttle.description"),
-                null,
-                AdvancementType.GOAL,
-                true,
-                true,
-                true
-            )
-            .placerShuttle("placer_shuttle")
-            .build("placer_shuttle");
 
         AdvancementLineHelper geodeLine = mainLine.createBranch();
         GEODE = geodeLine.next()
@@ -389,20 +389,6 @@ public class ModAdvancements {
             )
             .build("all_in_one");
 
-        SALTED_FISH_TURNS_OVER = mainLine.createBranch().next()
-            .display(
-                ModBlocks.BLOCK_COMPARATOR,
-                Component.translatable("advancements.anvilcraft.salted_fish_turns_over.title"),
-                Component.translatable("advancements.anvilcraft.salted_fish_turns_over.description"),
-                null,
-                AdvancementType.GOAL,
-                true,
-                true,
-                true
-            )
-            .blockComparatorTurnOver("block_comparator_turn_over")
-            .build("salted_fish_turns_over");
-
         AdvancementLineHelper killingLine = mainLine.createBranch();
         HAMMER_AND_NAIL = killingLine.next()
             .display(
@@ -438,7 +424,8 @@ public class ModAdvancements {
             .hammerHurt("super_kill", 80)
             .build("super_kill");
 
-        HERTS_OF_IRON = mainLine.next()
+        AdvancementLineHelper elecLine = mainLine.createBranch();
+        HERTS_OF_IRON = elecLine.next()
             .display(
                 ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK,
                 Component.translatable("advancements.anvilcraft.hearts_of_iron.title"),
@@ -452,8 +439,9 @@ public class ModAdvancements {
             .recipeAnc("craft_magnetoelectric_core", "magnetoelectric_core")
             .build("hearts_of_iron");
 
-        AdvancementLineHelper generateElecLine = mainLine.createBranch();
-        NOT_BEACON = generateElecLine.next()
+        AdvancementLineHelper genelecLine = elecLine.createBranch();
+
+        NOT_BEACON = elecLine.next()
             .display(
                 ModBlocks.CHARGE_COLLECTOR,
                 Component.translatable("advancements.anvilcraft.not_beacon.title"),
@@ -467,7 +455,7 @@ public class ModAdvancements {
             .recipeAnc("craft_charge_collector", "charge_collector")
             .playerPlace("place_charge_collector", ModBlocks.CHARGE_COLLECTOR)
             .build("not_beacon");
-        LIGHTER = generateElecLine.next()
+        LIGHTER = elecLine.next()
             .display(
                 ModBlocks.PIEZOELECTRIC_CRYSTAL,
                 Component.translatable("advancements.anvilcraft.lighter.title"),
@@ -481,7 +469,7 @@ public class ModAdvancements {
             .hitPiezoelectricCrystal("hit_piezoelectric_crystal")
             .build("lighter");
 
-        NETWORKING = mainLine.next()
+        NETWORKING = genelecLine.next()
             .display(
                 ModBlocks.TRANSMISSION_POLE,
                 Component.translatable("advancements.anvilcraft.networking.title"),
@@ -495,7 +483,7 @@ public class ModAdvancements {
             .recipeAnc("craft_transmission_pole", "transmission_pole")
             .playerPlace("place_transmission_pole", ModBlocks.TRANSMISSION_POLE)
             .build("networking");
-        ELECTRIC_FIELD_RHYTHM = mainLine.next()
+        ELECTRIC_FIELD_RHYTHM = genelecLine.next()
             .display(
                 ModItems.ANVIL_HAMMER,
                 Component.translatable("advancements.anvilcraft.electric_filed_rhythm.title"),
@@ -508,7 +496,22 @@ public class ModAdvancements {
             )
             .wearHammer("wear_anvil_hammer")
             .build("electric_filed_rhythm");
-        INDUSTRIAL_GRADE_SMELTING = mainLine.next()
+        SALTED_FISH_TURNS_OVER = mainLine.createBranch().next()
+            .display(
+                ModBlocks.BLOCK_COMPARATOR,
+                Component.translatable("advancements.anvilcraft.salted_fish_turns_over.title"),
+                Component.translatable("advancements.anvilcraft.salted_fish_turns_over.description"),
+                null,
+                AdvancementType.GOAL,
+                true,
+                true,
+                true
+            )
+            .blockComparatorTurnOver("block_comparator_turn_over")
+            .build("salted_fish_turns_over");
+
+        AdvancementLineHelper industrialLine = mainLine.createBranch();
+        INDUSTRIAL_GRADE_SMELTING = industrialLine.next()
             .display(
                 ModBlocks.HEATER,
                 Component.translatable("advancements.anvilcraft.industrial_grade_smelting.title"),
@@ -521,7 +524,7 @@ public class ModAdvancements {
             )
             .inWorldRecipeTypeAnc("super_heating", "super_heating")
             .build("industrial_grade_smelting");
-        NOBLE_METAL = mainLine.next()
+        NOBLE_METAL = industrialLine.next()
             .display(
                 ModItems.ROYAL_STEEL_INGOT,
                 Component.translatable("advancements.anvilcraft.noble_metal.title"),
@@ -536,7 +539,7 @@ public class ModAdvancements {
             .hasItemAny("has_", ModBlocks.ROYAL_STEEL_BLOCK, ModItems.ROYAL_STEEL_INGOT, ModItems.ROYAL_STEEL_NUGGET)
             .build("noble_metal");
 
-        OVERSEER = mainLine.createBranch().next()
+        OVERSEER = industrialLine.next()
             .display(
                 ModBlocks.OVERSEER_BLOCK,
                 Component.translatable("advancements.anvilcraft.overseer.title"),
@@ -550,7 +553,7 @@ public class ModAdvancements {
             .recipeAnc("craft_overseer", "overseer")
             .build("overseer");
 
-        SMITHING_TABLE = mainLine.next()
+        SMITHING_TABLE = industrialLine.next()
             .display(
                 ModBlocks.ROYAL_SMITHING_TABLE,
                 Component.translatable("advancements.anvilcraft.smithing_table.title"),
@@ -564,7 +567,7 @@ public class ModAdvancements {
             .recipeAnc("craft_smithing", "smithing/royal_smithing_table")
             .build("smithing_table");
 
-        DURABLE_GOODS = mainLine.createBranch().next()
+        DURABLE_GOODS = industrialLine.createBranch().next()
             .display(
                 ModItems.ROYAL_STEEL_PICKAXE,
                 Component.translatable("advancements.anvilcraft.durable_goods.title"),
@@ -583,7 +586,7 @@ public class ModAdvancements {
             .recipeAnc("royal_steel_sword", "smithing/royal_steel_sword")
             .build("durable_goods");
 
-        ROYAL_BLACKSMITH = mainLine.next()
+        ROYAL_BLACKSMITH = industrialLine.next()
             .display(
                 ModBlocks.ROYAL_ANVIL,
                 Component.translatable("advancements.anvilcraft.royal_blacksmith.title"),
@@ -598,7 +601,7 @@ public class ModAdvancements {
             .hasItems("has_royal_smithing_table", ModBlocks.ROYAL_SMITHING_TABLE)
             .hasItems("has_royal_grindstone", ModBlocks.ROYAL_GRINDSTONE)
             .build("royal_blacksmith");
-        WITHER = mainLine.next()
+        WITHER = industrialLine.next()
             .display(
                 ModBlocks.CORRUPTED_BEACON,
                 Component.translatable("advancements.anvilcraft.wither.title"),
@@ -611,7 +614,7 @@ public class ModAdvancements {
             )
             .convertBeacon("convert_beacon")
             .build("wither");
-        RIP_VAN_WINKLE = mainLine.next()
+        RIP_VAN_WINKLE = industrialLine.next()
             .display(
                 ModBlocks.CORRUPTED_BEACON,
                 Component.translatable("advancements.anvilcraft.rip_van_winkle.title"),
@@ -625,7 +628,7 @@ public class ModAdvancements {
             .inWorldRecipeTypeAnc("time_warp_recipe", "time_warp")
             .build("rip_van_winkle");
 
-        AdvancementLineHelper frostLine = mainLine.createBranch();
+        AdvancementLineHelper frostLine = industrialLine.createBranch();
         FROST_METAL = frostLine.next()
             .display(
                 ModItems.FROST_METAL_INGOT,
@@ -663,7 +666,7 @@ public class ModAdvancements {
             )
             .build("tai_shang_wang_qing");
 
-        AdvancementLineHelper emberLine = mainLine.createBranch();
+        AdvancementLineHelper emberLine = industrialLine.createBranch();
         FOR_AEONS = emberLine.next()
             .display(
                 ModItems.OIL_BUCKET,
@@ -717,7 +720,7 @@ public class ModAdvancements {
             .fireReforge("fire_reforge")
             .build("self_in_flaming");
 
-        AdvancementLineHelper gemLine = mainLine.createBranch();
+        AdvancementLineHelper gemLine = industrialLine.createBranch();
         GEM_TRANSFORM = gemLine.next()
             .display(
                 ModItems.RUBY,
@@ -806,7 +809,7 @@ public class ModAdvancements {
             .heatCollectorOutput("super_heat", MinMaxBounds.Ints.atLeast(HeatCollectorBlockEntity.MAX_OUTPUT_POWER))
             .build("super_heat");
 
-        GIANT_AGE = mainLine.next()
+        GIANT_AGE = industrialLine.next()
             .display(
                 ModBlocks.GIANT_ANVIL,
                 Component.translatable("advancements.anvilcraft.giant_age.title"),
@@ -819,7 +822,7 @@ public class ModAdvancements {
             )
             .hasItems("has_giant_anvil", ModBlocks.GIANT_ANVIL)
             .build("giant_age");
-        ANVIL_ACCELERATOR = mainLine.next()
+        ANVIL_ACCELERATOR = industrialLine.next()
             .display(
                 ModBlocks.ACCELERATION_RING,
                 Component.translatable("advancements.anvilcraft.anvil_accelerator.title"),
@@ -835,7 +838,7 @@ public class ModAdvancements {
             .hasItems("has_deflection_ring", ModBlocks.DEFLECTION_RING)
             .build("anvil_accelerator");
 
-        AdvancementLineHelper sideLine1 = mainLine.createBranch();
+        AdvancementLineHelper sideLine1 = industrialLine.createBranch();
         NEW_MATTER = sideLine1.next()
             .display(
                 ModItems.MULTIPHASE_MATTER,
@@ -872,7 +875,7 @@ public class ModAdvancements {
             .recipeAnc("energy_4_space", "anvil_collision/anvil_tier_0_and_space_overcompressor_128")
             .build("anvilon");
 
-        OVERHEATED = mainLine.next()
+        OVERHEATED = industrialLine.next()
             .display(
                 ModBlocks.OVERHEATED_EMBER_METAL_BLOCK,
                 Component.translatable("advancements.anvilcraft.overheated.title"),
@@ -888,7 +891,7 @@ public class ModAdvancements {
             .recipeAnc("plutonium_heat", "anvil_collision/anvil_tier_2_and_plutonium_block_256")
             .build("overheated");
 
-        NUCLEAR_POWER_10A = mainLine.createBranch().next()
+        NUCLEAR_POWER_10A = industrialLine.createBranch().next()
             .display(
                 ModBlocks.HEAT_COLLECTOR,
                 Component.translatable("advancements.anvilcraft.nuclear_power_10a.title"),
@@ -902,7 +905,7 @@ public class ModAdvancements {
             .heatCollectOn("collect_overheated", BlockStatePredicate.builder().of(ModBlockTags.OVERHEATED_BLOCKS))
             .build("nuclear_power_10a");
 
-        TRANSCENDENCE = mainLine.next()
+        TRANSCENDENCE = industrialLine.next()
             .display(
                 ModBlocks.TRANSCENDIUM_BLOCK,
                 Component.translatable("advancements.anvilcraft.transcendence.title"),
