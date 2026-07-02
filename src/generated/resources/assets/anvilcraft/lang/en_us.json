@@ -1751,6 +1751,8 @@
   "screen.anvilcraft.tooltip.cfa_amplifier": "It must be placed diagonally on the Celestial Forging Anvil",
   "screen.anvilcraft.tooltip.cfa_interface": "It must be placed tightly against the side of the Celestial Forging Anvil bottom",
   "screen.anvilcraft.transcendium_upgrade_smithing_template": "Transcendium Upgrade",
+  "stat.anvilcraft.enter_power_grid": "Power Grid Entries",
+  "stat.anvilcraft.place_power_component": "Power Components Placed",
   "subtitles.anvilcraft.burning_heater": "Burning Heater crackled",
   "subtitles.anvilcraft.giant_anvil_land": "Giant Anvil landed",
   "subtitles.anvilcraft.giant_anvil_resin_shock": "Giant Anvil resin shock",

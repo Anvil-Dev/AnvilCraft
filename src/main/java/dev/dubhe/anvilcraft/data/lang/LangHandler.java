@@ -23,5 +23,6 @@ public class LangHandler {
         CategoryLang.init(provider);
         BlockLang.init(provider);
         EffectLang.init(provider);
+        StatLang.init(provider);
     }
 }
