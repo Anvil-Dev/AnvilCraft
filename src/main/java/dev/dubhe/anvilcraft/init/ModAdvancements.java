@@ -73,6 +73,9 @@ public class ModAdvancements {
     public static final AdvancementHolder MINING_VOID;
     public static final AdvancementHolder VOID_GENERATE_ENERGY;
     public static final AdvancementHolder SAIKOU_SCRUBBER;
+    public static final AdvancementHolder INFINITY_CAPACITY;
+    public static final AdvancementHolder SHULKER_BOX_WITHIN_A_SHULKER_BOX;
+    public static final AdvancementHolder A_TEASPOON_OF_NEUTRON_STAR;
     public static final AdvancementHolder HEAT_UTILIZING;
     public static final AdvancementHolder ISOTOPE_DECAY_BATTERY;
     public static final AdvancementHolder SUPER_HEAT;
@@ -766,7 +769,7 @@ public class ModAdvancements {
             .build("mining_void");
 
         AdvancementLineHelper voidLine = oreLine.createBranch();
-        VOID_GENERATE_ENERGY = voidLine.next()
+        VOID_GENERATE_ENERGY = voidLine.createBranch().next()
             .display(
                 ModBlocks.VOID_ENERGY_COLLECTOR,
                 Component.translatable("advancements.anvilcraft.void_generate_energy.title"),
@@ -779,7 +782,9 @@ public class ModAdvancements {
             )
             .voidEnergyCollectorWorking("void_energy_collector_working")
             .build("void_generate_energy");
-        SAIKOU_SCRUBBER = voidLine.next()
+
+        AdvancementLineHelper spongeLine = voidLine.createBranch();
+        SAIKOU_SCRUBBER = spongeLine.next()
             .display(
                 ModBlocks.MENGER_SPONGE,
                 Component.translatable("advancements.anvilcraft.saikou_scrubber.title"),
@@ -792,7 +797,47 @@ public class ModAdvancements {
             )
             .hasItems("has_menger_sponge", ModBlocks.MENGER_SPONGE)
             .build("saikou_scrubber");
+        INFINITY_CAPACITY = spongeLine.next()
+            .display(
+                ModBlocks.LARGE_FLUID_TANK,
+                Component.translatable("advancements.anvilcraft.infinity_capacity.title"),
+                Component.translatable("advancements.anvilcraft.infinity_capacity.description"),
+                null,
+                AdvancementType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .multiBlockForm("multi_block_form")
+            .build("infinity_capacity");
 
+        AdvancementLineHelper spaceLine = voidLine.createBranch();
+        SHULKER_BOX_WITHIN_A_SHULKER_BOX = spaceLine.next()
+            .display(
+                ModBlocks.SPACE_OVERCOMPRESSOR,
+                Component.translatable("advancements.anvilcraft.shulker_box_within_a_shulker_box.title"),
+                Component.translatable("advancements.anvilcraft.shulker_box_within_a_shulker_box.description"),
+                null,
+                AdvancementType.TASK,
+                true,
+                true,
+                false
+            )
+            .hasItems("has_space_overcompressor", ModBlocks.SPACE_OVERCOMPRESSOR)
+            .build("shulker_box_within_a_shulker_box");
+        A_TEASPOON_OF_NEUTRON_STAR = spaceLine.next()
+            .display(
+                ModItems.NEUTRONIUM_INGOT,
+                Component.translatable("advancements.anvilcraft.a_teaspoon_of_neutron_star.title"),
+                Component.translatable("advancements.anvilcraft.a_teaspoon_of_neutron_star.description"),
+                null,
+                AdvancementType.GOAL,
+                true,
+                true,
+                false
+            )
+            .hasItems("has_neutronium_ingot", ModItems.NEUTRONIUM_INGOT)
+            .build("a_teaspoon_of_neutron_star");
 
         AdvancementLineHelper gemLine = industrialLine.createBranch();
         GEM_TRANSFORM = gemLine.next()

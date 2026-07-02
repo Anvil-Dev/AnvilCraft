@@ -1,11 +1,11 @@
 {
   "parent": "anvilcraft:anvilcraft/mining_void",
   "criteria": {
-    "has_menger_sponge": {
+    "has_space_overcompressor": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:menger_sponge"
+            "items": "anvilcraft:space_overcompressor"
           }
         ]
       },
@@ -14,19 +14,19 @@
   },
   "display": {
     "description": {
-      "translate": "advancements.anvilcraft.saikou_scrubber.description"
+      "translate": "advancements.anvilcraft.shulker_box_within_a_shulker_box.description"
     },
     "icon": {
       "count": 1,
-      "id": "anvilcraft:menger_sponge"
+      "id": "anvilcraft:space_overcompressor"
     },
     "title": {
-      "translate": "advancements.anvilcraft.saikou_scrubber.title"
+      "translate": "advancements.anvilcraft.shulker_box_within_a_shulker_box.title"
     }
   },
   "requirements": [
     [
-      "has_menger_sponge"
+      "has_space_overcompressor"
     ]
   ],
   "sends_telemetry_event": true

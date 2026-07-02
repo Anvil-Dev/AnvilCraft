@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
@@ -126,6 +127,9 @@ public class ModCriterionTriggers {
 
     public static final DeferredHolder<CriterionTrigger<?>, VoidEnergyCollectorWorkingTrigger> VOID_ENERGY_COLLECTOR_WORKING =
         REGISTER.register("void_energy_collector_working", VoidEnergyCollectorWorkingTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, MultiBlockFormTrigger> MULTI_BLOCK_FORM =
+        REGISTER.register("multi_block_form", MultiBlockFormTrigger::new);
 
     public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);

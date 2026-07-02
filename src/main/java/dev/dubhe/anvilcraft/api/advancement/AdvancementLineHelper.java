@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.MultiBlockFormTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
@@ -378,6 +379,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper voidEnergyCollectorWorking(String key) {
             return this.addCriterion(key, VoidEnergyCollectorWorkingTrigger.TriggerInstance.collect());
+        }
+
+        public AdvancementHelper multiBlockForm(String key) {
+            return this.addCriterion(key, MultiBlockFormTrigger.TriggerInstance.form());
         }
 
         public AdvancementHolder build(String id) {

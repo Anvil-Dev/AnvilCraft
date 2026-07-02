@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -163,6 +164,7 @@ public class LargeFluidTankBlock
 
     @Override
     public void onFormed(Level level, MultiblockState state) {
+        TriggerUtil.multiBlockForm(level, state.getControllerPos());
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.LARGE_FLUID_TANK.get())
             .ifPresent(LargeFluidTankBlockEntity::onFormed);
     }

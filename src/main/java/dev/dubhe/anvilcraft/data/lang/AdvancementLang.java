@@ -165,6 +165,15 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.saikou_scrubber.title", "Saikou Scrubber");
         provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain Menger Sponge");
 
+        provider.add("advancements.anvilcraft.infinity_capacity.title", "Infinity Capacity");
+        provider.add("advancements.anvilcraft.infinity_capacity.description", "Construct the Large Fluid Tank multiblock structure with Menger Sponges");
+
+        provider.add("advancements.anvilcraft.shulker_box_within_a_shulker_box.title", "Shulker box within a shulker box");
+        provider.add("advancements.anvilcraft.shulker_box_within_a_shulker_box.description", "Obtain Space Overcompressor");
+
+        provider.add("advancements.anvilcraft.a_teaspoon_of_neutron_star.title", "A teaspoon of neutron star");
+        provider.add("advancements.anvilcraft.a_teaspoon_of_neutron_star.description", "Obtain Neutronium Ingot");
+
         provider.add("advancements.anvilcraft.heat_utilizing.title", "Heat utilizing");
         provider.add("advancements.anvilcraft.heat_utilizing.description", "Craft heat collector");
 
