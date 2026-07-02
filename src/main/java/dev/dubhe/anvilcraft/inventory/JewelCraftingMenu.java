@@ -108,8 +108,35 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) return sourceStack;
 
-        if (index >= RESULT_SLOT && index < CRAFT_SLOT_END) {
-            if (!this.moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
+        if (index == RESULT_SLOT) {
+            int totalCrafted = 0;
+            while (true) {
+                ItemStack currentResult = sourceSlot.getItem();
+                if (currentResult.isEmpty()) break;
+
+                ItemStack moveStack = currentResult.copy();
+                if (!moveItemStackTo(moveStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
+                    break;
+                }
+
+                int moved = currentResult.getCount() - moveStack.getCount();
+                if (moved <= 0) break;
+
+                sourceSlot.onQuickCraft(moveStack, currentResult);
+
+                if (moveStack.isEmpty()) {
+                    sourceSlot.setByPlayer(ItemStack.EMPTY);
+                } else {
+                    sourceSlot.setChanged();
+                }
+                ItemStack takenStack = currentResult.copyWithCount(moved);
+                sourceSlot.onTake(player, takenStack);
+                totalCrafted += moved;
+            }
+
+            return totalCrafted > 0 ? sourceStack.copyWithCount(totalCrafted) : ItemStack.EMPTY;
+        } else if (index >= SOURCE_SLOT && index < CRAFT_SLOT_END) {
+            if (!moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
                 return ItemStack.EMPTY;
             }
         } else if (index >= INV_SLOT_START && index < USE_ROW_SLOT_END) {
