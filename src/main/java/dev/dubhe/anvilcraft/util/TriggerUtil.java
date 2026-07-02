@@ -168,4 +168,12 @@ public class TriggerUtil {
             }
         }
     }
+
+    public static void pipeConnectContainers(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.PIPE_CONNECT_CONTAINERS.get().trigger(player);
+            }
+        }
+    }
 }

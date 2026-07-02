@@ -51,6 +51,7 @@ public class ModAdvancements {
     public static final AdvancementHolder NETWORKING;
     public static final AdvancementHolder ELECTRIC_FIELD_RHYTHM;
     public static final AdvancementHolder INDUSTRIAL_GRADE_SMELTING;
+    public static final AdvancementHolder WATER_FLOWS_DOWNHILL;
     public static final AdvancementHolder NOBLE_METAL;
     public static final AdvancementHolder OVERSEER;
     public static final AdvancementHolder SMITHING_TABLE;
@@ -524,6 +525,19 @@ public class ModAdvancements {
             )
             .inWorldRecipeTypeAnc("super_heating", "super_heating")
             .build("industrial_grade_smelting");
+        WATER_FLOWS_DOWNHILL = industrialLine.createBranch().next()
+            .display(
+                ModBlocks.PIPE_NODE,
+                Component.translatable("advancements.anvilcraft.water_flows_downhill.title"),
+                Component.translatable("advancements.anvilcraft.water_flows_downhill.description"),
+                null,
+                AdvancementType.TASK,
+                true,
+                true,
+                false
+            )
+            .pipeConnectContainers("pipe_connect_containers")
+            .build("water_flows_downhill");
         NOBLE_METAL = industrialLine.next()
             .display(
                 ModItems.ROYAL_STEEL_INGOT,

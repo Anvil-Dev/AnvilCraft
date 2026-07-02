@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PipeConnectContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
@@ -368,6 +369,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper blockComparatorTurnOver(String key) {
             return this.addCriterion(key, BlockComparatorTurnOverTrigger.TriggerInstance.turnOver());
+        }
+
+        public AdvancementHelper pipeConnectContainers(String key) {
+            return this.addCriterion(key, PipeConnectContainersTrigger.TriggerInstance.connect());
         }
 
         public AdvancementHolder build(String id) {

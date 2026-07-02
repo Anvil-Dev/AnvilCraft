@@ -87,6 +87,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.industrial_grade_smelting.title", "Industrial grade smelting");
         provider.add("advancements.anvilcraft.industrial_grade_smelting.description", "Use super heating to melt any item");
 
+        provider.add("advancements.anvilcraft.water_flows_downhill.title", "Water flows downhill");
+        provider.add("advancements.anvilcraft.water_flows_downhill.description", "Use fluid pipes to connect two different fluid containers");
+
         provider.add("advancements.anvilcraft.noble_metal.title", "Noble metal");
         provider.add("advancements.anvilcraft.noble_metal.description", "Smelting royal steel");
 
