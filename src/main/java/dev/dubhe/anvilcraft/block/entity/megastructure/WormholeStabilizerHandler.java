@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -29,10 +30,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -66,7 +65,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
     @Override
     public int getInputPower(CelestialForgingAnvilBlockEntity be) {
-        return 0;
+        return super.getInputPower(be);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         if (option == null || !name().equals(option.megastructure())) return;
         if (!(be.getCelestialBodyData() instanceof StarData star) || star.bodyClass() != CelestialBodyClass.BLACK_HOLE) return;
 
-        // Get UUID from the celestial body; fall back to stored UUID
+        /// 从天体获取 UUID；若为空则回退到已存储的 UUID
         UUID uuid = star.bodyUuid();
         if (uuid == null) uuid = this.bodyUuid;
         if (uuid == null) return;
@@ -219,50 +218,55 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
     private void manageWormholeChunkLoading(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide() || bodyUuid == null) return;
-        WormholeNetwork network = WormholeNetwork.get();
-        List<WormholeNetwork.Entry> connected = network.getConnected(bodyUuid, be.getLevel().dimension(), be.getBlockPos());
+        if (!(be.getLevel() instanceof ServerLevel serverLevel)) return;
 
-        Set<WormholeChunkLoadKey> currentKeys = new HashSet<>();
-        for (WormholeNetwork.Entry entry : connected) {
-            ServerLevel targetLevel = be.getLevel().getServer().getLevel(entry.dimension());
-            if (targetLevel == null) continue;
+        /// 每个建造了虫洞稳定器的锻星砧独立强加载自身所在区块及周围一圈 8 个区块
+        ///（level=1 即 3×3 区域），仅加载自身所在维度的区块。
+        /// 加载不受网络中其他锻星砧的影响。
+        WormholeChunkLoadKey selfKey = new WormholeChunkLoadKey(
+            be.getLevel().dimension().location(), be.getBlockPos()
+        );
 
-            WormholeChunkLoadKey key = new WormholeChunkLoadKey(entry.dimension().location(), entry.pos());
-            currentKeys.add(key);
-
-            if (!loadedChunks.containsKey(key)) {
-                var data = LoadChuckData.createLoadChuckData(1, entry.pos(), false, targetLevel);
-                LevelLoadManager.register(entry.pos(), data, targetLevel);
-                loadedChunks.put(key, data);
-            }
+        if (!loadedChunks.containsKey(selfKey)) {
+            var data = LoadChuckData.createLoadChuckData(1, be.getBlockPos(), false, serverLevel);
+            LevelLoadManager.register(be.getBlockPos(), data, serverLevel);
+            loadedChunks.put(selfKey, data);
         }
-
-        loadedChunks.entrySet().removeIf(e -> {
-            if (!currentKeys.contains(e.getKey())) {
-                LevelLoadManager.unregister(e.getKey().pos(), be.getLevel());
-                return true;
-            }
-            return false;
-        });
     }
 
     private void cleanupWormholeChunkLoading(net.minecraft.world.level.Level level) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            loadedChunks.clear();
+            return;
+        }
         for (WormholeChunkLoadKey key : loadedChunks.keySet()) {
-            LevelLoadManager.unregister(key.pos(), level);
+            /// 为此 key 的维度解析正确的 ServerLevel，
+            /// 确保跨维度条目也能成功注销。
+            ServerLevel targetLevel = key.dimension().equals(serverLevel.dimension().location())
+                ? serverLevel
+                : serverLevel.getServer().getLevel(
+                    ResourceKey.create(
+                        net.minecraft.core.registries.Registries.DIMENSION,
+                        key.dimension()
+                    )
+                );
+            if (targetLevel != null) {
+                LevelLoadManager.unregister(key.pos(), targetLevel);
+            }
         }
         loadedChunks.clear();
     }
 
     /**
-     * Bidirectional sync for logistics interfaces.
+     * 物流接口的双向同步。
      *
-     * <p>Uses a "last seen" snapshot per slot to determine who changed:
+     * <p>使用每个槽位的"上次见到"快照来判断是谁变更了：
      * <ul>
-     *   <li>On reconnect ({@link #justReconnected}): local changes always win —
-     *       items placed during disconnect are adopted into canonical</li>
-     *   <li>Normal operation: local changed & canonical unchanged → update canonical</li>
-     *   <li>Normal operation: canonical changed & local unchanged → update local</li>
-     *   <li>Both changed → canonical wins (set by syncLogisticsOnChange with intent)</li>
+     *   <li>重连时（{@link #justReconnected}）：本地变更始终生效 —
+     *       断连期间放入的物品会采纳到 canonical</li>
+     *   <li>正常运行时：本地变更 & canonical 未变 → 更新 canonical</li>
+     *   <li>正常运行时：canonical 变更 & 本地未变 → 更新本地</li>
+     *   <li>两侧都变更 → canonical 为权威来源（由 syncLogisticsOnChange 携带意图设置）</li>
      * </ul>
      */
     private void syncWormholeLogistics(CelestialForgingAnvilBlockEntity be) {
@@ -284,9 +288,9 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
             List<UnlimitedItemStack> lastSeen = lastSeenItems.computeIfAbsent(uuid, k -> {
                 List<UnlimitedItemStack> init = new ArrayList<>(slots);
-                // On reconnect, seed lastSeen from canonical so only real local
-                // changes (items placed during disconnect) appear as changes.
-                // In normal operation, seed from canonical for the same reason.
+                /// 重连时，从 canonical 初始化 lastSeen，使仅真正的本地变更
+                ///（断连期间放入的物品）显示为变更。
+                /// 正常运行时，同样从 canonical 初始化。
                 for (int i = 0; i < slots; i++) init.add(canonical.get(i).copy());
                 return init;
             });
@@ -300,23 +304,23 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
                     || localStack.getCount() != canonStack.getCount();
 
                 if (!localVsCanonMismatch) {
-                    // Already in sync — update lastSeen and move on
+                    /// 已同步 — 更新 lastSeen 并继续
                     lastSeen.set(slot, new UnlimitedItemStack(localStack));
                     continue;
                 }
 
-                // Conflict: both sides have different non-empty items.
-                // Don't auto-resolve — keep both where they are until a player
-                // interacts with one of the interfaces (syncLogisticsOnChange).
+                /// 冲突：两侧有不同的非空物品。
+                /// 不自动解决 — 保持各自原位，直到玩家操作某个接口
+                ///（syncLogisticsOnChange 触发同步）。
                 if (!localStack.isEmpty() && !canonStack.isEmpty()) {
                     lastSeen.set(slot, new UnlimitedItemStack(localStack));
                     continue;
                 }
 
                 if (isReconnect) {
-                    // On reconnect: local was modified during disconnect.
-                    // If only local has items → adopt into canonical.
-                    // If only canonical has items → push canonical to local.
+                    /// 重连时：本地在断连期间被修改。
+                    /// 若仅本地有物品 → 采纳到 canonical。
+                    /// 若仅 canonical 有物品 → 推送 canonical 到本地。
                     if (!localStack.isEmpty()) {
                         canonical.set(slot, new UnlimitedItemStack(localStack));
                         states.setDirty();
@@ -327,7 +331,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
                     continue;
                 }
 
-                // Normal operation: compare with lastSeen
+                /// 正常运行：与 lastSeen 比较
                 ItemStack lastStack = lastSeen.get(slot).toStack();
                 boolean localChanged = !ItemStack.matches(localStack, lastStack)
                                     || localStack.getCount() != lastStack.getCount();
@@ -337,11 +341,11 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
                 if (!localChanged && !canonChanged) continue;
 
                 if (localChanged && !canonChanged) {
-                    // Local changed while canonical didn't → push local to canonical
+                    /// 本地变更而 canonical 未变 → 推送本地到 canonical
                     canonical.set(slot, new UnlimitedItemStack(localStack));
                     states.setDirty();
                 } else {
-                    // Canonical changed (or both changed) → canonical is authoritative
+                    /// canonical 变更（或两侧都变更）→ canonical 为权威来源
                     if (!ItemStack.matches(localStack, canonStack) || localStack.getCount() != canonStack.getCount()) {
                         setHandlerSlot(localHandler, slot, canonStack.copy());
                     }
@@ -452,17 +456,17 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
 
         void add(CelestialForgingAnvilLaserInterfaceBlockEntity be) {
             if (be.isActive() && be.getReceivedLaserLevel() > 0) {
-                // 激活 + 正在接收 → 接收优先，不会发射 → 贡献到池
+                /// 激活 + 正在接收 → 接收优先，不会发射 → 贡献到池
                 if (be.isReceivedGamma()) {
                     totalGamma += be.getReceivedLaserLevel();
                 } else {
                     totalNormal += be.getReceivedLaserLevel();
                 }
             } else if (be.isActive()) {
-                // 激活 + 无接收 → 消费者
+                /// 激活 + 无接收 → 消费者
                 activeCount++;
             } else if (be.getReceivedLaserLevel() > 0) {
-                // 被动 + 有接收 → 贡献到池
+                /// 被动 + 有接收 → 贡献到池
                 if (be.isReceivedGamma()) {
                     totalGamma += be.getReceivedLaserLevel();
                 } else {
@@ -473,10 +477,9 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     }
 
     /**
-     * Clear all local logistics, fluid, and laser interfaces when the amplifier is removed
-     * or the wormhole connection is broken. Pre-existing items and fluids are discarded
-     * (they're still frozen on the amplifier side at canonical). Laser output is zeroed
-     * so the output-side laser stops emitting immediately.
+     * 当放大器被移除或虫洞连接断开时，清除所有本地物流、流体和激光接口。
+     * 已有的物品和流体将被丢弃（它们仍冻结在放大器端的 canonical 中）。
+     * 激光输出置零，使输出端激光立即停止发射。
      */
     private void clearLocalInterfaces(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
@@ -507,7 +510,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             }
         }
 
-        // Reset laser interfaces so output lasers stop immediately
+        /// 重置激光接口，使输出激光立即停止
         Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> laserMap = getLaserInterfacesMap(be);
         for (var entry : laserMap.entrySet()) {
             CelestialForgingAnvilLaserInterfaceBlockEntity localBe = entry.getValue();

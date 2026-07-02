@@ -34,7 +34,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
@@ -160,6 +159,14 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         }
 
         @Override
+        protected int getStackLimit(int slot, ItemStack stack) {
+            if (slot < 8) {
+                return getSlotLimit(slot);
+            }
+            return Math.min(getSlotLimit(slot), stack.getMaxStackSize());
+        }
+
+        @Override
         public void setSize(int size) {
         }
 
@@ -275,12 +282,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
         @Override
         public int getSlotLimit(int slot) {
-            ItemStack stack = this.getStackInSlot(slot);
-            int stackMax = stack.getMaxStackSize();
-            if (stack.isEmpty()) {
-                stackMax = Item.DEFAULT_MAX_STACK_SIZE;
-            }
-            return Math.min(super.getSlotLimit(slot), stackMax);
+            return super.getSlotLimit(slot);
+        }
+
+        @Override
+        protected int getStackLimit(int slot, ItemStack stack) {
+            return getSlotLimit(slot);
         }
 
         @Override
@@ -297,28 +304,43 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             if (level == null || level.isClientSide()) return;
             BlockState state = FishTankBlockEntity.this.getBlockState();
             if (!state.getValue(FishTankBlock.OUTLET)) return;
-            ItemStack stack = this.extractItem(slot, Integer.MAX_VALUE, true);
-            if (stack.isEmpty()) return;
             Direction outletDir = state.getValue(FishTankBlock.FACING);
-
             BlockPos pos = FishTankBlockEntity.this.getBlockPos();
             List<IItemHandler> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
-            if (targets == null || targets.isEmpty()) {
-                // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
-                if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;
-                FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, this.extractItem(slot, Integer.MAX_VALUE, false));
-                return;
-            }
-            int remaining = stack.getCount();
-            for (IItemHandler target : targets) {
-                ItemStack remainingCache = stack.copyWithCount(remaining);
-                if (ItemHandlerUtil.insertItem(target, remainingCache, true).getCount() == remaining) continue;
-                remaining = ItemHandlerUtil.insertItem(target, remainingCache, false).getCount();
-                if (remaining == 0) break;
-            }
+
             this.autoOutputting = true;
-            this.setStackInSlot(slot, stack.copyWithCount(remaining));
-            this.autoOutputting = false;
+            try {
+                while (true) {
+                    ItemStack stack = this.getStackInSlot(slot);
+                    if (stack.isEmpty()) break;
+
+                    int outputAmount = Math.min(stack.getCount(), stack.getMaxStackSize());
+                    if (targets == null || targets.isEmpty()) {
+                        if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) break;
+                        ItemStack toOutput = this.extractItem(slot, outputAmount, false);
+                        FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, toOutput);
+                        continue;
+                    }
+
+                    int remaining = outputAmount;
+                    ItemStack toOutput = stack.copyWithCount(outputAmount);
+                    for (IItemHandler target : targets) {
+                        ItemStack remainingCache = toOutput.copyWithCount(remaining);
+                        if (ItemHandlerUtil.insertItem(target, remainingCache, true).getCount() == remaining) continue;
+                        remaining = ItemHandlerUtil.insertItem(target, remainingCache, false).getCount();
+                        if (remaining == 0) break;
+                    }
+
+                    int extracted = outputAmount - remaining;
+                    if (extracted <= 0) break; // 目标容器已满，停止输出
+                    this.extractItem(slot, extracted, false);
+                }
+            } finally {
+                this.autoOutputting = false;
+            }
+            FishTankBlockEntity.this.setChanged();
+            FishTankBlockEntity.this.refreshIgnited();
+            FishTankBlockEntity.this.sendUpdate();
         }
     };
     private boolean ignited = false;
