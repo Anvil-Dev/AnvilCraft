@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/transcendence",
+  "criteria": {
+    "has_transcendence_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:transcendence_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.the_end.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:transcendence_anvil"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.the_end.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_transcendence_anvil"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

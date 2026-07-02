@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.power.generator.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.storage.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.storage.VoidMatterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
@@ -108,7 +109,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
 
     @Override
     public void gridTick() {
-        if (level == null || level.isClientSide()) return;
+        if (this.level == null || this.level.isClientSide()) return;
         if (this.cooldownCount-- > 1) return;
         this.cooldownCount = COOLDOWN;
         final int oldPower = this.power;
@@ -118,8 +119,9 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
             voidEnergyCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
             if (this.decayCooldownCount-- <= 1) {
                 this.makeBlocksDecay();
-                this.decayCooldownCount = level.getRandom().nextInt(0, 60);
+                this.decayCooldownCount = this.level.getRandom().nextInt(0, 60);
             }
+            TriggerUtil.voidCollectorWork(this.level, this.getPos());
         }
         if (this.power != oldPower && this.grid != null) this.grid.markChanged();
         this.blockCount = 0;

@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/the_end",
+  "criteria": {
+    "has_celestial_forging_anvil": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:celestial_forging_anvil"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.the_start.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:celestial_forging_anvil"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.the_start.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_celestial_forging_anvil"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

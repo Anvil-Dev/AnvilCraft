@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.init.ModUuidProviders;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -115,6 +116,7 @@ public class AnvilCraft {
         ModCategoryTypes.register(modEventBus);
         ModConsumeEffects.register(modEventBus);
         ModEntitySubPredicates.register(modEventBus);
+        ModStats.register(modEventBus);
 
         // datagen
         AnvilCraftDatagen.init();

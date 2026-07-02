@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/anvil_accelerator",
+  "parent": "anvilcraft:anvilcraft/giant_age",
   "criteria": {
     "multiphase_matter": {
       "conditions": {
