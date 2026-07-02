@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "type=none,axis=y": {
+      "model": "anvilcraft:block/lens"
+    },
+    "type=none,axis=z": {
+      "model": "anvilcraft:block/lens",
+      "x": 270
+    },
+    "type=none,axis=x": {
+      "model": "anvilcraft:block/lens",
+      "x": 270,
+      "y": 90
+    },
+    "type=royal,axis=y": {
+      "model": "anvilcraft:block/lens_royal"
+    },
+    "type=royal,axis=z": {
+      "model": "anvilcraft:block/lens_royal",
+      "x": 270
+    },
+    "type=royal,axis=x": {
+      "model": "anvilcraft:block/lens_royal",
+      "x": 270,
+      "y": 90
+    },
+    "type=frost,axis=y": {
+      "model": "anvilcraft:block/lens_frost"
+    },
+    "type=frost,axis=z": {
+      "model": "anvilcraft:block/lens_frost",
+      "x": 270
+    },
+    "type=frost,axis=x": {
+      "model": "anvilcraft:block/lens_frost",
+      "x": 270,
+      "y": 90
+    },
+    "type=ember,axis=y": {
+      "model": "anvilcraft:block/lens_ember"
+    },
+    "type=ember,axis=z": {
+      "model": "anvilcraft:block/lens_ember",
+      "x": 270
+    },
+    "type=ember,axis=x": {
+      "model": "anvilcraft:block/lens_ember",
+      "x": 270,
+      "y": 90
+    }
+  }
+}

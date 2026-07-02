@@ -75,6 +75,7 @@ import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.block.laser.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.LaserReceiverBlock;
+import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
@@ -157,6 +158,7 @@ import dev.dubhe.anvilcraft.block.storage.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.storage.SugarBlock;
 import dev.dubhe.anvilcraft.block.storage.TranscendiumBlock;
 import dev.dubhe.anvilcraft.block.storage.VoidMatterBlock;
+import dev.dubhe.anvilcraft.block.storage.ExcitedStateVoidMatterBlock;
 import dev.dubhe.anvilcraft.block.utility.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.utility.ArrowBlock;
 import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
@@ -240,6 +242,7 @@ import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -1244,6 +1247,15 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
+    public static final BlockEntry<LensBlock> LENS = REGISTRUM.block("lens", LensBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).isViewBlocking(ModBlocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::lens)
+        .register();
+
     public static final BlockEntry<LaserReceiverBlock> LASER_RECEIVER = REGISTRUM.block("laser_receiver", LaserReceiverBlock::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1610,20 +1622,16 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilPortalBlock> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .block("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .loot(FlexibleMultiPartBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
+            .emissiveRendering(ModBlocks::always)
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilPortalBlockItem::new)
-        .model(() -> (ctx, generator) -> {
-            generator.createWithExistingModel(
-                ctx.get(),
-                ctx.getId().withPath(path -> "block/" + path.substring(0, path.length() - 7) + "_gate")
-            );
-        })
         .build()
         .register();
 
@@ -3259,6 +3267,25 @@ public class ModBlocks {
             BlockTags.MINEABLE_WITH_PICKAXE,
             BlockTags.NEEDS_DIAMOND_TOOL,
             ModBlockTags.STORAGE_BLOCKS_VOID_MATTER,
+            Tags.Blocks.STORAGE_BLOCKS
+        )
+        .register();
+
+    public static final BlockEntry<ExcitedStateVoidMatterBlock> EXCITED_STATE_VOID_MATTER_BLOCK = REGISTRUM
+        .block("excited_state_void_matter_block", ExcitedStateVoidMatterBlock::new)
+        .lang("Excited State Void Matter")
+        .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(DataGenUtil::onlyState)
+        .recipe(RegistrumBlockRecipeLoader::excitedStateVoidMatterBlock)
+        .item()
+        .initialProperties(() -> new Item.Properties().stacksTo(16)
+            .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+        .tag(ModItemTags.VOID_RESISTANT, Tags.Items.STORAGE_BLOCKS)
+        .build()
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL,
             Tags.Blocks.STORAGE_BLOCKS
         )
         .register();

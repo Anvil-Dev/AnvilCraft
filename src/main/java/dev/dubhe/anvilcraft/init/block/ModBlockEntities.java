@@ -37,6 +37,7 @@ import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LaserReceiverBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
@@ -80,7 +81,6 @@ import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CFAPortalRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
@@ -381,6 +381,11 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.PROPEL_PISTON)
         .register();
 
+    public static final BlockEntityEntry<LensBlockEntity> LENS = REGISTRUM
+        .blockEntity("lens", LensBlockEntity::new)
+        .validBlocks(ModBlocks.LENS)
+        .register();
+
     public static final BlockEntityEntry<LaserReceiverBlockEntity> LASER_RECEIVER = REGISTRUM
         .blockEntity("laser_receiver", LaserReceiverBlockEntity::new)
         .validBlocks(ModBlocks.LASER_RECEIVER)
@@ -444,10 +449,12 @@ public class ModBlockEntities {
         .renderer(() -> CFARenderer::new)
         .register();
 
+    /// 传送门的门体模型由 blockstate 在 MID_CENTER 渲染，激光束由
+    /// CachedLaserBlockEntityRenderer 渲染（在 AnvilCraftClient.clientSetup 注册），
+    /// 因此此处不再注册专用 BlockEntityRenderer。
     public static final BlockEntityEntry<CelestialForgingAnvilPortalBlockEntity> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .blockEntity("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL)
-        .renderer(() -> CFAPortalRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilLogisticsInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE =

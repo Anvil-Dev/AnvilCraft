@@ -1259,6 +1259,54 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void excitedStateVoidMatter(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
+            .requires(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void matterDecompressorComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.LASER_RECEIVER)
+            .define('C', ModBlocks.SINGULARITY_CRYSTAL)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void wormholeStabilizerComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 16)
+            .pattern("ABA")
+            .pattern("B B")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.NEGATIVE_MATTER_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
+    }
+
     public static <T extends Item> void earthCoreShard(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)

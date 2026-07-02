@@ -211,10 +211,10 @@ public final class CelestialRefactorRegistry {
                 ModItems.PENROSE_SPHERE_COMPONENT, 8));
             options.add(CelestialRefactorOption.withMaterial(4, "matter_decompressor",
                 ringModel(4, "matter_decompressor"), prefix + "matter_decompressor",
-                ModBlocks.SINGULARITY_CRYSTAL.asItem(), 1));
+                ModItems.MATTER_DECOMPRESSOR_COMPONENT, 2));
             options.add(CelestialRefactorOption.withMaterial(4, "wormhole_stabilizer",
                 ringModel(4, "wormhole_stabilizer"), prefix + "wormhole_stabilizer",
-                ModBlocks.NEGATIVE_MATTER_BLOCK.asItem(), 16));
+                ModItems.WORMHOLE_STABILIZER_COMPONENT, 4));
             options.add(CelestialRefactorOption.withMaterial(5, "stellar_evolution_accelerator",
                 ringModel(5, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
                 ModBlocks.CORRUPTED_BEACON.asItem(), 8));

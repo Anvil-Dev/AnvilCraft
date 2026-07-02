@@ -132,6 +132,7 @@ public class ClientEventListener {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         SeismicBounceManager.getInstance().tick();
+        dev.dubhe.anvilcraft.client.support.ScreenShakeManager.getInstance().tick();
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime < 0) {
             return;
