@@ -1845,6 +1845,8 @@
   "tooltip.anvilcraft.item.capacitor": "8 MFE stored",
   "tooltip.anvilcraft.item.capacitor_empty": "8 MFE capacity",
   "tooltip.anvilcraft.item.cat_amulet": "Scares away Creepers and Phantoms",
+  "tooltip.anvilcraft.item.celestial_forging_anvil": "Forge celestial bodies, build megastructures",
+  "tooltip.anvilcraft.item.celestial_forging_anvil.shift": "Place an anvil to determine celestial parameters\nOnce a suitable celestial body is found, lock it to build a megastructure\nUnlocking the celestial body will destroy the megastructure\nDifferent megastructures serve different purposes — check the megastructure button for details",
   "tooltip.anvilcraft.item.charge_collector": "Collecting charges to generate power",
   "tooltip.anvilcraft.item.charged_neutronium_ingot": "No longer passing through blocks, storing a large amount of electrical energy",
   "tooltip.anvilcraft.item.charger": "Charges items, supports manual or automated input",
