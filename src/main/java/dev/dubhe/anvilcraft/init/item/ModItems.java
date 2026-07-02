@@ -1,15 +1,12 @@
 package dev.dubhe.anvilcraft.init.item;
 
 import com.mojang.datafixers.util.Unit;
-import dev.anvilcraft.lib.v2.registrum.Registrum;
-import dev.anvilcraft.lib.v2.registrum.builders.ItemBuilder;
 import dev.anvilcraft.lib.v2.registrum.providers.DataGenContext;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.amulet.type.AmuletType;
 import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
@@ -82,11 +79,10 @@ import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
-import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
-import dev.dubhe.anvilcraft.item.amulet.BigAmuletItem;
-import dev.dubhe.anvilcraft.item.amulet.ComradeAmuletItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
+import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FrostMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.RoyalSteelUpgradeTemplateItem;
@@ -106,7 +102,6 @@ import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
@@ -130,7 +125,6 @@ import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.NoSuchElementException;
 import java.util.function.Function;
@@ -583,111 +577,102 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::totemOfRage)
         .register();
 
-    private static ItemEntry<? extends AmuletItem> createAmuletItem(
+    private static ItemEntry<? extends Item> createAmuletItem(
         String type,
-        Supplier<DeferredHolder<AmuletType, ?>> typeGetter,
+        Supplier<IAmulet> amulet,
         NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
     ) {
-        return REGISTRUM.item(
-                type + "_amulet", properties -> new AmuletItem(properties) {
-                    @Override
-                    public Holder<AmuletType> getType() {
-                        return typeGetter.get();
-                    }
-                }
-            ).properties(properties -> properties.stacksTo(1))
+        return REGISTRUM.item(type + "_amulet", Item::new)
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
             .tag(ModItemTags.AMULET)
             .recipe(RegistrumItemRecipeLoader.amulet(builderConsumer))
             .register();
     }
 
     @SuppressWarnings("SameParameterValue")
-    private static <T extends AmuletItem> ItemEntry<T> createAmuletItem(
+    private static <T extends Item> ItemEntry<T> createAmuletItem(
         String type,
         Function<Item.Properties, T> factory,
-        Supplier<DeferredHolder<AmuletType, ?>> typeGetter,
+        Supplier<IAmulet> amulet,
         NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
     ) {
         return REGISTRUM.item(type + "_amulet", factory::apply)
-            .properties(properties -> properties.stacksTo(1))
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
             .tag(ModItemTags.AMULET)
             .recipe(RegistrumItemRecipeLoader.amulet(builderConsumer))
             .register();
     }
 
-    private static ItemBuilder<? extends BigAmuletItem, Registrum> createBigAmuletItem(
-        String type,
-        Supplier<DeferredHolder<AmuletType, ?>> typeGetter
-    ) {
-        return REGISTRUM.item(
-            type + "_amulet", properties -> new BigAmuletItem(properties) {
-                @Override
-                public Holder<AmuletType> getType() {
-                    return typeGetter.get();
-                }
-            }
-        ).properties(properties -> properties.stacksTo(1)).tag(ModItemTags.AMULET);
+    private static ItemEntry<? extends Item> createBigAmuletItem(String type, Supplier<WrappedOthersAmulet> amulet) {
+        return REGISTRUM.item(type + "_amulet", Item::new)
+            .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
+            .tag(ModItemTags.AMULET)
+            .register();
     }
 
-    public static final ItemEntry<? extends AmuletItem> EMERALD_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> EMERALD_AMULET = createAmuletItem(
         "emerald",
-        () -> ModAmuletTypes.EMERALD,
+        () -> ModAmulets.EMERALD,
         builder -> builder.requires(Items.EMERALD_BLOCK)
     );
-    public static final ItemEntry<? extends AmuletItem> TOPAZ_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> TOPAZ_AMULET = createAmuletItem(
         "topaz",
-        () -> ModAmuletTypes.TOPAZ,
+        () -> ModAmulets.TOPAZ,
         builder -> builder.requires(ModBlocks.TOPAZ_BLOCK)
     );
-    public static final ItemEntry<? extends AmuletItem> RUBY_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> RUBY_AMULET = createAmuletItem(
         "ruby",
-        () -> ModAmuletTypes.RUBY,
+        () -> ModAmulets.RUBY,
         builder -> builder.requires(ModBlocks.RUBY_BLOCK)
     );
-    public static final ItemEntry<? extends AmuletItem> SAPPHIRE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = createAmuletItem(
         "sapphire",
-        () -> ModAmuletTypes.SAPPHIRE,
+        () -> ModAmulets.SAPPHIRE,
         builder -> builder.requires(ModBlocks.SAPPHIRE_BLOCK)
     );
-    public static final ItemEntry<? extends AmuletItem> ANVIL_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> ANVIL_AMULET = createAmuletItem(
         "anvil",
-        () -> ModAmuletTypes.ANVIL,
+        () -> ModAmulets.ANVIL,
         builder -> builder.requires(Items.ANVIL)
     );
-    public static final ItemEntry<ComradeAmuletItem> COMRADE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> COMRADE_AMULET = createAmuletItem(
         "comrade",
-        ComradeAmuletItem::new,
-        () -> ModAmuletTypes.COMRADE,
+        () -> ModAmulets.COMRADE,
         builder -> builder.requires(Items.NAME_TAG, 4)
     );
-    public static final ItemEntry<? extends AmuletItem> FEATHER_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> FEATHER_AMULET = createAmuletItem(
         "feather",
-        () -> ModAmuletTypes.FEATHER,
+        () -> ModAmulets.FEATHER,
         builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
     );
-    public static final ItemEntry<? extends AmuletItem> CAT_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> CAT_AMULET = createAmuletItem(
         "cat",
-        () -> ModAmuletTypes.CAT,
+        () -> ModAmulets.CAT,
         builder -> builder.requires(Items.SALMON, 16).requires(Items.COD, 16)
     );
-    public static final ItemEntry<? extends AmuletItem> DOG_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> DOG_AMULET = createAmuletItem(
         "dog",
-        () -> ModAmuletTypes.DOG,
+        () -> ModAmulets.DOG,
         builder -> builder.requires(Items.BONE, 16).requires(ItemTags.MEAT, 16)
     );
-    public static final ItemEntry<? extends AmuletItem> SILENCE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> SILENCE_AMULET = createAmuletItem(
         "silence",
-        () -> ModAmuletTypes.SILENCE,
+        () -> ModAmulets.SILENCE,
         builder -> builder.requires(Items.ECHO_SHARD, 16)
     );
-    public static final ItemEntry<? extends AmuletItem> ABNORMAL_AMULET = createAmuletItem(
-        "abnormal", () -> ModAmuletTypes.ABNORMAL, // TODO: 修改配方
+    public static final ItemEntry<? extends Item> ABNORMAL_AMULET = createAmuletItem(
+        "abnormal",
+        () -> ModAmulets.ABNORMAL, // TODO: 修改配方
         builder -> builder.requires(ModItems.CURSED_GOLD_INGOT, 1).requires(ModItems.LEVITATION_POWDER, 16)
     );
-    public static final ItemEntry<? extends BigAmuletItem> GEM_AMULET = createBigAmuletItem("gem", () -> ModAmuletTypes.GEM)
-        .register();
-    public static final ItemEntry<? extends BigAmuletItem> NATURE_AMULET = createBigAmuletItem("nature", () -> ModAmuletTypes.NATURE)
-        .register();
+    public static final ItemEntry<? extends Item> GEM_AMULET = createBigAmuletItem(
+        "gem",
+        () -> ModAmulets.GEM
+    );
+    public static final ItemEntry<? extends Item> NATURE_AMULET = createBigAmuletItem(
+        "nature",
+        () -> ModAmulets.NATURE
+    );
 
     public static final ItemEntry<CapacitorItem> CAPACITOR = REGISTRUM.item("capacitor", CapacitorItem::new)
         .model(DataGenUtil::noExtraModelOrState)

@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -149,6 +150,11 @@ public class ModComponents {
     public static final DataComponentType<OverLimitItemContainerContents> OVER_LIMIT_CONTAINER = register(
         "over_limit_item_container_contents",
         b -> b.persistent(OverLimitItemContainerContents.CODEC).networkSynchronized(OverLimitItemContainerContents.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<IAmulet> AMULET = register(
+        "amulet",
+        b -> b.persistent(IAmulet.CODEC).networkSynchronized(IAmulet.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {

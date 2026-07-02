@@ -1,12 +1,21 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.anvilcraft.lib.v2.util.DistExecutor;
+import dev.dubhe.anvilcraft.mixin.accessor.MinecraftServerAccessor;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.server.players.GameProfileCache;
+import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLLoader;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Util {
@@ -32,12 +41,25 @@ public class Util {
         return stringBuffer.toString();
     }
 
-    public static int comparingIntReversed(int x, int y) {
-        return Integer.compare(y, x);
-    }
+    public static @Nullable GameProfileCache clientCache = null;
 
-    public static boolean findCaller(String caller) {
-        return STACK_WALKER.walk(it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
+    @SuppressWarnings("Convert2Lambda")
+    public static GameProfileCache findProfileCache(Level level) {
+        if (FMLLoader.getDist() == Dist.CLIENT) {
+            AtomicReference<GameProfileCache> ref = new AtomicReference<>();
+            DistExecutor.run(Dist.CLIENT, () -> new Runnable() {
+                @Override
+                public void run() {
+                    if (Util.clientCache == null) {
+                        return;
+                    }
+                    ref.set(Util.clientCache);
+                }
+            });
+            return ref.get();
+        } else {
+            return ((MinecraftServerAccessor) Objects.requireNonNull(level.getServer())).getServices().profileCache();
+        }
     }
 
     public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> toMapCollector() {

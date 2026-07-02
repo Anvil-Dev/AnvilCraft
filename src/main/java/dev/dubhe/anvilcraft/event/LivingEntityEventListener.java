@@ -2,15 +2,15 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.entity.ai.goal.GenericZombieAttackGoal;
-import dev.dubhe.anvilcraft.init.ModDataAttachments;
+import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -53,10 +53,10 @@ public class LivingEntityEventListener {
         Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
         if (entity == null) return;
         if (!(event.getNewAboutToBeSetTarget() instanceof Player player)) return;
-        EntityType<?> type = entity.getType();
-        if ((type.is(EntityTypeTags.SKELETONS) && player.getData(ModDataAttachments.SCARE_SKELETONS))
-            || (entity instanceof Creeper && player.getData(ModDataAttachments.SCARE_CREEPERS))
-            || (entity instanceof Phantom && player.getData(ModDataAttachments.SCARE_PHANTOMS))
+        AmuletManager manager = AmuletManager.get(player.registryAccess());
+        if (
+            entity.getType().is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG)
+            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT)
         ) {
             event.setCanceled(true);
         }
@@ -67,10 +67,10 @@ public class LivingEntityEventListener {
         Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
         if (entity == null) return;
         if (!(entity.getTarget() instanceof Player player)) return;
-        EntityType<?> type = entity.getType();
-        if ((type.is(EntityTypeTags.SKELETONS) && player.getData(ModDataAttachments.SCARE_SKELETONS))
-            || (entity instanceof Creeper && player.getData(ModDataAttachments.SCARE_CREEPERS))
-            || (entity instanceof Phantom && player.getData(ModDataAttachments.SCARE_PHANTOMS))
+        AmuletManager manager = AmuletManager.get(player.registryAccess());
+        if (
+            entity.getType().is(EntityTypeTags.SKELETONS) && manager.hasAmuletInInventory(player, ModAmulets.DOG)
+            || (entity instanceof Creeper || entity instanceof Phantom) && manager.hasAmuletInInventory(player, ModAmulets.CAT)
         ) {
             entity.setTarget(null);
         }

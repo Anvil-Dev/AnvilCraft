@@ -14,6 +14,8 @@ import dev.dubhe.anvilcraft.item.DragonRodItem;
 import dev.dubhe.anvilcraft.item.ExpGemItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.component.amulet.ComradeAmulet;
+import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.DevourUtil;
@@ -41,6 +43,7 @@ import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
+import java.util.Objects;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PlayerEventListener {
@@ -107,7 +110,7 @@ public class PlayerEventListener {
         if (
             event.getUsePhase() == UseItemOnBlockEvent.UsePhase.ITEM_AFTER_BLOCK
             && event.getHand() == InteractionHand.OFF_HAND
-            && player.getMainHandItem().is(ModItemTags.ANVIL_HAMMER)
+            && Objects.requireNonNull(player).getMainHandItem().is(ModItemTags.ANVIL_HAMMER)
             && AnvilHammerItem.canRocketJump(player)
         ) {
             event.setCanceled(true);
@@ -158,16 +161,42 @@ public class PlayerEventListener {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ItemStack inHand = player.getItemInHand(event.getHandHolding());
         if (!inHand.is(ModItems.AMULET_BOX.asItem())) return;
-        if (inHand.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems().isEmpty()) return;
-        AmuletManager.INSTANCE.startRaffle(player, event.getSource());
+        if (inHand.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems().isEmpty()) {
+            event.setCanceled(true);
+        }
+        AmuletManager.get(player.registryAccess()).tryRaffle(player, event.getSource());
     }
 
     @SubscribeEvent
     public static void onPlayerHurt(LivingIncomingDamageEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player
-            && AmuletManager.INSTANCE.shouldIgnoreDamage(player, event.getSource())
+        if (
+            event.getEntity() instanceof ServerPlayer player
+            && AmuletManager.get(player.registryAccess()).shouldImmune(player, event.getSource())
         ) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerUse(PlayerInteractEvent.RightClickItem event) {
+        ItemStack stack = event.getItemStack();
+        if (stack.isEmpty() || !stack.has(ModComponents.AMULET)) {
+            return;
+        }
+        IAmulet amulet = stack.get(ModComponents.AMULET);
+        if (!(amulet instanceof ComradeAmulet comrade)) {
+            return;
+        }
+        ComradeAmulet signed = comrade.sign(event.getEntity());
+        if (comrade == signed) {
+            event.setCancellationResult(InteractionResult.FAIL);
+            return;
+        }
+        if (event.getLevel().isClientSide()) {
+            event.setCancellationResult(InteractionResult.SUCCESS);
+            return;
+        }
+        stack.set(ModComponents.AMULET, signed);
+        event.setCancellationResult(InteractionResult.CONSUME);
     }
 }

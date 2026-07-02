@@ -3,10 +3,10 @@ package dev.dubhe.anvilcraft.item.property.component;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
-import dev.dubhe.anvilcraft.item.amulet.AmuletItem;
-import dev.dubhe.anvilcraft.item.amulet.BigAmuletItem;
+import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -16,11 +16,13 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
 
 @SuppressWarnings("unused")
 public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int selection, int usage) implements TooltipComponent {
+    public static final int CAPACITY = 16;
     public static final BoxContents EMPTY = new BoxContents(List.of(), List.of(), 0);
     public static final Codec<BoxContents> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         ItemStack.CODEC.listOf().fieldOf("amulets").forGetter(BoxContents::amulets),
@@ -48,7 +50,11 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
     }
 
     public static int computeUsage(List<ItemStack> amulets, List<ItemStack> totems) {
-        return BoxContents.sum(amulets, totems, it -> it.getItem() instanceof AmuletItem amulet ? amulet.getWeight() : 0);
+        return BoxContents.sum(
+            amulets,
+            totems,
+            it -> it.has(ModComponents.AMULET) ? Objects.requireNonNull(it.get(ModComponents.AMULET)).getWeight() : 0
+        );
     }
 
     public @Unmodifiable List<ItemStack> allItems() {
@@ -87,21 +93,22 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
             this.selection = contents.selection;
         }
 
-        public Optional<ItemStack> tryInsert(ItemStack itemStack) {
-            if (itemStack.isEmpty()) return Optional.of(ItemStack.EMPTY);
-            if (itemStack.getItem() instanceof AmuletItem item) {
-                if (this.usage + item.getWeight() > AmuletBoxItem.CAPACITY) return Optional.empty();
-                for (ItemStack amulet : this.amulets) {
-                    if (amulet.getItem() instanceof BigAmuletItem) return Optional.empty();
+        public Optional<ItemStack> tryInsert(ItemStack stack) {
+            if (stack.isEmpty()) return Optional.of(ItemStack.EMPTY);
+            if (stack.has(ModComponents.AMULET)) {
+                IAmulet amulet = stack.get(ModComponents.AMULET);
+                if (this.usage + Objects.requireNonNull(amulet).getWeight() > BoxContents.CAPACITY) return Optional.empty();
+                for (ItemStack exist : this.amulets) {
+                    if (Objects.requireNonNull(exist.get(ModComponents.AMULET)).getWeight() > 6) return Optional.empty();
                 }
-                this.usage += item.getWeight();
-                this.amulets.add(itemStack.split(1));
-                return Optional.of(itemStack);
-            } else if (itemStack.is(ModItemTags.TOTEM)) {
-                if (this.usage + 1 > AmuletBoxItem.CAPACITY) return Optional.empty();
+                this.usage += amulet.getWeight();
+                this.amulets.add(stack.split(1));
+                return Optional.of(stack);
+            } else if (stack.is(ModItemTags.TOTEM)) {
+                if (this.usage + 1 > BoxContents.CAPACITY) return Optional.empty();
                 this.usage++;
-                this.totems.add(itemStack.split(1));
-                return Optional.of(itemStack);
+                this.totems.add(stack.split(1));
+                return Optional.of(stack);
             }
             return Optional.empty();
         }
@@ -111,8 +118,8 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
 
             if (this.amulets.size() > this.selection) {
                 stack = this.amulets.remove(this.selection);
-                if (stack.getItem() instanceof AmuletItem item) {
-                    this.usage -= item.getWeight();
+                if (stack.has(ModComponents.AMULET)) {
+                    this.usage -= Objects.requireNonNull(stack.get(ModComponents.AMULET)).getWeight();
                 }
             } else if (this.totems.size() > this.selection - this.amulets.size()) {
                 stack = this.totems.remove(this.selection - this.amulets.size());
@@ -121,7 +128,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
                 }
             }
 
-            this.usage = Math.clamp(this.usage, 0, AmuletBoxItem.CAPACITY);
+            this.usage = Math.clamp(this.usage, 0, BoxContents.CAPACITY);
             return stack.copy();
         }
 

@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:normal",
+  "amulet": {
+    "count": 1,
+    "id": "anvilcraft:emerald_amulet"
+  },
+  "obtain": {
+    "source_entity": {
+      "type": "#anvilcraft:amulet_valid/emerald"
+    }
+  }
+}

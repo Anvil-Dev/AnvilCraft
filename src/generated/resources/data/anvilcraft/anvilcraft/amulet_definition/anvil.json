@@ -1,0 +1,30 @@
+{
+  "type": "anvilcraft:normal",
+  "amulet": {
+    "count": 1,
+    "id": "anvilcraft:anvil_amulet"
+  },
+  "obtain": {
+    "direct_entity": {
+      "slots": {
+        "weapon": {
+          "items": "#anvilcraft:tools/anvil_hammer"
+        }
+      }
+    },
+    "source_entity": {
+      "type_specific": {
+        "type": "anvilcraft:falling_block",
+        "block": {
+          "blocks": "#minecraft:anvil"
+        }
+      }
+    },
+    "tags": [
+      {
+        "expected": true,
+        "id": "anvilcraft:amulet_valid/anvil"
+      }
+    ]
+  }
+}

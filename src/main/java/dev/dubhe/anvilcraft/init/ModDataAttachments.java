@@ -23,16 +23,7 @@ public class ModDataAttachments {
 
     public static final Supplier<AttachmentType<AmuletRaffleProbability>> AMULET_RAFFLE_PROBABILITY = ATTACHMENT_TYPES.register(
         "amulet_raffle_probability", () -> AttachmentType.builder(() -> AmuletRaffleProbability.EMPTY)
-            .serialize(AmuletRaffleProbability.CODEC).copyOnDeath().build());
-
-    public static final Supplier<AttachmentType<Boolean>> SCARE_SKELETONS = ATTACHMENT_TYPES.register(
-        "scare_skeletons", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
-
-    public static final Supplier<AttachmentType<Boolean>> SCARE_CREEPERS = ATTACHMENT_TYPES.register(
-        "scare_creepers", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
-
-    public static final Supplier<AttachmentType<Boolean>> SCARE_PHANTOMS = ATTACHMENT_TYPES.register(
-        "scare_phantoms", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
+            .serialize(AmuletRaffleProbability.CODEC.codec()).copyOnDeath().build());
 
     public static void register(IEventBus eventBus) {
         ATTACHMENT_TYPES.register(eventBus);

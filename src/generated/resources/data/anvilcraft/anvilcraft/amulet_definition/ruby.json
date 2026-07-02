@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:normal",
+  "amulet": {
+    "count": 1,
+    "id": "anvilcraft:ruby_amulet"
+  },
+  "obtain": {
+    "tags": [
+      {
+        "expected": true,
+        "id": "anvilcraft:amulet_valid/ruby"
+      }
+    ]
+  }
+}
