@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/shulker_box_within_a_shulker_box",
+  "parent": "anvilcraft:anvilcraft/shulker_box_within_shulker_box",
   "criteria": {
     "has_neutronium_ingot": {
       "conditions": {
@@ -14,7 +14,7 @@
   },
   "display": {
     "description": {
-      "translate": "advancements.anvilcraft.a_teaspoon_of_neutron_star.description"
+      "translate": "advancements.anvilcraft.spoon_of_neutron_star.description"
     },
     "frame": "goal",
     "icon": {
@@ -22,7 +22,7 @@
       "id": "anvilcraft:neutronium_ingot"
     },
     "title": {
-      "translate": "advancements.anvilcraft.a_teaspoon_of_neutron_star.title"
+      "translate": "advancements.anvilcraft.spoon_of_neutron_star.title"
     }
   },
   "requirements": [

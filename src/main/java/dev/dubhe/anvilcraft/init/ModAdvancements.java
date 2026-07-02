@@ -65,6 +65,7 @@ public class ModAdvancements {
 
     public static final AdvancementHolder FOR_AEONS;
     public static final AdvancementHolder FORGED_OVER_EONS;
+    public static final AdvancementHolder ICE_AND_FIRE;
     public static final AdvancementHolder SELF_IN_FLAMING;
 
     public static final AdvancementHolder GEM_TRANSFORM;
@@ -74,8 +75,8 @@ public class ModAdvancements {
     public static final AdvancementHolder VOID_GENERATE_ENERGY;
     public static final AdvancementHolder SAIKOU_SCRUBBER;
     public static final AdvancementHolder INFINITY_CAPACITY;
-    public static final AdvancementHolder SHULKER_BOX_WITHIN_A_SHULKER_BOX;
-    public static final AdvancementHolder A_TEASPOON_OF_NEUTRON_STAR;
+    public static final AdvancementHolder SHULKER_BOX_WITHIN_SHULKER_BOX;
+    public static final AdvancementHolder SPOON_OF_NEUTRON_STAR;
     public static final AdvancementHolder HEAT_UTILIZING;
     public static final AdvancementHolder ISOTOPE_DECAY_BATTERY;
     public static final AdvancementHolder SUPER_HEAT;
@@ -87,6 +88,8 @@ public class ModAdvancements {
     public static final AdvancementHolder OVERHEATED;
     public static final AdvancementHolder NUCLEAR_POWER_10A;
     public static final AdvancementHolder TRANSCENDENCE;
+    public static final AdvancementHolder THE_END;
+    public static final AdvancementHolder THE_START;
 
     public static final AdvancementHolder SALTED_FISH_TURNS_OVER;
 
@@ -509,7 +512,7 @@ public class ModAdvancements {
                 Component.translatable("advancements.anvilcraft.salted_fish_turns_over.title"),
                 Component.translatable("advancements.anvilcraft.salted_fish_turns_over.description"),
                 null,
-                AdvancementType.GOAL,
+                AdvancementType.TASK,
                 true,
                 true,
                 true
@@ -726,6 +729,25 @@ public class ModAdvancements {
             .hasItems("has_ember_metal_ingot", ModItems.EMBER_METAL_INGOT)
             .hasItems("has_ember_metal_nugget", ModItems.EMBER_METAL_NUGGET)
             .build("forged_over_eons");
+        ICE_AND_FIRE = emberLine.next()
+            .display(
+                ModBlocks.FROST_ANVIL,
+                Component.translatable("advancements.anvilcraft.ice_and_fire.title"),
+                Component.translatable("advancements.anvilcraft.ice_and_fire.description"),
+                null,
+                AdvancementType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .requireAll()
+            .hasItems("has_ember_smithing_table", ModBlocks.EMBER_SMITHING_TABLE)
+            .hasItems("has_ember_metal_block", ModBlocks.EMBER_METAL_BLOCK)
+            .hasItems("has_ember_grindstone", ModBlocks.EMBER_GRINDSTONE)
+            .hasItems("has_frost_smithing_table", ModBlocks.FROST_SMITHING_TABLE)
+            .hasItems("has_frost_anvil", ModBlocks.FROST_ANVIL)
+            .hasItems("has_frost_grindstone", ModBlocks.FROST_GRINDSTONE)
+            .build("ice_and_fire");
         SELF_IN_FLAMING = emberLine.next()
             .display(
                 ModItems.EMBER_METAL_PICKAXE,
@@ -812,11 +834,11 @@ public class ModAdvancements {
             .build("infinity_capacity");
 
         AdvancementLineHelper spaceLine = voidLine.createBranch();
-        SHULKER_BOX_WITHIN_A_SHULKER_BOX = spaceLine.next()
+        SHULKER_BOX_WITHIN_SHULKER_BOX = spaceLine.next()
             .display(
                 ModBlocks.SPACE_OVERCOMPRESSOR,
-                Component.translatable("advancements.anvilcraft.shulker_box_within_a_shulker_box.title"),
-                Component.translatable("advancements.anvilcraft.shulker_box_within_a_shulker_box.description"),
+                Component.translatable("advancements.anvilcraft.shulker_box_within_shulker_box.title"),
+                Component.translatable("advancements.anvilcraft.shulker_box_within_shulker_box.description"),
                 null,
                 AdvancementType.TASK,
                 true,
@@ -824,12 +846,12 @@ public class ModAdvancements {
                 false
             )
             .hasItems("has_space_overcompressor", ModBlocks.SPACE_OVERCOMPRESSOR)
-            .build("shulker_box_within_a_shulker_box");
-        A_TEASPOON_OF_NEUTRON_STAR = spaceLine.next()
+            .build("shulker_box_within_shulker_box");
+        SPOON_OF_NEUTRON_STAR = spaceLine.next()
             .display(
                 ModItems.NEUTRONIUM_INGOT,
-                Component.translatable("advancements.anvilcraft.a_teaspoon_of_neutron_star.title"),
-                Component.translatable("advancements.anvilcraft.a_teaspoon_of_neutron_star.description"),
+                Component.translatable("advancements.anvilcraft.spoon_of_neutron_star.title"),
+                Component.translatable("advancements.anvilcraft.spoon_of_neutron_star.description"),
                 null,
                 AdvancementType.GOAL,
                 true,
@@ -837,7 +859,7 @@ public class ModAdvancements {
                 false
             )
             .hasItems("has_neutronium_ingot", ModItems.NEUTRONIUM_INGOT)
-            .build("a_teaspoon_of_neutron_star");
+            .build("spoon_of_neutron_star");
 
         AdvancementLineHelper gemLine = industrialLine.createBranch();
         GEM_TRANSFORM = gemLine.next()
@@ -886,7 +908,8 @@ public class ModAdvancements {
             .hasItems("has_heat_collector", ModBlocks.HEAT_COLLECTOR)
             .build("heat_utilizing");
 
-        ISOTOPE_DECAY_BATTERY = gemLine.createBranch().next()
+        AdvancementLineHelper nuclearLine = gemLine.createBranch();
+        ISOTOPE_DECAY_BATTERY = nuclearLine.next()
             .display(
                 ModBlocks.URANIUM_BLOCK,
                 Component.translatable("advancements.anvilcraft.isotope_decay_battery.title"),
@@ -899,6 +922,20 @@ public class ModAdvancements {
             )
             .heatCollectOn("nuclear_sources", BlockStatePredicate.builder().of(ModBlocks.URANIUM_BLOCK, ModBlocks.PLUTONIUM_BLOCK))
             .build("isotope_decay_battery");
+
+        NUCLEAR_POWER_10A = nuclearLine.next()
+            .display(
+                ModBlocks.HEAT_COLLECTOR,
+                Component.translatable("advancements.anvilcraft.nuclear_power_10a.title"),
+                Component.translatable("advancements.anvilcraft.nuclear_power_10a.description"),
+                null,
+                AdvancementType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .heatCollectOn("collect_overheated", BlockStatePredicate.builder().of(ModBlockTags.OVERHEATED_BLOCKS))
+            .build("nuclear_power_10a");
 
         SUPER_HEAT = gemLine.next()
             .display(
@@ -927,7 +964,7 @@ public class ModAdvancements {
             )
             .hasItems("has_giant_anvil", ModBlocks.GIANT_ANVIL)
             .build("giant_age");
-        ANVIL_ACCELERATOR = industrialLine.next()
+        ANVIL_ACCELERATOR = industrialLine.createBranch().next()
             .display(
                 ModBlocks.ACCELERATION_RING,
                 Component.translatable("advancements.anvilcraft.anvil_accelerator.title"),
@@ -996,27 +1033,13 @@ public class ModAdvancements {
             .recipeAnc("plutonium_heat", "anvil_collision/anvil_tier_2_and_plutonium_block_256")
             .build("overheated");
 
-        NUCLEAR_POWER_10A = industrialLine.createBranch().next()
-            .display(
-                ModBlocks.HEAT_COLLECTOR,
-                Component.translatable("advancements.anvilcraft.nuclear_power_10a.title"),
-                Component.translatable("advancements.anvilcraft.nuclear_power_10a.description"),
-                null,
-                AdvancementType.CHALLENGE,
-                true,
-                true,
-                false
-            )
-            .heatCollectOn("collect_overheated", BlockStatePredicate.builder().of(ModBlockTags.OVERHEATED_BLOCKS))
-            .build("nuclear_power_10a");
-
         TRANSCENDENCE = industrialLine.next()
             .display(
                 ModBlocks.TRANSCENDIUM_BLOCK,
                 Component.translatable("advancements.anvilcraft.transcendence.title"),
                 Component.translatable("advancements.anvilcraft.transcendence.description"),
                 null,
-                AdvancementType.CHALLENGE,
+                AdvancementType.GOAL,
                 true,
                 true,
                 false
@@ -1024,5 +1047,31 @@ public class ModAdvancements {
             .requireAny()
             .hasItemAny("has_", ModBlocks.TRANSCENDIUM_BLOCK, ModItems.TRANSCENDIUM_INGOT, ModItems.TRANSCENDIUM_NUGGET)
             .build("transcendence");
+        THE_END = industrialLine.next()
+            .display(
+                ModBlocks.TRANSCENDENCE_ANVIL,
+                Component.translatable("advancements.anvilcraft.the_end.title"),
+                Component.translatable("advancements.anvilcraft.the_end.description"),
+                null,
+                AdvancementType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .hasItems("has_transcendence_anvil", ModBlocks.TRANSCENDENCE_ANVIL)
+            .build("the_end");
+        THE_START = industrialLine.next()
+            .display(
+                ModBlocks.CELESTIAL_FORGING_ANVIL,
+                Component.translatable("advancements.anvilcraft.the_start.title"),
+                Component.translatable("advancements.anvilcraft.the_start.description"),
+                null,
+                AdvancementType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .hasItems("has_celestial_forging_anvil", ModBlocks.CELESTIAL_FORGING_ANVIL)
+            .build("the_start");
     }
 }

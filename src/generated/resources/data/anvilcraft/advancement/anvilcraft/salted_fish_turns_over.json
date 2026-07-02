@@ -9,7 +9,6 @@
     "description": {
       "translate": "advancements.anvilcraft.salted_fish_turns_over.description"
     },
-    "frame": "goal",
     "hidden": true,
     "icon": {
       "count": 1,

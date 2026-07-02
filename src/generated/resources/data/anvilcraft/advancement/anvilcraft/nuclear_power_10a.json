@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/overheated",
+  "parent": "anvilcraft:anvilcraft/isotope_decay_battery",
   "criteria": {
     "collect_overheated": {
       "conditions": {
