@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -241,6 +242,10 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
                 target.insert(resourceToDrain, actualDrained, tx);
                 tx.commit();
             }
+        }
+        if (heightDiff != 0) {
+            TriggerUtil.connectFluidContainers(level, sourcePos);
+            TriggerUtil.connectFluidContainers(level, targetPos);
         }
     }
 

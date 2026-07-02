@@ -4,14 +4,16 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.authlib.GameProfile;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
+import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,6 +37,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ServerPlayerMixin extends Player implements IDynamicPowerComponentHolder {
     @Unique
     private DynamicPowerComponent anvilcraft$component;
+    @Unique
+    private boolean anvilcraft$lastTickGridExist;
 
     public ServerPlayerMixin(Level level, GameProfile gameProfile) {
         super(level, gameProfile);
@@ -85,6 +90,17 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
         }
     }
 
+    @Override
+    public void anvilcraft$switchTo(@Nullable PowerGrid grid) {
+        if (!this.anvilcraft$lastTickGridExist && grid != null) {
+            this.anvilcraft$lastTickGridExist = true;
+            this.awardStat(ModStats.ENTER_POWER_GRID);
+            TriggerUtil.enterPowerGrid(this.level(), BlockPos.containing(this.position()));
+        } else if (this.anvilcraft$lastTickGridExist && grid == null) {
+            this.anvilcraft$lastTickGridExist = false;
+        }
+    }
+
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true, name = "source")
     private DamageSource modifySource(DamageSource source, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (source.getEntity() instanceof FallingBlockEntity falling
@@ -108,7 +124,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     }
 
     @Inject(method = "die", at = @At("RETURN"))
-    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<@Nullable ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
         AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
     }

@@ -52,6 +52,7 @@
     "ServerExplosionMixin",
     "ServerGamePacketListenerMixin",
     "ServerLevelMixin",
+    "ServerPlayerContainerListenerMixin",
     "ServerPlayerMixin",
     "StriderMixin",
     "TntBlockMixin",

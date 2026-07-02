@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/block_devourer",
+  "parent": "anvilcraft:anvilcraft/block_placer",
   "criteria": {
     "placer_shuttle": {
       "trigger": "anvilcraft:placer_shuttle"

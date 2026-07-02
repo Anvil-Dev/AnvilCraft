@@ -1,0 +1,25 @@
+{
+  "parent": "anvilcraft:anvilcraft/mining_void",
+  "criteria": {
+    "void_collector_work": {
+      "trigger": "anvilcraft:void_collector_collect"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.void_generate_energy.description"
+    },
+    "icon": {
+      "id": "anvilcraft:void_energy_collector"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.void_generate_energy.title"
+    }
+  },
+  "requirements": [
+    [
+      "void_collector_work"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

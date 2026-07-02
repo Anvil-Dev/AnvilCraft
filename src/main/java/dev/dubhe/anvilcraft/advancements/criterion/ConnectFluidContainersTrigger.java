@@ -11,14 +11,14 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
 
-public class PlayerWearAnvilHammerTrigger extends SimpleCriterionTrigger<PlayerWearAnvilHammerTrigger.TriggerInstance> {
+public class ConnectFluidContainersTrigger extends SimpleCriterionTrigger<ConnectFluidContainersTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
         return TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer player) {
-        this.trigger(player, TriggerInstance::matches);
+        super.trigger(player, TriggerInstance::matches);
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player) implements SimpleInstance {
@@ -26,8 +26,8 @@ public class PlayerWearAnvilHammerTrigger extends SimpleCriterionTrigger<PlayerW
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player)
         ).apply(instance, TriggerInstance::new));
 
-        public static Criterion<TriggerInstance> wear() {
-            return ModCriterionTriggers.PLAYER_WEAR_ANVIL_HAMMER.get().createCriterion(new TriggerInstance(Optional.empty()));
+        public static Criterion<TriggerInstance> connectFluidContainers() {
+            return ModCriterionTriggers.CONNECT_FLUID_CONTAINERS.get().createCriterion(new TriggerInstance(Optional.empty()));
         }
 
         public boolean matches() {

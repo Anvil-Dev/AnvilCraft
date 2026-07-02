@@ -63,6 +63,9 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.all_in_one.title", "All in one");
         provider.add("advancements.anvilcraft.all_in_one.description", "Craft a hammer and try its various functions");
 
+        provider.add("advancements.anvilcraft.salted_fish_turns_over.title", "The salted fish turns over");
+        provider.add("advancements.anvilcraft.salted_fish_turns_over.description", "Use an anvil hammer to turn a block comparator to a horizontal state");
+
         provider.add("advancements.anvilcraft.hammer.title", "Everyone's a nail to a hammer");
         provider.add("advancements.anvilcraft.hammer.description", "Use an anvil hammer to kill mobs");
 
@@ -82,22 +85,25 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.networking.description", "Craft and place transmission pole");
 
         provider.add("advancements.anvilcraft.electric_filed_rhythm.title", "Feel the rhythm of the electric field");
-        provider.add("advancements.anvilcraft.electric_filed_rhythm.description", "Wear an anvil hammer on the head within the scope of the power grid");
+        provider.add("advancements.anvilcraft.electric_filed_rhythm.description", "Step in the scope of the power grid");
 
         provider.add("advancements.anvilcraft.industrial_grade_smelting.title", "Industrial grade smelting");
         provider.add("advancements.anvilcraft.industrial_grade_smelting.description", "Use super heating to melt any item");
+
+        provider.add("advancements.anvilcraft.water_flows_downhill.title", "Water flows downhill");
+        provider.add("advancements.anvilcraft.water_flows_downhill.description", "Connect two fluid containers at different heights with pipes");
 
         provider.add("advancements.anvilcraft.noble_metal.title", "Noble metal");
         provider.add("advancements.anvilcraft.noble_metal.description", "Smelting royal steel");
 
         provider.add("advancements.anvilcraft.smithing_table.title", "Smithing on the smithing table");
-        provider.add("advancements.anvilcraft.smithing_table.description", "Upgrade your smithing table with Royal steel and no longer consume smithing templates from now on");
+        provider.add("advancements.anvilcraft.smithing_table.description", "Upgrade your smithing table with royal steel and no longer consume smithing templates from now on");
 
         provider.add("advancements.anvilcraft.overseer.title", "The foreman shouted loudly");
         provider.add("advancements.anvilcraft.overseer.description", "Craft overseer helps you load chunks");
 
         provider.add("advancements.anvilcraft.durable_goods.title", "Durable goods");
-        provider.add("advancements.anvilcraft.durable_goods.description", "Upgrade any tool to Royal steel grade");
+        provider.add("advancements.anvilcraft.durable_goods.description", "Upgrade any tool to royal steel grade");
 
         provider.add("advancements.anvilcraft.royal_blacksmith.title", "Royal blacksmith");
         provider.add("advancements.anvilcraft.royal_blacksmith.description", "Obtain the royal anvil, royal smithing table, and royal grindstone");
@@ -122,6 +128,9 @@ public class AdvancementLang {
 
         provider.add("advancements.anvilcraft.self_in_flaming.title", "Self in flaming");
         provider.add("advancements.anvilcraft.self_in_flaming.description", "Using fire reforge to repair any ember metal tools or weapons");
+
+        provider.add("advancements.anvilcraft.ice_and_fire.title", "Ice and Fire");
+        provider.add("advancements.anvilcraft.ice_and_fire.description", "Obtain ember workstations and frost workstations");
 
         provider.add("advancements.anvilcraft.giant_age.title", "The Age of Giants");
         provider.add("advancements.anvilcraft.giant_age.description", "Convert a zombie holding anvil to a giant using the beam of corruption beacon to get giant anvil");
@@ -153,6 +162,24 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.ore_point.title", "Ore point");
         provider.add("advancements.anvilcraft.ore_point.description", "Create a mineral fountain, and start producing ores continually");
 
+        provider.add("advancements.anvilcraft.mining_void.title", "Mining void");
+        provider.add("advancements.anvilcraft.mining_void.description", "Obtain void matter");
+
+        provider.add("advancements.anvilcraft.void_generate_energy.title", "The void gives energy its purpose");
+        provider.add("advancements.anvilcraft.void_generate_energy.description", "Use void collector to generate energy");
+
+        provider.add("advancements.anvilcraft.saikou_scrubber.title", "Saikou scrubber");
+        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain menger sponge");
+
+        provider.add("advancements.anvilcraft.infinity_capacity.title", "Infinity capacity");
+        provider.add("advancements.anvilcraft.infinity_capacity.description", "Construct infinity capacity fluid tank with large fluid tank and menger sponge");
+
+        provider.add("advancements.anvilcraft.shulker_box_within_shulker_box.title", "Shulker box within shulker box");
+        provider.add("advancements.anvilcraft.shulker_box_within_shulker_box.description", "Obtain space overcompressor");
+
+        provider.add("advancements.anvilcraft.spoon_of_neutron_star.title", "A teaspoon of neutron star");
+        provider.add("advancements.anvilcraft.spoon_of_neutron_star.description", "Obtain neutronium ingot");
+
         provider.add("advancements.anvilcraft.heat_utilizing.title", "Heat utilizing");
         provider.add("advancements.anvilcraft.heat_utilizing.description", "Craft heat collector");
 
@@ -161,6 +188,15 @@ public class AdvancementLang {
 
         provider.add("advancements.anvilcraft.super_heat.title", "Super heat");
         provider.add("advancements.anvilcraft.super_heat.description", "Making a heat collector reach the max efficiency");
+
+        provider.add("advancements.anvilcraft.electric_allergy.title", "Electric allergy");
+        provider.add("advancements.anvilcraft.electric_allergy.description", "Obtain transcendence anvil without power system");
+
+        provider.add("advancements.anvilcraft.the_end.title", "The end?");
+        provider.add("advancements.anvilcraft.the_end.description", "Obtain transcendence anvil, and lift all enchantment limits");
+
+        provider.add("advancements.anvilcraft.the_start.title", "The start");
+        provider.add("advancements.anvilcraft.the_start.description", "Obtain celestial forging anvil");
         // endregion
 
         // region automation line
