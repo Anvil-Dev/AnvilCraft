@@ -94,7 +94,7 @@ public record ComradeAmulet(List<UUID> players) implements IAmulet {
         public static final MapCodec<ComradeAmulet> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             UUIDUtil.CODEC
                 .listOf()
-                .fieldOf("players")
+                .optionalFieldOf("players", List.of())
                 .forGetter(ComradeAmulet::players)
         ).apply(inst, ComradeAmulet::new));
         public static final StreamCodec<ByteBuf, ComradeAmulet> STREAM_CODEC = StreamCodec.composite(
