@@ -1,14 +1,12 @@
 package dev.dubhe.anvilcraft.integration.jade;
 
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
-import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
 import dev.dubhe.anvilcraft.integration.jade.provider.BurningHeaterProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ChargerProvider;
-import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapStorageProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeCrateProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeFluidTankProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapBlockStateProvider;
@@ -22,7 +20,6 @@ import dev.dubhe.anvilcraft.integration.jade.provider.SmartBlockPlacerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SpaceOvercompressorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.BurningHeaterClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.ChargerClientProvider;
-import dev.dubhe.anvilcraft.integration.jade.provider.client.CrabTrapStorageClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeCrateClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CreativeFluidTankClientProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.client.CrabTrapBlockStateClientProvider;
