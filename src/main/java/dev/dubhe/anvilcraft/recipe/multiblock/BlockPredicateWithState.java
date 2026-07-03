@@ -64,7 +64,11 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     private BlockPredicateWithState(Raw raw) {
         this.block = raw.block();
         this.properties = new HashMap<>();
-        raw.propertiesMap().forEach((stateName, stateValue) -> this.hasState(BuiltInRegistries.BLOCK, stateName, stateValue));
+        raw.propertiesMap().forEach((stateName, stateValue) -> this.hasState(
+            BuiltInRegistries.BLOCK,
+            stateName,
+            stateValue
+        ));
     }
 
     public BlockPredicateWithState(Block block) {
@@ -138,7 +142,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
         if (!this.block.map(state::is, state::is)) return false;
         return this.properties.entrySet().stream()
             .allMatch(entry -> state.hasProperty(entry.getKey())
-                               && state.getValue(entry.getKey()).equals(entry.getValue()));
+                && state.getValue(entry.getKey()).equals(entry.getValue()));
     }
 
     @Override
@@ -158,9 +162,15 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
                     if (SET_VALUE == null) return state.get();
                     this.properties.forEach((property, value) -> {
                         try {
-                            state.set((BlockState) SET_VALUE.invoke(state, property, value));
+                            state.set((BlockState) SET_VALUE.invoke(state.get(), property, value));
                         } catch (Exception e) {
-                            AnvilCraft.LOGGER.warn("Invalid property or value: property:{}, value:{}", property, value);
+                            AnvilCraft.LOGGER.warn(
+                                "Invalid property or value on state {}: property:{}, value:{}",
+                                state.get(),
+                                property,
+                                value,
+                                e
+                            );
                         }
                     });
                     return state.get();
@@ -175,7 +185,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
                         }
                         this.properties.forEach((property, value) -> {
                             try {
-                                state.set((BlockState) SET_VALUE.invoke(state, property, value));
+                                state.set((BlockState) SET_VALUE.invoke(state.get(), property, value));
                             } catch (Exception _) {
                                 // do nothing
                             }
