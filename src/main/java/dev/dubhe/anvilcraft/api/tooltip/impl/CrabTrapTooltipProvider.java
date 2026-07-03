@@ -27,7 +27,7 @@ public class CrabTrapTooltipProvider extends ITooltipProvider.BlockTooltipProvid
         }
         List<Component> lines = new ObjectArrayList<>();
         int finishing = state.getValue(CrabTrapBlock.FINISHING);
-        lines.add(Component.translatable("tooltip.anvilcraft.crap_trap.state_name").withStyle(ChatFormatting.BLUE));
+        lines.add(Component.translatable("tooltip.anvilcraft.crab_trap.state_name").withStyle(ChatFormatting.BLUE));
         lines.add(Component.literal("  ").append(Component.translatable("tooltip.anvilcraft.crab_trap.jade.finishing", finishing)));
         return lines;
     }
