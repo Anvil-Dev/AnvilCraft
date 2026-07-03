@@ -126,7 +126,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             return InteractionResult.SUCCESS;
         }
         List<ItemStack> items = new ObjectArrayList<>();
-        for (int i = 0; i < state.getValue(FINISHING); i++) {
+        for (int i = 1; i < state.getValue(FINISHING) + 1; i++) {
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_COMMON));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_RIVER));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_OCEAN));

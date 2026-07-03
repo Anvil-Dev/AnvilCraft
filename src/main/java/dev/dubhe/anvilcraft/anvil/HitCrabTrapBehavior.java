@@ -31,7 +31,7 @@ public class HitCrabTrapBehavior implements IAnvilBehavior {
         }
         if (hitBlockState.is(ModBlocks.CRAB_TRAP)) {
             List<ItemStack> items = new ObjectArrayList<>();
-            for (int i = 0; i < hitBlockState.getValue(CrabTrapBlock.FINISHING); i++) {
+            for (int i = 1; i < hitBlockState.getValue(CrabTrapBlock.FINISHING) + 1; i++) {
                 items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, hitBlockPos, ModLootTables.CRAB_TRAP_COMMON));
                 items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, hitBlockPos, ModLootTables.CRAB_TRAP_RIVER));
                 items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, hitBlockPos, ModLootTables.CRAB_TRAP_OCEAN));
