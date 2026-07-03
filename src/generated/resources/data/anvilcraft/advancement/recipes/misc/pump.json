@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_pipe": {
+    "has_pipe_straight": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:pipe"
+            "items": "anvilcraft:pipe_straight"
           }
         ]
       },
@@ -32,7 +32,7 @@
     [
       "has_the_recipe",
       "has_piston",
-      "has_pipe"
+      "has_pipe_straight"
     ]
   ],
   "rewards": {

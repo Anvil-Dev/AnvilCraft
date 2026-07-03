@@ -3,12 +3,10 @@ package dev.dubhe.anvilcraft.block.fluid;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -271,11 +269,6 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
             return true;
         }
         return isFluidHandlerOrConnectablePump(level, pos.relative(dir), dir.getOpposite());
-    }
-
-    @Override
-    public Item asItem() {
-        return ModItems.PIPE.get();
     }
 
     /**

@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:pipe_straight"
+          "name": "anvilcraft:drain"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/pipe_straight"
+  "random_sequence": "anvilcraft:blocks/drain"
 }

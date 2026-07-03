@@ -69,6 +69,7 @@ import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.DrainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
@@ -91,6 +92,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeCrateBlockEntity
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.DrainBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ExpCollectorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankBlockEntityRenderer;
@@ -499,6 +501,12 @@ public class ModBlockEntities {
         .blockEntity("control_valve", ControlValveBlockEntity::new)
         .validBlock(ModBlocks.CONTROL_VALVE)
         .renderer(() -> ControlValveBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<DrainBlockEntity> DRAIN = REGISTRUM
+        .blockEntity("drain", DrainBlockEntity::new)
+        .validBlock(ModBlocks.DRAIN)
+        .renderer(() -> DrainBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<WipBlockEntity> WIP_BLOCK = REGISTRUM

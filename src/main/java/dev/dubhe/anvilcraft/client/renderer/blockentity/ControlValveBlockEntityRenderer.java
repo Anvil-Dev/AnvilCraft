@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
+import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -23,7 +24,7 @@ import net.minecraft.core.Direction;
  *
  * <h3>朝向</h3>
  * 手轮模型原本安装在模型空间 +Y（顶面）、绕 Y 轴旋转。渲染时先把 +Y 旋到 {@code facing}，
- * 再绕 {@code facing} 法线施加转角。{@link #BASE_ANGLE_DEG} 用于对齐"北标记初始在玩家视角右侧"，
+ * 再绕 {@code facing} 法线施加转角。{@link #BASE_ANGLE_DEG} 用于对齐标记位置"，
  * 视觉不符时调此常量即可。
  */
 public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<ControlValveBlockEntity> {
@@ -49,9 +50,14 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
         int packedOverlay
     ) {
         Direction facing = be.getFacing();
-        // rate=2000 → 0°，rate=0 → 90°，逆时针
+        // rate=2000 → 0°，rate=0 → -90°，顺时针是关，逆时针是开
         float ratio = (ControlValveBlockEntity.MAX_RATE - be.getMaxRate()) / (float) ControlValveBlockEntity.MAX_RATE;
-        float spinDeg = BASE_ANGLE_DEG + 90.0f * ratio;
+        float spinDeg = BASE_ANGLE_DEG - 90.0f * ratio;
+        // axis 为 Z 轴的控制阀或 axis 为 Y 轴且手轮朝向 Z+/Z- 的控制阀手轮标记初始朝向补正 90°
+        Direction.Axis axis = be.getBlockState().getValue(ControlValveBlock.AXIS);
+        if (axis == Direction.Axis.Z || (axis == Direction.Axis.Y && facing.getAxis() == Direction.Axis.Z)) {
+            spinDeg += 90.0f;
+        }
 
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);

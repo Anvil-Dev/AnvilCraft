@@ -9,6 +9,12 @@
     "anvilcraft:fish_tank",
     "anvilcraft:fluid_tank",
     "anvilcraft:large_fluid_tank",
+    "anvilcraft:drain",
+    "anvilcraft:pump",
+    "anvilcraft:control_valve",
+    "anvilcraft:pipe_straight",
+    "anvilcraft:pipe_corner",
+    "anvilcraft:pipe_node",
     "anvilcraft:corrupted_beacon",
     "anvilcraft:spectral_anvil",
     "anvilcraft:royal_anvil",
@@ -316,11 +322,6 @@
     "anvilcraft:bronze_pressure_plate",
     "anvilcraft:creative_generator",
     "anvilcraft:creative_fluid_tank",
-    "anvilcraft:creative_crate",
-    "anvilcraft:pipe_straight",
-    "anvilcraft:pipe_corner",
-    "anvilcraft:pipe_node",
-    "anvilcraft:pump",
-    "anvilcraft:control_valve"
+    "anvilcraft:creative_crate"
   ]
 }

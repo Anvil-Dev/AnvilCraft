@@ -43,6 +43,8 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
 
     private @Nullable PowerGrid grid;
     private boolean working;
+    /** 上一 tick 的 canPump() 结果，用于检测供电变化以令网络缓存失效 */
+    private boolean lastCanPump;
 
     public PumpBlockEntity(BlockEntityType<? extends PumpBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -131,7 +133,11 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
         if (entity.working != wasWorking) {
             entity.setChanged();
             entity.sendUpdate();
-            // 泵工作状态翻转会接通/断开网络连接与势场 → 使缓存失效重扫
+        }
+        // canPump() 还取决于电网供电(grid.isWorking())，它可能在 working 不变时改变，一旦 canPump 结果变化就令网络缓存失效重扫，避免断电后泵仍继续抽送。
+        boolean canPumpNow = entity.canPump();
+        if (canPumpNow != entity.lastCanPump) {
+            entity.lastCanPump = canPumpNow;
             FluidNetworkManager.INSTANCE.markDirty(level);
         }
     }

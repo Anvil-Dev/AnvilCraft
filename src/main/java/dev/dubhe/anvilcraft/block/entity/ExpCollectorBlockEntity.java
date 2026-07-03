@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.OnlyDrainFluidTank;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -51,6 +52,7 @@ public class ExpCollectorBlockEntity extends BlockEntity
     implements MenuProvider,
     IFluidHandlerHolder,
     IPowerConsumer,
+    IDiskCloneable,
     IHasAffectRange {
     private static final Map<Integer, Map<Integer, Integer>> POWER_CONSUMPTION = Map.of(
         0,

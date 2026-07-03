@@ -61,14 +61,21 @@ public final class FluidNetworkScanner {
         return PipeBlock.hasConnectionToward(state, toward);
     }
 
-    private static boolean isWorkingConnectablePump(Level level, BlockPos pos, BlockState state, Direction faceToPump) {
-        if (!(state.getBlock() instanceof PumpBlock)) {
-            return false;
-        }
-        if (!PumpBlock.isConnectableFace(state, faceToPump)) {
-            return false;
-        }
-        return level.getBlockEntity(pos) instanceof PumpBlockEntity pbe && pbe.canPump();
+    /**
+     * 泵始终作为可连接的二极管接入网络（无论是否通电）；连接与否只看连接面朝向。
+     * 是否提供扬程势场另由 {@link #pumpHalfLift} 决定。
+     */
+    private static boolean isConnectablePump(BlockState state, Direction faceToPump) {
+        return state.getBlock() instanceof PumpBlock && PumpBlock.isConnectableFace(state, faceToPump);
+    }
+
+    /**
+     * 泵当前提供的单侧扬程势场：通电工作时为 {@value #PUMP_HALF_LIFT}，断电/过载/红石关闭时为 0
+     * （此时泵仍是二极管单向连通，只是不主动提供扬程）。
+     */
+    private static int pumpHalfLift(Level level, BlockPos pumpPos) {
+        return level.getBlockEntity(pumpPos) instanceof PumpBlockEntity pbe && pbe.canPump()
+            ? PUMP_HALF_LIFT : 0;
     }
 
     private static IFluidHandler containerHandler(Level level, BlockPos pos, Direction sideToPipe) {
@@ -141,15 +148,16 @@ public final class FluidNetworkScanner {
         }
     }
 
-    /** 展开泵的两个轴端（带势场偏移）。 */
+    /** 展开泵的两个轴端（通电时带 ±扬程势场，断电时 ±0 但仍连通）。 */
     private static void expandPump(
         Level level, BlockPos pos, BlockState state, int phi,
         Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
         Deque<BlockPos> queue, List<FluidEndpoint> endpoints, Map<IFluidHandler, Boolean> seenHandlers
     ) {
         Direction outputDir = state.getValue(PumpBlock.ORIENTATION).getDirection();
+        int lift = pumpHalfLift(level, pos);
         for (Direction side : new Direction[]{outputDir, outputDir.getOpposite()}) {
-            int neighborPhi = phi + (side == outputDir ? PUMP_HALF_LIFT : -PUMP_HALF_LIFT);
+            int neighborPhi = phi + (side == outputDir ? lift : -lift);
             visitNeighborWithPhi(level, pos, side, neighborPhi, potential, adjacency, queue, endpoints, seenHandlers);
         }
     }
@@ -190,10 +198,10 @@ public final class FluidNetworkScanner {
         BlockState neighborState = level.getBlockState(neighborPos);
         Direction faceBack = dir.getOpposite();
 
-        // 工作中的可连接泵 → 穿过
-        if (isWorkingConnectablePump(level, neighborPos, neighborState, faceBack)) {
+        // 可连接泵（无论通/断电）→ 穿过（二极管；扬程由 enqueuePump 按通电状态决定）
+        if (isConnectablePump(neighborState, faceBack)) {
             link(adjacency, pos, neighborPos);
-            enqueuePump(neighborPos, neighborState, pos, potential, queue);
+            enqueuePump(level, neighborPos, neighborState, pos, potential, queue);
             return;
         }
         // 控制阀：连接面正对本部件 → 门控透传
@@ -224,7 +232,7 @@ public final class FluidNetworkScanner {
     }
 
     private static void enqueuePump(
-        BlockPos pumpPos, BlockState pumpState, BlockPos fromPos,
+        Level level, BlockPos pumpPos, BlockState pumpState, BlockPos fromPos,
         Map<BlockPos, Integer> potential, Deque<BlockPos> queue
     ) {
         if (potential.containsKey(pumpPos)) {
@@ -232,11 +240,12 @@ public final class FluidNetworkScanner {
         }
         Direction outputDir = pumpState.getValue(PumpBlock.ORIENTATION).getDirection();
         int fromPhi = potential.get(fromPos);
+        int lift = pumpHalfLift(level, pumpPos);
         int pumpPhi;
         if (fromPos.equals(pumpPos.relative(outputDir))) {
-            pumpPhi = fromPhi - PUMP_HALF_LIFT;      // fromPos 在输出侧：fromPhi = pumpPhi + 10
+            pumpPhi = fromPhi - lift;      // fromPos 在输出侧：fromPhi = pumpPhi + lift
         } else if (fromPos.equals(pumpPos.relative(outputDir.getOpposite()))) {
-            pumpPhi = fromPhi + PUMP_HALF_LIFT;      // fromPos 在输入侧：fromPhi = pumpPhi - 10
+            pumpPhi = fromPhi + lift;      // fromPos 在输入侧：fromPhi = pumpPhi - lift
         } else {
             return;
         }
