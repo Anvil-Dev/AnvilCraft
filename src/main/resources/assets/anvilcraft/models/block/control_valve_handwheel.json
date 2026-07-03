@@ -3,7 +3,8 @@
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
 	"textures": {
-		"2": "anvilcraft:block/control_valve"
+		"2": "anvilcraft:block/control_valve",
+		"particle": "anvilcraft:block/pipe"
 	},
 	"elements": [
 		{
@@ -32,9 +33,7 @@
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 13.75, 8]},
 			"faces": {
 				"north": {"uv": [15, 2, 16, 6], "rotation": 90, "texture": "#2"},
-				"east": {"uv": [0, 0, 0, 0], "texture": "#2"},
 				"south": {"uv": [15, 2, 16, 6], "rotation": 90, "texture": "#2"},
-				"west": {"uv": [0, 0, 0, 0], "texture": "#2"},
 				"up": {"uv": [15, 2, 16, 6], "rotation": 90, "texture": "#2"},
 				"down": {"uv": [15, 2, 16, 6], "rotation": 270, "texture": "#2"}
 			}
@@ -45,9 +44,7 @@
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 13.75, 8]},
 			"faces": {
 				"north": {"uv": [10, 2, 11, 6], "rotation": 90, "texture": "#2"},
-				"east": {"uv": [0, 0, 0, 0], "texture": "#2"},
 				"south": {"uv": [10, 2, 11, 6], "rotation": 90, "texture": "#2"},
-				"west": {"uv": [0, 0, 0, 0], "texture": "#2"},
 				"up": {"uv": [10, 2, 11, 6], "rotation": 90, "texture": "#2"},
 				"down": {"uv": [10, 2, 11, 6], "rotation": 270, "texture": "#2"}
 			}
