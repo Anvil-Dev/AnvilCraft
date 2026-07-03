@@ -4,9 +4,9 @@
 	"parent": "minecraft:block/cube",
 	"textures": {
 		"2": "anvilcraft:block/control_valve",
+		"end": "anvilcraft:block/pipe_end",
 		"particle": "anvilcraft:block/pipe",
-		"body": "anvilcraft:block/pipe",
-		"end": "anvilcraft:block/pipe_end"
+		"body": "anvilcraft:block/pipe"
 	},
 	"elements": [
 		{
