@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -48,8 +49,19 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     /** 允许通过的最大流速（mB/tick） */
     private int maxRate = MAX_RATE;
 
+    /**
+     * 手轮朝向的那一面（放置时记录玩家面向的、垂直于轴的方向）。手轮 BER 渲染在此面中心、绕此面法线旋转。
+     * 仅放置时确定一次，不随玩家移动更新。默认 NORTH（放置逻辑会覆写）。
+     */
+    private Direction facing = Direction.NORTH;
+
     public ControlValveBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    public void setFacing(Direction facing) {
+        this.facing = facing;
+        this.setChanged();
     }
 
     public void setMaxRate(int maxRate) {
@@ -106,6 +118,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("MaxRate", maxRate);
+        tag.putInt("Facing", facing.get3DDataValue());
         tag.put("Filters", writeFilters(registries));
     }
 
@@ -113,6 +126,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.maxRate = Mth.clamp(tag.getInt("MaxRate"), 0, MAX_RATE);
+        this.facing = Direction.from3DDataValue(tag.getInt("Facing"));
         readFilters(registries, tag.getList("Filters", Tag.TAG_COMPOUND));
     }
 
@@ -120,6 +134,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putInt("MaxRate", maxRate);
+        tag.putInt("Facing", facing.get3DDataValue());
         tag.put("Filters", writeFilters(registries));
         return tag;
     }

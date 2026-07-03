@@ -247,6 +247,10 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             int tx = this.leftPos + (this.imageWidth - this.font.width(text)) / 2;
             guiGraphics.drawString(this.font, text, tx, this.topPos + 41, 0xFFFF5555, false);
         }
+        // 数字输入框右边始终渲染单位 mB（原版样式）
+        guiGraphics.drawString(this.font, "mB", this.leftPos + 115, this.topPos + 59, 0x3F3F3F, false);
+        guiGraphics.drawString(this.font, "mB", this.leftPos + 114, this.topPos + 58, 0xFFFFFF, false);
+
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 }

@@ -105,12 +105,38 @@ public class ControlValveBlock extends BetterBaseEntityBlock
         return faceToNeighbor.getAxis() == state.getValue(AXIS);
     }
 
-    /** 放置后将轴向上连接的直管/弯管转为节点，使其能正确吸附。 */
+    /**
+     * 计算手轮应朝向的面：在垂直于阀门轴 {@code axis} 的 4 个方向中，取最朝向玩家的那一面
+     * （法线与玩家视线最反向者）。
+     */
+    private static Direction computeHandwheelFacing(Direction.Axis axis, LivingEntity placer) {
+        net.minecraft.world.phys.Vec3 look = placer.getLookAngle();
+        Direction best = null;
+        double bestDot = Double.NEGATIVE_INFINITY;
+        for (Direction dir : Direction.values()) {
+            if (dir.getAxis() == axis) {
+                continue; // 手轮不能在连接面（轴两端）
+            }
+            // 面法线朝玩家 = 与视线方向点积最小（最反向）；等价于 -(look·normal) 最大
+            double dot = -(look.x * dir.getStepX() + look.y * dir.getStepY() + look.z * dir.getStepZ());
+            if (dot > bestDot) {
+                bestDot = dot;
+                best = dir;
+            }
+        }
+        return best == null ? Direction.NORTH : best;
+    }
+
+    /** 放置后将轴向上连接的直管/弯管转为节点，使其能正确吸附；并记录手轮朝向（面向玩家、垂直于轴的一面）。 */
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (level.isClientSide) {
             return;
+        }
+        // 记录手轮朝向：取玩家视线反方向中、垂直于阀门轴的那一面（即玩家面对的、能看到手轮的一面）
+        if (placer != null && level.getBlockEntity(pos) instanceof ControlValveBlockEntity be) {
+            be.setFacing(computeHandwheelFacing(state.getValue(AXIS), placer));
         }
         for (Direction dir : Direction.values()) {
             if (!isConnectableFace(state, dir)) {
@@ -199,7 +225,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock
 
     @Override
     public boolean checkBlockState(BlockState blockState) {
-        return true;
+        return IHammerChangeable.super.checkBlockState(blockState);
     }
 
     @Override
