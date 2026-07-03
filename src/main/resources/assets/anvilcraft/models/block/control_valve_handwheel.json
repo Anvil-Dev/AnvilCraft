@@ -7,12 +7,12 @@
 	},
 	"elements": [
 		{
-			"from": [5, 14, 4],
-			"to": [11, 14, 11],
+			"from": [4, 14, 5],
+			"to": [12, 14, 11],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 9, 11]},
 			"faces": {
-				"up": {"uv": [10, 0, 16, 7], "rotation": 180, "texture": "#2"},
-				"down": {"uv": [1, 10, 7, 16], "rotation": 270, "texture": "#2"}
+				"up": {"uv": [10, 0, 16, 8], "rotation": 90, "texture": "#2"},
+				"down": {"uv": [10, 1, 16, 7], "rotation": 270, "texture": "#2"}
 			}
 		},
 		{
