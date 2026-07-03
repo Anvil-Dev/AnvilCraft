@@ -1,0 +1,39 @@
+package dev.dubhe.anvilcraft.api.tooltip.impl;
+
+import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
+import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.CompatUtil;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.List;
+
+public class CrapTrapTooltipProvider extends ITooltipProvider.BlockTooltipProvider {
+    @Override
+    public boolean accepts(Level level, BlockPos pos, BlockState state) {
+        return state.is(ModBlocks.CRAB_TRAP);
+    }
+
+    @Override
+    public List<Component> tooltip(Level level, BlockPos pos, BlockState state) {
+        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) {
+            return List.of();
+        }
+        List<Component> lines = new ObjectArrayList<>();
+        int finishing = state.getValue(CrabTrapBlock.FINISHING);
+        lines.add(Component.translatable("tooltip.anvilcraft.crap_trap.state_name").withStyle(ChatFormatting.BLUE));
+        lines.add(Component.literal("  ").append(Component.translatable("tooltip.anvilcraft.crab_trap.jade.finishing", finishing)));
+        return lines;
+    }
+
+    @Override
+    public int priority() {
+        return 0;
+    }
+}
