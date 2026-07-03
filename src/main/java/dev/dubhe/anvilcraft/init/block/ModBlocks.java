@@ -44,6 +44,7 @@ import dev.dubhe.anvilcraft.block.EmberMetalStairBlock;
 import dev.dubhe.anvilcraft.block.EmberSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.EndDustBlock;
 import dev.dubhe.anvilcraft.block.ExcitedStateVoidMatterBlock;
+import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.ExpCollectorBlock;
 import dev.dubhe.anvilcraft.block.ExpFluidBlock;
 import dev.dubhe.anvilcraft.block.ExpFluidCauldronBlock;
@@ -2452,7 +2453,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::silverBlock)
         .register();
 
-    public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM.block("uranium_block", Block::new)
+    public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM
+        .block("uranium_block", p -> new RadioactiveBlock(p, () -> ModBlocks.LEAD_BLOCK.get()))
         .lang("Block of Uranium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_URANIUM)
@@ -2462,7 +2464,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::uraniumBlock)
         .register();
 
-    public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM.block("plutonium_block", Block::new)
+    public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM
+        .block("plutonium_block", p -> new RadioactiveBlock(p, () -> ModBlocks.URANIUM_BLOCK.get()))
         .lang("Block of Plutonium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(
