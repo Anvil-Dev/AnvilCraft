@@ -1090,6 +1090,7 @@
   "screen.anvilcraft.button.compare_mode_hysteresis": "Mode: Hysteresis",
   "screen.anvilcraft.button.compare_mode_window": "Mode: Window",
   "screen.anvilcraft.button.direction": "Output Direction: %s",
+  "screen.anvilcraft.control_valve.redstone_locked": "Locked by Redstone",
   "screen.anvilcraft.button.direction.down": "Down",
   "screen.anvilcraft.button.direction.east": "East",
   "screen.anvilcraft.button.direction.north": "North",

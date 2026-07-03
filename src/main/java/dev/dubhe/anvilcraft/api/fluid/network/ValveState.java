@@ -16,12 +16,12 @@ public final class ValveState {
 
     public ValveState(ControlValveBlockEntity be) {
         this.be = be;
-        this.remaining = be.getMaxRate();
+        this.remaining = be.getEffectiveMaxRate();
     }
 
-    /** 每 tick 分配前重置预算为阀门当前最大流速（实时读取，支持缓存网络下改流速即时生效）。 */
+    /** 每 tick 分配前重置预算为阀门当前有效流速（红石锁定时为 0；实时读取，改流速即时生效）。 */
     public void resetBudget() {
-        this.remaining = be.getMaxRate();
+        this.remaining = be.getEffectiveMaxRate();
     }
 
     /** 该阀门是否允许此流体通过（白名单实时读取；空过滤=全放行）。 */

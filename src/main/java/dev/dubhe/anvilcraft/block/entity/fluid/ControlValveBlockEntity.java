@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
+import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -54,6 +55,17 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     public void setMaxRate(int maxRate) {
         this.maxRate = Mth.clamp(maxRate, 0, MAX_RATE);
         this.setChanged();
+    }
+
+    /** 是否被红石锁定（读方块状态 POWERED）。锁定时有效流速为 0 且 GUI 不可调。 */
+    public boolean isLocked() {
+        BlockState state = getBlockState();
+        return state.hasProperty(ControlValveBlock.POWERED) && state.getValue(ControlValveBlock.POWERED);
+    }
+
+    /** 供网络分配使用的有效最大流速：被红石锁定时为 0，否则为设定值。 */
+    public int getEffectiveMaxRate() {
+        return isLocked() ? 0 : maxRate;
     }
 
     /** 设置某槽的过滤流体（数量归一，仅记录种类）。 */

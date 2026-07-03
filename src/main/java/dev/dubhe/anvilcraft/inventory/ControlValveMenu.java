@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.inventory;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import lombok.Getter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -37,10 +38,11 @@ public class ControlValveMenu extends AbstractContainerMenu {
         addPlayerHotbar(inventory);
     }
 
-    /** 客户端 / 注册构造 */
+    /** 客户端 / 注册构造：从 buf 读取阀门位置并解析客户端 BE（用于实时查询红石锁定状态）。 */
     public ControlValveMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf buf) {
         super(menuType, containerId);
-        this.blockEntity = null;
+        BlockPos pos = buf.readBlockPos();
+        this.blockEntity = inventory.player.level().getBlockEntity(pos) instanceof ControlValveBlockEntity be ? be : null;
         addPlayerInventory(inventory);
         addPlayerHotbar(inventory);
     }

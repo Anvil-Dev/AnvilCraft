@@ -10,6 +10,7 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.control_valve.redstone_locked", "Locked by Redstone");
         provider.add("screen.anvilcraft.button.direction", "Output Direction: %s");
         provider.add("screen.anvilcraft.button.direction.down", "Down");
         provider.add("screen.anvilcraft.button.direction.east", "East");

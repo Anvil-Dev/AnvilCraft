@@ -101,17 +101,28 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         this.valueBox.setValue(Integer.toString(value));
     }
 
+    /** 该阀门是否被红石锁定（实时读客户端 BE）。 */
+    private boolean isLocked() {
+        return this.getMenu().getBlockEntity() != null && this.getMenu().getBlockEntity().isLocked();
+    }
+
     /** 过滤流体被服务端回传更新。 */
     public void setFilter(int index, FluidStack fluid) {
         this.filterFluid = fluid;
     }
 
     private void onSliderChange(int value) {
+        if (isLocked()) {
+            return;
+        }
         this.valueBox.setValue(Integer.toString(value));
         PacketDistributor.sendToServer(new ControlValveUpdatePacket(value));
     }
 
     private void onValueInput(String text) {
+        if (isLocked()) {
+            return;
+        }
         int v;
         if (text.matches("^[0-9]+$")) {
             v = Integer.parseInt(text);
@@ -159,7 +170,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             PacketDistributor.sendToServer(new ControlValveFilterPacket(0, fluid));
             return true;
         }
-        if (button == 0) {
+        if (button == 0 && !isLocked()) {
             this.slider.onClick(mouseX, mouseY);
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -167,7 +178,9 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        this.slider.onDrag(mouseX, mouseY);
+        if (!isLocked()) {
+            this.slider.onDrag(mouseX, mouseY);
+        }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
@@ -209,6 +222,14 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        // 红石锁定：流速为 0 且不可编辑
+        boolean locked = isLocked();
+        this.valueBox.setEditable(!locked);
+        if (locked) {
+            this.slider.setValue(0);
+            this.valueBox.setValue("0");
+        }
+
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int fx = this.leftPos + FILTER_X;
         int fy = this.topPos + FILTER_Y;
@@ -219,6 +240,12 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         // 悬停时叠加与物品槽一致的白色半透明高亮，让它看起来像可放入的格子
         if (this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {
             guiGraphics.fillGradient(fx, fy, fx + 16, fy + 16, 0x80FFFFFF, 0x80FFFFFF);
+        }
+        // 红石锁定提示文字（滑动条内）
+        if (locked) {
+            Component text = Component.translatable("screen.anvilcraft.control_valve.redstone_locked");
+            int tx = this.leftPos + (this.imageWidth - this.font.width(text)) / 2;
+            guiGraphics.drawString(this.font, text, tx, this.topPos + 41, 0xFFFF5555, false);
         }
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }

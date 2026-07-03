@@ -1,12 +1,15 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.network.ControlValveInitPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +29,9 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -40,9 +45,12 @@ import org.jetbrains.annotations.Nullable;
  * 设置允许通过的流体类型（白名单过滤）和最大流速。放置方式类似泵：贴在侧面的
  * 直管/弯管会转为节点以正确吸附。
  */
-public class ControlValveBlock extends BetterBaseEntityBlock implements IHammerRemovable {
+public class ControlValveBlock extends BetterBaseEntityBlock
+    implements IHammerRemovable, IHammerChangeable, IMoveableEntityBlock {
     public static final MapCodec<ControlValveBlock> CODEC = simpleCodec(ControlValveBlock::new);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
+    /** 红石锁定：任意侧收到红石信号则锁定，流速视为 0 且 GUI 中不可调。 */
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     private static final VoxelShape SHAPE_X = box(0, 3, 3, 16, 13, 13);
     private static final VoxelShape SHAPE_Y = box(3, 0, 3, 13, 16, 13);
@@ -50,7 +58,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock implements IHammerR
 
     public ControlValveBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(AXIS, Direction.Axis.Y));
+        registerDefaultState(stateDefinition.any().setValue(AXIS, Direction.Axis.Y).setValue(POWERED, false));
     }
 
     @Override
@@ -60,7 +68,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock implements IHammerR
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS);
+        builder.add(AXIS, POWERED);
     }
 
     @Override
@@ -77,11 +85,14 @@ public class ControlValveBlock extends BetterBaseEntityBlock implements IHammerR
         };
     }
 
-    /** 放置时沿点击面的轴向。 */
+    /** 放置时沿点击面的轴向，并按周围红石初始化锁定状态。 */
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(AXIS, context.getClickedFace().getAxis());
+        boolean powered = context.getLevel().hasNeighborSignal(context.getClickedPos());
+        return defaultBlockState()
+            .setValue(AXIS, context.getClickedFace().getAxis())
+            .setValue(POWERED, powered);
     }
 
     /**
@@ -132,7 +143,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock implements IHammerR
         level.setBlockAndUpdate(pos, nodeState);
     }
 
-    /** 右键打开 GUI。 */
+    /** 右键打开 GUI；手持铁砧锤时放行，交由 {@link #change} 旋转轴向。 */
     @Override
     protected ItemInteractionResult useItemOn(
         ItemStack stack,
@@ -143,12 +154,57 @@ public class ControlValveBlock extends BetterBaseEntityBlock implements IHammerR
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
+        // 手持铁砧锤 → 放行，由 change 处理轴向旋转，不打开 GUI
+        if (stack.is(ModItemTags.ANVIL_HAMMER)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer
             && level.getBlockEntity(pos) instanceof ControlValveBlockEntity be) {
             serverPlayer.openMenu(be, pos);
             PacketDistributor.sendToPlayer(serverPlayer, new ControlValveInitPacket(be.getMaxRate(), be.getFilter(0)));
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    /** 红石信号更新：任意侧有信号则锁定（POWERED=true），流速视为 0。 */
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+        if (level.isClientSide) {
+            return;
+        }
+        boolean hasSignal = level.hasNeighborSignal(pos);
+        if (hasSignal != state.getValue(POWERED)) {
+            level.setBlock(pos, state.setValue(POWERED, hasSignal), Block.UPDATE_CLIENTS);
+            // 锁定状态变化会改变有效流速 → 使网络缓存失效
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
+    }
+
+    // ---- 铁砧锤：旋转轴向 X→Y→Z ----
+
+    @Override
+    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
+        BlockState state = level.getBlockState(blockPos);
+        if (!(state.getBlock() instanceof ControlValveBlock)) {
+            return false;
+        }
+        Direction.Axis next = switch (state.getValue(AXIS)) {
+            case X -> Direction.Axis.Y;
+            case Y -> Direction.Axis.Z;
+            case Z -> Direction.Axis.X;
+        };
+        level.setBlockAndUpdate(blockPos, state.setValue(AXIS, next));
+        return true;
+    }
+
+    @Override
+    public boolean checkBlockState(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+        return AXIS;
     }
 
     /** 控制阀放置 / 落地时使流体网络缓存失效（拓扑可能变化）。 */
