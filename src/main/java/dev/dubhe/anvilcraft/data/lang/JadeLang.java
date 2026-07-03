@@ -52,5 +52,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");
 
         provider.add("tooltip.anvilcraft.infinity", "Infinity");
+
+        provider.add("tooltip.anvilcraft.crab_trap.jade.finishing", "Finishing: %s");
     }
 }

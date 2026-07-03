@@ -1,10 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
-import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
-import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
@@ -12,27 +9,23 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -41,13 +34,14 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
-public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterloggedBlock, IHammerRemovable {
+import java.util.List;
+
+public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final IntegerProperty FINISHING = IntegerProperty.create("finishing", 0, 15);
 
     public CrabTrapBlock(Properties properties) {
         super(properties);
@@ -55,22 +49,8 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
             getStateDefinition().any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(WATERLOGGED, false)
+                .setValue(FINISHING, 0)
         );
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(CrabTrapBlock::new);
-    }
-
-    @Override
-    public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
-    }
-
-    @Override
-    public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     @Nullable
@@ -88,8 +68,7 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-        builder.add(WATERLOGGED);
+        builder.add(FACING, WATERLOGGED, FINISHING);
     }
 
     @Override
@@ -107,103 +86,75 @@ public class CrabTrapBlock extends BetterBaseEntityBlock implements SimpleWaterl
         BlockState state,
         ServerLevel level,
         BlockPos pos,
-        RandomSource random) {
+        RandomSource random
+    ) {
         int times = 0;
-        for (Direction face : Direction.values()) {
-            if (level.getFluidState(pos.relative(face)).is(Fluids.WATER)) times++;
+        for (Direction direction : Direction.values()) {
+            if (level.getFluidState(pos.relative(direction)).is(Fluids.WATER)) {
+                times++;
+            }
         }
 
-        if (times >= 3) {
-            // 获取战利品并放入 block entity
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_COMMON);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_RIVER);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_OCEAN);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_WARM_OCEAN);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_SWAMP);
-            tryInsertLoot(state, level, pos, ModLootTables.CRAB_TRAP_JUNGLE);
+        if (times >= 3 && state.getValue(FINISHING) < 15) {
+            level.setBlockAndUpdate(pos, state.setValue(FINISHING, state.getValue(FINISHING) + 1));
         }
     }
 
     @Override
-    public InteractionResult use(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        Player player,
-        InteractionHand hand,
-        BlockHitResult hit
-    ) {
-        if (!level.isClientSide()) {
-            CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
-            if (blockEntity != null) {
-                IItemHandler itemHandler = blockEntity.getItemHandler();
-                for (int i = 0; i < itemHandler.getSlots(); i++) {
-                    ItemStack stack = itemHandler.getStackInSlot(i);
-                    if (stack.isEmpty()) continue;
-                    Vec3 center = pos.relative(Direction.UP).getCenter();
-                    ItemEntity itemEntity = new ItemEntity(level, center.x(), center.y(), center.z(), stack, 0, 0.2, 0);
-                    itemEntity.setDefaultPickUpDelay();
-                    level.addFreshEntity(itemEntity);
-                    itemHandler.extractItem(i, stack.getCount(), false);
-                }
-                blockEntity.setChanged();
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        return state.getValue(FINISHING);
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (level.isClientSide()) {
+            return super.useWithoutItem(state, level, pos, player, hitResult);
+        }
+        List<ItemStack> items = new ObjectArrayList<>();
+        for (int i = 0; i <= state.getValue(FINISHING); i++) {
+            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_COMMON));
+            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_RIVER));
+            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_OCEAN));
+            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_WARM_OCEAN));
+            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_SWAMP));
+            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_JUNGLE));
+        }
+        for (int i = 0; i <= state.getValue(FINISHING); i++) {
+            if (i % 5 == 0) {
+                items.add(ModItems.CRAB_CLAW.asStack());
             }
         }
+        Vec3 center = pos.relative(Direction.UP).getCenter();
+        for (ItemStack item : items) {
+            ItemEntity itemEntity = new ItemEntity(level, center.x, center.y, center.z, item, 0, 0.2, 0);
+            itemEntity.setDefaultPickUpDelay();
+            level.addFreshEntity(itemEntity);
+        }
+        level.setBlockAndUpdate(pos, state.setValue(FINISHING, 0));
         return InteractionResult.SUCCESS;
     }
 
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new CrabTrapBlockEntity(ModBlockEntities.CRAB_TRAP.get(), pos, state);
-    }
+    public static List<ItemStack> generateLoot(ServerLevel level, BlockPos pos, ResourceKey<LootTable> loot) {
+        LootParams lootParams = new LootParams.Builder(level)
+            .withParameter(LootContextParams.ORIGIN, pos.getCenter())
+            .create(LootContextParamSets.CHEST);
 
-    @Override
-    public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
-    }
-
-    @Override
-    public void onRemove(
-        BlockState state,
-        Level level,
-        BlockPos pos,
-        BlockState newState,
-        boolean movedByPiston
-    ) {
-        if (state.is(newState.getBlock())) return;
-        if (level.getBlockEntity(pos) instanceof CrabTrapBlockEntity entity) {
-            Vec3 vec3 = entity.getBlockPos().getCenter();
-            IItemHandler itemHandler = entity.getItemHandler();
-            for (int slot = 0; slot < itemHandler.getSlots(); slot++) {
-                Containers.dropItemStack(level, vec3.x, vec3.y, vec3.z, itemHandler.getStackInSlot(slot));
-            }
-            level.updateNeighbourForOutputSignal(pos, this);
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
-
-    private void tryInsertLoot(
-        BlockState state,
-        ServerLevel level,
-        BlockPos pos,
-        ResourceKey<LootTable> loot
-    ) {
-        if (state.hasBlockEntity()) {
-            LootParams lootParams = new LootParams.Builder(level)
-                .withParameter(LootContextParams.ORIGIN, pos.getCenter())
-                .create(LootContextParamSets.CHEST);
-
-            LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(loot);
-            ObjectArrayList<ItemStack> items = lootTable.getRandomItems(lootParams);
-            if (items.isEmpty()) return;
-            CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(pos);
-            if (blockEntity != null) {
-                for (ItemStack item : items) {
-                    ItemHandlerHelper.insertItem(blockEntity.getItemHandler(), item, false);
-                }
-                blockEntity.setChanged();
-            }
-        }
+        LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(loot);
+        return lootTable.getRandomItems(lootParams);
     }
 }
