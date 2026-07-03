@@ -30,8 +30,10 @@ public abstract sealed class AmuletEvent extends Event
 
     /// 本事件会在 {@link AmuletManager#getAmuletsFromInventory(Player)} 内发出，<br>
     /// 并允许其它模组从非物品栈形式的源提供护符。
-    /// <p>注意：您不需要在此事件中处理护符容器（物品栈形式的源）。请与 {@link AmuletEvent.ProcessFound} 中执行上述操作。</p>
-    /// <p>本事件会在双端发出。</p>
+    ///
+    /// 注意：您不需要在此事件中处理护符容器（物品栈形式的源）。请与 {@link AmuletEvent.ProcessFound} 中执行上述操作。
+    ///
+    /// 本事件会在双端发出。
     ///
     /// @see AmuletEvent.ProcessFound
     public static final class Find extends AmuletEvent {
@@ -55,9 +57,12 @@ public abstract sealed class AmuletEvent extends Event
 
     /// 本事件会在 {@link AmuletManager#processFoundStack(ItemStack, List)} 内发出，<br>
     /// 并允许其它模组处理护符容器（物品栈形式的源）并提供。
-    /// <p>取消该事件将阻止源及其可能包含的其它护符被加入最终结果。</p>
-    /// <p>注意：您不应在此事件中从非物品栈形式的源提供护符。请与 {@link AmuletEvent.Find} 中执行上述操作。</p>
-    /// <p>本事件会在双端发出。</p>
+    ///
+    /// 取消该事件将阻止源及其可能包含的其它护符被加入最终结果。
+    ///
+    /// 注意：您不应在此事件中从非物品栈形式的源提供护符。请与 {@link AmuletEvent.Find} 中执行上述操作。
+    ///
+    /// 本事件会在双端发出。
     ///
     /// @see AmuletEvent.Find
     @Getter

@@ -8,7 +8,7 @@ import com.mojang.serialization.Encoder;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.ISerializer;
-import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;

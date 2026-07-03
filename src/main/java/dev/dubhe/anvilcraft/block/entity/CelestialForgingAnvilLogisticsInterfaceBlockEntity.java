@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
@@ -44,7 +45,7 @@ import java.util.List;
  * Items auto-route to their type's slot and don't overflow to other slots.
  * When active (redstone powered), auto-ejects items toward the facing direction.
  */
-public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity {
+public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     private static final int TYPE_COUNT = 16;
     @Setter
     private boolean syncing = false; // re-entrancy guard
@@ -173,12 +174,9 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     private int ejectCooldown = 0;
     private int lastEjectSlot = 0;
 
-    /**
-     * Server-side tick. When active (redstone powered), auto-ejects items
-     * from internal inventory toward the facing direction every 8gt,
-     * max 1 stack per ejection, with velocity like MagneticChute.
-     * Uses round-robin across slots to prevent one slot from being starved.
-     */
+    /// 服务器端 tick：在主动模式（由铁砧锤切换的 ACTIVE 属性，而非红石信号）下，
+    /// 每 8gt 向 FACING 方向从内部物品栏自动弹出物品，每次最多 1 组，
+    /// 弹射速度类似磁力滑槽（MagneticChute）。槽位轮询以避免某一槽被饿死。
     public void serverTick() {
         if (level == null || level.isClientSide()) return;
         BlockState state = getBlockState();

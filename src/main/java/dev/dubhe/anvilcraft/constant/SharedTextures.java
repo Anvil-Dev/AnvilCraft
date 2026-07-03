@@ -38,11 +38,7 @@ public class SharedTextures {
     public static final Identifier DISABLED_SLOT = textureGui("machine/disabled_slot");
     public static final Identifier SMALL_MACHINE_SLIDER = textureGui("machine/slider");
 
-    // STRUCTURE_SCANNER
-    public static final Identifier STRUCTURE_SCANNER_BACKGROUND = bg("machine", "structure_scanner");
-
-    // SMART_BLOCK_PLACER
-    public static final Identifier SMART_BLOCK_PLACER_BACKGROUND = bg("machine", "smart_block_placer");
+    // 智能放置器
     public static final Identifier SMART_BLOCK_PLACER_LAYER_1 = textureGui("machine/smart_block_placer/layer_1");
     public static final Identifier SMART_BLOCK_PLACER_LAYER_2 = textureGui("machine/smart_block_placer/layer_2");
     public static final Identifier SMART_BLOCK_PLACER_LAYER_3 = textureGui("machine/smart_block_placer/layer_3");
@@ -65,10 +61,14 @@ public class SharedTextures {
     }
 
     public static Identifier textureGui(String path) {
-        return texture("gui/" + path);
+        return SharedTextures.texture("gui/" + path);
+    }
+
+    public static Identifier sprites(String path) {
+        return SharedTextures.textureGui("sprites/" + path);
     }
 
     public static Identifier bg(String category, String id) {
-        return textureGui(category + "/background/" + id);
+        return SharedTextures.textureGui(category + "/background/" + id);
     }
 }

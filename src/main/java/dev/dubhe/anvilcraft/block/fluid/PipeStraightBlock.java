@@ -18,7 +18,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * 直管道，沿单一轴向（X/Y/Z）延伸。
@@ -59,6 +59,18 @@ public class PipeStraightBlock extends PipeBlock {
         return this.getShape(state, startDir, endDir);
     }
 
+    /**
+     * 邻居更新：
+     * <ul>
+     *   <li><b>侧面（非轴向）</b>出现对准的管道或连接面正对的泵 → 升级为节点
+     *       （由 {@link PipeNodeBlock#trySimplify} 决定最终形态）</li>
+     *   <li><b>无侧面连接</b> → 保持直管形态，仅按轴端邻居刷新端头开关，
+     *       断开连接也不会塌成节点</li>
+     * </ul>
+     *
+     * <p>26.1 的 {@code neighborChanged} 不再传入变更来源方向，故每次扫描全部方向，
+     * 但以本方块自身轴向 {@link PipeBlock#AXIS} 为准，避免断连时丢失形状。
+     */
     @Override
     protected void neighborChanged(
         BlockState state, Level level, BlockPos pos,
@@ -66,16 +78,38 @@ public class PipeStraightBlock extends PipeBlock {
     ) {
         if (level.isClientSide()) return;
         Direction.Axis axis = state.getValue(AXIS);
-        BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
-            .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
-        boolean changed = false;
+
+        // 侧面（非轴向）出现对准的管道或连接面正对的泵 → 升级为节点
         for (Direction dir : Direction.values()) {
-            nodeState = nodeState.setValue(getPropertyForDirection(dir),
-                PipeNodeBlock.evaluateNeighbor(level, pos, dir));
+            if (dir.getAxis() == axis) {
+                continue;
+            }
+            BlockState neighborState = level.getBlockState(pos.relative(dir));
+            boolean sidePump = neighborState.getBlock() instanceof PumpBlock
+                && PumpBlock.isConnectableFace(neighborState, dir.getOpposite());
+            if (isNeighborPipeToward(level, pos, dir) || sidePump) {
+                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+                for (Direction d : Direction.values()) {
+                    nodeState = nodeState.setValue(getPropertyForDirection(d),
+                        PipeNodeBlock.evaluateNeighbor(level, pos, d));
+                }
+                BlockState simplified = PipeNodeBlock.trySimplify(nodeState);
+                if (!simplified.equals(state)) {
+                    level.setBlockAndUpdate(pos, simplified);
+                }
+                return;
+            }
         }
-        BlockState simplified = PipeNodeBlock.trySimplify(nodeState);
-        if (!simplified.equals(state)) {
-            level.setBlockAndUpdate(pos, simplified);
+
+        // 无侧面连接 → 保持直管，仅按轴端邻居刷新端头（断连只封头，不变节点）
+        Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+        Direction endDir = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+        BlockState newState = state
+            .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, startDir))
+            .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, endDir));
+        if (!newState.equals(state)) {
+            level.setBlockAndUpdate(pos, newState);
         }
     }
 

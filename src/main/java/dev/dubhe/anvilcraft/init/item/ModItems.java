@@ -6,7 +6,6 @@ import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
-import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
@@ -22,6 +21,7 @@ import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import dev.dubhe.anvilcraft.item.ingredients.CapacitorItem;
 import dev.dubhe.anvilcraft.item.ingredients.EmberMetalIngotItem;
 import dev.dubhe.anvilcraft.item.ingredients.EmptyCapacitorItem;
@@ -149,13 +149,6 @@ public class ModItems {
         .model(DataGenUtil::onlyInfo)
         .lang("AnvilCraft Guide Book")
         .recipe(RegistrumItemRecipeLoader::guideBook)
-        .register();
-    // CFA 巨构组件
-    public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
-        .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
-        .register();
-    public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
-        .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
         .register();
     // 工具
     public static final ItemEntry<MagnetItem> MAGNET = REGISTRUM
@@ -1147,6 +1140,24 @@ public class ModItems {
         .tag(ModItemTags.VOID_RESISTANT)
         .recipe(RegistrumItemRecipeLoader::voidMatter)
         .register();
+    public static final ItemEntry<Item> EXCITED_STATE_VOID_MATTER = REGISTRUM.item("excited_state_void_matter", Item::new)
+        .initialProperties(() -> new Item.Properties().stacksTo(16)
+            .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+        .tag(ModItemTags.VOID_RESISTANT)
+        .recipe(RegistrumItemRecipeLoader::excitedStateVoidMatter)
+        .register();
+    public static final ItemEntry<Item> MATTER_DECOMPRESSOR_COMPONENT =
+        REGISTRUM.item("matter_decompressor_component", Item::new)
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .tag(ModItemTags.EXPLOSION_PROOF)
+            .recipe(RegistrumItemRecipeLoader::matterDecompressorComponent)
+            .register();
+    public static final ItemEntry<Item> WORMHOLE_STABILIZER_COMPONENT =
+        REGISTRUM.item("wormhole_stabilizer_component", Item::new)
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .tag(ModItemTags.EXPLOSION_PROOF)
+            .recipe(RegistrumItemRecipeLoader::wormholeStabilizerComponent)
+            .register();
     public static final ItemEntry<Item> EARTH_CORE_SHARD = REGISTRUM.item("earth_core_shard", Item::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .recipe(RegistrumItemRecipeLoader::earthCoreShard)
@@ -1189,6 +1200,18 @@ public class ModItems {
         .initialProperties(Item.Properties::new)
         .tag(Tags.Items.NUGGETS)
         .recipe(RegistrumItemRecipeLoader::negativeMatterNugget)
+        .register();
+
+    public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
+        .register();
+
+    public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
         .register();
 
     public static final ItemEntry<SuperHeavyItem> NEUTRONIUM_INGOT = REGISTRUM.item("neutronium_ingot", SuperHeavyItem::new)
@@ -1251,6 +1274,7 @@ public class ModItems {
     // ==== Pipe & Pump ====
 
     public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
+        .removeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey())
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::pipe)
         .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)

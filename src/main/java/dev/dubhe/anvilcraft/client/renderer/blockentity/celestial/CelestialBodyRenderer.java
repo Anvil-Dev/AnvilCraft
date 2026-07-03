@@ -114,9 +114,13 @@ public class CelestialBodyRenderer {
      * Render a translucent cube atmosphere using per-face alpha based on view angle.
      * Does NOT require a BakedModel — renders faces directly.
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void renderAtmosphereCube(PoseStack ps, VertexConsumer vc, float[] rgb, float baseAlpha, int light, int overlay) {
-        float x1 = 0, x2 = 1, y1 = 0, y2 = 1, z1 = 0, z2 = 1;
+        float x1 = 0;
+        float x2 = 1;
+        final float y1 = 0;
+        float y2 = 1;
+        float z1 = 0;
+        float z2 = 1;
         PoseStack.Pose pose = ps.last();
 
         Vector3f bodyCenter = new Vector3f(0.5f, 0.5f, 0.5f);
@@ -152,14 +156,13 @@ public class CelestialBodyRenderer {
     /**
      * Render a star halo as concentric translucent cubes.
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void renderStarHalo(PoseStack ps, VertexConsumer vc, StarData star, int light, int overlay) {
         float[] rgb = CelestialBodyTextureBakery.starColor(star);
         int iterations = 10;
         for (int i = 0; i < iterations; i++) {
             float progress = (float) i / iterations;
             float scale = 1.0f + progress * 0.6f;
-            float alpha = (1.2f - 1.125f * progress) / iterations;
+            final float alpha = (1.2f - 1.125f * progress) / iterations;
             ps.pushPose();
             ps.translate(0.5, 0.5, 0.5);
             ps.scale(scale, scale, scale);
@@ -167,6 +170,25 @@ public class CelestialBodyRenderer {
             renderAtmosphereCube(ps, vc, rgb, alpha, light, overlay);
             ps.popPose();
         }
+    }
+
+    /**
+     * Render an opaque cube with a single constant vertex color on all six faces.
+     * Used for the star color overlay (multiplicative blend).
+     */
+    public static void renderColorCube(PoseStack ps, VertexConsumer vc, float r, float g, float b, float a, int light, int overlay) {
+        float x1 = 0;
+        float x2 = 1;
+        float y1 = 0;
+        float y2 = 1;
+        float z1 = 0;
+        float z2 = 1;
+        tintedFaceUp(ps, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceDown(ps, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceNorth(ps, vc, x1, x2, y1, y2, z1, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceSouth(ps, vc, x1, x2, y1, y2, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceEast(ps, vc, x2, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        tintedFaceWest(ps, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
     }
 
     /**
@@ -197,7 +219,7 @@ public class CelestialBodyRenderer {
 
     // === Cube geometry (textured planet body) ===
 
-    @SuppressWarnings("checkstyle:LocalVariableName")
+    @SuppressWarnings("SameParameterValue")
     private static void renderPlanetCube(PoseStack ps, VertexConsumer vc, int light, int overlay, Vector3f lightDir) {
         float x1 = 0, x2 = 1, y1 = 0, y2 = 1, z1 = 0, z2 = 1;
         PoseStack.Pose pose = ps.last();
@@ -232,18 +254,19 @@ public class CelestialBodyRenderer {
             .setLight(light)
             .setNormal(pose, 0, -1, 0);
 
-        int nColor = lit ? computeLambertColor(pose, 0, 0, -1, lightDir) : -1;
-        faceNorth(ps, vc, x1, x2, y1, y2, z1, 48f / 64, 16f / 64, 64f / 64, 32f / 64, light, overlay, nColor);
-        int eColor = lit ? computeLambertColor(pose, 1, 0, 0, lightDir) : -1;
-        faceEast(ps, vc, x2, y1, y2, z1, z2, 32f / 64, 16f / 64, 48f / 64, 32f / 64, light, overlay, eColor);
-        int wColor = lit ? computeLambertColor(pose, -1, 0, 0, lightDir) : -1;
-        faceWest(ps, vc, x1, y1, y2, z1, z2, 0, 16f / 64, 16f / 64, 32f / 64, light, overlay, wColor);
-        int sColor = lit ? computeLambertColor(pose, 0, 0, 1, lightDir) : -1;
-        faceSouth(ps, vc, x1, x2, y1, y2, z2, 16f / 64, 16f / 64, 32f / 64, 32f / 64, light, overlay, sColor);
+        int colorN = lit ? computeLambertColor(pose, 0, 0, -1, lightDir) : -1;
+        faceNorth(ps, vc, x1, x2, y1, y2, z1, 48f / 64, 16f / 64, 64f / 64, 32f / 64, light, overlay, colorN);
+        int colorE = lit ? computeLambertColor(pose, 1, 0, 0, lightDir) : -1;
+        faceEast(ps, vc, x2, y1, y2, z1, z2, 32f / 64, 16f / 64, 48f / 64, 32f / 64, light, overlay, colorE);
+        int colorW = lit ? computeLambertColor(pose, -1, 0, 0, lightDir) : -1;
+        faceWest(ps, vc, x1, y1, y2, z1, z2, 0, 16f / 64, 16f / 64, 32f / 64, light, overlay, colorW);
+        int colorS = lit ? computeLambertColor(pose, 0, 0, 1, lightDir) : -1;
+        faceSouth(ps, vc, x1, x2, y1, y2, z2, 16f / 64, 16f / 64, 32f / 64, 32f / 64, light, overlay, colorS);
     }
 
     // === Textured face helpers ===
 
+    @SuppressWarnings("SameParameterValue")
     private static void faceUp(
         PoseStack ps,
         VertexConsumer vc,
@@ -267,6 +290,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x1, y, z1).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void faceNorth(
         PoseStack ps,
         VertexConsumer vc,
@@ -290,6 +314,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x2, y2, z).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void faceSouth(
         PoseStack ps,
         VertexConsumer vc,
@@ -313,6 +338,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x1, y2, z).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void faceEast(
         PoseStack ps,
         VertexConsumer vc,
@@ -336,6 +362,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x, y2, z2).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void faceWest(
         PoseStack ps,
         VertexConsumer vc,
@@ -361,6 +388,7 @@ public class CelestialBodyRenderer {
 
     // === Tinted face helpers (for atmosphere/halo — constant color per face) ===
 
+    @SuppressWarnings("SameParameterValue")
     private static void tintedFaceUp(
         PoseStack ps,
         VertexConsumer vc,
@@ -388,6 +416,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x1, y, z1).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void tintedFaceDown(
         PoseStack ps,
         VertexConsumer vc,
@@ -415,6 +444,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x1, y, z2).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void tintedFaceNorth(
         PoseStack ps,
         VertexConsumer vc,
@@ -442,6 +472,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x2, y2, z).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void tintedFaceSouth(
         PoseStack ps,
         VertexConsumer vc,
@@ -469,6 +500,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x1, y2, z).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void tintedFaceEast(
         PoseStack ps,
         VertexConsumer vc,
@@ -496,6 +528,7 @@ public class CelestialBodyRenderer {
         vc.addVertex(pose, x, y2, z2).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void tintedFaceWest(
         PoseStack ps,
         VertexConsumer vc,

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.SmartBlockPlacerRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -18,12 +19,20 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SeaPickleBlock;
+import net.minecraft.world.level.block.TurtleEggBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -72,14 +81,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         private static final float UPPER_ARM_LENGTH = 2.5f;  // 大臂长度
         private static final float FOREARM_LENGTH = 2.5f;    // 小臂长度
         private static final float BASE_HEIGHT = 0.0f;       // 底座关节高度（相对于底座模型）
-        private static final int ANIMATION_DURATION_TICKS = 20; // 动画总持续时间：20tick = 1秒
 
         /**
          * 计算机械臂角度
          *
          * @return float[]{baseSwingAngle, upperArmAngle, forearmAngle, clawAngle}
          */
-        @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
         public float[] calculateArmAngles(
             BlockPos targetPos,
             BlockPos placerPos,
@@ -181,12 +188,12 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
                 float cosForearm = (UPPER_ARM_LENGTH * UPPER_ARM_LENGTH + FOREARM_LENGTH * FOREARM_LENGTH - clampedDist * clampedDist)
                     / (2 * UPPER_ARM_LENGTH * FOREARM_LENGTH);
-                cosForearm = Math.max(-1.0f, Math.min(1.0f, cosForearm));
+                cosForearm = Math.clamp(cosForearm, -1.0f, 1.0f);
                 float forearmAngleFromUpper = (float) Math.toDegrees(Math.acos(cosForearm));
 
                 float cosUpperArm = (clampedDist * clampedDist + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH)
                     / (2 * clampedDist * UPPER_ARM_LENGTH);
-                cosUpperArm = Math.max(-1.0f, Math.min(1.0f, cosUpperArm));
+                cosUpperArm = Math.clamp(cosUpperArm, -1.0f, 1.0f);
                 float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));
                 upperArmAngle = -(180f - upperArmAngleFromTarget - elevationAngle) * 0.6f + 20f;
                 forearmAngle = forearmAngleFromUpper * 0.8f - 10f;
@@ -219,12 +226,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
 
-        /**
-         * 获取动画持续时间
-         */
-        public int getAnimationDurationTicks() {
-            return ANIMATION_DURATION_TICKS;
-        }
     }
 
     @SuppressWarnings(
@@ -242,6 +243,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, cameraPosition, breakProgress);
+
+        // 从放置速度获取动画总时长，跟随配置项 smartBlockPlacerInterval 动态变化
+        state.setAnimationDurationTicks(SmartBlockPlacerBlockEntity.getPlacementInterval());
 
         // Initialize models
         state.setBaseModel(FeatureRendererSupport.initialize(BASE_MODEL, entity));
@@ -276,7 +280,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         // 检测是否需要开始收回动画
         boolean wasWorkingLastFrame = entity.getClientAnimationStartTime() != 0;
         boolean shouldStartRetract = wasWorkingLastFrame && !isWorking && !entity.isClientIsRetracting();
-        net.minecraft.world.level.Level retractLevel = entity.getLevel();
+        Level retractLevel = entity.getLevel();
         if (shouldStartRetract && retractLevel != null) {
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
@@ -296,7 +300,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 entity.setClientRetractStartTime(retractLevel.getGameTime());
 
                 long elapsedTicks = retractLevel.getGameTime() - animStartTime;
-                float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME
+                float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) state
                     .getAnimationDurationTicks());
                 float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
                     animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
@@ -311,14 +315,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             entity.setClientIsRetracting(false);
         }
 
-        net.minecraft.world.level.Level retractAnimLevel = entity.getLevel();
+        Level retractAnimLevel = entity.getLevel();
         if (entity.isClientIsRetracting() && retractAnimLevel != null) {
             long currentTime = retractAnimLevel.getGameTime();
             long elapsedRetractTicks = currentTime - entity.getClientRetractStartTime();
 
             float startProgress = entity.getClientRetractStartProgress();
             float remainingProgress = 1.0f - startProgress;
-            float retractDuration = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() * remainingProgress;
+            float retractDuration = state.getAnimationDurationTicks() * remainingProgress;
 
             if (retractDuration <= 0) {
                 entity.setClientIsRetracting(false);
@@ -352,7 +356,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             // 如果动画已播放完成，检查工作条件
             if (animStartTime != 0 && animTargetPos != null) {
                 long elapsedTicks = currentTime - animStartTime;
-                boolean animationCompleted = elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 5;
+                boolean animationCompleted = elapsedTicks >= state.getAnimationDurationTicks() + 5;
 
                 if (animationCompleted) {
                     BlockPos targetPos = this.getNextTargetPosition(entity, facing, upsideDown);
@@ -444,10 +448,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 isAnimationPlaying = true;
                 long elapsedTicks = currentTime - animStartTime;
 
-                if (elapsedTicks < WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
+                if (elapsedTicks < state.getAnimationDurationTicks()) {
                     animationProgress = Math.min(
                         1.0f,
-                        (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
+                        (elapsedTicks + partialTick) / (float) state.getAnimationDurationTicks()
                     );
                 } else {
                     animationProgress = 1.0f;
@@ -500,7 +504,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void submit(
         SmartBlockPlacerRenderState state,
@@ -509,14 +512,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         CameraRenderState camera
     ) {
         boolean upsideDown = state.isUpsideDown();
-        float baseSwingAngle = state.getBaseSwingAngle();
-        float upperArmAngle = state.getUpperArmAngle();
-        float forearmAngle = state.getForearmAngle();
-        float clawAngle = state.getClawAngle();
-        boolean clawOpen = state.isClawOpen();
+        final float baseSwingAngle = state.getBaseSwingAngle();
+        final float upperArmAngle = state.getUpperArmAngle();
+        final float forearmAngle = state.getForearmAngle();
+        final float clawAngle = state.getClawAngle();
+        final boolean clawOpen = state.isClawOpen();
 
-        int light = state.lightCoords;
-        int overlay = OverlayTexture.NO_OVERLAY;
+        final int light = state.lightCoords;
+        final int overlay = OverlayTexture.NO_OVERLAY;
 
         // 应用变换
         poseStack.pushPose();
@@ -591,28 +594,30 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
     }
 
-    private boolean canBeStacked(net.minecraft.world.level.block.state.BlockState state,
-        @Nullable net.minecraft.world.item.BlockItem blockItem) {
-        if (state.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG)) {
-            if (state.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS) < 4) {
+    private boolean canBeStacked(
+        BlockState state,
+        @Nullable BlockItem blockItem
+    ) {
+        if (state.is(Blocks.TURTLE_EGG)) {
+            if (state.getValue(TurtleEggBlock.EGGS) < 4) {
                 return blockItem == null || state.getBlock() == blockItem.getBlock();
             }
             return false;
         }
-        if (state.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE)) {
-            if (state.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES) < 4) {
+        if (state.is(Blocks.SEA_PICKLE)) {
+            if (state.getValue(SeaPickleBlock.PICKLES) < 4) {
                 return blockItem == null || state.getBlock() == blockItem.getBlock();
             }
             return false;
         }
-        if (state.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
-            if (state.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES) < 4) {
+        if (state.getBlock() instanceof CandleBlock) {
+            if (state.getValue(CandleBlock.CANDLES) < 4) {
                 return blockItem == null || state.getBlock() == blockItem.getBlock();
             }
             return false;
         }
-        if (state.is(net.minecraft.world.level.block.Blocks.PINK_PETALS)) {
-            if (state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.FLOWER_AMOUNT) < 4) {
+        if (state.is(Blocks.PINK_PETALS)) {
+            if (state.getValue(BlockStateProperties.FLOWER_AMOUNT) < 4) {
                 return blockItem == null || state.getBlock() == blockItem.getBlock();
             }
             return false;
@@ -662,7 +667,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 return null;
             }
 
-            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(targetPos);
+            BlockState targetState = entity.getLevel().getBlockState(targetPos);
 
             if (targetState.isAir()) {
                 return targetPos;
@@ -673,8 +678,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
 
             if (!targetState.isAir()) {
-                net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
-                if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
+                ItemStack heldItem = entity.getCurrentHeldBlock();
+                if (!heldItem.isEmpty() && heldItem.getItem() instanceof BlockItem heldBlockItem) {
                     if (this.canBeStacked(targetState, heldBlockItem)) {
                         return targetPos;
                     }
@@ -694,7 +699,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
      */
     @Nullable
     private BlockPos getBlueprintTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown,
-        dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData structure) {
+        StructureLoadUtil.StructureData structure) {
 
         // 直接使用 BlockEntity 提供的方法获取当前目标位置
         // 这个方法会正确处理 currentPlacementIndex 到实际索引的转换
@@ -705,9 +710,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
 
         // 获取当前钳子中的方块类型
-        net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
-        net.minecraft.world.level.block.Block heldBlock = null;
-        if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
+        ItemStack heldItem = entity.getCurrentHeldBlock();
+        Block heldBlock = null;
+        if (!heldItem.isEmpty() && heldItem.getItem() instanceof BlockItem heldBlockItem) {
             heldBlock = heldBlockItem.getBlock();
         }
 
@@ -717,7 +722,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 return null;
             }
 
-            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(currentTarget);
+            BlockState targetState = entity.getLevel().getBlockState(currentTarget);
 
             // 检查位置是否可以放置
             boolean canPlace = false;
@@ -727,8 +732,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 canPlace = true;
             } else if (this.canBeStacked(
                                 targetState, heldItem.getItem()
-                                                 instanceof net.minecraft.world.item.BlockItem
-                                             ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
+                                                 instanceof BlockItem
+                                             ? (BlockItem) heldItem.getItem() : null)) {
                 canPlace = true;
             } else if (this.canBeStacked(targetState, null)) {
                 canPlace = true;
@@ -743,7 +748,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 if (currentIndex < orderedIndices.size()) {
                     int actualIndex = orderedIndices.get(currentIndex);
                     if (actualIndex < structure.blocks.size()) {
-                        net.minecraft.world.level.block.Block requiredBlock = structure.blocks.get(actualIndex).state().getBlock();
+                        Block requiredBlock = structure.blocks.get(actualIndex).state().getBlock();
                         if (requiredBlock == heldBlock) {
                             return currentTarget;
                         }
@@ -766,11 +771,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     return null;
                 }
 
-                net.minecraft.world.level.block.state.BlockState loopState = entity.getLevel().getBlockState(targetPos);
+                BlockState loopState = entity.getLevel().getBlockState(targetPos);
 
                 boolean loopCanPlace = loopState.isAir() || !loopState.getFluidState().isEmpty()
-                    || this.canBeStacked(loopState, heldItem.getItem() instanceof net.minecraft.world.item.BlockItem
-                        ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)
+                    || this.canBeStacked(loopState, heldItem.getItem() instanceof BlockItem
+                                                    ? (BlockItem) heldItem.getItem() : null)
                     || this.canBeStacked(loopState, null);
 
                 if (!loopCanPlace) {
@@ -778,7 +783,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 }
 
                 if (actualIndex < structure.blocks.size()) {
-                    net.minecraft.world.level.block.Block requiredBlock = structure.blocks.get(actualIndex).state().getBlock();
+                    Block requiredBlock = structure.blocks.get(actualIndex).state().getBlock();
                     if (requiredBlock == heldBlock) {
                         return targetPos;
                     }
@@ -790,7 +795,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 return null;
             }
 
-            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(currentTarget);
+            BlockState targetState = entity.getLevel().getBlockState(currentTarget);
 
             if (targetState.isAir() || !targetState.getFluidState().isEmpty()) {
                 return currentTarget;
@@ -811,7 +816,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     return null;
                 }
 
-                net.minecraft.world.level.block.state.BlockState state = entity.getLevel().getBlockState(targetPos);
+                BlockState state = entity.getLevel().getBlockState(targetPos);
 
                 if (state.isAir() || !state.getFluidState().isEmpty()) {
                     return targetPos;

@@ -6,7 +6,7 @@ public class ScreenLang {
     /// 初始化 GUI 文本生成器
     ///
     /// @param provider 提供器
-    @SuppressWarnings("checkstyle:LineLength")
+    // 禁用行长警告"""
     public static void init(RegistrumLangProvider provider) {
         provider.add("screen.anvilcraft.button.direction", "Output Direction: %s");
         provider.add("screen.anvilcraft.button.direction.down", "Down");
@@ -457,4 +457,5 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to select, right click to delete this category");
         provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to select");
     }
+    // 启用行长警告"""
 }

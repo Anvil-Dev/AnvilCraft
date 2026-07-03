@@ -66,13 +66,12 @@ public class AnvilCraftServerConfig {
     @BoundedDiscrete(max = 30, min = 5)
     public int geodeCooldown = 5;
 
-    @Comment("Power grid range of power transmitter")
-    @SerializedName("Range of Power Transmitter")
+    @Comment("Power grid range of power transmitters")
     @BoundedDiscrete(max = 64, min = 1)
     public int powerTransmitterRange = 8;
 
-    @Comment("Power grid range of remote power transmitter")
-    @SerializedName("Range of Remote Power Transmitter")
+    @Comment("Power grid range of Remote Transmission Pole")
+    @SerializedName("Remote Transmission Pole Range")
     @BoundedDiscrete(max = 64, min = 1)
     public int remotePowerTransmitterRange = 16;
 
@@ -138,6 +137,10 @@ public class AnvilCraftServerConfig {
 
     @Comment("Combining items with Enchanted Books beyond max level in Transcendence Anvil")
     public boolean transcendenceAnvilBeyondMaxLevel = true;
+
+    @Comment("Placement interval of smart block placer (in ticks)")
+    @BoundedDiscrete(max = 200, min = 2)
+    public int smartBlockPlacerInterval = 20;
 
     public static class PowerConverter {
         @Comment("The working interval of power converters")

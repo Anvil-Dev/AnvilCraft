@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.data.lang;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class ToolPropertyLang {
-    @SuppressWarnings("checkstyle:LineLength")
+    // 禁用行长警告"""
     public static void init(RegistrumLangProvider provider) {
         provider.add("tooltip.anvilcraft.property.fire_reforging", "Reforging: mending in fire or lava");
         provider.add("tooltip.anvilcraft.property.multiphase", "Multiphase: press [%1$s] to switch phases, hold [%1$s] to open phases wheel");
@@ -31,4 +31,5 @@ public class ToolPropertyLang {
         provider.add("tooltip.anvilcraft.property.storage.id", "Storage ID: %s");
         provider.add("tooltip.anvilcraft.property.storage.id.null", "None yet, will create when placing");
     }
+    // 启用行长警告"""
 }

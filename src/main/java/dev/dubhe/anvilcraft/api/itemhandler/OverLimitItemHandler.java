@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.api.itemhandler;
 
-import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;

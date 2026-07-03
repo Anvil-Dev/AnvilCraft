@@ -5,7 +5,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 创造模式流体内核：无限存储/供给指定流体。
@@ -19,7 +18,7 @@ public class CreativeFluidHandler extends FluidStacksResourceHandler {
     }
 
     @Override
-    public int insert(int index, @NotNull FluidResource resource, int amount, TransactionContext transaction) {
+    public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
         // 不管当前存了什么，直接覆盖为指定流体
         FluidStack existing = this.stacks.get(index);
         if (existing.isEmpty() || !FluidResource.of(existing).equals(resource)) {
@@ -29,7 +28,7 @@ public class CreativeFluidHandler extends FluidStacksResourceHandler {
     }
 
     @Override
-    public int extract(int index, @NotNull FluidResource resource, int amount, TransactionContext transaction) {
+    public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
         FluidStack existing = this.stacks.get(index);
         if (existing.isEmpty()) return 0;
         if (!FluidResource.of(existing).equals(resource)) return 0;

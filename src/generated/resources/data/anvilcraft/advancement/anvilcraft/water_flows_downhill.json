@@ -1,0 +1,25 @@
+{
+  "parent": "anvilcraft:anvilcraft/industrial_grade_smelting",
+  "criteria": {
+    "connect_fluid_containers": {
+      "trigger": "anvilcraft:connect_fluid_containers"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.water_flows_downhill.description"
+    },
+    "icon": {
+      "id": "anvilcraft:pipe"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.water_flows_downhill.title"
+    }
+  },
+  "requirements": [
+    [
+      "connect_fluid_containers"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

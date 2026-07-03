@@ -61,8 +61,11 @@ public final class CelestialRefactorRegistry {
      * @param resources the planetary resource set, used to filter options by resource availability;
      *                  may be null (most permissive, all ring-eligible options shown)
      */
-    public static List<CelestialRefactorOption> getOptions(CelestialBodyData body, boolean amplified,
-                                                           @Nullable PlanetaryResourceSet resources) {
+    public static List<CelestialRefactorOption> getOptions(
+        @Nullable CelestialBodyData body,
+        boolean amplified,
+        @Nullable PlanetaryResourceSet resources
+    ) {
         if (body == null) return Collections.emptyList();
         // Error Planet cannot build megastructures
         if (body instanceof SpecialCelestialBodyData s && s.isErrorPlanet()) {
@@ -208,10 +211,10 @@ public final class CelestialRefactorRegistry {
                 ModItems.PENROSE_SPHERE_COMPONENT, 8));
             options.add(CelestialRefactorOption.withMaterial(4, "matter_decompressor",
                 ringModel(4, "matter_decompressor"), prefix + "matter_decompressor",
-                ModBlocks.SINGULARITY_CRYSTAL.asItem(), 1));
+                ModItems.MATTER_DECOMPRESSOR_COMPONENT, 2));
             options.add(CelestialRefactorOption.withMaterial(4, "wormhole_stabilizer",
                 ringModel(4, "wormhole_stabilizer"), prefix + "wormhole_stabilizer",
-                ModBlocks.NEGATIVE_MATTER_BLOCK.asItem(), 16));
+                ModItems.WORMHOLE_STABILIZER_COMPONENT, 4));
             options.add(CelestialRefactorOption.withMaterial(5, "stellar_evolution_accelerator",
                 ringModel(5, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
                 ModBlocks.CORRUPTED_BEACON.asItem(), 8));

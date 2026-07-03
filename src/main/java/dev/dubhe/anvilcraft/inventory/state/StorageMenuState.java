@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.inventory.state;
 
 import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.anvilcraft.lib.v2.util1.stack.UnlimitedItemStack;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import lombok.Getter;

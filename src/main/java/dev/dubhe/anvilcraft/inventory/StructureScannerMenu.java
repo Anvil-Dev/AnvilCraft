@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.StructureDiskOnlySlot;
+import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -14,18 +15,17 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
 public class StructureScannerMenu extends AbstractContainerMenu {
 
+    @Getter
     private final StructureScannerBlockEntity blockEntity;
     private final Level level;
 
-    @SuppressWarnings("resource")
-    public StructureScannerMenu(
-        @Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
+    public StructureScannerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(
             inventory.player.level().getBlockEntity(extraData.readBlockPos())));
     }
@@ -75,11 +75,6 @@ public class StructureScannerMenu extends AbstractContainerMenu {
         }
     }
 
-    @Nullable
-    public StructureScannerBlockEntity getBlockEntity() {
-        return this.blockEntity;
-    }
-
     // Slot索引常量
     private static final int STRUCTURE_DISK_SLOT_COUNT = 1;                 // Structure Disk物品栏1个槽位
     private static final int OUTPUT_SLOT_COUNT = 1;                         // 输出槽位1个槽位
@@ -88,7 +83,6 @@ public class StructureScannerMenu extends AbstractContainerMenu {
     private static final int VANILLA_SLOT_COUNT = PLAYER_INVENTORY_SLOT_COUNT + HOTBAR_SLOT_COUNT;
     private static final int TOTAL_SLOT_COUNT = STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT + VANILLA_SLOT_COUNT;
 
-    @SuppressWarnings("checkstyle:RightCurly")
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
@@ -102,9 +96,7 @@ public class StructureScannerMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
-            }
-            // 玩家物品栏的物品移动
-            else if (index < TOTAL_SLOT_COUNT) {
+            } else if (index < TOTAL_SLOT_COUNT) { // 玩家物品栏的物品移动
                 if (originalStack.is(ModItems.STRUCTURE_DISK.get())) {
                     // Structure Disk尝试移动到Disk槽位
                     if (!this.moveItemStackTo(originalStack, 0, STRUCTURE_DISK_SLOT_COUNT, false)) {

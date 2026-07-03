@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "anvilcraft:excited_state_void_matter_block"
+  ],
+  "result": {
+    "count": 9,
+    "id": "anvilcraft:excited_state_void_matter"
+  }
+}

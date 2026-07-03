@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FluidHandlerRenderState;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
@@ -24,9 +24,10 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFluidHandlerHolder, S extends FluidHandlerRenderState>
+public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFluidResourceHandlerHolder, S extends FluidHandlerRenderState>
     implements BlockEntityRenderer<B, S> {
 
+    @SuppressWarnings("deprecation")
     private static final RenderType FLUID_RENDER_TYPE = RenderType.create(
         AnvilCraft.of("fluid_tank").toString(),
         RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
@@ -44,6 +45,10 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     );
 
+    public float getFill(ResourceHandler<FluidResource> tank) {
+        return (float) tank.getAmountAsLong(0) / tank.getCapacityAsLong(0, tank.getResource(0));
+    }
+
     @Override
     public void extractRenderState(
         B be,
@@ -57,7 +62,7 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         FluidResource resource = tank.getResource(0);
         if (resource.isEmpty()) return;
         state.setResource(resource);
-        state.setFill((float) tank.getAmountAsInt(0) / tank.getCapacityAsInt(0, resource));
+        state.setFill(this.getFill(tank));
         if (state.getFill() <= 0.025) state.setFill(0.025F);
         this.updateTankW(be, state, partialTicks, cameraPosition, breakProgress);
     }

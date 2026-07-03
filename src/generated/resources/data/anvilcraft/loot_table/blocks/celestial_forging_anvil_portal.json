@@ -11,6 +11,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "anvilcraft:celestial_forging_anvil_portal",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "half": "bottom_center"
+              }
+            }
+          ],
           "name": "anvilcraft:celestial_forging_anvil_portal"
         }
       ],

@@ -27,7 +27,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -206,24 +206,33 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
     }
 
     /**
-     * 检查指定位置是否为流体处理器（通过 NeoForge Capability 系统）或泵。
+     * 检查指定位置是否为流体处理器（通过 NeoForge Capability 系统），
+     * 或是连接面正对给定方向的泵。
+     *
+     * <p>泵仅在其连接面（朝向轴两端，即输入/输出端）正对 {@code towardNeighbor}
+     * 方向时才计入；垂直于朝向轴的实体侧面不算连接。
+     *
+     * @param level          世界
+     * @param pos            待检查的位置
+     * @param towardNeighbor 从该位置看向待连接邻居的方向
+     * @return 该位置是否可在此方向形成流体连接
      */
-    public static boolean isFluidHandlerOrPump(Level level, BlockPos pos) {
+    public static boolean isFluidHandlerOrConnectablePump(Level level, BlockPos pos, Direction towardNeighbor) {
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof PumpBlock) {
-            return true;
+            return PumpBlock.isConnectableFace(state, towardNeighbor);
         }
         return level.getCapability(Capabilities.Fluid.BLOCK, pos, null) != null;
     }
 
     /**
-     * 检查指定方向的邻居是否被"占用"（有管道对准 或 是流体处理器）。
+     * 检查指定方向的邻居是否被"占用"（有管道对准、是流体处理器、或连接面正对本方块的泵）。
      */
     public static boolean isNeighborOccupied(Level level, BlockPos pos, Direction dir) {
         if (isNeighborPipeToward(level, pos, dir)) {
             return true;
         }
-        return isFluidHandler(level, pos.relative(dir));
+        return isFluidHandlerOrConnectablePump(level, pos.relative(dir), dir.getOpposite());
     }
 
     @Override

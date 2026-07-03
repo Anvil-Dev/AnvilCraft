@@ -38,6 +38,8 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class AnvilCraftClient {
@@ -76,6 +78,10 @@ public class AnvilCraftClient {
             );
             CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
                 ModBlockEntities.LARGE_LASER.get(),
+                new CachedLaserBlockEntityRenderer<>()
+            );
+            CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
+                ModBlockEntities.LENS.get(),
                 new CachedLaserBlockEntityRenderer<>()
             );
         });
@@ -130,7 +136,7 @@ public class AnvilCraftClient {
             ItemStack itemStack, EquipmentClientInfo.LayerType layerType, Model original
         ) {
             if (itemStack.is(ModItems.IONOCRAFT_BACKPACK)) {
-                return ModModelLayers.getIonocraftBackpackModel();
+                return Objects.requireNonNull(ModModelLayers.getIonocraftBackpackModel());
             }
             return IClientItemExtensions.super.getHumanoidArmorModel(itemStack, layerType, original);
         }

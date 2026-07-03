@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.advancement;
 import com.google.common.collect.Lists;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerChangeBlockTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerClickBlockTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalTrigger;
@@ -11,6 +12,8 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
+import dev.dubhe.anvilcraft.advancements.criterion.ElectricAllergyTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.EnterPowerGridTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.FireReforgeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
@@ -20,7 +23,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidCollectorTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -119,6 +122,46 @@ public class AdvancementLineHelper {
         ) {
             this.current.display(icon, title, description, background, type, showToast, announceChat, hidden);
             return this;
+        }
+
+        public AdvancementHelper display(
+            ItemStackTemplate icon,
+            Component title,
+            Component description,
+            AdvancementType type,
+            boolean hidden
+        ) {
+            this.current.display(icon, title, description, null, type, true, true, hidden);
+            return this;
+        }
+
+        public AdvancementHelper display(
+            ItemLike icon,
+            Component title,
+            Component description,
+            AdvancementType type,
+            boolean hidden
+        ) {
+            this.current.display(icon, title, description, null, type, true, true, hidden);
+            return this;
+        }
+
+        public AdvancementHelper display(
+            ItemStackTemplate icon,
+            Component title,
+            Component description,
+            AdvancementType type
+        ) {
+            return this.display(icon, title, description, null, type, true, true, false);
+        }
+
+        public AdvancementHelper display(
+            ItemLike icon,
+            Component title,
+            Component description,
+            AdvancementType type
+        ) {
+            return this.display(icon, title, description, null, type, true, true, false);
         }
 
         public AdvancementHelper display(DisplayInfo display) {
@@ -311,6 +354,10 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, AnvilHammerClickBlockTrigger.TriggerInstance.shiftRightClickBlock());
         }
 
+        public AdvancementHelper hammerChange(String key, BlockStatePredicate.Builder oldBuilder, BlockStatePredicate.Builder newBuilder) {
+            return this.addCriterion(key, AnvilHammerChangeBlockTrigger.TriggerInstance.change(oldBuilder, newBuilder));
+        }
+
         public AdvancementHelper hammerHurt(String key) {
             return this.addCriterion(key, AnvilHammerHurtEntityTrigger.TriggerInstance.hurtEntity());
         }
@@ -323,16 +370,20 @@ public class AdvancementLineHelper {
             return this.addCriterion(key, PlayerKilledEntityByAnvilHammerTrigger.TriggerInstance.killedEntity(lookup, type));
         }
 
-        public AdvancementHelper wearHammer(String key) {
-            return this.addCriterion(key, PlayerWearAnvilHammerTrigger.TriggerInstance.wear());
-        }
-
         public AdvancementHelper hitPiezoelectricCrystal(String key) {
             return this.addCriterion(key, AnvilHitPiezoelectricCrystalTrigger.TriggerInstance.hit());
         }
 
         public AdvancementHelper convertBeacon(String key) {
             return this.addCriterion(key, ConvertBeaconTrigger.TriggerInstance.convertBeacon());
+        }
+
+        public AdvancementHelper enterPowerGrid(String key) {
+            return this.addCriterion(key, EnterPowerGridTrigger.TriggerInstance.enter());
+        }
+
+        public AdvancementHelper electricAllergy(String key) {
+            return this.addCriterion(key, ElectricAllergyTrigger.TriggerInstance.of());
         }
 
         public AdvancementHelper hurt(String key, ItemPredicate.Builder builder, float damage) {
@@ -381,6 +432,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper heatCollectorOutput(String key, MinMaxBounds.Ints output) {
             return this.addCriterion(key, HeatCollectorTrigger.TriggerInstance.output(output));
+        }
+
+        public AdvancementHelper voidCollectorWork(String key) {
+            return this.addCriterion(key, VoidCollectorTrigger.TriggerInstance.work());
         }
 
         public AdvancementHelper mineralFountainCreate(String key) {

@@ -1,0 +1,33 @@
+{
+  "parent": "anvilcraft:anvilcraft/saikou_scrubber",
+  "criteria": {
+    "has_menger_sponge": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:menger_sponge"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.infinity_capacity.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "anvilcraft:large_fluid_tank"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.infinity_capacity.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_menger_sponge"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

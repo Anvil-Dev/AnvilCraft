@@ -1,20 +1,25 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableItemHandler;
 import dev.dubhe.anvilcraft.block.fluid.ExpFluidBlock;
 import dev.dubhe.anvilcraft.block.workstation.FishTankBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
+import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,6 +28,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -37,9 +43,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.InsideBlockEffectType;
+import net.minecraft.world.entity.animal.fish.TropicalFish;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
@@ -48,7 +56,6 @@ import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -78,9 +85,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 @Getter
-public class FishTankBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, ItemResourceHandlerCache, IFluidHandlerHolder {
+public class FishTankBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, ItemResourceHandlerCache,
+    IFluidResourceHandlerHolder {
     private static final double EPSILON = 1.0 / 1024.0;
     public static final int MAX_TROPICAL_FISH = 4;
 
@@ -89,17 +98,17 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     private static final double FLUID_CONTENT_AREA_HEIGHT = 7.0 / 8;
     private static final String TAG_TROPICAL_FISH_DATA = "TropicalFishData";
 
-    private final List<CompoundTag> tropicalFishData = new ArrayList<>() {
+    private final List<TropicalFishData> fishes = new ArrayList<>() {
         @Override
-        public boolean add(CompoundTag tag) {
-            if (this.size() >= MAX_TROPICAL_FISH) return false;
+        public boolean add(TropicalFishData tag) {
+            if (this.size() >= FishTankBlockEntity.MAX_TROPICAL_FISH) return false;
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.sendUpdate();
             return super.add(tag);
         }
 
         @Override
-        public CompoundTag removeLast() {
+        public TropicalFishData removeLast() {
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.sendUpdate();
             return super.removeLast();
@@ -115,7 +124,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     private AABB fluidContentArea = new AABB(FLUID_CONTENT_AREA_MIN, FLUID_CONTENT_AREA_MAX);
     private final FluidStackResourceHandler fluidHandler = new FluidStackResourceHandler() {
         @Override
-        protected void onContentChanged(FluidStack stack) {
+        protected void onContentChanged(FluidStack original) {
             FishTankBlockEntity.this.setChanged();
             FishTankBlockEntity.this.refreshIgnited();
             FishTankBlockEntity.this.sendUpdate();
@@ -123,8 +132,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             FishTankBlockEntity.this.updateLightLevel();
             this.updateContentArea();
 
-            if (stack.is(Fluids.WATER)) return;
-            FishTankBlockEntity.this.dropFish();
+            if (this.getResource(0).is(Fluids.WATER)) return;
+            FishTankBlockEntity.this.dropAllFishes();
             FishTankBlockEntity.this.updateFishState();
         }
 
@@ -396,8 +405,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.output.serialize(output.child("Outputs"));
         output.putBoolean("ignited", this.ignited);
 
-        ValueOutput.TypedOutputList<CompoundTag> list = output.list(TAG_TROPICAL_FISH_DATA, CompoundTag.CODEC);
-        for (CompoundTag fishTag : this.tropicalFishData) {
+        ValueOutput.TypedOutputList<TropicalFishData> list = output.list(TAG_TROPICAL_FISH_DATA, TropicalFishData.CODEC.codec());
+        for (TropicalFishData fishTag : this.fishes) {
             list.add(fishTag);
         }
     }
@@ -410,9 +419,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.output.deserialize(input.childOrEmpty("Outputs"));
         this.ignited = input.getBooleanOr("ignited", false);
 
-        this.tropicalFishData.clear();
-        for (CompoundTag fishTag : input.listOrEmpty(TAG_TROPICAL_FISH_DATA, CompoundTag.CODEC)) {
-            this.tropicalFishData.add(fishTag);
+        this.fishes.clear();
+        for (TropicalFishData fishTag : input.listOrEmpty(TAG_TROPICAL_FISH_DATA, TropicalFishData.CODEC.codec())) {
+            this.fishes.add(fishTag);
         }
     }
     // endregion
@@ -426,8 +435,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.output.serialize(output.child("Outputs"));
         output.putBoolean("ignited", this.ignited);
 
-        ValueOutput.TypedOutputList<CompoundTag> list = output.list(TAG_TROPICAL_FISH_DATA, CompoundTag.CODEC);
-        for (CompoundTag fishTag : this.tropicalFishData) {
+        ValueOutput.TypedOutputList<TropicalFishData> list = output.list(TAG_TROPICAL_FISH_DATA, TropicalFishData.CODEC.codec());
+        for (TropicalFishData fishTag : this.fishes) {
             list.add(fishTag);
         }
 
@@ -563,6 +572,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     ///
     /// @param handler 鱼缸物品处理器
     /// @param stack   要放入的物品
+    ///
     /// @return 插入的物品
     public static ItemStack insertItemToTank(@Nullable ResourceHandler<ItemResource> handler, ItemStack stack) {
         if (handler == null) {
@@ -578,6 +588,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
         List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
         if (targets == null || targets.isEmpty()) {
+            // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
+            if (isOutletBlocked(level, pos, outletDir)) return;
             for (int i = 0; i < 8; i++) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     ItemResource resource = this.output.getResource(i);
@@ -615,6 +627,24 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.sendUpdate();
     }
 
+    /**
+     * 判断输出口开口处是否被前方方块的碰撞形状堵住。
+     *
+     * @param level     世界
+     * @param pos       鱼缸坐标
+     * @param direction 输出口朝向
+     * @return 被堵返回 true
+     */
+    private static boolean isOutletBlocked(Level level, BlockPos pos, Direction direction) {
+        // 开口中心紧贴鱼缸与前方方块的交界面
+        Vec3 openingCenter = new Vec3(
+            pos.getX() + 0.5 + direction.getStepX() * 0.5,
+            pos.getY() + 0.5 + direction.getStepY() * 0.5,
+            pos.getZ() + 0.5 + direction.getStepZ() * 0.5
+        );
+        return AnvilUtil.isOutletBlocked(level, pos.relative(direction), openingCenter, direction);
+    }
+
     /// 从鱼缸中提取出所有物品
     ///
     /// @param handler            鱼缸物品处理器
@@ -622,6 +652,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     ///                           {@link TriState#DEFAULT DEFAULT}为始终提取，<br>
     ///                           {@link TriState#TRUE TRUE}为仅在产物为空时提取，<br>
     ///                           {@link TriState#FALSE FALSE}为不提取
+    ///
     /// @return 提取出的所有物品
     public static @Unmodifiable List<ItemStack> extractAllFromTank(ResourceHandler<ItemResource> handler, TriState containsIngredient) {
         List<ItemStack> result = new ArrayList<>();
@@ -816,7 +847,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
             player.awardStat(Stats.USE_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-            this.tropicalFishData.add(FishTankBlockEntity.bucket2fishData(inHand));
+            this.fishes.add(TropicalFishData.fromBucket(inHand));
             level.playSound(player, this.getBlockPos(), SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
             player.setItemInHand(hand, Items.WATER_BUCKET.getDefaultInstance());
             FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler);
@@ -831,9 +862,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
             player.awardStat(Stats.USE_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-            CompoundTag fishData = this.tropicalFishData.removeLast();
+            TropicalFishData fishData = this.fishes.removeLast();
             level.playSound(player, this.getBlockPos(), SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
-            player.setItemInHand(hand, FishTankBlockEntity.fishData2bucket(fishData));
+            player.setItemInHand(hand, fishData.toBucket());
             this.updateFishState();
             return true;
         } else if (inHand.is(Items.BUCKET)) {
@@ -843,10 +874,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
             player.awardStat(Stats.USE_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-            CompoundTag fishData = this.tropicalFishData.removeLast();
+            TropicalFishData fishData = this.fishes.removeLast();
             FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler);
             level.playSound(player, this.getBlockPos(), SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
-            player.setItemInHand(hand, FishTankBlockEntity.fishData2bucket(fishData));
+            player.setItemInHand(hand, fishData.toBucket());
             return true;
         }
         return false;
@@ -862,43 +893,72 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         }
     }
 
-    public void dropFish() {
+    public void dropAllFishes() {
         if (this.level == null) return;
-        for (CompoundTag data : this.tropicalFishData) {
-            ItemStack bucket = FishTankBlockEntity.fishData2bucket(data);
+        for (TropicalFishData data : this.fishes) {
+            ItemStack bucket = data.toBucket();
             if (bucket.getItem() instanceof MobBucketItem mobBucket) {
                 mobBucket.checkExtraContent(null, this.level, bucket, this.getBlockPos());
             }
         }
-        this.tropicalFishData.clear();
-    }
-
-    public static CompoundTag bucket2fishData(ItemStack stack) {
-        CustomData data = stack.get(DataComponents.BUCKET_ENTITY_DATA);
-        if (data == null) return FishTankBlockEntity.createTropicalFishData(0);
-        CompoundTag tag = data.copyTag();
-        return tag.copy();
-    }
-
-    public static ItemStack fishData2bucket(CompoundTag fishData) {
-        ItemStack stack = new ItemStack(Items.TROPICAL_FISH_BUCKET);
-        stack.set(DataComponents.BUCKET_ENTITY_DATA, CustomData.of(fishData.copy()));
-        return stack;
-    }
-
-    public static CompoundTag createTropicalFishData(int variant) {
-        CompoundTag entityData = new CompoundTag();
-        entityData.putString("id", "minecraft:tropical_fish");
-        entityData.putInt("BucketVariantTag", variant);
-        return entityData;
+        this.fishes.clear();
     }
 
     public boolean isFullOfFish() {
-        return this.tropicalFishData.size() >= MAX_TROPICAL_FISH;
+        return this.fishes.size() >= MAX_TROPICAL_FISH;
     }
 
     public boolean isEmptyOfFish() {
-        return this.tropicalFishData.isEmpty();
+        return this.fishes.isEmpty();
+    }
+
+    public record TropicalFishData(TropicalFish.Pattern pattern, DyeColor baseColor, DyeColor patternColor) {
+        public static final MapCodec<TropicalFishData> CODEC = CodecUtil.mapCodec(
+            TropicalFish.Pattern.CODEC
+                .fieldOf("pattern")
+                .forGetter(TropicalFishData::pattern),
+            DyeColor.CODEC
+                .fieldOf("base_color")
+                .forGetter(TropicalFishData::baseColor),
+            DyeColor.CODEC
+                .fieldOf("pattern_color")
+                .forGetter(TropicalFishData::patternColor),
+            TropicalFishData::new
+        );
+        public static final StreamCodec<ByteBuf, TropicalFishData> STREAM_CODEC = StreamCodec.composite(
+            TropicalFish.Pattern.STREAM_CODEC,
+            TropicalFishData::pattern,
+            DyeColor.STREAM_CODEC,
+            TropicalFishData::baseColor,
+            DyeColor.STREAM_CODEC,
+            TropicalFishData::patternColor,
+            TropicalFishData::new
+        );
+
+        public static TropicalFishData fromBucket(ItemStack bucket) {
+            Random random = new Random(new Random().nextLong());
+            TropicalFish.Pattern pattern = bucket.get(DataComponents.TROPICAL_FISH_PATTERN);
+            if (pattern == null) {
+                pattern = TropicalFish.Pattern.values()[random.nextInt(TropicalFish.Pattern.values().length)];
+            }
+            DyeColor baseColor = bucket.get(DataComponents.TROPICAL_FISH_BASE_COLOR);
+            if (baseColor == null) {
+                baseColor = DyeColor.values()[random.nextInt(DyeColor.values().length)];
+            }
+            DyeColor patternColor = bucket.get(DataComponents.TROPICAL_FISH_PATTERN_COLOR);
+            if (patternColor == null) {
+                patternColor = DyeColor.values()[random.nextInt(DyeColor.values().length)];
+            }
+            return new TropicalFishData(pattern, baseColor, patternColor);
+        }
+
+        public ItemStack toBucket() {
+            ItemStack stack = new ItemStack(Items.TROPICAL_FISH_BUCKET);
+            stack.set(DataComponents.TROPICAL_FISH_PATTERN, this.pattern);
+            stack.set(DataComponents.TROPICAL_FISH_BASE_COLOR, this.baseColor);
+            stack.set(DataComponents.TROPICAL_FISH_PATTERN_COLOR, this.patternColor);
+            return stack;
+        }
     }
     // endregion
 
@@ -933,6 +993,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             return;
         }
         if (this.isIgnited()) {
+            Level level = this.getLevel();
+            if (level != null && this.isIgnited() && level.getBlockState(this.getBlockPos().below()).is(ModBlocks.HEATER)) {
+                level.scheduleTick(this.getBlockPos(), this.getBlockState().getBlock(), 2);
+            }
             return;
         }
         for (int i = 0; i < this.proxy.size(); i++) {
@@ -946,6 +1010,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             } else if (resource.is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
                 this.setIgnited(true);
             }
+        }
+        Level level = this.getLevel();
+        if (level != null && this.isIgnited() && level.getBlockState(this.getBlockPos().below()).is(ModBlocks.HEATER)) {
+            level.scheduleTick(this.getBlockPos(), this.getBlockState().getBlock(), 2);
         }
     }
     // endregion
@@ -961,11 +1029,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
                 if (resource.isEmpty()) continue;
                 int extracted = handler.extract(slot, resource, Integer.MAX_VALUE, transaction);
                 if (extracted > 0) {
-                    Block.popResource(this.level, pos, resource.toStack(extracted));
+                    Block.popResource(Objects.requireNonNull(this.level), pos, resource.toStack(extracted));
                 }
                 transaction.commit();
             }
         }
-        this.dropFish();
+        this.dropAllFishes();
     }
 }

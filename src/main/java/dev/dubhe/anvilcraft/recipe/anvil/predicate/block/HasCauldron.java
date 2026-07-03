@@ -9,7 +9,7 @@ import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
@@ -179,7 +179,7 @@ public record HasCauldron(
     }
 
     public static double getCapacity(BlockCache cache, BlockPos pos) {
-        return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder
+        return cache.getBlockEntity(pos) instanceof IFluidResourceHandlerHolder holder
                ? holder.getFluidHandler().getCapacityAsInt(0, holder.getFluidHandler().getResource(0))
                : 1000;
     }
@@ -188,7 +188,7 @@ public record HasCauldron(
     ///
     /// @return 炼药锅方块
     public static Identifier getCurFluid(BlockCache cache, BlockPos pos) {
-        return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder
+        return cache.getBlockEntity(pos) instanceof IFluidResourceHandlerHolder holder
                ? holder.getFluidHandler().getResource(0).typeHolder().getKey().identifier()
                : WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock());
     }
@@ -197,7 +197,7 @@ public record HasCauldron(
     ///
     /// @return 炼药锅方块
     public static double getCur(BlockCache cache, BlockPos pos) {
-        if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) return holder.getFluidHandler().getAmountAsInt(0);
+        if (cache.getBlockEntity(pos) instanceof IFluidResourceHandlerHolder holder) return holder.getFluidHandler().getAmountAsInt(0);
         BlockState state = cache.getBlockState(pos);
         if (state.is(Blocks.CAULDRON)) return 0.0;
         IntegerProperty property = CauldronUtil.LEVEL_4;

@@ -26,4 +26,10 @@ public class SmartBlockPlacerRenderState extends BlockEntityRenderState {
 
     private ItemClusterRenderState heldItem;
     private boolean hasHeldItem;
+
+    /**
+     * 动画总持续时间（tick），跟随放置速度动态变化
+     * 默认 20 tick，与 PLACEMENT_INTERVAL 保持一致
+     */
+    private int animationDurationTicks = 20;
 }

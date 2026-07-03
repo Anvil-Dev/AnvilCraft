@@ -49,6 +49,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -94,6 +95,43 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     @Getter
     private boolean isAmplify = false;
+
+    /**
+     * Get the strongest redstone signal (0–15) received by the CFA's 3×2×3 structure.
+     * Scans all 18 block positions in the structure bounding box, taking the max of each
+     * block's best neighbor signal. Cached for {@code REDSTONE_SIGNAL_CACHE_TICKS} ticks,
+     * recomputed on expiry or when {@link #markRedstoneSignalDirty()} is called.
+     */
+    public int getRedstoneSignal() {
+        if (level == null) return 0;
+        long now = level.getGameTime();
+        if (this.redstoneSignalCacheTick >= 0 && now - this.redstoneSignalCacheTick < REDSTONE_SIGNAL_CACHE_TICKS) {
+            return this.cachedRedstoneSignal;
+        }
+        int signal = 0;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 1; dy++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    BlockPos partPos = worldPosition.offset(dx, dy, dz);
+                    signal = Math.max(signal, level.getBestNeighborSignal(partPos));
+                }
+            }
+        }
+        this.cachedRedstoneSignal = Math.min(signal, 15);
+        this.redstoneSignalCacheTick = now;
+        return this.cachedRedstoneSignal;
+    }
+
+    /**
+     * Invalidate the redstone-signal cache; called from the block's neighborChanged callback.
+     */
+    public void markRedstoneSignalDirty() {
+        this.redstoneSignalCacheTick = -1;
+    }
+
+    private int cachedRedstoneSignal = 0;
+    private long redstoneSignalCacheTick = -1;
+    private static final int REDSTONE_SIGNAL_CACHE_TICKS = 5;
 
     @Getter
     @Setter
@@ -352,6 +390,100 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     private static float easeInOutCubic(float t) {
         return t < 0.5f ? 4.0f * t * t * t : 1.0f - (float) Math.pow(-2.0f * t + 2.0f, 3) / 2.0f;
+    }
+
+    // === Supernova flash (synced to client, rendering only) ===
+    /** Body visual-center world Y captured at trigger time (flash center, independent of the remnant). */
+    @Getter
+    private double supernovaCenterY = 0;
+    /** Body scale ratio (relative to full redstone-15 scale) captured at trigger, so the flash tracks the body scale. */
+    @Getter
+    private float supernovaScale = 1.0f;
+    /** Total supernova flash duration (ticks); matches AcceleratorHandler.triggerSupernova initial value. */
+    public static final int SUPERNOVA_FLASH_TICKS = 10;
+
+    /**
+     * Trigger the supernova flash on the server and sync to the client. Called by the AcceleratorHandler
+     * during the supernova stage. MUST be called before the remnant replaces the body data, so the
+     * exploding star's center and scale can be captured.
+     */
+    public void startSupernovaFlash() {
+        this.megastructureManager.getAcceleratorHandler().setSupernovaFlashTicks(SUPERNOVA_FLASH_TICKS);
+        this.supernovaCenterY = this.getBodyCenterWorldY();
+        // Scale ratio = current body scale / base (no-redstone) body scale: 1 with no redstone
+        // (baseline 16×16), larger as redstone increases so the flash grows with the body.
+        if (this.celestialBodyData != null) {
+            float redstoneFactor = this.getRedstoneSignal() / 5.0f;
+            float rawBodyScale = this.celestialBodyData.bodyScale();
+            float fullBodyScale = rawBodyScale * CelestialBodyData.BODY_SCALE_FACTOR;
+            float bodyScaleMultiplier = rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
+            this.supernovaScale = rawBodyScale > 1e-6f ? bodyScaleMultiplier / rawBodyScale : 1.0f;
+        } else {
+            this.supernovaScale = 1.0f;
+        }
+        this.setChanged();
+        if (level != null && !level.isClientSide()) {
+            this.syncToClient();
+        }
+    }
+
+    /**
+     * Compute the world Y of the body visual center at the current redstone signal.
+     * Matches the renderer centerY: linear interpolation from baseCenterY to the full dynamicCenterY.
+     */
+    public double getBodyCenterWorldY() {
+        float redstoneFactor = this.getRedstoneSignal() / 5.0f;
+        float fullCenterY = CelestialBodyData.dynamicCenterY(this.celestialBodyData, this.isAmplify);
+        float baseCenterY = this.isAmplify ? 6.5f : 4.5f;
+        float centerY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
+        return worldPosition.getY() + centerY;
+    }
+
+    // === Render smoothing (client-only, not persisted / synced) ===
+    // Frame-rate-independent exponential approach for ring scale, body-center height, body scale, beam
+    // height, so redstone-driven size/height changes glide smoothly instead of snapping each tick.
+    @Getter
+    private float smoothRingScale;
+    @Getter
+    private float smoothCenterY;
+    @Getter
+    private float smoothBodyScale;
+    @Getter
+    private float smoothBeamHeight;
+    private boolean smoothInitialized = false;
+    private long lastSmoothNanos = 0L;
+    /** Exponential approach time constant (seconds). Smaller = catches up faster. */
+    private static final float SMOOTH_TAU = 0.18f;
+
+    /** Advance one frame of smoothing, returning the frame-rate-independent approach factor. */
+    private float advanceSmoothFactor() {
+        long now = Util.getNanos();
+        if (!this.smoothInitialized) {
+            this.lastSmoothNanos = now;
+            return 1.0f;
+        }
+        float dt = (now - this.lastSmoothNanos) / 1.0e9f;
+        this.lastSmoothNanos = now;
+        if (dt <= 0f) return 0f;
+        if (dt > 0.25f) dt = 0.25f; // guard against jumps after lag/pause
+        return 1.0f - (float) Math.exp(-dt / SMOOTH_TAU);
+    }
+
+    /** Update the smoothed render scale/height values. Called each frame by the renderer with the current targets. */
+    public void updateRenderSmoothing(float targetRingScale, float targetCenterY, float targetBodyScale, float targetBeamHeight) {
+        float f = this.advanceSmoothFactor();
+        if (!this.smoothInitialized) {
+            this.smoothRingScale = targetRingScale;
+            this.smoothCenterY = targetCenterY;
+            this.smoothBodyScale = targetBodyScale;
+            this.smoothBeamHeight = targetBeamHeight;
+            this.smoothInitialized = true;
+            return;
+        }
+        this.smoothRingScale += (targetRingScale - this.smoothRingScale) * f;
+        this.smoothCenterY += (targetCenterY - this.smoothCenterY) * f;
+        this.smoothBodyScale += (targetBodyScale - this.smoothBodyScale) * f;
+        this.smoothBeamHeight += (targetBeamHeight - this.smoothBeamHeight) * f;
     }
 
     @Getter
@@ -644,9 +776,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             if (entity instanceof LivingEntity living) {
                 if (this.celestialBodyData instanceof StarData star
                     && star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                    living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+                    // noinspection deprecation
+                    living.hurtOrSimulate(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
                 } else {
-                    living.hurt(level.damageSources().inFire(), 1.0E12f);
+                    // noinspection deprecation
+                    living.hurtOrSimulate(level.damageSources().inFire(), 1.0E12f);
                 }
             } else {
                 entity.discard();
@@ -772,13 +906,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         return (rand.nextFloat() - 0.5f) * 0.1f;
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public void tryMatchCelestialBody() {
         if (level == null) return;
         int time = this.getAnvilCount(0);
-        int space = this.getAnvilCount(1);
+        final int space = this.getAnvilCount(1);
         int mass = this.getAnvilCount(2);
-        int energy = this.getAnvilCount(3);
+        final int energy = this.getAnvilCount(3);
         this.ageAnvilCount = time;
         this.bodySeed = level.getRandom().nextLong();
         this.stellarMass = mass;
@@ -805,6 +938,23 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             return;
         }
 
+        // Second: check for a player-head seed item → player-head celestial body
+        if (this.lastConsumedSeedItem == Items.PLAYER_HEAD) {
+            ItemStack headSeedStack = this.anvilInventory.getItem(4);
+            CompoundTag profileTag = extractProfileNbt(headSeedStack);
+            if (profileTag != null) {
+                this.celestialBodyData = SpecialCelestialBodyData.fromPlayerHead(profileTag, space);
+                this.planetaryResourceSet = new PlanetaryResourceSet();
+                this.addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
+                this.consumeSeedItem();
+                if (!level.isClientSide()) {
+                    this.setChanged();
+                    this.syncToClient();
+                }
+                return;
+            }
+        }
+
         // Second: check for special celestial body discovery via seed item
         if (this.lastConsumedSeedItem != null) {
             SpecialCelestialBodyData specialBody = this.tryMatchSpecialCelestialBody(
@@ -822,7 +972,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
                     ResourceKey<net.minecraft.world.item.crafting.Recipe<?>> key =
                         ResourceKey.create(Registries.RECIPE, recipeId);
                     net.minecraft.world.item.crafting.RecipeHolder<?> holder =
-                        RecipesRecord.getRecipes((ServerLevel) level).byKey(key);
+                        RecipesRecord.getRecipes(this.level).byKey(key);
                     if (holder != null && holder.value() instanceof SpecialCelestialBodyRecipe recipe) {
                         this.planetaryResourceSet = recipe.generateResources();
                     }
@@ -877,6 +1027,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (!seed.isEmpty()) {
             this.anvilInventory.setItem(4, ItemStack.EMPTY);
         }
+    }
+
+    /**
+     * Extract the resolvable-profile NBT from a player-head stack, or null if it has none.
+     */
+    @Nullable
+    private static CompoundTag extractProfileNbt(ItemStack stack) {
+        if (!stack.is(Items.PLAYER_HEAD)) return null;
+        net.minecraft.world.item.component.ResolvableProfile profile = stack.get(DataComponents.PROFILE);
+        if (profile == null) return null;
+        return (CompoundTag) net.minecraft.world.item.component.ResolvableProfile.CODEC
+            .encodeStart(NbtOps.INSTANCE, profile)
+            .getOrThrow();
     }
 
     @Nullable
@@ -1155,7 +1318,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         // Search history
         input.read("searchHistory", CompoundTag.CODEC).ifPresent(this::loadSearchHistory);
         // Inventory
-        input.read("anvils", CompoundTag.CODEC).ifPresent(invTag -> this.loadInventoryFromTag(invTag));
+        input.read("anvils", CompoundTag.CODEC).ifPresent(this::loadInventoryFromTag);
         // Material filter
         this.materialFilter = input.read("materialFilter", ItemStack.OPTIONAL_CODEC)
             .orElse(new ItemStack(Items.BARRIER));
@@ -1174,6 +1337,16 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         this.templeDemandSatisfied = input.getBooleanOr("templeDemandSatisfied", false);
         // Collider runtime state is not persisted — always start clean on load
         this.historyBrowseIndex = input.getIntOr("historyBrowseIndex", 0);
+        // Supernova flash sync (runtime path uses loadAdditional; guarded so disk loads are ignored).
+        // Only restart if the incoming tick count is larger, to keep the client's smooth countdown.
+        input.getInt("supernovaFlashTicks").ifPresent(incomingFlash -> {
+            var accel = this.megastructureManager.getAcceleratorHandler();
+            if (incomingFlash > accel.getSupernovaFlashTicks()) {
+                accel.setSupernovaFlashTicks(incomingFlash);
+            }
+            this.supernovaCenterY = input.getDoubleOr("supernovaCenterY", 0);
+            this.supernovaScale = input.getFloatOr("supernovaScale", 1.0f);
+        });
         // Delegate megastructure NBT to manager (must be last so managers overwrite BE fields)
         this.megastructureManager.loadAdditional(input);
         if (level != null && !level.isClientSide()) {
@@ -1274,6 +1447,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         tag.putBoolean("templeDemandSatisfied", this.templeDemandSatisfied);
         // Collider runtime state not synced to client
         tag.putInt("historyBrowseIndex", this.historyBrowseIndex);
+        // Supernova flash (synced for rendering)
+        tag.putInt("supernovaFlashTicks", this.getSupernovaFlashTicks());
+        tag.putDouble("supernovaCenterY", this.supernovaCenterY);
+        tag.putFloat("supernovaScale", this.supernovaScale);
         // Delegate megastructure NBT to manager
         this.megastructureManager.writeUpdateTag(tag, registries);
         return tag;

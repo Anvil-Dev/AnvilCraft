@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Celestial body data for hidden (special) bodies discovered via seed items.
@@ -29,7 +29,8 @@ public record SpecialCelestialBodyData(
     @Nullable LiquidCoverage liquidCoverage,
     boolean isErrorPlanet,
     boolean needsCustomModel,
-    String textureName
+    String textureName,
+    @Nullable CompoundTag playerHeadProfile
 ) implements CelestialBodyData {
 
     /**
@@ -48,8 +49,38 @@ public record SpecialCelestialBodyData(
             recipe.getLiquidCoverage(),
             recipe.isErrorPlanet(),
             recipe.needsCustomModel(),
-            recipe.textureName()
+            recipe.textureName(),
+            null
         );
+    }
+
+    /**
+     * Create a dynamic player-head body from a player profile NBT (no resource, rendered via the skull model).
+     * The size is determined by the number of space anvils.
+     */
+    public static SpecialCelestialBodyData fromPlayerHead(CompoundTag profileNbt, int space) {
+        return new SpecialCelestialBodyData(
+            "player_head",
+            "player_head",
+            space,
+            0f,
+            2,
+            0,
+            Temperature.MILD,
+            false,
+            LiquidCoverage.NONE,
+            false,
+            true,
+            "player_head",
+            profileNbt
+        );
+    }
+
+    /**
+     * Whether this body is a dynamic player-head body.
+     */
+    public boolean isPlayerHead() {
+        return this.playerHeadProfile != null;
     }
 
     @Override
@@ -94,6 +125,9 @@ public record SpecialCelestialBodyData(
         if (this.liquidCoverage != null) {
             tag.putString("liquidCoverage", this.liquidCoverage.getSerializedName());
         }
+        if (this.playerHeadProfile != null) {
+            tag.put("playerHeadProfile", this.playerHeadProfile);
+        }
         return tag;
     }
 
@@ -115,10 +149,12 @@ public record SpecialCelestialBodyData(
         Temperature temperature = !tempStr.isEmpty() ? Temperature.fromName(tempStr) : null;
         String lcStr = tag.getStringOr("liquidCoverage", "");
         LiquidCoverage liquidCoverage = !lcStr.isEmpty() ? LiquidCoverage.fromName(lcStr) : null;
+        CompoundTag playerHeadProfile = tag.contains("playerHeadProfile")
+            ? tag.getCompoundOrEmpty("playerHeadProfile") : null;
         return new SpecialCelestialBodyData(
             recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength,
             temperature, hasAtmosphere, liquidCoverage,
-            isErrorPlanet, needsCustomModel, textureName
+            isErrorPlanet, needsCustomModel, textureName, playerHeadProfile
         );
     }
 }

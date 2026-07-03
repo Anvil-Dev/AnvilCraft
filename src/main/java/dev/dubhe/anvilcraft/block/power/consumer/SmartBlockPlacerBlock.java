@@ -6,10 +6,10 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -35,7 +35,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
@@ -163,15 +163,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
                 return placerEntity.useDisk(level, player, hand, player.getItemInHand(hand), hitResult);
             }
             if (player instanceof ServerPlayer serverPlayer) {
-                var menuProvider = state.getMenuProvider(level, pos);
-                if (menuProvider != null) {
-                    serverPlayer.openMenu(menuProvider, buf -> {
-                        buf.writeBlockPos(pos);
-                        CompoundTag syncTag = new CompoundTag();
-                        placerEntity.saveAdditionalDataToTag(syncTag);
-                        buf.writeNbt(syncTag);
-                    });
-                }
+                ModMenuTypes.open(serverPlayer, placerEntity, pos);
             }
         }
         return InteractionResult.SUCCESS_SERVER;

@@ -46,7 +46,7 @@ import java.util.UUID;
 
 @SuppressWarnings("checkstyle:LineLength")
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
-    private static final Identifier BACKGROUND = SharedTextures.SMART_BLOCK_PLACER_BACKGROUND;
+    private static final Identifier BACKGROUND = SharedTextures.bg("machine", "smart_block_placer");
 
     private static final Identifier[] LAYER_DEFAULT = {
         SharedTextures.SMART_BLOCK_PLACER_LAYER_1,
@@ -125,7 +125,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         super(menu, inventory, title, 256, 201);
     }
 
-    @SuppressWarnings("checkstyle:LocalVariableName")
     @Override
     protected void init() {
         super.init();
@@ -644,7 +643,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 渲染3D预览
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderPreview(GuiGraphicsExtractor graphics) {
         if (this.minecraft.level == null) return;
 
@@ -927,7 +925,6 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     /**
      * 构建预览用的 LevelLike 实例
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Nullable
     private LevelLike buildPreviewLevelLike() {
         if (this.minecraft.level == null) return null;
@@ -959,11 +956,12 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             int sizeX = structure.diskData.sizeX();
             int sizeZ = structure.diskData.sizeZ();
             for (var bp : rotatedData.blocks) {
-                int renderX = upsideDown ? (sizeX - 1 - bp.x()) : bp.x();
-                int renderZ = upsideDown ? (sizeZ - bp.z()) : (bp.z() + 1);
+                int renderX = sizeX - 1 - bp.x();
+                int renderZ = sizeZ - bp.z();
                 int renderY = upsideDown ? (2 - bp.y()) : (bp.y() - 2);
                 BlockState state = bp.state();
                 if (upsideDown) {
+                    // noinspection deprecation
                     state = state.rotate(Rotation.CLOCKWISE_180);
                     state = SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(state);
                 }

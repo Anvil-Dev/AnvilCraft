@@ -4,7 +4,9 @@ import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRende
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
@@ -38,6 +40,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class BaseLaserBlockEntity extends BlockEntity {
@@ -62,13 +65,19 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         super(type, pos, blockState);
     }
 
-    private boolean canPassThrough(Direction direction, BlockPos blockPos) {
+    protected boolean canPassThrough(Direction direction, BlockPos blockPos) {
         if (level == null) return false;
         BlockState blockState = level.getBlockState(blockPos);
         if (blockState.is(ModBlockTags.LASER_CAN_PASS_THROUGH)
             || blockState.is(Tags.Blocks.GLASS_BLOCKS)
             || blockState.is(Tags.Blocks.GLASS_PANES)
             || blockState.is(BlockTags.REPLACEABLE)) return true;
+        // Empty lens aligned with the laser axis is transparent
+        if (blockState.getBlock() instanceof LensBlock
+            && blockState.getValue(LensBlock.TYPE) == LensType.NONE
+            && direction.getAxis() == blockState.getValue(LensBlock.AXIS)) {
+            return true;
+        }
         if (!AnvilCraft.CONFIG.isLaserDoImpactChecking) return false;
         AABB laseBoundingBox = switch (direction.getAxis()) {
             case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
@@ -189,7 +198,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             }
             AABB trackBoundingBox = new AABB(
                 startPos,
-                this.irradiateBlockPos.relative(direction.getOpposite())
+                Objects.requireNonNull(this.irradiateBlockPos).relative(direction.getOpposite())
                     .getCenter()
                     .add(0.0625, 0.0625, 0.0625)
             );
@@ -205,7 +214,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 )
             );
         }
-        BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
+        BlockState irradiateBlock = this.level.getBlockState(Objects.requireNonNull(this.irradiateBlockPos));
         int cooldown = COOLDOWNS[Math.clamp(this.laserLevel / 4, 0, 4)];
         if (this.tickCount >= cooldown) {
             this.tickCount = 0;
@@ -297,6 +306,11 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         this.irradiateSelfLaserBlockSet.add(baseLaserBlockEntity);
     }
 
+    /// 清空本方块的上游激光来源集合（透镜切换镜片/朝向时重置用）。
+    public void clearIrradiateSelfLaserBlockSet() {
+        this.irradiateSelfLaserBlockSet.clear();
+    }
+
     /// 当方块被取消激光照射时调用
     public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
         this.irradiateSelfLaserBlockSet.remove(baseLaserBlockEntity);
@@ -319,7 +333,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         if (!(level.getBlockEntity(this.irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity)) return;
         irradiateBlockEntity.onCancelingIrradiation(this);
         if (level.isClientSide()) {
-            CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
+            Objects.requireNonNull(CachedBlockEntityRenderingPipeline.getInstance()).update(this, true);
         }
     }
 
@@ -331,7 +345,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void clearRemoved() {
         super.clearRemoved();
         if (this.level != null && this.level.isClientSide()) {
-            CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
+            Objects.requireNonNull(CachedBlockEntityRenderingPipeline.getInstance()).update(this, true);
         }
     }
 
@@ -349,6 +363,6 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
         this.irradiateBlockPos = irradiateBlockPos;
         this.laserLevel = laserLevel;
-        CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
+        Objects.requireNonNull(CachedBlockEntityRenderingPipeline.getInstance()).update(this, true);
     }
 }

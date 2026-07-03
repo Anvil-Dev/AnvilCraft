@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -146,6 +147,39 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     }
 
     /**
+     * 流体传输（按预先算好的等效高度）：仅在源等效高度高于目标时执行。
+     *
+     * <p>与 {@link #moveFluidWithHeightCheck} 不同，此方法的等效高度由调用方直接给出，
+     * 且方向允许为 {@code null}——此时该端的容器即为 {@code curPos} 本身（用于节点内部储罐），
+     * 容器侧取 {@code null}。
+     *
+     * @param sourceCurPos          源端当前位置
+     * @param sourceCurDirection    源端朝向；{@code null} 表示容器即 {@code sourceCurPos}
+     * @param sourceEffectiveHeight 源端容器等效高度
+     * @param targetCurPos          目标端当前位置
+     * @param targetCurDirection    目标端朝向；{@code null} 表示容器即 {@code targetCurPos}
+     * @param targetEffectiveHeight 目标端容器等效高度
+     */
+    public static void moveFluidByEffectiveHeight(
+        Level level,
+        BlockPos sourceCurPos,
+        @Nullable Direction sourceCurDirection,
+        int sourceEffectiveHeight,
+        BlockPos targetCurPos,
+        @Nullable Direction targetCurDirection,
+        int targetEffectiveHeight
+    ) {
+        if (sourceEffectiveHeight <= targetEffectiveHeight) {
+            return;
+        }
+        BlockPos sourcePos = sourceCurDirection == null ? sourceCurPos : sourceCurPos.relative(sourceCurDirection);
+        BlockPos targetPos = targetCurDirection == null ? targetCurPos : targetCurPos.relative(targetCurDirection);
+        Direction sourceSide = sourceCurDirection == null ? null : sourceCurDirection.getOpposite();
+        Direction targetSide = targetCurDirection == null ? null : targetCurDirection.getOpposite();
+        moveFluid(level, sourcePos, sourceSide, targetPos, targetSide, sourceEffectiveHeight - targetEffectiveHeight);
+    }
+
+    /**
      * 使用 NeoForge 26.1 ResourceHandler<FluidResource> API 进行流体传输。
      * 替代旧的 IFluidHandler.drain()/fill() API。
      */
@@ -208,6 +242,10 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
                 target.insert(resourceToDrain, actualDrained, tx);
                 tx.commit();
             }
+        }
+        if (heightDiff != 0) {
+            TriggerUtil.connectFluidContainers(level, sourcePos);
+            TriggerUtil.connectFluidContainers(level, targetPos);
         }
     }
 

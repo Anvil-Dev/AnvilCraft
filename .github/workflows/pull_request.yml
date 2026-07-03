@@ -38,6 +38,7 @@ jobs:
             versions.minecraft
             versions.neoForge
             versions.anvillib
+            versions.jade
 
       - name: Setup Java ${{ steps.properties.outputs.java_version }}
         uses: actions/setup-java@v3.6.0
@@ -75,5 +76,7 @@ jobs:
           minecraft_version: ${{ steps.lib_version.outputs.versions_minecraft }}
           mod_loader: 'neoforge'
           loader_version: ${{ steps.lib_version.outputs.versions_neoForge }}
-          extra-mods: "anvil-lib:${{ steps.lib_version.outputs.versions_anvillib }}"
+          extra-mods: |
+            anvil-lib:${{ steps.lib_version.outputs.versions_anvillib }}
+            jade:${{ steps.lib_version.outputs.versions_jade }}
           quiet-setup: 'True'

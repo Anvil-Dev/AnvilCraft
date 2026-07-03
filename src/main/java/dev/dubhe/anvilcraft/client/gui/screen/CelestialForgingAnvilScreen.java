@@ -292,16 +292,17 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         // Refactor section
         this.renderRefactorSection(graphics, guiLeft, guiTop, relX, relY);
 
-        // Celestial maps guide (when triggered + not locked + not searching)
+        // Celestial maps guide (when triggered + not locked + not searching)。
+        // 指南显示时完全取代天体预览/信息/资源框——不再叠加渲染，避免混乱（对齐 1.21：指南分支 return）。
         boolean showGuide = !this.isLocked() && this.guideTriggered && this.searchState != SearchState.LOADING;
         if (showGuide) {
             this.renderCelestialMapsGuide(graphics, guiLeft, guiTop);
             // Re-render preview buttons on top of the guide map
             this.renderPreviewBottomButtons(graphics, guiLeft, guiTop, relX, relY);
+        } else {
+            // Preview area content (body preview + info panel + resource bar)
+            this.renderPreviewAreaContents(graphics, guiLeft, guiTop);
         }
-
-        // Preview area content (body preview + info panel + resource bar)
-        this.renderPreviewAreaContents(graphics, guiLeft, guiTop);
 
         // Ghost slot items
         this.renderSlotGhosts(graphics, guiLeft, guiTop);
@@ -596,7 +597,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     // Resource Bar (absolute coords for extractContents)
     // ==================================================================
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderResourceBarAbsolute(GuiGraphicsExtractor graphics, int guiLeft, int guiTop) {
         var be = getMenu().getBlockEntity();
         var resources = be.getPlanetaryResourceSet();
@@ -616,7 +616,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int spacing = 10;
         int totalW = -spacing;
         for (String e : entries) totalW += this.font.width(e) + spacing;
-        int contentX = guiLeft + PV_X + 4;
+        final int contentX = guiLeft + PV_X + 4;
         int contentW = PV_W - 8;
         int maxScroll = Math.max(0, totalW - contentW);
         this.resourceScrollOffset = Mth.clamp(this.resourceScrollOffset, 0, maxScroll);
@@ -675,11 +675,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         for (var entry : fluids) {
             var fluidHolder = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(entry.fluidId());
             String name;
-            if (fluidHolder.isPresent()) {
-                name = fluidHolder.get().value().getFluidType().getDescription().getString();
-            } else {
-                name = "???";
-            }
+            name = fluidHolder.map(fluidReference -> fluidReference.value().getFluidType().getDescription().getString()).orElse("???");
             int pct = totalW > 0 ? entry.weight() * 100 / totalW : 0;
             out.add(name + " " + pct + "%");
         }
@@ -1026,14 +1022,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                        | (star.colorG() << 8)
                        | star.colorB();
             }
-            case RockyPlanetData rp when rp.temperature() != null -> {
+            case RockyPlanetData rp -> {
                 float[] ac = CelestialBodyRenderer.getAtmosphereColor(rp.temperature());
                 return 0xFF_000000
                        | ((int) (ac[0] * 255) << 16)
                        | ((int) (ac[1] * 255) << 8)
                        | (int) (ac[2] * 255);
             }
-            case GiantPlanetData giantPlanetData -> {
+            case GiantPlanetData _ -> {
                 return 0xFF_B0C0E0;
             }
             case SpecialCelestialBodyData s when s.temperature() != null -> {
@@ -1163,7 +1159,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     // Celestial Maps Guide
     // ==================================================================
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void renderCelestialMapsGuide(GuiGraphicsExtractor g, int guiLeft, int guiTop) {
         int previewCenterX = guiLeft + PV_X + PV_W / 2;
         int previewCenterY = guiTop + PV_Y + PV_H / 2;
@@ -1181,7 +1176,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int timeCount = getMenu().getBlockEntity().getAnvilCount(0);
         int spaceCount = getMenu().getBlockEntity().getAnvilCount(1);
         int massCount = getMenu().getBlockEntity().getAnvilCount(2);
-        int energyCount = getMenu().getBlockEntity().getAnvilCount(3);
+        final int energyCount = getMenu().getBlockEntity().getAnvilCount(3);
 
         // Time anvil: light green, vertical, full height (160px), x=12-76
         if (timeCount > 0) {
@@ -1273,6 +1268,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         return Component.translatable(key).getString();
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void drawGuideLine(GuiGraphicsExtractor g, String text, int x, int y, int color) {
         g.text(this.font, text, x, y, color, false);
     }
@@ -1376,7 +1372,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
      * Render a megastructure block model inside a button.
      * Scale is divided by the ring's relative geometric size so all rings appear the same size.
      */
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    @SuppressWarnings("SameParameterValue")
     private void renderMegastructureModel(GuiGraphicsExtractor g, CelestialRefactorOption option,
                                           int x, int y, int w, int h) {
         float divisor = switch (option.ring()) {
@@ -1388,8 +1384,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             default -> 1.0f;
         };
         int size = (int) (Math.min(w, h) * 1.15f / divisor);
-        int bx = x + (w - size) / 2;
-        int by = y + (h - size) / 2;
+        final int bx = x + (w - size) / 2;
+        final int by = y + (h - size) / 2;
 
         PoseStack ps = new PoseStack();
         ps.translate(0.5f, 0.5f, 0.5f);

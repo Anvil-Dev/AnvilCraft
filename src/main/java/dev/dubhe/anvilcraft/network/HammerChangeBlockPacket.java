@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.HammerChangeBlockEvent;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.StateUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
@@ -60,5 +61,6 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             return;
         }
         level.setBlock(this.pos, this.state, Block.UPDATE_ALL_IMMEDIATE);
+        TriggerUtil.anvilHammerChangeBlock(level, this.pos, blockState, this.state);
     }
 }

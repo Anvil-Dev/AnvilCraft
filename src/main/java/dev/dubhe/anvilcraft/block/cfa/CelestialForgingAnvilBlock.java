@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -227,7 +228,6 @@ public class CelestialForgingAnvilBlock
 
     // === Destruction (26.1: onRemove removed, use playerWillDestroy + setRemoved) ===
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockPos mainPos = getMainPartPos(pos, state);
@@ -249,7 +249,7 @@ public class CelestialForgingAnvilBlock
             // and matching parameters so the body reappears when placed elsewhere.
             // Runtime & position-dependent flags are stripped from the item tag.
             if (!level.isClientSide()) {
-                ItemStack blockStack = new ItemStack(asItem());
+                final ItemStack blockStack = new ItemStack(asItem());
                 CompoundTag beTag = be.saveCustomOnly(level.registryAccess());
 
                 // Strip data that is tied to the current world position or transient runtime
@@ -310,6 +310,16 @@ public class CelestialForgingAnvilBlock
                     be.syncToClient();
                 }
             });
+    }
+
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos,
+                                   Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
+        // Invalidate the CFA's cached redstone signal so the renderer picks up the change promptly.
+        if (level.getBlockEntity(getMainPartPos(pos, state)) instanceof CelestialForgingAnvilBlockEntity be) {
+            be.markRedstoneSignalDirty();
+        }
     }
 
     @Override

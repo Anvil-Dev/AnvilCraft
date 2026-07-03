@@ -64,8 +64,7 @@ public class OtherLang {
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.falling_giant_anvil", "%1$s died due to systemic resonance caused by ground vibrations");
-
-        provider.add("effect.anvilcraft.rage", "Rage");
+        provider.add("death.attack.anvilcraft.plasma_jet", "%1$s tried to high-five the plasma jets. They did not high-five back.");
 
         provider.add("item.anvilcraft.pill.tooltip",
             "Pills made together with potion to achieve corresponding effects, can be taken quickly");

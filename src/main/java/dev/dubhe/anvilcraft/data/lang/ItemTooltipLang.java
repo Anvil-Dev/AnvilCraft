@@ -4,7 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
 
 public class ItemTooltipLang {
-    @SuppressWarnings("checkstyle:LineLength")
+    // 禁用行长警告"""
     public static void init(RegistrumLangProvider provider) {
         ItemTooltipManager.NEED_TOOLTIP_ITEMS.forEach((item, s) -> provider.add(ItemTooltipManager.getTranslationKey(item), s));
         ItemTooltipManager.getShiftMap().forEach((item, s) -> provider.add(ItemTooltipManager.getTranslationKeyShift(item), s));
@@ -50,4 +50,5 @@ public class ItemTooltipLang {
 
         provider.add("tooltip.anvilcraft.thought", "Press [%s] for more info");
     }
+    // 启用行长警告"""
 }

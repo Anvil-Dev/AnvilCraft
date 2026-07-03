@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 public enum CelestialBodyType implements StringRepresentable {
     ROCKY_PLANET("rocky_planet"),
@@ -16,7 +15,7 @@ public enum CelestialBodyType implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 

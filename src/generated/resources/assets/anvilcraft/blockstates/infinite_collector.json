@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "anvilcraft:block/infinite_collector"
+    },
+    "powered=true": {
+      "model": "anvilcraft:block/infinite_collector_base"
+    }
+  }
+}

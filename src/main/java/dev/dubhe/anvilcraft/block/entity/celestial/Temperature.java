@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
 
 public enum Temperature implements StringRepresentable {
     FREEZING("freezing"),
@@ -17,7 +16,7 @@ public enum Temperature implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 

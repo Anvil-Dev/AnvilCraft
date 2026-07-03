@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:bulging",
+  "consume": 1000,
+  "fluid": "anvilcraft:honey",
+  "ingredients": [],
+  "results": [
+    {
+      "id": "minecraft:honey_block"
+    }
+  ]
+}

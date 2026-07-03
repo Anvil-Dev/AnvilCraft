@@ -92,8 +92,7 @@ public class PlanetResourceRecipeLoader {
             Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.GiantData(
                 List.of(
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:hydrogen", 90),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:helium", 10)
+                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:primordial_matter", 100)
                 ), "gas"
             )),
             Optional.empty(), Optional.empty(), Optional.empty()
@@ -104,8 +103,7 @@ public class PlanetResourceRecipeLoader {
             Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.GiantData(
                 List.of(
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:hydrogen", 80),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:helium", 10),
+                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:primordial_matter", 90),
                     new PlanetResourceRecipe.WeightedEntry("minecraft:water", 10)
                 ), "ice"
             )),
@@ -123,7 +121,7 @@ public class PlanetResourceRecipeLoader {
                 "anvilcraft:planetary_aquatic_animals",
                 "anvilcraft:non_planetary_mob_drops",
                 List.of(
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:milk", 50),
+                    new PlanetResourceRecipe.WeightedEntry("minecraft:milk", 50),
                     new PlanetResourceRecipe.WeightedEntry("anvilcraft:honey", 50)
                 )
             )),

@@ -4,13 +4,20 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.network.ScreenShakePacket;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import java.util.Objects;
 
 public class AcceleratorHandler extends BaseMegastructureHandler {
 
@@ -57,14 +64,13 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         }
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void onBuild(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
 
-        CelestialBodyClass cls = star.bodyClass();
-        int ageX = CelestialBodyMatcher.toX(be.getAgeAnvilCount());
-        int energyY = CelestialBodyMatcher.toY(star.energy());
+        final CelestialBodyClass cls = star.bodyClass();
+        final int ageX = CelestialBodyMatcher.toX(be.getAgeAnvilCount());
+        final int energyY = CelestialBodyMatcher.toY(star.energy());
 
         this.originalMass = be.getStellarMass();
         this.originalEnergy = star.energy();
@@ -82,7 +88,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         }
 
         be.setChanged();
-        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+        Objects.requireNonNull(be.getLevel()).sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
 
     private void initGiantPhase(CelestialForgingAnvilBlockEntity be, int ageX, int energyY) {
@@ -95,7 +101,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.ticksTotal = this.ticksRemaining;
 
         if (this.isDysonSphereBuilt(be) && this.ticksRemaining > 20) {
-            long startTick = be.getLevel().getGameTime();
+            long startTick = Objects.requireNonNull(be.getLevel()).getGameTime();
             long range = this.ticksRemaining / 2;
             if (range > 0) {
                 this.dysonDestroyTick = startTick + be.getLevel().getRandom().nextInt((int) range);
@@ -103,7 +109,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         }
 
         be.setChanged();
-        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+        Objects.requireNonNull(be.getLevel()).sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
 
     private boolean isDysonSphereBuilt(CelestialForgingAnvilBlockEntity be) {
@@ -130,7 +136,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.ticksRemaining--;
         this.updateGiantPhaseVisuals(be);
         if (this.ticksRemaining % 20 == 0) this.syncToClient(be);
-        if (!this.dysonDestroyed && this.dysonDestroyTick >= 0 && be.getLevel().getGameTime() >= this.dysonDestroyTick) {
+        if (!this.dysonDestroyed && this.dysonDestroyTick >= 0
+            && Objects.requireNonNull(be.getLevel()).getGameTime() >= this.dysonDestroyTick) {
             this.destroyDysonSphere(be);
         }
         if (this.ticksRemaining <= 0) {
@@ -144,7 +151,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             this.ticksRemaining--;
             this.updateCollapseColor(be);
             if (this.collapseAnimTicks == 5) {
-                be.getLevel().explode(
+                Objects.requireNonNull(be.getLevel()).explode(
                     null,
                     be.getBlockPos().getX() + 0.5,
                     be.getBlockPos().getY() + 4.0,
@@ -177,7 +184,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.ticksRemaining = 10;
         this.ticksTotal = 10;
         be.setChanged();
-        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+        Objects.requireNonNull(be.getLevel()).sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
 
     private void transitionToStage4(CelestialForgingAnvilBlockEntity be) {
@@ -185,15 +192,30 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.ticksRemaining = 2400;
         this.ticksTotal = 2400;
         be.setChanged();
-        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+        Objects.requireNonNull(be.getLevel()).sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
 
     private void triggerSupernova(CelestialForgingAnvilBlockEntity be) {
+        // Must capture the exploding star's center/scale and send the screen shake BEFORE the remnant
+        // replaces the body data. startSupernovaFlash() captures supernovaCenterY/Scale for rendering.
+        be.startSupernovaFlash();
+        if (be.getLevel() instanceof ServerLevel serverLevel) {
+            double centerY = be.getBodyCenterWorldY();
+            Vec3 center = new Vec3(
+                be.getBlockPos().getX() + 0.5,
+                centerY,
+                be.getBlockPos().getZ() + 0.5
+            );
+            PacketDistributor.sendToPlayersTrackingChunk(
+                serverLevel,
+                new ChunkPos(be.getBlockPos().getX() >> 4, be.getBlockPos().getZ() >> 4),
+                ScreenShakePacket.of(center, 64.0f, ScreenShakePacket.ShakeType.SUPERNOVA)
+            );
+        }
         this.createRemnant(be);
         be.getMegastructureManager().clearAllMegastructures(be);
-        this.supernovaFlashTicks = 10;
         be.setChanged();
-        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+        Objects.requireNonNull(be.getLevel()).sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
 
     private void createRemnant(CelestialForgingAnvilBlockEntity be) {
@@ -283,17 +305,17 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.dysonDestroyed = true;
         be.getMegastructureManager().clearMegastructure(be);
         be.setChanged();
-        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+        Objects.requireNonNull(be.getLevel()).sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
 
     private void syncToClient(CelestialForgingAnvilBlockEntity be) {
         be.setChanged();
-        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+        Objects.requireNonNull(be.getLevel()).sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
 
     private void updateGiantPhaseVisuals(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        if (be.getLevel().getGameTime() % 20 != 0) return;
+        if (Objects.requireNonNull(be.getLevel()).getGameTime() % 20 != 0) return;
         float progress = this.ticksTotal > 0 ? (float) this.ticksRemaining / this.ticksTotal : 0f;
         float t = 1.0f - progress;
         int newSize = this.originalSize + Math.round((64 - this.originalSize) * t);
