@@ -285,6 +285,11 @@ public abstract class BaseChuteBlockEntity
         }
     }
 
+    @Override
+    public List<String> getDiskCompatibleGroups() {
+        return List.of("anvilcraft:has_filter");
+    }
+
     public boolean isEmpty() {
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             if (!itemHandler.getStackInSlot(i).isEmpty()) return false;

@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -282,8 +281,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void storeDiskData(CompoundTag tag) {
         if (this.level == null) return;
-        RegistryAccess provider = this.level.registryAccess();
-        tag.put("Inventory", this.itemHandler.serializeNBT(provider));
+        tag.put("Filtering", this.itemHandler.serializeFiltering());
         tag.putInt("Cooldown", this.cooldown.index());
         tag.putInt("RangeRadius", this.rangeRadius.index());
         tag.putInt("cd", this.cd);
@@ -292,11 +290,16 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void applyDiskData(CompoundTag tag) {
         if (this.level == null) return;
-        RegistryAccess provider = this.level.registryAccess();
-        this.itemHandler.deserializeNBT(provider, tag.getCompound("Inventory"));
-        this.cooldown.fromIndex(tag.getInt("Cooldown"));
-        this.rangeRadius.fromIndex(tag.getInt("RangeRadius"));
-        this.cd = tag.getInt("cd");
+        this.itemHandler.deserializeFiltering(tag.getCompound("Filtering"));
+        if (tag.contains("Cooldown", CompoundTag.TAG_INT)) {
+            this.cooldown.fromIndex(tag.getInt("Cooldown"));
+        }
+        if (tag.contains("RangeRadius", CompoundTag.TAG_INT)) {
+            this.rangeRadius.fromIndex(tag.getInt("RangeRadius"));
+        }
+        if (tag.contains("cd", CompoundTag.TAG_INT)) {
+            this.cd = tag.getInt("cd");
+        }
         this.setChanged();
         Vec3 center = this.getPos().getCenter();
         MinecraftServer server = level.getServer();
@@ -304,6 +307,11 @@ public class ItemCollectorBlockEntity extends BlockEntity
         Packet<ClientGamePacketListener> packet = this.getUpdatePacket();
         if (packet == null) return;
         server.getPlayerList().broadcast(null, center.x(), center.y(), center.z(), 256, this.level.dimension(), packet);
+    }
+
+    @Override
+    public List<String> getDiskCompatibleGroups() {
+        return List.of("anvilcraft:has_filter", "anvilcraft:has_collector_config");
     }
 
     @Override
