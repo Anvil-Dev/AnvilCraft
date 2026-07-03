@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluidtank.LargeFluidInfinityTank;
 import dev.dubhe.anvilcraft.block.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -53,6 +54,22 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
 
     public LargeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.addContainer(this.level, this.getBlockPos());
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
+        }
+        super.setRemoved();
     }
 
     private void updateBlock() {

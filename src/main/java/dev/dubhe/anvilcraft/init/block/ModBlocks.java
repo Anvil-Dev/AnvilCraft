@@ -157,6 +157,7 @@ import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockIt
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
+import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
@@ -4363,6 +4364,27 @@ public class ModBlocks {
         })
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::pump)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<ControlValveBlock> CONTROL_VALVE = REGISTRUM.block("control_valve", ControlValveBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Control Valve")
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate((ctx, provider) -> {
+            var model = provider.models().getExistingFile(AnvilCraft.of("block/control_valve"));
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                Direction.Axis axis = state.getValue(ControlValveBlock.AXIS);
+                int rotX = axis == Direction.Axis.Y ? 90 : 0;
+                int rotY = axis == Direction.Axis.X ? 90 : 0;
+                return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX(rotX)
+                    .rotationY(rotY)
+                    .build();
+            });
+        })
+        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

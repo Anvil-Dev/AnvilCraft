@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.CelestialForgingAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberSmithingScreen;
@@ -37,6 +38,7 @@ import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
+import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
@@ -186,11 +188,17 @@ public class ModMenuTypes {
         .register();
 
     public static final MenuEntry<StructureScannerMenu> STRUCTURE_SCANNER = REGISTRUM
-        .menu("structure_scanner", (type, id, inv, buf) -> new StructureScannerMenu(type, id, inv, buf), () -> StructureScannerScreen::new)
+        .menu("structure_scanner", StructureScannerMenu::new, () -> StructureScannerScreen::new)
         .register();
 
     public static final MenuEntry<ExpCollectorMenu> EXP_COLLECTOR = REGISTRUM
         .menu("exp_collector", ExpCollectorMenu::new, () -> ExpCollectorScreen::new)
+        .register();
+
+    public static final MenuEntry<ControlValveMenu> CONTROL_VALVE = REGISTRUM
+        .menu("control_valve",
+            (type, id, inv, buf) -> new ControlValveMenu(type, id, inv, buf),
+            () -> ControlValveScreen::new)
         .register();
 
     public static void register() {

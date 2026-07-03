@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
@@ -217,6 +218,24 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         boolean hasSignal = level.hasNeighborSignal(pos);
         if (hasSignal != state.getValue(POWERED)) {
             level.setBlock(pos, state.setValue(POWERED, hasSignal), 2);
+        }
+    }
+
+    /** 泵放置 / 落地时使流体网络缓存失效（拓扑与势场可能变化）。 */
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide) {
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
+    }
+
+    /** 泵被移除 / 被推走时使流体网络缓存失效。 */
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        super.onRemove(state, level, pos, newState, movedByPiston);
+        if (!level.isClientSide && !state.is(newState.getBlock())) {
+            FluidNetworkManager.INSTANCE.markDirty(level);
         }
     }
 

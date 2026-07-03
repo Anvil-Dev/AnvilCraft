@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,9 +7,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluids;
@@ -117,7 +112,9 @@ public class PipeStraightBlock extends PipeBlock {
             boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
             boolean neighborIsPump = neighborState.getBlock() instanceof PumpBlock
                 && PumpBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
-            if (!neighborIsPipeToward && !neighborIsPump) {
+            boolean neighborIsValve = neighborState.getBlock() instanceof ControlValveBlock
+                && ControlValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
+            if (!neighborIsPipeToward && !neighborIsPump && !neighborIsValve) {
                 return;
             }
 
@@ -137,17 +134,24 @@ public class PipeStraightBlock extends PipeBlock {
         this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipe);
     }
 
+    /**
+     * 放置 / 被推动落地时，按两端实际邻居重算端头（端头 = 该端未接对准的管道）。
+     * 解决被活塞等整体推动后端头状态未刷新的问题。
+     */
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.PIPE.create(pos, state);
-    }
-
-    @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level,
-        BlockState state,
-        BlockEntityType<T> blockEntityType
-    ) {
-        return (l, p, s, ignore) -> PipeBlockEntity.tick(l, p, s);
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (level.isClientSide || state.is(oldState.getBlock())) {
+            return;
+        }
+        Direction.Axis axis = state.getValue(AXIS);
+        Direction negDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+        Direction posDir = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+        BlockState newState = state
+            .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, negDir))
+            .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, posDir));
+        if (newState != state) {
+            level.setBlockAndUpdate(pos, newState);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -12,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -48,7 +48,7 @@ import java.util.Locale;
  *   <li>管道 ↔ 空气/其他：有端头</li>
  * </ul>
  */
-public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable, EntityBlock, IHammerChangeable {
+public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable, IHammerChangeable {
 
     /**
      * 直管的轴向（X / Y / Z）
@@ -250,6 +250,9 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
         if (state.getBlock() instanceof PumpBlock) {
             return PumpBlock.isConnectableFace(state, towardNeighbor);
         }
+        if (state.getBlock() instanceof ControlValveBlock) {
+            return ControlValveBlock.isConnectableFace(state, towardNeighbor);
+        }
         BlockEntity be = level.getBlockEntity(pos);
         return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, state, be, null) != null;
     }
@@ -328,6 +331,29 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    /**
+     * 管道部件放置 / 落地时使流体网络缓存失效（拓扑可能变化）。
+     * 子类覆写 {@code onPlace} 时须调用 {@code super.onPlace(...)}。
+     */
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide) {
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
+    }
+
+    /**
+     * 管道部件被移除 / 被推走时使流体网络缓存失效。
+     */
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        super.onRemove(state, level, pos, newState, movedByPiston);
+        if (!level.isClientSide && !state.is(newState.getBlock())) {
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
     }
 
     /**

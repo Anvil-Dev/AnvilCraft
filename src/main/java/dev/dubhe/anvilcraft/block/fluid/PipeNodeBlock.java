@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,9 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -91,6 +86,7 @@ public class PipeNodeBlock extends PipeBlock {
      */
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
         if (state.is(oldState.getBlock())) {
             return;
         }
@@ -162,6 +158,10 @@ public class PipeNodeBlock extends PipeBlock {
         if (neighborState.getBlock() instanceof PumpBlock) {
             // 泵仅在其连接面（朝向轴两端）正对节点时才形成端头连接
             return PumpBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
+        }
+        if (neighborState.getBlock() instanceof ControlValveBlock) {
+            // 控制阀仅在其连接面（朝向轴两端）正对节点时才形成端头连接
+            return ControlValveBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
         }
         if (isFluidHandler(level, neighborPos)) {
             return NodePipe.END;
@@ -348,19 +348,5 @@ public class PipeNodeBlock extends PipeBlock {
             }
         }
         return armDir;
-    }
-
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.PIPE_NODE.create(pos, state);
-    }
-
-    @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level,
-        BlockState state,
-        BlockEntityType<T> blockEntityType
-    ) {
-        return (l, p, s, ignore) -> PipeNodeBlockEntity.tick(l, p, s);
     }
 }

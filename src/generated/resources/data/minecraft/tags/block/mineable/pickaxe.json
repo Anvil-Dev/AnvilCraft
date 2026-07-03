@@ -320,6 +320,7 @@
     "anvilcraft:pipe_straight",
     "anvilcraft:pipe_corner",
     "anvilcraft:pipe_node",
-    "anvilcraft:pump"
+    "anvilcraft:pump",
+    "anvilcraft:control_valve"
   ]
 }

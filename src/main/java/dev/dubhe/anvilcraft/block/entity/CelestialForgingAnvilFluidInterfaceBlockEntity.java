@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
-import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
-import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -70,6 +72,22 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
                 }
             };
         }
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.addContainer(this.level, this.getBlockPos());
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
+        }
+        super.setRemoved();
     }
 
     /// 将方块实体数据同步到所有追踪的客户端。
@@ -229,7 +247,8 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         };
     }
 
-    /// 服务器端 tick：在主动模式（红石信号激活）且有电时，向 FACING 方向泵送流体。前方是管道→沿管道追踪到远端再推送；前方是流体容器→直接推送；扬程 10 米，流速 50 mB/t 每米高度差。
+    /// 服务器端 tick：在主动模式（红石信号激活）且有电时，以 10 米扬程向 FACING 方向的
+    /// 管道网络泵送流体。前方是管道 → 扫描其网络并作为高源分配；前方是容器 → 直接推送。
     public void serverTick() {
         if (level == null || level.isClientSide()) return;
         BlockState state = getBlockState();
@@ -245,40 +264,37 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
         BlockPos frontPos = getBlockPos().relative(facing);
         BlockState frontState = level.getBlockState(frontPos);
 
-        /// 确定目标：前方是管道 → 追踪到远端；否则直接用前方方块
-        BlockPos targetPos;       /// 接收方的位置
-        Direction targetQueryDir; /// 从接收方查询 IFluidHandler 的方向
-        int pipeHeight = 0;       /// 管道沿途累计的等效高度
+        /// 源等效高度 = 接口自身 Y + 10 米扬程
+        int sourceEffectiveHeight = getBlockPos().getY() + PUMP_HEADLIFT;
 
-        if (frontState.getBlock() instanceof PipeBlock) {
-            /// 从前方管道沿 facing.getOpposite() 方向追踪到管道远端
-            /// getPipeEnd 的参数 direction 是"从管道哪一侧进入"，即接口连接管道的那一侧
-            AbstractPipeBlockEntity.PipeEnd pipeEnd =
-                AbstractPipeBlockEntity.getPipeEnd(level, frontPos, facing.getOpposite());
-            if (pipeEnd == null) return;
-            /// pipeEnd.direction() = 从管道末端指向接收方的方向
-            targetPos = pipeEnd.pos().relative(pipeEnd.direction());
-            targetQueryDir = pipeEnd.direction().getOpposite();
-            pipeHeight = pipeEnd.effectiveHeight();
-        } else {
-            targetPos = frontPos;
-            targetQueryDir = facing.getOpposite();
+        if (FluidNetworkScanner.isPipePart(frontState)) {
+            /// 前方是管道 → 扫描网络，作为高等效高度的外部源向其分配
+            FluidPipeNetwork network = FluidNetworkScanner.scan(level, frontPos);
+            if (network == null) return;
+            for (FluidTank source : tanks) {
+                if (source.getFluid().isEmpty()) continue;
+                network.pushFromExternalSource(source, getBlockPos(), frontPos, sourceEffectiveHeight);
+            }
+            return;
         }
 
-        /// 计算有效高度差（含 10m 扬程，扣除管道累计等效高度）
-        int sourceY = getBlockPos().getY();
-        int targetY = targetPos.getY() - pipeHeight;
-        int heightDiff = PUMP_HEADLIFT + sourceY - targetY;
+        /// 前方是容器 → 直接推送（高度差 = 扬程 + 源Y − 目标Y）
+        IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, frontPos, facing.getOpposite());
+        if (target == null) return;
+        int heightDiff = sourceEffectiveHeight - frontPos.getY();
         if (heightDiff <= 0) return;
-
-        /// 复用管道系统的流体传输（自动通过 capability 查询 source / target）
-        AbstractPipeBlockEntity.moveFluid(
-            level,
-            getBlockPos(),   /// sourcePos = 接口自身（内部储罐）
-            facing,          /// sourceQueryDir（capability 忽略 side，任意方向均可）
-            targetPos,       /// 接收方位置
-            targetQueryDir,  /// 从接收方面向源
-            heightDiff       /// 有效高度差（含扬程）
-        );
+        int speed = FluidPipeNetwork.speedForHeightDiff(heightDiff);
+        for (FluidTank tank : tanks) {
+            FluidStack stored = tank.getFluid();
+            if (stored.isEmpty()) continue;
+            FluidStack toMove = stored.copyWithAmount(Math.min(speed, stored.getAmount()));
+            int filled = target.fill(toMove, IFluidHandler.FluidAction.SIMULATE);
+            if (filled <= 0) continue;
+            FluidStack drained = tank.drain(stored.copyWithAmount(filled), IFluidHandler.FluidAction.EXECUTE);
+            int actually = target.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            if (actually < drained.getAmount()) {
+                tank.fill(drained.copyWithAmount(drained.getAmount() - actually), IFluidHandler.FluidAction.EXECUTE);
+            }
+        }
     }
 }

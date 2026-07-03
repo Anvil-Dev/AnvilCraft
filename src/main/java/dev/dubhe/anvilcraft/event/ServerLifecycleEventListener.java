@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
@@ -29,6 +30,7 @@ public class ServerLifecycleEventListener {
     @SubscribeEvent
     public static void onTick(ServerTickEvent.Pre event) {
         PowerGrid.tickGrid();
+        FluidNetworkManager.INSTANCE.tick();
         HeaterManager.tickAll();
         HeatCollectorManager.tickAll();
         RandomChuckTickLoadManager.tick();
@@ -38,6 +40,7 @@ public class ServerLifecycleEventListener {
     public static void onServerStopped(ServerStoppedEvent event) {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
+        FluidNetworkManager.INSTANCE.clear();
         RecipeCaches.unload();
         SoundHelper.INSTANCE.clear();
     }
