@@ -126,15 +126,13 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             return super.useWithoutItem(state, level, pos, player, hitResult);
         }
         List<ItemStack> items = new ObjectArrayList<>();
-        for (int i = 0; i <= state.getValue(FINISHING); i++) {
+        for (int i = 0; i < state.getValue(FINISHING); i++) {
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_COMMON));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_RIVER));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_OCEAN));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_WARM_OCEAN));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_SWAMP));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_JUNGLE));
-        }
-        for (int i = 0; i <= state.getValue(FINISHING); i++) {
             if (i % 5 == 0) {
                 items.add(ModItems.CRAB_CLAW.asStack());
             }
