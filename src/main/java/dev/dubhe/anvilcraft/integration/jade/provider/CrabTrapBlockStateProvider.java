@@ -19,9 +19,9 @@ public enum CrabTrapBlockStateProvider implements IBlockComponentProvider, IServ
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
         CompoundTag serverData = blockAccessor.getServerData();
-        if (serverData.contains("finishing")) {
-            int finishing = serverData.getInt("finishing");
-            tooltip.add(Component.translatable("tooltip.anvilcraft.crab_trap.jade.finishing", finishing));
+        if (serverData.contains("fishing")) {
+            int fishing = serverData.getInt("fishing");
+            tooltip.add(Component.translatable("tooltip.anvilcraft.crab_trap.jade.fishing", fishing));
         }
     }
 
@@ -29,8 +29,8 @@ public enum CrabTrapBlockStateProvider implements IBlockComponentProvider, IServ
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
         BlockState blockState = blockAccessor.getBlockState();
         if (blockState.is(ModBlocks.CRAB_TRAP)) {
-            int count = blockState.getValue(CrabTrapBlock.FINISHING);
-            compoundTag.putInt("finishing", count);
+            int count = blockState.getValue(CrabTrapBlock.FISHING);
+            compoundTag.putInt("fishing", count);
         }
     }
 

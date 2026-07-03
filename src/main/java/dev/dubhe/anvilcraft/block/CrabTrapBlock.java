@@ -41,7 +41,7 @@ import java.util.List;
 public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final IntegerProperty FINISHING = IntegerProperty.create("finishing", 0, 15);
+    public static final IntegerProperty FISHING = IntegerProperty.create("fishing", 0, 15);
 
     public CrabTrapBlock(Properties properties) {
         super(properties);
@@ -49,7 +49,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             getStateDefinition().any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(WATERLOGGED, false)
-                .setValue(FINISHING, 0)
+                .setValue(FISHING, 0)
         );
     }
 
@@ -68,7 +68,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, WATERLOGGED, FINISHING);
+        builder.add(FACING, WATERLOGGED, FISHING);
     }
 
     @Override
@@ -95,8 +95,8 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             }
         }
 
-        if (times >= 3 && state.getValue(FINISHING) < 15) {
-            level.setBlock(pos, state.setValue(FINISHING, state.getValue(FINISHING) + 1), 2);
+        if (times >= 3 && state.getValue(FISHING) < 15) {
+            level.setBlock(pos, state.setValue(FISHING, state.getValue(FISHING) + 1), 2);
         }
     }
 
@@ -107,7 +107,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
 
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        return state.getValue(FINISHING);
+        return state.getValue(FISHING);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             return InteractionResult.SUCCESS;
         }
         List<ItemStack> items = new ObjectArrayList<>();
-        for (int i = 1; i < state.getValue(FINISHING) + 1; i++) {
+        for (int i = 1; i < state.getValue(FISHING) + 1; i++) {
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_COMMON));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_RIVER));
             items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_OCEAN));
@@ -143,7 +143,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             itemEntity.setDefaultPickUpDelay();
             level.addFreshEntity(itemEntity);
         }
-        level.setBlockAndUpdate(pos, state.setValue(FINISHING, 0));
+        level.setBlockAndUpdate(pos, state.setValue(FISHING, 0));
         return InteractionResult.CONSUME;
     }
 

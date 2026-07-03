@@ -26,9 +26,9 @@ public class CrabTrapTooltipProvider extends ITooltipProvider.BlockTooltipProvid
             return List.of();
         }
         List<Component> lines = new ObjectArrayList<>();
-        int finishing = state.getValue(CrabTrapBlock.FINISHING);
+        int fishing = state.getValue(CrabTrapBlock.FISHING);
         lines.add(Component.translatable("tooltip.anvilcraft.crab_trap.state_name").withStyle(ChatFormatting.BLUE));
-        lines.add(Component.literal("  ").append(Component.translatable("tooltip.anvilcraft.crab_trap.jade.finishing", finishing)));
+        lines.add(Component.literal("  ").append(Component.translatable("tooltip.anvilcraft.crab_trap.jade.fishing", fishing)));
         return lines;
     }
 

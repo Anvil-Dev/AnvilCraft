@@ -53,6 +53,6 @@ public class JadeLang {
 
         provider.add("tooltip.anvilcraft.infinity", "Infinity");
 
-        provider.add("tooltip.anvilcraft.crab_trap.jade.finishing", "Finishing: %s");
+        provider.add("tooltip.anvilcraft.crab_trap.jade.fishing", "Fishing: %s");
     }
 }
