@@ -123,7 +123,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.isClientSide()) {
-            return super.useWithoutItem(state, level, pos, player, hitResult);
+            return InteractionResult.SUCCESS;
         }
         List<ItemStack> items = new ObjectArrayList<>();
         for (int i = 0; i < state.getValue(FINISHING); i++) {
@@ -144,7 +144,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             level.addFreshEntity(itemEntity);
         }
         level.setBlockAndUpdate(pos, state.setValue(FINISHING, 0));
-        return InteractionResult.SUCCESS;
+        return InteractionResult.CONSUME;
     }
 
     public static List<ItemStack> generateLoot(ServerLevel level, BlockPos pos, ResourceKey<LootTable> loot) {
