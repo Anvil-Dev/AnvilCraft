@@ -47,6 +47,7 @@ import dev.dubhe.anvilcraft.init.loot.ModLootModifiers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
+import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import lombok.Getter;
@@ -142,6 +143,7 @@ public class AnvilCraft {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addReloadListeners);
         NeoForge.EVENT_BUS.addListener(AnvilCraft::addItemTooltips);
+        NeoForge.EVENT_BUS.addListener(DiskItem::onBlockPlaced);
 
         eventBus.addListener(AnvilCraft::registerPayload);
         eventBus.addListener(AnvilCraft::loadComplete);

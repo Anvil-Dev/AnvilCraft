@@ -141,6 +141,9 @@ public class ExpCollectorBlock extends BetterBaseEntityBlock implements IHammerR
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ExpCollectorBlockEntity expCollectorBlockEntity) {
+            if (player.getItemInHand(hand).is(ModItems.DISK.get())) {
+                return expCollectorBlockEntity.useDisk(level, player, hand, player.getItemInHand(hand), hit);
+            }
             if (player instanceof ServerPlayer serverPlayer) {
                 ModMenuTypes.open(serverPlayer, expCollectorBlockEntity, pos);
             }
@@ -191,5 +194,19 @@ public class ExpCollectorBlock extends BetterBaseEntityBlock implements IHammerR
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWERED, OVERLOAD);
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos blockPos) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        if (blockEntity instanceof ExpCollectorBlockEntity be) {
+            return be.getRedstoneSignal();
+        }
+        return 0;
     }
 }

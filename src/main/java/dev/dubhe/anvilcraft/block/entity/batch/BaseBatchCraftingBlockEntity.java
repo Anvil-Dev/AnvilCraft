@@ -288,6 +288,11 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     }
 
     @Override
+    public List<String> getDiskCompatibleGroups() {
+        return List.of("anvilcraft:has_filter");
+    }
+
+    @Override
     public void updateDisplayItem(ItemStack stack) {
         this.displayingStack = stack;
     }
