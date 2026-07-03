@@ -17,7 +17,6 @@ import dev.dubhe.anvilcraft.block.entity.ChargerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
@@ -151,10 +150,6 @@ public class ModBlockEntities {
         "simple_magnetic_chute",
         SimpleMagneticChuteBlockEntity::new
     ).validBlock(ModBlocks.SIMPLE_MAGNETIC_CHUTE).register();
-
-    public static final BlockEntityEntry<CrabTrapBlockEntity> CRAB_TRAP = REGISTRUM.blockEntity("crab_trap", CrabTrapBlockEntity::new)
-        .validBlock(ModBlocks.CRAB_TRAP)
-        .register();
 
     public static final BlockEntityEntry<CorruptedBeaconBlockEntity> CORRUPTED_BEACON = REGISTRUM.blockEntity(
         "corrupted_beacon",

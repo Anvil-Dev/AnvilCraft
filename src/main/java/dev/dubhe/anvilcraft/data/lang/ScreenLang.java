@@ -115,6 +115,8 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.burning_heater.can_smelt.yes", "  Yes");
         provider.add("tooltip.anvilcraft.burning_heater.can_smelt.no", "  No");
 
+        provider.add("tooltip.anvilcraft.crab_trap.state_name", "Crab Trap State");
+
         // Jade provider also uses these — no .jade. infix needed as they share the tooltip.anvilcraft.burning_heater namespace
         provider.add("tooltip.anvilcraft.burning_heater.state.off", "State: Off");
         provider.add("tooltip.anvilcraft.burning_heater.state.smoldering", "State: Smoldering");
