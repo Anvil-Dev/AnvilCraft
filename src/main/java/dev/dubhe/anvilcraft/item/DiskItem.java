@@ -20,6 +20,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
 import java.util.List;
 
@@ -102,7 +104,7 @@ public class DiskItem extends Item {
         ItemStack stack = context.getItemInHand();
         if (hasDataStored(stack)) {
             CompoundTag tag = getData(stack);
-            if (!tag.getString("StoredFrom").equals(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()).toString())) {
+            if (!isCompatible(tag, diskCloneable)) {
                 player.displayClientMessage(MESSAGE_INCOMPATIBLE, true);
                 return InteractionResult.FAIL;
             }
@@ -114,10 +116,72 @@ public class DiskItem extends Item {
                 "StoredFrom",
                 BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()).toString()
             );
+            saveCompatibleGroups(tag, diskCloneable.getDiskCompatibleGroups());
             diskCloneable.storeDiskData(tag);
             player.displayClientMessage(MESSAGE_STORED, true);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    @SubscribeEvent
+    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+        if (event.getLevel().isClientSide()) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        ItemStack offhandStack = player.getOffhandItem();
+
+        if (offhandStack.getItem() instanceof DiskItem && hasDataStored(offhandStack)) {
+            BlockPos pos = event.getPos();
+            Level level = (Level) event.getLevel();
+
+            if (!level.getBlockState(pos).hasBlockEntity()) return;
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity == null) return;
+            if (!(blockEntity instanceof IDiskCloneable diskCloneable)) return;
+
+            CompoundTag tag = getData(offhandStack);
+            if (!isCompatible(tag, diskCloneable)) {
+                player.displayClientMessage(MESSAGE_INCOMPATIBLE, true);
+                return;
+            }
+
+            diskCloneable.applyDiskData(tag);
+            player.displayClientMessage(MESSAGE_APPLIED, true);
+        }
+    }
+
+    private static void saveCompatibleGroups(CompoundTag tag, List<String> groups) {
+        CompoundTag groupsTag = new CompoundTag();
+        for (int i = 0; i < groups.size(); i++) {
+            groupsTag.putString(String.valueOf(i), groups.get(i));
+        }
+        tag.put("CompatibleGroups", groupsTag);
+    }
+
+    private static List<String> loadCompatibleGroups(CompoundTag tag) {
+        if (!tag.contains("CompatibleGroups", CompoundTag.TAG_COMPOUND)) return List.of();
+        CompoundTag groupsTag = tag.getCompound("CompatibleGroups");
+        return groupsTag.getAllKeys().stream()
+            .sorted()
+            .map(groupsTag::getString)
+            .toList();
+    }
+
+    private static boolean isCompatible(CompoundTag tag, IDiskCloneable diskCloneable) {
+        String storedFrom = tag.getString("StoredFrom");
+        String targetType = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(
+            ((BlockEntity) diskCloneable).getType()
+        ).toString();
+
+        if (storedFrom.equals(targetType)) return true;
+
+        List<String> storedGroups = loadCompatibleGroups(tag);
+        if (!storedGroups.isEmpty()) {
+            List<String> targetGroups = diskCloneable.getDiskCompatibleGroups();
+            return storedGroups.stream().anyMatch(targetGroups::contains);
+        }
+
+        return false;
     }
 
     @Override

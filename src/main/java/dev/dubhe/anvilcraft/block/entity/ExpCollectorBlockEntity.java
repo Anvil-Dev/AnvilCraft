@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.OnlyDrainFluidTank;
-import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
@@ -22,6 +22,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Inventory;
@@ -293,6 +295,48 @@ public class ExpCollectorBlockEntity extends BlockEntity
             return power;
         }
         return this.getBlockState().getValue(ExpCollectorBlock.POWERED) ? 0 : power;
+    }
+
+    @Override
+    public void storeDiskData(CompoundTag tag) {
+        if (this.level == null) return;
+        tag.putInt("Cooldown", this.cooldown.index());
+        tag.putInt("RangeRadius", this.rangeRadius.index());
+        tag.putInt("cd", this.cd);
+    }
+
+    @Override
+    public void applyDiskData(CompoundTag tag) {
+        if (this.level == null) return;
+        if (tag.contains("Cooldown", CompoundTag.TAG_INT)) {
+            this.cooldown.fromIndex(tag.getInt("Cooldown"));
+        }
+        if (tag.contains("RangeRadius", CompoundTag.TAG_INT)) {
+            this.rangeRadius.fromIndex(tag.getInt("RangeRadius"));
+        }
+        if (tag.contains("cd", CompoundTag.TAG_INT)) {
+            this.cd = tag.getInt("cd");
+        }
+        this.setChanged();
+        Vec3 center = this.getPos().getCenter();
+        MinecraftServer server = level.getServer();
+        if (server == null) return;
+        Packet<ClientGamePacketListener> packet = this.getUpdatePacket();
+        if (packet == null) return;
+        server.getPlayerList().broadcast(null, center.x(), center.y(), center.z(), 256, this.level.dimension(), packet);
+    }
+
+    @Override
+    public List<String> getDiskCompatibleGroups() {
+        return List.of("anvilcraft:has_collector_config");
+    }
+
+    public int getRedstoneSignal() {
+        int amount = this.fluidTank.getFluidAmount();
+        int capacity = this.fluidTank.getCapacity();
+        int strength = amount == 0 ? 0 : amount * 14 / capacity + 1;
+        strength = Mth.clamp(strength, 0, 15);
+        return strength;
     }
 
     @Override
