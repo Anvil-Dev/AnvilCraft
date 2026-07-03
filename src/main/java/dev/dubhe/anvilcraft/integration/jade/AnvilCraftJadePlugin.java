@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.integration.jade;
 
+import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
 import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
-import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.integration.jade.provider.BurningHeaterProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ChargerProvider;
-import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapStorageProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.CrabTrapBlockStateProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeCrateProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CreativeFluidTankProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.DischargerProvider;
@@ -35,7 +35,6 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(RubyPrismProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(ItemDetectorProvider.INSTANCE, BlockEntity.class);
         registration.registerBlockDataProvider(SpaceOvercompressorProvider.INSTANCE, BlockEntity.class);
-        registration.registerItemStorage(CrabTrapStorageProvider.INSTANCE, CrabTrapBlockEntity.class);
         registration.registerBlockDataProvider(HeatableBlockProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(BurningHeaterProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(SmartBlockPlacerProvider.INSTANCE, Block.class);
@@ -45,6 +44,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(CreativeFluidTankProvider.INSTANCE, CreativeFluidTankBlockEntity.class);
         registration.registerBlockDataProvider(CreativeCrateProvider.INSTANCE, CreativeCrateBlockEntity.class);
         registration.registerBlockDataProvider(MengerSpongeProvider.INSTANCE, Block.class);
+        registration.registerBlockDataProvider(CrabTrapBlockStateProvider.INSTANCE, CrabTrapBlock.class);
     }
 
     @Override
@@ -53,7 +53,6 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(RubyPrismProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(ItemDetectorProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(SpaceOvercompressorProvider.INSTANCE, Block.class);
-        registration.registerItemStorageClient(CrabTrapStorageProvider.INSTANCE);
         registration.registerBlockComponent(HeatableBlockProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(BurningHeaterProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(SmartBlockPlacerProvider.INSTANCE, Block.class);
@@ -63,5 +62,6 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(CreativeFluidTankProvider.INSTANCE, CreativeFluidTankBlock.class);
         registration.registerBlockComponent(CreativeCrateProvider.INSTANCE, CreativeCrateBlock.class);
         registration.registerBlockComponent(MengerSpongeProvider.INSTANCE, MengerSpongeBlock.class);
+        registration.registerBlockComponent(CrabTrapBlockStateProvider.INSTANCE, CrabTrapBlock.class);
     }
 }
