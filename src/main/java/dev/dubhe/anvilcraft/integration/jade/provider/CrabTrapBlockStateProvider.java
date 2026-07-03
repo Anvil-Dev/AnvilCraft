@@ -18,8 +18,8 @@ public enum CrabTrapBlockStateProvider implements IServerDataProvider<BlockAcces
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
         BlockState blockState = blockAccessor.getBlockState();
         if (blockState.is(ModBlocks.CRAB_TRAP)) {
-            int count = blockState.getValue(CrabTrapBlock.FINISHING);
-            compoundTag.putInt("finishing", count);
+            int count = blockState.getValue(CrabTrapBlock.FISHING);
+            compoundTag.putInt("fishing", count);
         }
     }
 

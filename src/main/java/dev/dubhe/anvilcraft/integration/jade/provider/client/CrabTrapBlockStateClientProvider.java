@@ -15,9 +15,9 @@ public enum CrabTrapBlockStateClientProvider implements IBlockComponentProvider 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor blockAccessor, IPluginConfig pluginConfig) {
         CompoundTag serverData = blockAccessor.getServerData();
-        if (serverData.contains("finishing")) {
-            int finishing = serverData.getIntOr("finishing", 0);
-            tooltip.add(Component.translatable("tooltip.anvilcraft.crab_trap.jade.finishing", finishing));
+        if (serverData.contains("fishing")) {
+            int fishing = serverData.getIntOr("fishing", 0);
+            tooltip.add(Component.translatable("tooltip.anvilcraft.crab_trap.jade.fishing", fishing));
         }
     }
 
