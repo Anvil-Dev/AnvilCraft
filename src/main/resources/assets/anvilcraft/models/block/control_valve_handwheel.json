@@ -1,0 +1,30 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"textures": {
+		"2": "anvilcraft:block/control_valve"
+	},
+	"elements": [
+		{
+			"from": [5, 14, 4],
+			"to": [11, 14, 11],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 9, 11]},
+			"faces": {
+				"up": {"uv": [10, 0, 16, 7], "rotation": 180, "texture": "#2"},
+				"down": {"uv": [1, 10, 7, 16], "rotation": 270, "texture": "#2"}
+			}
+		},
+		{
+			"from": [7, 13, 7],
+			"to": [9, 14, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 11]},
+			"faces": {
+				"north": {"uv": [12, 3, 14, 4], "texture": "#2"},
+				"east": {"uv": [12, 3, 14, 4], "texture": "#2"},
+				"south": {"uv": [12, 3, 14, 4], "texture": "#2"},
+				"west": {"uv": [12, 3, 14, 4], "texture": "#2"}
+			}
+		}
+	]
+}
