@@ -116,7 +116,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.heliostats.unspecified_irradiation_block", "  Unspecified irradiation block");
         provider.add("tooltip.anvilcraft.heliostats.unknown", "  Unknown reason");
 
-        provider.add("tooltip.anvilcraft.crap_trap.state_name", "Crap Trap State");
+        provider.add("tooltip.anvilcraft.crab_trap.state_name", "Crab Trap State");
 
         provider.add("tooltip.anvilcraft.working_progress.title", "Working progress:");
         provider.add("tooltip.anvilcraft.working_progress.progress", "  %1$s %2$s%%");
