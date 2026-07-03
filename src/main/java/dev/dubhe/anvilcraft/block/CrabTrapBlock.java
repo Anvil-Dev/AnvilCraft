@@ -96,7 +96,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
         }
 
         if (times >= 3 && state.getValue(FINISHING) < 15) {
-            level.setBlockAndUpdate(pos, state.setValue(FINISHING, state.getValue(FINISHING) + 1));
+            level.setBlock(pos, state.setValue(FINISHING, state.getValue(FINISHING) + 1), 2);
         }
     }
 

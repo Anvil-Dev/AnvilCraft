@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class CrapTrapTooltipProvider extends ITooltipProvider.BlockTooltipProvider {
+public class CrabTrapTooltipProvider extends ITooltipProvider.BlockTooltipProvider {
     @Override
     public boolean accepts(Level level, BlockPos pos, BlockState state) {
         return state.is(ModBlocks.CRAB_TRAP);

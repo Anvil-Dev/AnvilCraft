@@ -8,7 +8,7 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.CfaFluidInterfaceTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.CfaLaserInterfaceTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.CfaLogisticsInterfaceTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.ChargerTooltipProvider;
-import dev.dubhe.anvilcraft.api.tooltip.impl.CrapTrapTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.CrabTrapTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.CreativeCrateTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.CreativeFluidTankTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.DeflectionRingTooltipProvider;
@@ -80,7 +80,7 @@ public class HudTooltipManager {
         INSTANCE.registerBlockEntityTooltip(new CfaLaserInterfaceTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new CreativeFluidTankTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new CreativeCrateTooltipProvider());
-        INSTANCE.registerBlockTooltip(new CrapTrapTooltipProvider());
+        INSTANCE.registerBlockTooltip(new CrabTrapTooltipProvider());
     }
 
     public void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {
