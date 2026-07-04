@@ -14,7 +14,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.joml.Vector3f;
 
 /**
  * 控制阀的方块实体渲染器：把手轮模型渲染在控制阀<b>朝向玩家一侧</b>的中心，
@@ -31,7 +33,7 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
     /** 流体指示器小方块半边长 */
     private static final float INDICATOR_HALF = 0.0625f;
     /** 流体指示器中心距表面距离 */
-    private static final float INDICATOR_DEPTH = 0.42f;
+    private static final float INDICATOR_DEPTH = 0.295f;
 
     @SuppressWarnings("unused")
     public ControlValveBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -84,6 +86,11 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
         if (!filterFluid.isEmpty()) {
             renderFluidIndicators(be, filterFluid, poseStack, buffer, packedLight);
         }
+
+        // --- 红石激活时在手轮位置渲染红石粒子 ---
+        if (be.isLocked()) {
+            renderRedstoneIndicator(be, poseStack, buffer, packedLight, packedOverlay);
+        }
     }
 
     /**
@@ -118,6 +125,38 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
                 true, false
             );
             poseStack.popPose();
+        }
+    }
+
+    /**
+     * 红石激活时在手轮位置生成红石粒子效果。
+     */
+    private void renderRedstoneIndicator(
+        ControlValveBlockEntity be,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int packedLight,
+        int packedOverlay
+    ) {
+        if (be.getLevel() == null) return;
+        Direction facing = be.getFacing();
+        var pos = be.getBlockPos();
+        var level = be.getLevel();
+
+        // 手轮面中心的世界坐标
+        double x = pos.getX() + 0.5 + facing.getStepX() * 0.425;
+        double y = pos.getY() + 0.5 + facing.getStepY() * 0.425;
+        double z = pos.getZ() + 0.5 + facing.getStepZ() * 0.425;
+
+        var redstoneColor = new Vector3f(1.0f, 0.1f, 0.1f);
+        var particle = new DustParticleOptions(redstoneColor, 1.0f);
+
+        if (level.isClientSide() && level.getGameTime() % 20 == 0 && level.random.nextFloat() < 0.3f) {
+            level.addParticle(particle,
+                x + (level.random.nextDouble() - 0.5) * 0.15,
+                y + (level.random.nextDouble() - 0.5) * 0.15,
+                z + (level.random.nextDouble() - 0.5) * 0.15,
+                0, 0.01, 0);
         }
     }
 
