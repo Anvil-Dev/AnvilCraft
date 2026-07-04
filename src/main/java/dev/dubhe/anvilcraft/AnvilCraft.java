@@ -51,8 +51,10 @@ import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
 import lombok.Getter;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -88,6 +90,7 @@ public class AnvilCraft {
 
     public AnvilCraft(IEventBus modEventBus, ModContainer modContainer) {
         MOD_BUS = modEventBus;
+        REGISTRUM.defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
         NeoForgeMod.enableMilkFluid();
         ModAttachments.register(modEventBus);
         ModItemGroups.register(modEventBus);
