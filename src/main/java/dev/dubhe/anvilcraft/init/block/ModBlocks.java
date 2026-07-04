@@ -158,7 +158,6 @@ import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockIt
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
-import dev.dubhe.anvilcraft.block.fluid.CheckValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.DrainBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
@@ -465,34 +464,6 @@ public class ModBlocks {
         .model((ctx, provider) ->
             provider.withExistingParent(provider.name(ctx), AnvilCraft.of("block/control_valve_item")))
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<CheckValveBlock> CHECK_VALVE = REGISTRUM.block("check_valve", CheckValveBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .lang("Check Valve")
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
-        .blockstate((ctx, provider) -> {
-            var model = provider.models().getExistingFile(AnvilCraft.of("block/check_valve"));
-            var modelY = provider.models().getExistingFile(AnvilCraft.of("block/check_valve_y"));
-            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
-                // 红石反向时模型翻转 180°，直观显示当前放行方向
-                Direction facing = state.getValue(CheckValveBlock.FACING);
-                if (state.getValue(CheckValveBlock.POWERED)) {
-                    facing = facing.getOpposite();
-                }
-                return switch (facing) {
-                    case UP -> ConfiguredModel.builder().modelFile(modelY).build();
-                    case DOWN -> ConfiguredModel.builder().modelFile(modelY).rotationX(180).build();
-                    default -> ConfiguredModel.builder()
-                        .modelFile(model)
-                        .rotationY(((int) facing.toYRot() + 180) % 360)
-                        .build();
-                };
-            });
-        })
-        .simpleItem()
-        .recipe(RegistrumBlockRecipeLoader::checkValve)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

@@ -74,6 +74,7 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("pump_piston_1"));
         event.register(standaloneBlock("pump_piston_2"));
         event.register(standaloneBlock("control_valve_handwheel"));
+        event.register(standaloneBlock("check_valve_arm"));
 
         // Special celestial body models
         event.register(standaloneBlock("celestial_body/planet_overworld"));

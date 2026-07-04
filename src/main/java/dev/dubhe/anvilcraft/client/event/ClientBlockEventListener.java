@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.client.gui.screen.AnvilHammerScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -57,9 +58,14 @@ public class ClientBlockEventListener {
         InteractionHand hand,
         BlockHitResult hitVec
     ) {
-        Property<?> property = AnvilHammerItem.findModifyableProperty(targetBlockState);
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return false;
+        // 管道：铁砧锤不改属性（管道 AXIS 不应被锤旋转），直接发包给服务端由 useItemOn 处理取阀
+        if (targetBlockState.getBlock() instanceof PipeBlock) {
+            PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
+            return false;
+        }
+        Property<?> property = AnvilHammerItem.findModifyableProperty(targetBlockState);
         if (property != null) {
             if (event.getEntity().isShiftKeyDown()) {
                 PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
