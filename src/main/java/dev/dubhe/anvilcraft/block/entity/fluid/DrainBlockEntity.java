@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -37,6 +39,12 @@ import org.jetbrains.annotations.Nullable;
  * <h3>向上抽取</h3>
  * 内部 &lt; 3B 且上方有同种流体（或内部为空、上方任意流体）时，每 {@value #INTERVAL} gt 从上方
  * 流体的最上层起清除 1B 并填充自身（同样 flag=2）。
+ *
+ * <h3>同层无限生成</h3>
+ * 排水口<b>同层</b>（同 Y）水平四邻若存在能形成无限源的流体源（无限水、开启对应游戏规则的岩浆、
+ * 或模组注册的可无限流体），则每 {@value #INTERVAL} gt 在自身内部凭空 +1B 该流体。
+ * 判定复刻原版 {@code getNewLiquid} 的无限源成因：相邻源格自身两侧≥2 个可转化源邻居且下方为
+ * 实体/同种源。只认同层紧邻，不做 flood-fill。
  */
 @Getter
 public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder {
@@ -116,6 +124,8 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             be.clearColumn();
         }
         be.tryDrainUp(level, pos);
+        // 同层紧邻无限源 → 内部凭空 +1B
+        be.tryGenerateFromInfinite(level, pos);
     }
 
     private void clearColumn() {
@@ -163,20 +173,57 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     }
 
     /**
-     * 从排水口正下方出发、沿"空格 + 同种流体源"连通区（向下 + 水平，不向上）flood-fill，
-     * 在所有<b>空格</b>中取最低层、同层就近的一个作为填充目标。
+     * 定位向下填充目标：先<b>垂直探底</b>，再在<b>单层内</b>水平 flood-fill 取最近空格。
      *
-     * <p>同种流体源作为连通介质被穿行，因此不规则形状（某层边上多出一格）也能顺着流体边界排查到。
-     * 若最低层还有任何空格，就一直在该层填（每次调用填一格），直到该层无空格才自然升到上一层。
+     * <p><b>第一步（探底）</b>：从排水口正下方沿"可通行格（空格 / 同种流体）"一路向下，
+     * 找到最低可放置层 {@code bottomY}（其正下方为实体方块或世界底）。
+     *
+     * <p><b>第二步（单层铺开）</b>：自 {@code bottomY} 向上逐层，在每一层内<b>仅水平</b> flood-fill
+     * （不跨层），返回首个含空格的最低层里离排水口最近的空格。这样水会在最底层平铺成一大片
+     * （受 {@value #MAX_NODES} 预算约束）直到该层填满，才升到上一层。
      */
     @Nullable
     private BlockPos findFillTarget(Level level, BlockPos drainPos, Fluid fluid) {
         BlockPos start = drainPos.below();
+        if (!isPassableForFill(level, start, fluid)) {
+            return null; // 正下方被堵，无法向下排水
+        }
+        // 第一步：沿正下方一路探到最低可放置层
+        int minY = level.getMinBuildHeight();
+        int bottomY = start.getY();
+        while (bottomY > minY
+            && isPassableForFill(level, new BlockPos(drainPos.getX(), bottomY - 1, drainPos.getZ()), fluid)) {
+            bottomY--;
+        }
+        // 第二步：自底向上逐层，在单层内找空格
+        for (int y = bottomY; y <= start.getY(); y++) {
+            BlockPos target = findEmptyInLayer(level, drainPos, new BlockPos(drainPos.getX(), y, drainPos.getZ()), fluid);
+            if (target != null) {
+                return target;
+            }
+        }
+        return null;
+    }
+
+    /** 探底可通行判定：待填充空格或同种流体（源/流动皆可穿行）。 */
+    private static boolean isPassableForFill(Level level, BlockPos pos, Fluid fluid) {
+        return isPlaceableEmpty(level, pos, fluid) || isSameFluidSource(level, pos, fluid);
+    }
+
+    /**
+     * 在<b>单一 Y 层</b>（由 {@code entry} 确定）内、仅沿水平方向 flood-fill，
+     * 穿行"空格 + 同种流体"连通区，返回所有空格中离排水口 XZ 最近的一个。
+     *
+     * <p>同种流体（含已放置的源）作为连通介质被穿行，故已部分填充的层也能顺着流体边界继续找到
+     * 尚空的格，实现"在这一层一直扩散扫直到扫满边缘"。
+     */
+    @Nullable
+    private BlockPos findEmptyInLayer(Level level, BlockPos drainPos, BlockPos entry, Fluid fluid) {
         java.util.Set<BlockPos> visited = new java.util.HashSet<>();
         java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>();
         java.util.List<BlockPos> empties = new java.util.ArrayList<>();
-        queue.add(start);
-        visited.add(start);
+        queue.add(entry);
+        visited.add(entry);
 
         while (!queue.isEmpty() && visited.size() <= MAX_NODES) {
             BlockPos cur = queue.poll();
@@ -188,8 +235,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             if (empty) {
                 empties.add(cur);
             }
-            // 空格与同种流体源都作为连通介质，继续向下 + 水平扩散
-            enqueue(queue, visited, cur.below());
+            // 仅水平扩散，锁定在本层
             for (Direction d : Direction.Plane.HORIZONTAL) {
                 enqueue(queue, visited, cur.relative(d));
             }
@@ -197,16 +243,13 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         if (empties.isEmpty()) {
             return null;
         }
-        // 最低层（Y 最小）优先；同层取离排水口 XZ 最近
         BlockPos best = null;
-        int bestY = Integer.MAX_VALUE;
         long bestDist = Long.MAX_VALUE;
         for (BlockPos p : empties) {
             long dx = p.getX() - drainPos.getX();
             long dz = p.getZ() - drainPos.getZ();
             long dist = dx * dx + dz * dz;
-            if (p.getY() < bestY || (p.getY() == bestY && dist < bestDist)) {
-                bestY = p.getY();
+            if (dist < bestDist) {
                 bestDist = dist;
                 best = p;
             }
@@ -279,6 +322,65 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     }
 
     /**
+     * 同层紧邻无限源生成：排水口<b>同层</b>（同 Y）水平四邻若有能构成无限源的流体源，
+     * 则每 tick 在内部凭空 +1B 该流体。
+     *
+     * <p>"能构成无限源"复刻原版 {@code FlowingFluid#getNewLiquid}：该相邻源格自身水平四邻中，
+     * 通过 {@link EventHooks#canCreateFluidSource} 的同种源 &ge;2 个，且其正下方为实体方块或同种源。
+     * 该判定天然覆盖无限水、开启 {@code lavaSourceConversion} 的岩浆、以及模组注册的可无限流体
+     * （均由 {@code canConvertToSource} 统一裁决）。只认同层紧邻，不做 flood-fill。
+     */
+    private void tryGenerateFromInfinite(Level level, BlockPos pos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        if (tank.getFluidAmount() >= CAPACITY) {
+            return;
+        }
+        for (Direction d : Direction.Plane.HORIZONTAL) {
+            BlockPos n = pos.relative(d);
+            FluidState fs = level.getFluidState(n);
+            if (fs.isEmpty() || !fs.isSource() || !(fs.getType() instanceof FlowingFluid flowing)) {
+                continue;
+            }
+            if (!canFormInfiniteSource(serverLevel, n, flowing)) {
+                continue;
+            }
+            FluidStack toInsert = new FluidStack(flowing.getSource(), UNIT);
+            // 校验类型/容量：内部已有异种流体则跳过，另寻可接受的邻居
+            if (tank.fill(toInsert, IFluidHandler.FluidAction.SIMULATE) < UNIT) {
+                continue;
+            }
+            tank.fill(toInsert, IFluidHandler.FluidAction.EXECUTE);
+            return;
+        }
+    }
+
+    /**
+     * 复刻原版无限源成因：位置 {@code pos}（本身为 {@code fluid} 源）的水平四邻中，可转化的同种源
+     * &ge;2 个，且正下方为实体方块或同种源。满足则该源可被无限再生。
+     */
+    private static boolean canFormInfiniteSource(ServerLevel level, BlockPos pos, FlowingFluid fluid) {
+        int neighbourSources = 0;
+        for (Direction d : Direction.Plane.HORIZONTAL) {
+            BlockPos rel = pos.relative(d);
+            BlockState relState = level.getBlockState(rel);
+            FluidState relFs = relState.getFluidState();
+            if (relFs.isSource()
+                && relFs.getType().isSame(fluid)
+                && EventHooks.canCreateFluidSource(level, rel, relState)) {
+                neighbourSources++;
+            }
+        }
+        if (neighbourSources < 2) {
+            return false;
+        }
+        BlockState below = level.getBlockState(pos.below());
+        FluidState belowFs = below.getFluidState();
+        return below.isSolid() || (belowFs.isSource() && belowFs.getType().isSame(fluid));
+    }
+
+    /**
      * 移除一个流体源并抑制无限水回填。
      *
      * <p>把目标格设为空气（{@link Block#UPDATE_ALL} 正常更新），随后把其<b>同层水平相邻</b>的同种源
@@ -299,23 +401,57 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     }
 
     /**
-     * 从排水口正上方出发、向上+水平 flood-fill 流体源，返回最高层、离排水口 XZ 最近的一个。
+     * 定位向上抽取目标：先<b>垂直探顶</b>，再在<b>单层内</b>水平 flood-fill 取"边缘优先、最近"的源。
      *
-     * @param want 需匹配的流体；{@code null} 表示接受任意流体
+     * <p><b>第一步（探顶）</b>：从排水口正上方沿同种流体一路向上，找到最高流体层 {@code topY}。
+     *
+     * <p><b>第二步（单层抽取）</b>：自 {@code topY} 向下逐层，在每一层内<b>仅水平</b> flood-fill
+     * （不跨层），返回首个含源的最高层里的一个源。这样液面很大时会先把最顶一层一大片
+     * （受 {@value #MAX_NODES} 预算约束）抽完，才下探到下一层——而非从中间掏出倒金字塔。
+     *
+     * @param want 需匹配的流体；{@code null} 表示接受正上方任意流体
      */
     @Nullable
     private BlockPos findHighestNearestFluid(Level level, BlockPos drainPos, @Nullable Fluid want) {
         BlockPos start = drainPos.above();
         FluidState startFs = level.getFluidState(start);
-        if (startFs.isEmpty()) {
+        if (startFs.isEmpty() || (want != null && !startFs.getType().isSame(want))) {
             return null;
         }
         Fluid fluid = want != null ? want : startFs.getType();
+        // 第一步：沿正上方一路探到最高同种流体层
+        int maxY = level.getMaxBuildHeight();
+        int topY = start.getY();
+        while (topY < maxY) {
+            FluidState fs = level.getFluidState(new BlockPos(drainPos.getX(), topY + 1, drainPos.getZ()));
+            if (fs.isEmpty() || !fs.getType().isSame(fluid)) {
+                break;
+            }
+            topY++;
+        }
+        // 第二步：自顶向下逐层，在单层内找源
+        for (int y = topY; y >= start.getY(); y--) {
+            BlockPos target = findSourceInLayer(level, drainPos, new BlockPos(drainPos.getX(), y, drainPos.getZ()), fluid);
+            if (target != null) {
+                return target;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 在<b>单一 Y 层</b>（由 {@code entry} 确定）内、仅沿水平方向 flood-fill 同种流体，
+     * 返回所有<b>源</b>中"水平同种源邻居最少（边缘优先）→ 最近"的一个。
+     *
+     * <p>"边缘优先"确保移除后不会留下被 &ge;2 个源夹住的空格（无限水成因），使水池从边缘向内剥离。
+     */
+    @Nullable
+    private BlockPos findSourceInLayer(Level level, BlockPos drainPos, BlockPos entry, Fluid fluid) {
         java.util.Set<BlockPos> visited = new java.util.HashSet<>();
         java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>();
         java.util.List<BlockPos> sources = new java.util.ArrayList<>();
-        queue.add(start);
-        visited.add(start);
+        queue.add(entry);
+        visited.add(entry);
 
         while (!queue.isEmpty() && visited.size() <= MAX_NODES) {
             BlockPos cur = queue.poll();
@@ -326,8 +462,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             if (fs.isSource()) {
                 sources.add(cur);
             }
-            // 向上和水平扩散
-            enqueue(queue, visited, cur.above());
+            // 仅水平扩散，锁定在本层
             for (Direction d : Direction.Plane.HORIZONTAL) {
                 enqueue(queue, visited, cur.relative(d));
             }
@@ -335,11 +470,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         if (sources.isEmpty()) {
             return null;
         }
-        // 选取顺序：最高层(Y大)优先 → 水平同种源邻居最少(边缘优先) → 最近。
-        // "边缘优先"确保移除后不会留下被 ≥2 个源夹住的空格（无限水成因），
-        // 使水池从边缘向内剥离，避免 3 格一排删中间被两侧无限回填、永远抽不完。
         BlockPos best = null;
-        int bestY = Integer.MIN_VALUE;
         int bestNeighbors = Integer.MAX_VALUE;
         long bestDist = Long.MAX_VALUE;
         for (BlockPos p : sources) {
@@ -348,15 +479,12 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             long dz = p.getZ() - drainPos.getZ();
             long dist = dx * dx + dz * dz;
             boolean better;
-            if (p.getY() != bestY) {
-                better = p.getY() > bestY;
-            } else if (neighbors != bestNeighbors) {
+            if (neighbors != bestNeighbors) {
                 better = neighbors < bestNeighbors;
             } else {
                 better = dist < bestDist;
             }
             if (better) {
-                bestY = p.getY();
                 bestNeighbors = neighbors;
                 bestDist = dist;
                 best = p;
