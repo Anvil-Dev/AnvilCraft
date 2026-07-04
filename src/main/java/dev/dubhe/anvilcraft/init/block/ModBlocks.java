@@ -2624,6 +2624,7 @@ public class ModBlocks {
         .register();
     public static final BlockEntry<? extends Block> TEMPERING_GLASS = REGISTRUM.block("tempering_glass", TransparentBlock::new)
         .initialProperties(() -> Blocks.GLASS)
+        .lang("Royal Glass")
         .properties(properties -> properties.explosionResistance(1200.0f)
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
