@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,6 +22,7 @@ public class SlidingBlockStructureResolver {
     private final BlockPos startPos;
     @Getter
     private final Direction pushDirection;
+    private final List<BlockPos> ignorePositions = new ArrayList<>();
     /**
      * All block positions to be moved by the piston
      */
@@ -43,6 +45,10 @@ public class SlidingBlockStructureResolver {
         } else {
             this.pushDirection = pistonDirection.getOpposite();
         }
+    }
+
+    public void addIgnorePosition(BlockPos pos) {
+        this.ignorePositions.add(pos.immutable());
     }
 
     public boolean resolve() {
@@ -68,6 +74,7 @@ public class SlidingBlockStructureResolver {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean addBlockLine(BlockPos originPos, Direction direction) {
+        if (ignorePositions.contains(originPos)) return true;
         BlockState nowState = this.level.getBlockState(originPos);
         if (
             nowState.isAir()
@@ -165,6 +172,7 @@ public class SlidingBlockStructureResolver {
         for (Direction dir : Direction.values()) {
             if (dir.getAxis() != this.pushDirection.getAxis()) {
                 BlockPos branchPos = fromPos.relative(dir);
+                if (ignorePositions.contains(branchPos)) continue;
                 BlockState branchState = this.level.getBlockState(branchPos);
                 if (
                     branchState.anvilcraft$canStickTo(branchPos, fromPos, fromState)
