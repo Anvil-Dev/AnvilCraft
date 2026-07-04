@@ -175,6 +175,10 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.NEGATIVE_MATTER.asItem(), "Negative matter is not antimatter, it is anti gravity matter");
         NORMAL.put(ModItems.NEGATIVE_MATTER_NUGGET.asItem(), "Negative matter is not antimatter, it is anti gravity matter");
         NORMAL.put(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem(), "Negative matter is not antimatter, it is anti gravity matter");
+        NORMAL.put(ModItems.VOID_MATTER.get(), "Matter from the void between worlds, unstable yet full of potential");
+        NORMAL.put(ModItems.EXCITED_STATE_VOID_MATTER.get(), "Void matter pushed beyond its limits, ready to transform");
+        NORMAL.put(ModItems.EARTH_CORE_SHARD.get(), "A fragment of a planet's heart, pulsing with geological might");
+        NORMAL.put(ModItems.MULTIPHASE_MATTER.get(), "Exists in multiple states at once, defying the laws of physics");
         NORMAL.put(ModItems.NEUTRONIUM_INGOT.asItem(), "Pass through most blocks except end dust, negative matter block, and bedrock");
         NORMAL.put(ModItems.STABLE_NEUTRONIUM_INGOT.asItem(), "No more passing through blocks");
         NORMAL.put(
@@ -267,6 +271,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.SUPER_CAPACITOR.asItem(), "160 MFE stored");
         NORMAL.put(ModItems.SUPER_CAPACITOR_EMPTY.asItem(), "160 MFE capacity");
         NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
+        NORMAL.put(ModItems.HEAVY_HALBERD_CORE.get(), "The core of a weapon that could split mountains, raw destructive potential");
+        NORMAL.put(ModItems.RESONATOR_CORE.get(), "Humming with frequencies that resonate with the earth itself");
         NORMAL.put(ModBlocks.BLACK_HOLE.asItem(), "Dev Block with intense gravitational attraction");
         NORMAL.put(ModBlocks.WHITE_HOLE.asItem(), "Dev Block with intense gravitational repulsion");
         NORMAL.put(ModBlocks.CHARGER.asItem(), "Charges items, supports manual or automated input");
@@ -320,6 +326,22 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.asItem(), "Placeholder block for Celestial Forging Anvil structure");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and items between two portals");
         NORMAL.put(ModBlocks.LENS.asItem(), "Focuses and redirects laser beams");
+        NORMAL.put(
+            ModItems.DYSON_SPHERE_COMPONENT.get(), """
+            Encapsulate a star and harvest its boundless energy
+            Built in the CFA for the Dyson Sphere""");
+        NORMAL.put(
+            ModItems.PENROSE_SPHERE_COMPONENT.get(), """
+            Harness a black hole's rotational energy for incomprehensible power
+            Built in the CFA for the Penrose Sphere""");
+        NORMAL.put(
+            ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), """
+            Decompress matter itself and obtain the purest forms of material
+            Built in the CFA for the Matter Decompressor""");
+        NORMAL.put(
+            ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), """
+            Bend spacetime to stabilize a traversable wormhole
+            Built in the CFA for the Wormhole Stabilizer""");
 
         SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), """
