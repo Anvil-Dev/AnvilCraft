@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
+import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -13,19 +14,11 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
- * 控制阀的方块实体渲染器：把手轮模型渲染在控制阀<b>朝向玩家一侧</b>（{@link ControlValveBlockEntity#getFacing()}）的中心，
- * 并随流速设置旋转。
- *
- * <h3>旋转映射</h3>
- * 手轮转角 {@code angle = 90° × (MAX_RATE − rate) / MAX_RATE}，<b>逆时针</b>：
- * rate=2000 → 基准角（0°）；rate=0 → +90°。
- *
- * <h3>朝向</h3>
- * 手轮模型原本安装在模型空间 +Y（顶面）、绕 Y 轴旋转。渲染时先把 +Y 旋到 {@code facing}，
- * 再绕 {@code facing} 法线施加转角。{@link #BASE_ANGLE_DEG} 用于对齐标记位置"，
- * 视觉不符时调此常量即可。
+ * 控制阀的方块实体渲染器：把手轮模型渲染在控制阀<b>朝向玩家一侧</b>的中心，
+ * 并随流速设置旋转。并渲染内部过滤的流体。在另外三面渲染内部过滤的流体
  */
 public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<ControlValveBlockEntity> {
 
@@ -34,6 +27,11 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
 
     /** 基准角偏移（度）：对齐手轮北标记初始朝向（玩家视角右侧）。 */
     private static final float BASE_ANGLE_DEG = 0.0f;
+
+    /** 流体指示器小方块半边长 */
+    private static final float INDICATOR_HALF = 0.0625f;
+    /** 流体指示器中心距表面距离 */
+    private static final float INDICATOR_DEPTH = 0.42f;
 
     @SuppressWarnings("unused")
     public ControlValveBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -59,11 +57,10 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
             spinDeg += 90.0f;
         }
 
+        // --- 渲染手轮 ---
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
-        // 1) 把模型 +Y（安装面）旋到 facing
         applyUpToFacing(poseStack, facing);
-        // 2) 绕安装面法线（现为模型局部 +Y）逆时针旋转；逆时针 = 绕 +Y 正角
         poseStack.mulPose(Axis.YP.rotationDegrees(spinDeg));
         poseStack.translate(-0.5, -0.5, -0.5);
 
@@ -81,6 +78,47 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
             packedOverlay
         );
         poseStack.popPose();
+
+        // --- 在另外三面渲染内部过滤的流体 ---
+        FluidStack filterFluid = be.getFilter(0);
+        if (!filterFluid.isEmpty()) {
+            renderFluidIndicators(be, filterFluid, poseStack, buffer, packedLight);
+        }
+    }
+
+    /**
+     * 在阀门侧面的非手轮面上渲染流指示器小方块，使用 {@link FluidRenderHelper} 复用鱼缸的液面渲染。
+     */
+    private void renderFluidIndicators(
+        ControlValveBlockEntity be,
+        FluidStack filterFluid,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int packedLight
+    ) {
+        Direction facing = be.getFacing();
+        Direction.Axis axis = be.getBlockState().getValue(ControlValveBlock.AXIS);
+        float h = INDICATOR_HALF;
+        float y = INDICATOR_DEPTH;
+
+        for (Direction side : Direction.values()) {
+            if (side.getAxis() == axis || side == facing) {
+                continue;
+            }
+
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            applyUpToFacing(poseStack, side);
+            // 旋转后局部 +Y 指向 side 方向，小方块范围为 (-h..h, y-h..y+h, -h..h)
+            FluidRenderHelper.INSTANCE.renderFluidBox(
+                filterFluid,
+                -h, y - h, -h,
+                h, y + h, h,
+                buffer, poseStack, packedLight,
+                true, false
+            );
+            poseStack.popPose();
+        }
     }
 
     /**
