@@ -263,8 +263,6 @@ public class FluidPipeNetwork {
 
         IFluidHandler srcHandler = source.handler();
         int budget = groupSpeed;
-        // 逐 tick 转动的轮转起点，使余量长期均摊到每个容器
-        long rotation = level.getGameTime();
 
         while (budget > 0) {
             FluidStack stored = srcHandler.getFluidInTank(tankIdx);
@@ -285,14 +283,19 @@ public class FluidPipeNetwork {
                 break;
             }
             int n = active.size();
-            int base = budget / n;
-            int remainder = budget % n;
-            int startOffset = Math.floorMod(rotation, n);
+            // 本轮可分配量按预算与<b>源当前实际含量</b>双重封顶，再均分——
+            // 否则源在一轮中途耗尽会把排在后面的容器饿死（造成 h=3/6... 分配不均）。
+            int roundBudget = Math.min(budget, stored.getAmount());
+            int base = roundBudget / n;
+            int remainder = roundBudget % n;
+            // 余量的 +1mB 发给<b>当前存量最少</b>的容器（自纠偏），使长期精确均分而非 ±1 抖动。
+            // active 原为就近序，稳定排序后同存量仍按就近，保证确定性。
+            active.sort(Comparator.comparingInt(FluidPipeNetwork::currentAmount));
             boolean progressed = false;
 
             for (int k = 0; k < n && budget > 0; k++) {
-                // 从轮转起点开始遍历活跃目标；前 remainder 个多给 1mB
-                FluidEndpoint target = active.get((startOffset + k) % n);
+                // active 已按当前存量升序：前 remainder 个（存量最少者）多给 1mB → 自纠偏至精确均分
+                FluidEndpoint target = active.get(k);
                 int want = base + (k < remainder ? 1 : 0);
                 if (want <= 0) {
                     continue;
@@ -456,5 +459,15 @@ public class FluidPipeNetwork {
 
     private static int sumXZ(BlockPos pos) {
         return pos.getX() + pos.getZ();
+    }
+
+    /** 目标容器当前存量（所有 tank 之和），用于"余量给存量最少者"的自纠偏均分。 */
+    private static int currentAmount(FluidEndpoint endpoint) {
+        IFluidHandler handler = endpoint.handler();
+        int total = 0;
+        for (int i = 0; i < handler.getTanks(); i++) {
+            total += handler.getFluidInTank(i).getAmount();
+        }
+        return total;
     }
 }
