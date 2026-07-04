@@ -251,8 +251,6 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             }
             // 向下穿透：鞍部——穿过洞口后下探隔壁盆地深层空格
             checkVerticalNeighbor(level, cur.below(), fluid, queue, visited, empties);
-            // 向上穿透：反向鞍部——天花板凹穴内漏填的空格
-            checkVerticalNeighbor(level, cur.above(), fluid, queue, visited, empties);
         }
         if (empties.isEmpty()) {
             return null;
@@ -485,7 +483,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
      * 从而在反向鞍部（天花板凸起/凹穴）场景中，不会因为仅水平扫描而漏掉上方的水源。
      * <b>不向下</b>扩散，保证不跨鞍部往下抽。
      *
-     * <p>"边缘优先"确保移除后不会留下被 &ge;2 个源夹住的空格（无限水成因），使水池从边缘向内剥离。
+     * <p>"边缘优先"确保移除后不会留下被 &ge;2 个源夹住的空格，使水池从边缘向内剥离。
      */
     @Nullable
     private BlockPos findSourceInLayer(Level level, BlockPos drainPos, BlockPos entry, Fluid fluid) {
