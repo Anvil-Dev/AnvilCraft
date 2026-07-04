@@ -15,6 +15,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -64,6 +65,8 @@ public class FluidPipeNetwork {
     private final Map<BlockPos, ValveState> valves;
     /** 泵位置 → 输出方向。泵是二极管：流体只能从输入侧穿到输出侧，反向不通（无关高度差）。 */
     private final Map<BlockPos, Direction> pumps;
+    /** 网络中所有管道节点的等效高度（去重、升序）。同高节点视为同一层，用于供给等级计算。 */
+    private final NavigableSet<Integer> nodeHeights;
     private final List<FluidEndpoint> endpoints;
     /** 端点按等效高度<b>降序</b>预排序（作为源的遍历顺序），构建时排一次，避免每 tick 重排。 */
     private final List<FluidEndpoint> sourcesByHeightDesc;
@@ -88,6 +91,8 @@ public class FluidPipeNetwork {
         Map<BlockPos, List<BlockPos>> adjacency,
         Map<BlockPos, ValveState> valves,
         Map<BlockPos, Direction> pumps,
+        Map<BlockPos, Integer> potential,
+        NavigableSet<Integer> nodeHeights,
         List<FluidEndpoint> endpoints
     ) {
         this.level = level;
@@ -95,6 +100,7 @@ public class FluidPipeNetwork {
         this.adjacency = adjacency;
         this.valves = valves;
         this.pumps = pumps;
+        this.nodeHeights = nodeHeights;
         this.endpoints = endpoints;
         // 预排序一次（缓存网络下每 tick 复用）
         this.sourcesByHeightDesc = new ArrayList<>(endpoints);
@@ -102,11 +108,40 @@ public class FluidPipeNetwork {
     }
 
     /**
-     * 每 tick 的全局重力分配。
-     *
-     * <p>对每个持有流体的源端点，收集所有等效高度严格更低、且能接受该流体的目标，
-     * 按目标等效高度升序分组，从最低组开始逐组填充（本组填满才处理更高组）。
+     * 容器的<b>供给等级</b>：
+     * <ul>
+     *   <li>容器等效高度<b>严格高于</b>某节点层，每层 +1；</li>
+     *   <li>若容器位于<b>最低节点层下方</b>（effH &lt; 最低节点等效高度），额外 +0.5。</li>
+     * </ul>
+     * 这样"与最低节点同高"的容器（0 级）与"最低节点下方"的容器（0.5 级）被区分开——二者隔着节点，
+     * 不应互流。等级越高越靠"供给侧"。无节点网络 nodeHeights 为空 → 恒 0。
      */
+    private double supplyLevel(int effectiveHeight) {
+        if (nodeHeights.isEmpty()) {
+            return 0.0;
+        }
+        double lvl = 0.0;
+        for (int h : nodeHeights) {
+            if (effectiveHeight > h) {
+                lvl += 1.0;
+            }
+        }
+        if (effectiveHeight < nodeHeights.first()) {
+            lvl += 0.5; // 最低节点下方分支
+        }
+        return lvl;
+    }
+
+    /**
+     * 供给等级门控：是否禁止从 {@code sourceLevel} 流向 {@code targetLevel}。
+     * 条件：目标等级 ≥ 源等级 <b>且</b> 目标等级 &gt; 0——即"低供给等级不流向高等级、同（正）等级不互流"。
+     * 双方均为 0 级（无节点供给关系，如无节点网络）时不拦截，退化为纯高度驱动。
+     */
+    private static boolean blockedBySupplyLevel(double sourceLevel, double targetLevel) {
+        return targetLevel >= sourceLevel && targetLevel > 0;
+    }
+
+    /** 每 tick 的全局重力分配（供给等级门控 + 高度驱动）。 */
     public void tick() {
         this.transferredThisTick = false;
         if (endpoints.size() < 2) {
@@ -151,13 +186,11 @@ public class FluidPipeNetwork {
             if (stored.isEmpty()) {
                 continue;
             }
-            // 从源出发做方向感知可达 BFS：泵只能正向穿过（二极管）、阀门按过滤放行；
-            // 得到 可达接管口 → 路径上的阀门列表。有泵或有阀门时都需要此判定。
-            boolean needReachability = !valves.isEmpty() || !pumps.isEmpty();
-            Map<BlockPos, List<ValveState>> pathValves = needReachability
-                ? computeReachable(source.fromPipePos(), stored)
-                : Map.of();
-            // 按等效高度升序分组，仅收集严格更低、接受该流体、且可达的目标
+            // 从源出发做方向感知可达 BFS：泵只能正向穿过（二极管）、阀门按过滤放行。
+            Map<BlockPos, List<ValveState>> pathValves = computeReachable(source.fromPipePos(), stored);
+            // 源的供给等级（节点分层用物理 Y，容器用含泵扬程的 effH；无节点则恒 0）
+            double sourceLevel = supplyLevel(source.effectiveHeight());
+            // 按等效高度升序分组，仅收集严格更低、接受该流体、可达、且供给等级允许的目标
             TreeMap<Integer, List<FluidEndpoint>> byHeight = new TreeMap<>();
             for (FluidEndpoint target : endpoints) {
                 if (target == source) {
@@ -166,14 +199,18 @@ public class FluidPipeNetwork {
                 if (target.effectiveHeight() >= source.effectiveHeight()) {
                     continue;
                 }
+                // 供给等级门控（低不流向高、同正级不互流；双方 0 级则放行走高度）
+                if (blockedBySupplyLevel(sourceLevel, supplyLevel(target.effectiveHeight()))) {
+                    continue;
+                }
                 if (target.handler().equals(srcHandler)) {
                     continue; // 同一容器（如巨型储罐多 part）不自我搬运
                 }
                 if (target.handler().fill(stored.copyWithAmount(1), IFluidHandler.FluidAction.SIMULATE) <= 0) {
                     continue; // 该目标无法接受此流体（类型不符或已满）
                 }
-                if (needReachability && !pathValves.containsKey(target.fromPipePos())) {
-                    continue; // 不可达（逆泵方向 或 被阀门过滤阻断）
+                if (!pathValves.containsKey(target.fromPipePos())) {
+                    continue; // 不可达（爬升 / 逆泵方向 / 被阀门过滤阻断）
                 }
                 byHeight.computeIfAbsent(target.effectiveHeight(), k -> new ArrayList<>()).add(target);
             }
@@ -250,7 +287,7 @@ public class FluidPipeNetwork {
             int n = active.size();
             int base = budget / n;
             int remainder = budget % n;
-            int startOffset = (int) Math.floorMod(rotation, n);
+            int startOffset = Math.floorMod(rotation, n);
             boolean progressed = false;
 
             for (int k = 0; k < n && budget > 0; k++) {
