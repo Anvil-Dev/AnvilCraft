@@ -52,7 +52,7 @@ public class AnvilCraftClientConfig {
 
     public static class GravitationalLens {
         @Comment("Gravitational lensing post-processing effect near black holes")
-        public boolean renderBlackHoleLensing = true;
+        public boolean renderBlackHoleLensing = false;
 
         @Comment("Maximum number of black/white holes rendered (2-256). Higher = more holes, lower = better performance.")
         @BoundedDiscrete(min = 2, max = 256)

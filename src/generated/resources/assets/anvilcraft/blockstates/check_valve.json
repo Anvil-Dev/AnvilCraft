@@ -1,0 +1,48 @@
+{
+  "variants": {
+    "facing=down,powered=false": {
+      "model": "anvilcraft:block/check_valve_y",
+      "x": 180
+    },
+    "facing=down,powered=true": {
+      "model": "anvilcraft:block/check_valve_y"
+    },
+    "facing=east,powered=false": {
+      "model": "anvilcraft:block/check_valve",
+      "y": 90
+    },
+    "facing=east,powered=true": {
+      "model": "anvilcraft:block/check_valve",
+      "y": 270
+    },
+    "facing=north,powered=false": {
+      "model": "anvilcraft:block/check_valve"
+    },
+    "facing=north,powered=true": {
+      "model": "anvilcraft:block/check_valve",
+      "y": 180
+    },
+    "facing=south,powered=false": {
+      "model": "anvilcraft:block/check_valve",
+      "y": 180
+    },
+    "facing=south,powered=true": {
+      "model": "anvilcraft:block/check_valve"
+    },
+    "facing=up,powered=false": {
+      "model": "anvilcraft:block/check_valve_y"
+    },
+    "facing=up,powered=true": {
+      "model": "anvilcraft:block/check_valve_y",
+      "x": 180
+    },
+    "facing=west,powered=false": {
+      "model": "anvilcraft:block/check_valve",
+      "y": 270
+    },
+    "facing=west,powered=true": {
+      "model": "anvilcraft:block/check_valve",
+      "y": 90
+    }
+  }
+}

@@ -108,6 +108,7 @@ import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
+import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.RedstoneComputerBlock;
 import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
@@ -157,6 +158,9 @@ import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockIt
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
+import dev.dubhe.anvilcraft.block.fluid.CheckValveBlock;
+import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
+import dev.dubhe.anvilcraft.block.fluid.DrainBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
@@ -219,7 +223,6 @@ import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.generator.PipeBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
@@ -284,16 +287,11 @@ import net.neoforged.neoforge.common.Tags;
 import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
-import static dev.dubhe.anvilcraft.AnvilCraft.of;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.OVERLOAD;
 import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 
 @SuppressWarnings({"unused", "CodeBlock2Expr"})
 public class ModBlocks {
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
-    }
-
     public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRUM.block("giant_anvil", GiantAnvilBlock::new)
         .initialProperties(() -> Blocks.ANVIL)
         .properties(p -> p
@@ -402,6 +400,120 @@ public class ModBlocks {
         .properties((properties) -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<DrainBlock> DRAIN = REGISTRUM.block("drain", DrainBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Drain")
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::simple)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PumpBlock> PUMP = REGISTRUM.block("pump", PumpBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate((ctx, provider) -> {
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                boolean powered = state.getValue(PumpBlock.POWERED);
+                boolean overload = state.getValue(PumpBlock.OVERLOAD);
+                Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
+
+                String modelName;
+                if (overload) {
+                    modelName = "block/pump_overload";
+                } else if (powered) {
+                    modelName = "block/pump_off";
+                } else {
+                    modelName = "block/pump_base";
+                }
+
+                var model = provider.models().getExistingFile(AnvilCraft.of(modelName));
+
+                return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX((int) -orientation.getXRotation())
+                    .rotationY((int) orientation.getYRotation())
+                    .build();
+            });
+        })
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::pump)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<ControlValveBlock> CONTROL_VALVE = REGISTRUM.block("control_valve", ControlValveBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Control Valve")
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate((ctx, provider) -> {
+            var model = provider.models().getExistingFile(AnvilCraft.of("block/control_valve"));
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                Direction.Axis axis = state.getValue(ControlValveBlock.AXIS);
+                int rotX = axis == Direction.Axis.Y ? 90 : 0;
+                int rotY = axis == Direction.Axis.X ? 90 : 0;
+                return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX(rotX)
+                    .rotationY(rotY)
+                    .build();
+            });
+        })
+        .item()
+        .model((ctx, provider) ->
+            provider.withExistingParent(provider.name(ctx), AnvilCraft.of("block/control_valve_item")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CheckValveBlock> CHECK_VALVE = REGISTRUM.block("check_valve", CheckValveBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Check Valve")
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate((ctx, provider) -> {
+            var model = provider.models().getExistingFile(AnvilCraft.of("block/check_valve"));
+            var modelY = provider.models().getExistingFile(AnvilCraft.of("block/check_valve_y"));
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                // 红石反向时模型翻转 180°，直观显示当前放行方向
+                Direction facing = state.getValue(CheckValveBlock.FACING);
+                if (state.getValue(CheckValveBlock.POWERED)) {
+                    facing = facing.getOpposite();
+                }
+                return switch (facing) {
+                    case UP -> ConfiguredModel.builder().modelFile(modelY).build();
+                    case DOWN -> ConfiguredModel.builder().modelFile(modelY).rotationX(180).build();
+                    default -> ConfiguredModel.builder()
+                        .modelFile(model)
+                        .rotationY(((int) facing.toYRot() + 180) % 360)
+                        .build();
+                };
+            });
+        })
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::checkValve)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM.block("pipe_straight", PipeStraightBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::pipeStraightBlock)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM.block("pipe_corner", PipeCornerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::pipeCornerBlock)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM.block("pipe_node", PipeNodeBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::pipeNodeBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
@@ -769,7 +881,7 @@ public class ModBlocks {
         .properties(BlockBehaviour.Properties::noOcclusion)
         .lang("FE Collector")
         .blockstate((ctx, provider) -> {
-            var model = provider.models().getExistingFile(of("block/fe_collector_base"));
+            var model = provider.models().getExistingFile(AnvilCraft.of("block/fe_collector_base"));
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
                 int y = state.getValue(BlockStateProperties.HORIZONTAL_AXIS) == Direction.Axis.X ? 0 : 90;
                 return ConfiguredModel.builder().modelFile(model).rotationY(y).build();
@@ -1406,7 +1518,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<SimpleMagneticChuteBlock> SIMPLE_MAGNETIC_CHUTE = REGISTRUM.block(
-        "simple_magnetic_chute",
+            "simple_magnetic_chute",
             SimpleMagneticChuteBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -1708,10 +1820,6 @@ public class ModBlocks {
             .noLootTable())
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
-
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_BUILD_BLOCK.getKey());
-    }
 
     public static final BlockEntry<? extends Block> ROYAL_STEEL_BLOCK = REGISTRUM.block("royal_steel_block", Block::new)
         .lang("Block of Royal Steel")
@@ -2360,7 +2468,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::silverBlock)
         .register();
 
-    public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM.block("uranium_block", Block::new)
+    public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM
+        .block("uranium_block", p -> new RadioactiveBlock(p, ModBlocks.LEAD_BLOCK))
         .lang("Block of Uranium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_URANIUM)
@@ -2370,7 +2479,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::uraniumBlock)
         .register();
 
-    public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM.block("plutonium_block", Block::new)
+    public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM
+        .block("plutonium_block", p -> new RadioactiveBlock(p, ModBlocks.URANIUM_BLOCK))
         .lang("Block of Plutonium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(
@@ -2425,7 +2535,7 @@ public class ModBlocks {
         .initialProperties(BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> {
-            provider.axisBlock(ctx.get(), of("block/cut_bronze_pillar"), of("block/cut_bronze_pillar_top"));
+            provider.axisBlock(ctx.get(), AnvilCraft.of("block/cut_bronze_pillar"), AnvilCraft.of("block/cut_bronze_pillar_top"));
         })
         .simpleItem()
         .register();
@@ -2477,7 +2587,7 @@ public class ModBlocks {
         .initialProperties(BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> {
-            provider.axisBlock(ctx.get(), of("block/cut_brass_pillar"), of("block/cut_brass_pillar_top"));
+            provider.axisBlock(ctx.get(), AnvilCraft.of("block/cut_brass_pillar"), AnvilCraft.of("block/cut_brass_pillar_top"));
         })
         .simpleItem()
         .register();
@@ -3948,10 +4058,10 @@ public class ModBlocks {
         .loot(SugarBlock::loot)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_SUGAR, Tags.Blocks.STORAGE_BLOCKS)
         .blockstate((ctx, provider) -> {
-            BlockModelBuilder sugarBlock = provider.models().cubeAll("sugar_block", of("block/sugar_block"));
-            BlockModelBuilder sugarBlock1 = provider.models().cubeAll("sugar_block1", of("block/sugar_block_1"));
-            BlockModelBuilder sugarBlock2 = provider.models().cubeAll("sugar_block2", of("block/sugar_block_2"));
-            BlockModelBuilder sugarBlock3 = provider.models().cubeAll("sugar_block3", of("block/sugar_block_3"));
+            BlockModelBuilder sugarBlock = provider.models().cubeAll("sugar_block", AnvilCraft.of("block/sugar_block"));
+            BlockModelBuilder sugarBlock1 = provider.models().cubeAll("sugar_block1", AnvilCraft.of("block/sugar_block_1"));
+            BlockModelBuilder sugarBlock2 = provider.models().cubeAll("sugar_block2", AnvilCraft.of("block/sugar_block_2"));
+            BlockModelBuilder sugarBlock3 = provider.models().cubeAll("sugar_block3", AnvilCraft.of("block/sugar_block_3"));
             provider.getVariantBuilder(ctx.get())
                 .partialState()
                 .with(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.ZERO)
@@ -4024,7 +4134,7 @@ public class ModBlocks {
     public static final BlockEntry<SlabBlock> CUT_FLINT_SLAB_BLOCK = REGISTRUM.block("cut_flint_slab", SlabBlock::new)
         .initialProperties(FLINT_BLOCK::get)
         .blockstate((ctx, provider) -> {
-            provider.slabBlock(ctx.get(), of("block/cut_flint_block"), of("block/cut_flint_block"));
+            provider.slabBlock(ctx.get(), AnvilCraft.of("block/cut_flint_block"), AnvilCraft.of("block/cut_flint_block"));
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
         .item()
@@ -4039,7 +4149,7 @@ public class ModBlocks {
         )
         .initialProperties(FLINT_BLOCK::get)
         .blockstate((ctx, provider) -> {
-            provider.stairsBlock(ctx.get(), of("block/cut_flint_block"));
+            provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_flint_block"));
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
         .item()
@@ -4056,7 +4166,7 @@ public class ModBlocks {
         .simpleItem()
         .initialProperties(FLINT_BLOCK::get)
         .blockstate((ctx, provider) -> {
-            provider.axisBlock(ctx.get(), of("block/cut_flint_pillar"), of("block/cut_flint_pillar_top"));
+            provider.axisBlock(ctx.get(), AnvilCraft.of("block/cut_flint_pillar"), AnvilCraft.of("block/cut_flint_pillar_top"));
         })
         .recipe(RegistrumBlockRecipeLoader::cutFlintPillarBlock)
         .register();
@@ -4066,7 +4176,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.OAK_PLANKS)
         .tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.PLANKS)
         .blockstate((ctx, provider) -> {
-            provider.axisBlock(ctx.get(), of("block/plywood_side"), of("block/plywood"));
+            provider.axisBlock(ctx.get(), AnvilCraft.of("block/plywood_side"), AnvilCraft.of("block/plywood"));
         })
         .item()
         .tag(ItemTags.PLANKS)
@@ -4175,10 +4285,6 @@ public class ModBlocks {
         })
         .register();
 
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
-    }
-
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRUM.block(
             "copper_pressure_plate",
             properties -> new TimeCountedPressurePlateBlock(BlockSetType.IRON, properties, 10)
@@ -4264,22 +4370,6 @@ public class ModBlocks {
         ModItemTags.BRONZE_INGOTS
     );
 
-    public static final BlockEntry<BlackHoleBlock> BLACK_HOLE = REGISTRUM.block("black_hole", BlackHoleBlock::new)
-        .initialProperties(() -> Blocks.OBSIDIAN)
-        .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
-        .blockstate((ctx, provider) -> {
-        })
-        .simpleItem()
-        .register();
-
-    public static final BlockEntry<WhiteHoleBlock> WHITE_HOLE = REGISTRUM.block("white_hole", WhiteHoleBlock::new)
-        .initialProperties(() -> Blocks.OBSIDIAN)
-        .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
-        .blockstate((ctx, provider) -> {
-        })
-        .simpleItem()
-        .register();
-
     public static final BlockEntry<? extends Block> CREATIVE_GENERATOR = REGISTRUM.block("creative_generator", CreativeGeneratorBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
@@ -4314,57 +4404,20 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM.block("pipe_straight", PipeStraightBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
-        .blockstate(PipeBlockStateGenerator::pipeStraightBlock)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM.block("pipe_corner", PipeCornerBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
-        .blockstate(PipeBlockStateGenerator::pipeCornerBlock)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM.block("pipe_node", PipeNodeBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
-        .blockstate(PipeBlockStateGenerator::pipeNodeBlock)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<PumpBlock> PUMP = REGISTRUM.block("pump", PumpBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+    public static final BlockEntry<BlackHoleBlock> BLACK_HOLE = REGISTRUM.block("black_hole", BlackHoleBlock::new)
+        .initialProperties(() -> Blocks.OBSIDIAN)
+        .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate((ctx, provider) -> {
-            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
-                boolean powered = state.getValue(PumpBlock.POWERED);
-                boolean overload = state.getValue(PumpBlock.OVERLOAD);
-                Orientation orientation = state.getValue(PumpBlock.ORIENTATION);
-
-                String modelName;
-                if (overload) {
-                    modelName = "block/pump_overload";
-                } else if (powered) {
-                    modelName = "block/pump_off";
-                } else {
-                    modelName = "block/pump_base";
-                }
-
-                var model = provider.models().getExistingFile(AnvilCraft.of(modelName));
-
-                return ConfiguredModel.builder()
-                    .modelFile(model)
-                    .rotationX((int) -orientation.getXRotation())
-                    .rotationY((int) orientation.getYRotation())
-                    .build();
-            });
         })
         .simpleItem()
-        .recipe(RegistrumBlockRecipeLoader::pump)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<WhiteHoleBlock> WHITE_HOLE = REGISTRUM.block("white_hole", WhiteHoleBlock::new)
+        .initialProperties(() -> Blocks.OBSIDIAN)
+        .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
+        .blockstate((ctx, provider) -> {
+        })
+        .simpleItem()
         .register();
 
     public static void register() {

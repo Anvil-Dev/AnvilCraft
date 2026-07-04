@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -18,6 +19,13 @@ public interface IGhostIngredientScreen {
     }
 
     default void acceptGhost(Slot slot, ItemStack ingredient) {
+    }
+
+    default void acceptFluidGhost(int slotIndex, FluidStack fluid) {
+    }
+
+    default int[] getGhostSlotArea(int slotIndex) {
+        return null;
     }
 
     record Vec2i(int x, int y) {

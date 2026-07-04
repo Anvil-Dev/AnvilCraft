@@ -698,7 +698,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         /// 包围盒查找范围内的实体，再按球形距离过滤
         AABB bodyBox = new AABB(vx - r, vy - r, vz - r, vx + r, vy + r, vz + r);
-        List<Entity> entities = level.getEntitiesOfClass(Entity.class, bodyBox);
+        List<Entity> entities = Objects.requireNonNull(level).getEntitiesOfClass(Entity.class, bodyBox);
         for (Entity entity : entities) {
             Vec3 ec = entity.getBoundingBox().getCenter();
             double dx = ec.x - vx;
@@ -718,14 +718,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private void applyCelestialDamage(LivingEntity living) {
         if (celestialBodyData instanceof StarData star) {
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                living.hurt(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+                living.hurt(ModDamageTypes.lostInTime(Objects.requireNonNull(level)), Float.MAX_VALUE);
             } else {
                 /// 普通恒星 / 中子星 → 火焰烧死
-                living.hurt(level.damageSources().inFire(), Float.MAX_VALUE);
+                living.hurt(Objects.requireNonNull(level).damageSources().inFire(), Float.MAX_VALUE);
             }
         } else {
             /// 行星 / 特殊天体 → 高额摔落伤害（类似撞上表面）
-            living.hurt(level.damageSources().generic(), Float.MAX_VALUE);
+            living.hurt(Objects.requireNonNull(level).damageSources().fall(), Float.MAX_VALUE);
         }
     }
 

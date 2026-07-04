@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
@@ -39,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
  * 消耗 32kW 电力，输入端等效高度 +10，输出端 -10。
  * 12 向放置（{@link Orientation}），铁砧锤右键反转方向，红石可关闭。
  */
-public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable, IHammerChangeable {
+public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable, IHammerChangeable, IMoveableEntityBlock {
     public static final EnumProperty<Orientation> ORIENTATION = EnumProperty.create("orientation", Orientation.class);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
@@ -220,6 +222,24 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         }
     }
 
+    /** 泵放置 / 落地时使流体网络缓存失效（拓扑与势场可能变化）。 */
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide) {
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
+    }
+
+    /** 泵被移除 / 被推走时使流体网络缓存失效。 */
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        super.onRemove(state, level, pos, newState, movedByPiston);
+        if (!level.isClientSide && !state.is(newState.getBlock())) {
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
+    }
+
     /**
      * 铁砧锤反转方向
      */
@@ -254,6 +274,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
 
     @Override
     public boolean checkBlockState(BlockState blockState) {
-        return false;
+        // 允许铁砧锤对泵生效（反转朝向）；返回 false 会被 ableToUseAnvilHammer 拦截
+        return true;
     }
 }

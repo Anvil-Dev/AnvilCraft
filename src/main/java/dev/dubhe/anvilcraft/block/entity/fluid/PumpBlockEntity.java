@@ -1,14 +1,12 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
-import dev.dubhe.anvilcraft.block.state.Orientation;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -17,32 +15,36 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nullable;
 
 /**
- * 泵的 BlockEntity。消费 32kW 电力，提供输入端 +10 / 输出端 -10 的等效高度偏移。
+ * 泵的 BlockEntity。消费 32kW 电力，为流体网络提供输出侧 +10 / 输入侧 -10 的等效高度势场。
+ *
+ * <p>重构后泵<b>不再自行搬运流体</b>：它只作为网络中的一条"有向势能边"，实际流体
+ * 分配由 {@link dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork} 统一执行。
+ * 本 tick 仅刷新电力/红石/过载状态并据此决定 {@link #canPump()}。
  *
  * <p>工作状态判定：
  * <ul>
- *   <li>有红石信号 → 关闭（heightBonus=0，阻塞流体）</li>
- *   <li>电网过载 → 关闭（OVERLOAD=true，阻塞流体）</li>
- *   <li>正常供电 → 工作（输入端 +10，输出端 -10）</li>
+ *   <li>有红石信号 → 关闭（阻断网络连接）</li>
+ *   <li>电网过载 → 关闭（阻断网络连接）</li>
+ *   <li>正常供电 → 工作（提供势场）</li>
  * </ul>
  *
- * <p>方向映射：{@link dev.dubhe.anvilcraft.block.state.Orientation#getDirection()} 返回输出方向。
- * 输入端为该方向的反方向。泵的输出端高度降低，输入端高度抬升。
+ * <p>方向映射：{@link dev.dubhe.anvilcraft.block.state.Orientation#getDirection()} 返回输出方向，
+ * 该侧等效高度 +10；反向（输入侧）-10。
  */
 @Getter
 @Setter
 public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerConsumer {
     private static final int PUMP_POWER = 32;   // 32 kW 电力消耗
-    public static final int PUMP_HEADLIFT = 10;    // 10 米扬程
+    public static final int PUMP_HEADLIFT = 10;    // 10 米扬程（单侧势场偏移）
 
     private @Nullable PowerGrid grid;
     private boolean working;
+    /** 上一 tick 的 canPump() 结果，用于检测供电变化以令网络缓存失效 */
+    private boolean lastCanPump;
 
     public PumpBlockEntity(BlockEntityType<? extends PumpBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -104,11 +106,11 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
     // ---- Tick ----
 
     /**
-     * Per-tick：刷新电力/红石/过载状态，更新 heightBonus，并执行主动流体中转。
+     * Per-tick：刷新电力/红石/过载状态，据此更新 {@link #working}（决定泵是否为网络提供连接与势场）。
+     * 不再自行搬运流体——流体分配由 {@link dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork} 统一执行。
      * <ul>
-     *   <li>红石信号 / 电网过载 → working=false（阻塞流体，停动画）</li>
-     *   <li>正常启用 + 电网供电 → 实际泵送 + heightBonus</li>
-     *   <li>启用但电网未供电 → 仅动画运行（活塞运动），不泵送</li>
+     *   <li>红石信号 / 电网过载 → working=false（阻断连接，停动画）</li>
+     *   <li>正常启用 + 电网供电 → working=true（提供势场）</li>
      * </ul>
      */
     public static void tick(Level level, BlockPos pos, BlockState state, PumpBlockEntity entity) {
@@ -124,40 +126,19 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
         boolean powered = updatedState.getValue(PumpBlock.POWERED);
         boolean overload = updatedState.getValue(PumpBlock.OVERLOAD);
 
-        // working = 泵处于启用状态（控制动画和流体开关）
+        // working = 泵处于启用状态（控制动画和势场开关）
         boolean wasWorking = entity.working;
         entity.working = !powered && !overload;
 
         if (entity.working != wasWorking) {
             entity.setChanged();
-            if (!level.isClientSide()) {
-                entity.sendUpdate();
-            }
+            entity.sendUpdate();
         }
-        Orientation orientation = updatedState.getValue(PumpBlock.ORIENTATION);
-        Direction sourceDir = orientation.getDirection();
-        BlockPos sourcePos = pos.relative(sourceDir);
-        if (level.getBlockState(sourcePos).getBlock() instanceof PipeBlock || !entity.canPump()) {
-            return;
+        // canPump() 还取决于电网供电(grid.isWorking())，它可能在 working 不变时改变，一旦 canPump 结果变化就令网络缓存失效重扫，避免断电后泵仍继续抽送。
+        boolean canPumpNow = entity.canPump();
+        if (canPumpNow != entity.lastCanPump) {
+            entity.lastCanPump = canPumpNow;
+            FluidNetworkManager.INSTANCE.markDirty(level);
         }
-        Direction targetCurDir = sourceDir.getOpposite();
-        IFluidHandler fluidHandler = level.getCapability(Capabilities.FluidHandler.BLOCK, sourcePos, targetCurDir);
-        if (fluidHandler == null) return;
-        PipeEnd pumpEnd = getPipeEnd(level, pos, sourceDir);
-        BlockPos targetCurPos = pos;
-        int effectiveHeight = 0;
-        if (pumpEnd != null) {
-            targetCurPos = pumpEnd.pos();
-            targetCurDir = pumpEnd.direction();
-            effectiveHeight = pumpEnd.effectiveHeight();
-        }
-        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-            level,
-            pos,
-            sourceDir,
-            targetCurPos,
-            targetCurDir,
-            effectiveHeight
-        );
     }
 }
