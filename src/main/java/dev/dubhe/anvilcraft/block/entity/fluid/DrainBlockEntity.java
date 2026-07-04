@@ -27,6 +27,12 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * 排水口的 BlockEntity。内部 4B 流体容量，像储罐一样渲染内部流体，并像机械动力软管滑轮一样
  * 向下把内部流体铺放到世界、或从上方抽取流体入内部。
@@ -173,14 +179,16 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     }
 
     /**
-     * 定位向下填充目标：先<b>垂直探底</b>，再在<b>单层内</b>水平 flood-fill 取最近空格。
+     * 定位向下填充目标：先<b>垂直探底</b>，再自底向上逐层 flood-fill，每层可向下穿透。
      *
      * <p><b>第一步（探底）</b>：从排水口正下方沿"可通行格（空格 / 同种流体）"一路向下，
      * 找到最低可放置层 {@code bottomY}（其正下方为实体方块或世界底）。
      *
-     * <p><b>第二步（单层铺开）</b>：自 {@code bottomY} 向上逐层，在每一层内<b>仅水平</b> flood-fill
-     * （不跨层），返回首个含空格的最低层里离排水口最近的空格。这样水会在最底层平铺成一大片
-     * （受 {@value #MAX_NODES} 预算约束）直到该层填满，才升到上一层。
+     * <p><b>第二步（逐层铺开）</b>：自 {@code bottomY} 向上逐层，每层水平 flood-fill 同时
+     * <b>允许向下穿透</b>——可通行格的下方若是空格会被纳入候选，下方若可通行则继续入队往下探。
+     * 候选格统一取<b>最低层、同层最近</b>一个。
+     * 这样水在盆地底部平铺（受 {@value #MAX_NODES} 预算约束），填满才升层；
+     * 遇到鞍部时，上层扫描穿过洞口后自然向下发现隔壁盆地的更深空格，实现正确填充。
      */
     @Nullable
     private BlockPos findFillTarget(Level level, BlockPos drainPos, Fluid fluid) {
@@ -195,9 +203,9 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             && isPassableForFill(level, new BlockPos(drainPos.getX(), bottomY - 1, drainPos.getZ()), fluid)) {
             bottomY--;
         }
-        // 第二步：自底向上逐层，在单层内找空格
+        // 第二步：自底向上逐层 flood-fill（每层可向下穿透）
         for (int y = bottomY; y <= start.getY(); y++) {
-            BlockPos target = findEmptyInLayer(level, drainPos, new BlockPos(drainPos.getX(), y, drainPos.getZ()), fluid);
+            BlockPos target = findEmptyWithDownward(level, drainPos, new BlockPos(drainPos.getX(), y, drainPos.getZ()), fluid);
             if (target != null) {
                 return target;
             }
@@ -211,17 +219,19 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     }
 
     /**
-     * 在<b>单一 Y 层</b>（由 {@code entry} 确定）内、仅沿水平方向 flood-fill，
-     * 穿行"空格 + 同种流体"连通区，返回所有空格中离排水口 XZ 最近的一个。
+     * 以 {@code entry} 为入口做"水平 + 向下/向上" flood-fill，穿行"空格 + 同种流体"连通区，
+     * 收集所有<b>空格</b>，返回其中<b>最低层、同层最近</b>的一个。
      *
-     * <p>同种流体（含已放置的源）作为连通介质被穿行，故已部分填充的层也能顺着流体边界继续找到
-     * 尚空的格，实现"在这一层一直扩散扫直到扫满边缘"。
+     * <p>入口层水平穿行到每个可通行格时同时检查正下方和正上方：下方/上方为空格则纳入候选，
+     * 下方/上方为同种流体源则继续入队扩散。向下解决鞍部（墙后盆地更深处），
+     * 向上解决反向鞍部（天花板凹穴内漏填）。
+     * 候选格统一取<b>最低层、同层最近</b>一个。
      */
     @Nullable
-    private BlockPos findEmptyInLayer(Level level, BlockPos drainPos, BlockPos entry, Fluid fluid) {
-        java.util.Set<BlockPos> visited = new java.util.HashSet<>();
-        java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>();
-        java.util.List<BlockPos> empties = new java.util.ArrayList<>();
+    private BlockPos findEmptyWithDownward(Level level, BlockPos drainPos, BlockPos entry, Fluid fluid) {
+        Set<BlockPos> visited = new HashSet<>();
+        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+        List<BlockPos> empties = new ArrayList<>();
         queue.add(entry);
         visited.add(entry);
 
@@ -235,26 +245,52 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             if (empty) {
                 empties.add(cur);
             }
-            // 仅水平扩散，锁定在本层
+            // 水平扩散
             for (Direction d : Direction.Plane.HORIZONTAL) {
                 enqueue(queue, visited, cur.relative(d));
             }
+            // 向下穿透：鞍部——穿过洞口后下探隔壁盆地深层空格
+            checkVerticalNeighbor(level, cur.below(), fluid, queue, visited, empties);
+            // 向上穿透：反向鞍部——天花板凹穴内漏填的空格
+            checkVerticalNeighbor(level, cur.above(), fluid, queue, visited, empties);
         }
         if (empties.isEmpty()) {
             return null;
         }
+        // 最低层（Y 最小）优先；同层取离排水口 XZ 最近
         BlockPos best = null;
+        int bestY = Integer.MAX_VALUE;
         long bestDist = Long.MAX_VALUE;
         for (BlockPos p : empties) {
             long dx = p.getX() - drainPos.getX();
             long dz = p.getZ() - drainPos.getZ();
             long dist = dx * dx + dz * dz;
-            if (dist < bestDist) {
+            if (p.getY() < bestY || (p.getY() == bestY && dist < bestDist)) {
+                bestY = p.getY();
                 bestDist = dist;
                 best = p;
             }
         }
         return best;
+    }
+
+    /**
+     * 检查垂直邻居（上或下）：空格直接纳入候选，同种流体源入队继续扩散。
+     * 已访问过则跳过。
+     */
+    private void checkVerticalNeighbor(Level level, BlockPos neighbor, Fluid fluid,
+                                        ArrayDeque<BlockPos> queue,
+                                        Set<BlockPos> visited,
+                                        List<BlockPos> empties) {
+        if (visited.contains(neighbor.immutable())) {
+            return;
+        }
+        if (isPlaceableEmpty(level, neighbor, fluid)) {
+            visited.add(neighbor.immutable());
+            empties.add(neighbor);
+        } else if (isSameFluidSource(level, neighbor, fluid)) {
+            enqueue(queue, visited, neighbor);
+        }
     }
 
     private static void enqueue(java.util.ArrayDeque<BlockPos> queue, java.util.Set<BlockPos> visited, BlockPos p) {
@@ -401,13 +437,15 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     }
 
     /**
-     * 定位向上抽取目标：先<b>垂直探顶</b>，再在<b>单层内</b>水平 flood-fill 取"边缘优先、最近"的源。
+     * 定位向上抽取目标：先<b>垂直探顶</b>，再<b>水平 flood-fill</b>（不跨层）取"边缘优先、最近"的源。
      *
      * <p><b>第一步（探顶）</b>：从排水口正上方沿同种流体一路向上，找到最高流体层 {@code topY}。
      *
      * <p><b>第二步（单层抽取）</b>：自 {@code topY} 向下逐层，在每一层内<b>仅水平</b> flood-fill
-     * （不跨层），返回首个含源的最高层里的一个源。这样液面很大时会先把最顶一层一大片
-     * （受 {@value #MAX_NODES} 预算约束）抽完，才下探到下一层——而非从中间掏出倒金字塔。
+     * （不跨层），返回首个含源的最高层里边缘优先、最近的源。液面很大时先把最顶一层一大片
+     * （受 {@value #MAX_NODES} 预算约束）抽完才下探下一层。
+     *
+     * <p><b>鞍部</b>：不向下跨层保证了排水口这侧抽到洞口高度后不会继续穿过洞口往隔壁盆地深处抽；
      *
      * @param want 需匹配的流体；{@code null} 表示接受正上方任意流体
      */
@@ -440,16 +478,20 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     }
 
     /**
-     * 在<b>单一 Y 层</b>（由 {@code entry} 确定）内、仅沿水平方向 flood-fill 同种流体，
+     * 以 {@code entry} 为入口做"水平 + 向上" flood-fill 同种流体，
      * 返回所有<b>源</b>中"水平同种源邻居最少（边缘优先）→ 最近"的一个。
+     *
+     * <p>水平扩散的同时检查正上方一格：上方有同种流体则入队继续探。
+     * 从而在反向鞍部（天花板凸起/凹穴）场景中，不会因为仅水平扫描而漏掉上方的水源。
+     * <b>不向下</b>扩散，保证不跨鞍部往下抽。
      *
      * <p>"边缘优先"确保移除后不会留下被 &ge;2 个源夹住的空格（无限水成因），使水池从边缘向内剥离。
      */
     @Nullable
     private BlockPos findSourceInLayer(Level level, BlockPos drainPos, BlockPos entry, Fluid fluid) {
-        java.util.Set<BlockPos> visited = new java.util.HashSet<>();
-        java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>();
-        java.util.List<BlockPos> sources = new java.util.ArrayList<>();
+        Set<BlockPos> visited = new HashSet<>();
+        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+        List<BlockPos> sources = new ArrayList<>();
         queue.add(entry);
         visited.add(entry);
 
@@ -462,9 +504,17 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             if (fs.isSource()) {
                 sources.add(cur);
             }
-            // 仅水平扩散，锁定在本层
+            // 水平扩散
             for (Direction d : Direction.Plane.HORIZONTAL) {
                 enqueue(queue, visited, cur.relative(d));
+            }
+            // 向上穿透：反向鞍部——天花板凹穴内的水源
+            BlockPos above = cur.above();
+            if (!visited.contains(above.immutable())) {
+                FluidState aboveFs = level.getFluidState(above);
+                if (!aboveFs.isEmpty() && aboveFs.getType().isSame(fluid)) {
+                    enqueue(queue, visited, above);
+                }
             }
         }
         if (sources.isEmpty()) {

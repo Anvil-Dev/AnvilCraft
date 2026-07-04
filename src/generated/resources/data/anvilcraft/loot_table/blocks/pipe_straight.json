@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:pipe_straight"
+          "name": "anvilcraft:pipe"
         }
       ],
       "rolls": 1.0

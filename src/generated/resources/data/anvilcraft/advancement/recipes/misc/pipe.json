@@ -1,21 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_pipe": {
+    "has_brass_pressure_plate": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:pipe"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_piston": {
-      "conditions": {
-        "items": [
-          {
-            "items": "minecraft:piston"
+            "items": "anvilcraft:brass_pressure_plate"
           }
         ]
       },
@@ -23,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:pump"
+        "recipe": "anvilcraft:pipe"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -31,13 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_piston",
-      "has_pipe"
+      "has_brass_pressure_plate"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:pump"
+      "anvilcraft:pipe"
     ]
   }
 }

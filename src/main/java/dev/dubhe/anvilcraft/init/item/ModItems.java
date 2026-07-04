@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -1049,6 +1050,14 @@ public class ModItems {
     static {
         REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
     }
+
+    public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
+        .model((ctx, provider) -> provider
+            .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/pipe"))
+        )
+        .recipe(RegistrumItemRecipeLoader::pipe)
+        .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
+        .register();
 
     private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
         Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectOpenHashMap<>();

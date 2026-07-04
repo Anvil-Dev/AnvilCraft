@@ -477,10 +477,6 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeStraightBlock)
-        .item()
-        .model((ctx, provider) ->
-            provider.withExistingParent(provider.name(ctx), AnvilCraft.of("block/pipe")))
-        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

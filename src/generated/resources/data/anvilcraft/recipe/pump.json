@@ -4,7 +4,7 @@
   "group": "anvilcraft:pump",
   "key": {
     "C": {
-      "item": "anvilcraft:pipe_straight"
+      "item": "anvilcraft:pipe"
     },
     "P": {
       "item": "minecraft:piston"
