@@ -101,8 +101,6 @@ public final class FluidNetworkScanner {
         Map<BlockPos, Direction> pumps = new HashMap<>();
         List<FluidEndpoint> endpoints = new ArrayList<>();
         Map<IFluidHandler, Boolean> seenHandlers = new HashMap<>();
-        // 网络中所有管道节点的<b>等效高度</b>（去重）——同高节点视为同一层，用于容器供给等级计算
-        java.util.NavigableSet<Integer> nodeHeights = new java.util.TreeSet<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
 
         potential.put(seed, 0);
@@ -123,14 +121,11 @@ public final class FluidNetworkScanner {
                 pumps.put(pos.immutable(), state.getValue(PumpBlock.ORIENTATION).getDirection());
                 expandPump(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             } else if (state.getBlock() instanceof PipeBlock) {
-                if (state.getBlock() instanceof PipeNodeBlock) {
-                    nodeHeights.add(pos.getY()); // 节点分层用物理 Y（不含泵势场，保证结构分层稳定）
-                }
                 expandPipe(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             }
         }
 
-        return new FluidPipeNetwork(level, potential.keySet(), adjacency, valves, pumps, potential, nodeHeights, endpoints);
+        return new FluidPipeNetwork(level, potential.keySet(), adjacency, valves, pumps, endpoints);
     }
 
     /** 记录一条 part↔part 无向邻接边。 */
