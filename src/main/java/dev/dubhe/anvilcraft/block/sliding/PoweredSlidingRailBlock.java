@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.sliding;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -176,7 +178,24 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
 
     @Override
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+        boolean wasPowered = state.getValue(POWERED);
         boolean powered = this.updatePower(level, pos, state, fromPos);
+
+        if (!wasPowered && powered) {
+            Direction facing = state.getValue(FACING);
+            BlockPos behindPos = pos.relative(facing.getOpposite());
+            BlockState behindState = level.getBlockState(behindPos);
+            if (behindState.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE)) {
+                BlockPos aboveStopPos = behindPos.above();
+                if (!level.isEmptyBlock(aboveStopPos)) {
+                    BlockState aboveStopState = level.getBlockState(aboveStopPos);
+                    if (PistonBaseBlock.isPushable(aboveStopState, level, aboveStopPos, null, true, null)) {
+                        SlidingRailStopBlock.moveBlocksAbove(level, behindPos, facing);
+                    }
+                }
+            }
+        }
+
         pushAbove:
         if (powered) {
             fromPos = pos.above();
