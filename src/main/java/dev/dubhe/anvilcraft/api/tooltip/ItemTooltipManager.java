@@ -370,7 +370,7 @@ public class ItemTooltipManager {
         SHIFT.put(
             ModItems.CHECK_VALVE.get(), """
                 When holding a check valve, right-click one end of a pipe to convert that end into a check valve.
-                Can remove check valve by right-clicking it while holding a check valve, an anvil hammer, or with an empty hand.
+                Can remove check valve by right-clicking it while holding a check valve, or with an empty hand.
                 Supplying a redstone signal reverses the flow direction of the check valve""");
         SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), """

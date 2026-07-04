@@ -1576,7 +1576,7 @@
   "tooltip.anvilcraft.item.charged_neutronium_ingot": "No longer passing through blocks, storing a large amount of electrical energy",
   "tooltip.anvilcraft.item.charger": "Charges items, supports manual or automated input",
   "tooltip.anvilcraft.item.check_valve": "Allows fluid to flow in only one direction",
-  "tooltip.anvilcraft.item.check_valve.shift": "When holding a check valve, right-click one end of a pipe to convert that end into a check valve.\nCan remove check valve by right-clicking it while holding a check valve, an anvil hammer, or with an empty hand.\nSupplying a redstone signal reverses the flow direction of the check valve",
+  "tooltip.anvilcraft.item.check_valve.shift": "When holding a check valve, right-click one end of a pipe to convert that end into a check valve.\nCan remove check valve by right-clicking it while holding a check valve, or with an empty hand.\nSupplying a redstone signal reverses the flow direction of the check valve",
   "tooltip.anvilcraft.item.chiseled_brass_block": "Brass decorative block",
   "tooltip.anvilcraft.item.chiseled_bronze_block": "Bronze decorative block",
   "tooltip.anvilcraft.item.chocolate_cake_block": "A slice of chocolate cake, use a shovel as a spoon to eat it",
