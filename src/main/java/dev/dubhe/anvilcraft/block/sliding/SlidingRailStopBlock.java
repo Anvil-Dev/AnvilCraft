@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.block.sliding;
 
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.MathUtil;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.Triple;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -89,59 +88,20 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
 
     @Override
     public void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity) {
-        Direction moveTo = entity.getMoveDirection();
-        if (this.canMoveSlidingTo(level, pos, Objects.requireNonNull(moveTo))) {
-            return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getCounterClockWise())) {
-            entity.setMoveDirection(moveTo.getCounterClockWise());
-            return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getClockWise())) {
-            entity.setMoveDirection(moveTo.getClockWise());
-            return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getOpposite())) {
-            entity.setMoveDirection(moveTo.getOpposite());
-            return;
-        }
+        if (entity.tickCount <= 2) return;
         ISlidingRail.stopSlidingBlock(entity);
     }
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos fromPos, boolean isMoving) {
         super.neighborChanged(state, level, pos, neighborBlock, fromPos, isMoving);
-        if (level.isEmptyBlock(pos.above())) return;
-        BlockState topBlock = level.getBlockState(pos.above());
-        if (!PistonBaseBlock.isPushable(topBlock, level, pos, null, true, null)) return;
-        Direction moveTo = MathUtil.getDirection(fromPos, pos);
-        if (Objects.requireNonNull(moveTo).getAxis() == Direction.Axis.Y) return;
-        if (this.canMoveBlockTo(level, pos, topBlock, moveTo)) {
-            SlidingRailStopBlock.moveBlocksAbove(level, pos, moveTo);
-        } else if (this.canMoveBlockTo(level, pos, topBlock, moveTo.getCounterClockWise())) {
-            SlidingRailStopBlock.moveBlocksAbove(level, pos, moveTo.getCounterClockWise());
-        } else if (this.canMoveBlockTo(level, pos, topBlock, moveTo.getClockWise())) {
-            SlidingRailStopBlock.moveBlocksAbove(level, pos, moveTo.getClockWise());
-        }
     }
 
-    private boolean canMoveBlockTo(Level level, BlockPos pos, BlockState topBlock, Direction moveTo) {
-        if (moveTo.getAxis() == Direction.Axis.Y) return false;
-        BlockPos railPos = pos.relative(moveTo);
-        BlockState railState = level.getBlockState(railPos);
-        return Util.castSafely(railState.getBlock(), ISlidingRail.class)
-            .map(rail -> rail.canMoveBlockToTop(level, railPos, railState, topBlock, moveTo.getOpposite()))
-            .orElse(false);
-    }
-
-    private boolean canMoveSlidingTo(Level level, BlockPos pos, Direction moveTo) {
-        if (moveTo.getAxis() == Direction.Axis.Y) return false;
-        BlockPos railPos = pos.relative(moveTo);
-        BlockState railState = level.getBlockState(railPos);
-        return Util.castSafely(railState.getBlock(), ISlidingRail.class)
-            .map(rail -> rail.canMoveSlidingToTop(level, railPos, railState, moveTo.getOpposite()))
-            .orElse(false);
-    }
-
-    private static void moveBlocksAbove(Level level, BlockPos pos, Direction moveToSide) {
+    public static void moveBlocksAbove(Level level, BlockPos pos, Direction moveToSide) {
         SlidingBlockStructureResolver resolver = new SlidingBlockStructureResolver(level, pos.above(), moveToSide, true);
+        if (level.getBlockState(pos).is(ModBlockTags.SLIDING_RAIL_STOP_LIKE)) {
+            resolver.addIgnorePosition(pos);
+        }
         if (!resolver.resolve()) return;
         List<Triple<BlockPos, BlockState, Optional<BlockEntity>>> toPushes = new ArrayList<>();
         List<BlockPos> toPushPoses = new ArrayList<>(resolver.getToPush());
@@ -156,7 +116,13 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
             if (toPushState.hasProperty(BlockStateProperties.WATERLOGGED)) {
                 toPushState = toPushState.setValue(BlockStateProperties.WATERLOGGED, false);
             }
-            toPushes.add(Triple.of(toPushPos, toPushState, Optional.empty()));
+            BlockEntity be = (toPushState.getBlock() instanceof IMoveableEntityBlock)
+                             ? level.getBlockEntity(toPushPos)
+                             : null;
+            Optional<BlockEntity> blockEntity = Optional.ofNullable(be);
+            if (be != null) level.removeBlockEntity(toPushPos);
+
+            toPushes.add(Triple.of(toPushPos, toPushState, blockEntity));
         }
 
         List<BlockPos> toDestroys = resolver.getToDestroy();

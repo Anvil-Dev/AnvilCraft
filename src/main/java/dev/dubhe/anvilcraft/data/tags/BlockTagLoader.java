@@ -145,6 +145,15 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.GLASS_PANES)
             .addTag(BlockTags.REPLACEABLE);
 
+        provider.addTag(ModBlockTags.SLIDING_RAIL_STOP_LIKE)
+            .addTag(ModBlockTags.HEATABLE_BLOCKS)
+            .add(findResourceKey(Blocks.CAMPFIRE))
+            .add(ModBlocks.SLIDING_RAIL_STOP.getKey())
+            .add(ModBlocks.HEATER.getKey())
+            .add(ModBlocks.BURNING_HEATER.getKey())
+            .add(ModBlocks.CORRUPTED_BEACON.getKey())
+            .add(ModBlocks.NEUTRON_IRRADIATOR.getKey());
+
         provider.addTag(ModBlockTags.END_PORTAL_UNABLE_CHANGE).add(findResourceKey(Blocks.DRAGON_EGG));
 
         provider.addTag(ModBlockTags.NEUTRONIUM_CANNOT_PASS_THROUGH)
