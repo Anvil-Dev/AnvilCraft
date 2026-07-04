@@ -57,6 +57,23 @@ public final class FluidRenderHelper {
         this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light, renderBottom, invertGasses);
     }
 
+    /** {@link MultiBufferSource} 版、带自定义侧面贴图的重载（用于排水口向下流动水柱）。 */
+    public void renderFluidBox(
+        FluidStack fluid,
+        float minX, float minY, float minZ,
+        float maxX, float maxY, float maxZ,
+        MultiBufferSource buffer, PoseStack ms, int light,
+        boolean renderBottom, boolean invertGasses, TextureAtlasSprite sideTexture
+    ) {
+        var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
+        boolean opaque = (renderProps instanceof ModClientFluidTypeExtensionImpl ext && ext.isOpaque())
+            || fluid.is(NeoForgeMod.MILK.value());
+        RenderType renderType = opaque ? RenderType.cutout() : RenderType.translucent();
+        VertexConsumer builder = buffer.getBuffer(renderType);
+        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+            renderBottom, invertGasses, sideTexture);
+    }
+
     public void renderFluidBox(
         FluidStack fluid,
         float minX,
@@ -72,7 +89,33 @@ public final class FluidRenderHelper {
         boolean invertGasses
     ) {
         var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
-        final TextureAtlasSprite fluidTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+        final TextureAtlasSprite stillTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+            .apply(renderProps.getStillTexture(fluid));
+        renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+            renderBottom, invertGasses, stillTexture);
+    }
+
+    /**
+     * 带自定义<b>侧面贴图</b>的流体盒渲染：水平四面用 {@code sideTexture}（如流动贴图，营造向下流动感），
+     * 顶/底面用静止贴图。用于排水口向下水柱等需要"流动侧面"的渲染。
+     */
+    public void renderFluidBox(
+        FluidStack fluid,
+        float minX,
+        float minY,
+        float minZ,
+        float maxX,
+        float maxY,
+        float maxZ,
+        VertexConsumer builder,
+        PoseStack ms,
+        int light,
+        boolean renderBottom,
+        boolean invertGasses,
+        TextureAtlasSprite sideTexture
+    ) {
+        var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
+        final TextureAtlasSprite stillTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
             .apply(renderProps.getStillTexture(fluid));
         final int color = renderProps.getTintColor(fluid);
 
@@ -91,25 +134,20 @@ public final class FluidRenderHelper {
         for (Direction side : Direction.values()) {
             if (side == Direction.DOWN && !renderBottom) continue;
 
+            // 水平面用侧面贴图（流动），上下面用静止贴图
+            TextureAtlasSprite tex = side.getAxis().isHorizontal() ? sideTexture : stillTexture;
             boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
-            if (side.getAxis()
-                .isHorizontal()) {
+            if (side.getAxis().isHorizontal()) {
                 if (side.getAxis() == Direction.Axis.X) {
-                    renderStillTiledFace(
-                        side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
-                        builder, ms, light, color, fluidTexture
-                    );
+                    renderStillTiledFace(side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
+                        builder, ms, light, color, tex);
                 } else {
-                    renderStillTiledFace(
-                        side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
-                        builder, ms, light, color, fluidTexture
-                    );
+                    renderStillTiledFace(side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
+                        builder, ms, light, color, tex);
                 }
             } else {
-                renderStillTiledFace(
-                    side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
-                    builder, ms, light, color, fluidTexture
-                );
+                renderStillTiledFace(side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
+                    builder, ms, light, color, tex);
             }
         }
 

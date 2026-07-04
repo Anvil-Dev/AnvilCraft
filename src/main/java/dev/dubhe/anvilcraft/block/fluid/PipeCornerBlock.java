@@ -1,21 +1,15 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * 弯管道，通过 {@link PipeBlock#CORNER_ENDED} 指定两个垂直方向的拐角。
@@ -96,7 +90,11 @@ public class PipeCornerBlock extends PipeBlock {
             BlockState neighborState = level.getBlockState(neighborPos);
             boolean neighborIsPump = neighborState.getBlock() instanceof PumpBlock
                 && PumpBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
-            if (isNeighborPipeToward(level, pos, neighborDir) || neighborIsPump) {
+            boolean neighborIsValve = neighborState.getBlock() instanceof ControlValveBlock
+                && ControlValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
+            boolean neighborIsCheckValve = neighborState.getBlock() instanceof CheckValveBlock
+                && CheckValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
+            if (isNeighborPipeToward(level, pos, neighborDir) || neighborIsPump || neighborIsValve || neighborIsCheckValve) {
                 BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
                 for (Direction dir : Direction.values()) {
                     nodeState = nodeState.setValue(getPropertyForDirection(dir), PipeNodeBlock.evaluateNeighbor(level, pos, dir));
@@ -112,17 +110,24 @@ public class PipeCornerBlock extends PipeBlock {
         this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipeToward);
     }
 
+    /**
+     * 放置 / 被推动落地时，按弯管两方向的实际邻居重算端头。
+     * 解决被活塞等整体推动后端头状态未刷新的问题。
+     */
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.PIPE.create(pos, state);
-    }
-
-    @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level,
-        BlockState state,
-        BlockEntityType<T> blockEntityType
-    ) {
-        return (l, p, s, ignore) -> PipeBlockEntity.tick(l, p, s);
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (level.isClientSide || state.is(oldState.getBlock())) {
+            return;
+        }
+        CornerEnded corner = state.getValue(CORNER_ENDED);
+        Direction first = corner.getFirstDirection();
+        Direction second = corner.getSecondDirection();
+        BlockState newState = state
+            .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, first))
+            .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, second));
+        if (newState != state) {
+            level.setBlockAndUpdate(pos, newState);
+        }
     }
 }
