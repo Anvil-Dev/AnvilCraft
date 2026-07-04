@@ -253,6 +253,9 @@ public abstract class PipeBlock extends Block implements SimpleWaterloggedBlock,
         if (state.getBlock() instanceof ControlValveBlock) {
             return ControlValveBlock.isConnectableFace(state, towardNeighbor);
         }
+        if (state.getBlock() instanceof CheckValveBlock) {
+            return CheckValveBlock.isConnectableFace(state, towardNeighbor);
+        }
         BlockEntity be = level.getBlockEntity(pos);
         return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, state, be, null) != null;
     }

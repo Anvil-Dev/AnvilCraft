@@ -114,7 +114,9 @@ public class PipeStraightBlock extends PipeBlock {
                 && PumpBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
             boolean neighborIsValve = neighborState.getBlock() instanceof ControlValveBlock
                 && ControlValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
-            if (!neighborIsPipeToward && !neighborIsPump && !neighborIsValve) {
+            boolean neighborIsCheckValve = neighborState.getBlock() instanceof CheckValveBlock
+                && CheckValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
+            if (!neighborIsPipeToward && !neighborIsPump && !neighborIsValve && !neighborIsCheckValve) {
                 return;
             }
 

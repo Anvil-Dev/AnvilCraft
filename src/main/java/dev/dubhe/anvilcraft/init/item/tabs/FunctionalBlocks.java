@@ -28,6 +28,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.PUMP); // 泵
         this.plain(ModBlocks.DRAIN); // 排水口
         this.plain(ModBlocks.CONTROL_VALVE); // 控制阀
+        this.plain(ModBlocks.CHECK_VALVE); // 止逆阀
         this.plain(ModBlocks.CORRUPTED_BEACON); // 腐化信标
         this.plain(ModBlocks.NEUTRON_IRRADIATOR); // 中子辐照器
         this.plain(ModBlocks.SPECTRAL_ANVIL); // 幻灵铁砧

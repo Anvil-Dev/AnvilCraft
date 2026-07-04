@@ -92,7 +92,9 @@ public class PipeCornerBlock extends PipeBlock {
                 && PumpBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
             boolean neighborIsValve = neighborState.getBlock() instanceof ControlValveBlock
                 && ControlValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
-            if (isNeighborPipeToward(level, pos, neighborDir) || neighborIsPump || neighborIsValve) {
+            boolean neighborIsCheckValve = neighborState.getBlock() instanceof CheckValveBlock
+                && CheckValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
+            if (isNeighborPipeToward(level, pos, neighborDir) || neighborIsPump || neighborIsValve || neighborIsCheckValve) {
                 BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
                 for (Direction dir : Direction.values()) {
                     nodeState = nodeState.setValue(getPropertyForDirection(dir), PipeNodeBlock.evaluateNeighbor(level, pos, dir));
