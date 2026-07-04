@@ -280,7 +280,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.WHITE_HOLE.asItem(), "Dev Block with intense gravitational repulsion");
         NORMAL.put(ModBlocks.CHARGER.asItem(), "Charges items, supports manual or automated input");
         NORMAL.put(ModBlocks.DISCHARGER.asItem(), "Discharges capacitors, supports manual or automated input");
-        NORMAL.put(ModBlocks.LASER_RECEIVER.asItem(), "Generates power and output signal from received lasers");
+        NORMAL.put(ModBlocks.LASER_RECEIVER.asItem(), "Generates power and output signal from received laser");
         NORMAL.put(
             ModBlocks.FROST_ANVIL.asItem(), """
             Slower enchantment penalty growth, repairs any tool with Frost Metal, free renaming
@@ -328,7 +328,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.asItem(), "Laser I/O interface for the Celestial Forging Anvil");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.asItem(), "Placeholder block for Celestial Forging Anvil structure");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and items between two portals");
-        NORMAL.put(ModBlocks.LENS.asItem(), "Focuses and redirects laser beams");
+        NORMAL.put(ModBlocks.LENS.asItem(), "Use special glass to enchant lasers");
         NORMAL.put(ModItems.DYSON_SPHERE_COMPONENT.get(), "Material for crafting the Dyson Sphere");
         NORMAL.put(ModItems.PENROSE_SPHERE_COMPONENT.get(), "Material for crafting the Penrose Sphere");
         NORMAL.put(ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), "Material for crafting the Matter Decompressor");
@@ -439,14 +439,6 @@ public class ItemTooltipManager {
                 Teleports players and items between two portals
                 Requires a Celestial Forging Anvil with an established wormhole connection"""
         );
-        SHIFT.put(
-            ModBlocks.LENS.asItem(), """
-                Focuses laser beams along its axis
-                Right-click with Royal Steel Glass, Frost Glass or Ember Glass to change lens type
-                Royal (cyan): drops raw ore blocks instead of raw materials, including Core Shard Ore and Void Stone
-                Frost (light blue): drops Experience Gems instead of ores, 10% chance per mined block; Core Shard Ore and Void Stone also convert to EXP
-                Ember (yellow): drops smelted results directly; Core Shard Ore and Void Stone have no smelted form and remain unchanged"""
-        );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
         allTooltips.putAll(NORMAL);
@@ -520,9 +512,15 @@ public class ItemTooltipManager {
         if (stack.has(ModComponents.FIRE_REFORGING)) {
             propertyTooltip("fire_reforging", tooltip, ChatFormatting.GOLD);
         }
-        if (SHIFT.containsKey(item)) {
+        if (SHIFT.containsKey(item) || item == ModBlocks.LENS.asItem()) {
             if (Screen.hasShiftDown()) {
-                tooltip.add(1, getItemTooltipShift(item));
+                if (item == ModBlocks.LENS.asItem()) {
+                    tooltip.add(1, Component.literal("Ember (yellow): drops smelted results directly; Core Shard Ore and Void Stone have no smelted form and remain unchanged").withColor(0xFFAA00));
+                    tooltip.add(1, Component.literal("Frost (light blue): drops Experience Gems instead of ores, 10% chance per mined block; Core Shard Ore and Void Stone also convert to EXP").withColor(0xB4F0F6));
+                    tooltip.add(1, Component.literal("Royal (cyan): drops raw ore blocks instead of raw materials, including Core Shard Ore and Void Stone").withColor(0x00FFBF));
+                } else {
+                    tooltip.add(1, getItemTooltipShift(item));
+                }
             } else {
                 if (NORMAL.containsKey(item)) {
                     tooltip.add(1, getItemTooltip(item));
