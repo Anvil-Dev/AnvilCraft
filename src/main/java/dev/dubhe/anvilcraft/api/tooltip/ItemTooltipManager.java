@@ -86,7 +86,7 @@ public class ItemTooltipManager {
             ModBlocks.BATCH_CUTTER.asItem(),
             "Received a redstone signal and cut all internal items at once, with a power consumption of 4 kW"
         );
-        NORMAL.put(ModItems.ROYAL_STEEL_INGOT.get(), "Steel infused with gem power, Explosion proof");
+        NORMAL.put(ModItems.ROYAL_STEEL_INGOT.get(), "Steel infused with gem powerf");
         NORMAL.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Steel infused with gem power, Explosion proof");
         NORMAL.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Royal Steel decorative block, Explosion proof");
         NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Royal Steel decorative block, Explosion proof");
@@ -112,7 +112,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.EMBER_ANVIL.asItem(), "High-tier with enhanced compatibility, unbreakable, Wither proof, does not degrade from falling");
         NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Extracts enchantments onto books, Wither proof");
         NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "All-in-one combination smithing, Wither proof");
-        NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "Netherite tempered in fire for eons, Explosion proof");
+        NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "Netherite tempered in fire for eons, Wither proof");
         NORMAL.put(ModBlocks.EMBER_GLASS.asItem(), "Ember Metal Glass, Wither proof, No tools required on collect");
         NORMAL.put(ModBlocks.CUT_EMBER_METAL_BLOCK.asItem(), "Ember Metal decorative block, Wither proof");
         NORMAL.put(ModBlocks.CUT_EMBER_METAL_PILLAR.asItem(), "Ember Metal decorative block, Wither proof");
@@ -120,10 +120,13 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CUT_EMBER_METAL_STAIRS.asItem(), "Ember Metal decorative block, Wither proof");
         NORMAL.put(ModItems.TRANSCENDIUM_INGOT.get(), "Strong interaction material sustained by magic, immune to most destruction methods");
         NORMAL.put(ModBlocks.TRANSCENDIUM_BLOCK.asItem(), "Strong interaction material sustained by magic, immune to most destruction methods");
-        NORMAL.put(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem(), "Extreme energy broke its thermal balance; may degrade into Netherite upon cooling");
-        NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "Netherite tempered in fire for eons, Explosion proof");
-        NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "Special steel tempered in extreme cold for eons, Explosion proof");
-        NORMAL.put(ModItems.MAGNET_INGOT.get(), "Magnetized iron ingot, attracts items when held");
+        NORMAL.put(
+            ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem(), """
+            Extreme energy broke its thermal balance
+            May degrade into Netherite upon cooling""");
+        NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "Netherite tempered in fire for eons");
+        NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "Special steel tempered in extreme cold for eons");
+        NORMAL.put(ModItems.MAGNET_INGOT.get(), "A magnetized iron ingot");
         NORMAL.put(ModItems.TUNGSTEN_INGOT.get(), "A heat-resistant and dense metal, material for Ancient Debris");
         NORMAL.put(ModBlocks.TUNGSTEN_BLOCK.asItem(), "A heat-resistant and dense metal, material for Ancient Debris");
         NORMAL.put(ModItems.TITANIUM_INGOT.get(), "A strong and lightweight metal");
@@ -175,10 +178,10 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.NEGATIVE_MATTER.asItem(), "Negative matter is not antimatter, it is anti gravity matter");
         NORMAL.put(ModItems.NEGATIVE_MATTER_NUGGET.asItem(), "Negative matter is not antimatter, it is anti gravity matter");
         NORMAL.put(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem(), "Negative matter is not antimatter, it is anti gravity matter");
-        NORMAL.put(ModItems.VOID_MATTER.get(), "Matter from the void between worlds, unstable yet full of potential");
-        NORMAL.put(ModItems.EXCITED_STATE_VOID_MATTER.get(), "Void matter pushed beyond its limits, ready to transform");
+        NORMAL.put(ModItems.VOID_MATTER.get(), "The primordial substance that creates all things, mined from the void, decays outside the void");
+        NORMAL.put(ModItems.EXCITED_STATE_VOID_MATTER.get(), "The substance of black hole singularities, more unstable than ordinary void matter");
         NORMAL.put(ModItems.EARTH_CORE_SHARD.get(), "A fragment of a planet's heart, pulsing with geological might");
-        NORMAL.put(ModItems.MULTIPHASE_MATTER.get(), "Exists in multiple states at once, defying the laws of physics");
+        NORMAL.put(ModItems.MULTIPHASE_MATTER.get(), "Matter that exists in multiple stable phases simultaneously, switchable under special conditions");
         NORMAL.put(ModItems.NEUTRONIUM_INGOT.asItem(), "Pass through most blocks except end dust, negative matter block, and bedrock");
         NORMAL.put(ModItems.STABLE_NEUTRONIUM_INGOT.asItem(), "No more passing through blocks");
         NORMAL.put(
@@ -271,8 +274,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.SUPER_CAPACITOR.asItem(), "160 MFE stored");
         NORMAL.put(ModItems.SUPER_CAPACITOR_EMPTY.asItem(), "160 MFE capacity");
         NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
-        NORMAL.put(ModItems.HEAVY_HALBERD_CORE.get(), "The core of a weapon that could split mountains, raw destructive potential");
-        NORMAL.put(ModItems.RESONATOR_CORE.get(), "Humming with frequencies that resonate with the earth itself");
+        NORMAL.put(ModItems.HEAVY_HALBERD_CORE.get(), "Material for crafting the Heavy Halberd");
+        NORMAL.put(ModItems.RESONATOR_CORE.get(), "Material for crafting the Resonator");
         NORMAL.put(ModBlocks.BLACK_HOLE.asItem(), "Dev Block with intense gravitational attraction");
         NORMAL.put(ModBlocks.WHITE_HOLE.asItem(), "Dev Block with intense gravitational repulsion");
         NORMAL.put(ModBlocks.CHARGER.asItem(), "Charges items, supports manual or automated input");
@@ -326,22 +329,10 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.asItem(), "Placeholder block for Celestial Forging Anvil structure");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and items between two portals");
         NORMAL.put(ModBlocks.LENS.asItem(), "Focuses and redirects laser beams");
-        NORMAL.put(
-            ModItems.DYSON_SPHERE_COMPONENT.get(), """
-            Encapsulate a star and harvest its boundless energy
-            Built in the CFA for the Dyson Sphere""");
-        NORMAL.put(
-            ModItems.PENROSE_SPHERE_COMPONENT.get(), """
-            Harness a black hole's rotational energy for incomprehensible power
-            Built in the CFA for the Penrose Sphere""");
-        NORMAL.put(
-            ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), """
-            Decompress matter itself and obtain the purest forms of material
-            Built in the CFA for the Matter Decompressor""");
-        NORMAL.put(
-            ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), """
-            Bend spacetime to stabilize a traversable wormhole
-            Built in the CFA for the Wormhole Stabilizer""");
+        NORMAL.put(ModItems.DYSON_SPHERE_COMPONENT.get(), "Material for crafting the Dyson Sphere");
+        NORMAL.put(ModItems.PENROSE_SPHERE_COMPONENT.get(), "Material for crafting the Penrose Sphere");
+        NORMAL.put(ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), "Material for crafting the Matter Decompressor");
+        NORMAL.put(ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), "Material for crafting the Wormhole Stabilizer");
 
         SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), """
