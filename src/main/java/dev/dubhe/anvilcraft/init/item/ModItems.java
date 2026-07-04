@@ -134,10 +134,6 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 @SuppressWarnings({"unused", "CodeBlock2Expr"})
 public class ModItems {
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_TOOL.getKey());
-    }
-
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRUM.item("guide_book", GuideBookItem::new)
         .properties(p -> p.stacksTo(1))
         .tag(ItemTags.BOOKSHELF_BOOKS)
@@ -151,7 +147,6 @@ public class ModItems {
         .register();
     public static final ItemEntry<GeodeItem> GEODE = REGISTRUM.item("geode", GeodeItem::new).register();
     public static final ItemEntry<? extends PickaxeItem> AMETHYST_PICKAXE = REGISTRUM.item("amethyst_pickaxe", AmethystPickaxeItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(Enchantments.FORTUNE, 3))
         .recipe(RegistrumItemRecipeLoader.pickaxe(Items.AMETHYST_SHARD, (ctx, provider) ->
             enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getProvider())
         ))
@@ -159,7 +154,6 @@ public class ModItems {
         .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES, Tags.Items.MINING_TOOL_TOOLS)
         .register();
     public static final ItemEntry<? extends AxeItem> AMETHYST_AXE = REGISTRUM.item("amethyst_axe", AmethystAxeItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.FELLING_KEY, 1))
         .recipe(RegistrumItemRecipeLoader.axe(Items.AMETHYST_SHARD, (ctx, provider) ->
             enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getProvider())
         ))
@@ -167,7 +161,6 @@ public class ModItems {
         .tag(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<? extends HoeItem> AMETHYST_HOE = REGISTRUM.item("amethyst_hoe", AmethystHoeItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.HARVEST_KEY, 1))
         .recipe(RegistrumItemRecipeLoader.hoe(Items.AMETHYST_SHARD, (ctx, provider) ->
             enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, provider.getProvider())
         ))
@@ -175,7 +168,6 @@ public class ModItems {
         .tag(ItemTags.HOES)
         .register();
     public static final ItemEntry<? extends SwordItem> AMETHYST_SWORD = REGISTRUM.item("amethyst_sword", AmethystSwordItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.BEHEADING_KEY, 1))
         .recipe(RegistrumItemRecipeLoader.sword(Items.AMETHYST_SHARD, (ctx, provider) ->
             enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getProvider())
         ))
@@ -183,7 +175,6 @@ public class ModItems {
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<? extends ShovelItem> AMETHYST_SHOVEL = REGISTRUM.item("amethyst_shovel", AmethystShovelItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(Enchantments.EFFICIENCY, 3))
         .recipe(RegistrumItemRecipeLoader.shovel(Items.AMETHYST_SHARD, (ctx, provider) ->
             enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getProvider())
         ))
@@ -433,7 +424,6 @@ public class ModItems {
     public static final ItemEntry<? extends SpectralWeaponLauncherItem> SPECTRAL_WEAPON_LAUNCHER = REGISTRUM
         .item("spectral_weapon_launcher", SpectralWeaponLauncherItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.CROSSBOW_ENCHANTABLE)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
@@ -441,28 +431,24 @@ public class ModItems {
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final ItemEntry<? extends CorruptedBeaconActivatorItem> CORRUPTED_BEACON_ACTIVATOR = REGISTRUM
         .item("corrupted_beacon_activator", CorruptedBeaconActivatorItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final ItemEntry<? extends TeslaGunItem> TESLA_GUN = REGISTRUM
         .item("tesla_gun", TeslaGunItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final ItemEntry<? extends LaserGunItem> LASER_GUN = REGISTRUM
         .item("laser_gun", LaserGunItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
@@ -483,12 +469,6 @@ public class ModItems {
                 .predicate(AnvilCraft.of("flight_time"), 0)
                 .model(new ModelFile.UncheckedModelFile(offModel.getUncheckedLocation()))
                 .end();
-        }
-        ).tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), (ctx, modifier) -> {
-            modifier.accept(ctx.get().getDefaultInstance());
-            ItemStack full = new ItemStack(ctx.get());
-            full.set(ModComponents.STORED_ENERGY, IonoCraftBackpackItem.MAX_ENERGY);
-            modifier.accept(full);
         })
         .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
@@ -713,7 +693,6 @@ public class ModItems {
 
     static {
         ModFoodItems.register();
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey());
     }
 
     public static final ItemEntry<Item> MAGNET_INGOT = REGISTRUM.item("magnet_ingot", Item::new)
@@ -1046,10 +1025,6 @@ public class ModItems {
         .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
         .register();
-
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
-    }
 
     public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
         .model((ctx, provider) -> provider
