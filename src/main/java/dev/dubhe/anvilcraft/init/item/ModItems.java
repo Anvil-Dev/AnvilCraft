@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
@@ -1032,6 +1033,14 @@ public class ModItems {
         )
         .recipe(RegistrumItemRecipeLoader::pipe)
         .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
+        .register();
+
+    public static final ItemEntry<CheckValveItem> CHECK_VALVE = REGISTRUM.item("check_valve", CheckValveItem::new)
+        .lang("Check Valve")
+        .model((ctx, provider) -> provider
+            .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/check_valve"))
+        )
+        .recipe(RegistrumItemRecipeLoader::checkValve)
         .register();
 
     private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {

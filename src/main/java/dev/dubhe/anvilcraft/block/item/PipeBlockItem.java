@@ -141,8 +141,8 @@ public class PipeBlockItem extends Item {
             // 节点：直接设置对应方向
             PipeBlock.NodePipe value = towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END;
             BlockState newState = state.setValue(PipeBlock.getPropertyForDirection(toward), value);
-            level.setBlockAndUpdate(pos, newState);
-            return newState;
+            PipeBlock.setBlockPreservingValve(level, pos, state, newState);
+            return level.getBlockState(pos);
         }
         return null;
     }
@@ -266,8 +266,8 @@ public class PipeBlockItem extends Item {
                     .setValue(PipeBlock.AXIS, axis)
                     .setValue(PipeBlock.HAS_END_START, negIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
                     .setValue(PipeBlock.HAS_END_END, negIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
-                level.setBlockAndUpdate(pos, straightState);
-                return straightState;
+                PipeBlock.setBlockPreservingValve(level, pos, state, straightState);
+                return level.getBlockState(pos);
             }
 
             // 弯管
@@ -279,8 +279,8 @@ public class PipeBlockItem extends Item {
                 .setValue(PipeBlock.CORNER_ENDED, corner)
                 .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
                 .setValue(PipeBlock.HAS_END_END, firstIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
-            level.setBlockAndUpdate(pos, cornerState);
-            return cornerState;
+            PipeBlock.setBlockPreservingValve(level, pos, state, cornerState);
+            return level.getBlockState(pos);
         }
     }
 
@@ -305,8 +305,8 @@ public class PipeBlockItem extends Item {
             PipeBlock.getPropertyForDirection(toward),
             towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END
         );
-        level.setBlockAndUpdate(pos, nodeState);
-        return nodeState;
+        PipeBlock.setBlockPreservingValve(level, pos, state, nodeState);
+        return level.getBlockState(pos);
     }
 
     /**
@@ -470,8 +470,8 @@ public class PipeBlockItem extends Item {
                     PipeNodeBlock.evaluateNeighbor(level, cornerPos, second)
                 );
                 nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
-                level.setBlockAndUpdate(cornerPos, nodeState);
-                playPlaceSound(level, cornerPos, nodeState, player);
+                PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, nodeState);
+                playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
             } else if (bothFree || oppositeOccupied) {
                 // 都闲 或 点击面对向忙端 → 转直管
                 Direction.Axis axis = clickedFace.getAxis();
@@ -492,8 +492,8 @@ public class PipeBlockItem extends Item {
                     .setValue(PipeBlock.HAS_END_START, !startIsPipe)
                     .setValue(PipeBlock.HAS_END_END, !endIsPipe)
                     .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
-                level.setBlockAndUpdate(cornerPos, straightState);
-                playPlaceSound(level, cornerPos, straightState, player);
+                PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, straightState);
+                playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
             } else if (!directionMatches) {
                 // 方向不匹配 → 旋转弯管（保留忙端，闲端改为新方向）
                 Direction occupiedEnd = firstOccupied ? first : second;
@@ -507,8 +507,8 @@ public class PipeBlockItem extends Item {
                     .setValue(PipeBlock.CORNER_ENDED, newCorner)
                     .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
                     .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
-                level.setBlockAndUpdate(cornerPos, newCornerState);
-                playPlaceSound(level, cornerPos, newCornerState, player);
+                PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, newCornerState);
+                playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
             }
         }
 

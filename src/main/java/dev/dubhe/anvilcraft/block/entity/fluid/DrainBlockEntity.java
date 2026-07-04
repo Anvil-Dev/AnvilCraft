@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -155,6 +156,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             return false;
         }
         Fluid fluid = stored.getFluid();
+        // 下界等超温维度不能放水，和水桶行为一致
+        if (level.dimensionType().ultraWarm() && fluid.isSame(Fluids.WATER)) {
+            return false;
+        }
         BlockState source = fluid.defaultFluidState().createLegacyBlock();
         if (source.isAir()) {
             return false; // 无对应可放置方块（如蜂蜜）
@@ -330,7 +335,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
 
     /**
      * 向上抽取：内部 &lt;3B 且上方有同种流体（或内部空、上方任意流体）时，从上方流体最上层、
-     * 就近处清除 1B 并回填自身。
+     * 最远处开始清除 1B 并回填自身。
      */
     private void tryDrainUp(Level level, BlockPos pos) {
         FluidStack stored = tank.getFluid();
@@ -417,16 +422,28 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     /**
      * 移除一个流体源并抑制无限水回填。
      *
-     * <p>把目标格设为空气（{@link Block#UPDATE_ALL} 正常更新），随后把其<b>同层水平相邻</b>的同种源
-     * 降级为<b>流动态</b>（非源）。这样目标格四周不再满足"≥2 个源邻居"的无限水条件，
-     * 相邻水不会瞬间把目标重新变回源；被降级的流动水若仍有更外围的源支撑则下 tick 自然复原，
-     * 否则逐渐干涸——配合逐格抽取，可把 2×2 乃至任意无限水池真正抽干。
+     * <p>把目标格设为空气（{@link Block#UPDATE_ALL} 正常更新）。仅当目标流体能形成无限源
+     * （如无限水）时，才把其<b>同层水平相邻</b>的同种源降级为<b>流动态</b>（非源），
+     * 打破"≥2 个源邻居"的无限水条件，防止相邻水瞬间把目标重新变回源。
+     * 对不能无限生成的流体（如岩浆），仅移除目标源，不降级邻居，避免不必要地损失流体。
      */
     private static void removeSourceWithSuppression(Level level, BlockPos target, Fluid fluid) {
+        // 在移除前判断是否需要抑制无限源回填：仅当目标位置本身满足无限源条件时才降级邻居
+        boolean shouldSuppress = false;
+        if (level instanceof ServerLevel serverLevel && fluid instanceof FlowingFluid flowing) {
+            shouldSuppress = canFormInfiniteSource(serverLevel, target, flowing);
+        }
+
         level.setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+
+        if (!shouldSuppress) {
+            return;
+        }
+
+        FlowingFluid flowing = (FlowingFluid) fluid;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             BlockPos n = target.relative(d);
-            if (isSameFluidSource(level, n, fluid) && fluid instanceof FlowingFluid flowing) {
+            if (isSameFluidSource(level, n, fluid)) {
                 // 降级为高等级流动态（level 7，接近满但非源），打破无限水对
                 BlockState flowingState = flowing.getFlowing(7, false).createLegacyBlock();
                 level.setBlock(n, flowingState, Block.UPDATE_ALL);
@@ -440,7 +457,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
      * <p><b>第一步（探顶）</b>：从排水口正上方沿同种流体一路向上，找到最高流体层 {@code topY}。
      *
      * <p><b>第二步（单层抽取）</b>：自 {@code topY} 向下逐层，在每一层内<b>仅水平</b> flood-fill
-     * （不跨层），返回首个含源的最高层里边缘优先、最近的源。液面很大时先把最顶一层一大片
+     * （不跨层），返回首个含源的最高层里边缘优先、最远的源。液面很大时先把最顶一层一大片
      * （受 {@value #MAX_NODES} 预算约束）抽完才下探下一层。
      *
      * <p><b>鞍部</b>：不向下跨层保证了排水口这侧抽到洞口高度后不会继续穿过洞口往隔壁盆地深处抽；
@@ -477,7 +494,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
 
     /**
      * 以 {@code entry} 为入口做"水平 + 向上" flood-fill 同种流体，
-     * 返回所有<b>源</b>中"水平同种源邻居最少（边缘优先）→ 最近"的一个。
+     * 返回所有<b>源</b>中"水平同种源邻居最少（边缘优先）→ 最远"的一个，从外向内抽干。
      *
      * <p>水平扩散的同时检查正上方一格：上方有同种流体则入队继续探。
      * 从而在反向鞍部（天花板凸起/凹穴）场景中，不会因为仅水平扫描而漏掉上方的水源。
@@ -520,7 +537,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         }
         BlockPos best = null;
         int bestNeighbors = Integer.MAX_VALUE;
-        long bestDist = Long.MAX_VALUE;
+        long bestDist = Long.MIN_VALUE;
         for (BlockPos p : sources) {
             int neighbors = countSourceNeighbors(level, p, fluid);
             long dx = p.getX() - drainPos.getX();
@@ -530,7 +547,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             if (neighbors != bestNeighbors) {
                 better = neighbors < bestNeighbors;
             } else {
-                better = dist < bestDist;
+                better = dist > bestDist; // 最远优先，从外向内抽
             }
             if (better) {
                 bestNeighbors = neighbors;

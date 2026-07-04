@@ -39,7 +39,9 @@ public class PipeStraightBlock extends PipeBlock {
             .any()
             .setValue(AXIS, Direction.Axis.X)
             .setValue(HAS_END_START, true)
-            .setValue(HAS_END_END, true));
+            .setValue(HAS_END_END, true)
+            .setValue(HAS_CHECK_VALVE, false)
+            .setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -92,6 +94,8 @@ public class PipeStraightBlock extends PipeBlock {
         if (level.isClientSide) {
             return;
         }
+        // 红石信号变化 → 更新本管道止逆阀反向状态
+        updateCheckValvePower(state, level, pos);
         Direction.Axis axis = state.getValue(AXIS);
 
         // 查找邻居相对于本方块的方向
@@ -114,18 +118,16 @@ public class PipeStraightBlock extends PipeBlock {
                 && PumpBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
             boolean neighborIsValve = neighborState.getBlock() instanceof ControlValveBlock
                 && ControlValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
-            boolean neighborIsCheckValve = neighborState.getBlock() instanceof CheckValveBlock
-                && CheckValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
-            if (!neighborIsPipeToward && !neighborIsPump && !neighborIsValve && !neighborIsCheckValve) {
+            if (!neighborIsPipeToward && !neighborIsPump && !neighborIsValve) {
                 return;
             }
 
-            // 转为节点 → 扫描全方向 → 自动退化
+            // 转为节点 → 扫描全方向 → 自动退化（保留止逆阀）
             BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
             for (Direction dir : Direction.values()) {
                 nodeState = nodeState.setValue(getPropertyForDirection(dir), PipeNodeBlock.evaluateNeighbor(level, pos, dir));
             }
-            level.setBlockAndUpdate(pos, nodeState);
+            setBlockPreservingValve(level, pos, state, nodeState);
             return;
         }
 

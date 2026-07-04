@@ -24,11 +24,11 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.FISH_TANK); // 鱼缸
         this.plain(ModBlocks.FLUID_TANK); // 流体储罐
         this.plain(ModBlocks.LARGE_FLUID_TANK); // 大型流体储罐
+        this.plain(ModBlocks.DRAIN); // 排水口
         this.plain(ModItems.PIPE); // 管道
         this.plain(ModBlocks.PUMP); // 泵
-        this.plain(ModBlocks.DRAIN); // 排水口
         this.plain(ModBlocks.CONTROL_VALVE); // 控制阀
-        this.plain(ModBlocks.CHECK_VALVE); // 止逆阀
+        this.plain(ModItems.CHECK_VALVE); // 止逆阀
         this.plain(ModBlocks.CORRUPTED_BEACON); // 腐化信标
         this.plain(ModBlocks.NEUTRON_IRRADIATOR); // 中子辐照器
         this.plain(ModBlocks.SPECTRAL_ANVIL); // 幻灵铁砧

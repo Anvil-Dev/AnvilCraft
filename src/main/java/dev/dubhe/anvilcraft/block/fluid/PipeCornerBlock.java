@@ -29,7 +29,9 @@ public class PipeCornerBlock extends PipeBlock {
             .any()
             .setValue(CORNER_ENDED, CornerEnded.UP_NORTH)
             .setValue(HAS_END_START, true)
-            .setValue(HAS_END_END, true));
+            .setValue(HAS_END_END, true)
+            .setValue(HAS_CHECK_VALVE, false)
+            .setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -71,6 +73,8 @@ public class PipeCornerBlock extends PipeBlock {
         if (level.isClientSide) {
             return;
         }
+        // 红石信号变化 → 更新本管道止逆阀反向状态
+        updateCheckValvePower(state, level, pos);
         CornerEnded corner = state.getValue(CORNER_ENDED);
 
         // 查找邻居相对于本方块的方向
@@ -92,14 +96,12 @@ public class PipeCornerBlock extends PipeBlock {
                 && PumpBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
             boolean neighborIsValve = neighborState.getBlock() instanceof ControlValveBlock
                 && ControlValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
-            boolean neighborIsCheckValve = neighborState.getBlock() instanceof CheckValveBlock
-                && CheckValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
-            if (isNeighborPipeToward(level, pos, neighborDir) || neighborIsPump || neighborIsValve || neighborIsCheckValve) {
+            if (isNeighborPipeToward(level, pos, neighborDir) || neighborIsPump || neighborIsValve) {
                 BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
                 for (Direction dir : Direction.values()) {
                     nodeState = nodeState.setValue(getPropertyForDirection(dir), PipeNodeBlock.evaluateNeighbor(level, pos, dir));
                 }
-                level.setBlockAndUpdate(pos, nodeState);
+                setBlockPreservingValve(level, pos, state, nodeState);
             }
             return;
         }

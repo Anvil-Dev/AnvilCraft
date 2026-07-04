@@ -2184,14 +2184,4 @@ public class RegistrumBlockRecipeLoader {
             )
             .save(provider);
     }
-
-    public static <T extends Block> void checkValve(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-            .requires(ModItems.PIPE)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.PIPE),
-                AnvilCraftDatagen.has(ModItems.PIPE)
-            )
-            .save(provider);
-    }
 }

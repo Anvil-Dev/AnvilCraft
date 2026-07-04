@@ -14,12 +14,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.Tags;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,13 +52,21 @@ public class PipeNodeBlock extends PipeBlock {
             .setValue(NORTH, NodePipe.NONE)
             .setValue(SOUTH, NodePipe.NONE)
             .setValue(WEST, NodePipe.NONE)
-            .setValue(EAST, NodePipe.NONE));
+            .setValue(EAST, NodePipe.NONE)
+            .setValue(HAS_CHECK_VALVE, false)
+            .setValue(WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(DOWN).add(UP).add(NORTH).add(SOUTH).add(WEST).add(EAST);
+    }
+
+    /** 节点的臂包含 PIPE（连管）与 END（连容器）——止逆阀两种臂上都可安装。 */
+    @Override
+    protected boolean hasArmToward(BlockState state, Direction dir) {
+        return state.getValue(getPropertyForDirection(dir)) != NodePipe.NONE;
     }
 
     /**
@@ -93,7 +99,7 @@ public class PipeNodeBlock extends PipeBlock {
         BlockState updated = scanAllDirections(state, level, pos);
         updated = trySimplify(updated);
         if (updated != state) {
-            level.setBlockAndUpdate(pos, updated);
+            setBlockPreservingValve(level, pos, state, updated);
         }
     }
 
@@ -112,6 +118,9 @@ public class PipeNodeBlock extends PipeBlock {
         if (level.isClientSide()) {
             return;
         }
+
+        // 红石信号变化 → 更新本节点止逆阀反向状态
+        updateCheckValvePower(state, level, pos);
 
         // 查找邻居相对于本方块的方向
         Direction neighborDir = null;
@@ -133,7 +142,7 @@ public class PipeNodeBlock extends PipeBlock {
 
         BlockState newState = state.setValue(prop, newValue);
         BlockState simplified = trySimplify(newState);
-        level.setBlockAndUpdate(pos, simplified);
+        setBlockPreservingValve(level, pos, state, simplified);
     }
 
     /**
@@ -162,10 +171,6 @@ public class PipeNodeBlock extends PipeBlock {
         if (neighborState.getBlock() instanceof ControlValveBlock) {
             // 控制阀仅在其连接面（朝向轴两端）正对节点时才形成端头连接
             return ControlValveBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
-        }
-        if (neighborState.getBlock() instanceof CheckValveBlock) {
-            // 止逆阀仅在其连接面（朝向轴两端）正对节点时才形成端头连接
-            return CheckValveBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
         }
         if (isFluidHandler(level, neighborPos)) {
             return NodePipe.END;
@@ -282,6 +287,11 @@ public class PipeNodeBlock extends PipeBlock {
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
+        // 先处理止逆阀交互（加阀/翻转/在有阀臂上用扳手移除）
+        ItemInteractionResult valveResult = handleCheckValveInteraction(stack, state, level, pos, player, hitResult);
+        if (valveResult != ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
+            return valveResult;
+        }
         // 非扳手 → 放行默认交互
         if (!stack.is(Tags.Items.TOOLS_WRENCH)) {
             return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
@@ -312,45 +322,10 @@ public class PipeNodeBlock extends PipeBlock {
             }
         }
 
-        // 断开连接 + 退化
-        BlockState newState = state.setValue(prop, NodePipe.NONE);
-        newState = trySimplify(newState);
-        level.setBlockAndUpdate(pos, newState);
+        // 断开连接 + 退化（保留其余面上的止逆阀）
+        BlockState disconnected = state.setValue(prop, NodePipe.NONE);
+        BlockState newState = trySimplify(disconnected);
+        setBlockPreservingValve(level, pos, state, newState);
         return ItemInteractionResult.sidedSuccess(false);
-    }
-
-    /**
-     * 根据精确点击坐标判断被点击的臂方向。
-     * 节点中心为 [3,3,3]→[13,13,13]（相对于 0-1 范围即 3/16→13/16），
-     * 点击超出此范围的方向即为命中对应臂。
-     *
-     * @param pos       节点位置
-     * @param hitResult 点击结果（含精确世界坐标）
-     * @return 被命中的臂方向，点击在中心区域则返回 {@code null}
-     */
-    private static @Nullable Direction getArmDirection(BlockPos pos, BlockHitResult hitResult) {
-        Vec3 loc = hitResult.getLocation();
-        double bx = loc.x - pos.getX(); // 方块内相对坐标 [0, 1]
-        double by = loc.y - pos.getY();
-        double bz = loc.z - pos.getZ();
-
-        // 找出偏离中心最远的方向
-        Direction armDir = null;
-        double maxDist = 0;
-        for (Direction dir : Direction.values()) {
-            double dist = switch (dir) {
-                case NORTH -> bz < 3.0 / 16 ? 3.0 / 16 - bz : 0;
-                case SOUTH -> bz > 13.0 / 16 ? bz - 13.0 / 16 : 0;
-                case WEST -> bx < 3.0 / 16 ? 3.0 / 16 - bx : 0;
-                case EAST -> bx > 13.0 / 16 ? bx - 13.0 / 16 : 0;
-                case DOWN -> by < 3.0 / 16 ? 3.0 / 16 - by : 0;
-                case UP -> by > 13.0 / 16 ? by - 13.0 / 16 : 0;
-            };
-            if (dist > maxDist) {
-                maxDist = dist;
-                armDir = dir;
-            }
-        }
-        return armDir;
     }
 }

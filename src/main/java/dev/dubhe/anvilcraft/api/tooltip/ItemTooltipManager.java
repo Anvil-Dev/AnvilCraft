@@ -353,7 +353,6 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.BERRY_CAKE_BLOCK.asItem(), "A slice of berry cake, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CHOCOLATE_CAKE_BLOCK.asItem(), "A slice of chocolate cake, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CONTROL_VALVE.asItem(), "Controls fluid flow direction, redstone-controllable on/off");
-        NORMAL.put(ModBlocks.CHECK_VALVE.asItem(), "Allows fluid to flow in only one direction, redstone-toggleable direction");
         NORMAL.put(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem(), "Executes commands on a timer, runs on power");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.asItem(), "Amplifies the Celestial Forging Anvil to support larger megastructures");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.asItem(), "Item I/O interface for the Celestial Forging Anvil");
@@ -362,11 +361,17 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.asItem(), "Placeholder block for Celestial Forging Anvil structure");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and items between two portals");
         NORMAL.put(ModBlocks.LENS.asItem(), "Use special glass to enchant lasers");
+        NORMAL.put(ModItems.CHECK_VALVE.get(), "Allows fluid to flow in only one direction");
         NORMAL.put(ModItems.DYSON_SPHERE_COMPONENT.get(), "Material for crafting the Dyson Sphere");
         NORMAL.put(ModItems.PENROSE_SPHERE_COMPONENT.get(), "Material for crafting the Penrose Sphere");
         NORMAL.put(ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), "Material for crafting the Matter Decompressor");
         NORMAL.put(ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), "Material for crafting the Wormhole Stabilizer");
 
+        SHIFT.put(
+            ModItems.CHECK_VALVE.get(), """
+                When holding a check valve, right-click one end of a pipe to convert that end into a check valve.
+                Can remove check valve by right-clicking it while holding a check valve, an anvil hammer, or with an empty hand.
+                Supplying a redstone signal reverses the flow direction of the check valve""");
         SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), """
                 Place an anvil to determine celestial parameters
@@ -442,7 +447,9 @@ public class ItemTooltipManager {
                 Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;
                 When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift."""
         );
-        SHIFT.put(ModBlocks.PUMP.asItem(), "Provides 10 blocks of headlift on both input and output sides (including the pump itself)");
+        SHIFT.put(ModBlocks.PUMP.asItem(), """
+            Provides 10 blocks of headlift on both input and output sides (including the pump itself)
+            Also functions as check valve, allowing liquid to flow through only in the pump's direction""");
         SHIFT.put(
             ModBlocks.CREATIVE_CRATE.asItem(), """
                 Provides infinite items of a set type: place items inside to configure

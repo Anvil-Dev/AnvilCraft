@@ -62,8 +62,13 @@ public class FluidPipeNetwork {
     private final Set<BlockPos> parts;
     private final Map<BlockPos, List<BlockPos>> adjacency;
     private final Map<BlockPos, ValveState> valves;
-    /** 二极管部件（泵/止逆阀）位置 → 进液侧方向。流体只能从进液侧穿到另一侧，反向不通（无关高度差）。 */
+    /** 二极管部件（泵）位置 → 进液侧方向。流体只能从进液侧穿到另一侧，反向不通（无关高度差）。 */
     private final Map<BlockPos, Direction> diodes;
+    /**
+     * 管道面止逆阀：管道位置 → (装阀面 → 允许流出的世界方向)。流体只能沿该方向穿过此面，
+     * 反向被阻断（无关高度差）。逐面约束天然覆盖直管/弯管/节点及朝容器的端点面。
+     */
+    private final Map<BlockPos, Map<Direction, Direction>> faceFlow;
     private final List<FluidEndpoint> endpoints;
     /** 端点按等效高度<b>降序</b>预排序（作为源的遍历顺序），构建时排一次，避免每 tick 重排。 */
     private final List<FluidEndpoint> sourcesByHeightDesc;
@@ -88,6 +93,7 @@ public class FluidPipeNetwork {
         Map<BlockPos, List<BlockPos>> adjacency,
         Map<BlockPos, ValveState> valves,
         Map<BlockPos, Direction> diodes,
+        Map<BlockPos, Map<Direction, Direction>> faceFlow,
         List<FluidEndpoint> endpoints
     ) {
         this.level = level;
@@ -95,6 +101,7 @@ public class FluidPipeNetwork {
         this.adjacency = adjacency;
         this.valves = valves;
         this.diodes = diodes;
+        this.faceFlow = faceFlow;
         this.endpoints = endpoints;
         // 预排序一次（缓存网络下每 tick 复用）
         this.sourcesByHeightDesc = new ArrayList<>(endpoints);
@@ -144,6 +151,17 @@ public class FluidPipeNetwork {
 
     /** 从单个源端点向所有更低的端点分配其持有的流体。 */
     private void distributeFromSource(FluidEndpoint source) {
+        // 源接管口朝本源容器那一面若装止逆阀，其允许方向必须朝网络（背离容器），否则本源无法向网络排液
+        if (source.sideToPipe() != null) {
+            Direction faceToContainer = source.sideToPipe().getOpposite();
+            Map<Direction, Direction> faces = faceFlow.get(source.fromPipePos());
+            if (faces != null) {
+                Direction allowed = faces.get(faceToContainer);
+                if (allowed != null && allowed == faceToContainer) {
+                    return; // 阀门只许流向容器 → 不能从此容器抽出
+                }
+            }
+        }
         IFluidHandler srcHandler = source.handler();
         // 逐个 tank 处理源中的流体（多数容器仅一个 tank）
         for (int tankIdx = 0; tankIdx < srcHandler.getTanks(); tankIdx++) {
@@ -151,9 +169,9 @@ public class FluidPipeNetwork {
             if (stored.isEmpty()) {
                 continue;
             }
-            // 从源出发做方向感知可达 BFS：二极管（泵/止逆阀）只能正向穿过、阀门按过滤放行；
-            // 得到 可达接管口 → 路径上的阀门列表。有二极管或有阀门时都需要此判定。
-            boolean needReachability = !valves.isEmpty() || !diodes.isEmpty();
+            // 从源出发做方向感知可达 BFS：二极管（泵）只能正向穿过、阀门按过滤放行、
+            // 面止逆阀只能沿允许方向穿过；得到 可达接管口 → 路径上的阀门列表。
+            boolean needReachability = !valves.isEmpty() || !diodes.isEmpty() || !faceFlow.isEmpty();
             Reachability reach = needReachability
                 ? computeReachable(source.fromPipePos(), stored)
                 : null;
@@ -345,22 +363,34 @@ public class FluidPipeNetwork {
     }
 
     /**
-     * 判断目标端点是否真正可达：接管口在 BFS 结果中，且当接管口本身是二极管（泵/止逆阀）时，
-     * 流体还必须能从该二极管朝容器一侧合法离开——否则会出现"逆着止逆阀方向最后一格进罐"的漏洞
-     * （BFS 进入二极管节点不受限，只有穿过才受限）。
+     * 判断目标端点是否真正可达：接管口在 BFS 结果中，接管口若是二极管（泵）能朝容器合法离开，
+     * 且接管口朝容器那一面若装有止逆阀，流向必须允许朝容器（否则"逆着止逆阀方向最后一格进罐"）。
      */
     private boolean isEndpointReachable(Reachability reach, FluidEndpoint target) {
         BlockPos pipe = target.fromPipePos();
         if (!reach.pathValves().containsKey(pipe)) {
             return false;
         }
-        return canLeaveDiode(pipe, reach.cameFrom().get(pipe), target.containerPos());
+        if (!canLeaveDiode(pipe, reach.cameFrom().get(pipe), target.containerPos())) {
+            return false;
+        }
+        // 接管口朝容器那一面的止逆阀方向校验：容器方向 = sideToPipe 的反侧
+        if (target.sideToPipe() != null) {
+            Direction toContainer = target.sideToPipe().getOpposite();
+            Map<Direction, Direction> faces = faceFlow.get(pipe);
+            if (faces != null) {
+                Direction allowed = faces.get(toContainer);
+                return allowed == null || allowed == toContainer;
+            }
+        }
+        return true;
     }
 
     /**
      * 从源接管口出发做<b>方向感知</b>可达 BFS，返回 {@code 可达接管口 → 路径上的阀门列表}。
      * <ul>
-     *   <li><b>二极管（泵/止逆阀）</b>：只能从进液侧穿到另一侧，反向穿越被禁止（无关高度差）。</li>
+     *   <li><b>二极管（泵）</b>：只能从进液侧穿到另一侧，反向穿越被禁止（无关高度差）。</li>
+     *   <li><b>面止逆阀</b>：流体只能沿该面允许的方向穿过，反向剪枝。</li>
      *   <li><b>阀门</b>：不放行当前流体则该分支剪枝。</li>
      * </ul>
      * 记录 {@code cameFrom} 以对二极管做"入-出"方向判定；首达路径即取到的阀门约束路径。
@@ -384,8 +414,12 @@ public class FluidPipeNetwork {
                 if (result.containsKey(next)) {
                     continue;
                 }
-                // 二极管：若 cur 是泵/止逆阀，只能沿"进液侧→另一侧"离开
+                // 二极管：若 cur 是泵，只能沿"进液侧→另一侧"离开
                 if (!canLeaveDiode(cur, cameFrom.get(cur), next)) {
+                    continue;
+                }
+                // 面止逆阀：cur→next 这条边两端的止逆阀方向校验
+                if (!canPassFaceValve(cur, next)) {
                     continue;
                 }
                 List<ValveState> nextPath = valvesAt(next, fluid, curPath);
@@ -401,11 +435,38 @@ public class FluidPipeNetwork {
     }
 
     /**
-     * 若 {@code cur} 是二极管（泵/止逆阀），判断从 {@code from} 进入、向 {@code to} 离开
+     * 沿边 {@code cur → next}（世界方向 {@code d}）判断两端管道的面止逆阀是否放行：
+     * <ul>
+     *   <li>{@code cur} 朝 {@code d} 的面装阀：允许流出方向须为 {@code d}；</li>
+     *   <li>{@code next} 朝 {@code -d} 的面（正对 cur）装阀：允许流出方向须为 {@code d}（即允许流体流入 next）。</li>
+     * </ul>
+     */
+    private boolean canPassFaceValve(BlockPos cur, BlockPos next) {
+        Direction d = Direction.fromDelta(
+            next.getX() - cur.getX(), next.getY() - cur.getY(), next.getZ() - cur.getZ());
+        if (d == null) {
+            return true;
+        }
+        Map<Direction, Direction> fc = faceFlow.get(cur);
+        if (fc != null) {
+            Direction allowed = fc.get(d);
+            if (allowed != null && allowed != d) {
+                return false;
+            }
+        }
+        Map<Direction, Direction> fn = faceFlow.get(next);
+        if (fn != null) {
+            Direction allowed = fn.get(d.getOpposite());
+            return allowed == null || allowed == d;
+        }
+        return true;
+    }
+
+    /**
+     * 若 {@code cur} 是二极管（泵），判断从 {@code from} 进入、向 {@code to} 离开
      * 是否符合其流体方向。
      *
-     * <p>方向语义：{@code diodes} 存进液侧方向（泵为 {@code getDirection()} 侧、势场 +10；
-     * 止逆阀为 {@link dev.dubhe.anvilcraft.block.fluid.CheckValveBlock#inflowSide}）；
+     * <p>方向语义：{@code diodes} 存进液侧方向（泵为 {@code getDirection()} 侧、势场 +10）；
      * 流体只允许 <b>进液侧 → 另一侧</b> 通过（如朝下的泵把下方水抽到上方）。非二极管则恒允许。
      *
      * @param from 进入 {@code cur} 的来源部件（{@code null} 表示 {@code cur} 是 BFS 起点）

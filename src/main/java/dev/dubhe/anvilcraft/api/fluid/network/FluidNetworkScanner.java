@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
-import dev.dubhe.anvilcraft.block.fluid.CheckValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
@@ -17,6 +17,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +40,11 @@ public final class FluidNetworkScanner {
     private FluidNetworkScanner() {
     }
 
-    /** 判断一个方块是否为管道部件（直管/弯管/节点/泵/控制阀/止逆阀）。 */
+    /** 判断一个方块是否为管道部件（直管/弯管/节点/泵/控制阀）。 */
     public static boolean isPipePart(BlockState state) {
         return state.getBlock() instanceof PipeBlock
             || state.getBlock() instanceof PumpBlock
-            || state.getBlock() instanceof ControlValveBlock
-            || state.getBlock() instanceof CheckValveBlock;
+            || state.getBlock() instanceof ControlValveBlock;
     }
 
     /** 判断某位置是否为流体容器（提供 IFluidHandler 且非管道部件）。供管理器剔除失效容器用。 */
@@ -102,6 +102,7 @@ public final class FluidNetworkScanner {
         Map<BlockPos, List<BlockPos>> adjacency = new HashMap<>();
         Map<BlockPos, ValveState> valves = new HashMap<>();
         Map<BlockPos, Direction> diodes = new HashMap<>();
+        Map<BlockPos, Map<Direction, Direction>> faceFlow = new HashMap<>();
         List<FluidEndpoint> endpoints = new ArrayList<>();
         Map<IFluidHandler, Boolean> seenHandlers = new HashMap<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
@@ -119,21 +120,22 @@ public final class FluidNetworkScanner {
                 valves.putIfAbsent(pos, new ValveState(valveBe));
                 expandAxial(level, pos, state.getValue(ControlValveBlock.AXIS), phi, false,
                     potential, adjacency, queue, endpoints, seenHandlers);
-            } else if (state.getBlock() instanceof CheckValveBlock) {
-                // 记录止逆阀的进液侧（二极管：仅允许 进液侧→另一侧 通过流体；不改势场）
-                diodes.put(pos.immutable(), CheckValveBlock.inflowSide(state));
-                expandAxial(level, pos, state.getValue(CheckValveBlock.FACING).getAxis(), phi, false,
-                    potential, adjacency, queue, endpoints, seenHandlers);
             } else if (state.getBlock() instanceof PumpBlock) {
                 // 记录泵的进液侧（二极管：仅允许 进液侧→另一侧 通过流体）
                 diodes.put(pos.immutable(), state.getValue(PumpBlock.ORIENTATION).getDirection());
                 expandPump(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             } else if (state.getBlock() instanceof PipeBlock) {
+                // 记录管道面止逆阀约束（若有）
+                if (state.getValue(PipeBlock.HAS_CHECK_VALVE)
+                    && level.getBlockEntity(pos) instanceof PipeCheckValveBlockEntity cv
+                    && !cv.isEmpty()) {
+                    faceFlow.put(pos.immutable(), new EnumMap<>(cv.effectiveFlows()));
+                }
                 expandPipe(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             }
         }
 
-        return new FluidPipeNetwork(level, potential.keySet(), adjacency, valves, diodes, endpoints);
+        return new FluidPipeNetwork(level, potential.keySet(), adjacency, valves, diodes, faceFlow, endpoints);
     }
 
     /** 记录一条 part↔part 无向邻接边。 */
@@ -215,13 +217,6 @@ public final class FluidNetworkScanner {
         // 控制阀：连接面正对本部件 → 门控透传
         if (neighborState.getBlock() instanceof ControlValveBlock
             && ControlValveBlock.isConnectableFace(neighborState, faceBack)) {
-            link(adjacency, pos, neighborPos);
-            enqueuePart(neighborPos, neighborPhi, potential, queue);
-            return;
-        }
-        // 止逆阀：连接面正对本部件 → 被动二极管（方向约束由分配时的可达 BFS 判定）
-        if (neighborState.getBlock() instanceof CheckValveBlock
-            && CheckValveBlock.isConnectableFace(neighborState, faceBack)) {
             link(adjacency, pos, neighborPos);
             enqueuePart(neighborPos, neighborPhi, potential, queue);
             return;
