@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -155,6 +156,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             return false;
         }
         Fluid fluid = stored.getFluid();
+        // 下界等超温维度不能放水，和水桶行为一致
+        if (level.dimensionType().ultraWarm() && fluid.isSame(Fluids.WATER)) {
+            return false;
+        }
         BlockState source = fluid.defaultFluidState().createLegacyBlock();
         if (source.isAir()) {
             return false; // 无对应可放置方块（如蜂蜜）
