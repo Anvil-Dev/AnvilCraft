@@ -53,7 +53,10 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.RESIN_BLOCK.asItem(), "Use to capture friendly or weak hostile creatures LivingEntity");
         NORMAL.put(ModBlocks.CRAB_TRAP.asItem(), "Placing it in the water to help you catch aquatic products");
         NORMAL.put(ModItems.CRAB_CLAW.get(), "Increase touch length when holding");
-        NORMAL.put(ModBlocks.ROYAL_ANVIL.asItem(), "Unbreakable and never triggers Too Expensive, does not degrade from falling");
+        NORMAL.put(
+            ModBlocks.ROYAL_ANVIL.asItem(), """
+                Never triggers Too Expensive
+                Explosion proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Eliminating Curses and Punishing, Explosion proof");
         NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Saving your Smithing Template, Explosion proof");
         NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
@@ -109,7 +112,10 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.HEAVY_IRON_DOOR.asItem(), "Heavy Iron door, Explosion proof");
         NORMAL.put(ModBlocks.HEAVY_IRON_TRAPDOOR.asItem(), "Heavy Iron trapdoor, Explosion proof");
         NORMAL.put(ModBlocks.ITEM_COLLECTOR.asItem(), "Adjust power consumption based on range and cooling, from 2kW to 32kW");
-        NORMAL.put(ModBlocks.EMBER_ANVIL.asItem(), "High-tier with enhanced compatibility, unbreakable, Wither proof, does not degrade from falling");
+        NORMAL.put(
+            ModBlocks.EMBER_ANVIL.asItem(), """
+               High-tier with enhanced compatibility
+               Wither proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Extracts enchantments onto books, Wither proof");
         NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "All-in-one combination smithing, Wither proof");
         NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "Netherite tempered in fire for eons, Wither proof");
@@ -286,6 +292,12 @@ public class ItemTooltipManager {
             Slower enchantment penalty growth, repairs any tool with Frost Metal, free renaming
             Explosion proof, does not degrade from falling"""
         );
+        NORMAL.put(
+            ModBlocks.TRANSCENDENCE_ANVIL.asItem(), """
+            Ignores enchantment level limits,
+            Immune to most destruction methods, does not degrade from falling""");
+        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block, immune to most destruction methods");
+        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(), "Transcendium decorative glass, immune to most destruction methods");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Selectively removes individual enchantments, Explosion proof");
         NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Works with Permutation and Deformation smithing templates, Explosion proof");
         NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "Special steel tempered in extreme cold for eons, Explosion proof");
@@ -321,6 +333,27 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.PUMP.asItem(), "Boosts fluid transport height, consumes 32 kW power");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
+        NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores 16B of fluid, expands to 640B when surrounded by Menger Sponges");
+        NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores 320 buckets of fluid, reaches infinite capacity when paired with Menger Sponges");
+        NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, places below or absorbs above at 5 gt per bucket");
+        NORMAL.put(ModBlocks.CORRUPTED_BEACON.asItem(), "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations");
+        NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up.");
+        NORMAL.put(ModBlocks.CONFINEMENT_CHAMBER.asItem(), "Contains elementary particles and unstable items, keeping them stable");
+        NORMAL.put(ModBlocks.CONFINED_TIME_ANVILON.asItem(), "Confinement chamber for time-type Anvilon");
+        NORMAL.put(ModBlocks.CONFINED_SPACE_ANVILON.asItem(), "Confinement chamber for space-type Anvilon");
+        NORMAL.put(ModBlocks.CONFINED_MASS_ANVILON.asItem(), "Confinement chamber for mass-type Anvilon");
+        NORMAL.put(ModBlocks.CONFINED_ENERGY_ANVILON.asItem(), "Confinement chamber for energy-type Anvilon");
+        NORMAL.put(ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK.asItem(), "A stable block of confined neutronium ingots");
+        NORMAL.put(ModBlocks.NEUTRON_IRRADIATOR.asItem(), "Performs neutron irradiation recipes, absorbs confined anvilons for block procedural process");
+        NORMAL.put(ModBlocks.CAKE_BASE_BLOCK.asItem(), "A slice of cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CREAM_BLOCK.asItem(), "A block of cream, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.BERRY_CREAM_BLOCK.asItem(), "A block of berry cream, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CAKE_BLOCK.asItem(), "A slice of assembled cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.BERRY_CAKE_BLOCK.asItem(), "A slice of berry cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CHOCOLATE_CAKE_BLOCK.asItem(), "A slice of chocolate cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CONTROL_VALVE.asItem(), "Controls fluid flow direction, redstone-controllable on/off");
+        NORMAL.put(ModBlocks.CHECK_VALVE.asItem(), "Allows fluid to flow in only one direction, redstone-toggleable direction");
         NORMAL.put(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem(), "Executes commands on a timer, runs on power");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.asItem(), "Amplifies the Celestial Forging Anvil to support larger megastructures");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.asItem(), "Item I/O interface for the Celestial Forging Anvil");
@@ -409,11 +442,7 @@ public class ItemTooltipManager {
                 Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;
                 When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift."""
         );
-        SHIFT.put(
-            ModBlocks.PUMP.asItem(), """
-                Provides 10 blocks of headlift on both input and output sides (including the pump itself)
-                Consumes 32 kW of power, automatically connects to adjacent pipes"""
-        );
+        SHIFT.put(ModBlocks.PUMP.asItem(), "Provides 10 blocks of headlift on both input and output sides (including the pump itself)");
         SHIFT.put(
             ModBlocks.CREATIVE_CRATE.asItem(), """
                 Provides infinite items of a set type: place items inside to configure
@@ -438,6 +467,13 @@ public class ItemTooltipManager {
             ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), """
                 Teleports players and items between two portals
                 Requires a Celestial Forging Anvil with an established wormhole connection"""
+        );
+
+        SHIFT.put(
+            ModBlocks.DRAIN.asItem(), """
+                Draining: >1B fluid inside and space below -> places fluid downward, fills from bottom up, 5 gt per bucket
+                Suction: <3B fluid inside and same fluid above (or empty + any fluid) -> absorbs fluid above without block updates, 5 gt per bucket
+                Ignores same-level fluid unless it forms an infinite source, then fills internal for free at 5 gt per bucket"""
         );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
