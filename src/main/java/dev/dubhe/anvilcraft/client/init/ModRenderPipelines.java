@@ -29,7 +29,6 @@ public class ModRenderPipelines {
         DestFactor.ONE
     );
 
-    /// 加法混合（发光叠加），用于超新星爆发光束/闪光。
     public static final BlendFunction ADDITIVE_BLEND = new BlendFunction(
         SourceFactor.SRC_ALPHA,
         DestFactor.ONE,
@@ -37,7 +36,6 @@ public class ModRenderPipelines {
         DestFactor.ONE
     );
 
-    /// 乘法混合（DST_COLOR × SRC_COLOR），用于恒星颜色叠加，精确调色板着色。
     public static final BlendFunction MULTIPLY_BLEND = new BlendFunction(
         SourceFactor.DST_COLOR,
         DestFactor.ZERO,
@@ -76,28 +74,22 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/lightning"))
         .build();
 
-    /// 超新星爆发光束/闪光：加法混合发光，双面可见，不写深度。复用 lightning 着色器（顶点色）。
-    public static final RenderPipeline SUPERNOVA_BEAM = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+    public static final RenderPipeline SUPERNOVA_BEAM = RenderPipeline.builder(RenderPipelines.BEACON_BEAM_SNIPPET)
         .withColorTargetState(new ColorTargetState(ADDITIVE_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
-        .withFragmentShader(AnvilCraft.of("core/rendertype_lightning"))
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/supernova_beam"))
         .build();
-
-    /// 腐化信标暗色光束：普通半透明混合（非加法），双面可见，写深度以呈现"暗色遮挡"感。
-    /// 复用 lightning 片段着色器（顶点色），与超新星光束区别在于用 TRANSLUCENT 而非 ADDITIVE 混合。
-    public static final RenderPipeline CORRUPTED_BEACON_BEAM = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
-        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+    
+    public static final RenderPipeline CORRUPTED_BEACON_BEAM = RenderPipeline.builder(RenderPipelines.BEACON_BEAM_SNIPPET)
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
-        .withFragmentShader(AnvilCraft.of("core/rendertype_lightning"))
-        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, true))
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/corrupted_beacon_beam"))
         .build();
 
-    /// 恒星颜色叠加：乘法混合（DST_COLOR × SRC_COLOR），使灰度恒星贴图精确按恒星 RGB 着色。
     public static final RenderPipeline STAR_COLOR_OVERLAY = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(MULTIPLY_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
@@ -105,7 +97,6 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/star_color_overlay"))
         .build();
 
-    /// 天体大气层/光晕立方体：普通半透明混合，双面可见（NO_CULL）。
     public static final RenderPipeline CELESTIAL_ATMOSPHERE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
@@ -114,7 +105,6 @@ public class ModRenderPipelines {
         .withLocation(AnvilCraft.of("pipeline/celestial_atmosphere"))
         .build();
 
-    /// 超新星闪光 billboard：加法混合发光贴图，双面可见，不写深度。
     public static final RenderPipeline SUPERNOVA_FLASH = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(ADDITIVE_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
