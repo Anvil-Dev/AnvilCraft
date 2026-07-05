@@ -838,7 +838,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     public void tick() {
         if (this.rotation == 360) this.rotation = 0;
         this.preRotation = this.rotation;
-        this.rotation += 3;
+        // 红石信号越大星环越大 → 转速越慢
+        int rotationSpeed = Math.max(1, 3 - this.getRedstoneSignal() / 5);
+        this.rotation += rotationSpeed;
         this.bodyRotation += 1;
 
         // Animation tick (client-side only)
