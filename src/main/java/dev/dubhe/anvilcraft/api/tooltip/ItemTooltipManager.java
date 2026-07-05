@@ -359,7 +359,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.asItem(), "Fluid I/O interface for the Celestial Forging Anvil");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.asItem(), "Laser I/O interface for the Celestial Forging Anvil");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.asItem(), "Placeholder block for Celestial Forging Anvil structure");
-        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and items between two portals");
+        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and entities between two portals");
         NORMAL.put(ModBlocks.LENS.asItem(), "Use special glass to enchant lasers");
         NORMAL.put(ModItems.CHECK_VALVE.get(), "Allows fluid to flow in only one direction");
         NORMAL.put(ModItems.DYSON_SPHERE_COMPONENT.get(), "Material for crafting the Dyson Sphere");
@@ -472,7 +472,7 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), """
-                Teleports players and items between two portals
+                Teleports players and entities between two portals
                 Requires a Celestial Forging Anvil with an established wormhole connection"""
         );
 
