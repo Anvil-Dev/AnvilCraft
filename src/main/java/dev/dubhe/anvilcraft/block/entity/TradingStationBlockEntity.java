@@ -140,7 +140,7 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         if (this.owner != null) tag.putUUID(OWNER_NBT_ID, this.owner);
         tag.put(STORAGE_NBT_ID, this.handler.serializeNBT(registries));
         tag.put(FILTERS_NBT_ID, this.filters.serializeNBT(registries));
-        tag.putBoolean(ALLOW_PLAYER_NBT_ID, this.isPlayerAllowed());
+        tag.putBoolean(ALLOW_PLAYER_NBT_ID, this.playerAllowed);
         tag.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
     }
 
@@ -190,7 +190,7 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         if (this.level != null) {
             tag.put(FILTERS_NBT_ID, this.filters.serializeNBT(this.level.registryAccess()));
         }
-        tag.putBoolean(ALLOW_PLAYER_NBT_ID, this.isPlayerAllowed());
+        tag.putBoolean(ALLOW_PLAYER_NBT_ID, this.playerAllowed);
         tag.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
     }
 
@@ -246,6 +246,9 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         ItemStack requesting = this.filters.getItem(2);
         if (requesting.isEmpty()) return false;
         if (!FilterContent.filter(requesting, inHand, !requesting.getComponentsPatch().isEmpty())) return false;
+
+        // Require exactly one provide item type for unambiguous player trading
+        if (TradingStationBlockEntity.isProvideMultiple(this.filters)) return false;
 
         // Determine which providing filter to use (slot 0 takes precedence)
         ItemStack providing = this.filters.getItem(0);
@@ -373,7 +376,6 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
     }
 
     public boolean isPlayerAllowed() {
-        if (TradingStationBlockEntity.isProvideMultiple(this.filters)) return false;
         return this.playerAllowed;
     }
 

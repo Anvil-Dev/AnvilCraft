@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.TagKey;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.ItemLike;
 public class ShapedRecipeLoader {
     public ShapedRecipeLoader(RegistrumRecipeProvider provider) {
         this.nineToOne(provider);
+        this.chargedNeutroniumIngot(provider);
     }
 
     public void nineToOne(RegistrumRecipeProvider provider) {
@@ -29,6 +31,20 @@ public class ShapedRecipeLoader {
             .pattern("AAA")
             .define('A', ModBlocks.PLYWOOD_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.PLYWOOD_BLOCK), AnvilCraftDatagen.has(ModBlocks.PLYWOOD_BLOCK))
+            .save(provider);
+    }
+
+    private void chargedNeutroniumIngot(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CHARGED_NEUTRONIUM_INGOT)
+            .pattern("SSS")
+            .pattern("SNS")
+            .pattern("SSS")
+            .define('S', ModItems.SUPER_CAPACITOR)
+            .define('N', ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.SUPER_CAPACITOR),
+                AnvilCraftDatagen.has(ModItems.CHARGED_NEUTRONIUM_INGOT)
+            )
             .save(provider);
     }
 

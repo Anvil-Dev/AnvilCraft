@@ -135,7 +135,7 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
         if (level.getBlockEntity(mainPartPos) instanceof TradingStationBlockEntity be && player instanceof ServerPlayer sp) {
             if (be.tryTradingWithPlayer(sp, hand)) return ItemInteractionResult.CONSUME;
             if (sp.isSpectator() || !be.isOwner(sp)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            if (sp.getItemInHand(hand).is(ModItems.DISK) && sp.isShiftKeyDown()) {
+            if (sp.getItemInHand(hand).is(ModItems.DISK)) {
                 return Util.interactionResultConverter().apply(be.useDisk(level, sp, hand, sp.getItemInHand(hand), hitResult));
             }
             ModMenuTypes.open(sp, be, mainPartPos);
@@ -147,7 +147,10 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (level instanceof ServerLevel serverside) {
-            TradingStationMessageManager.get().onPlayerBreak(serverside, pos, player);
+            // Resolve to main part so onPlayerBreak can find the BlockEntity and check ownership.
+            // Otherwise breaking the top half adds topPos to playerBroke while the cascade
+            // removes the bottom half via onNonPlayerBreak, which looks for bottomPos — mismatch.
+            TradingStationMessageManager.get().onPlayerBreak(serverside, this.getMainPartPos(pos, state), player);
         }
         return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
     }

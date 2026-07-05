@@ -20,7 +20,7 @@ public class NeutronIrradiationRecipeLoader {
             .save(provider);
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
-            .hasItemIngredient(builder -> builder.of(ModBlocks.URANIUM_BLOCK.asItem()).offset(0.0, -0.375, 0.0).range(0.75, 0.75, 0.75))
+            .hasItemIngredient(builder -> builder.of(ModItemTags.RADIATIONS).offset(0.0, -0.375, 0.0).range(0.75, 0.75, 0.75))
             .hasCauldron(0, -1, 0)
             .hasBlock(builder -> builder.of(ModBlocks.NEUTRON_IRRADIATOR.get()).offset(0, -2, 0))
             .chooseOne(builder -> builder.choice(
@@ -32,6 +32,6 @@ public class NeutronIrradiationRecipeLoader {
                     ConstantValue.exactly(1f)
                 ), 1f
             ))
-            .save(provider, "uranium_block_explosion");
+            .save(provider, "radiation_block_explosion");
     }
 }

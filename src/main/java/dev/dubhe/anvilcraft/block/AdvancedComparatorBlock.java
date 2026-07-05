@@ -237,13 +237,18 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         boolean shouldPower = blockEntity.isOutputting();
         int inputtingSignal = Mth.clamp(blockEntity.getInputtingSignal(), 0, 15);
         Mode mode = blockEntity.getCompareMode();
-        level.setBlockAndUpdate(pos,
-            state.setValue(AdvancedComparatorBlock.POWERED, shouldPower)
-                .setValue(AdvancedComparatorBlock.INPUT, inputtingSignal > 0)
-                .setValue(AdvancedComparatorBlock.POWER, inputtingSignal)
-                .setValue(AdvancedComparatorBlock.MODE, mode));
-        level.neighborChanged(neighbourPos, state.getBlock(), pos);
-        level.updateNeighborsAtExceptFromFacing(neighbourPos, state.getBlock(), direction.getOpposite());
+        boolean changed = state.getValue(AdvancedComparatorBlock.POWERED) != shouldPower
+            || state.getValue(AdvancedComparatorBlock.INPUT) != (inputtingSignal > 0)
+            || state.getValue(AdvancedComparatorBlock.POWER) != inputtingSignal
+            || state.getValue(AdvancedComparatorBlock.MODE) != mode;
+        if (!changed) return;
+        BlockState newState = state.setValue(AdvancedComparatorBlock.POWERED, shouldPower)
+            .setValue(AdvancedComparatorBlock.INPUT, inputtingSignal > 0)
+            .setValue(AdvancedComparatorBlock.POWER, inputtingSignal)
+            .setValue(AdvancedComparatorBlock.MODE, mode);
+        level.setBlockAndUpdate(pos, newState);
+        level.neighborChanged(neighbourPos, newState.getBlock(), pos);
+        level.updateNeighborsAtExceptFromFacing(neighbourPos, newState.getBlock(), direction.getOpposite());
     }
 
     @Override

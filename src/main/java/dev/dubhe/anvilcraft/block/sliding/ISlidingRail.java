@@ -161,11 +161,9 @@ public interface ISlidingRail extends IBlockExtension {
         for (var toPushEntry : toPushes) {
             BlockPos toPushPos = toPushEntry.getLeft();
             BlockState toPushState = toPushEntry.getMiddle();
-            if (!(toPushState.getBlock() instanceof IMoveableEntityBlock)) {
-                toPushState.updateIndirectNeighbourShapes(level, toPushPos, 0b0000010);
-                air.updateNeighbourShapes(level, toPushPos, 0b0000010);
-                air.updateIndirectNeighbourShapes(level, toPushPos, 0b0000010);
-            }
+            toPushState.updateIndirectNeighbourShapes(level, toPushPos, 0b0000010);
+            air.updateNeighbourShapes(level, toPushPos, 0b0000010);
+            air.updateIndirectNeighbourShapes(level, toPushPos, 0b0000010);
         }
 
         int j = 0;
@@ -178,10 +176,7 @@ public interface ISlidingRail extends IBlockExtension {
         }
 
         for (var toPushEntry : toPushes) {
-            BlockState toPushState = toPushEntry.getMiddle();
-            if (!(toPushState.getBlock() instanceof IMoveableEntityBlock)) {
-                level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
-            }
+            level.updateNeighborsAt(toPushEntry.getLeft(), air.getBlock());
         }
 
         SlidingBlockEntity.slid(level, pos, facing, toPushes);

@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -40,7 +40,7 @@ public class RadioactiveBlock extends Block {
             BlockState neighbor = level.getBlockState(pos.relative(direction));
             if (neighbor.getBlock() instanceof RadioactiveBlock) {
                 radioactiveCount++;
-            } else if (neighbor.is(ModBlocks.LEAD_BLOCK.get())) {
+            } else if (neighbor.is(ModBlockTags.STORAGE_BLOCKS_LEAD)) {
                 leadCount++;
             }
         }

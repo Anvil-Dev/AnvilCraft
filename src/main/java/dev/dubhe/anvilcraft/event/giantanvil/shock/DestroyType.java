@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -210,15 +211,52 @@ public abstract class DestroyType {
         @Override
         public void accept(ShockContext context, List<BlockPos> list, DestroyMode mode) {
             Level level = context.level();
+            RandomSource random = level.random;
             for (BlockPos blockPos : list) {
                 BlockState blockState = level.getBlockState(blockPos);
-                if (blockState.isAir() || !(blockState.getBlock() instanceof AmethystClusterBlock)) {
+                if (blockState.isAir()) continue;
+                // Only destroy fully grown amethyst clusters
+                if (blockState.is(Blocks.AMETHYST_CLUSTER)) {
+                    level.destroyBlock(blockPos, false);
+                    List<ItemStack> dropItems = mode.apply(blockState, blockPos, context);
+                    DestroyType.dropItems(dropItems, blockPos, level);
                     continue;
                 }
-                level.destroyBlock(blockPos, false);
-                List<ItemStack> dropItems = mode.apply(blockState, blockPos, context);
-                DestroyType.dropItems(dropItems, blockPos, level);
+                // 25% chance for budding amethyst to advance one attached bud by one growth stage
+                if (blockState.is(Blocks.BUDDING_AMETHYST) && random.nextFloat() < 0.25f) {
+                    List<Direction> budDirections = new ArrayList<>();
+                    for (Direction dir : Direction.values()) {
+                        BlockPos neighborPos = blockPos.relative(dir);
+                        BlockState neighborState = level.getBlockState(neighborPos);
+                        if (neighborState.getBlock() instanceof AmethystClusterBlock
+                            && neighborState.getValue(AmethystClusterBlock.FACING) == dir
+                            && !neighborState.is(Blocks.AMETHYST_CLUSTER)) {
+                            budDirections.add(dir);
+                        }
+                    }
+                    if (!budDirections.isEmpty()) {
+                        Direction chosen = budDirections.get(random.nextInt(budDirections.size()));
+                        BlockPos budPos = blockPos.relative(chosen);
+                        BlockState budState = level.getBlockState(budPos);
+                        Block advancedBud = getNextGrowthStage(budState.getBlock());
+                        level.setBlockAndUpdate(
+                            budPos, advancedBud.defaultBlockState()
+                            .setValue(AmethystClusterBlock.FACING, chosen)
+                            .setValue(
+                                AmethystClusterBlock.WATERLOGGED,
+                                budState.getValue(AmethystClusterBlock.WATERLOGGED)
+                            )
+                        );
+                    }
+                }
             }
+        }
+
+        private static Block getNextGrowthStage(Block current) {
+            if (current == Blocks.SMALL_AMETHYST_BUD) return Blocks.MEDIUM_AMETHYST_BUD;
+            if (current == Blocks.MEDIUM_AMETHYST_BUD) return Blocks.LARGE_AMETHYST_BUD;
+            if (current == Blocks.LARGE_AMETHYST_BUD) return Blocks.AMETHYST_CLUSTER;
+            return null; // Already fully grown or not a bud
         }
     };
 

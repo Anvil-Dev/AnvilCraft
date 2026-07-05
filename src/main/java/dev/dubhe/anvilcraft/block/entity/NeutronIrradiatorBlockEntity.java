@@ -2,12 +2,15 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.ImmutableMap;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
+import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,6 +36,9 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
     );
 
     public static final int TYPE_CHECK_THRESHOLD = 6;
+    private static final int RADIATION_THRESHOLD = 40;
+
+    private int radiationTick = 0;
 
     public NeutronIrradiatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.NEUTRON_IRRADIATOR.get(), pos, blockState);
@@ -67,5 +73,37 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
         if (baseType && state.getValue(NeutronIrradiatorBlock.TYPE) != IrradiatorType.NEUTRON) {
             this.level.setBlockAndUpdate(pos, state.setValue(NeutronIrradiatorBlock.TYPE, IrradiatorType.NEUTRON));
         }
+
+        BlockPos abovePos = pos.above();
+        BlockState aboveState = this.level.getBlockState(abovePos);
+        if (aboveState.getBlock() instanceof RadioactiveBlock) {
+            radiationTick++;
+            if (radiationTick >= RADIATION_THRESHOLD) {
+                radiationTick = 0;
+                this.level.explode(
+                    null,
+                    abovePos.getX() + 0.5,
+                    abovePos.getY() + 0.5,
+                    abovePos.getZ() + 0.5,
+                    3f,
+                    false,
+                    Level.ExplosionInteraction.BLOCK
+                );
+            }
+        } else {
+            radiationTick = 0;
+        }
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putInt("RadiationTick", radiationTick);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        radiationTick = tag.getInt("RadiationTick");
     }
 }

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:multiblock/shulker_container"
+        "recipe": "anvilcraft:anvil_collision/frost_anvil_and_ember_metal_block_32"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:multiblock/shulker_container"
+      "anvilcraft:anvil_collision/frost_anvil_and_ember_metal_block_32"
     ]
   }
 }

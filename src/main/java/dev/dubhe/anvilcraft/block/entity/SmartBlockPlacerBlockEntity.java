@@ -1741,7 +1741,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     );
                 }
 
-                // 修正朝向
+                // 修正朝向，并更新方块自身基于邻居的状态（如栅栏连接等）
+                stateToPlace = Block.updateFromNeighbourShapes(stateToPlace, level, targetPos);
                 level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS);
 
                 if (sourceBlockEntityData != null) {
@@ -2146,7 +2147,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
             } else {
                 this.applyBlueprintBlockFacing(level, targetPos, index);
-                // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向），只更新客户端
+                // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向），并更新自身基于邻居的状态
+                blueprintState = Block.updateFromNeighbourShapes(blueprintState, level, targetPos);
                 level.setBlock(targetPos, blueprintState, Block.UPDATE_CLIENTS);
             }
 

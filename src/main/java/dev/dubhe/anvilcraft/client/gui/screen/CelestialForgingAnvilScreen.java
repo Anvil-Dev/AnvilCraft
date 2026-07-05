@@ -69,7 +69,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final int TEX_WIDTH = 512;
     private static final int TEX_HEIGHT = 256;
 
-    /// 预览区域（使用0索引坐标）
+    /// 天体预览区域
     private static final int PV_X = 98;
     private static final int PV_Y = 15;
     private static final int PV_W = 148;
@@ -82,11 +82,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final int PV_INFO_H = 60;
     private static final int PV_BOT_Y = 84;
 
-    /// 资源条（位于天体预览和信息面板下方的细条）
+    /// 天体资源条
     private static final int PV_RES_Y = 76;
     private static final int PV_RES_H = 20;
 
-    /// 搜索按钮（精灵图尺寸48x32，上半为正常状态，下半为悬停状态）
+    /// 搜索按钮
     private static final int SB_X = 32;
     private static final int SB_Y = 121;
     private static final int SB_W = 48;
@@ -100,20 +100,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final int RF_BTN_H = 35;
 
     /// 四个按钮位置（左上、右上、左下、右下）
-    private static final int[] RF_BTN_X = {
-        255,
-        291,
-        255,
-        291
-    };
-    private static final int[] RF_BTN_Y = {
-        39,
-        39,
-        74,
-        74
-    };
+    private static final int[] RF_BTN_X = {255, 291, 255, 291};
+    private static final int[] RF_BTN_Y = {39, 39, 74, 74};
 
-    /// 重构选项滚动条（轨道位于背景像素332-335，y=40-109，在512x256贴图中）
+    /// 重构选项滚动条
     private static final int RF_SCROLL_X = 331;
     private static final int RF_SCROLL_Y = 39;
     private static final int RF_SCROLL_H = 70;
@@ -122,15 +112,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final int RF_COLS = 2;
     private static final int RF_ROWS_VISIBLE = 2;
 
-    /// 开始重构按钮（精灵图每状态48x16，总计48x32）
+    /// 开始重构按钮
     private static final int RF_START_X = 290;
     private static final int RF_START_Y = 121;
     private static final int RF_START_W = 48;
     private static final int RF_START_H = 16;
 
     private static final String BTN_DIR = "machine/celestial_forging_anvil/";
-    private static final ResourceLocation TEX_SEARCH = SharedTextures.textureGui(BTN_DIR + "search");
-    private static final ResourceLocation TEX_RESEARCH = SharedTextures.textureGui(BTN_DIR + "re_search");
+    private static final ResourceLocation TEX_FORGING = SharedTextures.textureGui(BTN_DIR + "forging");
+    private static final ResourceLocation TEX_REFORGING = SharedTextures.textureGui(BTN_DIR + "re_forging");
     private static final ResourceLocation TEX_PREV = SharedTextures.textureGui(BTN_DIR + "previous");
     private static final ResourceLocation TEX_NEXT = SharedTextures.textureGui(BTN_DIR + "next");
     private static final ResourceLocation TEX_UNLOCKED = SharedTextures.textureGui(BTN_DIR + "unlocked");
@@ -141,10 +131,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /// 星图指南贴图
     private static final ResourceLocation TEX_CELESTIAL_MAPS = SharedTextures.texture("block/celestial_maps");
     private static final int MAP_SIZE = 160;
-    private static final int COLOR_TIME = 0xBF_A0FFA0;    /// 浅绿色，75%透明度
-    private static final int COLOR_SPACE = 0xBF_00FFFF;   /// 青色，75%透明度
-    private static final int COLOR_MASS = 0xBF_FFFFA0;    /// 浅黄色，75%透明度
-    private static final int COLOR_ENERGY = 0xBF_FF8080;  /// 浅红色，75%透明度
+    private static final int COLOR_TIME = 0xBF_A0FFA0;    // 浅绿色，75%透明度
+    private static final int COLOR_SPACE = 0xBF_00FFFF;   // 青色，75%透明度
+    private static final int COLOR_MASS = 0xBF_FFFFA0;    // 浅黄色，75%透明度
+    private static final int COLOR_ENERGY = 0xBF_FF8080;  // 浅红色，75%透明度
 
     private static final ItemStack[] GHOST_STACKS = {
         new ItemStack(ModBlocks.CONFINED_TIME_ANVILON.asItem()),
@@ -310,7 +300,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int relY = mouseY - j;
 
         /// 搜索按钮（精灵图每状态48x16，总计48x32）
-        ResourceLocation btnTex = (searchState == SearchState.DONE && !searchHistory().isEmpty()) ? TEX_RESEARCH : TEX_SEARCH;
+        ResourceLocation btnTex = (searchState == SearchState.DONE && !searchHistory().isEmpty()) ? TEX_REFORGING : TEX_FORGING;
         boolean hoverSearch = relX >= SB_X && relX < SB_X + SB_W && relY >= SB_Y && relY < SB_Y + SB_H;
         renderButton(guiGraphics, btnTex, i + SB_X, j + SB_Y, SB_W, SB_H, hoverSearch);
 
