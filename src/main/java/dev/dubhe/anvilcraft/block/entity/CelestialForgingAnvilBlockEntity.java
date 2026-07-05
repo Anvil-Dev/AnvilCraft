@@ -89,9 +89,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     private final CfaMegastructureManager megastructureManager = new CfaMegastructureManager();
 
     @Getter
-    private int preRotation = 0;
+    private float preRotation = 0;
     @Getter
-    private int rotation = 0;
+    private float rotation = 0;
 
     @Getter
     private boolean isAmplify = false;
@@ -836,10 +836,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     };
 
     public void tick() {
-        if (this.rotation == 360) this.rotation = 0;
+        if (this.rotation >= 360) this.rotation -= 360;
         this.preRotation = this.rotation;
         // 红石信号越大星环越大 → 转速越慢
-        int rotationSpeed = Math.max(1, 3 - this.getRedstoneSignal() / 5);
+        float rotationSpeed = 3.0f / (1.0f + this.getRedstoneSignal() * 0.4f);
         this.rotation += rotationSpeed;
         this.bodyRotation += 1;
 
