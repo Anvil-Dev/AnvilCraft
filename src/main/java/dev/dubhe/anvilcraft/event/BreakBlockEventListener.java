@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
+import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
@@ -10,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -36,9 +38,14 @@ public class BreakBlockEventListener {
         Player player = event.getPlayer();
         if (!(player.level() instanceof ServerLevel level)) return;
         BlockPos pos = event.getPos();
-        if (!level.getBlockState(pos).is(ModBlocks.TRADING_STATION)) return;
+        BlockState state = level.getBlockState(pos);
+        if (!state.is(ModBlocks.TRADING_STATION)) return;
+        BlockPos mainPos = pos;
+        if (state.getBlock() instanceof TradingStationBlock tsb) {
+            mainPos = tsb.getMainPartPos(pos, state);
+        }
         if (
-            level.getBlockEntity(pos, ModBlockEntities.TRADING_STATION.get()).filter(be -> be.isOwner(player)).isEmpty()
+            level.getBlockEntity(mainPos, ModBlockEntities.TRADING_STATION.get()).filter(be -> be.isOwner(player)).isEmpty()
             && !player.isShiftKeyDown()
         ) {
             player.displayClientMessage(

@@ -25,6 +25,10 @@ public class RandomChuckTickLoadManager {
         RANDOM_TICK_LOAD_CHUCK_AREA_MAP.remove(centerPos);
     }
 
+    public static void clear() {
+        RANDOM_TICK_LOAD_CHUCK_AREA_MAP.clear();
+    }
+
     private static boolean isInPlayerRandomTickRange(ServerLevel serverLevel, ChunkPos chunkPos) {
         double chunkCenterX = (chunkPos.x << 4) + 8;
         double chunkCenterZ = (chunkPos.z << 4) + 8;

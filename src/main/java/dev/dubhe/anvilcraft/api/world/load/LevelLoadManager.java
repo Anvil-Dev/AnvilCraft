@@ -106,8 +106,9 @@ public class LevelLoadManager {
     }
 
     public static void removeAll(ServerLevel level) {
-        Map<BlockPos, LoadChuckData> dimMap = LEVEL_LOAD_CHUCK_AREA_MAP.remove(level.dimension());
-        if (dimMap != null) dimMap.values().forEach(it -> it.discard(level));
+        LEVEL_LOAD_CHUCK_AREA_MAP.remove(level.dimension());
         CHUNK_REFS.remove(level.dimension());
+        RandomChuckTickLoadManager.clear();
+        lazyCalls.clear();
     }
 }

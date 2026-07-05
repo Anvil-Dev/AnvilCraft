@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:uranium_block_explosion"
+        "recipe": "minecraft:radiation_block_explosion"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "minecraft:uranium_block_explosion"
+      "minecraft:radiation_block_explosion"
     ]
   }
 }

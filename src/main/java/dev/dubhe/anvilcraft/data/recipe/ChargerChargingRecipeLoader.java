@@ -42,13 +42,13 @@ public class ChargerChargingRecipeLoader {
             .requires(ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS)
             .result(ModItems.CHARGED_NEUTRONIUM_INGOT)
             .power(-4000)
-            .time(20 * 300)
+            .time(20 * 180)
             .save(provider);
         ChargerChargingRecipe.builder()
             .requires(ModItems.CHARGED_NEUTRONIUM_INGOT)
             .result(ModItems.NEUTRONIUM_INGOT)
             .power(3200)
-            .time(20 * 300)
+            .time(20 * 180)
             .save(provider);
     }
 }

@@ -276,21 +276,25 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.trading_station.output_allow", "Allow automatically outputting");
         provider.add("screen.anvilcraft.trading_station.output_not_allow", "Disallow automatically outputting");
 
-        // Celestial Forging Anvil (所有冒号后面都要带空格，中文也是！)
+        /// Celestial Forging Anvil 锻星砧
         provider.add("screen.anvilcraft.celestial_forging_anvil", "Celestial Forging Anvil"); // 锻星砧
         provider.add("screen.anvilcraft.cfa.celestial_params", "Parameter"); // 天体参数
+
         provider.add("screen.anvilcraft.cfa.lock", "Click to lock"); // 点击锁定
+        provider.add("screen.anvilcraft.cfa.unlock", "Shift-Click to unlock"); // 按住Shift点击以解锁
         provider.add("screen.anvilcraft.cfa.locked_tooltip", "Operation requires unlocking first"); // 需要先解锁才可操作，如果你不是锻星砧拥有者，请询问拥有者后操作
+        provider.add("screen.anvilcraft.cfa.unlock_warning", "Unlock will delete the megastructure, Shift-Click to confirm"); // 解锁会删除已建造的巨构，按住Shift点击确认解锁
+
         provider.add("screen.anvilcraft.cfa.missing_amplifier.line1", "Amplifier missing,"); // 滚木
         provider.add("screen.anvilcraft.cfa.missing_amplifier.line2", "celestial body status"); // 缺少增幅器，天体状态暂无法同步
         provider.add("screen.anvilcraft.cfa.missing_amplifier.line3", "cannot be synced"); // 滚木
+
+        provider.add("screen.anvilcraft.cfa.search_tooltip", "Forging celestial bodies with this parameter"); // 锻造该参数的天体
+        provider.add("screen.anvilcraft.cfa.search_fail", "Unreasonable parameters"); // 参数不合理，无法锻造
+        provider.add("screen.anvilcraft.cfa.search_loading", "Forging"); // 参数合理，锻造中
+        provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Forging Again"); // 再次锻造
         provider.add("screen.anvilcraft.cfa.power_fail", "Insufficient power"); // 电力不足
-        provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Search Again"); // 再次搜索
-        provider.add("screen.anvilcraft.cfa.search_fail", "Unreasonable parameters"); // 参数不合理，无法搜索
-        provider.add("screen.anvilcraft.cfa.search_loading", "Searching"); // 参数合理，搜索中
-        provider.add("screen.anvilcraft.cfa.search_tooltip", "Search for celestial bodies with this parameter"); // 搜索该参数的天体
-        provider.add("screen.anvilcraft.cfa.unlock", "Shift-Click to unlock"); // 按住Shift点击以解锁
-        provider.add("screen.anvilcraft.cfa.unlock_warning", "Unlock will delete the megastructure, Shift-Click to confirm"); // 解锁会删除已建造的巨构，按住Shift点击确认解锁
+
         provider.add("screen.anvilcraft.cfa.radius", "Radius: %s"); // 半径: %s
         provider.add("screen.anvilcraft.cfa.age", "Age: %s"); // 年龄: %s
         provider.add("screen.anvilcraft.cfa.mass", "Mass: %s"); // 质量: %s
@@ -341,7 +345,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.no_match", "Null"); // ？？？
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon"); // 大型卫星
         provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet"); // 岩石行星
-        // Rocky planet types — keyed by temperature × liquid × atmosphere
+        // 岩石行星，根据温度、大气自动决定类型
         provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_no_atmos", "Deathly Frozen"); // 死寂冻土
         provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_atmos", "Desolate Frozen"); // 荒原冻土
         provider.add("screen.anvilcraft.cfa.class.freezing_liquid", "Frozen Planet"); // 冰封星球
@@ -359,11 +363,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.cold_ocean", "Frozen Ocean"); // 冰封海洋
         provider.add("screen.anvilcraft.cfa.class.mild_ocean", "Warm Ocean"); // 温和海洋
         provider.add("screen.anvilcraft.cfa.class.hot_ocean", "Sweltering Ocean"); // 过热海洋
-
+        // 巨行星
         provider.add("screen.anvilcraft.cfa.class.ice_giant", "Ice Giant"); // 冰巨行星
         provider.add("screen.anvilcraft.cfa.class.gas_giant", "Gas Giant"); // 气体巨星
-        provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf");
-
+        provider.add("screen.anvilcraft.cfa.class.brown_dwarf", "Brown Dwarf"); // 褐矮星
+        // 恒星
         provider.add("screen.anvilcraft.cfa.class.m_main", "M-Star"); // Red Dwarf 红矮星
         provider.add("screen.anvilcraft.cfa.class.k_main", "K-Star"); // Orange Dwarf 橙矮星
         provider.add("screen.anvilcraft.cfa.class.g_main", "G-Star"); // Yellow Dwarf 黄矮星
@@ -387,15 +391,15 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.o_supergiant", "O-Supergiant"); // Blue Supergiant 蓝超巨星
         provider.add("screen.anvilcraft.cfa.class.white_dwarf", "White Dwarf"); // 白矮星
 
-        // Celestial Restriction Ring Refactor
-        provider.add("screen.anvilcraft.cfa.refactor_title", "Refactor"); // 束星环重构
-        provider.add("screen.anvilcraft.cfa.need_lock", "Need to lock"); // 需要先锁定搜索结果
-        provider.add("screen.anvilcraft.cfa.no_refactor_option", "No refactoring option selected"); // 未选择再构选项
+        // CFA Restriction Ring Refactor 束星环重构
+        provider.add("screen.anvilcraft.cfa.refactor_title", "Megastructure"); // 巨构建造
+        provider.add("screen.anvilcraft.cfa.need_lock", "Need to lock"); // 需锁定搜索结果
+        provider.add("screen.anvilcraft.cfa.no_refactor_option", "No megastructure option selected"); // 未选择巨构选项
         provider.add("screen.anvilcraft.cfa.insufficient_materials", "Insufficient building materials"); // 建材不足
         provider.add("screen.anvilcraft.cfa.material_required", "Requires: %s × %s"); // 需求: %s × %s
-        provider.add("screen.anvilcraft.cfa.refactor_materials", "Refactor materials"); // 重构建材
+        provider.add("screen.anvilcraft.cfa.refactor_materials", "Megastructure materials"); // 巨构建材
         provider.add("screen.anvilcraft.cfa.refactor_start_tooltip", "Refactor Celestial Restriction into a selected megastructure"); // 将束星环重构为选择的巨构
-        // CFA Interface tooltips
+        // CFA Interface tooltips 锻星砧接口
         provider.add("screen.anvilcraft.cfa.logistics_interface.title", "Logistics Interface"); // 物流接口
         provider.add("screen.anvilcraft.cfa.fluid_interface.title", "Fluid Interface"); // 流体接口
         provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface"); // 激光接口

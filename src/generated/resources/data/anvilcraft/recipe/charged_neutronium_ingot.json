@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": {
+      "tag": "anvilcraft:uncharged_neutronium_ingots"
+    },
+    "S": {
+      "item": "anvilcraft:supercapacitor"
+    }
+  },
+  "pattern": [
+    "SSS",
+    "SNS",
+    "SSS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:charged_neutronium_ingot"
+  }
+}

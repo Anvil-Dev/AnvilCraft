@@ -16,6 +16,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.wip_block", "WIP Block");
         provider.add("config.jade.plugin_anvilcraft.creative_crate", "Creative Crate");
         provider.add("config.jade.plugin_anvilcraft.creative_fluid_tank", "Creative Fluid Tank");
+        provider.add("config.jade.plugin_anvilcraft.large_laser", "Large Laser");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");

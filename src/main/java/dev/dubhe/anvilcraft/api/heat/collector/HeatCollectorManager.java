@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectMap;
@@ -52,6 +53,12 @@ public class HeatCollectorManager {
             it -> Blocks.OBSIDIAN.defaultBlockState()
         ));
         registerEntry(HeatSourceEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIAN_CAULDRON.get()));
+
+        registerEntry(HeatSourceEntry.predicate(
+            4,
+            state -> state.getFluidState().isSourceOfType(ModFluids.MELT_GEM.get()),
+            it -> Blocks.TERRACOTTA.defaultBlockState()
+        ));
 
         registerEntry(HeatSourceEntry.predicateAlways(2, state -> state.is(ModBlockTags.STORAGE_BLOCKS_URANIUM)));
         registerEntry(HeatSourceEntry.forever(4, ModBlocks.EMBER_METAL_BLOCK.get()));
@@ -148,8 +155,8 @@ public class HeatCollectorManager {
             BlockState state = this.level.getBlockState(pos);
             // Check for other collectors (both heat and infinite) in range
             if (!pos.equals(collectorPos)) {
-                boolean isNearHeatCollector = state.is(ModBlocks.HEAT_COLLECTOR);
-                boolean isNearInfiniteCollector = state.is(ModBlocks.INFINITE_COLLECTOR);
+                boolean isNearHeatCollector = state.is(ModBlocks.HEAT_COLLECTOR.get());
+                boolean isNearInfiniteCollector = state.is(ModBlocks.INFINITE_COLLECTOR.get());
                 if (isNearHeatCollector || isNearInfiniteCollector) {
                     collector.setCollectorWorking(false);
                     return;

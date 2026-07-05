@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jade;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreativeCrateBlock;
 import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
+import dev.dubhe.anvilcraft.block.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
@@ -14,6 +15,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.CreativeFluidTankProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.DischargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.LargeLaserBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.MengerSpongeProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
@@ -45,6 +47,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(CreativeCrateProvider.INSTANCE, CreativeCrateBlockEntity.class);
         registration.registerBlockDataProvider(MengerSpongeProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(CrabTrapBlockStateProvider.INSTANCE, CrabTrapBlock.class);
+        registration.registerBlockDataProvider(LargeLaserBlockProvider.INSTANCE, LargeLaserBlock.class);
     }
 
     @Override

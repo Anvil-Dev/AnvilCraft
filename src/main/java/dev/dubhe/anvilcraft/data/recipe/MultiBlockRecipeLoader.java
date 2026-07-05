@@ -214,14 +214,6 @@ public class MultiBlockRecipeLoader {
             .symbol('D', "anvilcraft:tungsten_block")
             .save(provider);
 
-        MultiblockRecipe.builder(ModBlocks.SHULKER_CONTAINER)
-            .layer("AAA", "ABA", "AAA")
-            .layer("ABA", "B B", "ABA")
-            .layer("AAA", "ABA", "AAA")
-            .symbol('A', Blocks.NETHERITE_BLOCK)
-            .symbol('B', Blocks.SHULKER_BOX)
-            .save(provider);
-
         MultiblockRecipe.builder("anvilcraft:large_laser", 1)
             .layer(" A ", "BCD", " E ")
             .layer("BFD", "BCD", "BGD")

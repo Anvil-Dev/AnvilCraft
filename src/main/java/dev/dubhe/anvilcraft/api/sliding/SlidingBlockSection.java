@@ -157,6 +157,7 @@ public final class SlidingBlockSection {
                 level.removeBlockEntity(pos);
                 level.setBlockEntity(be);
                 moveableBlock.notifyMoved(level, pos, state, be);
+                level.updateNeighborsAt(pos, state.getBlock());
             }
 
             level.neighborChanged(pos, state.getBlock(), pos);

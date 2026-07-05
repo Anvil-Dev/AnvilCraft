@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +35,7 @@ public record SlidingBlockInfo(Vec3i offset, BlockState state, @Nullable BlockEn
         CompoundTag.CODEC
             .optionalFieldOf("entityData", new CompoundTag())
             .forGetter(SlidingBlockInfo::beTag)
-    ).apply(ins, (offset, state, tag) -> new SlidingBlockInfo(offset, state, null)));
+    ).apply(ins, (offset, state, tag) -> new SlidingBlockInfo(offset, state, loadBlockEntity(state, tag))));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SlidingBlockInfo> STREAM_CODEC = StreamCodec.of(
         (buf, info) -> {
@@ -82,16 +83,30 @@ public record SlidingBlockInfo(Vec3i offset, BlockState state, @Nullable BlockEn
         };
     }
 
+    private static @Nullable BlockEntity loadBlockEntity(BlockState state, CompoundTag tag) {
+        if (tag.isEmpty()) return null;
+        String id = tag.getString("id");
+        if (id.isEmpty()) return null;
+        BlockEntityType<?> type = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(ResourceLocation.parse(id));
+        if (type == null) return null;
+        BlockEntity be = type.create(BlockPos.ZERO, state);
+        if (be == null) return null;
+        be.loadWithComponents(tag, RegistryAccess.EMPTY);
+        return be;
+    }
+
     private static @Nullable BlockEntity fromTag(RegistryFriendlyByteBuf buf, BlockState state, CompoundTag tag) {
         RegistryAccess registries = buf.registryAccess();
         DataResult<BlockEntityType<?>> entityType = BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec()
             .decode(registries.createSerializationContext(NbtOps.INSTANCE), tag.get("id"))
             .map(Pair::getFirst);
         if (entityType.isError()) return null;
+        BlockEntityType<?> blockEntityType = entityType.getOrThrow();
         int x = !tag.contains("x") ? 0 : tag.getInt("x");
         int y = !tag.contains("y") ? 0 : tag.getInt("y");
         int z = !tag.contains("z") ? 0 : tag.getInt("z");
-        BlockEntityType<?> blockEntityType = entityType.getOrThrow();
-        return blockEntityType.create(new BlockPos(x, y, z), state);
+        BlockEntity be = blockEntityType.create(new BlockPos(x, y, z), state);
+        if (be != null) be.loadWithComponents(tag, registries);
+        return be;
     }
 }

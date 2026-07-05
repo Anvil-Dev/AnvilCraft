@@ -30,7 +30,7 @@ public abstract class MeltGemFluid extends BaseFlowingFluid {
             FluidState fluidstate = level.getFluidState(pos);
             if (fluidstate.is(FluidTags.WATER)) {
                 if (blockState.getBlock() instanceof LiquidBlock) {
-                    level.setBlock(pos, EventHooks.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.STONE.defaultBlockState()), 3);
+                    level.setBlock(pos, EventHooks.fireFluidPlaceBlockEvent(level, pos, pos, Blocks.TERRACOTTA.defaultBlockState()), 3);
                 }
 
                 this.fizz(level, pos);
