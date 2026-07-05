@@ -165,14 +165,14 @@ public class CelestialBodyTextureBakery {
         if (paletteImg == null) paletteImg = baseImg;
 
         int baseRow = data instanceof RockyPlanetData rp ? rp.paletteBaseRow()
-            : data instanceof GiantPlanetData gp ? gp.paletteBaseRow() : 0;
+            : (data instanceof GiantPlanetData gp ? gp.paletteBaseRow() : 0);
         NativeImage coloredBase = PaletteColorMapper.colorTexture(baseImg, paletteImg, baseRow, true);
 
         if (tex.overlay() != null) {
             NativeImage overlayImg = loadImage(tex.overlay());
             if (overlayImg != null) {
                 int overlayRow = data instanceof RockyPlanetData rp ? rp.paletteOverlayRow()
-                    : data instanceof GiantPlanetData gp ? gp.paletteOverlayRow() : 0;
+                    : (data instanceof GiantPlanetData gp ? gp.paletteOverlayRow() : 0);
                 NativeImage coloredOverlay = PaletteColorMapper.colorTexture(overlayImg, paletteImg, overlayRow, false);
                 PaletteColorMapper.composite(coloredBase, coloredOverlay);
                 coloredOverlay.close();
@@ -216,7 +216,7 @@ public class CelestialBodyTextureBakery {
         NativeImage paletteImg = loadImage("planet_giant_ring_color.png");
         if (paletteImg != null) {
             int ringPaletteRow = data instanceof RockyPlanetData rp ? rp.paletteBaseRow()
-                : data instanceof GiantPlanetData gp ? gp.paletteBaseRow() : 0;
+                : (data instanceof GiantPlanetData gp ? gp.paletteBaseRow() : 0);
             NativeImage colored = PaletteColorMapper.colorTexture(ringImg, paletteImg, ringPaletteRow, true);
             paletteImg.close();
             ringImg.close();
@@ -244,7 +244,7 @@ public class CelestialBodyTextureBakery {
 
     private static String ringCacheKey(CelestialBodyData data) {
         int row = data instanceof GiantPlanetData gp ? gp.paletteBaseRow()
-            : data instanceof RockyPlanetData rp ? rp.paletteBaseRow() : 0;
+            : (data instanceof RockyPlanetData rp ? rp.paletteBaseRow() : 0);
         return "ring_" + data.ringType().getSerializedName() + "_" + row;
     }
 }
