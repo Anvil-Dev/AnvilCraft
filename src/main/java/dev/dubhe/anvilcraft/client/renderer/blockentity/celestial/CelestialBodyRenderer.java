@@ -11,7 +11,6 @@ import org.joml.Vector3f;
  * Provides Lambert-lit cube rendering for planet bodies, atmospheres,
  * star halos, and ring planes. All methods operate on raw {@link VertexConsumer}.
  */
-@SuppressWarnings("checkstyle:MultipleVariableDeclarations")
 public class CelestialBodyRenderer {
 
     private static final Vector3f LIGHT_DIR = new Vector3f(0.7f, 0.5f, 0.5f).normalize();
@@ -106,26 +105,35 @@ public class CelestialBodyRenderer {
      * West:     (0,16)–(16,32)
      * South:    (16,16)–(32,32)
      */
-    public static void renderPlanetBody(PoseStack ps, VertexConsumer vc, int light, int overlay) {
-        renderPlanetCube(ps, vc, light, overlay, LIGHT_DIR);
+    public static void renderPlanetBody(PoseStack.Pose pose, VertexConsumer vc, int light, int overlay) {
+        renderPlanetCube(pose, vc, light, overlay, LIGHT_DIR);
     }
 
     /**
      * Render a translucent cube atmosphere using per-face alpha based on view angle.
      * Does NOT require a BakedModel — renders faces directly.
      */
-    public static void renderAtmosphereCube(PoseStack ps, VertexConsumer vc, float[] rgb, float baseAlpha, int light, int overlay) {
+    public static void renderAtmosphereCube(
+        PoseStack.Pose pose,
+        VertexConsumer vc,
+        float[] rgb,
+        float baseAlpha,
+        int light,
+        int overlay
+    ) {
         float x1 = 0;
         float x2 = 1;
         final float y1 = 0;
         float y2 = 1;
         float z1 = 0;
         float z2 = 1;
-        PoseStack.Pose pose = ps.last();
+
 
         Vector3f bodyCenter = new Vector3f(0.5f, 0.5f, 0.5f);
         bodyCenter.mulPosition(pose.pose());
-        float vx = -bodyCenter.x, vy = -bodyCenter.y, vz = -bodyCenter.z;
+        float vx = -bodyCenter.x;
+        float vy = -bodyCenter.y;
+        float vz = -bodyCenter.z;
         float vlen = (float) Math.sqrt(vx * vx + vy * vy + vz * vz);
         if (vlen > 1e-6f) {
             vx /= vlen;
@@ -135,30 +143,32 @@ public class CelestialBodyRenderer {
 
         // Each face gets its own alpha based on view angle
         float alphaUp = computeAtmosphereAlpha(pose, 0, 1, 0, baseAlpha, vx, vy, vz);
-        tintedFaceUp(ps, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaUp);
+        tintedFaceUp(pose, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaUp);
 
         float alphaDown = computeAtmosphereAlpha(pose, 0, -1, 0, baseAlpha, vx, vy, vz);
-        tintedFaceDown(ps, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaDown);
+        tintedFaceDown(pose, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaDown);
 
         float alphaN = computeAtmosphereAlpha(pose, 0, 0, -1, baseAlpha, vx, vy, vz);
-        tintedFaceNorth(ps, vc, x1, x2, y1, y2, z1, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaN);
+        tintedFaceNorth(pose, vc, x1, x2, y1, y2, z1, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaN);
 
         float alphaS = computeAtmosphereAlpha(pose, 0, 0, 1, baseAlpha, vx, vy, vz);
-        tintedFaceSouth(ps, vc, x1, x2, y1, y2, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaS);
+        tintedFaceSouth(pose, vc, x1, x2, y1, y2, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaS);
 
         float alphaE = computeAtmosphereAlpha(pose, 1, 0, 0, baseAlpha, vx, vy, vz);
-        tintedFaceEast(ps, vc, x2, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaE);
+        tintedFaceEast(pose, vc, x2, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaE);
 
         float alphaW = computeAtmosphereAlpha(pose, -1, 0, 0, baseAlpha, vx, vy, vz);
-        tintedFaceWest(ps, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaW);
+        tintedFaceWest(pose, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaW);
     }
 
     /**
      * Render a star halo as concentric translucent cubes.
      */
-    public static void renderStarHalo(PoseStack ps, VertexConsumer vc, StarData star, int light, int overlay) {
+    public static void renderStarHalo(PoseStack.Pose pose, VertexConsumer vc, StarData star, int light, int overlay) {
         float[] rgb = CelestialBodyTextureBakery.starColor(star);
         int iterations = 10;
+        PoseStack ps = new PoseStack();
+        ps.last().set(pose);
         for (int i = 0; i < iterations; i++) {
             float progress = (float) i / iterations;
             float scale = 1.0f + progress * 0.6f;
@@ -167,7 +177,7 @@ public class CelestialBodyRenderer {
             ps.translate(0.5, 0.5, 0.5);
             ps.scale(scale, scale, scale);
             ps.translate(-0.5, -0.5, -0.5);
-            renderAtmosphereCube(ps, vc, rgb, alpha, light, overlay);
+            renderAtmosphereCube(ps.last(), vc, rgb, alpha, light, overlay);
             ps.popPose();
         }
     }
@@ -176,7 +186,16 @@ public class CelestialBodyRenderer {
      * Render an opaque cube with a single constant vertex color on all six faces.
      * Used for the star color overlay (multiplicative blend).
      */
-    public static void renderColorCube(PoseStack ps, VertexConsumer vc, float r, float g, float b, float a, int light, int overlay) {
+    public static void renderColorCube(
+        PoseStack.Pose ps,
+        VertexConsumer vc,
+        float r,
+        float g,
+        float b,
+        float a,
+        int light,
+        int overlay
+    ) {
         float x1 = 0;
         float x2 = 1;
         float y1 = 0;
@@ -194,21 +213,46 @@ public class CelestialBodyRenderer {
     /**
      * Render a flat ring plane at y=0.5 spanning from rmin to rmax.
      */
-    public static void renderRing(PoseStack ps, VertexConsumer vc, int light, int overlay) {
+    public static void renderRing(PoseStack.Pose pose, VertexConsumer vc, int light, int overlay) {
         float y = 0.5f;
         float rmin = -0.5f;
         float rmax = 1.5f;
         float eps = 0.001f;
-        PoseStack.Pose pose = ps.last();
 
-        vc.addVertex(pose, rmin, y + eps, rmax).setColor(-1).setUv(0, 0.5f).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, rmax, y + eps, rmax).setColor(-1).setUv(0.5f, 0.5f).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, rmax, y + eps, rmin).setColor(-1).setUv(0.5f, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, rmin, y + eps, rmin).setColor(-1).setUv(0, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
 
-        vc.addVertex(pose, rmin, y - eps, rmin).setColor(-1).setUv(0.5f, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
-        vc.addVertex(pose, rmax, y - eps, rmin).setColor(-1).setUv(1, 0).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
-        vc.addVertex(pose, rmax, y - eps, rmax).setColor(-1).setUv(1, 0.5f).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
+        vc.addVertex(pose, rmin, y + eps, rmax).setColor(-1).setUv(
+            0,
+            0.5f
+        ).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+        vc.addVertex(pose, rmax, y + eps, rmax).setColor(-1).setUv(
+            0.5f,
+            0.5f
+        ).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+        vc.addVertex(pose, rmax, y + eps, rmin).setColor(-1).setUv(
+            0.5f,
+            0
+        ).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+        vc.addVertex(pose, rmin, y + eps, rmin).setColor(-1).setUv(0, 0).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
+
+        vc.addVertex(pose, rmin, y - eps, rmin).setColor(-1).setUv(
+            0.5f,
+            0
+        ).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
+        vc.addVertex(pose, rmax, y - eps, rmin).setColor(-1).setUv(1, 0).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            -1,
+            0
+        );
+        vc.addVertex(pose, rmax, y - eps, rmax).setColor(-1).setUv(
+            1,
+            0.5f
+        ).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
         vc.addVertex(pose, rmin, y - eps, rmax)
             .setColor(-1)
             .setUv(0.5f, 0.5f)
@@ -220,13 +264,24 @@ public class CelestialBodyRenderer {
     // === Cube geometry (textured planet body) ===
 
     @SuppressWarnings("SameParameterValue")
-    private static void renderPlanetCube(PoseStack ps, VertexConsumer vc, int light, int overlay, Vector3f lightDir) {
-        float x1 = 0, x2 = 1, y1 = 0, y2 = 1, z1 = 0, z2 = 1;
-        PoseStack.Pose pose = ps.last();
+    private static void renderPlanetCube(
+        PoseStack.Pose pose,
+        VertexConsumer vc,
+        int light,
+        int overlay,
+        Vector3f lightDir
+    ) {
+        float x1 = 0;
+        float x2 = 1;
+        float y1 = 0;
+        float y2 = 1;
+        float z1 = 0;
+        float z2 = 1;
+
         boolean lit = lightDir != null;
 
         int upColor = lit ? computeLambertColor(pose, 0, 1, 0, lightDir) : -1;
-        faceUp(ps, vc, x1, x2, z1, z2, y2, 16f / 64, 0, 32f / 64, 16f / 64, light, overlay, upColor);
+        faceUp(pose, vc, x1, x2, z1, z2, y2, 16f / 64, 0, 32f / 64, 16f / 64, light, overlay, upColor);
 
         int downColor = lit ? computeLambertColor(pose, 0, -1, 0, lightDir) : -1;
         vc.addVertex(pose, x1, y1, z1)
@@ -255,20 +310,20 @@ public class CelestialBodyRenderer {
             .setNormal(pose, 0, -1, 0);
 
         int colorN = lit ? computeLambertColor(pose, 0, 0, -1, lightDir) : -1;
-        faceNorth(ps, vc, x1, x2, y1, y2, z1, 48f / 64, 16f / 64, 64f / 64, 32f / 64, light, overlay, colorN);
+        faceNorth(pose, vc, x1, x2, y1, y2, z1, 48f / 64, 16f / 64, 64f / 64, 32f / 64, light, overlay, colorN);
         int colorE = lit ? computeLambertColor(pose, 1, 0, 0, lightDir) : -1;
-        faceEast(ps, vc, x2, y1, y2, z1, z2, 32f / 64, 16f / 64, 48f / 64, 32f / 64, light, overlay, colorE);
+        faceEast(pose, vc, x2, y1, y2, z1, z2, 32f / 64, 16f / 64, 48f / 64, 32f / 64, light, overlay, colorE);
         int colorW = lit ? computeLambertColor(pose, -1, 0, 0, lightDir) : -1;
-        faceWest(ps, vc, x1, y1, y2, z1, z2, 0, 16f / 64, 16f / 64, 32f / 64, light, overlay, colorW);
+        faceWest(pose, vc, x1, y1, y2, z1, z2, 0, 16f / 64, 16f / 64, 32f / 64, light, overlay, colorW);
         int colorS = lit ? computeLambertColor(pose, 0, 0, 1, lightDir) : -1;
-        faceSouth(ps, vc, x1, x2, y1, y2, z2, 16f / 64, 16f / 64, 32f / 64, 32f / 64, light, overlay, colorS);
+        faceSouth(pose, vc, x1, x2, y1, y2, z2, 16f / 64, 16f / 64, 32f / 64, 32f / 64, light, overlay, colorS);
     }
 
     // === Textured face helpers ===
 
     @SuppressWarnings("SameParameterValue")
     private static void faceUp(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x1,
         float x2,
@@ -283,16 +338,35 @@ public class CelestialBodyRenderer {
         int overlay,
         int color
     ) {
-        PoseStack.Pose pose = ps.last();
-        vc.addVertex(pose, x1, y, z2).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, x2, y, z2).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, x2, y, z1).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, x1, y, z1).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+        vc.addVertex(pose, x1, y, z2).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
+        vc.addVertex(pose, x2, y, z2).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
+        vc.addVertex(pose, x2, y, z1).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
+        vc.addVertex(pose, x1, y, z1).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void faceNorth(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x1,
         float x2,
@@ -307,16 +381,36 @@ public class CelestialBodyRenderer {
         int overlay,
         int color
     ) {
-        PoseStack.Pose pose = ps.last();
-        vc.addVertex(pose, x2, y1, z).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
-        vc.addVertex(pose, x1, y1, z).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
-        vc.addVertex(pose, x1, y2, z).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
-        vc.addVertex(pose, x2, y2, z).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
+
+        vc.addVertex(pose, x2, y1, z).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            -1
+        );
+        vc.addVertex(pose, x1, y1, z).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            -1
+        );
+        vc.addVertex(pose, x1, y2, z).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            -1
+        );
+        vc.addVertex(pose, x2, y2, z).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            -1
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void faceSouth(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x1,
         float x2,
@@ -331,16 +425,36 @@ public class CelestialBodyRenderer {
         int overlay,
         int color
     ) {
-        PoseStack.Pose pose = ps.last();
-        vc.addVertex(pose, x1, y1, z).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        vc.addVertex(pose, x2, y1, z).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        vc.addVertex(pose, x2, y2, z).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        vc.addVertex(pose, x1, y2, z).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
+
+        vc.addVertex(pose, x1, y1, z).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            1
+        );
+        vc.addVertex(pose, x2, y1, z).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            1
+        );
+        vc.addVertex(pose, x2, y2, z).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            1
+        );
+        vc.addVertex(pose, x1, y2, z).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            1
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void faceEast(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x,
         float y1,
@@ -355,16 +469,36 @@ public class CelestialBodyRenderer {
         int overlay,
         int color
     ) {
-        PoseStack.Pose pose = ps.last();
-        vc.addVertex(pose, x, y1, z2).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
-        vc.addVertex(pose, x, y1, z1).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
-        vc.addVertex(pose, x, y2, z1).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
-        vc.addVertex(pose, x, y2, z2).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
+
+        vc.addVertex(pose, x, y1, z2).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y1, z1).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y2, z1).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y2, z2).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            1,
+            0,
+            0
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void faceWest(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x,
         float y1,
@@ -379,18 +513,38 @@ public class CelestialBodyRenderer {
         int overlay,
         int color
     ) {
-        PoseStack.Pose pose = ps.last();
-        vc.addVertex(pose, x, y1, z1).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, -1, 0, 0);
-        vc.addVertex(pose, x, y1, z2).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, -1, 0, 0);
-        vc.addVertex(pose, x, y2, z2).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, -1, 0, 0);
-        vc.addVertex(pose, x, y2, z1).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, -1, 0, 0);
+
+        vc.addVertex(pose, x, y1, z1).setColor(color).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            -1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y1, z2).setColor(color).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            -1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y2, z2).setColor(color).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            -1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y2, z1).setColor(color).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            -1,
+            0,
+            0
+        );
     }
 
     // === Tinted face helpers (for atmosphere/halo — constant color per face) ===
 
     @SuppressWarnings("SameParameterValue")
     private static void tintedFaceUp(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x1,
         float x2,
@@ -408,17 +562,36 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        PoseStack.Pose pose = ps.last();
         int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x1, y, z2).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, x2, y, z2).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, x2, y, z1).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
-        vc.addVertex(pose, x1, y, z1).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 1, 0);
+        vc.addVertex(pose, x1, y, z2).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
+        vc.addVertex(pose, x2, y, z2).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
+        vc.addVertex(pose, x2, y, z1).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
+        vc.addVertex(pose, x1, y, z1).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            1,
+            0
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void tintedFaceDown(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x1,
         float x2,
@@ -436,17 +609,37 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        PoseStack.Pose pose = ps.last();
+
         int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x1, y, z1).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
-        vc.addVertex(pose, x2, y, z1).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
-        vc.addVertex(pose, x2, y, z2).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
-        vc.addVertex(pose, x1, y, z2).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, -1, 0);
+        vc.addVertex(pose, x1, y, z1).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            -1,
+            0
+        );
+        vc.addVertex(pose, x2, y, z1).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            -1,
+            0
+        );
+        vc.addVertex(pose, x2, y, z2).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            -1,
+            0
+        );
+        vc.addVertex(pose, x1, y, z2).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            -1,
+            0
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void tintedFaceNorth(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x1,
         float x2,
@@ -464,17 +657,36 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        PoseStack.Pose pose = ps.last();
         int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x2, y1, z).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
-        vc.addVertex(pose, x1, y1, z).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
-        vc.addVertex(pose, x1, y2, z).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
-        vc.addVertex(pose, x2, y2, z).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, -1);
+        vc.addVertex(pose, x2, y1, z).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            -1
+        );
+        vc.addVertex(pose, x1, y1, z).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            -1
+        );
+        vc.addVertex(pose, x1, y2, z).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            -1
+        );
+        vc.addVertex(pose, x2, y2, z).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            -1
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void tintedFaceSouth(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x1,
         float x2,
@@ -492,17 +704,36 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        PoseStack.Pose pose = ps.last();
         int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x1, y1, z).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        vc.addVertex(pose, x2, y1, z).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        vc.addVertex(pose, x2, y2, z).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
-        vc.addVertex(pose, x1, y2, z).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 0, 0, 1);
+        vc.addVertex(pose, x1, y1, z).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            1
+        );
+        vc.addVertex(pose, x2, y1, z).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            1
+        );
+        vc.addVertex(pose, x2, y2, z).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            1
+        );
+        vc.addVertex(pose, x1, y2, z).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            0,
+            0,
+            1
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void tintedFaceEast(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x,
         float y1,
@@ -520,17 +751,36 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        PoseStack.Pose pose = ps.last();
         int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x, y1, z2).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
-        vc.addVertex(pose, x, y1, z1).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
-        vc.addVertex(pose, x, y2, z1).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
-        vc.addVertex(pose, x, y2, z2).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, 1, 0, 0);
+        vc.addVertex(pose, x, y1, z2).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y1, z1).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y2, z1).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y2, z2).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            1,
+            0,
+            0
+        );
     }
 
     @SuppressWarnings("SameParameterValue")
     private static void tintedFaceWest(
-        PoseStack ps,
+        PoseStack.Pose pose,
         VertexConsumer vc,
         float x,
         float y1,
@@ -548,11 +798,30 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        PoseStack.Pose pose = ps.last();
         int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x, y1, z1).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(pose, -1, 0, 0);
-        vc.addVertex(pose, x, y1, z2).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(pose, -1, 0, 0);
-        vc.addVertex(pose, x, y2, z2).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(pose, -1, 0, 0);
-        vc.addVertex(pose, x, y2, z1).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(pose, -1, 0, 0);
+        vc.addVertex(pose, x, y1, z1).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            -1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y1, z2).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            -1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y2, z2).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            -1,
+            0,
+            0
+        );
+        vc.addVertex(pose, x, y2, z1).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+            pose,
+            -1,
+            0,
+            0
+        );
     }
 }

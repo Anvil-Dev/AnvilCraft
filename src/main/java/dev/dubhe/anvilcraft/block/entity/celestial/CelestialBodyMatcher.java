@@ -456,7 +456,9 @@ public final class CelestialBodyMatcher {
 
     private static int[] getStarColorFromTempDiagram(int energy) {
         BufferedImage img = loadStarColorTemp();
-        if (img == null) return new int[] {255, 255, 255};
+        if (img == null) {
+            return new int[]{255, 255, 255};
+        }
         int row = toY(energy);
         int argb = img.getRGB(0, row);
         // BufferedImage ARGB: AARRGGBB

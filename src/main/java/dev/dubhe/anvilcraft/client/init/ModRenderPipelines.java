@@ -109,7 +109,7 @@ public class ModRenderPipelines {
     public static final RenderPipeline CELESTIAL_ATMOSPHERE = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
-        .withDepthStencilState(DepthStencilState.DEFAULT)
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/celestial_atmosphere"))
         .build();
