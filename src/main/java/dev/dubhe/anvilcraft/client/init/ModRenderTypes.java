@@ -3,9 +3,11 @@ package dev.dubhe.anvilcraft.client.init;
 import dev.anvilcraft.lib.v2.rendering.extension.ALRRenderTypeExtension;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 
@@ -13,7 +15,6 @@ import java.util.function.Function;
 
 public class ModRenderTypes {
 
-    // TODO: use colored overlay and uniform
     public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
         "anvilcraft:laser_translucent",
         RenderSetup.builder(ModRenderPipelines.COLORED_OVERLAY)
@@ -120,4 +121,16 @@ public class ModRenderTypes {
                 .createRenderSetup()
         )
     );
+
+    public static final Function<Identifier, RenderType> CUTOUT_NO_LIGHTING = Util.memoize(
+        tex -> RenderType.create(
+            "anvilcraft:cutout_no_lighting",
+            RenderSetup.builder(RenderPipelines.CUTOUT_BLOCK)
+                .withTexture("Sampler0", tex)
+                .useLightmap()
+                .createRenderSetup()
+        )
+    );
+
+    public static final RenderType CUTOUT_BLOCK = CUTOUT_NO_LIGHTING.apply(TextureAtlas.LOCATION_BLOCKS);
 }
