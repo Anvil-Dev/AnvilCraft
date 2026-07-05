@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
@@ -170,6 +171,11 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
             }
             this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
         }
+    }
+
+    @Override
+    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
+        return super.causeFallDamage(fallDistance, multiplier, source);
     }
 
     @Override

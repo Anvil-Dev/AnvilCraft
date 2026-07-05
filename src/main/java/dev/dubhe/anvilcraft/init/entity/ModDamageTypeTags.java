@@ -15,6 +15,8 @@ public class ModDamageTypeTags {
     public static final TagKey<DamageType> FEATHER_AMULET_VALID = bind("amulet_valid/feather");
     public static final TagKey<DamageType> ABNORMAL_AMULET_VALID = bind("amulet_valid/abnormal");
 
+    public static final TagKey<DamageType> IS_FALLING_GIANT_ANVIL = bind("is_falling_giant_anvil");
+
     @SuppressWarnings("unused")
     private static TagKey<DamageType> bindC(String id) {
         return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("c", id));

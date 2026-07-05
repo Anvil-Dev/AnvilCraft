@@ -7,7 +7,6 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.advancement.AdvancementHandler;
 import dev.dubhe.anvilcraft.data.lang.LangHandler;
-import dev.dubhe.anvilcraft.data.provider.ModDamageTypeTagProvider;
 import dev.dubhe.anvilcraft.data.provider.ModFurnaceFuelProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootModifierProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
@@ -52,8 +51,7 @@ public class AnvilCraftDatagen {
         generator.addProvider(event.includeServer(), new ModLootTableProvider(packOutput, lookupProvider));
         generator.addProvider(event.includeServer(), new ModPoiTagProvider(packOutput, lookupProvider, existingFileHelper));
         generator.addProvider(event.includeServer(), new ModFurnaceFuelProvider(packOutput, lookupProvider));
-        generator.addProvider(event.includeServer(), new ModDamageTypeTagProvider(packOutput, lookupProvider, existingFileHelper));
-        generator.addProvider(event.includeServer(), new ModLootModifierProvider(packOutput, lookupProvider, AnvilCraft.MOD_ID));
+        generator.addProvider(event.includeServer(), new ModLootModifierProvider(packOutput, lookupProvider));
         generator.addProvider(event.includeClient(), new ModParticleDescriptionProvider(packOutput, existingFileHelper));
         generator.addProvider(event.includeClient(), new ModSoundDefinitionsProvider(packOutput, existingFileHelper));
 

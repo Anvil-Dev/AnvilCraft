@@ -299,6 +299,9 @@ public class BlockTagLoader {
             .addTag(BlockTags.WALL_CORALS)
             .addTag(BlockTags.CORAL_PLANTS);
 
+        provider.addTag(ModBlockTags.BROKEN_CRYSTALS_CLUSTERS)
+            .add(findResourceKey(Blocks.AMETHYST_CLUSTER));
+
         provider.addTag(ModBlockTags.SPECTRAL_CAN_THROUGH)
             .addTag(Tags.Blocks.GLASS_BLOCKS)
             .addTag(Tags.Blocks.GLASS_PANES)

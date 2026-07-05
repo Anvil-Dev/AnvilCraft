@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.GiantAnvilShockEffectPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,7 +15,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -44,7 +44,7 @@ public class GiantAnvilShockEventListener {
     static {
         TreeNode<ShockContext> root = TreeNode.<ShockContext>predicatedExecutable(
             it -> {
-                @SuppressWarnings("resource") Level level = it.unwrap().level();
+                Level level = it.unwrap().level();
                 return level.getBlockState(it.unwrap().centerPos()).is(ModBlocks.HEAVY_IRON_BLOCK);
             }
         ).then(
@@ -196,7 +196,7 @@ public class GiantAnvilShockEventListener {
                 1,
                 radius * 2 + 1
             );
-            @SuppressWarnings("resource") Level level = it.unwrap().level();
+            Level level = it.unwrap().level();
             List<LivingEntity> e = level.getEntitiesOfClass(LivingEntity.class, aabb);
             for (LivingEntity l : e) {
                 if (it.has(HURT_TYPE)) {
@@ -206,7 +206,7 @@ public class GiantAnvilShockEventListener {
                 } else {
                     if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
                         l.hurt(
-                            level.damageSources().source(DamageTypes.FALL, it.unwrap().fallingGiantAnvil()),
+                            ModDamageTypes.fallingGiantAnvil(it.unwrap().level(), it.unwrap().fallingGiantAnvil()),
                             it.unwrap().fallDistance() * 2
                         );
                     }

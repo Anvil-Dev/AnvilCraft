@@ -7,6 +7,10 @@
     {
       "id": "anvilcraft:plasma_jets",
       "required": false
+    },
+    {
+      "id": "anvilcraft:laser",
+      "required": false
     }
   ]
 }

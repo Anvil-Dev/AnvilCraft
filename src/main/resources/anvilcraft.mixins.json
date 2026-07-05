@@ -11,6 +11,7 @@
     "BlockBehaviourMixin",
     "BlockMixin",
     "BlockStateMixin",
+    "BuddingAmethystBlockMixin",
     "CandleCakeBlockMixin",
     "ComparatorBlockEntityMixin",
     "CraftingMenuMixin",
