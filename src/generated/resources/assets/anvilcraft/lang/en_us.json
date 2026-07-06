@@ -729,6 +729,7 @@
   "config.jade.plugin_anvilcraft.ruby_prism": "Ruby Prism",
   "config.jade.plugin_anvilcraft.smart_block_placer_provider": "Smart Block Placer",
   "config.jade.plugin_anvilcraft.space_overcompressor": "Space Overcompressor",
+  "config.jade.plugin_anvilcraft.wip_block": "Work In Progress Block",
   "config.waila.plugin_anvilcraft": "Anvil Craft",
   "config.waila.plugin_anvilcraft.power_provider": "Anvil Craft Power",
   "config.waila.plugin_anvilcraft.warning_percent": "Warning Threshold",
