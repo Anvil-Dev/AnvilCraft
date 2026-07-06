@@ -100,7 +100,9 @@ public abstract class DestroyType {
                                 DestroyType.dropItems(itemStack, it, level);
                                 return BlockPos.TraversalNodeStatus.ACCEPT;
                             }
-                            return blockState.is(BlockTags.JUNGLE_LOGS) ? BlockPos.TraversalNodeStatus.ACCEPT : BlockPos.TraversalNodeStatus.SKIP;
+                            return blockState.is(BlockTags.JUNGLE_LOGS)
+                                   ? BlockPos.TraversalNodeStatus.ACCEPT
+                                   : BlockPos.TraversalNodeStatus.SKIP;
                         }
                     );
                 }
