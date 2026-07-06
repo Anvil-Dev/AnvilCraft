@@ -10,7 +10,7 @@
     },
     "on_true": {
       "type": "minecraft:special",
-      "base": "anvilcraft:item/spectral_weapon_launcher_off",
+      "base": "anvilcraft:item/spectral_weapon_launcher_exhausted",
       "model": {
         "type": "anvilcraft:spectral_weapon_launcher"
       }

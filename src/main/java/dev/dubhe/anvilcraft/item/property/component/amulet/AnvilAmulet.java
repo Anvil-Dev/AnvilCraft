@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.property.component.amulet;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
 import dev.dubhe.anvilcraft.init.item.ModAmuletTypes;
@@ -29,7 +30,9 @@ public record AnvilAmulet() implements IAmulet {
         if (!source.getDirectEntity().is(valid)) {
             return source.getDirectEntity() instanceof Player && source.getWeaponItem().is(ModItemTags.ANVIL_HAMMER);
         }
-        return !(source.getEntity() instanceof FallingBlockEntity falling) || falling.getBlockState().is(BlockTags.ANVIL);
+        return !(source.getEntity() instanceof FallingBlockEntity falling)
+               || falling.getBlockState().is(BlockTags.ANVIL)
+               || falling.getBlockState().is(ModBlockTags.GIANT_ANVIL);
     }
 
     @Override

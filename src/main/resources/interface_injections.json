@@ -31,5 +31,8 @@
   ],
   "net/minecraft/world/entity/LivingEntity": [
     "dev/dubhe/anvilcraft/api/injection/entity/ILivingEntityExtension"
+  ],
+  "net/minecraft/world/level/block/BuddingAmethystBlock": [
+    "dev/dubhe/anvilcraft/api/injection/block/IBuddingAmethystBlockExtension"
   ]
 }

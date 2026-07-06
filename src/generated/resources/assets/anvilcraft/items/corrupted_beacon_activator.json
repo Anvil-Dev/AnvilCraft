@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/corrupted_beacon_activator"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "anvilcraft:item/corrupted_beacon_activator_exhausted"
+    },
+    "predicate": "anvilcraft:integer_component",
+    "property": "minecraft:component",
+    "value": {
+      "type": "anvilcraft:stored_energy",
+      "value": 0
+    }
+  }
+}

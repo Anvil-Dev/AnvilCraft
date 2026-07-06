@@ -1,38 +1,93 @@
 package dev.dubhe.anvilcraft.api.sliding;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.common.collect.Streams;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
-public record SlidingBlockInfo(Vec3i offset, BlockState state, CompoundTag entityData) {
-    public static final Codec<SlidingBlockInfo> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-        Vec3i.CODEC.fieldOf("offset").forGetter(SlidingBlockInfo::offset),
-        BlockState.CODEC.fieldOf("state").forGetter(SlidingBlockInfo::state),
-        CompoundTag.CODEC.fieldOf("entityData").forGetter(SlidingBlockInfo::entityData)
-    ).apply(ins, SlidingBlockInfo::new));
-    public static final StreamCodec<ByteBuf, SlidingBlockInfo> SIMPLE_STREAM_CODEC = StreamCodec.composite(
-        StreamCodecUtil.VEC3I, SlidingBlockInfo::offset,
-        StreamCodecUtil.BLOCK_STATE, SlidingBlockInfo::state,
-        SlidingBlockInfo::new
-    );
-    public static final StreamCodec<ByteBuf, SlidingBlockInfo> STREAM_CODEC = StreamCodec.composite(
-        StreamCodecUtil.VEC3I, SlidingBlockInfo::offset,
-        StreamCodecUtil.BLOCK_STATE, SlidingBlockInfo::state,
-        ByteBufCodecs.COMPOUND_TAG, SlidingBlockInfo::entityData,
-        SlidingBlockInfo::new
+import java.util.stream.Stream;
+
+public record SlidingBlockInfo(Vec3i offset, BlockState state, @Nullable BlockEntity blockEntity) {
+    public static final MapCodec<SlidingBlockInfo> CODEC = new MapCodec<>() {
+        private static final MapCodec<Vec3i> OFFSET = Vec3i.CODEC.fieldOf("offset");
+        private static final MapCodec<BlockState> STATE = BlockState.CODEC.fieldOf("state");
+        private static final MapCodec<CompoundTag> ENTITY_DATA = CompoundTag.CODEC.fieldOf("entity_data");
+
+        @Override
+        public <T> RecordBuilder<T> encode(SlidingBlockInfo input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
+            OFFSET.encode(input.offset, ops, prefix);
+            STATE.encode(input.state, ops, prefix);
+            ENTITY_DATA.encode(input.beTag(), ops, prefix);
+            return prefix;
+        }
+
+        @Override
+        public <T> DataResult<SlidingBlockInfo> decode(DynamicOps<T> ops, MapLike<T> input) {
+            Vec3i offset = OFFSET.decode(ops, input).getOrThrow();
+            BlockState state = STATE.decode(ops, input).getOrThrow();
+
+            DataResult<CompoundTag> entityData = ENTITY_DATA.decode(ops, input);
+            if (entityData.isError()) {
+                return DataResult.error(() -> "No valid entity data", new SlidingBlockInfo(offset, state));
+            }
+            if (!(ops instanceof RegistryOps<T> registry)) {
+                return DataResult.error(() -> "Cannot decode entity data when no registry", new SlidingBlockInfo(offset, state));
+            }
+            return DataResult.success(new SlidingBlockInfo(
+                offset,
+                state,
+                SlidingBlockInfo.fromTag(registry.withParent(NbtOps.INSTANCE), state, entityData.getPartialOrThrow())
+            ));
+        }
+
+        @Override
+        public <T> Stream<T> keys(DynamicOps<T> ops) {
+            return Streams.concat(OFFSET.keys(ops), STATE.keys(ops), ENTITY_DATA.keys(ops));
+        }
+    };
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlidingBlockInfo> STREAM_CODEC = StreamCodec.of(
+        (buf, info) -> {
+            StreamCodecUtil.VEC3I.encode(buf, info.offset());
+            StreamCodecUtil.BLOCK_STATE.encode(buf, info.state());
+            ByteBufCodecs.COMPOUND_TAG.encode(buf, info.beTag());
+        },
+        buf -> {
+            Vec3i offset = StreamCodecUtil.VEC3I.decode(buf);
+            BlockState state = StreamCodecUtil.BLOCK_STATE.decode(buf);
+            return new SlidingBlockInfo(
+                offset,
+                state,
+                SlidingBlockInfo.fromTag(
+                    buf.registryAccess().createSerializationContext(NbtOps.INSTANCE),
+                    state,
+                    ByteBufCodecs.COMPOUND_TAG.decode(buf)
+                )
+            );
+        }
     );
 
     public SlidingBlockInfo(Vec3i offset, BlockState state) {
-        this(offset, state, new CompoundTag());
+        this(offset, state, null);
     }
 
     public BlockPos getPos(BlockPos center) {
@@ -51,11 +106,28 @@ public record SlidingBlockInfo(Vec3i offset, BlockState state, CompoundTag entit
         return this.offset.getZ();
     }
 
+    public CompoundTag beTag() {
+        if (this.blockEntity == null) return new CompoundTag();
+        return this.blockEntity.saveWithFullMetadata(this.blockEntity.getLevel().registryAccess());
+    }
+
     public IntIntPair getPos2D(Direction side) {
         return switch (side.getAxis()) {
             case X -> IntIntPair.of(this.offsetY(), this.offsetZ());
             case Y -> IntIntPair.of(this.offsetX(), this.offsetZ());
             case Z -> IntIntPair.of(this.offsetX(), this.offsetY());
         };
+    }
+
+    private static @Nullable BlockEntity fromTag(RegistryOps<Tag> ops, BlockState state, CompoundTag tag) {
+        DataResult<BlockEntityType<?>> entityType = BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec()
+            .decode(ops, tag.get("id"))
+            .map(Pair::getFirst);
+        if (entityType.isError()) return null;
+        int x = tag.getIntOr("x", 0);
+        int y = tag.getIntOr("y", 0);
+        int z = tag.getIntOr("z", 0);
+        BlockEntityType<?> blockEntityType = entityType.getOrThrow();
+        return blockEntityType.create(new BlockPos(x, y, z), state);
     }
 }

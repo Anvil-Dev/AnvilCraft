@@ -16,16 +16,19 @@ public class DamageTypeTagLoader {
     public static void init(RegistrumTagsProvider<DamageType> provider) {
         provider.rawBuilder(DamageTypeTags.BYPASSES_ARMOR)
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
+
         provider.rawBuilder(DamageTypeTags.BYPASSES_RESISTANCE)
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
+
         provider.rawBuilder(DamageTypeTags.NO_KNOCKBACK)
-            .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
-        provider.rawBuilder(DamageTypeTags.NO_KNOCKBACK)
+            .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier())
             .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier());
+
         provider.rawBuilder(DamageTypeTags.IS_FIRE)
-            .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier());
-        provider.rawBuilder(DamageTypeTags.IS_FIRE)
-            .addOptionalElement(ModDamageTypes.PLASMA_JET.identifier());
+            .addOptionalElement(ModDamageTypes.HEATER_BURN.identifier())
+            .addOptionalElement(ModDamageTypes.PLASMA_JET.identifier())
+            .addOptionalElement(ModDamageTypes.LASER.identifier());
+
         provider.rawBuilder(Tags.DamageTypes.IS_MAGIC)
             .addOptionalElement(ModDamageTypes.LOST_IN_TIME.identifier());
 
@@ -50,7 +53,8 @@ public class DamageTypeTagLoader {
             .addElement(DamageTypes.DRY_OUT.identifier());
 
         provider.rawBuilder(ModDamageTypeTags.ANVIL_AMULET_VALID)
-            .addElement(DamageTypes.FALLING_ANVIL.identifier());
+            .addElement(DamageTypes.FALLING_ANVIL.identifier())
+            .addTag(ModDamageTypeTags.IS_FALLING_GIANT_ANVIL.location());
 
         provider.rawBuilder(ModDamageTypeTags.FEATHER_AMULET_VALID)
             .addTag(DamageTypeTags.IS_FALL.location());

@@ -1,5 +1,6 @@
 {
   "values": [
-    "minecraft:falling_anvil"
+    "minecraft:falling_anvil",
+    "#anvilcraft:is_falling_giant_anvil"
   ]
 }

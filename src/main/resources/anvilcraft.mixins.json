@@ -12,6 +12,7 @@
     "BlockMixin",
     "BlockStateMixin",
     "BucketResourceHandlerMixin",
+    "BuddingAmethystBlockMixin",
     "CandleCakeBlockMixin",
     "CauldronFluidContentMixin",
     "ComparatorBlockEntityMixin",

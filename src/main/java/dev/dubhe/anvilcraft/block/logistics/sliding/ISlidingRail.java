@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.block.logistics.sliding;
 
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.injection.block.IBlockExtension;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
@@ -109,7 +109,7 @@ public interface ISlidingRail extends IBlockExtension {
     static boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
         SlidingBlockStructureResolver resolver = new SlidingBlockStructureResolver(level, pos, facing, true);
         if (!resolver.resolve()) return false;
-        List<Triple<BlockPos, BlockState, Optional<CompoundTag>>> toPushes = new ArrayList<>();
+        List<Triple<BlockPos, BlockState, Optional<BlockEntity>>> toPushes = new ArrayList<>();
         List<BlockPos> toPushPoses = resolver.getToPush();
 
         for (BlockPos toPushPos : toPushPoses) {
@@ -118,9 +118,13 @@ public interface ISlidingRail extends IBlockExtension {
             if (toPushState.hasProperty(BlockStateProperties.WATERLOGGED)) {
                 toPushState = toPushState.setValue(BlockStateProperties.WATERLOGGED, false);
             }
-            Optional<CompoundTag> toPushEntityData = Optional.ofNullable(level.getBlockEntity(toPushPos))
-                .map(entity -> entity.saveCustomOnly(level.registryAccess()));
-            toPushes.add(Triple.of(toPushPos, toPushState, toPushEntityData));
+            BlockEntity be = (toPushState.getBlock() instanceof IMoveableEntityBlock)
+                             ? level.getBlockEntity(toPushPos)
+                             : null;
+            Optional<BlockEntity> blockEntity = Optional.ofNullable(be);
+            if (be != null) level.removeBlockEntity(toPushPos);
+
+            toPushes.add(Triple.of(toPushPos, toPushState, blockEntity));
         }
 
         List<BlockPos> toDestroys = resolver.getToDestroy();
