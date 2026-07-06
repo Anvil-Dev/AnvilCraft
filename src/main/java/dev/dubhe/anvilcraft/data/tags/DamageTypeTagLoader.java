@@ -50,7 +50,8 @@ public class DamageTypeTagLoader {
             .addElement(DamageTypes.DRY_OUT.identifier());
 
         provider.rawBuilder(ModDamageTypeTags.ANVIL_AMULET_VALID)
-            .addElement(DamageTypes.FALLING_ANVIL.identifier());
+            .addElement(DamageTypes.FALLING_ANVIL.identifier())
+            .addTag(ModDamageTypeTags.IS_FALLING_GIANT_ANVIL.location());
 
         provider.rawBuilder(ModDamageTypeTags.FEATHER_AMULET_VALID)
             .addTag(DamageTypeTags.IS_FALL.location());

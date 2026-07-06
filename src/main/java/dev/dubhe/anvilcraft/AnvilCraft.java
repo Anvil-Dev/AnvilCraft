@@ -39,6 +39,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModConsumeEffects;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootContextParamSets;
@@ -53,6 +54,8 @@ import dev.dubhe.anvilcraft.mixin.invoker.BaseMappedRegistryInvoker;
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -79,7 +82,7 @@ public class AnvilCraft {
     @Getter
     private static final IntegrationManager INTEGRATION_MANAGER = new IntegrationManager(AnvilCraft.MOD_ID);
 
-    public static final Registrum REGISTRUM = Registrum.create(MOD_ID);
+    public static final Registrum REGISTRUM = Registrum.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
 
     public AnvilCraft(IEventBus modEventBus, ModContainer modContainer) {
         MOD_BUS = modEventBus;
@@ -90,6 +93,7 @@ public class AnvilCraft {
         ModFluids.register(modEventBus);
         ModEntities.register();
         ModItems.register();
+        ModFoodItems.register();
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModComponents.register(modEventBus);

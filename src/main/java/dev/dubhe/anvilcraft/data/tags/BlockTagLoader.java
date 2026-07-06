@@ -274,6 +274,9 @@ public class BlockTagLoader {
             .addTag(BlockTags.WALL_CORALS.location())
             .addTag(BlockTags.CORAL_PLANTS.location());
 
+        provider.rawBuilder(ModBlockTags.BROKEN_CRYSTALS_CLUSTERS)
+            .addElement(findId(Blocks.AMETHYST_CLUSTER));
+
         provider.rawBuilder(ModBlockTags.SPECTRAL_CAN_THROUGH)
             .addTag(Tags.Blocks.GLASS_BLOCKS.location())
             .addTag(Tags.Blocks.GLASS_PANES.location())
