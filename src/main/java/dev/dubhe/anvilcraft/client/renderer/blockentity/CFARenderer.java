@@ -150,6 +150,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float baseCenterY = isAmplify ? 6.5f : 4.5f;
         float ringScale = baseRingScale + (fullRingScale - baseRingScale) * redstoneFactor;
         float centerY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
+        if (isAmplify) {
+            centerY += 19.0f * (be.getRedstoneSignal() / 15.0f);
+        }
 
         float bodyScaleMultiplier = 2.0f;
         if (bodyData != null) {
@@ -1142,12 +1145,15 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         BlockState state = be.getBlockState();
         CelestialBodyData body = be.getCelestialBodyData();
         float centerY = CelestialBodyData.dynamicCenterY(body, be.isAmplify());
+        if (be.isAmplify()) {
+            centerY += 19.0f * (be.getRedstoneSignal() / 15.0f);
+        }
         float bs = body != null ? body.bodyScale() * CelestialBodyData.BODY_SCALE_FACTOR : 6.0f;
         // 红石信号最大 3× 缩放后的天体和星环可能远大于 1×，渲染包围盒需留足余量。
         float bsMax = bs * 3.0f;
         float ringMax = CelestialBodyData.ringSystemScale(body, be.isAmplify()) * 3.0f;
         float maxHorizontal = Math.max(bsMax, ringMax) * 1.5f;
-        float maxHeight = Math.max(centerY + bsMax * 1.5f, be.isAmplify() ? 54.0f : 36.0f);
+        float maxHeight = Math.max(centerY + bsMax * 1.5f, be.isAmplify() ? 73.0f : 36.0f);
         if (be.getSupernovaFlashTicks() > 0) {
             float reach = Math.max(SUPERNOVA_MAX_RADIUS, SUPERNOVA_RAY_LENGTH) * 1.5f + 2;
             double cy = be.getSupernovaCenterY();
