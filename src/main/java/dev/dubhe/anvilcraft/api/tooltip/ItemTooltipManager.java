@@ -78,37 +78,40 @@ public class ItemTooltipManager {
             ModBlocks.BATCH_CUTTER.asItem(),
             "Received a redstone signal and cut all internal items at once, with a power consumption of 4 kW"
         );
-        NORMAL.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_PILLAR.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Explosion proof");
+        NORMAL.put(ModItems.ROYAL_STEEL_INGOT.get(), "Steel infused with gem power");
+        NORMAL.put(ModBlocks.ROYAL_STEEL_BLOCK.asItem(), "Steel infused with gem power, Explosion proof");
+        NORMAL.put(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.asItem(), "Royal Steel decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_BLOCK.asItem(), "Royal Steel decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_PILLAR.asItem(), "Royal Steel decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Royal Steel decorative block, Explosion proof");
         NORMAL.put(ModBlocks.TEMPERING_GLASS.asItem(), "Explosion proof, No tools required on collect");
         NORMAL.put(ModBlocks.REMOTE_TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission length of 16");
-        NORMAL.put(ModBlocks.HEAVY_IRON_BLOCK.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.POLISHED_HEAVY_IRON_SLAB.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.CUT_HEAVY_IRON_BLOCK.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.CUT_HEAVY_IRON_SLAB.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.CUT_HEAVY_IRON_STAIRS.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.HEAVY_IRON_PLATE.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.HEAVY_IRON_COLUMN.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.HEAVY_IRON_BEAM.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.HEAVY_IRON_WALL.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.HEAVY_IRON_DOOR.asItem(), "Explosion proof");
-        NORMAL.put(ModBlocks.HEAVY_IRON_TRAPDOOR.asItem(), "Explosion proof");
+        NORMAL.put(ModBlocks.HEAVY_IRON_BLOCK.asItem(), "Heavy Iron block, highly compressed iron, Explosion proof");
+        NORMAL.put(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.POLISHED_HEAVY_IRON_SLAB.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.POLISHED_HEAVY_IRON_STAIRS.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.CUT_HEAVY_IRON_BLOCK.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.CUT_HEAVY_IRON_SLAB.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.CUT_HEAVY_IRON_STAIRS.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.HEAVY_IRON_PLATE.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.HEAVY_IRON_COLUMN.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.HEAVY_IRON_BEAM.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.HEAVY_IRON_WALL.asItem(), "Heavy Iron decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.HEAVY_IRON_DOOR.asItem(), "Heavy Iron door, Explosion proof");
+        NORMAL.put(ModBlocks.HEAVY_IRON_TRAPDOOR.asItem(), "Heavy Iron trapdoor, Explosion proof");
         NORMAL.put(ModBlocks.ITEM_COLLECTOR.asItem(), "Adjust power consumption based on range and cooling, from 2kW to 32kW");
-        NORMAL.put(ModBlocks.EMBER_ANVIL.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.EMBER_GLASS.asItem(), "Wither proof, No tools required on collect");
-        NORMAL.put(ModBlocks.CUT_EMBER_METAL_BLOCK.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.CUT_EMBER_METAL_PILLAR.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.CUT_EMBER_METAL_SLAB.asItem(), "Wither proof");
-        NORMAL.put(ModBlocks.CUT_EMBER_METAL_STAIRS.asItem(), "Wither proof");
+        NORMAL.put(
+            ModBlocks.EMBER_ANVIL.asItem(), """
+               High-tier with enhanced compatibility
+               Wither proof, does not degrade from falling""");
+        NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Extracts enchantments onto books, Wither proof");
+        NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "All-in-one combination smithing, Wither proof");
+        NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "Netherite tempered in fire for eons, Wither proof");
+        NORMAL.put(ModBlocks.EMBER_GLASS.asItem(), "Ember Metal Glass, Wither proof, No tools required on collect");
+        NORMAL.put(ModBlocks.CUT_EMBER_METAL_BLOCK.asItem(), "Ember Metal decorative block, Wither proof");
+        NORMAL.put(ModBlocks.CUT_EMBER_METAL_PILLAR.asItem(), "Ember Metal decorative block, Wither proof");
+        NORMAL.put(ModBlocks.CUT_EMBER_METAL_SLAB.asItem(), "Ember Metal decorative block, Wither proof");
+        NORMAL.put(ModBlocks.CUT_EMBER_METAL_STAIRS.asItem(), "Ember Metal decorative block, Wither proof");
         NORMAL.put(ModItems.TIN_CAN.asItem(), "Tin cans can be combined with any food to obtain canned food");
         NORMAL.put(ModFoodItems.CANNED_FOOD.asItem(), "Stackable instant food");
         NORMAL.put(ModItems.IONOCRAFT.asItem(), "It will float when placed in the power grid");
