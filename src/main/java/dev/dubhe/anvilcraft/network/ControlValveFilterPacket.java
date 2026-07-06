@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -41,6 +42,8 @@ public record ControlValveFilterPacket(int index, FluidStack fluid) implements I
         if (!(player.containerMenu instanceof ControlValveMenu menu) || menu.getBlockEntity() == null) return;
         menu.getBlockEntity().setFilter(this.index, this.fluid);
         menu.getBlockEntity().sendUpdate();
-        PacketDistributor.sendToPlayer(Util.cast(player), this);
+        if (player instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, this);
+        }
     }
 }

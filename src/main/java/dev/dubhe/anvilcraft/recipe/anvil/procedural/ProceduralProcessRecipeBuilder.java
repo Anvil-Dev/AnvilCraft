@@ -6,12 +6,10 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +91,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     }
 
     @Override
-    public @NotNull ProceduralProcessRecipe buildRecipe() {
+    public ProceduralProcessRecipe buildRecipe() {
         if (this.resultBlock == null) {
             if (this.steps.getLast().content instanceof AbstractProcessRecipe<?> apr) {
                 this.resultBlock = apr.getFirstResultBlock();
@@ -116,7 +114,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     }
 
     @Override
-    public void validate(@NotNull Identifier id) {
+    public void validate(Identifier id) {
         if (this.loop <= 0) {
             throw new IllegalArgumentException("Loop count should be at least 1 (default is 1), got: " + this.loop);
         }
@@ -131,12 +129,12 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     }
 
     @Override
-    public @NotNull String getType() {
+    public String getType() {
         return "procedural_process";
     }
 
     @Override
-    public @NotNull ItemStackTemplate getResult() {
+    public ItemStackTemplate getResult() {
         return WrapUtils.getItem(this.resultBlock);
     }
 }

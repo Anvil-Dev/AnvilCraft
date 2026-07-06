@@ -9,9 +9,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategories;
@@ -19,8 +17,6 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -70,12 +66,12 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     }
 
     @Override
-    public boolean matches(@NotNull InWorldRecipeContext ctx, @NotNull Level level) {
+    public boolean matches(InWorldRecipeContext ctx, Level level) {
         return false;
     }
 
     @Override
-    public @NotNull ItemStack assemble(@NotNull InWorldRecipeContext ctx) {
+    public ItemStack assemble(InWorldRecipeContext ctx) {
         return this.icon.copy();
     }
 
@@ -90,12 +86,12 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     }
 
     @Override
-    public @NotNull RecipeSerializer<ProceduralProcessRecipe> getSerializer() {
+    public RecipeSerializer<ProceduralProcessRecipe> getSerializer() {
         return ProceduralProcessSerializer.INSTANCE;
     }
 
     @Override
-    public @NotNull RecipeType<ProceduralProcessRecipe> getType() {
+    public RecipeType<ProceduralProcessRecipe> getType() {
         return ModRecipeTypes.PROCEDURAL_PROCESS.get();
     }
 

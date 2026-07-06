@@ -63,19 +63,23 @@ public class SimpleMagneticChuteBlock
     public static final VoxelShape SHAPE_N_HEAD = Shapes.join(
         Block.box(4, 4, 0, 12, 12, 12),
         Block.box(2, 10, 2, 14, 16, 14),
-        BooleanOp.OR);
+        BooleanOp.OR
+    );
     public static final VoxelShape SHAPE_S_HEAD = Shapes.join(
         Block.box(4, 4, 4, 12, 12, 16),
         Block.box(2, 10, 2, 14, 16, 14),
-        BooleanOp.OR);
+        BooleanOp.OR
+    );
     public static final VoxelShape SHAPE_W_HEAD = Shapes.join(
         Block.box(0, 4, 4, 12, 12, 12),
         Block.box(2, 10, 2, 14, 16, 14),
-        BooleanOp.OR);
+        BooleanOp.OR
+    );
     public static final VoxelShape SHAPE_E_HEAD = Shapes.join(
         Block.box(4, 4, 4, 16, 12, 12),
         Block.box(2, 10, 2, 14, 16, 14),
-        BooleanOp.OR);
+        BooleanOp.OR
+    );
 
     public SimpleMagneticChuteBlock(Properties properties) {
         super(properties);
@@ -129,14 +133,16 @@ public class SimpleMagneticChuteBlock
         if (!level.isClientSide()) {
             // 不再被任意磁性溜槽指向时，升级回正常磁性溜槽
             if (!isPointedByChute(level, pos)) {
-                level.setBlockAndUpdate(pos, ModBlocks.MAGNETIC_CHUTE.get().defaultBlockState()
-                    .setValue(MagneticChuteBlock.FACING, state.getValue(FACING)));
+                level.setBlockAndUpdate(
+                    pos, ModBlocks.MAGNETIC_CHUTE.get().defaultBlockState()
+                        .setValue(MagneticChuteBlock.FACING, state.getValue(FACING))
+                );
                 return;
             }
             // 上方有朝下的普通溜槽/简易溜槽时，附加连接头模型
             BlockState aboveState = level.getBlockState(pos.above());
             boolean hasHead = (aboveState.is(ModBlocks.CHUTE.get()) || aboveState.is(ModBlocks.SIMPLE_CHUTE.get()))
-                && aboveState.getValue(ChuteBlock.FACING) == Direction.DOWN;
+                              && aboveState.getValue(ChuteBlock.FACING) == Direction.DOWN;
             if (state.getValue(HEAD) != hasHead) {
                 level.setBlockAndUpdate(pos, state.setValue(HEAD, hasHead));
             }
@@ -203,7 +209,8 @@ public class SimpleMagneticChuteBlock
         return createTickerHelper(
             blockEntityType,
             ModBlockEntities.SIMPLE_MAGNETIC_CHUTE.get(),
-            ((_, _, _, be) -> be.tick()));
+            ((_, _, _, be) -> be.tick())
+        );
     }
 
     @Override
@@ -274,10 +281,9 @@ public class SimpleMagneticChuteBlock
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
     // 防止流体流动时破坏溜槽
