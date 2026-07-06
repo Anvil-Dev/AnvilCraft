@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class JadeLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
         provider.add("config.jade.plugin_anvilcraft.ruby_prism", "Ruby Prism");
         provider.add("config.jade.plugin_anvilcraft.item_detector", "Item Detector");
@@ -42,7 +43,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.smart_block_placer_provider", "Smart Block Placer");
 
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.operation_mode", "Operation Mode: %s");
-        provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.normal", "Normal");
+        provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.normal", "Point");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.blueprint", "Blueprint");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement_mode", "Placement Mode: %s");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement.pickup", "Pickup");
