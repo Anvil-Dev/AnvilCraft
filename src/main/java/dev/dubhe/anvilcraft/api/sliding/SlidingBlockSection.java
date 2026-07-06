@@ -5,32 +5,30 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.api.heat.HeatRecorder;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AabbUtil;
-import dev.dubhe.anvilcraft.util.PacketDistributingHelper;
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.util.ProblemReporter;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.DirectionalPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.redstone.Orientation;
-import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Triple;
@@ -44,11 +42,17 @@ import java.util.stream.Stream;
 
 public final class SlidingBlockSection {
     public static final SlidingBlockSection EMPTY = new SlidingBlockSection(List.of());
-    public static final Codec<SlidingBlockSection> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-        SlidingBlockInfo.CODEC.listOf().fieldOf("blocks").forGetter(SlidingBlockSection::blocks)
-    ).apply(ins, SlidingBlockSection::new));
-    public static final StreamCodec<ByteBuf, SlidingBlockSection> STREAM_CODEC = StreamCodec.composite(
-        ByteBufCodecs.collection(ArrayList::new, SlidingBlockInfo.STREAM_CODEC), SlidingBlockSection::blocks,
+    public static final Codec<SlidingBlockSection> CODEC = CodecUtil.create(
+        SlidingBlockInfo.CODEC
+            .codec()
+            .listOf()
+            .fieldOf("blocks")
+            .forGetter(SlidingBlockSection::blocks),
+        SlidingBlockSection::new
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlidingBlockSection> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.collection(ArrayList::new, SlidingBlockInfo.STREAM_CODEC),
+        SlidingBlockSection::blocks,
         SlidingBlockSection::new
     );
     private final List<SlidingBlockInfo> blocks;
@@ -58,14 +62,14 @@ public final class SlidingBlockSection {
         this.blocks = blocks;
     }
 
-    public static SlidingBlockSection create(BlockPos center, Iterable<Triple<BlockPos, BlockState, Optional<CompoundTag>>> infos) {
+    public static SlidingBlockSection create(BlockPos center, Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos) {
         ImmutableList.Builder<SlidingBlockInfo> builder = ImmutableList.builder();
         for (var infoRaw : infos) {
             BlockPos otherPos = infoRaw.getLeft();
             BlockState other = infoRaw.getMiddle();
-            Optional<CompoundTag> data = infoRaw.getRight();
+            Optional<BlockEntity> entity = infoRaw.getRight();
             Vec3i pos = MathUtil.dist(otherPos, center);
-            SlidingBlockInfo info = new SlidingBlockInfo(pos, other, data.orElse(new CompoundTag()));
+            SlidingBlockInfo info = new SlidingBlockInfo(pos, other, entity.orElse(null));
             builder.add(info);
         }
         return new SlidingBlockSection(builder.build());
@@ -157,13 +161,22 @@ public final class SlidingBlockSection {
 
             state = Block.updateFromNeighbourShapes(state, level, pos);
             if (!level.setBlock(pos, state, Block.UPDATE_ALL)) continue;
-            Optional.ofNullable(level.getBlockEntity(pos)).ifPresent(entity1 -> entity1.loadCustomOnly(
-                TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), info.entityData())
-            ));
-            level.neighborChanged(pos, state.getBlock(), Orientation.random(level.getRandom()));
 
+            BlockEntity be = info.blockEntity();
+            if (be != null && state.getBlock() instanceof IMoveableEntityBlock moveableBlock) {
+                be.worldPosition = pos;
+                be.clearRemoved();
+                level.removeBlockEntity(pos);
+                level.setBlockEntity(be);
+                moveableBlock.notifyMoved(level, pos, state, be);
+            }
 
-            PacketDistributingHelper.sendToPlayersTrackingEntity(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
+            level.neighborChanged(pos, state.getBlock(), null);
+
+            ((ServerLevel) level)
+                .getChunkSource()
+                .chunkMap
+                .sendToTrackingPlayers(entity, new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
         }
         entity.discard();
     }

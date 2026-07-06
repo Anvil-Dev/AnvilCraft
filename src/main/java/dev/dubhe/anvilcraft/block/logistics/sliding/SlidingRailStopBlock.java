@@ -1,22 +1,20 @@
 package dev.dubhe.anvilcraft.block.logistics.sliding;
 
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.MathUtil;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -90,62 +88,17 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
 
     @Override
     public void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity) {
-        Direction moveTo = entity.getMoveDirection();
-        if (this.canMoveSlidingTo(level, pos, moveTo)) {
-            return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getCounterClockWise())) {
-            entity.setMoveDirection(moveTo.getCounterClockWise());
-            return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getClockWise())) {
-            entity.setMoveDirection(moveTo.getClockWise());
-            return;
-        } else if (this.canMoveSlidingTo(level, pos, moveTo.getOpposite())) {
-            entity.setMoveDirection(moveTo.getOpposite());
-            return;
-        }
+        if (entity.tickCount <= 2) return;
         ISlidingRail.stopSlidingBlock(entity);
     }
 
-    @Override
-    public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
-        super.onNeighborChange(state, level, pos, neighbor);
-        if (!(level instanceof Level actualLevel)) return;
-        if (actualLevel.isEmptyBlock(pos.above())) return;
-        BlockState topBlock = actualLevel.getBlockState(pos.above());
-        if (!PistonBaseBlock.isPushable(topBlock, actualLevel, pos, null, true, null)) return;
-        Direction moveTo = MathUtil.getDirection(neighbor, pos);
-        if (moveTo.getAxis() == Direction.Axis.Y) return;
-        if (this.canMoveBlockTo(actualLevel, pos, topBlock, moveTo)) {
-            SlidingRailStopBlock.moveBlocksAbove(actualLevel, pos, moveTo);
-        } else if (this.canMoveBlockTo(actualLevel, pos, topBlock, moveTo.getCounterClockWise())) {
-            SlidingRailStopBlock.moveBlocksAbove(actualLevel, pos, moveTo.getCounterClockWise());
-        } else if (this.canMoveBlockTo(actualLevel, pos, topBlock, moveTo.getClockWise())) {
-            SlidingRailStopBlock.moveBlocksAbove(actualLevel, pos, moveTo.getClockWise());
-        }
-    }
-
-    private boolean canMoveBlockTo(Level level, BlockPos pos, BlockState topBlock, Direction moveTo) {
-        if (moveTo.getAxis() == Direction.Axis.Y) return false;
-        BlockPos railPos = pos.relative(moveTo);
-        BlockState railState = level.getBlockState(railPos);
-        return Util.castSafely(railState.getBlock(), ISlidingRail.class)
-            .map(rail -> rail.canMoveBlockToTop(level, railPos, railState, topBlock, moveTo.getOpposite()))
-            .orElse(false);
-    }
-
-    private boolean canMoveSlidingTo(Level level, BlockPos pos, Direction moveTo) {
-        if (moveTo.getAxis() == Direction.Axis.Y) return false;
-        BlockPos railPos = pos.relative(moveTo);
-        BlockState railState = level.getBlockState(railPos);
-        return Util.castSafely(railState.getBlock(), ISlidingRail.class)
-            .map(rail -> rail.canMoveSlidingToTop(level, railPos, railState, moveTo.getOpposite()))
-            .orElse(false);
-    }
-
-    private static void moveBlocksAbove(Level level, BlockPos pos, Direction moveToSide) {
+    public static void moveBlocksAbove(Level level, BlockPos pos, Direction moveToSide) {
         SlidingBlockStructureResolver resolver = new SlidingBlockStructureResolver(level, pos.above(), moveToSide, true);
+        if (level.getBlockState(pos).is(ModBlockTags.SLIDING_RAIL_STOP_LIKE)) {
+            resolver.addIgnorePosition(pos);
+        }
         if (!resolver.resolve()) return;
-        List<Triple<BlockPos, BlockState, Optional<CompoundTag>>> toPushes = new ArrayList<>();
+        List<Triple<BlockPos, BlockState, Optional<BlockEntity>>> toPushes = new ArrayList<>();
         List<BlockPos> toPushPoses = new ArrayList<>(resolver.getToPush());
 
         for (Iterator<BlockPos> iterator = toPushPoses.iterator(); iterator.hasNext(); ) {
@@ -158,9 +111,13 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
             if (toPushState.hasProperty(BlockStateProperties.WATERLOGGED)) {
                 toPushState = toPushState.setValue(BlockStateProperties.WATERLOGGED, false);
             }
-            Optional<CompoundTag> toPushEntityData = Optional.ofNullable(level.getBlockEntity(toPushPos))
-                .map(entity -> entity.saveCustomOnly(level.registryAccess()));
-            toPushes.add(Triple.of(toPushPos, toPushState, toPushEntityData));
+            BlockEntity be = (toPushState.getBlock() instanceof IMoveableEntityBlock)
+                             ? level.getBlockEntity(toPushPos)
+                             : null;
+            Optional<BlockEntity> blockEntity = Optional.ofNullable(be);
+            if (be != null) level.removeBlockEntity(toPushPos);
+
+            toPushes.add(Triple.of(toPushPos, toPushState, blockEntity));
         }
 
         List<BlockPos> toDestroys = resolver.getToDestroy();

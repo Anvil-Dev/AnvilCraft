@@ -317,6 +317,15 @@ public class BlockTagLoader {
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_3)
             .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());
 
+        provider.rawBuilder(ModBlockTags.SLIDING_RAIL_STOP_LIKE)
+            .addTag(ModBlockTags.HEATABLE_BLOCKS.location())
+            .addElement(findId(Blocks.CAMPFIRE))
+            .addElement(ModBlocks.SLIDING_RAIL_STOP.getId())
+            .addElement(ModBlocks.HEATER.getId())
+            .addElement(ModBlocks.BURNING_HEATER.getId())
+            .addElement(ModBlocks.CORRUPTED_BEACON.getId())
+            .addElement(ModBlocks.NEUTRON_IRRADIATOR.getId());
+
         provider.rawBuilder(ModBlockTags.NEEDS_NETHERITE_TOOL);
         provider.rawBuilder(ModBlockTags.NEEDS_EMBER_TOOL);
         provider.rawBuilder(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);

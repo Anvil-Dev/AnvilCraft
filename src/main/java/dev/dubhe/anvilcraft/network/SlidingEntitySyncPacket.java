@@ -6,8 +6,8 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockInfo;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
@@ -16,10 +16,10 @@ import java.util.List;
 
 public record SlidingEntitySyncPacket(int id, List<SlidingBlockInfo> infos, Direction moveDirection) implements IClientboundPacket {
     public static final Type<SlidingEntitySyncPacket> TYPE = IPacket.type(AnvilCraft.of("sliding_entity_sync"));
-    public static final StreamCodec<ByteBuf, SlidingEntitySyncPacket> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, SlidingEntitySyncPacket> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.VAR_INT,
         SlidingEntitySyncPacket::id,
-        SlidingBlockInfo.SIMPLE_STREAM_CODEC.apply(ByteBufCodecs.list()),
+        SlidingBlockInfo.STREAM_CODEC.apply(ByteBufCodecs.list()),
         SlidingEntitySyncPacket::infos,
         Direction.STREAM_CODEC,
         SlidingEntitySyncPacket::moveDirection,

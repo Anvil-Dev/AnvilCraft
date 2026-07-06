@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.logistics.sliding;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -92,8 +94,8 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
         return this.isSameRailWithPower(level, new BlockPos(x, y, z), searchForward, 0, facing);
     }
 
-    protected boolean findPoweredSlidingRailSignal(Level level, BlockPos pos, BlockState state, boolean searchForward, int recursionCount) {
-        if (recursionCount >= 8) return false;
+    protected boolean findPoweredSlidingRailSignal(Level level, BlockPos pos, BlockState state, boolean searchForward, int searchDepth) {
+        if (searchDepth >= 8) return false;
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
@@ -108,7 +110,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
             }
         }
 
-        return this.isSameRailWithPower(level, new BlockPos(x, y, z), searchForward, recursionCount, facing);
+        return this.isSameRailWithPower(level, new BlockPos(x, y, z), searchForward, searchDepth, facing);
     }
 
     protected boolean isSameRailWithPower(Level level, BlockPos pos, boolean searchForward, int recursionCount, Direction facing) {
@@ -147,25 +149,12 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
         super.onNeighborChange(state, level, pos, neighbor);
     }
 
-    private static final int[] UPDATE_POS = new int[] {-1, 1};
-
-    protected boolean updatePower(Level level, BlockPos pos, BlockState state, @Nullable BlockPos fromPos) {
+    protected boolean updatePower(Level level, BlockPos pos, BlockState state) {
         boolean powered = state.getValue(POWERED);
         boolean shouldPower = this.isPowered(level, pos);
         if (powered != shouldPower) {
             powered = shouldPower;
             level.setBlockAndUpdate(pos, state.setValue(POWERED, shouldPower));
-        }
-        if (powered) {
-            Direction.Axis axis = state.getValue(FACING).getAxis();
-            for (int updatePos : UPDATE_POS) {
-                BlockPos pos1 = pos.relative(axis, updatePos);
-                if (pos1.equals(fromPos)) continue;
-                BlockState state1 = level.getBlockState(pos1);
-                if (!(state1.getBlock() instanceof PoweredSlidingRailBlock other)) continue;
-                if (state1.getOptionalValue(FACING).map(Direction::getAxis).filter(axis::equals).isEmpty()) continue;
-                // level.neighborChanged(pos1, other, null);
-            }
         }
         return powered;
     }
@@ -185,7 +174,24 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
         boolean movedByPiston
     ) {
         super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
-        boolean powered = this.updatePower(level, pos, state, null);
+        boolean wasPowered = state.getValue(POWERED);
+        boolean powered = this.updatePower(level, pos, state);
+
+        if (!wasPowered && powered) {
+            Direction facing = state.getValue(FACING);
+            BlockPos behindPos = pos.relative(facing.getOpposite());
+            BlockState behindState = level.getBlockState(behindPos);
+            if (behindState.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE)) {
+                BlockPos aboveStopPos = behindPos.above();
+                if (!level.isEmptyBlock(aboveStopPos)) {
+                    BlockState aboveStopState = level.getBlockState(aboveStopPos);
+                    if (PistonBaseBlock.isPushable(aboveStopState, level, aboveStopPos, null, true, null)) {
+                        SlidingRailStopBlock.moveBlocksAbove(level, behindPos, facing);
+                    }
+                }
+            }
+        }
+
         BlockPos above = pos.above();
         if (powered && !level.isEmptyBlock(above)) {
             PistonPushInfo ppi = new PistonPushInfo(above, state.getValue(FACING));
