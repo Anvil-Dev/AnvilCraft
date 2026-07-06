@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
 public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
     private @Nullable PowerGrid grid = null;
 
-    private int power = 16;
+    private int power = 8192;
 
     private int time = 0;
     private boolean previousSyncFailed = false;
