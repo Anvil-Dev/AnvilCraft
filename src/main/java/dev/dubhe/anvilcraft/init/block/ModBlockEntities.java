@@ -61,6 +61,7 @@ import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
@@ -103,6 +104,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
@@ -459,9 +461,12 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<CelestialForgingAnvilLogisticsInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE =
         REGISTRUM
-        .blockEntity("celestial_forging_anvil_logistics_interface", CelestialForgingAnvilLogisticsInterfaceBlockEntity::createBlockEntity)
-        .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)
-        .register();
+            .blockEntity(
+                "celestial_forging_anvil_logistics_interface",
+                CelestialForgingAnvilLogisticsInterfaceBlockEntity::createBlockEntity
+            )
+            .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE)
+            .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilFluidInterfaceBlockEntity> CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE = REGISTRUM
         .blockEntity("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlockEntity::createBlockEntity)
@@ -528,6 +533,12 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<SpacetimeSupercomputerBlockEntity> SPACETIME_SUPERCOMPUTER = REGISTRUM
         .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
         .validBlock(ModBlocks.SPACETIME_SUPERCOMPUTER)
+        .register();
+
+    public static final BlockEntityEntry<WipBlockEntity> WIP_BLOCK = REGISTRUM
+        .blockEntity("wip_block", WipBlockEntity::new)
+        .renderer(() -> WipBlockEntityRenderer::new)
+        .validBlock(ModBlocks.WIP_BLOCK)
         .register();
 
     public static void register() {

@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.workstation.royal.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -61,6 +62,9 @@ public class AnvilEventListener {
         BlockPos pos = event.getPos();
         final BlockState blockState = level.getBlockState(pos);
         TriggerUtil.anvilOnGround(level, pos);
+        if (ProceduralProcessStepManager.checkAnyMatches(event)) {
+            return;
+        }
         final BlockPos hitBlockPos = pos.below();
         final BlockState hitBlockState = level.getBlockState(hitBlockPos);
         BlockPos belowPos = hitBlockPos.below();

@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
@@ -255,6 +256,31 @@ public class RegisterAdditionalEventListener {
         event.register(
             PumpBlockEntityRenderer.PUMP_PISTON_2,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/pump_piston_2"))
+        );
+        // WIP block models for procedural process
+        event.register(
+            WipBlockEntityRenderer.REDSTONE_COMPUTER_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/redstone_computer_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.ANCIENT_DEBRIS_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_debris_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.NETHERITE_BLOCK_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/netherite_block_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.HEAVY_IRON_BLOCK_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heavy_iron_block_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.ANCIENT_SEA_REEF_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_sea_reef_wip"))
         );
     }
 

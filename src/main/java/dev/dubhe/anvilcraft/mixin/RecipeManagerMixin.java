@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -42,5 +43,6 @@ abstract class RecipeManagerMixin {
         new JewelCraftingRecipeGeneratingCache(this.registries)
             .buildRecipes()
             .ifPresent(recipeHolders::addAll);
+        ProceduralProcessStepManager.initialize(recipeHolders);
     }
 }

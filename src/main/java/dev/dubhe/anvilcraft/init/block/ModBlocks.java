@@ -11,6 +11,8 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
+import dev.dubhe.anvilcraft.block.RedstoneComputerBlock;
+import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -448,8 +450,10 @@ public class ModBlocks {
         .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
-            MultiVariantGenerator.dispatch(ctx.get(),
-                                           BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))))
+            MultiVariantGenerator.dispatch(
+                ctx.get(),
+                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
+            )))
         .simpleItem()
         .register();
 
@@ -770,7 +774,7 @@ public class ModBlocks {
         .properties(properties -> properties
             .noOcclusion()
             .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) >= 2 ? 15
-                : state.getValue(BurningHeaterBlock.LEVEL) >= 1 ? 7 : 0)
+                                                                               : state.getValue(BurningHeaterBlock.LEVEL) >= 1 ? 7 : 0)
         )
         .simpleItem()
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
@@ -935,8 +939,10 @@ public class ModBlocks {
             MultiVariantGenerator.dispatch(ctx.get())
                 .with(PropertyDispatchWrap.initial(InfiniteCollectorBlock.POWERED)
                     .select(false, BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))
-                    .select(true, BlockModelGenerators.plainVariant(
-                        ctx.getId().withPrefix("block/").withSuffix("_base")))
+                    .select(
+                        true, BlockModelGenerators.plainVariant(
+                            ctx.getId().withPrefix("block/").withSuffix("_base"))
+                    )
                     .dispatch()
                 )))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1144,7 +1150,8 @@ public class ModBlocks {
             generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
                 .with(PropertyDispatch.initial(
                         SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED, SmartBlockPlacerBlock
-                            .UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
+                            .UPSIDE_DOWN, HorizontalDirectionalBlock.FACING
+                    )
                     .generate((isOverload, isPowered, isUpsideDown, facing) -> {
                         Identifier model = isOverload ? overload : (isPowered ? off : bottom);
                         Quadrant baseY = switch (facing) {
@@ -1154,8 +1161,8 @@ public class ModBlocks {
                             default -> Quadrant.R0;
                         };
                         Quadrant yrot = isUpsideDown
-                            ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
-                            : baseY;
+                                        ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
+                                        : baseY;
                         return BlockModelGenerators.plainVariant(model)
                             .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
                     })));
@@ -1184,8 +1191,8 @@ public class ModBlocks {
                             default -> Quadrant.R0;
                         };
                         Quadrant yrot = isUpsideDown
-                            ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
-                            : baseY;
+                                        ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
+                                        : baseY;
                         return BlockModelGenerators.plainVariant(model)
                             .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
                     })));
@@ -1692,6 +1699,18 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
+    public static final BlockEntry<RedstoneComputerBlock> REDSTONE_COMPUTER = REGISTRUM
+        .block("redstone_computer", RedstoneComputerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties
+            .strength(3.0F, 3.5F)
+            .noOcclusion()
+            .isRedstoneConductor(ModBlocks::never))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::onlyState)
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<SpacetimeSupercomputerBlock> SPACETIME_SUPERCOMPUTER = REGISTRUM
         .block("spacetime_supercomputer", SpacetimeSupercomputerBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
@@ -1703,6 +1722,12 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .blockstate(DataGenUtil::onlyState)
         .simpleItem()
+        .register();
+
+    public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)
+        .properties(p -> p.noOcclusion().lightLevel(bs -> 1))
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()))
+        .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
 
     static {
