@@ -50,17 +50,17 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.ENERGY_WEAPON_PLATFORM); // 能量武器平台
         this.energy(ModItems.SPECTRAL_WEAPON_LAUNCHER); // 幻灵武器发射器
         this.energy(ModItems.ANVIL_RAILGUN); // 铁砧轨道炮
-        // this.energy(ModItems.CORRUPTED_BEACON_ACTIVATOR); // 腐化信标激发器
-        // this.energy(ModItems.TESLA_GUN); // 特斯拉枪
-        // this.energy(ModItems.LASER_GUN); // 激光枪
+        this.energy(ModItems.CORRUPTED_BEACON_ACTIVATOR); // 腐化信标激发器
+        this.energy(ModItems.TESLA_GUN); // 特斯拉枪
+        this.energy(ModItems.LASER_GUN); // 激光枪
         this.plain(ModItems.IONOCRAFT); // 飘升机
-        this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK); // 飘升机背包
+        this.energy(ModItems.IONOCRAFT_BACKPACK); // 飘升机背包
         this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE); // 锻造模板（皇家钢升级）
         this.plain(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE); // 锻造模板（浮霜金属升级）
         this.plain(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE); // 锻造模板（余烬金属升级）
         this.plain(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE); // 锻造模板（超限合金升级）
-        // this.plain(ModItems.PERMUTATION_TEMPLATE_ITEM); // 嬗变锻造模板
-        // this.plain(ModItems.DEFORMATION_TEMPLATE_ITEM); // 形变锻造模板
+        this.plain(ModItems.PERMUTATION_TEMPLATE); // 嬗变锻造模板
+        this.plain(ModItems.DEFORMATION_TEMPLATE); // 形变锻造模板
         this.plain(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE); // 二合一锻造模板
         this.plain(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE); // 四合一锻造模板
         this.plain(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE); // 八合一锻造模板

@@ -88,7 +88,10 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.TRANSPARENT_CRAFTING_TABLE); // 通透工作台
         this.plain(ModBlocks.SPACE_OVERCOMPRESSOR); // 空间超压器
         this.plain(ModBlocks.MENGER_SPONGE); // 门格海绵
+        this.plain(ModBlocks.CRATE); // 板条箱
+        this.plain(ModBlocks.LARGE_CRATE); // 大型板条箱
         this.plain(ModBlocks.SHULKER_CONTAINER); // 潜影集装箱
+        this.plain(ModBlocks.HYPERDIMENSION_STORAGE_STATION); // 超维存储站
         this.plain(ModBlocks.CHUTE); // 溜槽
         this.plain(ModBlocks.MAGNETIC_CHUTE); // 磁性溜槽
         this.plain(ModBlocks.IMPACT_PILE); // 冲击桩

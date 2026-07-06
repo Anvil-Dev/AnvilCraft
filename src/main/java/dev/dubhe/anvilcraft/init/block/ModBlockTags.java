@@ -43,6 +43,8 @@ public class ModBlockTags {
     public static final TagKey<Block> ANVIL_TIER_1 = bind("anvil_tier_1");
     public static final TagKey<Block> ANVIL_TIER_2 = bind("anvil_tier_2");
     public static final TagKey<Block> ANVIL_TIER_3 = bind("anvil_tier_3");
+    public static final TagKey<Block> GIANT_ANVIL = bind("giant_anvil");
+    public static final TagKey<Block> SLIDING_RAIL_STOP_LIKE = bind("sliding_rail_stop_like");
 
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = bindC("ores/tungsten");
@@ -104,6 +106,7 @@ public class ModBlockTags {
 
     public static final TagKey<Block> FELLING_APPLICABLE = bind("felling_applicable");
     public static final TagKey<Block> CLEANING_APPLICABLE = bind("cleaning_applicable");
+    public static final TagKey<Block> BROKEN_CRYSTALS_CLUSTERS = bind("broken_crystals_clusters");
 
     public static final TagKey<Block> COLLISION_IMMUNE = bind("collision_immune");
     public static final TagKey<Block> BROKEN_CRYSTALS_CLUSTERS = bind("broken_crystals_clusters");
@@ -119,6 +122,7 @@ public class ModBlockTags {
         return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", id));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static TagKey<Block> bindMekanism(String id) {
         return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MEKANISM_MODID, id));
     }

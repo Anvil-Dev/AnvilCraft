@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.entity;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockSection;
 import dev.dubhe.anvilcraft.block.logistics.sliding.ISlidingRail;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.network.SlidingEntitySyncPacket;
 import lombok.Getter;
@@ -11,7 +12,6 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -24,6 +24,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -53,8 +54,10 @@ public class SlidingBlockEntity extends Entity {
     }
 
     public SlidingBlockEntity(
-        Level level, BlockPos pos, Direction moveDirection,
-        Iterable<Triple<BlockPos, BlockState, Optional<CompoundTag>>> infos
+        Level level,
+        BlockPos pos,
+        Direction moveDirection,
+        Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos
     ) {
         this(ModEntities.SLIDING_BLOCK.get(), level);
         this.blocksBuilding = true;
@@ -71,8 +74,10 @@ public class SlidingBlockEntity extends Entity {
 
     @SuppressWarnings("UnusedReturnValue")
     public static SlidingBlockEntity slid(
-        Level level, BlockPos pos, Direction moveDirection,
-        Iterable<Triple<BlockPos, BlockState, Optional<CompoundTag>>> infos
+        Level level,
+        BlockPos pos,
+        Direction moveDirection,
+        Iterable<Triple<BlockPos, BlockState, Optional<BlockEntity>>> infos
     ) {
         SlidingBlockEntity entity = new SlidingBlockEntity(level, pos, moveDirection, infos);
         for (var entry : infos) {
@@ -100,6 +105,9 @@ public class SlidingBlockEntity extends Entity {
         BlockState belowState = this.level().getBlockState(belowPos);
         if (belowState.getBlock() instanceof ISlidingRail slidingRail && !this.level().isClientSide()) {
             slidingRail.onSlidingAbove(this.level(), belowPos, belowState, this);
+        } else if (belowState.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE) && !this.level().isClientSide() && this.time > 2) {
+            ISlidingRail.stopSlidingBlock(this);
+            return;
         }
         Direction.Axis horizontalAnother = this.moveDirection.getClockWise().getAxis();
         this.setPos(this.position().with(horizontalAnother, Math.ceil(this.position().get(horizontalAnother)) - 0.5));
@@ -121,7 +129,11 @@ public class SlidingBlockEntity extends Entity {
     }
 
     protected boolean checkCanMove() {
-        if (!(this.level().getBlockState(this.blockPosition().below()).getBlock() instanceof ISlidingRail)) return false;
+        BlockPos belowPos = this.blockPosition().below();
+        BlockState belowState = this.level().getBlockState(belowPos);
+        boolean isSlidingRail = belowState.getBlock() instanceof ISlidingRail;
+        boolean isStopLike = belowState.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE);
+        if (!isSlidingRail && !isStopLike) return false;
         if (this.time > 1 && this.getDeltaMovement().equals(Vec3.ZERO)) return false;
         for (Vec3i pos : this.section.getWallsOnSide(this.moveDirection)) {
             BlockPos checking = this.blockPosition().offset(pos);

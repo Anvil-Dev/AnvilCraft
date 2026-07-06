@@ -95,7 +95,10 @@ import dev.dubhe.anvilcraft.item.utility.PillBoxItem;
 import dev.dubhe.anvilcraft.item.utility.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.utility.StructureToolItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
+import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
+import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
+import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
@@ -104,7 +107,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
@@ -137,10 +139,12 @@ import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings({
-    "unused",
-    "CodeBlock2Expr"
-})
+@SuppressWarnings(
+    {
+        "unused",
+        "CodeBlock2Expr"
+    }
+)
 public class ModItems {
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRUM.item("guide_book", GuideBookItem::new)
         .properties(p -> p.stacksTo(1))
@@ -547,7 +551,7 @@ public class ModItems {
                             new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
                         )),
                         ItemModelUtils.specialModel(
-                            generator.createFlatItemModel(item, "_off", ModelTemplates.FLAT_ITEM),
+                            ModelLocationUtils.getModelLocation(item, "_exhausted"),
                             SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
                         ),
                         ItemModelUtils.specialModel(
@@ -562,6 +566,24 @@ public class ModItems {
 
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .model(DataGenUtil::energyWeapon)
+        .register();
+
+    public static final ItemEntry<? extends CorruptedBeaconActivatorItem> CORRUPTED_BEACON_ACTIVATOR = REGISTRUM
+        .item("corrupted_beacon_activator", CorruptedBeaconActivatorItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .model(DataGenUtil::energyWeapon)
+        .register();
+
+    public static final ItemEntry<? extends TeslaGunItem> TESLA_GUN = REGISTRUM
+        .item("tesla_gun", TeslaGunItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .model(DataGenUtil::energyWeapon)
+        .register();
+
+    public static final ItemEntry<? extends LaserGunItem> LASER_GUN = REGISTRUM
+        .item("laser_gun", LaserGunItem::new)
         .properties(properties -> properties.stacksTo(1))
         .model(DataGenUtil::energyWeapon)
         .register();
