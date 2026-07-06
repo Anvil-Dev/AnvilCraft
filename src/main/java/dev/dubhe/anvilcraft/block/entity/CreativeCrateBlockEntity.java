@@ -5,15 +5,20 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -39,14 +44,16 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.itemHandler.setStack(
-            input.read("item", ItemStack.CODEC).orElse(ItemStack.EMPTY));
+            input.read("item", ItemStack.CODEC).orElse(ItemStack.EMPTY)
+        );
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         if (!this.itemHandler.isEmpty()) {
-            tag.store("item", ItemStack.CODEC, this.itemHandler.getStack());
+            tag.store("item", ItemStack.CODEC, ops, this.itemHandler.getStack());
         }
         return tag;
     }
