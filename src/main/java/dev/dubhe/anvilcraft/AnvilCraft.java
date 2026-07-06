@@ -86,11 +86,10 @@ public class AnvilCraft {
     @Getter
     private static final IntegrationManager INTEGRATION_MANAGER = new IntegrationManager(AnvilCraft.MOD_ID);
 
-    public static final Registrum REGISTRUM = Registrum.create(MOD_ID);
+    public static final Registrum REGISTRUM = Registrum.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
 
     public AnvilCraft(IEventBus modEventBus, ModContainer modContainer) {
         MOD_BUS = modEventBus;
-        REGISTRUM.defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
         NeoForgeMod.enableMilkFluid();
         ModAttachments.register(modEventBus);
         ModItemGroups.register(modEventBus);
