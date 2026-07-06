@@ -76,5 +76,6 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.EXP_BUCKET); // 液态经验桶
         this.plain(ModItems.OIL_BUCKET); // 原油桶
         this.plain(ModItems.MELT_GEM_BUCKET); // 熔融宝石桶
+        ModItems.CEMENT_BUCKETS.forEach((color, bucketItem) -> this.plain(bucketItem)); //水泥桶
     }
 }

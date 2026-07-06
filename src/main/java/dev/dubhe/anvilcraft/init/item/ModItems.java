@@ -101,8 +101,8 @@ import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
@@ -1044,7 +1044,7 @@ public class ModItems {
         .register();
 
     private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
-        Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectOpenHashMap<>();
+        Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
             var entry = registerCementBucket(color);
             map.put(color, entry);
