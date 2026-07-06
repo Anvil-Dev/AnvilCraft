@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.neoforged.neoforge.common.Tags;
 
 public class DamageTypeTagLoader {
     /**
@@ -28,20 +29,41 @@ public class DamageTypeTagLoader {
             .addOptional(ResourceLocation.fromNamespaceAndPath("immersiveengineering", "wire_shock"));
 
         provider.addTag(ModDamageTypeTags.RUBY_AMULET_VALID)
-            .addTag(DamageTypeTags.IS_FIRE)
-            .addOptional(ModDamageTypes.LASER.location());
+            .addTag(DamageTypeTags.IS_FIRE);
 
         provider.addTag(ModDamageTypeTags.SAPPHIRE_AMULET_VALID)
             .addTag(DamageTypeTags.IS_DROWNING)
             .add(DamageTypes.DRY_OUT);
 
         provider.addTag(ModDamageTypeTags.ANVIL_AMULET_VALID)
-            .add(DamageTypes.FALLING_ANVIL);
+            .add(DamageTypes.FALLING_ANVIL)
+            .addTag(ModDamageTypeTags.IS_FALLING_GIANT_ANVIL);
 
         provider.addTag(ModDamageTypeTags.FEATHER_AMULET_VALID)
             .addTag(DamageTypeTags.IS_FALL);
 
         provider.addTag(ModDamageTypeTags.ABNORMAL_AMULET_VALID)
             .add(DamageTypes.WITHER);
+
+        provider.addTag(ModDamageTypeTags.IS_FALLING_GIANT_ANVIL)
+            .addOptional(ModDamageTypes.FALLING_GIANT_ANVIL.location());
+
+        provider.addTag(DamageTypeTags.BYPASSES_ARMOR)
+            .addOptional(ModDamageTypes.LOST_IN_TIME.location());
+
+        provider.addTag(DamageTypeTags.BYPASSES_RESISTANCE)
+            .addOptional(ModDamageTypes.LOST_IN_TIME.location());
+
+        provider.addTag(DamageTypeTags.NO_KNOCKBACK)
+            .addOptional(ModDamageTypes.LOST_IN_TIME.location())
+            .addOptional(ModDamageTypes.HEATER_BURN.location());
+
+        provider.addTag(Tags.DamageTypes.IS_MAGIC)
+            .addOptional(ModDamageTypes.LOST_IN_TIME.location());
+
+        provider.addTag(DamageTypeTags.IS_FIRE)
+            .addOptional(ModDamageTypes.HEATER_BURN.location())
+            .addOptional(ModDamageTypes.PLASMA_JET.location())
+            .addOptional(ModDamageTypes.LASER.location());
     }
 }

@@ -305,7 +305,7 @@ public class ModBlocks {
         .properties((properties) -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(ModBlockTags.GIANT_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<? extends Block> MAGNET_BLOCK = REGISTRUM.block("magnet_block", MagnetBlock::new)

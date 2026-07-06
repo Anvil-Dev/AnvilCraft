@@ -28,5 +28,8 @@
   ],
   "net/minecraft/world/level/block/GrowingPlantBlock": [
     "dev/dubhe/anvilcraft/api/injection/block/IGrowingPlantBlockGetter"
+  ],
+  "net/minecraft/world/level/block/BuddingAmethystBlock": [
+    "dev/dubhe/anvilcraft/api/injection/block/IBuddingAmethystBlockExtension"
   ]
 }
