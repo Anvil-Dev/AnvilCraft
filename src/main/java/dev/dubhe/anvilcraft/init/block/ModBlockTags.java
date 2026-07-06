@@ -109,8 +109,6 @@ public class ModBlockTags {
     public static final TagKey<Block> BROKEN_CRYSTALS_CLUSTERS = bind("broken_crystals_clusters");
 
     public static final TagKey<Block> COLLISION_IMMUNE = bind("collision_immune");
-    public static final TagKey<Block> BROKEN_CRYSTALS_CLUSTERS = bind("broken_crystals_clusters");
-    public static final TagKey<Block> GIANT_ANVIL = bind("giant_anvil");
 
     // vanilla tags
     public static final TagKey<Block> LIGHTNING_RODS = TagKey.create(Registries.BLOCK, Identifier.withDefaultNamespace("lightning_rods"));

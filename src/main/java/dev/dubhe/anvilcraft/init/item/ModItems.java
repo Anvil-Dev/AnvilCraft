@@ -139,12 +139,10 @@ import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
-@SuppressWarnings(
-    {
-        "unused",
-        "CodeBlock2Expr"
-    }
-)
+@SuppressWarnings({
+    "unused",
+    "CodeBlock2Expr"
+})
 public class ModItems {
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRUM.item("guide_book", GuideBookItem::new)
         .properties(p -> p.stacksTo(1))
