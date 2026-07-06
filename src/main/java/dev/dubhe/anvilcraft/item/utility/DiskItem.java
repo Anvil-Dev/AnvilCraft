@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
+import net.neoforged.neoforge.event.level.BlockEvent;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -131,5 +132,25 @@ public class DiskItem extends Item {
     private static Component messageFailed(String suffix) {
         return Component.translatable(MESSAGE_PREFIX + suffix)
             .withStyle(ChatFormatting.RED);
+    }
+
+    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+        if (event.getLevel().isClientSide()) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+        ItemStack offhand = player.getOffhandItem();
+        if (!(offhand.getItem() instanceof DiskItem) || !hasDataStored(offhand)) return;
+        BlockPos pos = event.getPos();
+        Level level = (Level) event.getLevel();
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof IDiskCloneable diskCloneable)) return;
+        ValueInput input = TagValueInput.create(
+            new ProblemReporter.ScopedCollector(log),
+            level.registryAccess(),
+            getData(offhand)
+        );
+        Optional<BlockEntityType<?>> storedType = input.read("StoredFrom", BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec());
+        if (storedType.isPresent() && !storedType.get().equals(blockEntity.getType())) return;
+        diskCloneable.applyDiskData(input);
+        player.sendOverlayMessage(MESSAGE_APPLIED);
     }
 }
