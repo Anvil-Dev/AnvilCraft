@@ -64,6 +64,8 @@ import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronDoorBlock;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronPlateBlock;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronTrapdoorBlock;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronWallBlock;
+import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
+import dev.dubhe.anvilcraft.block.fluid.DrainBlock;
 import dev.dubhe.anvilcraft.block.fluid.ExpFluidBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
@@ -399,6 +401,24 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::pump)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<ControlValveBlock> CONTROL_VALVE = REGISTRUM
+        .block("control_valve", ControlValveBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<DrainBlock> DRAIN = REGISTRUM
+        .block("drain", DrainBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 

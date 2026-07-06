@@ -64,7 +64,10 @@ import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCrafterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.DrainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
@@ -516,6 +519,21 @@ public class ModBlockEntities {
         .blockEntity("pump", PumpBlockEntity::create)
         .validBlock(ModBlocks.PUMP)
         .renderer(() -> PumpBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<ControlValveBlockEntity> CONTROL_VALVE = REGISTRUM
+        .blockEntity("control_valve", ControlValveBlockEntity::new)
+        .validBlock(ModBlocks.CONTROL_VALVE)
+        .register();
+
+    public static final BlockEntityEntry<PipeCheckValveBlockEntity> PIPE_CHECK_VALVE = REGISTRUM
+        .blockEntity("pipe_check_valve", PipeCheckValveBlockEntity::new)
+        .validBlocks(ModBlocks.PIPE_STRAIGHT, ModBlocks.PIPE_CORNER, ModBlocks.PIPE_NODE)
+        .register();
+
+    public static final BlockEntityEntry<DrainBlockEntity> DRAIN = REGISTRUM
+        .blockEntity("drain", DrainBlockEntity::new)
+        .validBlock(ModBlocks.DRAIN)
         .register();
 
     public static final BlockEntityEntry<CreativeFluidTankBlockEntity> CREATIVE_FLUID_TANK = REGISTRUM

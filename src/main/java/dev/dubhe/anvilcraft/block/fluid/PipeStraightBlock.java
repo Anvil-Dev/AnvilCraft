@@ -30,6 +30,8 @@ public class PipeStraightBlock extends PipeBlock {
         super(properties);
         this.registerDefaultState(this.getStateDefinition()
             .any()
+            .setValue(WATERLOGGED, false)
+            .setValue(HAS_CHECK_VALVE, false)
             .setValue(AXIS, Direction.Axis.X)
             .setValue(HAS_END_START, true)
             .setValue(HAS_END_END, true));

@@ -10,6 +10,8 @@
     "anvilcraft:pipe_corner",
     "anvilcraft:pipe_node",
     "anvilcraft:pump",
+    "anvilcraft:control_valve",
+    "anvilcraft:drain",
     "anvilcraft:creative_fluid_tank",
     "anvilcraft:fluid_tank",
     "anvilcraft:large_fluid_tank",

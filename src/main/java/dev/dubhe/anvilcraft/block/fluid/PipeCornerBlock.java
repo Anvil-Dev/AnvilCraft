@@ -28,6 +28,8 @@ public class PipeCornerBlock extends PipeBlock {
         super(properties);
         this.registerDefaultState(this.getStateDefinition()
             .any()
+            .setValue(WATERLOGGED, false)
+            .setValue(HAS_CHECK_VALVE, false)
             .setValue(CORNER_ENDED, CornerEnded.UP_NORTH)
             .setValue(HAS_END_START, true)
             .setValue(HAS_END_END, true));

@@ -40,6 +40,8 @@ public class PipeNodeBlock extends PipeBlock {
         super(properties);
         this.registerDefaultState(this.getStateDefinition()
             .any()
+            .setValue(WATERLOGGED, false)
+            .setValue(HAS_CHECK_VALVE, false)
             .setValue(DOWN, NodePipe.NONE)
             .setValue(UP, NodePipe.NONE)
             .setValue(NORTH, NodePipe.NONE)
@@ -70,6 +72,7 @@ public class PipeNodeBlock extends PipeBlock {
 
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
         if (state.is(oldState.getBlock())) return;
         BlockState updated = scanAllDirections(state, level, pos);
         updated = trySimplify(updated);
@@ -175,7 +178,7 @@ public class PipeNodeBlock extends PipeBlock {
             return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         }
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        Direction armDir = getArmDirection(pos, hitResult);
+        Direction armDir = getNodeArmDirection(pos, hitResult);
         if (armDir == null) return InteractionResult.PASS;
         EnumProperty<NodePipe> prop = getPropertyForDirection(armDir);
         NodePipe current = state.getValue(prop);
@@ -193,7 +196,7 @@ public class PipeNodeBlock extends PipeBlock {
         return InteractionResult.CONSUME;
     }
 
-    private static @Nullable Direction getArmDirection(BlockPos pos, BlockHitResult hitResult) {
+    private static @Nullable Direction getNodeArmDirection(BlockPos pos, BlockHitResult hitResult) {
         Vec3 loc = hitResult.getLocation();
         double bx = loc.x - pos.getX();
         double by = loc.y - pos.getY();

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.CelestialForgingAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberSmithingScreen;
@@ -36,6 +37,7 @@ import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
+import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
@@ -186,6 +188,10 @@ public class ModMenuTypes {
         .register();
     public static final MenuEntry<StorageMenu> STORAGE = REGISTRUM
         .menu("storage", StorageMenu::new, () -> StorageScreen::new)
+        .register();
+
+    public static final MenuEntry<ControlValveMenu> CONTROL_VALVE = REGISTRUM
+        .menu("control_valve", ControlValveMenu::new, () -> ControlValveScreen::new)
         .register();
 
     public static void register() {
