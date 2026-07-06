@@ -15,7 +15,8 @@ public class EntityEventListener {
     public static void onCheckEntityInvulnerability(EntityInvulnerabilityCheckEvent event) {
         DamageSource source = event.getSource();
         Entity entity = event.getEntity();
-        if (source.is(ModDamageTypeTags.IS_FALLING_GIANT_ANVIL) && entity.is(ModEntityTypeTags.FALLING_GIANT_ANVIL_DAMAGE_IMMUNE)) {
+        if (source.is(ModDamageTypeTags.IS_FALLING_GIANT_ANVIL)
+            && entity.getType().builtInRegistryHolder().is(ModEntityTypeTags.FALLING_GIANT_ANVIL_DAMAGE_IMMUNE)) {
             event.setInvulnerable(true);
         }
     }

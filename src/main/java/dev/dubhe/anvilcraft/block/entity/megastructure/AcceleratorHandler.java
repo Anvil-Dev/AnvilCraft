@@ -208,7 +208,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             );
             PacketDistributor.sendToPlayersTrackingChunk(
                 serverLevel,
-                new ChunkPos(be.getBlockPos().getX() >> 4, be.getBlockPos().getZ() >> 4),
+                ChunkPos.containing(be.getBlockPos()),
                 ScreenShakePacket.of(center, 64.0f, ScreenShakePacket.ShakeType.SUPERNOVA)
             );
         }

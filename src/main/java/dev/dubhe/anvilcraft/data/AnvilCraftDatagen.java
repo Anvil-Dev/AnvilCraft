@@ -62,7 +62,7 @@ public class AnvilCraftDatagen {
 
         generator.addProvider(true, new ModLootTableProvider(packOutput, lookupProvider));
         generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, lookupProvider));
-        generator.addProvider(true, new ModLootModifierProvider(packOutput, lookupProvider, AnvilCraft.MOD_ID));
+        generator.addProvider(true, new ModLootModifierProvider(packOutput, lookupProvider));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllServerDataIntegrations();
