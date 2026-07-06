@@ -45,7 +45,7 @@ public class SapphireItem extends Item {
             if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
                 ModCriterionTriggers.USE_ITEM.get().trigger(serverPlayer, this);
             }
-            processWaterArea(level, playerPos);
+            this.processWaterArea(level, playerPos);
             if (player.getAbilities().instabuild) return InteractionResult.SUCCESS;
             this.breakItem(player, itemInHand);
             itemInHand.shrink(1);
@@ -53,13 +53,13 @@ public class SapphireItem extends Item {
         }
 
         if (playerState.isAir()) {
-            if (!canSupportSnowLayer(level, playerPos)) {
+            if (!this.canSupportSnowLayer(level, playerPos)) {
                 return InteractionResult.FAIL;
             }
             if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
                 ModCriterionTriggers.USE_ITEM.get().trigger(serverPlayer, this);
             }
-            processSnowArea(level, playerPos);
+            this.processSnowArea(level, playerPos);
             if (player.getAbilities().instabuild) return InteractionResult.SUCCESS;
             this.breakItem(player, itemInHand);
             itemInHand.shrink(1);
@@ -78,8 +78,8 @@ public class SapphireItem extends Item {
         if (level.isClientSide()) return;
 
         level.setBlock(centerPos, Blocks.ICE.defaultBlockState(), 3);
-        playFreezeSound(level, centerPos);
-        spawnFreezeParticles(level, centerPos);
+        this.playFreezeSound(level, centerPos);
+        this.spawnFreezeParticles(level, centerPos);
 
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
@@ -92,7 +92,7 @@ public class SapphireItem extends Item {
                 if (targetState.is(Blocks.WATER) && targetFluidState.isSource() && targetFluidState.is(Fluids.WATER)) {
                     if (level.getRandom().nextDouble() < 0.80) {
                         level.setBlock(targetPos, Blocks.ICE.defaultBlockState(), 3);
-                        spawnFreezeParticles(level, targetPos);
+                        this.spawnFreezeParticles(level, targetPos);
                     }
                 }
             }
@@ -102,15 +102,15 @@ public class SapphireItem extends Item {
     private void processSnowArea(Level level, BlockPos centerPos) {
         if (level.isClientSide()) return;
 
-        playSnowSound(level, centerPos);
-        spawnSnowParticles(level, centerPos);
+        this.playSnowSound(level, centerPos);
+        this.spawnSnowParticles(level, centerPos);
 
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 BlockPos targetPos = centerPos.offset(dx, 0, dz);
                 BlockState targetState = level.getBlockState(targetPos);
 
-                if (!canSupportSnowLayer(level, targetPos)) {
+                if (!this.canSupportSnowLayer(level, targetPos)) {
                     continue;
                 }
 
