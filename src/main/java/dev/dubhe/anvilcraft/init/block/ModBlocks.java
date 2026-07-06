@@ -299,10 +299,6 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
     "CodeBlock2Expr"
 })
 public class ModBlocks {
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
-    }
-
     public static final BlockEntry<? extends Block> MAGNET_BLOCK = REGISTRUM.block("magnet_block", MagnetBlock::new)
         .lang("Block of Magnet")
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -1749,10 +1745,6 @@ public class ModBlocks {
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
-
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_BUILD_BLOCK.getKey());
-    }
 
     public static final BlockEntry<? extends Block> ROYAL_STEEL_BLOCK = REGISTRUM.block("royal_steel_block", Block::new)
         .lang("Block of Royal Steel")
@@ -4092,10 +4084,6 @@ public class ModBlocks {
         )
         .simpleItem()
         .register();
-
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
-    }
 
     public static final BlockEntry<PulseGeneratorBlock> PULSE_GENERATOR = REGISTRUM.block("pulse_generator", PulseGeneratorBlock::new)
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())
