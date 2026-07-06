@@ -4158,7 +4158,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends StairBlock> PLYWOOD_STAIRS = REGISTRUM
         .block("plywood_stairs", (properties) -> new StairBlock(ModBlocks.PLYWOOD_BLOCK.getDefaultState(), properties))
         .initialProperties(PLYWOOD_BLOCK::get)
-        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.SLABS, BlockTags.WOODEN_SLABS)
         .blockstate((ctx, provider) -> {
             provider.stairsBlock(
                 ctx.get(),
@@ -4167,13 +4167,15 @@ public class ModBlocks {
                 AnvilCraft.of("block/plywood")
             );
         })
-        .simpleItem()
+        .item()
+        .tag(ItemTags.STAIRS, ItemTags.WOODEN_STAIRS)
+        .build()
         .register();
 
     public static final BlockEntry<? extends SlabBlock> PLYWOOD_SLAB = REGISTRUM
         .block("plywood_slab", SlabBlock::new)
         .initialProperties(PLYWOOD_BLOCK::get)
-        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.STAIRS, BlockTags.WOODEN_STAIRS)
         .blockstate((ctx, provider) -> {
             provider.slabBlock(
                 ctx.get(),
@@ -4183,7 +4185,9 @@ public class ModBlocks {
                 AnvilCraft.of("block/plywood")
             );
         })
-        .simpleItem()
+        .item()
+        .tag(ItemTags.SLABS, ItemTags.WOODEN_SLABS)
+        .build()
         .register();
 
     public static final BlockEntry<Block> ANCIENT_SEA_REEF = REGISTRUM
