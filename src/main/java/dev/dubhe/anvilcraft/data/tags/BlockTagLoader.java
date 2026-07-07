@@ -274,6 +274,9 @@ public class BlockTagLoader {
             .addTag(BlockTags.WALL_CORALS.location())
             .addTag(BlockTags.CORAL_PLANTS.location());
 
+        provider.rawBuilder(ModBlockTags.BROKEN_CRYSTALS_CLUSTERS)
+            .addElement(findId(Blocks.AMETHYST_CLUSTER));
+
         provider.rawBuilder(ModBlockTags.SPECTRAL_CAN_THROUGH)
             .addTag(Tags.Blocks.GLASS_BLOCKS.location())
             .addTag(Tags.Blocks.GLASS_PANES.location())
@@ -314,6 +317,15 @@ public class BlockTagLoader {
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_3)
             .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());
 
+        provider.rawBuilder(ModBlockTags.SLIDING_RAIL_STOP_LIKE)
+            .addTag(ModBlockTags.HEATABLE_BLOCKS.location())
+            .addElement(findId(Blocks.CAMPFIRE))
+            .addElement(ModBlocks.SLIDING_RAIL_STOP.getId())
+            .addElement(ModBlocks.HEATER.getId())
+            .addElement(ModBlocks.BURNING_HEATER.getId())
+            .addElement(ModBlocks.CORRUPTED_BEACON.getId())
+            .addElement(ModBlocks.NEUTRON_IRRADIATOR.getId());
+
         provider.rawBuilder(ModBlockTags.NEEDS_NETHERITE_TOOL);
         provider.rawBuilder(ModBlockTags.NEEDS_EMBER_TOOL);
         provider.rawBuilder(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL);
@@ -351,5 +363,22 @@ public class BlockTagLoader {
             .addTag(ModBlockTags.NEEDS_TRANSCENDIUM_TOOL.location());
 
         provider.rawBuilder(ModBlockTags.INCORRECT_FOR_TRANSCENDIUM_TOOL);
+
+        // === CFA blocks: immune to Wither, Ender Dragon ===
+        provider.rawBuilder(BlockTags.WITHER_IMMUNE)
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
+
+        provider.rawBuilder(BlockTags.DRAGON_IMMUNE)
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
     }
 }

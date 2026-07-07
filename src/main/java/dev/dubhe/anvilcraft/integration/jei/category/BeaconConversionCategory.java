@@ -99,10 +99,22 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
             .add(ModBlocks.CURSED_GOLD_BLOCK.asStack(recipe.cursedGoldBlockCount))
             .addRichTooltipCallback((_, tooltip) -> tooltip.add(this.beaconBaseTooltip));
         builder.addSlot(RecipeIngredientRole.INPUT, 10, 92).add(Blocks.BEACON.asItem().getDefaultInstance());
-        IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 96).add(ModBlocks.CORRUPTED_BEACON.asStack());
-        JeiRecipeUtil.addTooltips(slot, recipe.corruptedBeaconOutput.stack().count(), recipe.corruptedBeaconOutput.count());
+        IRecipeSlotBuilder slot = builder.addSlot(
+            RecipeIngredientRole.OUTPUT,
+            130,
+            96
+        ).add(ModBlocks.CORRUPTED_BEACON.asStack());
+        JeiRecipeUtil.addTooltips(
+            slot,
+            recipe.corruptedBeaconOutput.stack().count(),
+            recipe.corruptedBeaconOutput.count()
+        );
         if (recipe.chance < 1.0F) {
-            slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 112, 96).add(Blocks.BEACON.asItem().getDefaultInstance());
+            slot = builder.addSlot(
+                RecipeIngredientRole.OUTPUT,
+                112,
+                96
+            ).add(Blocks.BEACON.asItem().getDefaultInstance());
             JeiRecipeUtil.addTooltips(slot, recipe.beaconOutput.stack().count(), recipe.beaconOutput.count());
         }
     }
@@ -116,13 +128,17 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
         double mouseY
     ) {
         LevelLike level = this.cache.get(recipe);
+        int layers = recipe.cursedGoldBlockLayers;
         if (level == null) {
             LevelLike beaconBase = new LevelLike(Objects.requireNonNull(Minecraft.getInstance().level));
-            int layers = recipe.cursedGoldBlockLayers;
+
             for (int i = 0; i < layers; i++) {
                 for (int j = i; j <= 2 * layers - i; j++) {
                     for (int k = i; k <= 2 * layers - i; k++) {
-                        beaconBase.setBlockState(new BlockPos(j, i, k), ModBlocks.CURSED_GOLD_BLOCK.getDefaultState());
+                        beaconBase.setBlockState(
+                            new BlockPos(j - layers / 2, i - layers / 2, k - layers / 2),
+                            ModBlocks.CURSED_GOLD_BLOCK.getDefaultState()
+                        );
                     }
                 }
             }
@@ -131,12 +147,15 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
                 .get()
                 .defaultBlockState()
                 .trySetValue(BlockStateProperties.WATERLOGGED, false);
-            beaconBase.setBlockState(new BlockPos(layers, layers, layers), block);
+            beaconBase.setBlockState(
+                new BlockPos(layers - layers / 2, layers - layers / 2, layers - layers / 2),
+                block
+            );
             this.cache.put(recipe, beaconBase);
             level = beaconBase;
         }
 
-        RenderSupport.renderLevelLike(level, graphics, 84, 54, 90, 0f);
+        RenderSupport.renderLevelLike(level, graphics, 32, 0, 120, layers == 1 ? 15 : 20 / layers, 0, false);
 
         this.slotDefault.draw(graphics, 47, 7);
         this.slotDefault.draw(graphics, 9, 109);

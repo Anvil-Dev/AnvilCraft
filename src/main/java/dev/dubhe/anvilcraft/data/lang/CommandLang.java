@@ -35,5 +35,9 @@ public class CommandLang {
 
         provider.add("command.anvilcraft.multiBlock.not_multi_block", "This block is not a multi-block");
         provider.add("command.anvilcraft.multiBlock.multi_block_pos", "Main part pos is ");
+
+        provider.add("command.anvilcraft.overseer.head", "All overseers in %s");
+        provider.add("command.anvilcraft.overseer.entry", "[%1$s]@Lv.%2$s, random tick: %3$s");
+        provider.add("command.anvilcraft.overseer.invalid_dimension", "Dimension is invalid");
     }
 }

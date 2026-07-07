@@ -1,15 +1,17 @@
 package dev.dubhe.anvilcraft.event.giantanvil.shock;
 
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.block.IBrokenCrystalsBudding;
+import dev.dubhe.anvilcraft.api.block.IBrokenCrystalsCluster;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.TraversalNodeStatus;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AmethystClusterBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CaveVinesPlantBlock;
@@ -211,14 +213,33 @@ public abstract class DestroyType {
         @Override
         public void accept(ShockContext context, List<BlockPos> list, DestroyMode mode) {
             Level level = context.level();
-            for (BlockPos blockPos : list) {
-                BlockState blockState = level.getBlockState(blockPos);
-                if (blockState.isAir() || !(blockState.getBlock() instanceof AmethystClusterBlock)) {
+            RandomSource random = level.getRandom();
+            for (BlockPos pos : list) {
+                BlockState state = level.getBlockState(pos);
+                if (state.isAir()) continue;
+                // Only destroy fully grown amethyst clusters
+                if (
+                    state.is(ModBlockTags.BROKEN_CRYSTALS_CLUSTERS)
+                    || state.getBlock() instanceof IBrokenCrystalsCluster cluster
+                       && cluster.isFullyGrown(level, pos, state)
+                ) {
+                    level.destroyBlock(pos, false);
+                    List<ItemStack> dropItems = mode.apply(state, pos, context);
+                    DestroyType.dropItems(dropItems, pos, level);
                     continue;
                 }
-                level.destroyBlock(blockPos, false);
-                List<ItemStack> dropItems = mode.apply(blockState, blockPos, context);
-                DestroyType.dropItems(dropItems, blockPos, level);
+
+                // 25% chance for budding amethyst to advance one attached bud by one growth stage
+                if (state.getBlock() instanceof IBrokenCrystalsBudding budding) {
+                    if (random.nextFloat() < 0.25f) {
+                        budding.anvilcraft$tryGrowBuds(level, pos, state);
+                    }
+                    budding.anvilcraft$tryBreakClusters(level, pos, state, (clusterPos, clusterState) -> {
+                        level.destroyBlock(clusterPos, false);
+                        List<ItemStack> dropItems = mode.apply(clusterState, clusterPos, context);
+                        DestroyType.dropItems(dropItems, clusterPos, level);
+                    });
+                }
             }
         }
     };

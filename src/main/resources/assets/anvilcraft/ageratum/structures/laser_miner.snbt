@@ -1,0 +1,30 @@
+{
+    DataVersion: 3955,
+    size: [3, 7, 3],
+    data: [
+        {pos: [0, 0, 1], state: "anvilcraft:raw_silver_block"},
+        {pos: [1, 0, 0], state: "anvilcraft:raw_silver_block"},
+        {pos: [1, 0, 1], state: "anvilcraft:mineral_fountain", nbt: {id: "anvilcraft:mineral_fountain", tickCount: -1}},
+        {pos: [1, 0, 2], state: "anvilcraft:raw_silver_block"},
+        {pos: [2, 0, 1], state: "anvilcraft:raw_silver_block"},
+        {pos: [1, 1, 1], state: "anvilcraft:deepslate_silver_ore"},
+        {pos: [0, 5, 1], state: "anvilcraft:ruby_laser{facing:east,overload:false,switch:on}", nbt: {id: "anvilcraft:ruby_laser"}},
+        {pos: [1, 5, 0], state: "anvilcraft:ruby_laser{facing:south,overload:false,switch:on}", nbt: {id: "anvilcraft:ruby_laser"}},
+        {pos: [1, 5, 1], state: "anvilcraft:ruby_prism{facing:down}", nbt: {id: "anvilcraft:ruby_prism"}},
+        {pos: [1, 5, 2], state: "anvilcraft:ruby_laser{facing:north,overload:false,switch:on}", nbt: {id: "anvilcraft:ruby_laser"}},
+        {pos: [2, 5, 1], state: "anvilcraft:ruby_laser{facing:west,overload:false,switch:on}", nbt: {id: "anvilcraft:ruby_laser"}},
+        {pos: [1, 6, 1], state: "minecraft:barrel{facing:east,open:false}", nbt: {Items: [{Slot: 0b, count: 3, id: "anvilcraft:raw_silver"}], id: "minecraft:barrel"}}
+    ],
+    entities: [],
+    palette: [
+        "anvilcraft:raw_silver_block",
+        "anvilcraft:deepslate_silver_ore",
+        "anvilcraft:mineral_fountain",
+        "anvilcraft:ruby_laser{facing:east,overload:false,switch:on}",
+        "anvilcraft:ruby_laser{facing:south,overload:false,switch:on}",
+        "anvilcraft:ruby_prism{facing:down}",
+        "anvilcraft:ruby_laser{facing:north,overload:false,switch:on}",
+        "anvilcraft:ruby_laser{facing:west,overload:false,switch:on}",
+        "minecraft:barrel{facing:east,open:false}"
+    ]
+}

@@ -1,0 +1,47 @@
+{
+  "parent": "anvilcraft:anvilcraft/forged_over_eons",
+  "criteria": {
+    "frost_and_ember_workstations": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:ember_anvil"
+          },
+          {
+            "items": "anvilcraft:ember_grindstone"
+          },
+          {
+            "items": "anvilcraft:ember_smithing_table"
+          },
+          {
+            "items": "anvilcraft:frost_anvil"
+          },
+          {
+            "items": "anvilcraft:frost_grindstone"
+          },
+          {
+            "items": "anvilcraft:frost_smithing_table"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.ice_and_fire.description"
+    },
+    "icon": {
+      "id": "anvilcraft:ember_anvil"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.ice_and_fire.title"
+    }
+  },
+  "requirements": [
+    [
+      "frost_and_ember_workstations"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -4,8 +4,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
-import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
+import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -82,10 +82,9 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
             .setBlockInputOffset(new Vec3i(0, -2, 0))
             .setInputBlocks(
                 BlockStatePredicate.builder()
-                    .of(ModBlocks.HEATER.get())
+                    .of(ModBlocks.HEATER.get(), ModBlocks.BURNING_HEATER.get())
                     .with(HeaterBlock.OVERLOAD, false)
                     .or()
-                    .of(ModBlocks.BURNING_HEATER.get())
                     .with(BurningHeaterBlock.LEVEL, 2)
                     .build()
             );

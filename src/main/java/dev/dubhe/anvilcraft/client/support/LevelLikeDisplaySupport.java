@@ -20,8 +20,10 @@ public class LevelLikeDisplaySupport {
                 for (int z = size - 1; z >= 0; z--) {
                     BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
                     BlockState state = predicate.getDefaultState();
-                    if (state.isAir() && Math.max(levelLike.horizontalSize(), levelLike.verticalSize()) >= size) continue;
-                    levelLike.setBlockState(new BlockPos(x, y, z), state);
+                    if (state.isAir() && Math.max(levelLike.horizontalSize(), levelLike.verticalSize()) >= size) {
+                        continue;
+                    }
+                    levelLike.setBlockState(new BlockPos(x - size / 2, y - size / 2, z - size / 2), state);
                 }
             }
         }

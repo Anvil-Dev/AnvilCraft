@@ -3,25 +3,30 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.special.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModParticles;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluidTags;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,6 +39,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class PlasmaJetsBlockEntity extends BlockEntity {
@@ -127,6 +133,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         if (this.tryRaise()) return;
 
         this.refreshCauldronPos(level);
+        this.tryIgniteValidCauldron(level);
         this.checkTubeWallIntegrity(level);
         this.refreshDuration(level);
 
@@ -134,12 +141,24 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         HeaterManager.addProducer(this.getBlockPos(), level, ModHeaterInfos.MAGNET_PLASMA_JETS);
         this.hurtEntities(level);
         this.provideCharge(level);
+        this.playJetSound(level);
     }
 
     // @OnlyIn(Dist.CLIENT)
     private void clientTick(Level level) {
         this.refreshCauldronPos(level);
         this.summonParticles(level);
+    }
+
+    protected void tryIgniteValidCauldron(Level level) {
+        BlockState state = level.getBlockState(Objects.requireNonNull(this.cauldronPos));
+        if (!(state.getBlock() instanceof IIgnitableCauldron cauldron)) return;
+
+        BlockCache cache = new BlockCache(level);
+        // noinspection deprecation
+        if (!cauldron.getFluid(cache, this.cauldronPos).is(ModFluidTags.OIL)) return;
+        cauldron.setIgnited(cache, this.cauldronPos, true);
+        cache.accept();
     }
 
     protected void checkTubeWallIntegrity(Level level) {
@@ -157,9 +176,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
                 break;
             }
         }
-        boolean cauldronExisting = PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
-                                   || level.getBlockState(this.cauldronPos).is(ModBlocks.OIL_CAULDRON)
-                                   || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON);
+        boolean cauldronExisting = PlasmaJetsBlock.isValidBaseCauldron(level, Objects.requireNonNull(this.cauldronPos));
         boolean belowCauldronIsNotHeater = !level.getBlockState(this.cauldronPos.below(1))
             .is(ModBlocks.HEATER);
         boolean heaterOverload = level.getBlockState(this.cauldronPos.below(1))
@@ -174,7 +191,10 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
 
     protected void refreshDuration(Level level) {
         this.duration--;
-        if (this.duration + MAX_DURATION / 2 < MAX_DURATION && PlasmaJetsBlock.tryConsumeOnce(level, this.cauldronPos)) {
+        if (
+            this.duration + MAX_DURATION / 2 < MAX_DURATION
+            && PlasmaJetsBlock.tryConsumeOnce(level, Objects.requireNonNull(this.cauldronPos))
+        ) {
             this.duration += MAX_DURATION / 2;
         }
         if (this.duration < 0) {
@@ -192,11 +212,11 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         for (Entity entity : entities) {
             entity.igniteForSeconds(15.0F);
             if (level.isClientSide()) {
-                if (entity.hurtClient(entity.damageSources().inFire())) {
+                if (entity.hurtClient(ModDamageTypes.plasmaJet(level))) {
                     entity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + RandomSource.create().nextFloat() * 0.4F);
                 }
             } else {
-                if (entity.hurtServer(Util.cast(level), entity.damageSources().inFire(), 16.0F)) {
+                if (entity.hurtServer(Util.cast(level), ModDamageTypes.plasmaJet(level), 16.0F)) {
                     entity.playSound(SoundEvents.GENERIC_BURN, 0.4F, 2.0F + RandomSource.create().nextFloat() * 0.4F);
                 }
             }
@@ -218,6 +238,31 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         }
     }
 
+    protected void playJetSound(ServerLevel level) {
+        // 主音效：自定义声音事件，烈焰人持续咆哮
+        if (level.getGameTime() % 5 == 0) {
+            level.playSound(
+                null,
+                this.getBlockPos(),
+                ModSoundEvents.PLASMA_JET.get(),
+                SoundSource.BLOCKS,
+                3.0f,
+                0.8f + level.getRandom().nextFloat() * 0.2f
+            );
+        }
+        // 岩浆咝咝声：较低频率，模拟高压喷射气流
+        if (level.getGameTime() % 60 == 0) {
+            level.playSound(
+                null,
+                this.getBlockPos(),
+                ModSoundEvents.PLASMA_JET_LAVA.get(),
+                SoundSource.BLOCKS,
+                1.0f,
+                1.0f + level.getRandom().nextFloat() * 0.3f
+            );
+        }
+    }
+
     // @OnlyIn(Dist.CLIENT)
     protected void summonParticles(Level level) {
         Vec3 start = this.getParticleStartPos(level);
@@ -225,7 +270,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         RandomSource random = level.getRandom();
         for (int i = 0; i < 5; i++) {
             level.addParticle(
-                ModParticles.PLASMA_JETS::get,
+                ModParticles.PLASMA_JETS.get(),
                 false,
                 true,
                 start.x,
@@ -239,21 +284,13 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     protected void refreshCauldronPos(Level level) {
-        if (this.cauldronPos != null
-            && (
-                PlasmaJetsBlock.isIgnitedOilCauldron(level, this.cauldronPos)
-                || level.getBlockState(this.cauldronPos).is(Blocks.CAULDRON)
-            )
-        ) {
+        if (this.cauldronPos != null && PlasmaJetsBlock.isValidBaseCauldron(level, this.cauldronPos)) {
             return;
         }
         for (int i = 1; i < 6; i++) {
-            if (
-                PlasmaJetsBlock.isIgnitedOilCauldron(level, this.getBlockPos().below(i))
-                || level.getBlockState(this.getBlockPos().below(i)).is(ModBlocks.OIL_CAULDRON)
-                || level.getBlockState(this.getBlockPos().below(i)).is(Blocks.CAULDRON)
-            ) {
-                this.cauldronPos = this.getBlockPos().below(i);
+            BlockPos pos = this.getBlockPos().below(i);
+            if (PlasmaJetsBlock.isValidBaseCauldron(level, pos)) {
+                this.cauldronPos = pos;
                 break;
             }
         }

@@ -83,6 +83,14 @@ public class TriggerUtil {
         }
     }
 
+    public static void anvilHammerChangeBlock(Level level, BlockPos pos, BlockState oldState, BlockState newState) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.ANVIL_HAMMER_CHANGE_BLOCK.get().trigger(player, oldState, newState);
+            }
+        }
+    }
+
     public static void anvilHammerHurtEntity(Level level, BlockPos pos, float damage) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
@@ -107,10 +115,10 @@ public class TriggerUtil {
         }
     }
 
-    public static void playerWearAnvilHammer(Level level, BlockPos pos) {
+    public static void enterPowerGrid(Level level, BlockPos pos) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
-                ModCriterionTriggers.PLAYER_WEAR_ANVIL_HAMMER.get().trigger(player);
+                ModCriterionTriggers.ENTER_POWER_GRID.get().trigger(player);
             }
         }
     }
@@ -131,6 +139,14 @@ public class TriggerUtil {
         }
     }
 
+    public static void connectFluidContainers(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.CONNECT_FLUID_CONTAINERS.get().trigger(player);
+            }
+        }
+    }
+
     public static void heatCollectOn(Level level, BlockPos pos, BlockState state, @Nullable BlockEntity entity) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
@@ -147,10 +163,26 @@ public class TriggerUtil {
         }
     }
 
+    public static void voidCollectorWork(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.VOID_COLLECTOR_COLLECT.get().trigger(player);
+            }
+        }
+    }
+
     public static void mineralFountainCreate(Level level, BlockPos pos) {
         if (!level.isClientSide()) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
                 ModCriterionTriggers.MINERAL_FOUNTAIN_CREATE.get().trigger(player);
+            }
+        }
+    }
+
+    public static void placerShuttle(Level level, BlockPos pos) {
+        if (!level.isClientSide()) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 7)) {
+                ModCriterionTriggers.PLACER_SHUTTLE.get().trigger(player);
             }
         }
     }

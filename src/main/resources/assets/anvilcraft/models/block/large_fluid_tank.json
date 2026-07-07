@@ -6,8 +6,8 @@
 	"texture_size": [64, 64],
 	"textures": {
 		"top": "anvilcraft:block/large_fluid_tank_top",
-		"particle": "anvilcraft:block/large_fluid_tank_side",
-		"side": "anvilcraft:block/large_fluid_tank_side"
+		"side": "anvilcraft:block/large_fluid_tank_side",
+		"particle": "anvilcraft:block/fluid_tank_side"
 	},
 	"elements": [
 		{

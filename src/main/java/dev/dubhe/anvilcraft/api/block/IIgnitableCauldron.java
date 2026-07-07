@@ -5,8 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.Fluid;
 
 public interface IIgnitableCauldron {
+    default boolean isEmpty(BlockCache cache, BlockPos pos) {
+        return false;
+    }
+
     default boolean isIgnited(BlockCache cache, BlockPos pos) {
-        return true;
+        return false;
     }
 
     default void setIgnited(BlockCache cache, BlockPos pos, boolean ignited) {

@@ -10,7 +10,6 @@ public class LangHandler {
         JadeLang.init(provider);
         WthitLang.init(provider);
         OtherLang.init(provider);
-        PatchouliLang.init(provider);
         ScreenLang.init(provider);
         JeiLang.init(provider);
         EnchantmentDescriptionsLang.init(provider);
@@ -22,5 +21,8 @@ public class LangHandler {
         IntegrationScreenLang.init(provider);
         ScreenTooltipLang.init(provider);
         CategoryLang.init(provider);
+        BlockLang.init(provider);
+        EffectLang.init(provider);
+        StatLang.init(provider);
     }
 }

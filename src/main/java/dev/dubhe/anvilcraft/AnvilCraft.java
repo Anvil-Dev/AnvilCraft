@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.init.ModUuidProviders;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -38,6 +39,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModConsumeEffects;
 import dev.dubhe.anvilcraft.init.item.ModCustomDataComponents;
 import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootContextParamSets;
@@ -48,14 +50,19 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
+import dev.dubhe.anvilcraft.mixin.invoker.BaseMappedRegistryInvoker;
 import lombok.Getter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -75,16 +82,18 @@ public class AnvilCraft {
     @Getter
     private static final IntegrationManager INTEGRATION_MANAGER = new IntegrationManager(AnvilCraft.MOD_ID);
 
-    public static final Registrum REGISTRUM = Registrum.create(MOD_ID);
+    public static final Registrum REGISTRUM = Registrum.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
 
     public AnvilCraft(IEventBus modEventBus, ModContainer modContainer) {
         MOD_BUS = modEventBus;
+        NeoForgeMod.enableMilkFluid();
         ModAttachments.register(modEventBus);
         ModItemGroups.register(modEventBus);
         ModBlocks.register();
         ModFluids.register(modEventBus);
         ModEntities.register();
         ModItems.register();
+        ModFoodItems.register();
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModComponents.register(modEventBus);
@@ -111,6 +120,7 @@ public class AnvilCraft {
         ModCategoryTypes.register(modEventBus);
         ModConsumeEffects.register(modEventBus);
         ModEntitySubPredicates.register(modEventBus);
+        ModStats.register(modEventBus);
 
         // datagen
         AnvilCraftDatagen.init();
@@ -174,6 +184,7 @@ public class AnvilCraft {
                 CONFIG.emberAnvilBeyondMaxLevel = true;
                 CONFIG.transcendenceAnvilBeyondMaxLevel = true;
             }
+            Util.<BaseMappedRegistryInvoker>cast(BuiltInRegistries.DATA_COMPONENT_PREDICATE_TYPE).invokeSetSync(true);
         });
     }
 }

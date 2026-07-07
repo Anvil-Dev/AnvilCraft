@@ -27,6 +27,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -160,8 +161,11 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
         if (this.anvilcraft$raged) {
             if (this.anvilcraft$rageTick >= 1200) {
                 if ((LivingEntity) (Object) this instanceof Player player) {
-                    if (!player.isCreative() || !player.isSpectator()) {
-                        player.kill(serverLevel);
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SURVIVAL
+                            || serverPlayer.gameMode.getGameModeForPlayer() == GameType.ADVENTURE) {
+                            player.kill(serverLevel);
+                        }
                     }
                 } else {
                     this.kill(serverLevel);

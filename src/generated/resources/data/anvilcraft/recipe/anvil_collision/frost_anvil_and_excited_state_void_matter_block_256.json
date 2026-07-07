@@ -1,0 +1,22 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "blocks": "anvilcraft:frost_anvil"
+  },
+  "consume": true,
+  "hitBlock": {
+    "blocks": "anvilcraft:excited_state_void_matter_block"
+  },
+  "output_items": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 4.0,
+        "p": 1.0
+      },
+      "id": "anvilcraft:ember_metal_block"
+    }
+  ],
+  "speed": 256,
+  "transform_blocks": []
+}

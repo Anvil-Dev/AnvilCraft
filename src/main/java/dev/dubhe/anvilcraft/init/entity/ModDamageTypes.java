@@ -31,6 +31,14 @@ public class ModDamageTypes {
         Registries.DAMAGE_TYPE,
         AnvilCraft.of("heater_burn")
     );
+    public static final ResourceKey<DamageType> GAMMA_LASER = ResourceKey.create(
+        Registries.DAMAGE_TYPE,
+        AnvilCraft.of("gamma_laser")
+    );
+    public static final ResourceKey<DamageType> PLASMA_JET = ResourceKey.create(
+        Registries.DAMAGE_TYPE,
+        AnvilCraft.of("plasma_jet")
+    );
 
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
@@ -38,6 +46,8 @@ public class ModDamageTypes {
         ctx.register(LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1F));
         ctx.register(FALLING_GIANT_ANVIL, new DamageType("anvilcraft.falling_giant_anvil", 0.1F));
         ctx.register(HEATER_BURN, new DamageType("anvilcraft.heater_burn", 0.1F, DamageEffects.BURNING));
+        ctx.register(GAMMA_LASER, new DamageType("anvilcraft.gamma_laser", 0.1F, DamageEffects.BURNING));
+        ctx.register(PLASMA_JET, new DamageType("anvilcraft.plasma_jet", 0.1F, DamageEffects.BURNING));
     }
 
     public static DamageSource laser(Level level) {
@@ -54,6 +64,14 @@ public class ModDamageTypes {
 
     public static DamageSource heaterBurn(Level level) {
         return ModDamageTypes.source(ModDamageTypes.HEATER_BURN, level);
+    }
+
+    public static DamageSource gammaLaser(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.GAMMA_LASER, level);
+    }
+
+    public static DamageSource plasmaJet(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.PLASMA_JET, level);
     }
 
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {

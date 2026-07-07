@@ -1,0 +1,17 @@
+{
+  "type": "anvilcraft:planet_resource",
+  "category": "giant_fluid",
+  "giant": {
+    "entries": [
+      {
+        "id": "anvilcraft:primordial_matter",
+        "weight": 90
+      },
+      {
+        "id": "minecraft:water",
+        "weight": 10
+      }
+    ],
+    "pressure_type": "ice"
+  }
+}

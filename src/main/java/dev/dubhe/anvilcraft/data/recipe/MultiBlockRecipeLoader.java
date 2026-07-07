@@ -5,8 +5,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
@@ -16,6 +20,8 @@ import net.neoforged.neoforge.common.Tags;
 
 public class MultiBlockRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        HolderGetter<Block> blocks = provider.getRegistries().lookupOrThrow(Registries.BLOCK);
+
         MultiblockRecipe.builder(ModBlocks.GIANT_ANVIL)
             .layer("ABA", "CDE", "AFA")
             .layer("   ", " D ", "   ")
@@ -72,17 +78,11 @@ public class MultiBlockRecipeLoader {
 
         MultiblockRecipe.builder(ModBlocks.LARGE_FLUID_TANK)
             .layer("AAA", "AAA", "AAA")
+            .layer("ABA", "B B", "ABA")
             .layer("AAA", "AAA", "AAA")
-            .layer("AAA", "AAA", "AAA")
-            .symbol('A', ModBlocks.FLUID_TANK)
-            .save(provider, AnvilCraft.of("multiblock/large_fluid_tank_1"));
-
-        MultiblockRecipe.builder(ModBlocks.LARGE_FLUID_TANK)
-            .layer("AAA", "AAA", "AAA")
-            .layer("AAA", "A A", "AAA")
-            .layer("AAA", "AAA", "AAA")
-            .symbol('A', ModBlocks.FLUID_TANK)
-            .save(provider, AnvilCraft.of("multiblock/large_fluid_tank_2"));
+            .symbol('A', ModBlocks.CUT_BRASS_BLOCK)
+            .symbol('B', Tags.Blocks.GLASS_BLOCKS)
+            .save(provider, AnvilCraft.of("multiblock/large_fluid_tank"));
 
         MultiblockRecipe.builder(ModBlocks.MENGER_SPONGE)
             .layer("AAA", "A A", "AAA")
@@ -234,6 +234,39 @@ public class MultiBlockRecipeLoader {
             .layer("AAA", "AAA", "AAA")
             .symbol('A', BlockPredicateWithState.of(Tags.Blocks.STRIPPED_LOGS))
             .symbol('B', ModBlocks.RESIN_BLOCK)
+            .save(provider);
+
+        MultiblockRecipe.builder(ModBlocks.LARGE_LASER, 1)
+            .layer(" A ", "BCD", " E ")
+            .layer("BFD", "BCD", "BGD")
+            .layer("AAA", "HCI", "EEE")
+            .symbol('A', BlockPredicateWithState.of("anvilcraft:ruby_laser")
+                .hasState(blocks, "facing", "south")
+            )
+            .symbol('B', BlockPredicateWithState.of("anvilcraft:ruby_laser")
+                .hasState(blocks, "facing", "east")
+            )
+            .symbol('C', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "down")
+            )
+            .symbol('D', BlockPredicateWithState.of("anvilcraft:ruby_laser")
+                .hasState(blocks, "facing", "west")
+            )
+            .symbol('E', BlockPredicateWithState.of("anvilcraft:ruby_laser")
+                .hasState(blocks, "facing", "north")
+            )
+            .symbol('F', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "south")
+            )
+            .symbol('G', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "north")
+            )
+            .symbol('H', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "east")
+            )
+            .symbol('I', BlockPredicateWithState.of("anvilcraft:ruby_prism")
+                .hasState(blocks, "facing", "west")
+            )
             .save(provider);
     }
 }

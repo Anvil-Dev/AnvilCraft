@@ -2,17 +2,19 @@ package dev.dubhe.anvilcraft.anvil;
 
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.block.entity.CrabTrapBlockEntity;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.loot.ModLootTables;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+
+import java.util.List;
 
 public class HitCrabTrapBehavior implements IAnvilBehavior {
     @Override
@@ -23,22 +25,34 @@ public class HitCrabTrapBehavior implements IAnvilBehavior {
         double fallDistance,
         AnvilEvent.OnLand event
     ) {
-        if (!hitBlockState.hasBlockEntity()) return false;
-        CrabTrapBlockEntity blockEntity = (CrabTrapBlockEntity) level.getBlockEntity(hitBlockPos);
-        Direction face = hitBlockState.getValue(CrabTrapBlock.FACING);
-        Vec3 dropPos = hitBlockPos.above().relative(face).getCenter().relative(face.getOpposite(), 0.5);
-        if (blockEntity == null) return false;
-        ResourceHandler<ItemResource> depository = blockEntity.getItemHandler();
-        for (int i = 0; i < depository.size(); i++) {
-            ItemResource resource = depository.getResource(i);
-            try (Transaction transaction = Transaction.openRoot()) {
-                int extracted = depository.extract(i, resource, Integer.MAX_VALUE, transaction);
-                if (extracted == 0) continue;
-                ItemEntity itemEntity = new ItemEntity(level, dropPos.x, dropPos.y - 0.4, dropPos.z, resource.toStack(extracted), 0, 0, 0);
+        if (level.isClientSide()) {
+            return false;
+        }
+        if (hitBlockState.is(ModBlocks.CRAB_TRAP)) {
+            List<ItemStack> items = new ObjectArrayList<>();
+            for (int i = 1; i < hitBlockState.getValue(CrabTrapBlock.FISHING) + 1; i++) {
+                items.addAll(CrabTrapBlock.generateLoot(level, hitBlockPos, ModLootTables.CRAB_TRAP_COMMON));
+                items.addAll(CrabTrapBlock.generateLoot(level, hitBlockPos, ModLootTables.CRAB_TRAP_RIVER));
+                items.addAll(CrabTrapBlock.generateLoot(level, hitBlockPos, ModLootTables.CRAB_TRAP_OCEAN));
+                items.addAll(CrabTrapBlock.generateLoot(level, hitBlockPos, ModLootTables.CRAB_TRAP_WARM_OCEAN));
+                items.addAll(CrabTrapBlock.generateLoot(level, hitBlockPos, ModLootTables.CRAB_TRAP_SWAMP));
+                items.addAll(CrabTrapBlock.generateLoot(level, hitBlockPos, ModLootTables.CRAB_TRAP_JUNGLE));
+                if (i % 5 == 0) {
+                    items.add(ModItems.CRAB_CLAW.asStack());
+                }
+            }
+            Vec3 dropPos = hitBlockPos
+                .above()
+                .relative(hitBlockState.getValue(CrabTrapBlock.FACING))
+                .getCenter()
+                .relative(hitBlockState.getValue(CrabTrapBlock.FACING).getOpposite(), 0.5);
+            for (ItemStack item : items) {
+                ItemEntity itemEntity = new ItemEntity(level, dropPos.x, dropPos.y - 0.4, dropPos.z, item, 0, 0, 0);
                 itemEntity.setDefaultPickUpDelay();
                 level.addFreshEntity(itemEntity);
-                transaction.commit();
             }
+            level.setBlockAndUpdate(hitBlockPos, hitBlockState.setValue(CrabTrapBlock.FISHING, 0));
+            return true;
         }
         return false;
     }

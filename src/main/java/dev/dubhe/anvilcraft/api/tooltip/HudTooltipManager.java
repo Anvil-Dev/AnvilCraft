@@ -4,7 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.impl.AffectRangeProviderImpl;
 import dev.dubhe.anvilcraft.api.tooltip.impl.BurningHeaterTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.CfaFluidInterfaceTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.CfaLaserInterfaceTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.CfaLogisticsInterfaceTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.ChargerTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.CrabTrapTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.DeflectionRingTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.DischargerTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeatCollectorTooltipProvider;
@@ -64,6 +68,10 @@ public class HudTooltipManager {
         INSTANCE.registerBlockEntityTooltip(new BurningHeaterTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new DeflectionRingTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new PropelPistonTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new CfaLogisticsInterfaceTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new CfaLaserInterfaceTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new CfaFluidInterfaceTooltipProvider());
+        INSTANCE.registerBlockTooltip(new CrabTrapTooltipProvider());
     }
 
     public void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {

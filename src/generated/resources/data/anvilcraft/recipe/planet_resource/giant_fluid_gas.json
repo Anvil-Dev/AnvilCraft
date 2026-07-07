@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:planet_resource",
+  "category": "giant_fluid",
+  "giant": {
+    "entries": [
+      {
+        "id": "anvilcraft:primordial_matter",
+        "weight": 100
+      }
+    ],
+    "pressure_type": "gas"
+  }
+}

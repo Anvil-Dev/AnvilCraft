@@ -4,6 +4,9 @@ import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvi
 
 public class RecipeHandler {
     public static void init(RegistrumRecipeProvider provider) {
+        new StoneCutterRecipeLoader(provider);
+        new ShapedRecipeLoader(provider);
+
         BlockCrushRecipeLoader.init(provider);
         ItemCrushRecipeLoader.init(provider);
         UnpackRecipeLoader.init(provider);
@@ -36,5 +39,8 @@ public class RecipeHandler {
         DeformationRecipeLoader.init(provider);
         EnergyWeaponMakeRecipeLoader.init(provider);
         PortalConversionRecipeLoader.init(provider);
+        PlanetResourceRecipeLoader.init(provider);
+        SpecialCelestialBodyRecipeLoader.init(provider);
+        TempleDemandRecipeLoader.init(provider);
     }
 }

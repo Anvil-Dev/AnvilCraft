@@ -129,6 +129,34 @@ public class AnvilCollisionCraftRecipeLoader {
             )
             .speed(256)
             .save(provider);
+
+        // Excited State Void Matter Block collision products
+        AnvilCollisionCraftRecipe.builder()
+            .anvil(ModBlocks.ROYAL_ANVIL.get())
+            .hitBlock(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get())
+            .outputItem(ModBlocks.SPECTRAL_ANVIL.asItem(), 16)
+            .speed(256)
+            .save(provider);
+        AnvilCollisionCraftRecipe.builder()
+            .anvil(ModBlocks.FROST_ANVIL.get())
+            .hitBlock(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get())
+            .outputItem(ModBlocks.EMBER_METAL_BLOCK.asItem(), 4)
+            .speed(256)
+            .save(provider);
+        AnvilCollisionCraftRecipe.builder()
+            .anvil(ModBlocks.EMBER_ANVIL.get())
+            .hitBlock(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get())
+            .outputItem(ModBlocks.FROST_METAL_BLOCK.asItem(), 4)
+            .speed(256)
+            .save(provider);
+        AnvilCollisionCraftRecipe.builder()
+            .anvil(ModBlocks.TRANSCENDENCE_ANVIL.get())
+            .hitBlock(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get())
+            .outputItem(ModBlocks.MULTIPHASE_MATTER_BLOCK.asItem(), 4)
+            .outputItem(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem(), 2)
+            .outputItem(ModItems.NEUTRONIUM_INGOT.get(), 1)
+            .speed(256)
+            .save(provider);
     }
 
     private static void forEachAnvil(Consumer<Block> block, Block... anvils) {

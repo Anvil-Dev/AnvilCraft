@@ -1,0 +1,22 @@
+{
+  "type": "anvilcraft:anvil_collision",
+  "anvil": {
+    "blocks": "anvilcraft:royal_anvil"
+  },
+  "consume": true,
+  "hitBlock": {
+    "blocks": "anvilcraft:excited_state_void_matter_block"
+  },
+  "output_items": [
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 16.0,
+        "p": 1.0
+      },
+      "id": "anvilcraft:spectral_anvil"
+    }
+  ],
+  "speed": 256,
+  "transform_blocks": []
+}

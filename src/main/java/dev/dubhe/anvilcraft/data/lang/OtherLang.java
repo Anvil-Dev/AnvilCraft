@@ -34,6 +34,16 @@ public class OtherLang {
         provider.add("message.anvilcraft.disk.data_cleared", "Cleared data stored in disk");
         provider.add("message.anvilcraft.disk.data_stored", "Stored setting of block into disk");
         provider.add("message.anvilcraft.chute.cannot_place", "Chute cannot face this direction");
+        provider.add("message.anvilcraft.structure_scanner.no_disk", "Please insert a structure disk to save the structure!");
+        provider.add("message.anvilcraft.structure_scanner.output_not_empty", "Output slot is not empty, please take the item first!");
+
+        // Structure Disk tooltips
+        provider.add("item.anvilcraft.structure_disk.structure", "Structure: %s");
+        provider.add("item.anvilcraft.structure_disk.size", "Size: %s");
+        provider.add("item.anvilcraft.structure_disk.fit_placer", "✓ Can be placed by Smart Block Placer");
+        provider.add("item.anvilcraft.structure_disk.too_large_for_placer", "✗ Too large for Smart Block Placer (max 5×5×5)");
+
+        provider.add("book.anvilcraft.material_list.missing_header", "Missing:");
 
         provider.add("enchantment.anvilcraft.beheading", "Beheading");
         provider.add("enchantment.anvilcraft.felling", "Felling");
@@ -54,10 +64,13 @@ public class OtherLang {
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.falling_giant_anvil", "%1$s died due to systemic resonance caused by ground vibrations");
-
-        provider.add("effect.anvilcraft.rage", "Rage");
+        provider.add("death.attack.anvilcraft.plasma_jet", "%1$s tried to high-five the plasma jets. They did not high-five back.");
 
         provider.add("item.anvilcraft.pill.tooltip",
             "Pills made together with potion to achieve corresponding effects, can be taken quickly");
+
+        provider.add("block.anvilcraft.infinite_collector.placement_too_close_to_another", "Too close to another Infinite Collector");
+        provider.add("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner",
+            "Must be placed on the corner of a Celestial Forging Anvil");
     }
 }

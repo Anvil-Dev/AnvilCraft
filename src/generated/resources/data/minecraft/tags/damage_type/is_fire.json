@@ -1,0 +1,16 @@
+{
+  "values": [
+    {
+      "id": "anvilcraft:heater_burn",
+      "required": false
+    },
+    {
+      "id": "anvilcraft:plasma_jet",
+      "required": false
+    },
+    {
+      "id": "anvilcraft:laser",
+      "required": false
+    }
+  ]
+}

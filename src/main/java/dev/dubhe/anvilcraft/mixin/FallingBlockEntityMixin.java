@@ -85,7 +85,6 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
 
     /// 拦截原版的 onGround() 检查，接管实体是否应该变成方块的逻辑。
     /// 主逻辑 ↓
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @WrapOperation(
         method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;onGround()Z")
     )
@@ -101,8 +100,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         Level level = instance.level();
         BlockPos pos = BlockPos.containing(instance.position());
         BlockPos supportPos = pos.relative(gravityDir);
-        BlockState supportState = level.getBlockState(supportPos);
-
+        final BlockState supportState = level.getBlockState(supportPos);
 
         // 0. 平衡环境
         if (gravityVec.lengthSqr() < 1.0E-5) return false;

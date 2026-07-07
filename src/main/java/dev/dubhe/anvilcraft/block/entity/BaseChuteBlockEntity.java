@@ -15,6 +15,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -330,6 +331,7 @@ public abstract class BaseChuteBlockEntity
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.level, pos.getCenter());
+        super.preRemoveSideEffects(pos, state);
+        Containers.dropContents(this.level, pos, this.itemHandler.getStacks());
     }
 }

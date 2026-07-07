@@ -1,14 +1,18 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerChangeBlockTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerClickBlockTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.ConnectFluidContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
+import dev.dubhe.anvilcraft.advancements.criterion.ElectricAllergyTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.EnterPowerGridTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.FireReforgeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
@@ -16,8 +20,9 @@ import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
-import dev.dubhe.anvilcraft.advancements.criterion.PlayerWearAnvilHammerTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.VoidCollectorTrigger;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
@@ -31,6 +36,11 @@ public class ModCriterionTriggers {
     public static final DeferredHolder<CriterionTrigger<?>, PlacerPlaceTrigger> PLACER_PLACE_BLOCK = REGISTER.register(
         "placer_place_block",
         PlacerPlaceTrigger::new
+    );
+
+    public static final DeferredHolder<CriterionTrigger<?>, PlacerShuttleTrigger> PLACER_SHUTTLE = REGISTER.register(
+        "placer_shuttle",
+        PlacerShuttleTrigger::new
     );
 
     public static final DeferredHolder<CriterionTrigger<?>, DevourerDevourTrigger> DEVOURER_DEVOUR_BLOCK = REGISTER.register(
@@ -70,6 +80,11 @@ public class ModCriterionTriggers {
         AnvilHammerClickBlockTrigger::new
     );
 
+    public static final DeferredHolder<CriterionTrigger<?>, AnvilHammerChangeBlockTrigger> ANVIL_HAMMER_CHANGE_BLOCK = REGISTER.register(
+        "anvil_hammer_change_block",
+        AnvilHammerChangeBlockTrigger::new
+    );
+
     public static final DeferredHolder<CriterionTrigger<?>, AnvilHammerHurtEntityTrigger> ANVIL_HAMMER_HURT_ENTITY = REGISTER.register(
         "anvil_hammer_hurt_entity",
         AnvilHammerHurtEntityTrigger::new
@@ -81,9 +96,9 @@ public class ModCriterionTriggers {
     public static final DeferredHolder<CriterionTrigger<?>, AnvilHitPiezoelectricCrystalTrigger> ANVIL_HIT_PIEZOELECTRIC_CRYSTAL =
         REGISTER.register("anvil_hit_piezoelectric_crystal", AnvilHitPiezoelectricCrystalTrigger::new);
 
-    public static final DeferredHolder<CriterionTrigger<?>, PlayerWearAnvilHammerTrigger> PLAYER_WEAR_ANVIL_HAMMER = REGISTER.register(
-        "player_wear_anvil_hammer",
-        PlayerWearAnvilHammerTrigger::new
+    public static final DeferredHolder<CriterionTrigger<?>, EnterPowerGridTrigger> ENTER_POWER_GRID = REGISTER.register(
+        "enter_power_grid",
+        EnterPowerGridTrigger::new
     );
 
     public static final DeferredHolder<CriterionTrigger<?>, ConvertBeaconTrigger> CONVERT_BEACON = REGISTER.register(
@@ -96,9 +111,24 @@ public class ModCriterionTriggers {
         FireReforgeTrigger::new
     );
 
+    public static final DeferredHolder<CriterionTrigger<?>, ElectricAllergyTrigger> ELECTRIC_ALLERGY = REGISTER.register(
+        "electric_allergy",
+        ElectricAllergyTrigger::new
+    );
+
+    public static final DeferredHolder<CriterionTrigger<?>, ConnectFluidContainersTrigger> CONNECT_FLUID_CONTAINERS = REGISTER.register(
+        "connect_fluid_containers",
+        ConnectFluidContainersTrigger::new
+    );
+
     public static final DeferredHolder<CriterionTrigger<?>, HeatCollectorTrigger> HEAT_COLLECTOR_COLLECT = REGISTER.register(
         "heat_collector_collect",
         HeatCollectorTrigger::new
+    );
+
+    public static final DeferredHolder<CriterionTrigger<?>, VoidCollectorTrigger> VOID_COLLECTOR_COLLECT = REGISTER.register(
+        "void_collector_collect",
+        VoidCollectorTrigger::new
     );
 
     public static final DeferredHolder<CriterionTrigger<?>, MineralFountainCreateTrigger> MINERAL_FOUNTAIN_CREATE = REGISTER.register(

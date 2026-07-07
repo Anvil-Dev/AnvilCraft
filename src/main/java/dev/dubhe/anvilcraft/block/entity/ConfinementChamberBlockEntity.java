@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -65,5 +66,11 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemR
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         input.child("Inventory").ifPresent(this.itemHandler::deserialize);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        Containers.dropContents(this.level, pos, this.itemHandler.copyToList());
     }
 }

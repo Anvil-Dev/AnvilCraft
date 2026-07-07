@@ -1,0 +1,74 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "anvilcraft:block/celestial_body/neutron_star_0",
+		"1": "anvilcraft:block/celestial_body/neutron_star_1",
+		"2": "anvilcraft:block/celestial_body/neutron_star_2",
+		"3": "anvilcraft:block/celestial_body/neutron_star_3",
+		"particle": "anvilcraft:block/celestial_body/neutron_star_0"
+	},
+	"elements": [
+		{
+			"from": [5, 5, 5],
+			"to": [11, 11, 11],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"up": {"uv": [16, 16, 0, 0], "texture": "#0"},
+				"down": {"uv": [16, 0, 0, 16], "texture": "#0"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [11.25, 11.25, 11.25],
+			"to": [4.75, 4.75, 4.75],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
+				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
+				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
+				"west": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#1"},
+				"up": {"uv": [16, 0, 0, 16], "rotation": 180, "texture": "#1"},
+				"down": {"uv": [16, 16, 0, 0], "rotation": 180, "texture": "#1"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [11.5, 11.5, 11.5],
+			"to": [4.5, 4.5, 4.5],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#2"},
+				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#2"},
+				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#2"},
+				"west": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#2"},
+				"up": {"uv": [16, 0, 0, 16], "rotation": 180, "texture": "#2"},
+				"down": {"uv": [16, 16, 0, 0], "rotation": 180, "texture": "#2"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [11.75, 11.75, 11.75],
+			"to": [4.25, 4.25, 4.25],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#3"},
+				"east": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#3"},
+				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#3"},
+				"west": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#3"},
+				"up": {"uv": [16, 0, 0, 16], "rotation": 180, "texture": "#3"},
+				"down": {"uv": [16, 16, 0, 0], "rotation": 180, "texture": "#3"}
+			}
+		}
+	]
+}

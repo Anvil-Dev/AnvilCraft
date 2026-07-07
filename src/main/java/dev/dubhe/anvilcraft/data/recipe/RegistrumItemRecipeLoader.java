@@ -530,6 +530,18 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void structureDisk(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
+            .requires(ModItems.DISK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.DISK), AnvilCraftDatagen.has(lookup, ModItems.DISK))
+            .save(provider);
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ModItems.DISK.get())
+            .requires(ctx.get())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(lookup, ctx.get()))
+            .save(provider, AnvilCraft.recipe("disk_from_structure_disk"));
+    }
+
     public static <T extends Item> void filter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
@@ -1247,6 +1259,54 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void excitedStateVoidMatter(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
+            .requires(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void matterDecompressorComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.LASER_RECEIVER)
+            .define('C', ModBlocks.SINGULARITY_CRYSTAL)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void wormholeStabilizerComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 16)
+            .pattern("ABA")
+            .pattern("B B")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.NEGATIVE_MATTER_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
+    }
+
     public static <T extends Item> void earthCoreShard(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 9)
@@ -1509,6 +1569,34 @@ public class RegistrumItemRecipeLoader {
         return RegistrumItemRecipeLoader.tool("AAA", " B ", " B ", ingredient, result);
     }
 
+    public static <T extends Item> void dysonSphereComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        // 余烬金属锭 超限合金锭 余烬金属锭 / 集热器 集热器 集热器 / 超限合金锭 余烬金属锭 超限合金锭 → 4个
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
+            .pattern("CCC")
+            .pattern("BAB")
+            .define('A', ModItems.EMBER_METAL_INGOT)
+            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('C', ModBlocks.HEAT_COLLECTOR)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.EMBER_METAL_INGOT))
+            .save(provider);
+    }
+
+    public static <T extends Item> void penroseSphereComponent(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        // 超限合金锭 定日镜 超限合金锭 / 定日镜 棱镜 定日镜 / 超限合金锭 定日镜 超限合金锭 → 4个
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.HELIOSTATS)
+            .define('C', ModBlocks.RUBY_PRISM)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT))
+            .save(provider);
+    }
+
     public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumRecipeProvider> tool(
         String pattern1,
         String pattern2,
@@ -1527,5 +1615,22 @@ public class RegistrumItemRecipeLoader {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ingredient), AnvilCraftDatagen.has(lookup, ingredient))
                 .save(provider);
         };
+    }
+
+    // ==== Pipe Recipe ====
+
+    public static <T extends Item> void pipe(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 16)
+            .pattern(" B ")
+            .pattern("B B")
+            .pattern(" B ")
+            .define('B', ModBlocks.BRASS_PRESSURE_PLATE.asItem())
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE),
+                AnvilCraftDatagen.has(lookup, ModBlocks.BRASS_PRESSURE_PLATE)
+            )
+            .save(provider);
     }
 }

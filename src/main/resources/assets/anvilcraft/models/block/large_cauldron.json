@@ -6,9 +6,9 @@
 	"texture_size": [64, 64],
 	"textures": {
 		"top": "anvilcraft:block/large_cauldron_top",
-		"particle": "anvilcraft:block/large_cauldron_side",
 		"side": "anvilcraft:block/large_cauldron_side",
-		"bottom": "anvilcraft:block/large_cauldron_bottom"
+		"bottom": "anvilcraft:block/large_cauldron_bottom",
+		"particle": "anvilcraft:block/polished_heavy_iron_block"
 	},
 	"elements": [
 		{

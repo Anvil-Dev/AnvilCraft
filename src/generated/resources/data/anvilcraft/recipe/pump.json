@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "anvilcraft:pump",
+  "key": {
+    "C": "anvilcraft:pipe",
+    "P": "minecraft:piston"
+  },
+  "pattern": [
+    "PCP",
+    "P P",
+    "   "
+  ],
+  "result": {
+    "count": 2,
+    "id": "anvilcraft:pump"
+  }
+}

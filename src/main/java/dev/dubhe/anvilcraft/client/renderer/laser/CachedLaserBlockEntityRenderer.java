@@ -2,7 +2,9 @@ package dev.dubhe.anvilcraft.client.renderer.laser;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderer;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LaserRenderState;
 import net.minecraft.client.Camera;
@@ -36,7 +38,7 @@ public class CachedLaserBlockEntityRenderer<T extends BaseLaserBlockEntity> impl
             poseStack,
             state,
             submitNodeCollector,
-            true
+            AnvilCraftClient.CONFIG.renderBloomEffect
         );
         poseStack.popPose();
     }

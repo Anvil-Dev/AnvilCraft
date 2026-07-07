@@ -2,17 +2,26 @@ package dev.dubhe.anvilcraft.block.cfa.interfaces;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 
-public class CelestialForgingAnvilFluidInterfaceBlock extends CelestialForgingAnvilInterfaceBlock {
+public class CelestialForgingAnvilFluidInterfaceBlock extends CelestialForgingAnvilInterfaceBlock
+    implements EntityBlock {
     public static final VoxelShape NORTH = ShapeUtil.merge(
         CelestialForgingAnvilInterfaceBlock.BASE_NORTH,
         Block.box(4, 4, 0, 12, 12, 8),
@@ -45,6 +54,22 @@ public class CelestialForgingAnvilFluidInterfaceBlock extends CelestialForgingAn
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, ACTIVE);
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new CelestialForgingAnvilFluidInterfaceBlockEntity(pos, state);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level level, BlockState state, BlockEntityType<T> type
+    ) {
+        if (level.isClientSide()) return null;
+        if (type == ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get()) {
+            return (lvl, pos, st, be) -> ((CelestialForgingAnvilFluidInterfaceBlockEntity) be).serverTick();
+        }
+        return null;
     }
 }

@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.AdvancedComparatorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.CelestialForgingAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
@@ -23,6 +24,9 @@ import dev.dubhe.anvilcraft.client.gui.screen.RoyalAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.SmartBlockPlacerScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
@@ -30,6 +34,7 @@ import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
+import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
@@ -48,6 +53,9 @@ import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
+import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
+import dev.dubhe.anvilcraft.inventory.StorageMenu;
+import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
@@ -65,8 +73,9 @@ public class ModMenuTypes {
         .menu("batch_cutter", BatchCutterMenu::new, () -> BatchCutterScreen::new)
         .register();
 
-    public static final MenuEntry<ChuteMenu> CHUTE =
-        REGISTRUM.menu("chute", ChuteMenu::new, () -> ChuteScreen::new).register();
+    public static final MenuEntry<ChuteMenu> CHUTE = REGISTRUM
+        .menu("chute", ChuteMenu::new, () -> ChuteScreen::new)
+        .register();
 
     public static final MenuEntry<MagneticChuteMenu> MAGNETIC_CHUTE = REGISTRUM
         .menu("magnetic_chute", MagneticChuteMenu::new, () -> MagneticChuteScreen::new)
@@ -126,6 +135,14 @@ public class ModMenuTypes {
         .menu("structure_tool", StructureToolMenu::new, () -> StructureToolScreen::new)
         .register();
 
+    public static final MenuEntry<SmartBlockPlacerMenu> SMART_BLOCK_PLACER = REGISTRUM
+        .menu("smart_block_placer", SmartBlockPlacerMenu::new, () -> SmartBlockPlacerScreen::new)
+        .register();
+
+    public static final MenuEntry<StructureScannerMenu> STRUCTURE_SCANNER = REGISTRUM
+        .menu("structure_scanner", StructureScannerMenu::new, () -> StructureScannerScreen::new)
+        .register();
+
     public static final MenuEntry<JewelCraftingMenu> JEWEL_CRAFTING = REGISTRUM
         .menu("jewel_crafting", (type, id, inv) -> new JewelCraftingMenu(type, id, inv), () -> JewelCraftingScreen::new)
         .register();
@@ -162,7 +179,14 @@ public class ModMenuTypes {
             () -> FrostSmithingScreen::new)
         .register();
     public static final MenuEntry<EnergyWeaponMakeMenu> ENERGY_WEAPON_MAKE = REGISTRUM
-        .menu("energy_weapon_make", EnergyWeaponMakeMenu::new, () -> EnergyWeaponMakeScreen::new).register();
+        .menu("energy_weapon_make", EnergyWeaponMakeMenu::new, () -> EnergyWeaponMakeScreen::new)
+        .register();
+    public static final MenuEntry<CelestialForgingAnvilMenu> CELESTIAL_FORGING_ANVIL = REGISTRUM
+        .menu("celestial_forging_anvil", CelestialForgingAnvilMenu::new, () -> CelestialForgingAnvilScreen::new)
+        .register();
+    public static final MenuEntry<StorageMenu> STORAGE = REGISTRUM
+        .menu("storage", StorageMenu::new, () -> StorageScreen::new)
+        .register();
 
     public static void register() {
     }

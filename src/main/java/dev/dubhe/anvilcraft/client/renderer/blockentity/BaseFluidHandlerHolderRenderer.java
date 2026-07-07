@@ -1,16 +1,20 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.FluidHandlerRenderState;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
@@ -20,8 +24,18 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFluidHandlerHolder, S extends FluidHandlerRenderState>
+public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFluidResourceHandlerHolder, S extends FluidHandlerRenderState>
     implements BlockEntityRenderer<B, S> {
+
+    @SuppressWarnings("deprecation")
+    private static final RenderType FLUID_RENDER_TYPE = RenderType.create(
+        AnvilCraft.of("fluid_tank").toString(),
+        RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
+            .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
+            .useLightmap()
+            .sortOnUpload()
+            .createRenderSetup()
+    );
 
     protected abstract void updateTankW(
         B be,
@@ -30,6 +44,10 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         Vec3 cameraPosition,
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     );
+
+    public float getFill(ResourceHandler<FluidResource> tank) {
+        return (float) tank.getAmountAsLong(0) / tank.getCapacityAsLong(0, tank.getResource(0));
+    }
 
     @Override
     public void extractRenderState(
@@ -44,7 +62,7 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         FluidResource resource = tank.getResource(0);
         if (resource.isEmpty()) return;
         state.setResource(resource);
-        state.setFill((float) tank.getAmountAsInt(0) / tank.getCapacityAsInt(0, resource));
+        state.setFill(this.getFill(tank));
         if (state.getFill() <= 0.025) state.setFill(0.025F);
         this.updateTankW(be, state, partialTicks, cameraPosition, breakProgress);
     }
@@ -57,19 +75,23 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
             Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
             resource.getFluid()
         );
+        var tintSource = model.fluidTintSource();
+        if (tintSource == null) return;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        int tintColor = model.fluidTintSource().colorAsStack(resource.toStack(1));
+        int tintColor = tintSource.colorAsStack(resource.toStack(1));
+        float minY = state.getMinY();
+        float maxY = minY + (state.getMaxY() - minY) * state.getFill();
         submitNodeCollector.submitCustomGeometry(
             poseStack,
-            RenderTypes.entityTranslucent(sprite.atlasLocation()),
+            FLUID_RENDER_TYPE,
             (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                 sprite,
                 resource,
                 state.getMinX(),
-                state.getMinY(),
+                minY,
                 state.getMinZ(),
                 state.getMaxX(),
-                state.getMaxY(),
+                maxY,
                 state.getMaxZ(),
                 tintColor,
                 buffer,

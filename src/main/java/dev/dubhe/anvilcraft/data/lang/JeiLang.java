@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.data.lang;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class JeiLang {
-    @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
         provider.add("gui.anvilcraft.category.chance", "Chance: %s%%");
         provider.add("gui.anvilcraft.category.average_output", "Average: %s");

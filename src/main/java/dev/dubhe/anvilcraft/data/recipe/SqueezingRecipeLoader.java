@@ -35,14 +35,9 @@ public class SqueezingRecipeLoader {
     }
 
     public static void squeezing(RegistrumRecipeProvider provider, Block requires, Block result, Block cauldron, int produce) {
-        SqueezingRecipe.builder()
-            .requires(requires)
-            .result(result)
-            .transform(cauldron)
-            .produce(produce)
-            .save(
-                provider,
-                AnvilCraft.of("squeezing/%s_from_%s".formatted(RecipeLoaderUtil.getName(cauldron), RecipeLoaderUtil.getName(requires)))
-            );
+        SqueezingRecipe.builder().requires(requires).result(result).transform(cauldron).produce(produce).save(
+            provider,
+            AnvilCraft.of("squeezing/%s_from_%s".formatted(RecipeLoaderUtil.getName(cauldron), RecipeLoaderUtil.getName(requires)))
+        );
     }
 }

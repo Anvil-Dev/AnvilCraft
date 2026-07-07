@@ -11,8 +11,6 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
-import dev.dubhe.anvilcraft.block.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.cake.CakeBaseBlock;
@@ -29,21 +27,27 @@ import dev.dubhe.anvilcraft.block.cauldron.ExpFluidCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.LavaCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.MeltGemCauldronBlock;
+import dev.dubhe.anvilcraft.block.cauldron.MilkCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.OilCauldronBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilFluidInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
-import dev.dubhe.anvilcraft.block.container.CrateBlock;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
+import dev.dubhe.anvilcraft.block.container.CreativeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
-import dev.dubhe.anvilcraft.block.container.HyperdimensionStorageStationBlock;
-import dev.dubhe.anvilcraft.block.container.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
-import dev.dubhe.anvilcraft.block.container.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.decoration.InstructBlock;
 import dev.dubhe.anvilcraft.block.decoration.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.decoration.ember.EmberMetalBlock;
 import dev.dubhe.anvilcraft.block.decoration.ember.EmberMetalPillarBlock;
@@ -59,13 +63,19 @@ import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronPlateBlock;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronTrapdoorBlock;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.fluid.ExpFluidBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
+import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.heatable.GlowingBlock;
 import dev.dubhe.anvilcraft.block.heatable.HeatedBlock;
 import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
 import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
 import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
+import dev.dubhe.anvilcraft.block.laser.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.LaserReceiverBlock;
+import dev.dubhe.anvilcraft.block.laser.LensBlock;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
@@ -102,6 +112,7 @@ import dev.dubhe.anvilcraft.block.power.consumer.DischargerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterBigBlock;
 import dev.dubhe.anvilcraft.block.power.converter.PowerConverterMiddleBlock;
@@ -109,7 +120,9 @@ import dev.dubhe.anvilcraft.block.power.converter.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.power.generator.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.ChargerBlock;
 import dev.dubhe.anvilcraft.block.power.generator.CreativeGeneratorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.FeCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.HeatCollectorBlock;
+import dev.dubhe.anvilcraft.block.power.generator.InfiniteCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.generator.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.ring.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.power.ring.DeflectionRingBlock;
@@ -129,6 +142,7 @@ import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.block.storage.AmberBlock;
 import dev.dubhe.anvilcraft.block.storage.EndDustBlock;
+import dev.dubhe.anvilcraft.block.storage.ExcitedStateVoidMatterBlock;
 import dev.dubhe.anvilcraft.block.storage.FerriteCoreMagnetBlock;
 import dev.dubhe.anvilcraft.block.storage.FlintBlock;
 import dev.dubhe.anvilcraft.block.storage.GunpowderBlock;
@@ -153,10 +167,12 @@ import dev.dubhe.anvilcraft.block.utility.ControllableSandBlock;
 import dev.dubhe.anvilcraft.block.utility.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.utility.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
+import dev.dubhe.anvilcraft.block.utility.SpacetimeSupercomputerBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.ItemDetectorBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.PulseGeneratorBlock;
+import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.workstation.ConfinementChamberBlock;
 import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.workstation.CrushingTableBlock;
@@ -168,6 +184,7 @@ import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.block.workstation.SpaceOvercompressorBlock;
 import dev.dubhe.anvilcraft.block.workstation.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.StampingPlatformBlock;
+import dev.dubhe.anvilcraft.block.workstation.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.TransparentCraftingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
@@ -181,7 +198,6 @@ import dev.dubhe.anvilcraft.block.workstation.royal.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItemGroups;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
@@ -193,18 +209,19 @@ import dev.dubhe.anvilcraft.item.block.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatableBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeliostatsItem;
+import dev.dubhe.anvilcraft.item.block.InfiniteCollectorBlockItem;
 import dev.dubhe.anvilcraft.item.block.LevitationBlockItem;
 import dev.dubhe.anvilcraft.item.block.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.item.block.MultiphaseMatterBlockItem;
 import dev.dubhe.anvilcraft.item.block.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.block.RadiationBlockItem;
 import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
-import dev.dubhe.anvilcraft.item.block.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.item.block.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.block.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.block.UncontainableBlockItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import dev.dubhe.anvilcraft.util.registrater.PropertiesProviderUtil;
@@ -213,14 +230,18 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
+import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -238,10 +259,12 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ColoredFallingBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.WallBlock;
@@ -270,10 +293,6 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
     "CodeBlock2Expr"
 })
 public class ModBlocks {
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
-    }
-
     public static final BlockEntry<? extends Block> MAGNET_BLOCK = REGISTRUM.block("magnet_block", MagnetBlock::new)
         .lang("Block of Magnet")
         .initialProperties(() -> Blocks.IRON_BLOCK)
@@ -341,6 +360,54 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::fishTank)
         .register();
 
+    // ==== Pipe & Pump ====
+
+    public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM
+        .block("pipe_straight", PipeStraightBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM
+        .block("pipe_corner", PipeCornerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM
+        .block("pipe_node", PipeNodeBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PumpBlock> PUMP = REGISTRUM
+        .block("pump", PumpBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::pump)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CreativeFluidTankBlock> CREATIVE_FLUID_TANK = REGISTRUM
+        .block("creative_fluid_tank", CreativeFluidTankBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(
+                ctx.get(),
+                BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
+            )
+        ))
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRUM.block("fluid_tank", FluidTankBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
@@ -350,7 +417,112 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
         .register();
 
-    public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
+    public static final BlockEntry<LargeFluidTankBlock> LARGE_FLUID_TANK = REGISTRUM.block(
+            "large_fluid_tank",
+            LargeFluidTankBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p
+            .isSuffocating(ModBlocks::never)
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .isViewBlocking(ModBlocks::never))
+        .loot(SimpleMultiPartBlock::loot)
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties(properties -> properties.stacksTo(16))
+        .model(DataGenUtil::oversizedItem)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CreativeCrateBlock> CREATIVE_CRATE = REGISTRUM
+        .block("creative_crate", CreativeCrateBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.explosionResistance(Float.MAX_VALUE).noOcclusion().isValidSpawn(Blocks::never))
+        .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(ctx.get(),
+                                           BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))))
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<CrateBlock> CRATE = REGISTRUM
+        .block("crate", CrateBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+        )
+        .item()
+        .properties(properties -> properties
+            .component(ModComponents.STORAGE, StorageRef.crate())
+        )
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::crate)
+        .blockstate(DataGenUtil::onlyState)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .register();
+    public static final BlockEntry<LargeCrateBlock> LARGE_CRATE = REGISTRUM
+        .block("large_crate", LargeCrateBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+        )
+        .item(SimpleMultiPartBlockItem::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.largeCrate())
+        )
+        .model(DataGenUtil::oversizedItem)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .register();
+    public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
+        .block("shulker_container", ShulkerContainerBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .loot(FlexibleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops()
+        )
+        .item(FlexibleMultiPartBlockItem::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.shulkerContainer())
+        )
+        .model(DataGenUtil::oversizedItem)
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+    public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
+        .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops()
+        )
+        .item(SimpleMultiPartBlockItem::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.hyperdimension())
+        )
+        .model(DataGenUtil::oversizedItem)
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.NEEDS_EMBER_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<CorruptedBeaconBlock> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
         .initialProperties(() -> Blocks.BEACON)
         .properties(p -> p.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -365,17 +537,19 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .strength(4.0F)
             .sound(GiantAnvilBlock.SOUND_TYPE)
-            .explosionResistance(1200))
+            .explosionResistance(1200)
+            .isViewBlocking(ModBlocks::never))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .properties(properties -> properties.stacksTo(16))
         .model(DataGenUtil::oversizedItem)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(ModBlockTags.GIANT_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
-    public static final BlockEntry<? extends Block> NEUTRON_IRRADIATOR = REGISTRUM.block("neutron_irradiator", NeutronIrradiatorBlock::new)
+    public static final BlockEntry<NeutronIrradiatorBlock> NEUTRON_IRRADIATOR = REGISTRUM
+        .block("neutron_irradiator", NeutronIrradiatorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties(p -> p.strength(50.0F, 1200F).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
@@ -403,17 +577,6 @@ public class ModBlocks {
         .tag(BlockTags.ANVIL, ModBlockTags.NON_MAGNETIC, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
-    public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
-        .recipe(RegistrumBlockRecipeLoader::royalAnvil)
-        .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0F, 1200F))
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .item()
-        .tag(ItemTags.ANVIL)
-        .build()
-        .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .register();
-
     public static final BlockEntry<NeoforgeBlock> NEOFORGE = REGISTRUM
         .block("neoforge", NeoforgeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
@@ -423,6 +586,17 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.ANVIL, ModBlockTags.NON_MAGNETIC, ModBlockTags.CANT_BROKEN_ANVIL)
         .recipe(RegistrumBlockRecipeLoader::neoforge)
+        .register();
+
+    public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::royalAnvil)
+        .initialProperties(() -> Blocks.ANVIL)
+        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0F, 1200F))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .tag(ItemTags.ANVIL)
+        .build()
+        .tag(BlockTags.ANVIL, ModBlockTags.CANT_BROKEN_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .register();
 
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRUM.block("royal_grindstone", RoyalGrindstoneBlock::new)
@@ -574,21 +748,12 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<? extends Block> CREATIVE_GENERATOR = REGISTRUM.block("creative_generator", CreativeGeneratorBlock::new)
-        .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(BlockBehaviour.Properties::noOcclusion)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .item()
-        .model(DataGenUtil::noExtraModelOrState)
-        .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
     public static final BlockEntry<? extends Block> HEATER = REGISTRUM.block("heater", HeaterBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never)
             .noOcclusion()
             .lightLevel(state -> state.getValue(IPowerConsumer.OVERLOAD) ? 0 : 15))
+        .lang("Electric Heater")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -601,7 +766,7 @@ public class ModBlocks {
             .noOcclusion()
             .lightLevel(state -> state.getValue(BurningHeaterBlock.LEVEL) >= 2 ? 15
                 : state.getValue(BurningHeaterBlock.LEVEL) >= 1 ? 7 : 0)
-            )
+        )
         .simpleItem()
         .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
             MultiVariantGenerator.dispatch(ctx.get())
@@ -635,10 +800,8 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .register();
 
-    public static final BlockEntry<? extends Block> REMOTE_TRANSMISSION_POLE = REGISTRUM.block(
-            "remote_transmission_pole",
-            RemoteTransmissionPoleBlock::new
-        )
+    public static final BlockEntry<RemoteTransmissionPoleBlock> REMOTE_TRANSMISSION_POLE = REGISTRUM
+        .block("remote_transmission_pole", RemoteTransmissionPoleBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion().lightLevel(state -> {
@@ -673,7 +836,11 @@ public class ModBlocks {
                 DataGenContext<Item, TeslaTowerItem> ctx,
                 RegistrumItemModelGenerator generator
             ) {
-                generator.createWithExistingModel(ctx.get(), ctx.getId().withPrefix("block/").withSuffix("_overall"));
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.plainModel(ctx.getId().withPrefix("block/").withSuffix("_overall")),
+                    new ClientItem.Properties(true, true, 1.0F)
+                );
             }
         })
         .build()
@@ -692,6 +859,17 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::inductionLight)
+        .register();
+
+    public static final BlockEntry<CreativeGeneratorBlock> CREATIVE_GENERATOR = REGISTRUM
+        .block("creative_generator", CreativeGeneratorBlock::new)
+        .initialProperties(ModBlocks.MAGNET_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model(DataGenUtil::noExtraModelOrState)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<ChargeCollectorBlock> CHARGE_COLLECTOR = REGISTRUM.block("charge_collector", ChargeCollectorBlock::new)
@@ -723,12 +901,50 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
+    public static final BlockEntry<HeatCollectorBlock> HEAT_COLLECTOR = REGISTRUM.block("heat_collector", HeatCollectorBlock::new)
+        .simpleItem()
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumBlockRecipeLoader::heatCollector)
+        .register();
+
+    public static final BlockEntry<VoidEnergyCollectorBlock> VOID_ENERGY_COLLECTOR = REGISTRUM
+        .block("void_energy_collector", VoidEnergyCollectorBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200F))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .recipe(RegistrumBlockRecipeLoader::voidEnergyCollector)
+        .register();
+
+    public static final BlockEntry<InfiniteCollectorBlock> INFINITE_COLLECTOR = REGISTRUM.block(
+            "infinite_collector",
+            InfiniteCollectorBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(() -> (ctx, generator) -> generator.blockStateOutput.accept(
+            MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatchWrap.initial(InfiniteCollectorBlock.POWERED)
+                    .select(false, BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/")))
+                    .select(true, BlockModelGenerators.plainVariant(
+                        ctx.getId().withPrefix("block/").withSuffix("_base")))
+                    .dispatch()
+                )))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .item(InfiniteCollectorBlockItem::new)
+        .build()
+        .register();
+
     public static final BlockEntry<HeliostatsBlock> HELIOSTATS = REGISTRUM.block("heliostats", HeliostatsBlock::new)
         .initialProperties(() -> Blocks.GLASS)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .defaultLoot()
         .item(HeliostatsItem::new)
-        .model(DataGenUtil::onlyInfo)
+        .model(DataGenUtil::oversizedItem)
         .build()
         .recipe(RegistrumBlockRecipeLoader::heliostats)
         .register();
@@ -875,15 +1091,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::itemCollector)
         .register();
 
-    public static final BlockEntry<HeatCollectorBlock> HEAT_COLLECTOR = REGISTRUM.block("heat_collector", HeatCollectorBlock::new)
-        .simpleItem()
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe(RegistrumBlockRecipeLoader::heatCollector)
-        .register();
-
     public static final BlockEntry<ChargerBlock> CHARGER = REGISTRUM.block("charger", ChargerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
@@ -921,6 +1128,68 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
         .register();
 
+    public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
+        .block("smart_block_placer", SmartBlockPlacerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(() -> (ctx, generator) -> {
+            Identifier bottom = ctx.getId().withPrefix("block/").withSuffix("_bottom");
+            Identifier off = ctx.getId().withPrefix("block/").withSuffix("_bottom_off");
+            Identifier overload = ctx.getId().withPrefix("block/").withSuffix("_bottom_overload");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(
+                        SmartBlockPlacerBlock.OVERLOAD, SmartBlockPlacerBlock.POWERED, SmartBlockPlacerBlock
+                            .UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
+                    .generate((isOverload, isPowered, isUpsideDown, facing) -> {
+                        Identifier model = isOverload ? overload : (isPowered ? off : bottom);
+                        Quadrant baseY = switch (facing) {
+                            case EAST -> Quadrant.R90;
+                            case SOUTH -> Quadrant.R180;
+                            case WEST -> Quadrant.R270;
+                            default -> Quadrant.R0;
+                        };
+                        Quadrant yrot = isUpsideDown
+                            ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
+                            : baseY;
+                        return BlockModelGenerators.plainVariant(model)
+                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
+                    })));
+        })
+        .item()
+        .model(DataGenUtil::oversizedItem)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
+        .register();
+
+    public static final BlockEntry<StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate(() -> (ctx, generator) -> {
+            Identifier model = ctx.getId().withPrefix("block/");
+            generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
+                .with(PropertyDispatch.initial(
+                        StructureScannerBlock.UPSIDE_DOWN, HorizontalDirectionalBlock.FACING)
+                    .generate((isUpsideDown, facing) -> {
+                        Quadrant baseY = switch (facing) {
+                            case EAST -> Quadrant.R90;
+                            case SOUTH -> Quadrant.R180;
+                            case WEST -> Quadrant.R270;
+                            default -> Quadrant.R0;
+                        };
+                        Quadrant yrot = isUpsideDown
+                            ? Quadrant.values()[(baseY.ordinal() + 2) % 4]
+                            : baseY;
+                        return BlockModelGenerators.plainVariant(model)
+                            .with(v -> v.withXRot(isUpsideDown ? Quadrant.R180 : Quadrant.R0).withYRot(yrot));
+                    })));
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::structureScanner)
+        .register();
+
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)
         .item()
         .properties(Item.Properties::fireResistant)
@@ -949,6 +1218,22 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
+    public static final BlockEntry<LargeLaserBlock> LARGE_LASER = REGISTRUM
+        .block("large_laser", LargeLaserBlock::new)
+        .initialProperties(RUBY_LASER::get)
+        .properties(properties -> properties
+            .isSuffocating(ModBlocks::never)
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .isViewBlocking(ModBlocks::never))
+        .loot(FlexibleMultiPartBlock::loot)
+        .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>::new)
+        .properties((properties) -> properties.stacksTo(16))
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
     public static final BlockEntry<RubyPrismBlock> RUBY_PRISM = REGISTRUM.block("ruby_prism", RubyPrismBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
@@ -956,6 +1241,15 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::rubyPrism)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<LensBlock> LENS = REGISTRUM.block("lens", LensBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).isViewBlocking(ModBlocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::lens)
         .register();
 
     public static final BlockEntry<LaserReceiverBlock> LASER_RECEIVER = REGISTRUM.block("laser_receiver", LaserReceiverBlock::new)
@@ -1013,68 +1307,6 @@ public class ModBlocks {
         .build()
         .recipe(RegistrumBlockRecipeLoader::overseer)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
-    public static final BlockEntry<CrateBlock> CRATE = REGISTRUM
-        .block("crate", CrateBlock::new)
-        .initialProperties(() -> Blocks.OAK_PLANKS)
-        .properties(properties -> properties
-            .noOcclusion()
-            .isValidSpawn(ModBlocks::never)
-        )
-        .simpleItem()
-        .recipe(RegistrumBlockRecipeLoader::crate)
-        .blockstate(DataGenUtil::onlyState)
-        .tag(BlockTags.MINEABLE_WITH_AXE)
-        .register();
-    public static final BlockEntry<LargeCrateBlock> LARGE_CRATE = REGISTRUM
-        .block("large_crate", LargeCrateBlock::new)
-        .initialProperties(() -> Blocks.OAK_PLANKS)
-        .loot(SimpleMultiPartBlock::loot)
-        .properties(properties -> properties
-            .noOcclusion()
-            .isValidSpawn(ModBlocks::never)
-        )
-        .item(SimpleMultiPartBlockItem::new)
-        .properties(properties -> properties.stacksTo(16))
-        .model(DataGenUtil::oversizedItem)
-        .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_AXE)
-        .register();
-    public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
-        .block("shulker_container", ShulkerContainerBlock::new)
-        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .loot(FlexibleMultiPartBlock::loot)
-        .properties(properties -> properties
-            .noOcclusion()
-            .isValidSpawn(ModBlocks::never)
-            .requiresCorrectToolForDrops()
-        )
-        .item(ShulkerContainerBlockItem::new)
-        .properties(properties -> properties.stacksTo(16))
-        .model(DataGenUtil::oversizedItem)
-        .tag(ModItemTags.EXPLOSION_PROOF)
-        .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-    public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
-        .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
-        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .loot(SimpleMultiPartBlock::loot)
-        .properties(properties -> properties
-            .noOcclusion()
-            .isValidSpawn(ModBlocks::never)
-            .requiresCorrectToolForDrops()
-        )
-        .item(SimpleMultiPartBlockItem::new)
-        .properties(properties -> properties.stacksTo(16))
-        .model(DataGenUtil::oversizedItem)
-        .tag(ModItemTags.EXPLOSION_PROOF)
-        .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(ModBlockTags.NEEDS_EMBER_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<JewelCraftingTable> JEWEL_CRAFTING_TABLE = REGISTRUM.block(
@@ -1262,21 +1494,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::slidingRailStop)
         .register();
 
-    public static final BlockEntry<LargeFluidTankBlock> LARGE_FLUID_TANK = REGISTRUM.block(
-            "large_fluid_tank",
-            LargeFluidTankBlock::new
-        )
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never))
-        .loot(SimpleMultiPartBlock::loot)
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
-        .properties(properties -> properties.stacksTo(16))
-        .model(DataGenUtil::oversizedItem)
-        .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .register();
-
     public static final BlockEntry<AccelerationRingBlock> ACCELERATION_RING = REGISTRUM.block(
             "acceleration_ring",
             AccelerationRingBlock::new
@@ -1310,16 +1527,17 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
-        .item(SimpleMultiPartBlockItem::new)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
+        .item(dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
         .model(DataGenUtil::oversizedItem)
         .build()
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
 
     public static final BlockEntry<CelestialForgingAnvilAmplifierBlock> CELESTIAL_FORGING_ANVIL_AMPLIFIER = REGISTRUM
@@ -1343,7 +1561,11 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilLogisticsInterfaceBlock> CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_logistics_interface", CelestialForgingAnvilLogisticsInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(() -> DataGenUtil.horizontalFacingBlock(
+            BlockStateProperties.ENABLED,
+            ctx -> ctx.getId().withPrefix("block/").withSuffix("_active"),
+            ctx -> ctx.getId().withPrefix("block/")
+        ))
         .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
@@ -1358,7 +1580,11 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilFluidInterfaceBlock> CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_fluid_interface", CelestialForgingAnvilFluidInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(() -> DataGenUtil.horizontalFacingBlock(
+            BlockStateProperties.ENABLED,
+            ctx -> ctx.getId().withPrefix("block/").withSuffix("_active"),
+            ctx -> ctx.getId().withPrefix("block/")
+        ))
         .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
@@ -1373,7 +1599,11 @@ public class ModBlocks {
     public static final BlockEntry<CelestialForgingAnvilLaserInterfaceBlock> CELESTIAL_FORGING_ANVIL_LASER_INTERFACE = REGISTRUM
         .block("celestial_forging_anvil_laser_interface", CelestialForgingAnvilLaserInterfaceBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(() -> DataGenUtil.horizontalFacingBlock(
+            BlockStateProperties.ENABLED,
+            ctx -> ctx.getId().withPrefix("block/").withSuffix("_active"),
+            ctx -> ctx.getId().withPrefix("block/")
+        ))
         .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
@@ -1385,16 +1615,20 @@ public class ModBlocks {
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
 
-    public static final BlockEntry<VoidEnergyCollectorBlock> VOID_ENERGY_COLLECTOR = REGISTRUM.block(
-            "void_energy_collector",
-            VoidEnergyCollectorBlock::new
-        )
+    public static final BlockEntry<CelestialForgingAnvilPortalBlock> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
+        .block("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200F))
+        .loot(FlexibleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .explosionResistance(1200)
+            .emissiveRendering(ModBlocks::always)
+        )
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .simpleItem()
-        .recipe(RegistrumBlockRecipeLoader::voidEnergyCollector)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
+        .item(CelestialForgingAnvilPortalBlockItem::new)
+        .build()
         .register();
 
     public static final BlockEntry<MagnetoElectricCoreBlock> MAGNETO_ELECTRIC_CORE_BLOCK = REGISTRUM.block(
@@ -1420,7 +1654,7 @@ public class ModBlocks {
             .noCollision()
             .strength(-1.0F, 3600000.0F)
             .noLootTable())
-        .blockstate(DataGenUtil::noExtraModelOrState)
+        .blockstate(DataGenUtil::onlyState)
         .register();
 
     public static final BlockEntry<PropelPistonBlock> PROPEL_PISTON = REGISTRUM.block("propel_piston", PropelPistonBlock::new)
@@ -1444,9 +1678,18 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_BUILD_BLOCK.getKey());
-    }
+    public static final BlockEntry<SpacetimeSupercomputerBlock> SPACETIME_SUPERCOMPUTER = REGISTRUM
+        .block("spacetime_supercomputer", SpacetimeSupercomputerBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties((properties) -> properties
+            .noOcclusion()
+            .explosionResistance(1200)
+            .isValidSpawn(Blocks::never)
+            .isSuffocating(ModBlocks::never))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
+        .blockstate(DataGenUtil::onlyState)
+        .simpleItem()
+        .register();
 
     public static final BlockEntry<? extends Block> ROYAL_STEEL_BLOCK = REGISTRUM.block("royal_steel_block", Block::new)
         .lang("Block of Royal Steel")
@@ -1667,6 +1910,22 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cutFrostMetalStairs)
         .register();
 
+    public static final BlockEntry<Block> FROST_DECO_BLOCK = REGISTRUM
+        .block("frost_deco_block", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<StainedGlassBlock> FROST_DECO_OUTLINE = REGISTRUM
+        .block("frost_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.WHITE, properties))
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<EmberMetalBlock> EMBER_METAL_BLOCK = REGISTRUM.block(
             "ember_metal_block",
             properties -> new EmberMetalBlock(properties, 0.5d)
@@ -1765,6 +2024,22 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cutEmberMetalStairs)
         .register();
 
+    public static final BlockEntry<Block> EMBER_DECO_BLOCK = REGISTRUM
+        .block("ember_deco_block", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<StainedGlassBlock> EMBER_DECO_OUTLINE = REGISTRUM
+        .block("ember_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.YELLOW, properties))
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<TranscendiumBlock> TRANSCENDIUM_BLOCK = REGISTRUM.block("transcendium_block", TranscendiumBlock::new)
         .lang("Block of Transcendium")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
@@ -1785,6 +2060,22 @@ public class ModBlocks {
         .tag(ModItemTags.EXPLOSION_PROOF, Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
         .build()
         .recipe(RegistrumBlockRecipeLoader::transcendiumBlock)
+        .register();
+
+    public static final BlockEntry<Block> TRANSCENDENCE_DECO_BLOCK = REGISTRUM
+        .block("transcendence_deco_block", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<StainedGlassBlock> TRANSCENDENCE_DECO_OUTLINE = REGISTRUM
+        .block("transcendence_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.PURPLE, properties))
+        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10))
+        .initialProperties(() -> Blocks.STONE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
         .register();
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRUM.block("heavy_iron_block", Block::new)
@@ -1847,11 +2138,11 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(p -> p.strength(5.0F, 1200F))
         .blockstate(() -> DataGenUtil.slabBlock(
-           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
-           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
-           _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
-           _ -> AnvilCraft.of("block/cut_heavy_iron_block")
-            ))
+            _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+            _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+            _ -> new Material(AnvilCraft.of("block/cut_heavy_iron_block")),
+            _ -> AnvilCraft.of("block/cut_heavy_iron_block")
+        ))
         .item()
         .tag(ItemTags.SLABS)
         .build()
@@ -2061,22 +2352,98 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> BRONZE_BLOCK = REGISTRUM.block("bronze_block", Block::new)
         .lang("Block of Bronze")
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.COPPER_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_BRONZE)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_BRONZE, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe(RegistrumBlockRecipeLoader::bronzeBlock)
+        .register();
+
+    public static final BlockEntry<? extends Block> CUT_BRONZE_BLOCK = REGISTRUM
+        .block("cut_bronze_block", Block::new)
+        .lang("Cut Bronze")
+        .initialProperties(BRONZE_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends StairBlock> CUT_BRONZE_STAIRS = REGISTRUM
+        .block("cut_bronze_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRONZE_BLOCK.getDefaultState(), properties))
+        .initialProperties(BRONZE_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/cut_bronze_block")))
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends SlabBlock> CUT_BRONZE_SLAB = REGISTRUM
+        .block("cut_bronze_slab", SlabBlock::new)
+        .initialProperties(BRONZE_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/cut_bronze_block")))
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends RotatedPillarBlock> CUT_BRONZE_PILLAR = REGISTRUM
+        .block("cut_bronze_pillar", RotatedPillarBlock::new)
+        .initialProperties(BRONZE_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> DataGenUtil.columnBlock(AnvilCraft.of("block/cut_bronze_pillar"), AnvilCraft.of("block/cut_bronze_pillar_top")))
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends Block> CHISELED_BRONZE_BLOCK = REGISTRUM
+        .block("chiseled_bronze_block", Block::new)
+        .initialProperties(BRONZE_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
         .register();
 
     public static final BlockEntry<? extends Block> BRASS_BLOCK = REGISTRUM.block("brass_block", Block::new)
         .lang("Block of Brass")
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.COPPER_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_BRASS)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_BRASS, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe(RegistrumBlockRecipeLoader::brassBlock)
+        .register();
+
+    public static final BlockEntry<? extends Block> CUT_BRASS_BLOCK = REGISTRUM
+        .block("cut_brass_block", Block::new)
+        .lang("Cut Brass")
+        .initialProperties(BRASS_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends StairBlock> CUT_BRASS_STAIRS = REGISTRUM
+        .block("cut_brass_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRASS_BLOCK.getDefaultState(), properties))
+        .initialProperties(BRASS_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/cut_brass_block")))
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends SlabBlock> CUT_BRASS_SLAB = REGISTRUM
+        .block("cut_brass_slab", SlabBlock::new)
+        .initialProperties(BRASS_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/cut_brass_block")))
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends RotatedPillarBlock> CUT_BRASS_PILLAR = REGISTRUM
+        .block("cut_brass_pillar", RotatedPillarBlock::new)
+        .initialProperties(BRASS_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(() -> DataGenUtil.columnBlock(AnvilCraft.of("block/cut_brass_pillar"), AnvilCraft.of("block/cut_brass_pillar_top")))
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends Block> CHISELED_BRASS_BLOCK = REGISTRUM
+        .block("chiseled_brass_block", Block::new)
+        .initialProperties(BRASS_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
         .register();
 
     public static final BlockEntry<? extends Block> TOPAZ_BLOCK = REGISTRUM.block("topaz_block", Block::new)
@@ -2317,10 +2684,48 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_SHOVEL, ModBlockTags.VOID_DECAY_PRODUCTS)
         .register();
 
-    public static final BlockEntry<ArrowBlock> ARROW = REGISTRUM.block("arrow", ArrowBlock::new)
+    public static final BlockEntry<ArrowBlock> ARROW = REGISTRUM
+        .block("arrow", ArrowBlock::new)
         .initialProperties(() -> Blocks.STONE)
         .properties(p -> p.noOcclusion().noCollision().lightLevel(bs -> 10))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<InstructBlock> CHECK_MARK = REGISTRUM
+        .block("check_mark", InstructBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.noOcclusion().noCollision().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<InstructBlock> CROSS_MARK = REGISTRUM
+        .block("cross_mark", InstructBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.noOcclusion().noCollision().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<InstructBlock> EXCLAMATION_MARK = REGISTRUM
+        .block("exclamation_mark", InstructBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.noOcclusion().noCollision().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<InstructBlock> QUESTION_MARK = REGISTRUM
+        .block("question_mark", InstructBlock::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p.noOcclusion().noCollision().lightLevel(bs -> 10))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 
@@ -2858,6 +3263,25 @@ public class ModBlocks {
         )
         .register();
 
+    public static final BlockEntry<ExcitedStateVoidMatterBlock> EXCITED_STATE_VOID_MATTER_BLOCK = REGISTRUM
+        .block("excited_state_void_matter_block", ExcitedStateVoidMatterBlock::new)
+        .lang("Excited State Void Matter")
+        .initialProperties(() -> Blocks.DIAMOND_BLOCK)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(DataGenUtil::onlyState)
+        .recipe(RegistrumBlockRecipeLoader::excitedStateVoidMatterBlock)
+        .item()
+        .initialProperties(() -> new Item.Properties().stacksTo(16)
+            .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+        .tag(ModItemTags.VOID_RESISTANT, Tags.Items.STORAGE_BLOCKS)
+        .build()
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL,
+            Tags.Blocks.STORAGE_BLOCKS
+        )
+        .register();
+
     public static final BlockEntry<Block> EARTH_CORE_SHARD_BLOCK = REGISTRUM.block("earth_core_shard_block", Block::new)
         .lang("Block of Earth Core Shard")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
@@ -2936,6 +3360,14 @@ public class ModBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
+    public static final BlockEntry<MilkCauldronBlock> MILK_CAULDRON = REGISTRUM.block("milk_cauldron", MilkCauldronBlock::new)
+        .initialProperties(() -> Blocks.CAULDRON)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
+        .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
+        .register();
+
     public static final BlockEntry<ObsidianCauldronBlock> OBSIDIAN_CAULDRON = REGISTRUM
         .block("obsidian_cauldron", ObsidianCauldronBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
@@ -2977,7 +3409,7 @@ public class ModBlocks {
     private static BlockEntry<ReinforcedConcreteBlock> registerReinforcedConcreteBlock(Color color) {
         // noinspection Convert2Lambda
         return REGISTRUM.block(
-            color + "_reinforced_concrete",
+                color + "_reinforced_concrete",
                 p -> new ReinforcedConcreteBlock(p, color)
             ).initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0F).explosionResistance(15.0F))
@@ -3002,22 +3434,22 @@ public class ModBlocks {
                         .texture(TextureSlot.SIDE, generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)), false)
                         .build(generator.modLoc("block/%s_reinforced_concrete_bottom".formatted(color)));
                     generator.blockStateOutput.accept(MultiVariantGenerator.dispatch(ctx.get())
-                                                          .with(
-                                                              PropertyDispatchWrap.initial(ReinforcedConcreteBlock.HALF)
-                                                                  .select(
-                                                                      ReinforcedConcreteHalf.TOP,
-                                                                      BlockModelGenerators.plainVariant(topModel)
-                                                                  )
-                                                                  .select(
-                                                                      ReinforcedConcreteHalf.SINGLE,
-                                                                      BlockModelGenerators.plainVariant(singleModel)
-                                                                  )
-                                                                  .select(
-                                                                      ReinforcedConcreteHalf.BOTTOM,
-                                                                      BlockModelGenerators.plainVariant(bottomModel)
-                                                                  )
-                                                                  .dispatch()
-                                                          ));
+                        .with(
+                            PropertyDispatchWrap.initial(ReinforcedConcreteBlock.HALF)
+                                .select(
+                                    ReinforcedConcreteHalf.TOP,
+                                    BlockModelGenerators.plainVariant(topModel)
+                                )
+                                .select(
+                                    ReinforcedConcreteHalf.SINGLE,
+                                    BlockModelGenerators.plainVariant(singleModel)
+                                )
+                                .select(
+                                    ReinforcedConcreteHalf.BOTTOM,
+                                    BlockModelGenerators.plainVariant(bottomModel)
+                                )
+                                .dispatch()
+                        ));
                 }
             })
             .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.DYED, ModBlockTags.DYED_COLORS.get(color))
@@ -3337,7 +3769,7 @@ public class ModBlocks {
             "confined_time_anvilon",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::onlyState)
         .item()
@@ -3350,7 +3782,7 @@ public class ModBlocks {
             "confined_space_anvilon",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::onlyState)
         .item()
@@ -3363,7 +3795,7 @@ public class ModBlocks {
             "confined_mass_anvilon",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::onlyState)
         .item()
@@ -3376,7 +3808,7 @@ public class ModBlocks {
             "confined_energy_anvilon",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::onlyState)
         .item()
@@ -3389,7 +3821,7 @@ public class ModBlocks {
             "confined_neutronium_ingot",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::onlyState)
         .item(SuperHeavyBlockItem::new)
@@ -3403,7 +3835,7 @@ public class ModBlocks {
             "confinement_chamber",
             ConfinementChamberBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::onlyState)
         .item()
@@ -3421,8 +3853,8 @@ public class ModBlocks {
             .noOcclusion()
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL)
-        .item()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL, ModBlockTags.COLLISION_IMMUNE)
+        .item(dev.dubhe.anvilcraft.item.SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -3559,9 +3991,44 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cutFlintPillarBlock)
         .register();
 
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_FUNCTION_BLOCK.getKey());
-    }
+    public static final BlockEntry<RotatedPillarBlock> PLYWOOD_BLOCK = REGISTRUM
+        .block("plywood", RotatedPillarBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.PLANKS)
+        .blockstate(() -> DataGenUtil.columnBlock(AnvilCraft.of("block/plywood_side"), AnvilCraft.of("block/plywood")))
+        .item()
+        .tag(ItemTags.PLANKS)
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::plywood)
+        .register();
+
+    public static final BlockEntry<? extends StairBlock> PLYWOOD_STAIRS = REGISTRUM
+        .block("plywood_stairs", (properties) -> new StairBlock(ModBlocks.PLYWOOD_BLOCK.getDefaultState(), properties))
+        .initialProperties(PLYWOOD_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .blockstate(() -> DataGenUtil
+            .stairsBlock(
+                AnvilCraft.of("block/plywood"),
+                AnvilCraft.of("block/plywood"),
+                AnvilCraft.of("block/plywood_side")
+            )
+        )
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<? extends SlabBlock> PLYWOOD_SLAB = REGISTRUM
+        .block("plywood_slab", SlabBlock::new)
+        .initialProperties(PLYWOOD_BLOCK::get)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .blockstate(() -> DataGenUtil
+            .slabBlock(
+                AnvilCraft.of("block/plywood"),
+                AnvilCraft.of("block/plywood"),
+                AnvilCraft.of("block/plywood_side")
+            )
+        )
+        .simpleItem()
+        .register();
 
     public static final BlockEntry<PulseGeneratorBlock> PULSE_GENERATOR = REGISTRUM.block("pulse_generator", PulseGeneratorBlock::new)
         .properties(properties -> properties.strength(3.0F, 3.5F).sound(SoundType.STONE).noOcclusion())

@@ -20,7 +20,7 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -92,7 +92,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         if (level == null) return;
         if (be.isEmptyOfFish()) return;
 
-        List<CompoundTag> fishData = be.getTropicalFishData();
+        List<FishTankBlockEntity.TropicalFishData> fishData = be.getFishes();
         int newDataHash = computeFishDataHash(fishData);
         long cacheKey = be.getBlockPos().asLong();
 
@@ -108,10 +108,11 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             cachedFishes = cacheEntry.cachedFishes;
         }
 
-        state.setTicks(ClientTickRecorder.getTicks() + partialTicks + this.fishRandom.nextInt(1297361));
+        state.setTicks(ClientTickRecorder.getTicks() + partialTicks);
         for (TropicalFish fish : cachedFishes) {
             fish.tickCount = (int) state.getTicks();
             EntityRenderState entityState = this.renderer.extractEntity(fish, partialTicks);
+            entityState.lightCoords = LightCoordsUtil.FULL_SKY;
             state.getFishes().add(entityState);
         }
         this.fishRandom.setSeed(cachedFishes.hashCode() + be.getBlockPos().hashCode());
@@ -122,26 +123,31 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         super.submit(state, pose, collector, camera);
         if (state.isIgnited()) {
             pose.pushPose();
-            pose.translate(0, state.getMaxY() - (1 - TANK_W), 0);
+            if (state.getFill() != 0) {
+                pose.translate(0, (state.getMaxY() - state.getMinY()) * (state.getFill() - 1), 0);
+            } else {
+                pose.translate(0, TANK_W - 1, 0);
+            }
             state.getFire().submit(
                 pose,
                 collector,
-                state.lightCoords,
+                LightCoordsUtil.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY,
                 0
             );
             pose.popPose();
         }
-        if (state.getStacks().isEmpty()) return;
-        FishTankRenderer.submitItemsInTank(
-            state.getStacks(),
-            pose,
-            collector,
-            this.random,
-            state.getFill(),
-            state.lightCoords,
-            state.getSeed()
-        );
+        if (!state.getStacks().isEmpty()) {
+            FishTankRenderer.submitItemsInTank(
+                state.getStacks(),
+                pose,
+                collector,
+                this.random,
+                state.getFill(),
+                state.lightCoords,
+                state.getSeed()
+            );
+        }
         FishTankRenderer.submitFishesInTank(state, this.renderer, pose, collector, camera);
     }
 
@@ -247,14 +253,14 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
     }
 
     /// Creates TropicalFish entities from fish data NBT tags
-    private static List<TropicalFish> createTropicalFishEntities(Level level, List<CompoundTag> fishData) {
+    private static List<TropicalFish> createTropicalFishEntities(Level level, List<FishTankBlockEntity.TropicalFishData> fishData) {
         List<TropicalFish> fishes = new ArrayList<>();
-        for (CompoundTag fishDatum : fishData) {
+        for (FishTankBlockEntity.TropicalFishData fishDatum : fishData) {
             TropicalFish fish = EntityType.TROPICAL_FISH.create(level, EntitySpawnReason.BUCKET);
             if (fish == null) continue;
 
-            CompoundTag data = fishDatum.copy();
-            fish.loadFromBucketTag(data);
+            ItemStack bucket = fishDatum.toBucket();
+            fish.applyComponentsFromItemStack(bucket);
             fish.fromBucket();
             fish.setNoAi(true);
             fish.setSilent(true);
@@ -267,10 +273,10 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
     }
 
     /// Computes a hash of the fish data to detect changes
-    private static int computeFishDataHash(List<CompoundTag> fishData) {
+    private static int computeFishDataHash(List<FishTankBlockEntity.TropicalFishData> fishData) {
         if (fishData.isEmpty()) return 0;
         int hash = fishData.size();
-        for (CompoundTag tag : fishData) {
+        for (FishTankBlockEntity.TropicalFishData tag : fishData) {
             hash = hash * 31 + tag.hashCode();
         }
         return hash;

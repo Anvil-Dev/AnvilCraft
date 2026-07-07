@@ -14,12 +14,14 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.block.PipeBlockItem;
 import dev.dubhe.anvilcraft.item.ingredients.CapacitorItem;
 import dev.dubhe.anvilcraft.item.ingredients.EmberMetalIngotItem;
 import dev.dubhe.anvilcraft.item.ingredients.EmptyCapacitorItem;
@@ -90,7 +92,10 @@ import dev.dubhe.anvilcraft.item.utility.PillBoxItem;
 import dev.dubhe.anvilcraft.item.utility.SeedsPackItem;
 import dev.dubhe.anvilcraft.item.utility.StructureToolItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
+import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
+import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
+import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.util.dummy.DummyHolder;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
@@ -99,7 +104,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
@@ -137,10 +141,6 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
     "CodeBlock2Expr"
 })
 public class ModItems {
-    static {
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_TOOL.getKey());
-    }
-
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRUM.item("guide_book", GuideBookItem::new)
         .properties(p -> p.stacksTo(1))
         .tag(ItemTags.BOOKSHELF_BOOKS)
@@ -157,7 +157,6 @@ public class ModItems {
     public static final ItemEntry<GeodeItem> GEODE = REGISTRUM.item("geode", GeodeItem::new).register();
     public static final ItemEntry<AmethystPickaxeItem> AMETHYST_PICKAXE = REGISTRUM.item("amethyst_pickaxe", AmethystPickaxeItem::new)
         .properties(properties -> properties)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(Enchantments.FORTUNE, 3))
         .recipe(RegistrumItemRecipeLoader.pickaxe(
             Items.AMETHYST_SHARD,
             (ctx, provider) -> enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getRegistries())
@@ -166,7 +165,6 @@ public class ModItems {
         .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES, Tags.Items.MINING_TOOL_TOOLS)
         .register();
     public static final ItemEntry<AmethystAxeItem> AMETHYST_AXE = REGISTRUM.item("amethyst_axe", AmethystAxeItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.FELLING_KEY, 1))
         .recipe(RegistrumItemRecipeLoader.axe(
             Items.AMETHYST_SHARD,
             (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getRegistries())
@@ -175,7 +173,6 @@ public class ModItems {
         .tag(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<AmethystHoeItem> AMETHYST_HOE = REGISTRUM.item("amethyst_hoe", AmethystHoeItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.HARVEST_KEY, 1))
         .recipe(RegistrumItemRecipeLoader.hoe(
             Items.AMETHYST_SHARD,
             (ctx, generator) -> enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, generator.getRegistries())
@@ -184,7 +181,6 @@ public class ModItems {
         .tag(ItemTags.HOES)
         .register();
     public static final ItemEntry<AmethystSwordItem> AMETHYST_SWORD = REGISTRUM.item("amethyst_sword", AmethystSwordItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(ModEnchantments.BEHEADING_KEY, 1))
         .recipe(RegistrumItemRecipeLoader.sword(
             Items.AMETHYST_SHARD,
             (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getRegistries())
@@ -193,7 +189,6 @@ public class ModItems {
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
         .register();
     public static final ItemEntry<AmethystShovelItem> AMETHYST_SHOVEL = REGISTRUM.item("amethyst_shovel", AmethystShovelItem::new)
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), enchanting(Enchantments.EFFICIENCY, 3))
         .recipe(RegistrumItemRecipeLoader.shovel(
             Items.AMETHYST_SHARD,
             (ctx, provider) -> enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getRegistries())
@@ -532,7 +527,6 @@ public class ModItems {
     public static final ItemEntry<? extends SpectralWeaponLauncherItem> SPECTRAL_WEAPON_LAUNCHER = REGISTRUM
         .item("spectral_weapon_launcher", SpectralWeaponLauncherItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.CROSSBOW_ENCHANTABLE
@@ -552,7 +546,7 @@ public class ModItems {
                             new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
                         )),
                         ItemModelUtils.specialModel(
-                            generator.createFlatItemModel(item, "_off", ModelTemplates.FLAT_ITEM),
+                            ModelLocationUtils.getModelLocation(item, "_exhausted"),
                             SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
                         ),
                         ItemModelUtils.specialModel(
@@ -568,7 +562,24 @@ public class ModItems {
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
+        .model(DataGenUtil::energyWeapon)
+        .register();
+
+    public static final ItemEntry<? extends CorruptedBeaconActivatorItem> CORRUPTED_BEACON_ACTIVATOR = REGISTRUM
+        .item("corrupted_beacon_activator", CorruptedBeaconActivatorItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .model(DataGenUtil::energyWeapon)
+        .register();
+
+    public static final ItemEntry<? extends TeslaGunItem> TESLA_GUN = REGISTRUM
+        .item("tesla_gun", TeslaGunItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .model(DataGenUtil::energyWeapon)
+        .register();
+
+    public static final ItemEntry<? extends LaserGunItem> LASER_GUN = REGISTRUM
+        .item("laser_gun", LaserGunItem::new)
+        .properties(properties -> properties.stacksTo(1))
         .model(DataGenUtil::energyWeapon)
         .register();
 
@@ -591,7 +602,6 @@ public class ModItems {
             )
             .enchantable(15)
         )
-        .tab(ModItemGroups.ANVILCRAFT_TOOL.getKey(), DataGenUtil::energy)
         .model(DataGenUtil::ionocraftBackpack)
         .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
@@ -677,6 +687,12 @@ public class ModItems {
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
         .properties(p -> p.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::disk)
+        .register();
+
+    public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM
+        .item("structure_disk", StructureDiskItem::new)
+        .properties(p -> p.stacksTo(1))
+        .recipe(RegistrumItemRecipeLoader::structureDisk)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
@@ -865,11 +881,6 @@ public class ModItems {
         .properties(properties -> properties.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::pillBox)
         .register();
-
-    static {
-        ModFoodItems.register();
-        REGISTRUM.defaultCreativeTab(ModItemGroups.ANVILCRAFT_INGREDIENTS.getKey());
-    }
 
     public static final ItemEntry<Item> MAGNET_INGOT = REGISTRUM.item("magnet_ingot", Item::new)
         .tag(Tags.Items.INGOTS, ModItemTags.MAGNET_INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
@@ -1132,6 +1143,24 @@ public class ModItems {
         .tag(ModItemTags.VOID_RESISTANT)
         .recipe(RegistrumItemRecipeLoader::voidMatter)
         .register();
+    public static final ItemEntry<Item> EXCITED_STATE_VOID_MATTER = REGISTRUM.item("excited_state_void_matter", Item::new)
+        .initialProperties(() -> new Item.Properties().stacksTo(16)
+            .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+        .tag(ModItemTags.VOID_RESISTANT)
+        .recipe(RegistrumItemRecipeLoader::excitedStateVoidMatter)
+        .register();
+    public static final ItemEntry<Item> MATTER_DECOMPRESSOR_COMPONENT =
+        REGISTRUM.item("matter_decompressor_component", Item::new)
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .tag(ModItemTags.EXPLOSION_PROOF)
+            .recipe(RegistrumItemRecipeLoader::matterDecompressorComponent)
+            .register();
+    public static final ItemEntry<Item> WORMHOLE_STABILIZER_COMPONENT =
+        REGISTRUM.item("wormhole_stabilizer_component", Item::new)
+            .initialProperties(() -> new Item.Properties().fireResistant())
+            .tag(ModItemTags.EXPLOSION_PROOF)
+            .recipe(RegistrumItemRecipeLoader::wormholeStabilizerComponent)
+            .register();
     public static final ItemEntry<Item> EARTH_CORE_SHARD = REGISTRUM.item("earth_core_shard", Item::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .recipe(RegistrumItemRecipeLoader::earthCoreShard)
@@ -1174,6 +1203,18 @@ public class ModItems {
         .initialProperties(Item.Properties::new)
         .tag(Tags.Items.NUGGETS)
         .recipe(RegistrumItemRecipeLoader::negativeMatterNugget)
+        .register();
+
+    public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
+        .register();
+
+    public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
         .register();
 
     public static final ItemEntry<SuperHeavyItem> NEUTRONIUM_INGOT = REGISTRUM.item("neutronium_ingot", SuperHeavyItem::new)
@@ -1231,6 +1272,14 @@ public class ModItems {
         .tag(Tags.Items.BUCKETS)
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
+        .register();
+
+    // ==== Pipe & Pump ====
+
+    public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
+        .model(DataGenUtil::onlyInfo)
+        .recipe(RegistrumItemRecipeLoader::pipe)
+        .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
         .register();
 
     public static void register() {

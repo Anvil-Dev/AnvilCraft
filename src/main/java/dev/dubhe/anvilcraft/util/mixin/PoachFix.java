@@ -4,7 +4,7 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class PoachFix {
-    private static final String NO_POACH_METHOD_NAME = "shouldNotPoach_PreVeNTDUpLICatioN";
+    private static final String NO_POACH_METHOD_NAME = "shouldNotPoachPreVeNTDUpLICatioN";
 
     public static boolean shouldItPoach() {
         StackTraceElement[] elements = Thread.currentThread().getStackTrace();

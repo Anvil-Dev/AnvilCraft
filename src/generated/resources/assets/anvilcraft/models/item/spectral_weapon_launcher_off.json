@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "anvilcraft:item/spectral_weapon_launcher_off"
-  }
-}

@@ -13,8 +13,10 @@ import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.FilterSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
+import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
@@ -93,6 +95,7 @@ public class ClientEventListener {
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
         RecipesRecord.CLIENTSIDE = null;
+        StorageMenuState.clear();
     }
 
     @SubscribeEvent
@@ -129,6 +132,7 @@ public class ClientEventListener {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         SeismicBounceManager.getInstance().tick();
+        dev.dubhe.anvilcraft.client.support.ScreenShakeManager.getInstance().tick();
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime < 0) {
             return;
@@ -187,6 +191,8 @@ public class ClientEventListener {
             event.setY(y + 13);
             FilterSelectorSupport.setCurrentFilterStack(itemStack);
             FilterSelectorSupport.render(graphics, x, y);
+        } else if (itemStack.is(ModItems.STRUCTURE_DISK)) {
+            StructureDiskPreviewSupport.renderPreviewAt(graphics, itemStack, x, y);
         } else {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
             AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);

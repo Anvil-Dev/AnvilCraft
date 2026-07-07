@@ -1,5 +1,5 @@
 {
-  "parent": "anvilcraft:anvilcraft/overheated",
+  "parent": "anvilcraft:anvilcraft/isotope_decay_battery",
   "criteria": {
     "collect_overheated": {
       "conditions": {
@@ -14,7 +14,7 @@
     "description": {
       "translate": "advancements.anvilcraft.nuclear_power_10a.description"
     },
-    "frame": "challenge",
+    "frame": "goal",
     "icon": {
       "id": "anvilcraft:heat_collector"
     },

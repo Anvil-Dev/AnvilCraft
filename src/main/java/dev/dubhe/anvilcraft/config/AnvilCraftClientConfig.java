@@ -28,6 +28,33 @@ public class AnvilCraftClientConfig {
     @Comment("Bloom effect on laser and power transmitter lines.")
     public boolean renderBloomEffect = true;
 
+    @Comment("Scanline post-processing effect on 3D structure previews.")
+    public boolean renderScanPreviewEffect = true;
+
+    @CollapsibleObject
+    public GravitationalLens gravitationalLens = new GravitationalLens();
+
+    public static class GravitationalLens {
+        @Comment("Gravitational lensing post-processing effect near black holes")
+        public boolean renderBlackHoleLensing = true;
+
+        @Comment("Maximum number of black/white holes rendered (2-256). Higher = more holes, lower = better performance.")
+        @BoundedDiscrete(min = 2, max = 256)
+        public int maxHoleCount = 8;
+
+        @Comment("Lens distortion strength (higher = stronger bending, 0.002 default)")
+        public double lensStrength = 1.0 / 512.0;
+
+        @Comment("Event horizon radius (screen UV units, 0.083 default)")
+        public double eventHorizonRadius = 1.0 / 12.0;
+
+        @Comment("Reference distance for perspective scaling. At this distance, effect = config size. Closer = bigger.")
+        public double lensPerspectiveScale = 10.0;
+
+        @Comment("Lens direction: >0 = convex (gravitational pull toward center), <0 = concave (push away). Magnitude scales strength.")
+        public double lensDirection = 1.0;
+    }
+
     @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
     public boolean groundHeaveParticlesEnabled = true;
 
@@ -51,6 +78,9 @@ public class AnvilCraftClientConfig {
     @Comment("Add a tooltip line that shows multiphase stored ID")
     public boolean showMultiphaseStoredId = false;
 
+    @Comment("Toggle the behaviour when exiting the Category Setting menu")
+    public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CONFIRM;
+
     public static class IonoCraftBackpackHud {
         @Comment("If true, will show Ionocraft Backpack current power in hud")
         public boolean enabled = true;
@@ -71,5 +101,10 @@ public class AnvilCraftClientConfig {
         WEARING_HAMMER,
         HOLDING_HAMMER,
         TOGGLE_WITH_KEY
+    }
+
+    public enum ExitBehaviourMode {
+        CONFIRM,
+        CANCEL
     }
 }

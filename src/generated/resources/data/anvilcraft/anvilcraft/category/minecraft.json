@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:namespace",
+  "icon": {
+    "id": "minecraft:grass_block"
+  },
+  "name": {
+    "translate": "category.anvilcraft.namespace",
+    "with": [
+      {
+        "mod_id": "minecraft"
+      }
+    ]
+  },
+  "namespace": "minecraft"
+}

@@ -20,6 +20,8 @@ public class BucketResourceHandlerMixin {
         cancellable = true
     )
     private void powderSnow(ItemResource accessResource, int index, CallbackInfoReturnable<FluidResource> cir) {
-        if (accessResource.getItem() == Items.POWDER_SNOW_BUCKET) cir.setReturnValue(FluidResource.of(ModFluids.POWDER_SNOW.get()));
+        if (accessResource.getItem() == Items.POWDER_SNOW_BUCKET) {
+            cir.setReturnValue(FluidResource.of(ModFluids.POWDER_SNOW.get()));
+        }
     }
 }

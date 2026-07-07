@@ -6,7 +6,7 @@
 	"texture_size": [64, 64],
 	"textures": {
 		"0": "anvilcraft:block/shulker_container",
-		"particle": "anvilcraft:block/shulker_container"
+		"particle": "anvilcraft:block/space_overcompressor"
 	},
 	"elements": [
 		{
@@ -767,53 +767,62 @@
 		{
 			"name": "group",
 			"origin": [-16, 25, -16],
+			"scope": 0,
 			"color": 0,
 			"children": [
 				{
 					"name": "group",
 					"origin": [-16, 25, -16],
+					"scope": 0,
 					"color": 0,
 					"children": [1, 2, 3]
 				},
 				{
 					"name": "group",
 					"origin": [-16, 25, -16],
+					"scope": 0,
 					"color": 0,
 					"children": [4, 5, 6]
 				},
 				{
 					"name": "group",
 					"origin": [-16, 25, -16],
+					"scope": 0,
 					"color": 0,
 					"children": [7, 8, 9]
 				},
 				{
 					"name": "group",
 					"origin": [-16, 25, -16],
+					"scope": 0,
 					"color": 0,
 					"children": [10, 11, 12]
 				},
 				{
 					"name": "group",
 					"origin": [-16, 25, -16],
+					"scope": 0,
 					"color": 0,
 					"children": [13, 14, 15]
 				},
 				{
 					"name": "group",
 					"origin": [-16, 25, -16],
+					"scope": 0,
 					"color": 0,
 					"children": [16, 17, 18]
 				},
 				{
 					"name": "group",
 					"origin": [-16, 25, -16],
+					"scope": 0,
 					"color": 0,
 					"children": [19, 20, 21]
 				},
 				{
 					"name": "group",
 					"origin": [-16, 25, -16],
+					"scope": 0,
 					"color": 0,
 					"children": [22, 23, 24]
 				}
@@ -822,77 +831,90 @@
 		{
 			"name": "group",
 			"origin": [-8, 24, 12],
+			"scope": 0,
 			"color": 0,
 			"children": [
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [25, 26, 27]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [28, 29, 30]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [31, 32, 33]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [34, 35, 36]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [37, 38, 39]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [40, 41, 42]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [43, 44, 45]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [46, 47, 48]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [49, 50, 51]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [52, 53, 54]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [55, 56, 57]
 				},
 				{
 					"name": "group",
 					"origin": [-8, 24, 12],
+					"scope": 0,
 					"color": 0,
 					"children": [58, 59, 60]
 				}

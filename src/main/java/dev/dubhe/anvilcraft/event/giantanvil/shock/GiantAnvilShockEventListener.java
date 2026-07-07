@@ -237,6 +237,16 @@ public class GiantAnvilShockEventListener {
                     new ChunkPos(event.getPos().getX() >> 4, event.getPos().getZ() >> 4),
                     new GiantAnvilShockEffectPacket(shockCenter, radius)
                 );
+                // 屏幕震动（幅度小、结束快，仅玩家站在地面上才震），范围与撼地一致
+                PacketDistributor.sendToPlayersTrackingChunk(
+                    serverLevel,
+                    new ChunkPos(event.getPos().getX() >> 4, event.getPos().getZ() >> 4),
+                    dev.dubhe.anvilcraft.network.ScreenShakePacket.of(
+                        Vec3.atCenterOf(shockCenter),
+                        radius,
+                        dev.dubhe.anvilcraft.network.ScreenShakePacket.ShakeType.GIANT_ANVIL_SHOCK
+                    )
+                );
             }
 
             // 音效与粒子

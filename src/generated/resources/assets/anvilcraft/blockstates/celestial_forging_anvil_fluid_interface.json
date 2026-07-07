@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "enabled=false,facing=east": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface",
+      "y": 90
+    },
+    "enabled=false,facing=north": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface"
+    },
+    "enabled=false,facing=south": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface",
+      "y": 180
+    },
+    "enabled=false,facing=west": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface",
+      "y": 270
+    },
+    "enabled=true,facing=east": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface_active",
+      "y": 90
+    },
+    "enabled=true,facing=north": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface_active"
+    },
+    "enabled=true,facing=south": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface_active",
+      "y": 180
+    },
+    "enabled=true,facing=west": {
+      "model": "anvilcraft:block/celestial_forging_anvil_fluid_interface_active",
+      "y": 270
+    }
+  }
+}

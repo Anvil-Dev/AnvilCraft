@@ -1,0 +1,7 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "anvilcraft:block/smart_block_placer"
+  },
+  "oversized_in_gui": true
+}

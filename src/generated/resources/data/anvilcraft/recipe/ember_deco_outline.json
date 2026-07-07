@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "anvilcraft:ember_metal_nugget",
+  "result": {
+    "count": 16,
+    "id": "anvilcraft:ember_deco_outline"
+  }
+}

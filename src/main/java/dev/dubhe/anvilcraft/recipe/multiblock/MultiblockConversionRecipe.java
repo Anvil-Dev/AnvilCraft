@@ -12,6 +12,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
@@ -314,6 +315,10 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
 
         public Builder inputSymbol(char symbol, Holder<Block> block) {
             return this.inputSymbol(symbol, block.value());
+        }
+
+        public Builder inputSymbol(char symbol, TagKey<Block> block) {
+            return this.inputSymbol(symbol, BlockPredicateWithState.of(block));
         }
 
         public Builder inputSymbol(char symbol, String blockName) {

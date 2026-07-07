@@ -13,6 +13,7 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -211,6 +212,8 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.getLevel(), pos.getCenter());
+        super.preRemoveSideEffects(pos, state);
+        Vec3 center = pos.getCenter();
+        Containers.dropItemStack(this.level, center.x, center.y, center.z, this.itemHandler.getStack());
     }
 }

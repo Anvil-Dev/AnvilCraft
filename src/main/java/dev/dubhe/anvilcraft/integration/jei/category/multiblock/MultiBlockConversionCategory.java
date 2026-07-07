@@ -241,8 +241,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 final boolean modifiedOutput = !output.isAllLayersVisible();
                 input.setAllLayersVisible(true);
                 output.setAllLayersVisible(true);
-                RenderSupport.renderLevelLike(input, graphics, 36, 44, SCALE_FAC_OVERVIEW, 2.0F);
-                RenderSupport.renderLevelLike(output, graphics, 120, 44, SCALE_FAC_OVERVIEW, 2.0F);
+                RenderSupport.renderLevelLike(input, graphics, 36, 44, SCALE_FAC_OVERVIEW, 8, 2.0F, false);
+                RenderSupport.renderLevelLike(output, graphics, 120, 44, SCALE_FAC_OVERVIEW, 8, 2.0F, false);
                 if (modifiedInput) {
                     input.setAllLayersVisible(false);
                 }
@@ -295,7 +295,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 drawable.setPosition(-1000, -1000);
             }
         }
-        RenderSupport.renderLevelLike(rendered, graphics, 80, 86, SCALE_FAC_LARGE, 2.0F);
+        RenderSupport.renderLevelLike(rendered, graphics, 80, 86, SCALE_FAC_LARGE, 8, 2.0F, false);
         Component component = this.layerTooltip(rendered);
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);

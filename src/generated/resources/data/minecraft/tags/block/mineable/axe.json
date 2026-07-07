@@ -2,6 +2,9 @@
   "values": [
     "anvilcraft:crate",
     "anvilcraft:large_crate",
-    "anvilcraft:crab_trap"
+    "anvilcraft:crab_trap",
+    "anvilcraft:plywood",
+    "anvilcraft:plywood_stairs",
+    "anvilcraft:plywood_slab"
   ]
 }

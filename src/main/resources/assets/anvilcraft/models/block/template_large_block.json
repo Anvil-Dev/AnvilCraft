@@ -1,4 +1,6 @@
 {
+	"format_version": "1.21.11",
+	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"display": {
 		"thirdperson_righthand": {
@@ -12,12 +14,12 @@
 			"scale": [0.2, 0.2, 0.2]
 		},
 		"firstperson_righthand": {
-			"rotation": [0, 225, 0],
+			"rotation": [0, -135, 0],
 			"translation": [3.75, 0, 0],
 			"scale": [0.2, 0.2, 0.2]
 		},
 		"firstperson_lefthand": {
-			"rotation": [0, 225, 0],
+			"rotation": [0, -135, 0],
 			"translation": [3.75, 0, 0],
 			"scale": [0.2, 0.2, 0.2]
 		},
@@ -26,8 +28,7 @@
 			"scale": [0.2, 0.2, 0.2]
 		},
 		"gui": {
-			"rotation": [30, 225, 0],
-			"translation": [0, -0.25, 0],
+			"rotation": [30, -135, 0],
 			"scale": [0.24, 0.24, 0.24]
 		},
 		"head": {
@@ -35,7 +36,12 @@
 			"scale": [0.6, 0.6, 0.6]
 		},
 		"fixed": {
-			"scale": [0.66, 0.66, 0.66]
+			"translation": [0, 0, 2],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"on_shelf": {
+			"translation": [0, 0, -4],
+			"scale": [0.4, 0.4, 0.4]
 		}
 	}
 }

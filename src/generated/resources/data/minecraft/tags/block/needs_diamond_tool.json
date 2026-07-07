@@ -1,5 +1,6 @@
 {
   "values": [
+    "anvilcraft:shulker_container",
     "anvilcraft:frost_anvil",
     "anvilcraft:frost_grindstone",
     "anvilcraft:frost_smithing_table",
@@ -8,7 +9,7 @@
     "anvilcraft:ember_smithing_table",
     "anvilcraft:transcendence_anvil",
     "anvilcraft:impact_pile",
-    "anvilcraft:shulker_container",
+    "anvilcraft:spacetime_supercomputer",
     "anvilcraft:ember_metal_block",
     "anvilcraft:cut_ember_metal_block",
     "anvilcraft:cut_ember_metal_pillar",
@@ -22,6 +23,7 @@
     "anvilcraft:void_stone",
     "anvilcraft:earth_core_shard_ore",
     "anvilcraft:void_matter_block",
+    "anvilcraft:excited_state_void_matter_block",
     "anvilcraft:earth_core_shard_block",
     "anvilcraft:multiphase_matter_block",
     "anvilcraft:negative_matter_block"

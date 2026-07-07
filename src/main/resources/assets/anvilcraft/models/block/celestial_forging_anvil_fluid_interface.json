@@ -7,7 +7,7 @@
 	"textures": {
 		"0": "anvilcraft:block/celestial_forging_anvil_interface",
 		"3": "anvilcraft:block/transcendium_block_outline",
-		"particle": "anvilcraft:block/celestial_forging_anvil_interface"
+		"particle": "anvilcraft:block/celestial_forging_anvil_particle"
 	},
 	"elements": [
 		{
@@ -340,6 +340,7 @@
 			"scale": [0.6, 0.6, 0.6]
 		},
 		"fixed": {
+			"translation": [0, -4.5, 0],
 			"scale": [0.5, 0.5, 0.5]
 		}
 	},
@@ -347,26 +348,31 @@
 		{
 			"name": "group",
 			"origin": [8, 16, 16],
+			"scope": 0,
 			"color": 0,
 			"children": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 		},
 		{
 			"name": "group",
 			"origin": [4, 22, 8.1],
+			"scope": 0,
 			"color": 0,
 			"children": [11, 12, 13]
 		},
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [14, 15, 16, 17, 18, 19]
 		},
 		{
 			"name": "group",
 			"origin": [8, 2, 4],
+			"scope": 0,
 			"color": 0,
 			"children": [20, 21, 22, 23]
 		}
 	]
 }
+

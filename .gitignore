@@ -122,3 +122,6 @@ run/
 /fabric/src/main/resources/resoucepacks/
 
 runs/
+ref/
+
+libs/

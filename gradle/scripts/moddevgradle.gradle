@@ -36,20 +36,49 @@ neoForge {
 
         client {
             client()
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         clientMSA {
             client()
             devLogin = true
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+
+        clientIrisWorkaround {
+            client()
+            devLogin = true
+            systemProperty("neoforge.disableGlValidation", "true")
+        }
+
+        clientIrisWorkaroundMSA {
+            client()
+            systemProperty("neoforge.disableGlValidation", "true")
+        }
+
+        clientRenderDocIrisWorkaround {
+            client()
+            devLogin = true
+            systemProperty("neoforge.disableGlValidation", "true")
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'anvillib.rendering.debugMode', 'true'
+            systemProperty('neoforge.rendernurse.renderdoc.library', file("libs/renderdoc.dll").absolutePath)
+            programArgument("--renderDebugLabels")
+            jvmArgument("-javaagent:" + file("libs/renderdoc-loader.jar").absolutePath)
+        }
+
+        clientRenderDocIrisWorkaroundMSA {
+            client()
+            systemProperty("neoforge.disableGlValidation", "true")
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'anvillib.rendering.debugMode', 'true'
+            systemProperty('neoforge.rendernurse.renderdoc.library', file("libs/renderdoc.dll").absolutePath)
+            programArgument("--renderDebugLabels")
+            jvmArgument("-javaagent:" + file("libs/renderdoc-loader.jar").absolutePath)
         }
 
         clientRenderDoc {
             client()
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
             systemProperty 'anvillib.rendering.debugMode', 'true'
             systemProperty('neoforge.rendernurse.renderdoc.library', file("libs/renderdoc.dll").absolutePath)

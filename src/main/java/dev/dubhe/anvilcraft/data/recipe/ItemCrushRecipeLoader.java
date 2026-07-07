@@ -26,36 +26,20 @@ public class ItemCrushRecipeLoader {
             .result(ModItems.FLOUR)
             .result(ModItems.FLOUR, 0.5F)
             .save(provider);
-        ItemCrushRecipe.builder()
-            .requires(items, ItemTags.LOGS)
-            .result(ModItems.WOOD_FIBER)
-            .result(ModItems.RESIN)
-            .save(provider);
+        ItemCrushRecipe.builder().requires(items, ItemTags.LOGS).result(ModItems.WOOD_FIBER).result(ModItems.RESIN).save(provider);
         ItemCrushRecipe.builder()
             .requires(Items.BEETROOT)
             .result(Items.RED_DYE)
             .result(Items.SUGAR)
             .save(provider, AnvilCraft.of("item_crush/red_dye_from_beetroot"));
-        ItemCrushRecipe.builder()
-            .requires(items, ItemTags.WOOL)
-            .result(Items.STRING, 4)
-            .save(provider);
+        ItemCrushRecipe.builder().requires(items, ItemTags.WOOL).result(Items.STRING, 4).save(provider);
         ItemCrushRecipe.builder()
             .requires(Items.BONE)
             .result(Items.BONE_MEAL, 6)
             .save(provider, AnvilCraft.of("item_crush/bone_meal_from_bone"));
-        ItemCrushRecipe.builder()
-            .requires(Items.BLAZE_ROD)
-            .result(Items.BLAZE_POWDER, 4)
-            .save(provider);
-        ItemCrushRecipe.builder()
-            .requires(Items.BREEZE_ROD)
-            .result(Items.WIND_CHARGE, 8)
-            .save(provider);
-        ItemCrushRecipe.builder()
-            .requires(Items.LEATHER)
-            .result(Items.RABBIT_HIDE, 4)
-            .save(provider);
+        ItemCrushRecipe.builder().requires(Items.BLAZE_ROD).result(Items.BLAZE_POWDER, 4).save(provider);
+        ItemCrushRecipe.builder().requires(Items.BREEZE_ROD).result(Items.WIND_CHARGE, 8).save(provider);
+        ItemCrushRecipe.builder().requires(Items.LEATHER).result(Items.RABBIT_HIDE, 4).save(provider);
         ItemCrushRecipe.builder()
             .requires(ModItems.GEODE)
             .result(Items.AMETHYST_SHARD, 4)
@@ -68,44 +52,14 @@ public class ItemCrushRecipeLoader {
             .group("item_crush")
             .icon(new ItemStackTemplate(ModBlocks.CRUSHING_TABLE.asItem()))
             .hasBlock(0, -1, 0, ModBlocks.CRUSHING_TABLE.getDefaultState())
-            .hasItemIngredient(builder -> builder
-                .offset(0, -.125, 0)
-                .range(.75, .75, .75)
-                .of(ModBlocks.CHROMATIC_STONE)
-            )
-            .chooseOne(builder -> builder
-                .choice(
-                    SpawnItem.builder()
-                        .offset(0, -.6875, 0)
-                        .item(ModItems.RUBY)
-                        .build(),
-                    .25F
-                ).choice(
-                    SpawnItem.builder()
-                        .offset(0, -.6875, 0)
-                        .item(ModItems.TOPAZ)
-                        .build(),
-                    .25F
-                ).choice(
-                    SpawnItem.builder()
-                        .offset(0, -.6875, 0)
-                        .item(ModItems.SAPPHIRE)
-                        .build(),
-                    .25F
-                ).choice(
-                    SpawnItem.builder()
-                        .offset(0, -.6875, 0)
-                        .item(Items.EMERALD)
-                        .build(),
-                    .25F
-                )
-            )
+            .hasItemIngredient(builder -> builder.offset(0, -.125, 0).range(.75, .75, .75).of(ModBlocks.CHROMATIC_STONE))
+            .chooseOne(builder -> builder.choice(SpawnItem.builder().offset(0, -.6875, 0).item(ModItems.RUBY).build(), .25F)
+                .choice(SpawnItem.builder().offset(0, -.6875, 0).item(ModItems.TOPAZ).build(), .25F)
+                .choice(SpawnItem.builder().offset(0, -.6875, 0).item(ModItems.SAPPHIRE).build(), .25F)
+                .choice(SpawnItem.builder().offset(0, -.6875, 0).item(Items.EMERALD).build(), .25F))
             .save(provider, AnvilCraft.of("item_crush/gem_from_chromatic_stone"));
 
-        ItemCrushRecipe.builder()
-            .requires(Items.CREEPER_HEAD)
-            .result(Items.GUNPOWDER, 64)
-            .save(provider);
+        ItemCrushRecipe.builder().requires(Items.CREEPER_HEAD).result(Items.GUNPOWDER, 64).save(provider);
 
         ItemCrushRecipe.builder()
             .requires(Items.SKELETON_SKULL)
@@ -202,51 +156,35 @@ public class ItemCrushRecipeLoader {
             .result(result, 0.5F)
             .save(
                 provider,
-                AnvilCraft.of("item_crush/tool/%s_2_%s".formatted(RecipeLoaderUtil.getName(tool), RecipeLoaderUtil.getName(result)))
-            );
+                AnvilCraft.of("item_crush/tool/%s_2_%s".formatted(RecipeLoaderUtil.getName(tool), RecipeLoaderUtil.getName(result))));
     }
 
     private static void blockCrush(RegistrumRecipeProvider provider, ItemLike input, ItemLike result) {
-        ItemCrushRecipe.builder()
-            .requires(input)
-            .result(result, 0.8F)
-            .save(
-                provider,
-                AnvilCraft.of("item_crush/block_crush/%s_from_%s".formatted(
-                    RecipeLoaderUtil.getName(result),
-                    RecipeLoaderUtil.getName(input)
-                ))
-            );
+        ItemCrushRecipe.builder().requires(input).result(result, 0.8F).save(
+            provider,
+            AnvilCraft.of("item_crush/block_crush/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(input)))
+        );
     }
 
     private static void armor(RegistrumRecipeProvider provider, ItemLike armor, ItemLike result) {
-        ItemCrushRecipe.builder()
-            .requires(armor)
-            .result(result, UniformGenerator.between(0.0F, 2.0F))
-            .save(
-                provider,
-                AnvilCraft.of("item_crush/armor/%s_2_%s".formatted(RecipeLoaderUtil.getName(armor), RecipeLoaderUtil.getName(result)))
-            );
+        ItemCrushRecipe.builder().requires(armor).result(result, UniformGenerator.between(0.0F, 2.0F)).save(
+            provider,
+            AnvilCraft.of("item_crush/armor/%s_2_%s".formatted(RecipeLoaderUtil.getName(armor), RecipeLoaderUtil.getName(result)))
+        );
     }
 
     public static void flower(RegistrumRecipeProvider provider, ItemLike flower, ItemLike result) {
-        ItemCrushRecipe.builder()
-            .requires(flower)
-            .result(result, 2)
-            .save(
-                provider,
-                AnvilCraft.of("item_crush/flower/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(flower)))
-            );
+        ItemCrushRecipe.builder().requires(flower).result(result, 2).save(
+            provider,
+            AnvilCraft.of("item_crush/flower/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(flower)))
+        );
     }
 
     public static void flower(RegistrumRecipeProvider provider, ItemLike flower, ItemLike result, int resultNum) {
-        ItemCrushRecipe.builder()
-            .requires(flower)
-            .result(result, resultNum)
-            .save(
-                provider,
-                AnvilCraft.of("item_crush/flower/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(flower)))
-            );
+        ItemCrushRecipe.builder().requires(flower).result(result, resultNum).save(
+            provider,
+            AnvilCraft.of("item_crush/flower/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(flower)))
+        );
     }
 
 }

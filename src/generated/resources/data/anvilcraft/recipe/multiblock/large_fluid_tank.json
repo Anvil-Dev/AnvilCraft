@@ -1,0 +1,33 @@
+{
+  "type": "anvilcraft:multiblock",
+  "pattern": {
+    "layers": [
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ],
+      [
+        "ABA",
+        "B B",
+        "ABA"
+      ],
+      [
+        "AAA",
+        "AAA",
+        "AAA"
+      ]
+    ],
+    "symbols": {
+      "A": {
+        "block": "anvilcraft:cut_brass_block"
+      },
+      "B": {
+        "block": "#c:glass_blocks"
+      }
+    }
+  },
+  "result": {
+    "id": "anvilcraft:large_fluid_tank"
+  }
+}

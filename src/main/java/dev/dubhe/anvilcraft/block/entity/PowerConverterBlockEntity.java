@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.energy.IEnergyHandlerHolder;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.power.converter.BasePowerConverterBlock;
@@ -27,7 +28,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
-public class PowerConverterBlockEntity extends BlockEntity implements IPowerConsumer {
+public class PowerConverterBlockEntity extends BlockEntity implements IPowerConsumer, IEnergyHandlerHolder {
     @Getter
     @Setter
     private @Nullable PowerGrid grid = null;
@@ -54,7 +55,8 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         return this.inputPower * 10000;
     }
 
-    public @Nullable EnergyHandler getEnergyStorage(@Nullable Direction side) {
+    @Override
+    public @Nullable EnergyHandler getEnergyHandler(@Nullable Direction side) {
         if (side == null) return new PowerConverterEnergyStore();
         if (side == getBlockState().getValue(BasePowerConverterBlock.FACING)) return new PowerConverterEnergyStore();
         return null;

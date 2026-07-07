@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
+import dev.dubhe.anvilcraft.api.heat.collector.IHeatCollector;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
@@ -20,7 +21,7 @@ import net.minecraft.world.phys.AABB;
 import org.jspecify.annotations.Nullable;
 
 @Getter
-public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange {
+public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IHeatCollector {
     public static final int MAX_OUTPUT_POWER = 4096;
     private int time = 0;
     @Setter
@@ -114,6 +115,31 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
         int acceptableChargeCount = num - overflow;
         this.inputtingPower += acceptableChargeCount;
         return overflow;
+    }
+
+    @Override
+    public BlockPos getCollectorPos() {
+        return this.getBlockPos();
+    }
+
+    @Override
+    public boolean isCollectorWorking() {
+        return this.isWorking();
+    }
+
+    @Override
+    public void setCollectorWorking(boolean working) {
+        this.result = working ? WorkResult.SUCCESS : WorkResult.TOO_CLOSE;
+    }
+
+    @Override
+    public int inputHeat(int amount) {
+        return this.inputtingHeat(amount);
+    }
+
+    @Override
+    public int getCollectorRange() {
+        return this.getRange();
     }
 
     @Override

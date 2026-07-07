@@ -35,7 +35,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
@@ -101,7 +100,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     public void setRecipe(
         IRecipeLayoutBuilder builder,
         RecipeHolder<AnvilCollisionCraftRecipe> recipeHolder,
-        IFocusGroup focuses) {
+        IFocusGroup focuses
+    ) {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
         // 将此配方需要的铁砧加入输入槽
         builder.addInputSlot(21, 24).add(Ingredient.of(recipe.anvil().getBlocks().stream().map(Holder::value)));
@@ -153,7 +153,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         IRecipeSlotsView recipeSlotsView,
         GuiGraphicsExtractor graphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
 
         // explosion
@@ -359,9 +360,5 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, ModBlocks.ACCELERATION_RING.asStack());
         registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, ModBlocks.DEFLECTION_RING.asStack());
-        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, new ItemStack(Items.ANVIL));
-        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, new ItemStack(ModBlocks.ROYAL_ANVIL));
-        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, new ItemStack(ModBlocks.EMBER_ANVIL));
-        registration.addCraftingStation(AnvilCraftJeiPlugin.ANVIL_COLLISION, new ItemStack(ModBlocks.TRANSCENDENCE_ANVIL));
     }
 }

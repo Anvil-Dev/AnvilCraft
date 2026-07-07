@@ -106,19 +106,10 @@ public class SuperHeatingRecipeLoader {
             .result(ModItems.BRONZE_INGOT, 3)
             .save(provider);
 
-        SuperHeatingRecipe.builder()
-            .requires(ModItems.WOOD_FIBER, 2)
-            .result(Items.CHARCOAL)
-            .save(provider);
-        SuperHeatingRecipe.builder()
-            .requires(Blocks.COAL_BLOCK, 8)
-            .result(Items.DIAMOND)
-            .save(provider);
+        SuperHeatingRecipe.builder().requires(ModItems.WOOD_FIBER, 2).result(Items.CHARCOAL).save(provider);
+        SuperHeatingRecipe.builder().requires(Blocks.COAL_BLOCK, 8).result(Items.DIAMOND).save(provider);
 
-        SuperHeatingRecipe.builder()
-            .requires(ModBlocks.END_DUST)
-            .result(Items.END_STONE)
-            .save(provider);
+        SuperHeatingRecipe.builder().requires(ModBlocks.END_DUST).result(Items.END_STONE).save(provider);
 
         SuperHeatingRecipe.builder()
             .transform(ModBlocks.MELT_GEM_CAULDRON.get())
@@ -167,16 +158,10 @@ public class SuperHeatingRecipeLoader {
 
     private static void metalBlockFromRaw(RegistrumRecipeProvider provider, TagKey<Item> raw, ItemLike result) {
         HolderGetter<Item> items = provider.getItems();
-        SuperHeatingRecipe.builder()
-            .requires(items, raw)
-            .result(result, 2)
-            .save(
-                provider,
-                AnvilCraft.of("super_heating/metal_block/%s_from_%s".formatted(
-                    RecipeLoaderUtil.getName(result),
-                    RecipeLoaderUtil.getName(raw)
-                ))
-            );
+        SuperHeatingRecipe.builder().requires(items, raw).result(result, 2).save(
+            provider,
+            AnvilCraft.of("super_heating/metal_block/%s_from_%s".formatted(RecipeLoaderUtil.getName(result), RecipeLoaderUtil.getName(raw)))
+        );
     }
 
     private static void ingotFromEarth(RegistrumRecipeProvider provider, TagKey<Item> raw, ItemLike result) {

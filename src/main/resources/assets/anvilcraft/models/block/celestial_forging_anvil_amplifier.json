@@ -7,7 +7,7 @@
 	"textures": {
 		"0": "anvilcraft:block/celestial_forging_anvil_amplifier",
 		"1": "anvilcraft:block/transcendium_block_outline",
-		"particle": "anvilcraft:block/celestial_forging_anvil_amplifier"
+		"particle": "anvilcraft:block/celestial_forging_anvil_particle"
 	},
 	"elements": [
 		{
@@ -123,6 +123,19 @@
 				"east": {"uv": [8.5, 3.5, 11, 5.5], "texture": "#0"},
 				"south": {"uv": [8.5, 3.5, 11, 5.5], "texture": "#0"},
 				"west": {"uv": [8.5, 3.5, 11, 5.5], "texture": "#0"}
+			}
+		},
+		{
+			"from": [14, -13, 14],
+			"to": [20, -3, 18],
+			"rotation": {"angle": -45, "axis": "y", "origin": [16, -8, 16]},
+			"faces": {
+				"north": {"uv": [13, 9, 14.5, 11.5], "texture": "#0"},
+				"east": {"uv": [12, 9, 13, 11.5], "texture": "#0"},
+				"south": {"uv": [14.5, 9, 13, 11.5], "texture": "#0"},
+				"west": {"uv": [12, 9, 13, 11.5], "texture": "#0"},
+				"up": {"uv": [14.5, 8, 13, 9], "texture": "#0"},
+				"down": {"uv": [14.5, 8, 13, 9], "texture": "#0"}
 			}
 		},
 		{
@@ -494,14 +507,14 @@
 			"origin": [8, -16, 8],
 			"scope": 0,
 			"color": 0,
-			"children": [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+			"children": [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 		},
 		{
 			"name": "group",
 			"origin": [10, 2, 10],
 			"scope": 0,
 			"color": 0,
-			"children": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+			"children": [22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]
 		}
 	]
 }

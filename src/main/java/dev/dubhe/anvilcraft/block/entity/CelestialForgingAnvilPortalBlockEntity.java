@@ -1,0 +1,969 @@
+package dev.dubhe.anvilcraft.block.entity;
+
+import dev.anvilcraft.lib.v2.rendering.cachedber.pipeline.CachedBlockEntityRenderingPipeline;
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.heat.HeaterManager;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
+import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
+import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
+import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
+import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.block.state.DirectionGate331PartHalf;
+import dev.dubhe.anvilcraft.init.ModHeaterInfos;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.network.LaserEmitPacket;
+import dev.dubhe.anvilcraft.saved.WormholeNetwork;
+import lombok.Getter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Relative;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.jspecify.annotations.Nullable;
+
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/// 锻星砧传送门方块实体。
+/// 仅底层中心（BOTTOM_CENTER，核心控制器）与正中心（MID_CENTER）两格拥有方块实体；
+/// 底层中心独占传送与 touchingEntities，两格各自按自身高度向对侧相同高度格同步激光与含水。
+public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity {
+
+    /// 当前接触此传送门的实体 UUID 集合。用于跟踪进入/离开，使传送每接触一次仅触发一次，并在实体离开时重置。
+    private final Set<UUID> touchingEntities = new HashSet<>();
+
+    /// 上一次已知的含水状态，用于检测变化并同步到连接的传送门。
+    private boolean lastWaterlogged = false;
+
+    /// 刚放置在水中且尚未完成首次同步时为 true。
+    /// 用于在双向同步中保护刚放置的含水传送门不被对侧不含水状态覆盖。
+    boolean isJustPlacedWaterlogged() {
+        return !this.lastWaterlogged && getBlockState().getValue(BlockStateProperties.WATERLOGGED);
+    }
+
+    /// 从外部激光源照射到此传送门前表面所接收的激光等级和类型。
+    private int incomingLaserLevel = 0;
+    private boolean incomingLaserGamma = false;
+
+    /// 要发射的激光等级和类型，由连接的传送门通过虫洞同步设置。
+    private int wormholeLaserLevel = 0;
+    private boolean wormholeLaserGamma = false;
+
+    /// 客户端伽马激光束颜色渲染状态。
+    @Getter
+    private boolean emittingGamma = false;
+    private int gammaLevel = 0;
+
+    /// 伽马激光方块破坏：跟踪正在被照射的方块及持续时间。
+    @Nullable
+    private BlockPos gammaIrradiatingPos = null;
+    private int gammaExposureTicks = 0;
+
+    /// [0-4级不破坏, ≥4级3s破坏, ≥8级1s破坏, ≥12级5gt破坏, ≥16级1gt破坏]
+    private static final int[] GAMMA_EXPOSURE_TICKS = {
+        Integer.MAX_VALUE, 60, 20, 5, 1
+    };
+
+    @Override
+    public void syncTo(ServerPlayer player) {
+        PacketDistributor.sendToPlayer(
+            player,
+            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+        );
+    }
+
+    public CelestialForgingAnvilPortalBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
+    }
+
+    /// 此方块实体是否位于核心控制器（底层中心）。控制器负责开启状态与传送，
+    /// 正中心格仅负责自身高度的激光与含水同步。
+    private boolean isAnchor() {
+        BlockState state = getBlockState();
+        return state.hasProperty(CelestialForgingAnvilPortalBlock.HALF)
+            && state.getValue(CelestialForgingAnvilPortalBlock.HALF) == DirectionGate331PartHalf.BOTTOM_CENTER;
+    }
+
+    /// 核心控制器（底层中心）的世界坐标。底层中心即自身；正中心则为下方一格。
+    private BlockPos getAnchorPos() {
+        return this.isAnchor() ? worldPosition : worldPosition.below();
+    }
+
+    // PLACEHOLDER_BODY
+
+    /// === BaseLaserBlockEntity 覆写 ===
+
+    @Override
+    public Direction getFacing() {
+        BlockState state = getBlockState();
+        if (state.hasProperty(CelestialForgingAnvilPortalBlock.FACING)) {
+            return state.getValue(CelestialForgingAnvilPortalBlock.FACING);
+        }
+        return Direction.NORTH;
+    }
+
+    /// 覆写普通激光发射：传送门虽是柔性多方块，但其发光面就在本格正面，
+    /// 不应像增幅器那样将光束起点外推一格，否则会跳过正前方第一格（与旧版单方块行为不一致）。
+    @Override
+    public void emitLaser(Direction direction) {
+        if (this.level == null) return;
+        BlockPos tempIrradiateBlockPos =
+            this.getIrradiateBlockPosCompat(this.maxTransmissionDistance, direction, this.getBlockPos());
+        if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
+            if (this.irradiateBlockPos != null) {
+                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
+                if (oldBe instanceof BaseLaserBlockEntity last) {
+                    last.onCancelingIrradiation(this);
+                }
+            }
+        }
+        if (this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiated
+            && !this.isInIrradiateSelfLaserBlockSet(irradiated)
+            && !irradiated.getIgnoreFace().contains(direction)) {
+            this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
+            irradiated.onIrradiated(this);
+        }
+        this.updateIrradiateBlockPos(tempIrradiateBlockPos);
+
+        if (!(this.level instanceof ServerLevel serverLevel)) return;
+        this.updateLaserLevel(this.calculateLaserLevel());
+        int hurt = Math.min(16, this.laserLevel - 4);
+        if (hurt > 0) {
+            Vec3 startPos = this.getBlockPos().relative(direction).getCenter()
+                .add(-0.0625, -0.0625, -0.0625);
+            AABB trackBoundingBox = new AABB(
+                startPos,
+                Objects.requireNonNull(this.irradiateBlockPos).relative(direction.getOpposite()).getCenter()
+                    .add(0.0625, 0.0625, 0.0625)
+            );
+            // noinspection deprecation
+            serverLevel.getEntities(
+                EntityTypeTest.forClass(LivingEntity.class),
+                trackBoundingBox,
+                Entity::isAlive
+            ).forEach(le -> le.hurtOrSimulate(ModDamageTypes.laser(this.level), hurt));
+        }
+        BlockState irradiateBlock = this.level.getBlockState(Objects.requireNonNull(this.irradiateBlockPos));
+        int cooldown = COOLDOWNS[Math.clamp(this.laserLevel / 4, 0, 4)];
+        if (this.tickCount >= cooldown) {
+            this.tickCount = 0;
+            if (irradiateBlock.is(Tags.Blocks.ORES)) {
+                List<ItemStack> drops = dev.dubhe.anvilcraft.util.BreakBlockUtil.drop(serverLevel, this.irradiateBlockPos);
+                this.deliverItem(drops, direction, this.irradiateBlockPos);
+            }
+        }
+    }
+
+    /// 与 BaseLaserBlockEntity 私有的 getIrradiateBlockPos 等价：从起点沿方向逐格判断是否可穿过。
+    private BlockPos getIrradiateBlockPosCompat(int expectedLength, Direction direction, BlockPos originPos) {
+        for (int length = 1; length <= expectedLength; length++) {
+            BlockPos checkPos = originPos.relative(direction, length);
+            if (!this.laserCanPassThroughCompat(direction, checkPos)) return checkPos;
+        }
+        return originPos.relative(direction, expectedLength);
+    }
+
+    private boolean laserCanPassThroughCompat(Direction direction, BlockPos blockPos) {
+        if (this.level == null) return false;
+        BlockState blockState = level.getBlockState(blockPos);
+        // 传送门方块（含开口格）始终视为非穿透——外部激光必须停在此处方能触发 onIrradiated
+        // 实现接收，不能因为碰撞箱变化导致激光穿透传送门。
+        if (blockState.getBlock() instanceof CelestialForgingAnvilPortalBlock) return false;
+        if (blockState.is(ModBlockTags.LASER_CAN_PASS_THROUGH)
+            || blockState.is(Tags.Blocks.GLASS_BLOCKS)
+            || blockState.is(Tags.Blocks.GLASS_PANES)
+            || blockState.is(BlockTags.REPLACEABLE)) {
+            return true;
+        }
+        if (!AnvilCraft.CONFIG.isLaserDoImpactChecking) return false;
+        AABB laseBoundingBox = switch (direction.getAxis()) {
+            case X -> Block.box(0, 7, 7, 16, 9, 9).bounds();
+            case Y -> Block.box(7, 0, 7, 9, 16, 9).bounds();
+            case Z -> Block.box(7, 7, 0, 9, 9, 16).bounds();
+        };
+        return blockState.getCollisionShape(this.level, blockPos).toAabbs().stream()
+            .noneMatch(laseBoundingBox::intersects);
+    }
+
+    @Override
+    public Set<Direction> getIgnoreFace() {
+        // 仅从正面接受激光（即 FACING 的反方向）
+        EnumSet<Direction> ignore = EnumSet.allOf(Direction.class);
+        ignore.remove(this.getFacing().getOpposite());
+        return ignore;
+    }
+
+    @Override
+    protected int getBaseLaserLevel() {
+        return Math.max(this.wormholeLaserLevel, 0);
+    }
+
+    @Override
+    public void onIrradiated(BaseLaserBlockEntity source) {
+        this.incomingLaserLevel = source.getLaserLevel();
+        this.incomingLaserGamma = source instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaSource
+            && cfaSource.isEmittingGamma();
+    }
+
+    @Override
+    public void onCancelingIrradiation(BaseLaserBlockEntity source) {
+        this.incomingLaserLevel = 0;
+        this.incomingLaserGamma = false;
+    }
+
+    /// 设置来自已连接传送门的虫洞激光输出。由已连接传送门的 tick 通过虫洞同步调用。
+    public void setWormholeLaser(int level, boolean gamma) {
+        this.wormholeLaserLevel = level;
+        this.wormholeLaserGamma = gamma;
+        this.setChanged();
+    }
+
+    /// 传送门上伽马激光渲染的客户端更新。
+    public void clientUpdateGamma(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
+        this.emittingGamma = true;
+        this.gammaLevel = laserLevel;
+        this.irradiateBlockPos = irradiateBlockPos;
+        this.laserLevel = laserLevel;
+        Objects.requireNonNull(CachedBlockEntityRenderingPipeline.getInstance()).update(this, true);
+    }
+
+    @Override
+    public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
+        this.emittingGamma = false;
+        this.gammaLevel = 0;
+        super.clientUpdate(Objects.requireNonNull(irradiateBlockPos), laserLevel);
+    }
+
+    @Override
+    public int getLaserColor() {
+        if (this.emittingGamma) {
+            return 0x8040FF; // 伽马激光：蓝紫色
+        }
+        return super.getLaserColor(); // 普通激光：红色
+    }
+
+    /// 查找此传送门所附属的父 CFA 方块实体。
+    @Nullable
+    public CelestialForgingAnvilBlockEntity findParentCfa() {
+        if (level == null) return null;
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof CelestialForgingAnvilPortalBlock)) return null;
+
+        // FACING 指向远离 CFA 的方向；反方向查找 CFA（以核心控制器位置为基准）
+        Direction towardsCfa = state.getValue(CelestialForgingAnvilPortalBlock.FACING).getOpposite();
+        BlockPos cfaPos = this.getAnchorPos().relative(towardsCfa);
+        BlockState cfaState = level.getBlockState(cfaPos);
+        if (cfaState.getBlock() instanceof CelestialForgingAnvilBlock) {
+            Cube323PartHalf half = cfaState.getValue(CelestialForgingAnvilBlock.HALF);
+            BlockPos controllerPos = cfaPos.offset(half.getOffset().multiply(-1));
+            if (level.getBlockEntity(controllerPos) instanceof CelestialForgingAnvilBlockEntity cfaBe) {
+                return cfaBe;
+            }
+        }
+        return null;
+    }
+
+    // PLACEHOLDER_TICK
+
+    public void tick() {
+        if (level == null || level.isClientSide()) return;
+        CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
+        BlockState state = getBlockState();
+        if (!(state.getBlock() instanceof CelestialForgingAnvilPortalBlock)) return;
+
+        // 如果父 CFA 已消失，也摧毁整个传送门结构（从核心控制器摧毁）
+        if (parent == null) {
+            level.destroyBlock(this.getAnchorPos(), true);
+            return;
+        }
+
+        // 如果增幅器缺失，传送门应关闭
+        if (!parent.isAmplifierPresent()) {
+            if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+                level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
+            }
+            if (this.isAnchor()) {
+                this.touchingEntities.clear();
+            }
+            return;
+        }
+
+        Cube323PartHalf side = this.findSideFromParent(parent);
+        if (side == null) return;
+
+        // 查询虫洞网络以确定传送门是否应开启。
+        // 只有当网络组中恰好有 2 个 CFA 在此同侧有传送门时才开启。
+        // 如果超过 2 个，出于安全考虑所有门都关闭。
+        WormholeNetwork network = WormholeNetwork.get();
+        UUID hash = parent.getWormholeParamsHash();
+        if (hash == null) {
+            // 无虫洞标识——关闭传送门并清理激光
+            if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+                level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
+                if (this.isAnchor()) {
+                    this.touchingEntities.clear();
+                }
+            }
+            if (this.wormholeLaserLevel > 0) {
+                if (irradiateBlockPos != null) {
+                    BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
+                    if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
+                        lastIrradiated.onCancelingIrradiation(this);
+                    }
+                    updateIrradiateBlockPos(null);
+                }
+                clearIrradiateSelfLaserBlockSet();
+                updateLaserLevel(0);
+                this.wormholeLaserLevel = 0;
+                this.wormholeLaserGamma = false;
+                this.emittingGamma = false;
+                this.gammaLevel = 0;
+                this.gammaIrradiatingPos = null;
+                this.gammaExposureTicks = 0;
+                this.setChanged();
+                this.sendLaserPackets();
+            }
+            return;
+        }
+        List<WormholeNetwork.Entry> connected = network.getConnected(
+            hash, level.dimension(), parent.getBlockPos()
+        );
+
+        // 确保此传送门的侧边已在虫洞网络中注册。
+        // 巨构清除并重建后，传送门侧边可能在网络中缺失，
+        // 因为 onClear() 清除了本地传送门映射。仅核心控制器执行注册（侧边映射存的是控制器位置）。
+        if (this.isAnchor() && !network.hasPortalAt(level.dimension(), parent.getBlockPos(), side)) {
+            parent.addPortal(side, this.getAnchorPos());
+        }
+
+        // 统计组内在此同侧有传送门的其他 CFA 数量
+        long sameSideCount = connected.stream()
+            .filter(e -> network.hasPortalAt(e.dimension(), e.pos(), side))
+            .count();
+        // 计入自身（此传送门）
+        sameSideCount++;
+        boolean shouldBeOpen = sameSideCount == 2;
+
+        boolean justOpened = state.hasProperty(CelestialForgingAnvilPortalBlock.OPEN)
+            && !state.getValue(CelestialForgingAnvilPortalBlock.OPEN)
+            && shouldBeOpen;
+
+        if (justOpened) {
+            level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true), 3);
+            state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true);
+        }
+
+        // 不应再开启（例如对侧传送门被破坏，同侧计数跌回 1）时关闭本传送门，
+        // 使两格模型同步切换到关闭状态。
+        if (!shouldBeOpen
+            && state.hasProperty(CelestialForgingAnvilPortalBlock.OPEN)
+            && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+            level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
+            state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false);
+            if (this.isAnchor()) {
+                this.touchingEntities.clear();
+            }
+        }
+
+        // PLACEHOLDER_TICK2
+
+        // 将含水状态同步到已连接的传送门。
+        // 双向同步：舀水/放水都会同步到对侧。
+        // 特殊处理1：本传送门变为不含水时，若对侧传送门刚被放置（含水且尚未完成首次同步），
+        //           则不对其推送 false，改为本传送门重新含水——刚放置的含水传送门优先级更高。
+        // 特殊处理2：传送门刚建立连接（justOpened）时，若两侧含水状态不一致，
+        //           则含水方优先——不含水方变为含水。
+        if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+            boolean thisWaterlogged = state.getValue(BlockStateProperties.WATERLOGGED);
+            CelestialForgingAnvilPortalBlockEntity connectedPortal = this.findConnectedPortal(parent, side);
+
+            if (thisWaterlogged != this.lastWaterlogged) {
+                this.lastWaterlogged = thisWaterlogged;
+                if (connectedPortal != null) {
+                    BlockPos targetPortalPos = connectedPortal.getBlockPos();
+                    Level targetLevel = connectedPortal.getLevel();
+                    if (targetLevel != null) {
+                        BlockState targetState = targetLevel.getBlockState(targetPortalPos);
+                        if (targetState.getBlock() instanceof CelestialForgingAnvilPortalBlock) {
+                            boolean targetWaterlogged = targetState.getValue(BlockStateProperties.WATERLOGGED);
+                            if (thisWaterlogged) {
+                                if (!targetWaterlogged) {
+                                    targetLevel.setBlock(targetPortalPos,
+                                        targetState.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+                                    targetLevel.scheduleTick(targetPortalPos, Fluids.WATER,
+                                        Fluids.WATER.getTickDelay(targetLevel));
+                                }
+                            } else {
+                                if (targetWaterlogged && connectedPortal.isJustPlacedWaterlogged()) {
+                                    level.setBlock(worldPosition,
+                                        state.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+                                    level.scheduleTick(worldPosition, Fluids.WATER,
+                                        Fluids.WATER.getTickDelay(level));
+                                    this.lastWaterlogged = true;
+                                } else if (targetWaterlogged) {
+                                    targetLevel.setBlock(targetPortalPos,
+                                        targetState.setValue(BlockStateProperties.WATERLOGGED, false), 3);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 刚建立连接时：若两侧含水状态不一致，含水方胜出
+            if (justOpened && connectedPortal != null) {
+                BlockPos targetPortalPos = connectedPortal.getBlockPos();
+                Level targetLevel = connectedPortal.getLevel();
+                if (targetLevel != null) {
+                    BlockState targetState = targetLevel.getBlockState(targetPortalPos);
+                    if (targetState.getBlock() instanceof CelestialForgingAnvilPortalBlock) {
+                        boolean targetWaterlogged = targetState.getValue(BlockStateProperties.WATERLOGGED);
+                        if (thisWaterlogged && !targetWaterlogged) {
+                            targetLevel.setBlock(targetPortalPos,
+                                targetState.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+                            targetLevel.scheduleTick(targetPortalPos, Fluids.WATER,
+                                Fluids.WATER.getTickDelay(targetLevel));
+                        } else if (!thisWaterlogged && targetWaterlogged) {
+                            level.setBlock(worldPosition,
+                                state.setValue(BlockStateProperties.WATERLOGGED, true), 3);
+                            level.scheduleTick(worldPosition, Fluids.WATER,
+                                Fluids.WATER.getTickDelay(level));
+                            this.lastWaterlogged = true;
+                        }
+                    }
+                }
+            }
+
+            // 同步激光：将接收到的激光发送到已连接的传送门
+            if (connectedPortal != null) {
+                connectedPortal.setWormholeLaser(this.incomingLaserLevel, this.incomingLaserGamma);
+            }
+        } else {
+            // 传送门关闭：清除两侧残留的虫洞激光。
+            // 不检查 incomingLaserLevel——激光可能仍照射在输入端传送门上，
+            // 但虫洞已关闭，因此不传输。
+            CelestialForgingAnvilPortalBlockEntity connectedPortal = this.findConnectedPortal(parent, side);
+            if (connectedPortal != null) {
+                connectedPortal.setWormholeLaser(0, false);
+            }
+            this.wormholeLaserLevel = 0;
+            this.wormholeLaserGamma = false;
+        }
+
+        // 如果此传送门有来自已连接传送门的虫洞激光设置，则发射激光。
+        // 仅在传送门开启时发射——关闭的传送门不得转发激光。
+        if (this.wormholeLaserLevel > 0 && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+            Direction facing = this.getFacing();
+            if (irradiateSelfLaserBlockSet.isEmpty()) {
+                if (this.wormholeLaserGamma) {
+                    this.emitPortalGammaLaser(facing);
+                } else {
+                    this.emitLaser(facing);
+                }
+            }
+            this.emittingGamma = this.wormholeLaserGamma;
+            this.gammaLevel = this.wormholeLaserLevel;
+        } else {
+            // 停止激光发射
+            if (irradiateBlockPos != null) {
+                BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
+                if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
+                    lastIrradiated.onCancelingIrradiation(this);
+                }
+                updateIrradiateBlockPos(null);
+            }
+            clearIrradiateSelfLaserBlockSet();
+            updateLaserLevel(0);
+            this.emittingGamma = false;
+            this.gammaLevel = 0;
+            this.gammaIrradiatingPos = null;
+            this.gammaExposureTicks = 0;
+        }
+
+        // 递增 tickCount 用于矿石提取冷却
+        this.tickCount++;
+
+        // 发送激光渲染数据包
+        this.sendLaserPackets();
+
+        // 如果激光正在照射可加热方块，注册为热量产生者
+        if (level instanceof ServerLevel serverLevel
+            && irradiateBlockPos != null
+            && serverLevel.getBlockState(irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)) {
+            HeaterManager.addProducer(getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
+        }
+
+        // 传送由方块的 entityInside（每移动步触发，能可靠命中快速投掷物）负责。
+        // 这里在核心控制器上进行两层处理：
+        // 1) 清理已离开开口格的实体记录，使其再次进入时能再次传送。
+        // 2) 主动检测开口格内的实体并调用传送——作为 entityInside 的补充，
+        //    可在实体进入方块后、但尚未移动（如末影珍珠撞到面板前）时提前捕获。
+        if (this.isAnchor() && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+            // 主动检测：BOTTOM_CENTER 和 MID_CENTER 两格的实体
+            AABB portalSpace = new AABB(worldPosition).expandTowards(0, 1, 0);
+            for (Entity e : level.getEntitiesOfClass(Entity.class, portalSpace)) {
+                this.tryTouchTeleport(e);
+            }
+            // 清理已离开开口格的触碰记录
+            if (!this.touchingEntities.isEmpty()) {
+                Set<UUID> present = level.getEntitiesOfClass(Entity.class, new AABB(worldPosition))
+                    .stream().map(Entity::getUUID).collect(Collectors.toSet());
+                this.touchingEntities.removeIf(uuid -> !present.contains(uuid));
+            }
+        } else if (this.isAnchor()) {
+            this.touchingEntities.clear();
+        }
+    }
+
+    // PLACEHOLDER_TELEPORT
+
+    /// 当实体进入开口格时调用（由方块的 entityInside 在每移动步触发）。
+    /// 用 touchingEntities 去重：实体仍在格内时后续触发被跳过；离开后 tick 清理记录，
+    /// 使其再次进入时能再次传送。
+    public void tryTouchTeleport(Entity entity) {
+        UUID uuid = entity.getUUID();
+        if (this.touchingEntities.contains(uuid)) return;
+
+        CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
+        if (parent == null) return;
+        Cube323PartHalf side = this.findSideFromParent(parent);
+        if (side == null) return;
+
+        WormholeNetwork network = WormholeNetwork.get();
+        List<WormholeNetwork.Entry> connected = network.getConnected(
+            Objects.requireNonNull(parent.getWormholeParamsHash()), Objects.requireNonNull(level).dimension(), parent.getBlockPos()
+        );
+        // 仅当恰好有另一个 CFA 在此同侧有传送门时才传送
+        List<WormholeNetwork.Entry> matching = connected.stream()
+            .filter(e -> network.hasPortalAt(e.dimension(), e.pos(), side))
+            .toList();
+        if (matching.size() != 1) return;
+
+        WormholeNetwork.Entry target = matching.getFirst();
+        if (!network.hasPortalAt(target.dimension(), target.pos(), side)) return;
+
+        ServerLevel targetLevel = Objects.requireNonNull(level.getServer()).getLevel(target.dimension());
+        if (targetLevel == null) return;
+
+        Direction outwardFacing = CelestialForgingAnvilPortalBlock.getFacingFromSide(side);
+        // target.pos() 是目标锻星砧控制器坐标；side.getOffset*() 给出的是锻星砧侧面中心相对于控制器的偏移（±1）。
+        // 传送门核心控制器（BOTTOM_CENTER）在锻星砧侧面中心再向外 1 格，即 target.pos() + side_offset + outwardFacing。
+        BlockPos targetPortalPos = target.pos()
+            .offset(side.getOffsetX(), side.getOffsetY(), side.getOffsetZ())
+            .relative(outwardFacing);
+
+        // 保留实体在源传送门开口格内的相对位置（含精确的铁轨高度、偏左/偏右等），
+        // 映射到目标传送门外两格处，使矿车等载具传送到对面后仍在铁轨上，不会撞上传送门碰撞箱。
+        // 源开口格尺寸为 1×1，相对坐标 ∈ [0,1)。
+        double relX = entity.getX() - worldPosition.getX();
+        double relY = entity.getY() - worldPosition.getY();
+        double relZ = entity.getZ() - worldPosition.getZ();
+
+        double dx = targetPortalPos.getX() + relX + outwardFacing.getStepX() * 2;
+        double dy = targetPortalPos.getY() + relY + outwardFacing.getStepY() * 2;
+        double dz = targetPortalPos.getZ() + relZ + outwardFacing.getStepZ() * 2;
+
+        // 物品和弹射物/投掷物生成时额外抬高 1 格，以免落在脚部高度
+        if (entity instanceof ItemEntity
+            || entity instanceof Projectile) {
+            dy += 1;
+        }
+
+        // 保留动量，仅反转垂直于传送门面的分量；平行于平面的运动保持不变。
+        // 传送门仅同向（FACE 相同）建立连接，所以实体从正面进入源传送门时，
+        // 其沿 outwardFacing 方向的分量为负（朝向锻星砧），到达目的地后该分量应反转为正
+        // （背离锻星砧），正好是符号翻转。侧向和平行于平面的分量保持不变。
+        Vec3 vel = entity.getDeltaMovement();
+        Vec3 momentum;
+        if (outwardFacing.getAxis() == Direction.Axis.Z) {
+            momentum = new Vec3(vel.x, vel.y, -vel.z);
+        } else {
+            momentum = new Vec3(-vel.x, vel.y, vel.z);
+        }
+        float targetYRot = (entity.getYRot() + 180.0f) % 360.0f;
+
+        // 对于同维度传送，直接使用 teleportTo 以避免 changeDimension 重建实体
+        // 导致的弹射物 1 tick 停滞和速度丢失问题。
+        // 对于跨维度传送，使用 26.1 的 TeleportTransition（等价于 1.21 的 DimensionTransition）。
+        if (targetLevel == level) {
+            entity.teleportTo(targetLevel, dx, dy, dz, Set.<Relative>of(), targetYRot, entity.getXRot(), false);
+            entity.setDeltaMovement(momentum);
+            entity.hurtMarked = true; // 26.1: 强制向客户端同步速度（等价于 1.21 的 hasImpulse）
+        } else {
+            TeleportTransition transition = new TeleportTransition(
+                targetLevel,
+                new Vec3(dx, dy, dz),
+                momentum,
+                targetYRot,
+                entity.getXRot(),
+                TeleportTransition.DO_NOTHING
+            );
+            Entity teleported = entity.teleport(transition);
+            if (teleported != null) {
+                teleported.setDeltaMovement(momentum);
+                teleported.hurtMarked = true; // 26.1: 强制向客户端同步速度（等价于 1.21 的 hasImpulse）
+            }
+        }
+
+        this.touchingEntities.add(uuid);
+    }
+
+    /// 查找虫洞另一侧已连接传送门中与本格相同高度的方块实体。
+    /// 本格为底层中心则返回对侧底层中心，本格为正中心则返回对侧正中心。
+    /// 如果未连接或目标传送门未找到则返回 null。
+    @Nullable
+    private CelestialForgingAnvilPortalBlockEntity findConnectedPortal(
+        CelestialForgingAnvilBlockEntity parent, Cube323PartHalf side
+    ) {
+        WormholeNetwork network = WormholeNetwork.get();
+        UUID hash = parent.getWormholeParamsHash();
+        if (hash == null) return null;
+        List<WormholeNetwork.Entry> connected = network.getConnected(
+            hash, Objects.requireNonNull(level).dimension(), parent.getBlockPos()
+        );
+        List<WormholeNetwork.Entry> matching = connected.stream()
+            .filter(e -> network.hasPortalAt(e.dimension(), e.pos(), side))
+            .toList();
+        if (matching.size() != 1) return null;
+
+        WormholeNetwork.Entry target = matching.getFirst();
+        Direction outwardFacing = CelestialForgingAnvilPortalBlock.getFacingFromSide(side);
+        // 对侧传送门核心控制器（底层中心）位置
+        BlockPos targetAnchorPos = target.pos()
+            .offset(side.getOffsetX(), side.getOffsetY(), side.getOffsetZ())
+            .relative(outwardFacing);
+        // 按本格相对核心控制器的高度偏移，取对侧相同高度的格子
+        int heightOffset = worldPosition.getY() - this.getAnchorPos().getY();
+        BlockPos targetCellPos = targetAnchorPos.above(heightOffset);
+        ServerLevel targetLevel = Objects.requireNonNull(level.getServer()).getLevel(target.dimension());
+        if (targetLevel == null) return null;
+        if (targetLevel.getBlockEntity(targetCellPos) instanceof CelestialForgingAnvilPortalBlockEntity targetPortal) {
+            return targetPortal;
+        }
+        return null;
+    }
+
+    // PLACEHOLDER_GAMMA
+
+    /// 伽马激光发射
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    private void emitPortalGammaLaser(Direction direction) {
+        if (this.level == null) return;
+        int originalMaxDistance = this.maxTransmissionDistance;
+        this.maxTransmissionDistance = 16;
+
+        BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(direction);
+
+        // 沿光束路径摧毁棱镜
+        this.destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
+
+        // 如果旧目标发生变化则更新
+        if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
+            if (this.irradiateBlockPos != null) {
+                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
+                if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
+                    lastIrradiated.onCancelingIrradiation(this);
+                }
+            }
+        }
+
+        // 与其他 BaseLaserBlockEntity 目标链接
+        if (this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiated
+            && !this.isInIrradiateSelfLaserBlockSet(irradiated)) {
+            if (irradiated.getIgnoreFace().isEmpty()) {
+                this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
+                irradiated.onIrradiated(this);
+            } else {
+                for (Direction dir : irradiated.getIgnoreFace()) {
+                    if (direction != dir) {
+                        this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
+                        irradiated.onIrradiated(this);
+                    }
+                }
+            }
+        }
+        this.updateIrradiateBlockPos(tempIrradiateBlockPos);
+        this.updateLaserLevel(this.gammaLevel);
+
+        if (!(this.level instanceof ServerLevel serverLevel)) {
+            this.maxTransmissionDistance = originalMaxDistance;
+            return;
+        }
+
+        // 伽马实体伤害：16 倍普通激光伤害
+        int hurt = Math.min(16, this.gammaLevel - 4) * 16;
+        if (hurt > 0) {
+            Vec3 startPos = this.getBlockPos()
+                .relative(direction)
+                .getCenter()
+                .add(-0.0625, -0.0625, -0.0625);
+            AABB trackBoundingBox = new AABB(
+                startPos,
+                Objects.requireNonNull(this.irradiateBlockPos).relative(direction.getOpposite())
+                    .getCenter()
+                    .add(0.0625, 0.0625, 0.0625)
+            );
+            // noinspection deprecation
+            this.level.getEntities(
+                EntityTypeTest.forClass(LivingEntity.class),
+                trackBoundingBox,
+                Entity::isAlive
+            ).forEach(livingEntity ->
+                livingEntity.hurtOrSimulate(ModDamageTypes.gammaLaser(this.level), hurt)
+            );
+        }
+
+        // 伽马激光方块破坏——每个方块位置累计持续照射时间
+        BlockState irradiateBlock = this.level.getBlockState(Objects.requireNonNull(this.irradiateBlockPos));
+        int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(this.gammaLevel / 4, 0, 4)];
+
+        BlockPos currentTarget = this.irradiateBlockPos.immutable();
+        if (!currentTarget.equals(this.gammaIrradiatingPos)) {
+            this.gammaIrradiatingPos = currentTarget;
+            this.gammaExposureTicks = 0;
+        }
+
+        boolean canBreak = !irradiateBlock.is(BlockTags.WITHER_IMMUNE)
+            && !irradiateBlock.isAir()
+            && irradiateBlock.getDestroySpeed(this.level, this.irradiateBlockPos) >= 0;
+
+        if (canBreak) {
+            this.gammaExposureTicks++;
+            if (this.gammaExposureTicks >= requiredExposure) {
+                this.gammaExposureTicks = 0;
+                BlockPos breakPos = this.irradiateBlockPos;
+                if (irradiateBlock.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> multi) {
+                    breakPos = multi.getMainPartPos(this.irradiateBlockPos, irradiateBlock);
+                }
+                if (this.gammaLevel >= 16) {
+                    this.level.destroyBlock(breakPos, false);
+                } else {
+                    this.level.destroyBlock(this.irradiateBlockPos, true);
+                }
+            }
+        } else {
+            this.gammaExposureTicks = 0;
+        }
+
+        // 伽马激光加热：升级光束横截面区域内的余烬金属方块
+        this.tryHeatEmberMetal(direction);
+
+        this.maxTransmissionDistance = originalMaxDistance;
+    }
+
+    /// 使用仅穿透空气的规则查找伽马激光照射的方块位置。
+    private BlockPos getGammaIrradiateBlockPos(Direction direction) {
+        for (int length = 1; length <= 16; length++) {
+            BlockPos checkPos = this.getBlockPos().relative(direction, length);
+            if (!this.gammaCanPassThrough(checkPos)) return checkPos;
+        }
+        return this.getBlockPos().relative(direction, 16);
+    }
+
+    /// 伽马激光只能穿过空气和可替换方块（高草丛等）。
+    private boolean gammaCanPassThrough(BlockPos blockPos) {
+        if (this.level == null) return false;
+        BlockState blockState = this.level.getBlockState(blockPos);
+        return blockState.is(BlockTags.REPLACEABLE);
+    }
+
+    /// 沿伽马激光路径摧毁红宝石棱镜。
+    private void destroyPrismsAlongPath(Direction direction, BlockPos targetPos) {
+        if (level == null) return;
+        BlockPos.MutableBlockPos checkPos = getBlockPos().relative(direction).mutable();
+        while (!checkPos.equals(targetPos)) {
+            BlockState checkState = level.getBlockState(checkPos);
+            if (checkState.getBlock() instanceof RubyPrismBlock) {
+                level.destroyBlock(checkPos.immutable(), true);
+            }
+            checkPos.move(direction);
+        }
+    }
+
+    /// 加热光束法向截面区域内的余烬金属方块。
+    /// 面积随伽马等级缩放：≥4→1×1，≥8→3×3，≥12→5×5×2，≥16→7×7×3。
+    private void tryHeatEmberMetal(Direction direction) {
+        if (this.level == null || this.gammaLevel < 4) return;
+        if (this.level.getGameTime() % 20 != 0) return;
+
+        int areaSize;
+        int thickness;
+        if (this.gammaLevel >= 16) {
+            areaSize = 7;
+            thickness = 3;
+        } else if (this.gammaLevel >= 12) {
+            areaSize = 5;
+            thickness = 2;
+        } else if (this.gammaLevel >= 8) {
+            areaSize = 3;
+            thickness = 1;
+        } else {
+            areaSize = 1;
+            thickness = 1;
+        }
+
+        int halfSize = areaSize / 2;
+        BlockPos hitPos = this.irradiateBlockPos;
+        if (hitPos == null) return;
+
+        Direction[] perpendiculars = switch (direction.getAxis()) {
+            case X -> new Direction[]{Direction.UP, Direction.NORTH};
+            case Z -> new Direction[]{Direction.UP, Direction.EAST};
+            default -> new Direction[]{Direction.NORTH, Direction.EAST};
+        };
+
+        for (int depth = 0; depth < thickness; depth++) {
+            BlockPos depthPos = hitPos.relative(direction, depth);
+            for (int a = -halfSize; a <= halfSize; a++) {
+                for (int b = -halfSize; b <= halfSize; b++) {
+                    BlockPos target = depthPos
+                        .relative(perpendiculars[0], a)
+                        .relative(perpendiculars[1], b);
+                    this.tryHeatEmberMetalAt(target);
+                }
+            }
+        }
+    }
+
+    /// 在给定位置升级或刷新单个余烬金属方块。
+    private void tryHeatEmberMetalAt(BlockPos pos) {
+        BlockState state = Objects.requireNonNull(this.level).getBlockState(pos);
+        if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
+            OverheatedEmberMetalBlock overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
+            this.level.setBlock(pos, overheatedBlock.defaultBlockState(), 3);
+            BlockEntity be = overheatedBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
+            if (be instanceof HeatableBlockEntity heatable) {
+                this.level.setBlockEntity(heatable);
+                heatable.addDurationInTick(80);
+            }
+        } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
+            BlockEntity be = this.level.getBlockEntity(pos);
+            if (be instanceof HeatableBlockEntity heatable) {
+                heatable.addDurationInTick(80);
+            }
+        }
+    }
+
+    @Nullable
+    private Cube323PartHalf findSideFromParent(CelestialForgingAnvilBlockEntity parent) {
+        BlockPos anchorPos = this.getAnchorPos();
+        for (var entry : parent.getPortals().entrySet()) {
+            if (entry.getValue().equals(anchorPos)) {
+                return entry.getKey();
+            }
+        }
+        // 传送门核心控制器放置在 CFA 侧面中心旁，因此其相对于 CFA 控制器的偏移
+        // 是侧面中心偏移的两倍（±2 而不是 ±1）。
+        BlockPos cfaPos = parent.getBlockPos();
+        int dx = anchorPos.getX() - cfaPos.getX();
+        int dz = anchorPos.getZ() - cfaPos.getZ();
+        if (dx == -2 && dz == 0) return Cube323PartHalf.BOTTOM_W;
+        if (dx == 2 && dz == 0) return Cube323PartHalf.BOTTOM_E;
+        if (dx == 0 && dz == -2) return Cube323PartHalf.BOTTOM_N;
+        if (dx == 0 && dz == 2) return Cube323PartHalf.BOTTOM_S;
+        return null;
+    }
+
+    /// 向追踪此区块的客户端发送激光渲染数据包。
+    private void sendLaserPackets() {
+        if (level instanceof ServerLevel serverLevel && changed) {
+            PacketDistributor.sendToPlayersTrackingChunk(
+                serverLevel,
+                level.getChunkAt(getBlockPos()).getPos(),
+                new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+            );
+            resetState();
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (this.level != null && level.isClientSide()) {
+            Objects.requireNonNull(CachedBlockEntityRenderingPipeline.getInstance()).update(this, true);
+        }
+    }
+
+    /// 将掉落物生成在破坏的矿石位置而非传送门后方
+    @Override
+    public void deliverItem(List<ItemStack> drops, Direction direction, BlockPos sourceBlockPos) {
+        if (this.level == null) return;
+        for (ItemStack itemStack : drops) {
+            this.level.addFreshEntity(new ItemEntity(
+                this.level,
+                sourceBlockPos.getX() + 0.5,
+                sourceBlockPos.getY() + 1.5,
+                sourceBlockPos.getZ() + 0.5,
+                itemStack
+            ));
+        }
+    }
+
+    // === NBT 持久化（26.1：磁盘用 ValueOutput/ValueInput）===
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putBoolean("emittingGamma", this.emittingGamma);
+        output.putInt("gammaLevel", this.gammaLevel);
+        output.putBoolean("lastWaterlogged", this.lastWaterlogged);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.emittingGamma = input.getBooleanOr("emittingGamma", false);
+        this.gammaLevel = input.getIntOr("gammaLevel", 0);
+        this.lastWaterlogged = input.getBooleanOr("lastWaterlogged", false);
+    }
+
+    // === 网络同步（26.1：getUpdateTag 仍基于 CompoundTag）===
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        tag.putBoolean("emittingGamma", this.emittingGamma);
+        tag.putInt("gammaLevel", this.gammaLevel);
+        return tag;
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+}

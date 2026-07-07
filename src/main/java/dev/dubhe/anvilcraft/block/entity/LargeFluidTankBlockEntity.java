@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.InfinityFluidTank;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -13,22 +13,30 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
-public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
+public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     public static final int CAPACITY = 320 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 12800 * FluidType.BUCKET_VOLUME;
-    protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false);
+    protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false) {
+        @Override
+        protected void onContentsChanged(int index, FluidStack stack) {
+            setChanged();
+            LargeFluidTankBlockEntity.this.sendUpdate();
+        }
+    };
     protected boolean bigger = false;
 
     public LargeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -93,6 +101,16 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    private void sendUpdate() {
+        if (this.level == null) return;
+        this.level.sendBlockUpdated(
+            this.getBlockPos(),
+            this.getBlockState(),
+            this.getBlockState(),
+            Block.UPDATE_CLIENTS
+        );
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
