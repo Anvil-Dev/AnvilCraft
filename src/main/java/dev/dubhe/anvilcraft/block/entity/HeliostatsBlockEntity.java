@@ -136,7 +136,11 @@ public class HeliostatsBlockEntity extends BlockEntity {
             return WorkResult.OBSCURED;
         }
         double sunAngle = Util.getSunAngle(level, this.worldPosition.getBottomCenter());
-        sunAngle = sunAngle <= Math.PI / 2 * 3 ? (sunAngle + Math.PI / 2) : (sunAngle - Math.PI / 2 * 3);
+        sunAngle = sunAngle - 270;
+        if (sunAngle < 0) {
+            sunAngle = sunAngle + 360;
+        }
+        sunAngle = Math.toRadians(sunAngle);
         if (sunAngle > Math.PI) return WorkResult.NO_SUN;
         Vector3f sunVector3f = new Vector3f((float) Math.cos(sunAngle), (float) Math.sin(sunAngle), 0).normalize();
         this.irritateVector3f = new Vector3f(
