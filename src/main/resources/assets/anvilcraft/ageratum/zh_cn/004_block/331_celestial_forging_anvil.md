@@ -14,9 +14,11 @@ items:
 
 <item id="anvilcraft:celestial_forging_anvil"/>
 
+> 合成需要<ref item="anvilcraft:spacetime_supercomputer"/>
+
 - 依赖[多方块合成](210_giant_anvil.md#2多方块合成)获得
 - 需要3x2x3的空间放置
-- 可以超距绑定一个宇宙中的天体，获得资源
+- 可以创造天体，包括恒星与行星，获得资源
 
 # 调整天体参数
 
@@ -29,8 +31,6 @@ items:
 |  <ref item="anvilcraft:confined_mass_anvilon"/>  | 天体质量 | 0.022M⊕    | 每增加 2 个砧子, 质量是原来的 2 倍    |
 | <ref item="anvilcraft:confined_energy_anvilon"/> | 表面温度 | 50K        | 每增加 6 个砧子, 开尔文温度是原来的 2 倍 |
 
-> 以下内容可跳过
-
 <info>
 **天文单位**
 1. 时间单位：My（10^6年，百万年），By（10^9年，十亿年），Ty（10^12年，万亿年）
@@ -39,10 +39,10 @@ items:
 4. 温度单位：℃（摄氏度），K（开尔文）；℃ ≈ K-273, 0℃ = 273K, 100℃ = 373K
 </info>
 
-# 绑定恒星
+# 绑定<ref item="anvilcraft:celestial_forging_anvil_amplifier"/>
 
-- 只依靠<ref item="anvilcraft:celestial_forging_anvil"/>只能绑定行星
-- 若要绑定恒星，需要合成并放置<ref item="anvilcraft:celestial_forging_anvil_amplifier"/>
+- <ref item="anvilcraft:celestial_forging_anvil"/>默认只能锻造行星
+- 若要锻造恒星，需要合成并放置<ref item="anvilcraft:celestial_forging_anvil_amplifier"/>，此时无法锻造行星，只能锻造恒星
 
 <recipe id="anvilcraft:item_inject/celestial_forging_anvil_amplifier"/>
 
@@ -50,17 +50,17 @@ items:
 
 <structure id="../../structures/forging_stars.nbt"/>
 
-按照正确结构搭建后，<ref item="anvilcraft:celestial_forging_anvil"/>进入*增幅状态*
+# 锻造天体
 
-# 绑定天体
-
-1. 只有特定组合的天体参数，才能绑定到对应的天体
-2. 提供足够的电力，需要1MW，*增幅状态*下需要4MW
-3. 如果参数组合正确，经过10s搜索后可以绑定到天体
-4. 反复搜索仍会绑定到相同类型的天体，但具体物质构成会改变
+1. 只有特定组合的天体参数，才能绑定到对应的天体，需要提供四种砧子用来设定参数（不会消耗），建议提前各生产一组
+2. 提供足够的电力，锻造行星需要1MW，锻造恒星下需要4MW
+3. 如果参数组合正确，经过10s即可锻造天体
+4. 反复锻造时，若参数不变，则天体的类型不变，但具体物质构成会改变
 
 <info>
-在GUI中，你可以用对四个参数用**鼠标滚轮**便捷调整
+在GUI中调试参数：
+  - 可以用对四个参数用**鼠标滚轮**便捷调整
+  - 放入部分砧子后，将光标放在其他砧子物品上，可以显示匹配的砧子数量（如果前面先前放入砧子已无法满足条件则不显示）
 在GUI正中间，可以根据图例查看能否搜索到恒星：
   - 对于非恒星天体，仅需左下角和右上角共两幅图的交点对应到同一非恒星类型
   - 对于恒星级天体，需要三幅图的交点对应到同一恒星类别
@@ -152,26 +152,21 @@ items:
 - 处于*增幅状态*下可以建造，只能建造于恒星级天体
 - 一般情况下最多只能修建一个巨构
 
-|   巨构    |    建造条件    |   输入   | 输出/作用                                                                                                                                                  | 
-|:-------:|:----------:|:------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------|
-|  星环对撞机  |    小型恒星    | 耗电 4MW | 执行[铁砧撞击合成](215_large_electromagnet.md#铁砧撞击合成)配方，恒星引力和磁场越强，工作越快；配方需要的速度越高，工作越慢                                                                          |
-|   戴森球   |     恒星     |   无    | 持续发电，发电量正相关于天体的*温度*和*半径*                                                                                                                               |
-| 恒星演化加速器 | 恒星（不包括白矮星） |   无    | 使恒星加速演化                                                                                                                                                |
-|  磁星线圈   |    中子星     |   无    | 持续发电，发电量正相关于天体的*磁场强度*和*转速*                                                                                                                             |
-|  虫洞稳定器  |     黑洞     |   无    | [虫洞](332_wormhole.md)                                                                                                                                  |
-|  彭罗斯球   |     黑洞     |   激光   | 同等级[伽马激光](../001_feature/332_gamma_laser.md)                                                                                                           |
-|  物质解压器  |    中子星     | *伽马激光* | 每级*伽马激光*提供一倍工作效率，每 10s 开采一次，大概率产出1个<ref item="anvilcraft:neutronium_ingot"/>，小概率产出<ref item="anvilcraft:charged_neutronium_ingot"/>（需要磁场强度够高，概率正相关于磁场） |
-|  物质解压器  |     黑洞     | *伽马激光* | 每级*伽马激光*提供一倍工作效率，每 gt 开采一次，大概率产出1个<ref item="anvilcraft:void_matter"/>，小概率产出<ref item="anvilcraft:excited_state_void_matter"/>（需要磁场强度够高，概率正相关于磁场）      |
-
-<info>
-**彭罗斯球**输入和输出的[激光](201_basic_laser.md#激光)需成组的输入和输出于锻星砧同侧，位于左边和右边的<ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
-。四个侧面输入和输出的[激光](201_basic_laser.md#激光)相互独立。
-</info>
+|   巨构    |    建造条件    |   输入   | 输出/作用                                                                                                                                                                                                                             | 
+|:-------:|:----------:|:------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|  星环对撞机  |    小型恒星    | 耗电 4MW | 执行[铁砧撞击合成](215_large_electromagnet.md#铁砧撞击合成)配方，恒星引力和磁场越强，工作越快；配方需要的速度越高，工作越慢                                                                                                                                                     |
+|   戴森球   |     恒星     |   无    | 持续发电，发电量正相关于天体的*温度*和*半径*                                                                                                                                                                                                          |
+| 恒星演化加速器 | 恒星（不包括白矮星） |   无    | 使恒星加速演化                                                                                                                                                                                                                           |
+|  磁星线圈   |    中子星     |   无    | 持续发电，发电量正相关于天体的*磁场强度*和*转速*                                                                                                                                                                                                        |
+|  虫洞稳定器  |     黑洞     |   无    | [虫洞](332_wormhole.md)                                                                                                                                                                                                             |
+|  彭罗斯球   |     黑洞     |   激光   | 同等级[伽马激光](../001_feature/332_gamma_laser.md)；需注意**彭罗斯球**输入和输出的[激光](201_basic_laser.md#激光)需成组的输入和输出于锻星砧同侧，且分别位于偏左边和偏右边的<ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>。四个侧面输入和输出的[激光](201_basic_laser.md#激光)相互独立。 |
+|  物质解压器  |    中子星     | *伽马激光* | 每级*伽马激光*提供一倍工作效率，每 10s 开采一次，大概率产出1个<ref item="anvilcraft:neutronium_ingot"/>，小概率产出<ref item="anvilcraft:charged_neutronium_ingot"/>（需要磁场强度够高，概率正相关于磁场）                                                                            |
+|  物质解压器  |     黑洞     | *伽马激光* | 每级*伽马激光*提供一倍工作效率，每 gt 开采一次，大概率产出1个<ref item="anvilcraft:void_matter"/>，小概率产出<ref item="anvilcraft:excited_state_void_matter"/>（需要磁场强度够高，概率正相关于磁场）                                                                                 |
 
 # 恒星演化
 
-- 使用特殊手段可以加速恒星的衰老
-- 部分恒星在最后会引发*超新星爆发*，摧毁其拥有的*巨构*，并产生巨大爆炸
+- 使用*恒星演化加速器*可以加速恒星的衰老
+- 部分恒星在最后会引发*超新星爆发*，摧毁其拥有的所有*巨构*，并产生巨大爆炸
 - 所有恒星在结束生命后都会变为*恒星残骸*
 
 <info>
@@ -191,7 +186,13 @@ items:
 # 全同天体
 
 - 使用<ref item="anvilcraft:disk"/>右键<ref item="anvilcraft:celestial_forging_anvil"/>复制天体信息
-- 将此<ref item="anvilcraft:disk"/>放入另一锻星砧，消耗该<ref item="anvilcraft:disk"/>搜索另一个天体，和源天体拥有完全相同的参数，它们互相为*全同天体*
+- 将此<ref item="anvilcraft:disk"/>放入另一锻星砧，消耗该<ref item="anvilcraft:disk"/>锻造另一个天体，和源天体拥有完全相同的构成，它们互相为*全同天体*
 - 对极端天体（中子星、黑洞），需改为使用<ref item="anvilcraft:singularity_crystal"/>作为承载天体信息的媒介来完成搜索
 
-> 这⬛⬛乎有⬛⬛⬛息，但被⬛⬛⬛⬛抹去了 
+# 放大天体
+
+对<ref item="anvilcraft:celestial_forging_anvil"/>施加红石信号以放大天体
+
+每3级红石信号，天体渲染出的大小是原来的 2 倍
+
+> 这⬛⬛⬛息，被⬛⬛⬛⬛抹去了

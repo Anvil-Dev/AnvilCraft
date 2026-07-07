@@ -47,7 +47,7 @@ In the GUI you can set the **condition**, **delay**, and **duration** of the emi
 
 <recipe id="anvilcraft:item_detector"/>
 
-- Can detect **dropped items** up to 8 blocks behind
+- Can detect **dropped items** or items in containers up to 8 blocks behind
 
 ## GUI
 

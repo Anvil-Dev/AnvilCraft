@@ -14,9 +14,11 @@ items:
 
 <item id="anvilcraft:celestial_forging_anvil"/>
 
+> Crafting requires <ref item="anvilcraft:spacetime_supercomputer"/>
+
 - Obtained through [Multi-block Crafting](210_giant_anvil.md#2-multi-block-crafting)
 - Requires 3x2x3 space to place
-- Can remotely bind to a celestial body in the universe to obtain resources
+- Can create celestial bodies, including stars and planets, to obtain resources
 
 # Adjusting Celestial Parameters
 
@@ -29,8 +31,6 @@ Open the GUI of <ref item="anvilcraft:celestial_forging_anvil"/>. On the left si
 |  <ref item="anvilcraft:confined_mass_anvilon"/>  |     Mass     |       0.022M⊕        |    Doubles every 2 additional anvils     |
 | <ref item="anvilcraft:confined_energy_anvilon"/> | Surface Temp |         50K          | Kelvin doubles every 6 additional anvils |
 
-> The following can be skipped
-
 <info>
 **Astronomical Units**
 1. Time: My (10^6 years, million years), By (10^9 years, billion years), Ty (10^12 years, trillion years)
@@ -39,10 +39,10 @@ Open the GUI of <ref item="anvilcraft:celestial_forging_anvil"/>. On the left si
 4. Temperature: ℃ (Celsius), K (Kelvin); ℃ ≈ K-273, 0℃ = 273K, 100℃ = 373K
 </info>
 
-# Binding a Star
+# Binding <ref item="anvilcraft:celestial_forging_anvil_amplifier"/>
 
-- Relying only on <ref item="anvilcraft:celestial_forging_anvil"/> can only bind planets
-- To bind a star, you need to craft and place <ref item="anvilcraft:celestial_forging_anvil_amplifier"/>
+- <ref item="anvilcraft:celestial_forging_anvil"/> by default can only forge planets
+- To forge stars, you need to craft and place <ref item="anvilcraft:celestial_forging_anvil_amplifier"/>. In this state, planets cannot be forged, only stars
 
 <recipe id="anvilcraft:item_inject/celestial_forging_anvil_amplifier"/>
 
@@ -50,25 +50,21 @@ Open the GUI of <ref item="anvilcraft:celestial_forging_anvil"/>. On the left si
 
 <structure id="../../structures/forging_stars.nbt"/>
 
-After building the correct structure, <ref item="anvilcraft:celestial_forging_anvil"/> enters *Amplified State*
+# Forging Celestial Bodies
 
-# Binding a Celestial Body
-
-1. Only specific combinations of celestial parameters can bind to the corresponding celestial body
-2. Provide sufficient power — 1MW is required, 4MW in *Amplified State*
-3. If the parameter combination is correct, after 10s of searching, a celestial body can be bound
-4. Repeated searching will bind to the same type of celestial body, but the specific material composition will change
+1. Only specific combinations of celestial parameters can bind to the corresponding celestial body. You need to provide the four types of anvils to set parameters (they are not consumed). It's recommended to produce a stack of each in advance
+2. Provide sufficient power — forging planets requires 1MW, forging stars requires 4MW
+3. If the parameter combination is correct, a celestial body can be forged in 10 seconds
+4. When repeatedly forging with unchanged parameters, the celestial body type remains the same, but the specific material composition will change
 
 <info>
-In the GUI, you can use the **mouse wheel** to conveniently adjust the four parameters
+Debugging parameters in the GUI:
+  - You can use the **mouse wheel** to conveniently adjust the four parameters
+  - After placing some anvils, hovering over other anvil items will display the matching anvil count (will not display if previously placed anvils already cannot satisfy the condition)
 In the center of the GUI, you can check whether a star can be searched based on the legend:
   - For non-star celestial bodies, only the intersection of the lower-left and upper-right diagrams needs to correspond to the same non-star type
   - For stellar celestial bodies, the intersection of three diagrams needs to correspond to the same stellar category
 For more information, see [Celestial Types](../001_feature/331_celestial_type.md)
-</info>
-
-<info>
-<ref item="anvilcraft:celestial_forging_anvil"/> receiving a redstone signal will amplify the celestial body
 </info>
 
 # Extracting Celestial Resources
@@ -149,7 +145,7 @@ After inputting items, the civilization will continue to offer worship until the
 
 ## Stellar Mega Structures
 
-- Can be built when in *Amplified State*
+- Can be built when in *Amplified State*, only buildable on stellar celestial bodies
 - Generally only one mega structure can be built at a time
 
 |        Mega Structure         |    Construction Condition    |     Input     |                                                                                                                                                             Output/Effect                                                                                                                                                             |
@@ -159,19 +155,14 @@ After inputting items, the civilization will continue to offer worship until the
 | Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                                                                                                     Accelerates stellar evolution                                                                                                                                                     |
 |         Magnetar Coil         |         Neutron star         |     None      |                                                                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                                                                              |
 |      Wormhole Stabilizer      |          Black hole          |     None      |                                                                                                                                                      [Wormhole](332_wormhole.md)                                                                                                                                                      |
-|        Penrose Sphere         |          Black hole          |     Laser     |                                                                                                                                                       Same-level *Gamma Laser*                                                                                                                                                        |
+|        Penrose Sphere         |          Black hole          |     Laser     | Same-level [Gamma Laser](../001_feature/332_gamma_laser.md). Note that *Penrose Sphere* input and output [Lasers](201_basic_laser.md#laser) must be grouped on the same side of the forging anvil, located on the left and right <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/> respectively. Lasers on the four sides are independent of each other for input and output |
 |      Matter Decompressor      |         Neutron star         | *Gamma Laser* | Each level of *Gamma Laser* doubles efficiency. Extracts once every 10 seconds, mostly producing 1 <ref item="anvilcraft:neutronium_ingot"/>, with a small chance of producing <ref item="anvilcraft:charged_neutronium_ingot"/> (requires sufficient magnetic field strength, probability positively correlated with magnetic field) |
 |      Matter Decompressor      |          Black hole          | *Gamma Laser* |     Each level of *Gamma Laser* doubles efficiency. Extracts once per gametick, mostly producing 1 <ref item="anvilcraft:void_matter"/>, with a small chance of producing <ref item="anvilcraft:excited_state_void_matter"/> (requires sufficient magnetic field strength, probability positively correlated with magnetic field)     |
 
-<info>
-*Penrose Sphere* input and output [Lasers](201_basic_laser.md#laser) must be grouped on the same side of the forging anvil, using the left and right <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
-. Lasers on the four sides are independent of each other for input and output
-</info>
-
 # Stellar Evolution
 
-- Special methods can be used to accelerate the aging of stars
-- Some stars will ultimately trigger a *supernova explosion*, destroying their *mega structures* and causing a massive explosion
+- Using *Stellar Evolution Accelerator* can accelerate the aging of stars
+- Some stars will ultimately trigger a *supernova explosion*, destroying all of their *mega structures* and causing a massive explosion
 - All stars become *stellar remnants* at the end of their life
 
 <info>

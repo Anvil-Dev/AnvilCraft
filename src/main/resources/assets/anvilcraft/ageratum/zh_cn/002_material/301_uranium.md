@@ -34,9 +34,7 @@ items:
 
 ---
 
-# 用途
-
-## 发电
+# 发电
 
 - 每个<ref item="anvilcraft:uranium_block"/>为<ref item="anvilcraft:heat_collector"/>提供 2kW 的发电量
 - 时移<ref item="anvilcraft:uranium_block"/>会在一瞬间爆发出通常需要数万年才能释放的能量，将与锅水平相邻的[可加热方块](../001_feature/101_heated_block.md#可加热方块)加热为<color=#ee7744>白炽</color>并持续5min，合计 1024kW
@@ -47,7 +45,13 @@ items:
 <recipe id="anvilcraft:anvil_collision/anvil_tier_2_and_uranium_block_256"/>
 </row>
 
-# 特性
+# 核辐射
 
-- 核辐射：携带18组任意铀物品会受到凋零效果
+携带18组任意铀物品会受到**凋零**效果
 
+# 放射性衰变
+
+- <ref item="anvilcraft:uranium_block"/>属于 *放射性方块*
+- 如果与*放射性方块*六个面相邻的放射性方块数量，比与*放射性方块*六个面相邻的放射性方块数量，多3个及以上，概率触发*放射性衰变*
+- <ref item="anvilcraft:uranium_block"/>会衰变为<ref item="anvilcraft:lead_block"/>
+- 如果六个面全都相邻放射性方块，*放射性方块* 会变为熔岩

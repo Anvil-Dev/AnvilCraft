@@ -6,40 +6,60 @@ items:
   - anvilcraft:fluid_tank
   - anvilcraft:pipe
   - anvilcraft:pump
+  - anvilcraft:drain
+  - anvilcraft:control_valve
+  - anvilcraft:check_valve
 ---
 
-# <ref item="anvilcraft:fluid_tank"/>
+# 蓄流于内
 
-- 可以存放 16B 液体
+<recipe id="anvilcraft:fluid_tank"/>
 
-# <ref item="anvilcraft:pipe"/>
+- <ref item="anvilcraft:fluid_tank"/>可以存放 16B 液体
+
+# 顺流而下
 
 <recipe id="anvilcraft:pipe"/>
 
-- 可以转移液体
+- <ref item="anvilcraft:pipe"/>可以转移液体
 - 受重力影响，会将液体从位置更高的容器转移到位置更低的容器
 - 高度差越大，转移速度越快，每格提供50mB/gt的速度，最大速度为2000mB/gt
 
 <structure id="../../structures/gravity_pipe.nbt"/>
 
-## 管道节点
+## <ref item="minecraft:cauldron"/>支持
 
-<block id="anvilcraft:pipe_node"/>
+- 管道支持<ref item="minecraft:cauldron"/>，但是<ref item="minecraft:cauldron"/>较为特殊，因为它是分层(250mB)或只有一整锅(1000mB)的形态，需要管道在1gt输入足量的液体才能成功注入，即：输入速度＞250mB/t 或 输入速度＞1000mB/t
 
-- 一条管道有3个或更多方向被连接时，自身会变为*节点*
-
-# <ref item="anvilcraft:pump"/>
+# 逆流而上
 
 <recipe id="anvilcraft:pump"/>
 
-- 耗电 32kW 
+- <ref item="anvilcraft:pump"/>耗电 32kW 
 - 可被红石信号关闭
-- 工作时对液体施加10格高的*扬程*
+- 拥有20格高的*扬程*，将液体往高处泵出
 - 可以将多个<ref item="anvilcraft:pump"/>串联以叠加*扬程*
 
 <structure id="../../structures/pump.nbt"/>
 
-# <ref item="minecraft:cauldron"/>支持
+# 释流于外
 
-- 管道支持<ref item="minecraft:cauldron"/>
-- 但是<ref item="minecraft:cauldron"/>较为特殊，因为它是分层(250mB)或只有一整锅(1000mB)的形态，需要管道在1gt输入足量的液体才能成功注入
+<recipe id="anvilcraft:drain"/>
+
+- <ref item="anvilcraft:drain"/>可以将输入的流体排放到下方
+- 也可以反过来使用，吸纳**上方**的流体
+- 对于同层液体<ref item="anvilcraft:drain"/>不进行操作；但如果同层液体可以自身形成无限液体，排水口会不断被该液体填满
+
+<structure id="../../structures/drain.nbt"/>
+
+> 问：小明对一个100m³的游泳池以7L/s的速度排入流体，同时以5L/s的速度排出流体，经过多久可以装满泳池
+
+# 引流之主
+
+<row>
+<recipe id="anvilcraft:control_valve"/>
+<recipe id="anvilcraft:check_valve"/>
+</row>
+
+- <ref item="anvilcraft:control_valve"/> 限制流体的*种类*和*流速*，接受红石信号时**断开**
+- <ref item="anvilcraft:check_valve"/> 控制液体只能单向流动，接受红石信号时**反向**
