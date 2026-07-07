@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "anvilcraft:circuit_board"
+    },
+    "H": {
+      "item": "anvilcraft:chute"
+    },
+    "P": {
+      "item": "anvilcraft:pipe"
+    }
+  },
+  "pattern": [
+    " C ",
+    "PHP"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:control_valve"
+  }
+}

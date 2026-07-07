@@ -99,6 +99,13 @@ public class VanillaRecipesLoader {
             .unlockedBy("hasitem", RegistrumRecipeProvider.has(ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.of("iron_block_from_heavy_iron_block"));
 
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModBlocks.DRAIN)
+            .requires(Items.COPPER_GRATE)
+            .requires(ModBlocks.BRASS_PRESSURE_PLATE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_GRATE), AnvilCraftDatagen.has(Items.COPPER_GRATE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE), AnvilCraftDatagen.has(ModBlocks.BRASS_PRESSURE_PLATE))
+            .save(provider, AnvilCraft.of("drain"));
+
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 600)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModFoodItems.DOUGH))

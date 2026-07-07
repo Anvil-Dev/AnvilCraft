@@ -15,6 +15,7 @@ public class ShapedRecipeLoader {
     public ShapedRecipeLoader(RegistrumRecipeProvider provider) {
         this.nineToOne(provider);
         this.chargedNeutroniumIngot(provider);
+        this.controlValve(provider);
     }
 
     public void nineToOne(RegistrumRecipeProvider provider) {
@@ -45,6 +46,19 @@ public class ShapedRecipeLoader {
                 AnvilCraftDatagen.hasItem(ModItems.SUPER_CAPACITOR),
                 AnvilCraftDatagen.has(ModItems.CHARGED_NEUTRONIUM_INGOT)
             )
+            .save(provider);
+    }
+
+    private void controlValve(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.CONTROL_VALVE)
+            .pattern(" C ")
+            .pattern("PHP")
+            .define('C', ModItems.CIRCUIT_BOARD)
+            .define('P', ModItems.PIPE)
+            .define('H', ModBlocks.CHUTE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD), AnvilCraftDatagen.has(ModItems.CIRCUIT_BOARD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PIPE), AnvilCraftDatagen.has(ModItems.PIPE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHUTE), AnvilCraftDatagen.has(ModBlocks.CHUTE))
             .save(provider);
     }
 

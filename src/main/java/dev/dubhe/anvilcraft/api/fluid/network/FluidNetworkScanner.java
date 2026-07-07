@@ -234,7 +234,13 @@ public final class FluidNetworkScanner {
     }
 
     private static void enqueuePart(BlockPos pos, int phi, Map<BlockPos, Integer> potential, Deque<BlockPos> queue) {
-        if (potential.containsKey(pos)) {
+        Integer old = potential.get(pos);
+        if (old != null) {
+            // 取最小势场：当节点通过多条路径可达时（如有泵支路和自然支路），
+            // 使用较低的势场值，防止泵的输入侧偏高势场通过共享节点泄露到其他支路
+            if (phi < old) {
+                potential.put(pos.immutable(), phi);
+            }
             return;
         }
         potential.put(pos.immutable(), phi);
@@ -245,9 +251,6 @@ public final class FluidNetworkScanner {
         Level level, BlockPos pumpPos, BlockState pumpState, BlockPos fromPos,
         Map<BlockPos, Integer> potential, Deque<BlockPos> queue
     ) {
-        if (potential.containsKey(pumpPos)) {
-            return;
-        }
         Direction outputDir = pumpState.getValue(PumpBlock.ORIENTATION).getDirection();
         int fromPhi = potential.get(fromPos);
         int lift = pumpHalfLift(level, pumpPos);
@@ -257,6 +260,13 @@ public final class FluidNetworkScanner {
         } else if (fromPos.equals(pumpPos.relative(outputDir.getOpposite()))) {
             pumpPhi = fromPhi + lift;      // fromPos 在输入侧：fromPhi = pumpPhi - lift
         } else {
+            return;
+        }
+        Integer old = potential.get(pumpPos);
+        if (old != null) {
+            if (pumpPhi < old) {
+                potential.put(pumpPos.immutable(), pumpPhi);
+            }
             return;
         }
         potential.put(pumpPos.immutable(), pumpPhi);

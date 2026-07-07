@@ -155,7 +155,7 @@ public class PipeStraightBlock extends PipeBlock {
             .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, negDir))
             .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, posDir));
         if (newState != state) {
-            level.setBlockAndUpdate(pos, newState);
+            setBlockPreservingValve(level, pos, state, newState);
         }
     }
 }

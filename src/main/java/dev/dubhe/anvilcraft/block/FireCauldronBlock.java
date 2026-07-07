@@ -88,6 +88,11 @@ public class FireCauldronBlock extends Layered4LevelCauldronBlock implements IHa
     }
 
     @Override
+    public int getFluidAmount(BlockCache cache, BlockPos pos) {
+        return cache.getBlockState(pos).getValue(FireCauldronBlock.LEVEL) * 250;
+    }
+
+    @Override
     public boolean consumeOnce(BlockCache cache, BlockPos pos) {
         BlockState state = cache.getBlockState(pos);
         int remaining = state.getValue(FireCauldronBlock.LEVEL) - 1;

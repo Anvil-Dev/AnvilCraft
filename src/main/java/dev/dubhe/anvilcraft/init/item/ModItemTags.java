@@ -163,6 +163,12 @@ public class ModItemTags {
     public static final TagKey<Item> DRAGON_ROD = bind("tools/dragon_rod");
     public static final TagKey<Item> HEAVY_HALBERD = bind("tools/heavy_halberd");
     public static final TagKey<Item> RESONATOR = bind("tools/resonator");
+    // Using minecraft namespace because neo/vanilla enchantment supported_items
+    // HolderSet does not resolve mod-namespace tag references correctly
+    public static final TagKey<Item> DISINTEGRATION_SUPPORTED =
+        TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "enchantable/anvilcraft_disintegration"));
+    public static final TagKey<Item> SMELTING_SUPPORTED =
+        TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "enchantable/anvilcraft_smelting"));
     public static final TagKey<Item> UNCHARGED_NEUTRONIUM_INGOTS = bind("uncharged_neutronium_ingots");
     public static final TagKey<Item> HEATABLE_BLOCKS = bind("heatable_blocks");
     public static final TagKey<Item> HEATERS = bind("heaters");
