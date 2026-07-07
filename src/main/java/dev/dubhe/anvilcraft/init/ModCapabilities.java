@@ -178,6 +178,18 @@ public class ModCapabilities {
             ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get(),
             ModCapabilities::fluid
         );
+
+        event.registerBlockEntity(
+            Capabilities.Item.BLOCK,
+            ModBlockEntities.AUTO_ENCHANTING_TABLE.get(),
+            (be, ignore) -> be
+        );
+
+        event.registerBlockEntity(
+            Capabilities.Fluid.BLOCK,
+            ModBlockEntities.AUTO_ENCHANTING_TABLE.get(),
+            (be, ignore) -> be.getFluidHandler()
+        );
     }
 
     /// 物品

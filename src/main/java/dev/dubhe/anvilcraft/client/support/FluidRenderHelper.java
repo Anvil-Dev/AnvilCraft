@@ -40,6 +40,59 @@ public final class FluidRenderHelper {
     }
 
     public void renderFluidBox(
+        Direction face,
+        TextureAtlasSprite sprite,
+        FluidResource fluid,
+        float minX,
+        float minY,
+        float minZ,
+        float maxX,
+        float maxY,
+        float maxZ,
+        int color,
+        VertexConsumer builder,
+        PoseStack.Pose pose,
+        int light,
+        boolean renderBottom,
+        boolean invertGasses
+    ) {
+        int blockLightIn = (light >> 4) & 0xF;
+        int luminosity = Math.max(blockLightIn, fluid.getFluidType().getLightLevel());
+        light = (light & 0xF00000) | luminosity << 4;
+
+        Vector3f center = new Vector3f(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2, minZ + (maxZ - minZ) / 2);
+        if (invertGasses && fluid.getFluidType().isLighterThanAir()) {
+            pose.translate(center.x, center.y, center.z);
+            pose.rotate(Axis.XP.rotationDegrees(180));
+            pose.translate(-center.x, -center.y, -center.z);
+        }
+
+        if (face == Direction.DOWN && !renderBottom) {
+            return;
+        }
+        boolean positive = face.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+        if (face.getAxis()
+            .isHorizontal()) {
+            if (face.getAxis() == Direction.Axis.X) {
+                renderStillTiledFace(
+                    face, minZ, minY, maxZ, maxY, positive ? maxX : minX,
+                    builder, pose, light, color, sprite
+                );
+            } else {
+                renderStillTiledFace(
+                    face, minX, minY, maxX, maxY, positive ? maxZ : minZ,
+                    builder, pose, light, color, sprite
+                );
+            }
+        } else {
+            renderStillTiledFace(
+                face, minX, minZ, maxX, maxZ, positive ? maxY : minY,
+                builder, pose, light, color, sprite
+            );
+        }
+    }
+
+    public void renderFluidBox(
         TextureAtlasSprite sprite,
         FluidResource fluid,
         float minX,

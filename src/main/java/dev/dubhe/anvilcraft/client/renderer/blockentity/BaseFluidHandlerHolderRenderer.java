@@ -28,7 +28,7 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
     implements BlockEntityRenderer<B, S> {
 
     @SuppressWarnings("deprecation")
-    protected static final RenderType FLUID_RENDER_TYPE = RenderType.create(
+    public static final RenderType FLUID_RENDER_TYPE = RenderType.create(
         AnvilCraft.of("fluid_tank").toString(),
         RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
             .withTexture("Sampler0", TextureAtlas.LOCATION_BLOCKS)
