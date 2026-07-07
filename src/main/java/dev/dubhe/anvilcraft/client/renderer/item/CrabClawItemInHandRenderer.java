@@ -58,8 +58,8 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             this.renderItem(
                 player,
                 this.offHandItem,
-                isLeftArmMainArm?
-                        ItemDisplayContext.FIRST_PERSON_LEFT_HAND:
+                isLeftArmMainArm ?
+                        ItemDisplayContext.FIRST_PERSON_LEFT_HAND :
                         ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
                 poseStack,
                 collector,
@@ -99,10 +99,10 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             if (isLeftArmMainArm) {
                 poseStack.translate(0.13000008f, -0.33000007f, -2.9802322E-8f);
                 poseStack.mulPose(
-                        new Quaternionf()
-                                .rotateLocalX(-0.01f)
-                                .rotateLocalY( 1.4901161E-8f)
-                                .rotateLocalZ( 0.7000004f)
+                    new Quaternionf()
+                        .rotateLocalX(-0.01f)
+                        .rotateLocalY( 1.4901161E-8f)
+                        .rotateLocalZ( 0.7000004f)
                 );
                 poseStack.scale(1.0f, 1.0f, 1.0f);
             }
@@ -117,10 +117,10 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             if (isLeftArmMainArm) {
                 poseStack.translate(1.0000001f, 0.3f, 0.0f);
                 poseStack.mulPose(
-                        new Quaternionf()
-                                .rotateLocalX(0.0f)
-                                .rotateLocalY(0.0f)
-                                .rotateLocalZ(-3.7999988f)
+                    new Quaternionf()
+                        .rotateLocalX(0.0f)
+                        .rotateLocalY(0.0f)
+                        .rotateLocalZ(-3.7999988f)
                 );
                 poseStack.scale(1.0f, 1.0f, 1.0f);
             }
