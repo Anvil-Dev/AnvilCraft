@@ -58,6 +58,7 @@
     "TntBlockMixin",
     "VaultBlockEntityServerMixin",
     "VibrationSystemUserMixin",
+    "VillagerBrainMixin",
     "VillagerMixin",
     "ZombieVillagerMixin",
     "accessor.BaseSpawnerAccessor",
