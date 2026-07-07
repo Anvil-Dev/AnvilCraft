@@ -265,7 +265,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
                     for (ItemEntity entity : entities) {
                         if (entity.getItem().getItem() instanceof BlockItem) {
                             itemEntity = entity;
-                            placeItem = entity.getItem();
+                            placeItem = entity.getItem().copy();
                             break;
                         }
                     }
