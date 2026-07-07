@@ -58,9 +58,9 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             this.renderItem(
                 player,
                 this.offHandItem,
-                isLeftArmMainArm ?
-                        ItemDisplayContext.FIRST_PERSON_LEFT_HAND :
-                        ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                isLeftArmMainArm
+                        ? ItemDisplayContext.FIRST_PERSON_LEFT_HAND
+                        : ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
                 poseStack,
                 collector,
                 lightCoords
@@ -101,8 +101,8 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
                 poseStack.mulPose(
                     new Quaternionf()
                         .rotateLocalX(-0.01f)
-                        .rotateLocalY( 1.4901161E-8f)
-                        .rotateLocalZ( 0.7000004f)
+                        .rotateLocalY(1.4901161E-8f)
+                        .rotateLocalZ(0.7000004f)
                 );
                 poseStack.scale(1.0f, 1.0f, 1.0f);
             }
