@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.megastructure;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
+import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import lombok.Getter;
 import lombok.Setter;
@@ -270,7 +271,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             wdEnergy,
             star.bodyUuid()
         ));
-        be.setPlanetaryResourceSet(null);
+        be.setPlanetaryResourceSet(new PlanetaryResourceSet());
     }
 
     private void createNeutronStarRemnant(CelestialForgingAnvilBlockEntity be) {
@@ -302,7 +303,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             64,
             star.bodyUuid()
         ));
-        be.setPlanetaryResourceSet(null);
+        be.setPlanetaryResourceSet(new PlanetaryResourceSet());
     }
 
     private void createBlackHoleRemnant(CelestialForgingAnvilBlockEntity be) {
@@ -314,7 +315,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         be.setStellarMass(bhMass);
 
         be.setCelestialBodyData(new StarData(CelestialBodyClass.BLACK_HOLE, 1, 0, 0, 0, star.axialTilt(), 1, newMag, 64, star.bodyUuid()));
-        be.setPlanetaryResourceSet(null);
+        be.setPlanetaryResourceSet(new PlanetaryResourceSet());
     }
 
     private void finishAccelerator() {
