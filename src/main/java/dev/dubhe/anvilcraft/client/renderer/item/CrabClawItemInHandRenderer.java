@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MaceItem;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
+import org.joml.Quaternionf;
 
 import java.util.List;
 
@@ -51,13 +52,15 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
         }
         boolean flag = hand == InteractionHand.MAIN_HAND;
         HumanoidArm humanoidarm = flag ? player.getMainArm() : player.getMainArm().getOpposite();
-        boolean flag2 = humanoidarm == HumanoidArm.LEFT;
-        final int i = flag2 ? -1 : 1;
+        boolean isLeftArmMainArm = humanoidarm == HumanoidArm.LEFT;
+        final int i = isLeftArmMainArm ? -1 : 1;
         if (this.mainHandItem.isEmpty()) {
             this.renderItem(
                 player,
                 this.offHandItem,
-                ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                isLeftArmMainArm?
+                        ItemDisplayContext.FIRST_PERSON_LEFT_HAND:
+                        ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
                 poseStack,
                 collector,
                 lightCoords
@@ -92,12 +95,36 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             poseStack.mulPose(Axis.XP.rotationDegrees(30));
             poseStack.mulPose(Axis.YP.rotationDegrees(-2));
             poseStack.mulPose(Axis.ZP.rotationDegrees(-20));
+
+            if (isLeftArmMainArm) {
+                poseStack.translate(0.13000008f, -0.33000007f, -2.9802322E-8f);
+                poseStack.mulPose(
+                        new Quaternionf()
+                                .rotateLocalX(-0.01f)
+                                .rotateLocalY( 1.4901161E-8f)
+                                .rotateLocalZ( 0.7000004f)
+                );
+                poseStack.scale(1.0f, 1.0f, 1.0f);
+            }
+
         } else {
             poseStack.translate(-0.26, 0.5, -0.16);
             poseStack.scale(0.68f, 0.68f, 0.68f);
             poseStack.mulPose(Axis.XP.rotationDegrees(30));
             poseStack.mulPose(Axis.YP.rotationDegrees(-10));
             poseStack.mulPose(Axis.ZP.rotationDegrees(-70));
+
+            if (isLeftArmMainArm) {
+                poseStack.translate(1.0000001f, 0.3f, 0.0f);
+                poseStack.mulPose(
+                        new Quaternionf()
+                                .rotateLocalX(0.0f)
+                                .rotateLocalY(0.0f)
+                                .rotateLocalZ(-3.7999988f)
+                );
+                poseStack.scale(1.0f, 1.0f, 1.0f);
+            }
+
         }
         Minecraft mc = Minecraft.getInstance();
         List<BakedQuad> all = mc.getModelManager()
