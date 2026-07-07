@@ -5,7 +5,7 @@ navigation:
   position: -1
 ---
 
-![Logo](textures/logo.png)
+![Logo](../textures/logo.png)
 
 # Introduction
 
@@ -24,8 +24,8 @@ navigation:
 Be sure to read this — it will greatly improve your reading experience
 </tip>
 
-1. If you're not sure what to read, follow the "Main Progression" chapter. But this is not a strict requirement — feel free to read and play according to your own interests
-2. Blue terms are clickable hyperlinks that jump to related pages
+1. If this is your first time playing, it is **strongly recommended** to follow the "Main Progression" chapter. But this is not a strict requirement — feel free to read and play according to your own interests
+2. Blue [terms](000_process/001.md) are clickable hyperlinks that jump to related pages
 3. You can adjust the scale of the guide book in the config to choose a comfortable font size
 4. The buttons on the right side of the book allow you to add bookmarks. Ctrl + right-click removes a bookmark
 5. Structures in the book can be rotated and moved with the mouse, and projected via the buttons in the top-right corner:
