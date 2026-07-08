@@ -202,8 +202,8 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
 
     private static final VoxelShape TOP_NORTH = ShapeUtil.merge(
         new AABB(0, 14, 0, 16, 16, 16),
-        new AABB(0, 0, 5, 2, 14, 14),
-        new AABB(14, 0, 5, 16, 14, 14)
+        new AABB(0, 0, 11, 2, 14, 14),
+        new AABB(14, 0, 11, 16, 14, 14)
     );
     private static final VoxelShape TOP_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, TOP_NORTH);
     private static final VoxelShape TOP_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, TOP_NORTH);

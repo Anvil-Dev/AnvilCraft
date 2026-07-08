@@ -219,7 +219,7 @@ public class PipeBlockItem extends Item {
             newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
         }
         if (newState != state) {
-            level.setBlockAndUpdate(pos, newState);
+            PipeBlock.setBlockPreservingValve(level, pos, state, newState);
             return newState;
         }
         return null;
@@ -454,60 +454,65 @@ public class PipeBlockItem extends Item {
         boolean oppositeOccupied = (firstOccupied && clickedFace == first.getOpposite())
                                    || (secondOccupied && clickedFace == second.getOpposite());
 
-        // 弯管修改仅在服务端
-        if (!level.isClientSide()) {
-            if (bothOccupied) {
-                // 两端都忙 → 转节点
-                BlockState nodeState = ModBlocks.PIPE_NODE.get()
-                    .defaultBlockState()
-                    .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
-                nodeState = nodeState.setValue(
-                    PipeBlock.getPropertyForDirection(first),
-                    PipeNodeBlock.evaluateNeighbor(level, cornerPos, first)
-                );
-                nodeState = nodeState.setValue(
-                    PipeBlock.getPropertyForDirection(second),
-                    PipeNodeBlock.evaluateNeighbor(level, cornerPos, second)
-                );
-                nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
-                PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, nodeState);
+        // 弯管修改：管型转换（setBlockPreservingValve）双端执行，确保客户端即时渲染；
+        // 音效与掉落等服务端副作用留在 !level.isClientSide() 块内
+        if (bothOccupied) {
+            // 两端都忙 → 转节点
+            BlockState nodeState = ModBlocks.PIPE_NODE.get()
+                .defaultBlockState()
+                .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
+            nodeState = nodeState.setValue(
+                PipeBlock.getPropertyForDirection(first),
+                PipeNodeBlock.evaluateNeighbor(level, cornerPos, first)
+            );
+            nodeState = nodeState.setValue(
+                PipeBlock.getPropertyForDirection(second),
+                PipeNodeBlock.evaluateNeighbor(level, cornerPos, second)
+            );
+            nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
+            PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, nodeState);
+            if (!level.isClientSide()) {
                 playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
-            } else if (bothFree || oppositeOccupied) {
-                // 都闲 或 点击面对向忙端 → 转直管
-                Direction.Axis axis = clickedFace.getAxis();
-                Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-                Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
+            }
+        } else if (bothFree || oppositeOccupied) {
+            // 都闲 或 点击面对向忙端 → 转直管
+            Direction.Axis axis = clickedFace.getAxis();
+            Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
+            Direction endDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
 
-                boolean startIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, startDir);
-                boolean endIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, endDir);
-                if (clickedFace == startDir) {
-                    startIsPipe = true;
-                } else if (clickedFace == endDir) {
-                    endIsPipe = true;
-                }
+            boolean startIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, startDir);
+            boolean endIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, endDir);
+            if (clickedFace == startDir) {
+                startIsPipe = true;
+            } else if (clickedFace == endDir) {
+                endIsPipe = true;
+            }
 
-                BlockState straightState = ModBlocks.PIPE_STRAIGHT.get()
-                    .defaultBlockState()
-                    .setValue(PipeBlock.AXIS, axis)
-                    .setValue(PipeBlock.HAS_END_START, !startIsPipe)
-                    .setValue(PipeBlock.HAS_END_END, !endIsPipe)
-                    .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
-                PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, straightState);
+            BlockState straightState = ModBlocks.PIPE_STRAIGHT.get()
+                .defaultBlockState()
+                .setValue(PipeBlock.AXIS, axis)
+                .setValue(PipeBlock.HAS_END_START, !startIsPipe)
+                .setValue(PipeBlock.HAS_END_END, !endIsPipe)
+                .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
+            PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, straightState);
+            if (!level.isClientSide()) {
                 playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
-            } else if (!directionMatches) {
-                // 方向不匹配 → 旋转弯管（保留忙端，闲端改为新方向）
-                Direction occupiedEnd = firstOccupied ? first : second;
-                PipeBlock.CornerEnded newCorner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, clickedFace);
-                boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, occupiedEnd);
-                boolean firstIsOccupied = newCorner.getFirstDirection() == occupiedEnd;
+            }
+        } else if (!directionMatches) {
+            // 方向不匹配 → 旋转弯管（保留忙端，闲端改为新方向）
+            Direction occupiedEnd = firstOccupied ? first : second;
+            PipeBlock.CornerEnded newCorner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, clickedFace);
+            boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, occupiedEnd);
+            boolean firstIsOccupied = newCorner.getFirstDirection() == occupiedEnd;
 
-                BlockState newCornerState = ModBlocks.PIPE_CORNER.get()
-                    .defaultBlockState()
-                    .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED))
-                    .setValue(PipeBlock.CORNER_ENDED, newCorner)
-                    .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
-                    .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
-                PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, newCornerState);
+            BlockState newCornerState = ModBlocks.PIPE_CORNER.get()
+                .defaultBlockState()
+                .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED))
+                .setValue(PipeBlock.CORNER_ENDED, newCorner)
+                .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
+                .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
+            PipeBlock.setBlockPreservingValve(level, cornerPos, cornerState, newCornerState);
+            if (!level.isClientSide()) {
                 playPlaceSound(level, cornerPos, level.getBlockState(cornerPos), player);
             }
         }

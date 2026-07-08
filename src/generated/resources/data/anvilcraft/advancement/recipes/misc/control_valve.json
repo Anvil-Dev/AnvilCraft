@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_chute": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:chute"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_circuit_board": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:circuit_board"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_pipe": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:pipe"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:control_valve"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_circuit_board",
+      "has_pipe",
+      "has_chute"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:control_valve"
+    ]
+  }
+}

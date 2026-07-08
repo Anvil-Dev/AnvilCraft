@@ -129,7 +129,7 @@ public class PipeCornerBlock extends PipeBlock {
             .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, first))
             .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, second));
         if (newState != state) {
-            level.setBlockAndUpdate(pos, newState);
+            setBlockPreservingValve(level, pos, state, newState);
         }
     }
 }

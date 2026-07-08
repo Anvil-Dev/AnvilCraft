@@ -341,6 +341,13 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     }
 
     @Override
+    public int getFluidAmount(BlockCache cache, BlockPos pos) {
+        return Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class)
+            .map(be -> be.getFluidHandler().getFluidAmount())
+            .orElse(0);
+    }
+
+    @Override
     public boolean consumeOnce(BlockCache cache, BlockPos pos) {
         Optional<FishTankBlockEntity> beOp = Util.castSafely(cache.getBlockEntity(pos), FishTankBlockEntity.class);
         if (beOp.isEmpty()) return false;

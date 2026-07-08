@@ -13,6 +13,9 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -29,6 +32,8 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,6 +53,20 @@ public abstract class BaseChuteBlockEntity
     @Setter
     private int cooldown = 0;
     private long tickedGameTime;
+    private static final int EJECTED_ITEM_TRACK_TICKS = 20;
+    private final List<TrackedEjectedItem> anvilcraft$trackedEjectedItems = new ArrayList<>();
+
+    private static final class TrackedEjectedItem {
+        private final ItemEntity item;
+        private boolean wasOnGround;
+        private int ticksLeft;
+
+        private TrackedEjectedItem(ItemEntity item) {
+            this.item = item;
+            this.wasOnGround = item.onGround();
+            this.ticksLeft = EJECTED_ITEM_TRACK_TICKS;
+        }
+    }
 
     protected BaseChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -115,6 +134,7 @@ public abstract class BaseChuteBlockEntity
      */
     public void tick() {
         if (level == null) return;
+        anvilcraft$tickEjectedItemTracking();
         if (cooldown > 0) cooldown--;
         tickedGameTime = level.getGameTime();
         boolean resetCD = false;
@@ -178,6 +198,7 @@ public abstract class BaseChuteBlockEntity
                                     applySpeed(itemEntity, getOutputDirection());
                                     itemEntity.setDefaultPickUpDelay();
                                     getLevel().addFreshEntity(itemEntity);
+                                    anvilcraft$trackEjectedItem(itemEntity);
                                     this.itemHandler.setStackInSlot(i, stack);
                                     resetCD = true;
                                     break;
@@ -269,6 +290,39 @@ public abstract class BaseChuteBlockEntity
 
     protected void applySpeed(ItemEntity itemEntity, Direction direction) {
 
+    }
+
+    private void anvilcraft$trackEjectedItem(ItemEntity itemEntity) {
+        if (level == null || level.isClientSide) return;
+        if (itemEntity.getDeltaMovement().horizontalDistanceSqr() < 1.0E-7) return;
+        anvilcraft$trackedEjectedItems.add(new TrackedEjectedItem(itemEntity));
+    }
+
+    private void anvilcraft$tickEjectedItemTracking() {
+        if (level == null || level.isClientSide || anvilcraft$trackedEjectedItems.isEmpty()) return;
+        Iterator<TrackedEjectedItem> iterator = anvilcraft$trackedEjectedItems.iterator();
+        while (iterator.hasNext()) {
+            TrackedEjectedItem tracked = iterator.next();
+            ItemEntity item = tracked.item;
+            if (!item.isAlive()) {
+                iterator.remove();
+                continue;
+            }
+            if (item.onGround() && !tracked.wasOnGround) {
+                if (level instanceof ServerLevel serverLevel) {
+                    serverLevel.getChunkSource()
+                        .broadcastAndSend(item, new ClientboundTeleportEntityPacket(item));
+                    serverLevel.getChunkSource()
+                        .broadcastAndSend(item, new ClientboundSetEntityMotionPacket(item));
+                }
+                iterator.remove();
+                continue;
+            }
+            tracked.wasOnGround = item.onGround();
+            if (--tracked.ticksLeft <= 0) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override

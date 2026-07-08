@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.enchantment.FellingEffect;
 import dev.dubhe.anvilcraft.enchantment.HarvestLeftClickEffect;
 import dev.dubhe.anvilcraft.enchantment.HarvestRightClickEffect;
 import dev.dubhe.anvilcraft.enchantment.InRangeModifyEffect;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
@@ -22,7 +23,6 @@ import net.minecraft.world.item.enchantment.effects.MultiplyValue;
 import net.minecraft.world.item.enchantment.effects.SetValue;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
-import net.neoforged.neoforge.registries.holdersets.OrHolderSet;
 
 public class ModEnchantments {
 
@@ -106,7 +106,7 @@ public class ModEnchantments {
             SMELTING_KEY,
             Enchantment.enchantment(
                 Enchantment.definition(
-                    itemHolderGetter.getOrThrow(ItemTags.MINING_LOOT_ENCHANTABLE),
+                    itemHolderGetter.getOrThrow(ModItemTags.SMELTING_SUPPORTED),
                     5,
                     5,
                     Enchantment.dynamicCost(1, 10),
@@ -121,10 +121,7 @@ public class ModEnchantments {
             DISINTEGRATION_KEY,
             Enchantment.enchantment(
                 Enchantment.definition(
-                    new OrHolderSet<>(
-                        itemHolderGetter.getOrThrow(ItemTags.MINING_LOOT_ENCHANTABLE),
-                        itemHolderGetter.getOrThrow(ItemTags.WEAPON_ENCHANTABLE)
-                    ),
+                    itemHolderGetter.getOrThrow(ModItemTags.DISINTEGRATION_SUPPORTED),
                     5,
                     1,
                     Enchantment.constantCost(1),

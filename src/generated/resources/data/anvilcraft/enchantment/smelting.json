@@ -15,6 +15,6 @@
   "slots": [
     "mainhand"
   ],
-  "supported_items": "#minecraft:enchantable/mining_loot",
+  "supported_items": "#minecraft:enchantable/anvilcraft_smelting",
   "weight": 5
 }

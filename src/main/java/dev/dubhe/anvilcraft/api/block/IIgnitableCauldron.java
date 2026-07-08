@@ -18,6 +18,10 @@ public interface IIgnitableCauldron {
 
     Fluid getFluid(BlockCache cache, BlockPos pos);
 
+    default int getFluidAmount(BlockCache cache, BlockPos pos) {
+        return Integer.MAX_VALUE;
+    }
+
     default boolean consumeOnce(BlockCache cache, BlockPos pos) {
         return false;
     }

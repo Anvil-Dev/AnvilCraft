@@ -253,14 +253,16 @@ public class CelestialForgingAnvilPortalBlock
 
     // === 实体传送 ===
 
-    /// 实体进入开口格时触发传送。vanilla 在每个移动步调用此方法（配合上面整格的
-    /// getEntityInsideCollisionShape），因此快速的投掷物也能可靠命中而不会穿过。
-    /// 底层中心与正中心均可触发；正中心会将传送委托给底层中心处理，
-    /// 确保 touchingEntities 去重等状态一致。
+    /// 实体进入开口格时触发传送。vanilla 在每个移动步调用此方法（配合上面整格的getEntityInsideCollisionShape），因此快速的投掷物也能可靠命中而不会穿过。
+    /// 底层中心与正中心均可触发；正中心会将传送委托给底层中心处理，确保 touchingEntities 去重等状态一致。
+    /// ServerPlayer 不在此立即传送：entityInside 在 handleMovePlayer 的 player.move()内部被调用，若此时传送玩家，
+    /// handleMovePlayer 会发现玩家位置与客户端期望不符，触发 "moved wrongly!" 反作弊并将玩家拉回原位。改为由 tick() 中的主动扫描在
+    /// 移动处理完成后传送玩家，避免与 handleMovePlayer 冲突。
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (level.isClientSide()) return;
         if (!state.getValue(OPEN)) return;
+        if (entity instanceof ServerPlayer) return;
         DirectionGate331PartHalf half = state.getValue(HALF);
         if (half != DirectionGate331PartHalf.BOTTOM_CENTER
             && half != DirectionGate331PartHalf.MID_CENTER) return;
@@ -295,6 +297,12 @@ public class CelestialForgingAnvilPortalBlock
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (state.getValue(HALF) == DirectionGate331PartHalf.BOTTOM_CENTER || state.getValue(HALF) == DirectionGate331PartHalf.MID_CENTER) {
+            if (context == CollisionContext.empty()) {
+                return this.getShape(state, level, pos, context);
+            }
+            return Shapes.empty();
+        }
         return this.getShape(state, level, pos, context);
     }
 

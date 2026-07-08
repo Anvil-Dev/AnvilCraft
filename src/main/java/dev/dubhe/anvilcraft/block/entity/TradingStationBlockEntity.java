@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.TradingStationMenu;
 import dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
+import dev.dubhe.anvilcraft.mixin.accessor.VillagerAccessor;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import lombok.Getter;
@@ -24,10 +25,12 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -36,6 +39,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -359,6 +363,127 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         return true;
     }
 
+    public boolean canTradeWithVillager(Villager villager) {
+        if (!this.villagerAllowed) return false;
+        if (this.level == null || this.level.isClientSide) return false;
+        if (this.filters.getItem(2).isEmpty()) return false;
+        if (this.filters.getItem(0).isEmpty() && this.filters.getItem(1).isEmpty()) return false;
+        return findAcceptableOffer(villager).isPresent();
+    }
+
+    public boolean tryTradingWithVillager(Villager villager) {
+        if (!this.villagerAllowed) return false;
+        if (this.level == null || this.level.isClientSide) return false;
+        Optional<MerchantOffer> op = findAcceptableOffer(villager);
+        if (op.isEmpty()) return false;
+        MerchantOffer offer = op.get();
+        if (!executeVillagerTrade(offer)) return false;
+        offer.increaseUses();
+        villager.setVillagerXp(villager.getVillagerXp() + offer.getXp());
+        VillagerAccessor accessor = (VillagerAccessor) villager;
+        if (accessor.invokeShouldIncreaseLevel()) {
+            accessor.setUpdateMerchantTimer(40);
+            accessor.setIncreaseProfessionLevelOnUpdate(true);
+        }
+        TradingStationBlockEntity.updateAndSend(this);
+        return true;
+    }
+
+    private Optional<MerchantOffer> findAcceptableOffer(Villager villager) {
+        for (MerchantOffer offer : villager.getOffers()) {
+            if (offer.isOutOfStock()) continue;
+            if (this.matchesFilters(offer) && this.canFulfillOffer(offer)) {
+                return Optional.of(offer);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean matchesFilters(MerchantOffer offer) {
+        ItemStack result = offer.getResult();
+        ItemStack req = this.filters.getItem(2);
+        if (req.isEmpty()) return false;
+        if (!FilterContent.filter(req, result, !req.getComponentsPatch().isEmpty())) return false;
+        if (req.getCount() > result.getCount()) return false;
+        return assignProvideFilters(this.filters.getItem(0), this.filters.getItem(1), offer.getCostA(), offer.getCostB());
+    }
+
+    private static boolean assignProvideFilters(ItemStack p0, ItemStack p1, ItemStack costA, ItemStack costB) {
+        if (costB.isEmpty()) {
+            return provideMatches(p0, costA) || provideMatches(p1, costA);
+        }
+        if (provideMatches(p0, costA) && provideMatches(p1, costB)) return true;
+        return provideMatches(p0, costB) && provideMatches(p1, costA);
+    }
+
+    private static boolean provideMatches(ItemStack filter, ItemStack cost) {
+        if (filter.isEmpty() || cost.isEmpty()) return false;
+        if (!FilterContent.filter(filter, cost, !filter.getComponentsPatch().isEmpty())) return false;
+        return filter.getCount() >= cost.getCount();
+    }
+
+    private boolean canFulfillOffer(MerchantOffer offer) {
+        return simulateVillagerTrade(offer, false);
+    }
+
+    private boolean executeVillagerTrade(MerchantOffer offer) {
+        return simulateVillagerTrade(offer, true);
+    }
+
+    private boolean simulateVillagerTrade(MerchantOffer offer, boolean commit) {
+        ItemStack[] snapshot = new ItemStack[this.handler.getSlots()];
+        for (int i = 0; i < snapshot.length; i++) {
+            snapshot[i] = this.handler.getStackInSlot(i).copy();
+        }
+        if (!removeMatching(offer.getCostA(), snapshot)) return false;
+        if (!offer.getCostB().isEmpty() && !removeMatching(offer.getCostB(), snapshot)) return false;
+        ItemStack result = offer.getResult();
+        if (!insertMatching(result, snapshot)) return false;
+        if (!commit) return true;
+        for (int i = 0; i < snapshot.length; i++) {
+            if (!ItemStack.matches(snapshot[i], this.handler.getStackInSlot(i))) {
+                this.handler.setStackInSlot(i, snapshot[i]);
+            }
+        }
+        return true;
+    }
+
+    private static boolean removeMatching(ItemStack cost, ItemStack[] snapshot) {
+        int remaining = cost.getCount();
+        for (int i = 0; i < snapshot.length && remaining > 0; i++) {
+            ItemStack stack = snapshot[i];
+            if (stack.isEmpty()) continue;
+            if (!ItemStack.isSameItemSameComponents(stack, cost)) continue;
+            int take = Math.min(remaining, stack.getCount());
+            stack.shrink(take);
+            if (stack.isEmpty()) snapshot[i] = ItemStack.EMPTY;
+            remaining -= take;
+        }
+        return remaining <= 0;
+    }
+
+    private static boolean insertMatching(ItemStack result, ItemStack[] snapshot) {
+        int remaining = result.getCount();
+        for (int i = 0; i < snapshot.length && remaining > 0; i++) {
+            ItemStack existing = snapshot[i];
+            if (existing.isEmpty()) continue;
+            if (!ItemStack.isSameItemSameComponents(existing, result)) continue;
+            int max = Math.min(existing.getMaxStackSize(), result.getMaxStackSize());
+            int can = max - existing.getCount();
+            if (can <= 0) continue;
+            int put = Math.min(can, remaining);
+            snapshot[i] = existing.copyWithCount(existing.getCount() + put);
+            remaining -= put;
+        }
+        for (int i = 0; i < snapshot.length && remaining > 0; i++) {
+            if (!snapshot[i].isEmpty()) continue;
+            int put = Math.min(remaining, result.getMaxStackSize());
+            snapshot[i] = result.copyWithCount(put);
+            remaining -= put;
+        }
+        return remaining <= 0;
+    }
+
     public boolean isOwner(Player sp) {
         return sp.getGameProfile().getId().equals(this.owner);
     }
@@ -373,10 +498,6 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
     @Override
     public void setRemoved() {
         this.owner = null;
-    }
-
-    public boolean isPlayerAllowed() {
-        return this.playerAllowed;
     }
 
     public void setPlayerAllowed(boolean playerAllowed) {

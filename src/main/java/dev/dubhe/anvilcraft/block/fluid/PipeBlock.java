@@ -535,12 +535,12 @@ public abstract class PipeBlock extends Block
      *
      * <p>调用方应传入<b>尚未 setBlock 的目标 state</b>；本方法负责 setBlock 并返回，
      * 保证形变（node↔straight↔corner）不丢失止逆阀。
+     *
+     * <p><b>客户端</b>同样保留止逆阀数据，避免依赖服务端同步即可获得即时视觉反馈。
+     * <b>服务端</b>额外对因管型变化而失去臂的面掉落止逆阀物品。
      */
     public static void setBlockPreservingValve(Level level, BlockPos pos, BlockState oldState, BlockState newState) {
-        if (level.isClientSide) {
-            level.setBlockAndUpdate(pos, newState);
-            return;
-        }
+        // 读取旧 BE 的面映射
         Map<Direction, Direction> saved = null;
         boolean powered = false;
         if (oldState.hasProperty(HAS_CHECK_VALVE) && oldState.getValue(HAS_CHECK_VALVE)) {
@@ -550,26 +550,53 @@ public abstract class PipeBlock extends Block
                 powered = oldBe.isPowered();
             }
         }
+        // 无旧数据：若 oldState 标记了 HAS_CHECK_VALVE 但 BE 为空，
+        // 说明数据尚未恢复（处于外层 setBlockPreservingValve 的 setBlock→onPlace 窗口），
+        // 保留标志让外层 restore 后续填充数据；否则清除
         if (saved == null) {
-            level.setBlockAndUpdate(pos, newState.setValue(HAS_CHECK_VALVE, false));
+            if (oldState.hasProperty(HAS_CHECK_VALVE) && oldState.getValue(HAS_CHECK_VALVE)) {
+                // BE 数据待恢复 → 保留标志，外层 restore 会填充
+                if (level.isClientSide) {
+                    level.setBlockAndUpdate(pos, newState.setValue(HAS_CHECK_VALVE, true));
+                } else {
+                    level.setBlock(pos, newState.setValue(HAS_CHECK_VALVE, true), Block.UPDATE_ALL);
+                }
+            } else {
+                level.setBlockAndUpdate(pos, newState.setValue(HAS_CHECK_VALVE, false));
+            }
             return;
         }
-        // 只保留新管型仍存在的臂上的阀
+        // 只保留新管型仍存在的臂上的阀；其余掉落物品
         Map<Direction, Direction> filtered = new java.util.EnumMap<>(Direction.class);
         for (Map.Entry<Direction, Direction> e : saved.entrySet()) {
             if (hasConnectionToward(newState, e.getKey())) {
                 filtered.put(e.getKey(), e.getValue());
             }
         }
+        // 新旧管型差异导致的失臂面 → 服务端掉落止逆阀物品
+        if (!level.isClientSide) {
+            for (Direction face : saved.keySet()) {
+                if (!filtered.containsKey(face)) {
+                    Block.popResource(level, pos, new ItemStack(ModItems.CHECK_VALVE.get()));
+                }
+            }
+        }
         if (filtered.isEmpty()) {
             level.setBlockAndUpdate(pos, newState.setValue(HAS_CHECK_VALVE, false));
             return;
         }
-        level.setBlock(pos, newState.setValue(HAS_CHECK_VALVE, true), Block.UPDATE_ALL);
+        // 客户端与服务端分别用合适的 setBlock 方式，写入 BE 数据确保即时渲染
+        if (level.isClientSide) {
+            level.setBlockAndUpdate(pos, newState.setValue(HAS_CHECK_VALVE, true));
+        } else {
+            level.setBlock(pos, newState.setValue(HAS_CHECK_VALVE, true), Block.UPDATE_ALL);
+        }
         PipeCheckValveBlockEntity newBe = getCheckValve(level, pos);
         if (newBe != null) {
             newBe.restore(filtered, powered);
-            newBe.sendUpdate();
+            if (!level.isClientSide) {
+                newBe.sendUpdate();
+            }
         }
     }
 
@@ -604,7 +631,7 @@ public abstract class PipeBlock extends Block
         }
 
         if (newState != state) {
-            level.setBlockAndUpdate(pos, newState);
+            setBlockPreservingValve(level, pos, state, newState);
         }
     }
 

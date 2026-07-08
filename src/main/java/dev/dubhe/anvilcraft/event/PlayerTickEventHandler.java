@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.CrabClawItem;
+import dev.dubhe.anvilcraft.item.DragonRodItem;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
@@ -35,6 +36,7 @@ public class PlayerTickEventHandler {
             Merciless.tick(serverPlayer);
             Ferocious.tick(serverPlayer);
             Eternal.tick(serverPlayer);
+            DragonRodItem.tickContinuousDevour(serverPlayer);
         } else if (PlayerUtil.isClient(event.getEntity())) {
             MultiphaseRef.tick(event.getEntity());
         }

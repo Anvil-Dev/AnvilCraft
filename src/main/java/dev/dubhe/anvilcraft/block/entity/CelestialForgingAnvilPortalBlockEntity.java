@@ -50,6 +50,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -63,8 +64,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     /// 上一次已知的含水状态，用于检测变化并同步到连接的传送门。
     private boolean lastWaterlogged = false;
 
-    /// 刚放置在水中且尚未完成首次同步时为 true。
-    /// 用于在双向同步中保护刚放置的含水传送门不被对侧不含水状态覆盖。
+    /// 刚放置在水中且尚未完成首次同步时为 true。用于在双向同步中保护刚放置的含水传送门不被对侧不含水状态覆盖。
     boolean isJustPlacedWaterlogged() {
         return !lastWaterlogged && getBlockState().getValue(BlockStateProperties.WATERLOGGED);
     }
@@ -87,7 +87,6 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     private BlockPos gammaIrradiatingPos = null;
     private int gammaExposureTicks = 0;
 
-    /// [0-4级不破坏, ≥4级3s破坏, ≥8级1s破坏, ≥12级5gt破坏, ≥16级1gt破坏]
     private static final int[] GAMMA_EXPOSURE_TICKS = {
         Integer.MAX_VALUE, 60, 20, 5, 1
     };
@@ -104,8 +103,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         super(type, pos, blockState);
     }
 
-    /// 此方块实体是否位于核心控制器（底层中心）。控制器负责开启状态与传送，
-    /// 正中心格仅负责自身高度的激光与含水同步。
+    /// 此方块实体是否位于核心控制器（底层中心）。控制器负责开启状态与传送，正中心格仅负责自身高度的激光与含水同步。
     private boolean isAnchor() {
         BlockState state = getBlockState();
         return state.hasProperty(CelestialForgingAnvilPortalBlock.HALF)
@@ -130,7 +128,6 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     }
 
     /// 覆写普通激光发射：传送门虽是柔性多方块，但其发光面就在本格正面，
-    /// 不应像增幅器那样将光束起点外推一格，否则会跳过正前方第一格（与旧版单方块行为不一致）。
     @Override
     public void emitLaser(Direction direction) {
         if (this.level == null) return;
@@ -306,9 +303,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         Cube323PartHalf side = findSideFromParent(parent);
         if (side == null) return;
 
-        /// 查询虫洞网络以确定传送门是否应开启。
-        /// 只有当网络组中恰好有 2 个 CFA 在此同侧有传送门时才开启。
-        /// 如果超过 2 个，出于安全考虑所有门都关闭。
+        /// 查询虫洞网络以确定传送门是否应开启，只有当网络组中恰好有 2 个 CFA 在此同侧有传送门时才开启，如果超过 2 个所有门都关闭。
         WormholeNetwork network = WormholeNetwork.get();
         UUID hash = parent.getWormholeParamsHash();
         if (hash == null) {
@@ -344,9 +339,6 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             hash, level.dimension(), parent.getBlockPos()
         );
 
-        /// 确保此传送门的侧边已在虫洞网络中注册。
-        /// 巨构清除并重建后，传送门侧边可能在网络中缺失，
-        /// 因为 onClear() 清除了本地传送门映射。仅核心控制器执行注册（侧边映射存的是控制器位置）。
         if (isAnchor() && !network.hasPortalAt(level.dimension(), parent.getBlockPos(), side)) {
             parent.addPortal(side, getAnchorPos());
         }
@@ -368,8 +360,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true);
         }
 
-        /// 不应再开启（例如对侧传送门被破坏，同侧计数跌回 1）时关闭本传送门，
-        /// 使两格模型同步切换到关闭状态。
+        /// 不应再开启（例如对侧传送门被破坏，同侧计数跌回 1）时关闭本传送门，使两格模型同步切换到关闭状态。
         if (!shouldBeOpen
             && state.hasProperty(CelestialForgingAnvilPortalBlock.OPEN)
             && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
@@ -452,9 +443,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 connectedPortal.setWormholeLaser(incomingLaserLevel, incomingLaserGamma);
             }
         } else {
-            /// 传送门关闭：清除两侧残留的虫洞激光。
-            /// 不检查 incomingLaserLevel——激光可能仍照射在输入端传送门上，
-            /// 但虫洞已关闭，因此不传输。
+            /// 传送门关闭：清除两侧残留的虫洞激光，不检查 incomingLaserLevel——激光可能仍照射在输入端传送门上，但虫洞已关闭，因此不传输。
             CelestialForgingAnvilPortalBlockEntity connectedPortal = findConnectedPortal(parent, side);
             if (connectedPortal != null) {
                 connectedPortal.setWormholeLaser(0, false);
@@ -462,9 +451,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             wormholeLaserLevel = 0;
             wormholeLaserGamma = false;
         }
-
-        /// 如果此传送门有来自已连接传送门的虫洞激光设置，则发射激光。
-        /// 仅在传送门开启时发射——关闭的传送门不得转发激光。
+        /// 如果此传送门有来自已连接传送门的虫洞激光设置，则发射激光。仅在传送门开启时发射——关闭的传送门不得转发激光。
         if (wormholeLaserLevel > 0 && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             Direction facing = getFacing();
             if (irradiateSelfLaserBlockSet.isEmpty()) {
@@ -542,7 +529,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         WormholeNetwork network = WormholeNetwork.get();
         List<WormholeNetwork.Entry> connected = network.getConnected(
-            parent.getWormholeParamsHash(), level.dimension(), parent.getBlockPos()
+            Objects.requireNonNull(parent.getWormholeParamsHash()), Objects.requireNonNull(level).dimension(), parent.getBlockPos()
         );
         /// 仅当恰好有另一个 CFA 在此同侧有传送门时才传送
         List<WormholeNetwork.Entry> matching = connected.stream()
@@ -564,26 +551,22 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             .relative(outwardFacing);
 
         /// 保留实体在源传送门开口格内的相对位置（含精确的铁轨高度、偏左/偏右等），
-        /// 映射到目标传送门外两格处，使矿车等载具传送到对面后仍在铁轨上，不会撞上传送门碰撞箱。
         /// 源开口格尺寸为 1×1，相对坐标 ∈ [0,1)。
         double relX = entity.getX() - worldPosition.getX();
         double relY = entity.getY() - worldPosition.getY();
         double relZ = entity.getZ() - worldPosition.getZ();
 
-        double dx = targetPortalPos.getX() + relX + outwardFacing.getStepX() * 2;
-        double dy = targetPortalPos.getY() + relY + outwardFacing.getStepY() * 2;
-        double dz = targetPortalPos.getZ() + relZ + outwardFacing.getStepZ() * 2;
+        double dx = targetPortalPos.getX() + relX + outwardFacing.getStepX();
+        double dy = targetPortalPos.getY() + relY + outwardFacing.getStepY();
+        double dz = targetPortalPos.getZ() + relZ + outwardFacing.getStepZ();
 
         /// 物品和弹射物/投掷物生成时额外抬高 1 格，以免落在脚部高度
-        if (entity instanceof ItemEntity
-            || entity instanceof Projectile) {
+        if (entity instanceof ItemEntity || entity instanceof Projectile) {
             dy += 1;
         }
 
-        /// 保留动量，仅反转垂直于传送门面的分量；平行于平面的运动保持不变。
-        /// 传送门仅同向（FACE 相同）建立连接，所以实体从正面进入源传送门时，
-        /// 其沿 outwardFacing 方向的分量为负（朝向锻星砧），到达目的地后该分量应反转为正
-        /// （背离锻星砧），正好是符号翻转。侧向和平行于平面的分量保持不变。
+        /// 保留动量，仅反转垂直于传送门面的分量；平行于平面的运动保持不变。传送门仅同向（FACE 相同）建立连接，所以实体从正面进入源传送门时，
+        /// 其沿 outwardFacing 方向的分量为负（朝向锻星砧），到达目的地后该分量应反转为正（背离锻星砧），正好是符号翻转。侧向和平行于平面的分量保持不变。
         Vec3 vel = entity.getDeltaMovement();
         Vec3 momentum;
         if (outwardFacing.getAxis() == Direction.Axis.Z) {
@@ -593,11 +576,14 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
         float targetYRot = (entity.getYRot() + 180.0f) % 360.0f;
 
-        /// 对于同维度传送，直接使用 teleportTo 以避免 changeDimension 重建实体
-        /// 导致的弹射物 1 tick 停滞和速度丢失问题。
+        /// 对于同维度传送，直接使用 teleportTo 以避免 changeDimension 重建实体，导致的弹射物停滞和速度丢失问题。
+        /// 对于 ServerPlayer 则还需调用 connection.teleport() 来同步客户端网络状态，否则客户端会从旧位置发送移动包，触发 "moved wrongly!" 反作弊警告。
         /// 对于跨维度传送，使用 changeDimension(DimensionTransition)。
         if (targetLevel == level) {
             entity.teleportTo(targetLevel, dx, dy, dz, java.util.Set.of(), targetYRot, entity.getXRot());
+            if (entity instanceof ServerPlayer player) {
+                player.connection.teleport(dx, dy, dz, targetYRot, entity.getXRot());
+            }
             entity.setDeltaMovement(momentum);
             entity.hasImpulse = true;
         } else {
@@ -620,9 +606,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         touchingEntities.add(uuid);
     }
 
-    /// 查找虫洞另一侧已连接传送门中与本格相同高度的方块实体。
-    /// 本格为底层中心则返回对侧底层中心，本格为正中心则返回对侧正中心。
-    /// 如果未连接或目标传送门未找到则返回 null。
+    /// 查找虫洞另一侧已连接传送门中与本格相同高度的方块实体。本格为底层中心则返回对侧底层中心，本格为正中心则返回对侧正中心，如果未连接或目标传送门未找到则返回 null。
     @Nullable
     private CelestialForgingAnvilPortalBlockEntity findConnectedPortal(
         CelestialForgingAnvilBlockEntity parent, Cube323PartHalf side
