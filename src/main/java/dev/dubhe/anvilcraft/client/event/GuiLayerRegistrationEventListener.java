@@ -3,8 +3,11 @@ package dev.dubhe.anvilcraft.client.event;
 import com.mojang.blaze3d.platform.Window;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.hud.IonoCraftBackpackHUD;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -27,6 +30,7 @@ public class GuiLayerRegistrationEventListener {
     @SubscribeEvent
     public static void onRegister(RegisterGuiLayersEvent event) {
         event.registerAboveAll(AnvilCraft.of("power"), (graphics, deltaTracker) -> {
+            if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return;
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.options.hideGui) return;
             float partialTick = deltaTracker.getGameTimeDeltaPartialTick(
@@ -61,6 +65,14 @@ public class GuiLayerRegistrationEventListener {
                 if (e == null) {
                     BlockState s = minecraft.level.getBlockState(blockPos);
                     if (s.is(BlockTags.AIR)) return;
+                    if (s.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock) {
+                        BlockPos mainPartPos = multiPartBlock.getMainPartPos(blockPos, s);
+                        BlockEntity mainPartBlockEntity = minecraft.level.getBlockEntity(mainPartPos);
+                        if (mainPartBlockEntity != null) {
+                            HudTooltipManager.INSTANCE.renderTooltip(graphics, mainPartBlockEntity, partialTick, screenWidth, screenHeight);
+                            return;
+                        }
+                    }
                     HudTooltipManager.INSTANCE.renderTooltip(
                         graphics,
                         minecraft.level,

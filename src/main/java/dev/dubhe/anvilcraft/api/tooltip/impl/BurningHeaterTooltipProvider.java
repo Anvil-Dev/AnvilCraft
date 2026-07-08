@@ -3,8 +3,6 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.BurningHeaterBlock;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -24,7 +22,6 @@ public class BurningHeaterTooltipProvider extends ITooltipProvider.BlockEntityTo
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
         if (!(value instanceof BurningHeaterBlockEntity be)) return List.of();
 
         List<Component> lines = new ArrayList<>();
