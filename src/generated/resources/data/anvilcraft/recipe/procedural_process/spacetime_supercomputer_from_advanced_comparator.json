@@ -6,7 +6,7 @@
     "id": "anvilcraft:spacetime_supercomputer"
   },
   "initial_block": {
-    "blocks": "anvilcraft:redstone_computer"
+    "blocks": "anvilcraft:advanced_comparator"
   },
   "loop": 3,
   "multiple_loop_first_step": {
@@ -20,7 +20,7 @@
           "blocks": "anvilcraft:neutron_irradiator",
           "properties": [
             {
-              "type": "space"
+              "type": "time"
             }
           ]
         }
@@ -40,13 +40,13 @@
         "type": "anvilcraft:block_processing",
         "inputs": [
           {
-            "blocks": "anvilcraft:redstone_computer"
+            "blocks": "anvilcraft:advanced_comparator"
           },
           {
             "blocks": "anvilcraft:neutron_irradiator",
             "properties": [
               {
-                "type": "space"
+                "type": "time"
               }
             ]
           }
@@ -68,7 +68,7 @@
             "blocks": "anvilcraft:neutron_irradiator",
             "properties": [
               {
-                "type": "time"
+                "type": "space"
               }
             ]
           }

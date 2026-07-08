@@ -48,7 +48,6 @@ import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.RedStoneComputerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
@@ -521,11 +520,6 @@ public class ModBlockEntities {
         .blockEntity("wip_block", WipBlockEntity::new)
         .validBlock(ModBlocks.WIP_BLOCK)
         .renderer(() -> WipBlockEntityRenderer::new)
-        .register();
-
-    public static final BlockEntityEntry<RedStoneComputerBlockEntity> REDSTONE_COMPUTER = REGISTRUM
-        .blockEntity("redstone_computer", RedStoneComputerBlockEntity::new)
-        .validBlock(ModBlocks.REDSTONE_COMPUTER)
         .register();
 
     public static final BlockEntityEntry<CreativeFluidTankBlockEntity> CREATIVE_FLUID_TANK = REGISTRUM
