@@ -44,6 +44,7 @@ import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.BucketResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -182,7 +183,7 @@ public class ModCapabilities {
         event.registerBlockEntity(
             Capabilities.Item.BLOCK,
             ModBlockEntities.AUTO_ENCHANTING_TABLE.get(),
-            (be, ignore) -> be
+            WorldlyContainerWrapper::new
         );
 
         event.registerBlockEntity(

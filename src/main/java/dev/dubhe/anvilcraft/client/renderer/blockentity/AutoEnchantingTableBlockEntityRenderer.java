@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.AutoEnchantingTableBlockEntityRenderState;
+import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -14,7 +14,10 @@ import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.EnchantTableRenderer;
+import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -31,10 +34,12 @@ public class AutoEnchantingTableBlockEntityRenderer
     AutoEnchantingTableBlockEntityRenderState> {
     private final SpriteGetter sprites;
     private final BookModel bookModel;
+    private final ItemModelResolver resolver;
 
     public AutoEnchantingTableBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         this.sprites = context.sprites();
         this.bookModel = new BookModel(context.bakeLayer(ModelLayers.BOOK));
+        this.resolver = context.itemModelResolver();
     }
 
     @Override
@@ -51,6 +56,8 @@ public class AutoEnchantingTableBlockEntityRenderer
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
+        state.flip = Mth.lerp(partialTicks, blockEntity.oldFlip, blockEntity.flip);
+        state.open = Mth.lerp(partialTicks, blockEntity.oldOpen, blockEntity.open);
         state.time = blockEntity.time + partialTicks;
         float or = blockEntity.rot - blockEntity.oldRot;
 
@@ -70,6 +77,10 @@ public class AutoEnchantingTableBlockEntityRenderer
         state.fluid = resource.getFluid();
         state.fluidStack = resource.toStack(1);
         state.fluidResource = resource;
+        state.displayInputItem = blockEntity.getDisplayInputItem();
+        state.inputItemState = FeatureRendererSupport.initialize(state.displayInputItem, this.resolver);
+        state.displayOutputItem = blockEntity.getDisplayOutputItem();
+        state.outputItemState = FeatureRendererSupport.initialize(state.displayOutputItem, this.resolver);
     }
 
     @Override
@@ -79,13 +90,16 @@ public class AutoEnchantingTableBlockEntityRenderer
         SubmitNodeCollector submitNodeCollector,
         CameraRenderState camera
     ) {
+        // region 渲染书本
         poseStack.pushPose();
         poseStack.translate(0.5F, 0.75F, 0.5F);
+        poseStack.translate(0.0F, 0.1F + Mth.sin(state.time * 0.1F) * 0.01F, 0.0F);
         float rotY = state.rotY;
         poseStack.mulPose(Axis.YP.rotation(-rotY));
         poseStack.mulPose(Axis.ZP.rotationDegrees(80.0F));
-        poseStack.translate(0.0F, 0.1F + Mth.sin(state.time * 0.1F) * 0.01F, 0.0F);
-        BookModel.State animationState = BookModel.State.forAnimation(state.time, 0, 0, 0);
+        float ff1 = Mth.frac(state.flip + 0.25f) * 1.6f - 0.3f;
+        float ff2 = Mth.frac(state.flip + 0.75f) * 1.6f - 0.3f;
+        BookModel.State animationState = BookModel.State.forAnimation(state.time, Mth.clamp(ff1, 0, 1f), Mth.clamp(ff2, 0, 1), state.open);
         submitNodeCollector.submitModel(
             this.bookModel,
             animationState,
@@ -99,7 +113,35 @@ public class AutoEnchantingTableBlockEntityRenderer
             state.breakProgress
         );
         poseStack.popPose();
+        // endregion
 
+        // region 渲染物品
+        if (!state.displayInputItem.isEmpty()) {
+            poseStack.pushPose();
+            ItemClusterRenderState itemState = state.getInputItemState();
+            ItemStackRenderState item = itemState.item;
+            double x = 0.5;
+            double y = 1.15;
+            double z = 0.5;
+            poseStack.translate(x, y, z);
+            poseStack.mulPose(Axis.YP.rotation(rotY));
+            item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, itemState.outlineColor);
+            poseStack.popPose();
+        } else if (!state.displayOutputItem.isEmpty()) {
+            poseStack.pushPose();
+            ItemClusterRenderState itemState = state.getOutputItemState();
+            ItemStackRenderState item = itemState.item;
+            double x = 0.5;
+            double y = 1.35;
+            double z = 0.5;
+            poseStack.translate(x, y, z);
+            poseStack.mulPose(Axis.YP.rotation(rotY));
+            item.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, itemState.outlineColor);
+            poseStack.popPose();
+        }
+        // endregion
+
+        // region 渲染流体
         if (state.amount.getValue() > 0) {
             poseStack.pushPose();
             FluidModel model = FluidRenderHelper.getModel(
@@ -111,10 +153,6 @@ public class AutoEnchantingTableBlockEntityRenderer
                 TextureAtlasSprite sprite = model.stillMaterial().sprite();
                 int tintColor = tintSource.colorAsStack(state.fluidStack);
                 final int[] numbers = splitNumber(state.getAmount().getValue());
-                AnvilCraft.LOGGER.debug("split: ");
-                for (int i : numbers) {
-                    AnvilCraft.LOGGER.debug("  {}", i);
-                }
                 Direction[] directions = { Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTH };
                 for (int i = 0; i < numbers.length; i++) {
                     renderFluid(directions[i], numbers[i], submitNodeCollector, poseStack, sprite, state, tintColor);
@@ -122,6 +160,7 @@ public class AutoEnchantingTableBlockEntityRenderer
             }
             poseStack.popPose();
         }
+        // endregion
     }
 
     private static void renderFluid(
