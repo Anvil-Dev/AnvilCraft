@@ -325,11 +325,6 @@ public abstract class PipeBlock extends Block
     }
 
     // ======================== Check Valve System ========================
-
-    /**
-     * 仅在管道安装了止回阀时创建 BlockEntity。
-     * 子类（PipeStraightBlock/PipeCornerBlock/PipeNodeBlock）各自创建自己的管道 BE 用于流体传输。
-     */
     /**
      * 获取指定位置的止回阀 BE（若存在）。
      */

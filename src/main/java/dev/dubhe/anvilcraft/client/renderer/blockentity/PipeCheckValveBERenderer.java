@@ -62,11 +62,11 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity> impleme
 
         for (Map.Entry<Direction, Direction> entry : state.getFlows().entrySet()) {
             Direction face = entry.getKey();
-            Direction flowOut = entry.getValue();
 
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             applyUpToFacing(poseStack, face);
+            Direction flowOut = entry.getValue();
             if (flowOut == face.getOpposite()) {
                 poseStack.mulPose(Axis.XP.rotationDegrees(180));
             }
@@ -89,12 +89,12 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity> impleme
 
     private static void applyUpToFacing(PoseStack poseStack, Direction facing) {
         switch (facing) {
-            case UP -> poseStack.mulPose(Axis.XP.rotationDegrees(0));
             case DOWN -> poseStack.mulPose(Axis.XP.rotationDegrees(180));
             case NORTH -> poseStack.mulPose(Axis.XP.rotationDegrees(-90));
             case SOUTH -> poseStack.mulPose(Axis.XP.rotationDegrees(90));
             case WEST -> poseStack.mulPose(Axis.ZP.rotationDegrees(90));
             case EAST -> poseStack.mulPose(Axis.ZP.rotationDegrees(-90));
+            default -> poseStack.mulPose(Axis.XP.rotationDegrees(0));
         }
     }
 }
