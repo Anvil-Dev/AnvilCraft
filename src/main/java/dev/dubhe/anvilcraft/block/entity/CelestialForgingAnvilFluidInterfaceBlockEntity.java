@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -86,6 +89,22 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
         BlockEntityType<?> type, BlockPos pos, BlockState state
     ) {
         return new CelestialForgingAnvilFluidInterfaceBlockEntity(type, pos, state);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.addContainer(this.level, this.getBlockPos());
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
+        }
+        super.setRemoved();
     }
 
     public void syncToClients() {
@@ -186,6 +205,15 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
         Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
         BlockPos frontPos = getBlockPos().relative(facing);
         BlockState frontState = level.getBlockState(frontPos);
+        int sourceEffectiveHeight = getBlockPos().getY() + PUMP_HEADLIFT;
+
+        if (FluidNetworkScanner.isPipePart(frontState)) {
+            FluidPipeNetwork network = FluidNetworkScanner.scan(level, frontPos);
+            if (network != null) {
+                network.pushFromExternalSource(this.tank, getBlockPos(), frontPos, sourceEffectiveHeight);
+            }
+            return;
+        }
 
         // 确定目标：前方是管道 → 追踪到远端；否则直接用前方方块
         BlockPos targetPos;       // 接收方的位置

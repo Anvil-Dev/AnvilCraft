@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -179,9 +181,26 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     }
 
     @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        FluidNetworkManager.INSTANCE.markDirty(level);
+    }
+
+    @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
         level.setBlockAndUpdate(blockPos, state.setValue(ORIENTATION, state.getValue(ORIENTATION).opposite()));
+        if (!level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
         return true;
     }
 

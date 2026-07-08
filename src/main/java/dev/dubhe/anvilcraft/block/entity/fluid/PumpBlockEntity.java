@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidPipeNetwork;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import lombok.Getter;
@@ -35,6 +37,7 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
 
     private @Nullable PowerGrid grid;
     private boolean working;
+    private boolean lastCanPump;
 
     public PumpBlockEntity(BlockEntityType<? extends PumpBlockEntity> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -99,22 +102,31 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
             entity.setChanged();
             if (!level.isClientSide()) entity.sendUpdate();
         }
+        boolean canPumpNow = entity.canPump();
+        if (canPumpNow != entity.lastCanPump) {
+            entity.lastCanPump = canPumpNow;
+            FluidNetworkManager.INSTANCE.markDirty(level);
+        }
         Orientation orientation = updatedState.getValue(PumpBlock.ORIENTATION);
         Direction sourceDir = orientation.getDirection();
         BlockPos sourcePos = pos.relative(sourceDir);
-        if (level.getBlockState(sourcePos).getBlock() instanceof PipeBlock || !entity.canPump()) return;
-        Direction targetCurDir = sourceDir.getOpposite();
-        ResourceHandler<FluidResource> fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, sourcePos, targetCurDir);
+        if (FluidNetworkScanner.isPipePart(level.getBlockState(sourcePos)) || !canPumpNow) return;
+        Direction sourceSide = sourceDir.getOpposite();
+        ResourceHandler<FluidResource> fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, sourcePos, sourceSide);
         if (fluidHandler == null) return;
-        PipeEnd pumpEnd = getPipeEnd(level, pos, sourceDir);
-        BlockPos targetCurPos = pos;
-        int effectiveHeight = 0;
-        if (pumpEnd != null) {
-            targetCurPos = pumpEnd.pos();
-            targetCurDir = pumpEnd.direction();
-            effectiveHeight = pumpEnd.effectiveHeight();
+        Direction outputDir = sourceDir.getOpposite();
+        BlockPos outputPos = pos.relative(outputDir);
+        BlockState outputState = level.getBlockState(outputPos);
+        int sourceEffectiveHeight = sourcePos.getY() + PUMP_HEADLIFT;
+        if (FluidNetworkScanner.isPipePart(outputState)) {
+            FluidPipeNetwork network = FluidNetworkScanner.scan(level, outputPos);
+            if (network != null) {
+                network.pushFromExternalSource(fluidHandler, sourcePos, outputPos, sourceEffectiveHeight);
+            }
+            return;
         }
-        AbstractPipeBlockEntity.moveFluidWithHeightCheck(
-            level, pos, sourceDir, targetCurPos, targetCurDir, effectiveHeight);
+        int heightDiff = sourceEffectiveHeight - outputPos.getY();
+        if (heightDiff <= 0) return;
+        AbstractPipeBlockEntity.moveFluid(level, sourcePos, sourceSide, outputPos, sourceDir, heightDiff);
     }
 }
