@@ -29,21 +29,24 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
+
 @EventBusSubscriber(value = Dist.CLIENT)
 public class SubmitGeometryEventListener {
 
     @SubscribeEvent
     public static void on(SubmitCustomGeometryEvent event) {
+        if (Minecraft.getInstance().player == null) return;
+        if (!AnvilHammerItem.shouldRenderEffect(Minecraft.getInstance().player)) return;
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
         PoseStack poseStack = event.getPoseStack();
         DeltaTracker deltaTracker = Minecraft.getInstance().getDeltaTracker();
         SubmitNodeCollector nodeCollector = event.getSubmitNodeCollector();
         // Inspection
         InspectionSupport.INSTANCE.onRenderInspectionAction(
-            poseStack,
-            nodeCollector,
-            camera,
-            deltaTracker
+                poseStack,
+                nodeCollector,
+                camera,
+                deltaTracker
         );
 
         if (Minecraft.getInstance().options.hideGui) return;
@@ -89,8 +92,8 @@ public class SubmitGeometryEventListener {
     }
 
     private static void renderAffectRange(
-        PoseStack pose, BlockHitResult hit, VertexConsumer vertexConsumer3,
-        double camX, double camY, double camZ
+            PoseStack pose, BlockHitResult hit, VertexConsumer vertexConsumer3,
+            double camX, double camY, double camZ
     ) {
         BlockPos blockPos = hit.getBlockPos();
         if (Minecraft.getInstance().level == null) return;
@@ -100,7 +103,7 @@ public class SubmitGeometryEventListener {
     }
 
     private static void renderDragonRodOutline(
-        PoseStack.Pose pose, BlockHitResult hitResult, VertexConsumer consumer, double camX, double camY, double camZ, ItemStack handItem
+            PoseStack.Pose pose, BlockHitResult hitResult, VertexConsumer consumer, double camX, double camY, double camZ, ItemStack handItem
     ) {
         if (handItem.has(ModComponents.DEVOUR_RANGE)) {
             int range = handItem.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
