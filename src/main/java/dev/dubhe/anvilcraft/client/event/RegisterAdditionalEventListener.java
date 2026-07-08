@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
@@ -256,6 +257,10 @@ public class RegisterAdditionalEventListener {
         event.register(
             PumpBlockEntityRenderer.PUMP_PISTON_2,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/pump_piston_2"))
+        );
+        event.register(
+            PipeCheckValveBERenderer.ARM,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/check_valve_arm"))
         );
         // WIP block models for procedural process
         event.register(

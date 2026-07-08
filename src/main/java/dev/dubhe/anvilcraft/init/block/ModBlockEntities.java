@@ -103,6 +103,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
@@ -529,6 +530,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<PipeCheckValveBlockEntity> PIPE_CHECK_VALVE = REGISTRUM
         .blockEntity("pipe_check_valve", PipeCheckValveBlockEntity::new)
         .validBlocks(ModBlocks.PIPE_STRAIGHT, ModBlocks.PIPE_CORNER, ModBlocks.PIPE_NODE)
+        .renderer(() -> PipeCheckValveBERenderer::new)
         .register();
 
     public static final BlockEntityEntry<DrainBlockEntity> DRAIN = REGISTRUM

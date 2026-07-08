@@ -1,19 +1,21 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
@@ -22,6 +24,13 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public class PipeCheckValveBlockEntity extends BlockEntity {
+    private static final String TAG_POWERED = "Powered";
+    private static final String TAG_VALVES = "Valves";
+
+    private static final Codec<Direction> DIRECTION_CODEC = Codec.INT.xmap(
+        Direction::from3DDataValue,
+        Direction::get3DDataValue
+    );
 
     private final Map<Direction, Direction> baseFlow = new EnumMap<>(Direction.class);
 
@@ -91,32 +100,37 @@ public class PipeCheckValveBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putBoolean("Powered", this.powered);
+        output.putBoolean(TAG_POWERED, this.powered);
+        this.writeValves(output);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.powered = input.getBooleanOr("Powered", false);
+        this.powered = input.getBooleanOr(TAG_POWERED, false);
+        this.readValves(input);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("Powered", this.powered);
-        tag.put("Valves", this.writeValves());
-        return tag;
+        TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.Collector(this.problemPath()), registries);
+        output.putBoolean(TAG_POWERED, this.powered);
+        this.writeValves(output);
+        return output.buildResult();
     }
 
-    private ListTag writeValves() {
-        ListTag list = new ListTag();
+    private void writeValves(ValueOutput output) {
+        ValueOutput.TypedOutputList<ValveData> list = output.list(TAG_VALVES, ValveData.CODEC);
         for (Map.Entry<Direction, Direction> entry : this.baseFlow.entrySet()) {
-            CompoundTag e = new CompoundTag();
-            e.putInt("Face", entry.getKey().get3DDataValue());
-            e.putInt("Flow", entry.getValue().get3DDataValue());
-            list.add(e);
+            list.add(new ValveData(entry.getKey(), entry.getValue()));
         }
-        return list;
+    }
+
+    private void readValves(ValueInput input) {
+        this.baseFlow.clear();
+        for (ValveData valve : input.listOrEmpty(TAG_VALVES, ValveData.CODEC)) {
+            this.baseFlow.put(valve.face(), valve.flow());
+        }
     }
 
     @Override
@@ -128,5 +142,12 @@ public class PipeCheckValveBlockEntity extends BlockEntity {
         if (this.level != null) {
             this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
+    }
+
+    private record ValveData(Direction face, Direction flow) {
+        private static final Codec<ValveData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            DIRECTION_CODEC.fieldOf("Face").forGetter(ValveData::face),
+            DIRECTION_CODEC.fieldOf("Flow").forGetter(ValveData::flow)
+        ).apply(instance, ValveData::new));
     }
 }

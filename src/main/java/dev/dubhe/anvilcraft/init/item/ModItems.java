@@ -107,6 +107,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
@@ -1284,6 +1286,14 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<CheckValveItem> CHECK_VALVE = REGISTRUM.item("check_valve", CheckValveItem::new)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, CheckValveItem> ctx, RegistrumItemModelGenerator generator) {
+                var itemModel = new ModelTemplate(Optional.of(ctx.getId().withPrefix("block/")), Optional.empty())
+                    .create(ctx.get(), new TextureMapping(), generator.modelOutput);
+                generator.createWithExistingModel(ctx.get(), itemModel);
+            }
+        })
         .register();
 
     public static void register() {
