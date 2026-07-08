@@ -216,7 +216,9 @@ public class ItemTagLoader {
 
         provider.addTag(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)
             .addTag(Tags.Items.RAW_MATERIALS)
-            .addTag(Tags.Items.ORES);
+            .addTag(Tags.Items.ORES)
+            .add(findResourceKey(Items.SEA_PICKLE))
+            .add(findResourceKey(Items.CACTUS));
 
         provider.addTag(ModItemTags.RAW_MUTTON)
             .add(findResourceKey(Items.MUTTON));

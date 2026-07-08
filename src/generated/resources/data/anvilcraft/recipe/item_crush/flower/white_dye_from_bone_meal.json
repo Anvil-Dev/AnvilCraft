@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:bone_meal"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:white_dye"
+    }
+  ]
+}

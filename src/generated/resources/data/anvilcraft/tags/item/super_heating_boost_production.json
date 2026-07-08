@@ -1,6 +1,8 @@
 {
   "values": [
     "#c:raw_materials",
-    "#c:ores"
+    "#c:ores",
+    "minecraft:sea_pickle",
+    "minecraft:cactus"
   ]
 }
