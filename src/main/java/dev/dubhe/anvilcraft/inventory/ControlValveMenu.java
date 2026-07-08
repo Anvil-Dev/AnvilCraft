@@ -64,6 +64,10 @@ public class ControlValveMenu extends AbstractContainerMenu {
         return inventory.player.level().getBlockEntity(pos) instanceof ControlValveBlockEntity valve ? valve : null;
     }
 
+    public @Nullable ControlValveBlockEntity getBlockEntity() {
+        return this.blockEntity;
+    }
+
     private void addPlayerInventory(Inventory inventory) {
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
@@ -76,10 +80,6 @@ public class ControlValveMenu extends AbstractContainerMenu {
         for (int i = 0; i < 9; ++i) {
             this.addSlot(new Slot(inventory, i, 8 + i * 18, 142));
         }
-    }
-
-    public @Nullable ControlValveBlockEntity getBlockEntity() {
-        return this.blockEntity;
     }
 
     @Override

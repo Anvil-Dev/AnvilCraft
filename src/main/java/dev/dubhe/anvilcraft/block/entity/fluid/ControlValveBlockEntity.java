@@ -2,8 +2,8 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
 import lombok.Getter;
