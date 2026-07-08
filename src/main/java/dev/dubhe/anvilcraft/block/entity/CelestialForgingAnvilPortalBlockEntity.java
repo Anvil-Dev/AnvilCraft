@@ -266,7 +266,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.emittingGamma = false;
         this.gammaLevel = 0;
-        super.clientUpdate(Objects.requireNonNull(irradiateBlockPos), laserLevel);
+        super.clientUpdate(irradiateBlockPos, laserLevel);
     }
 
     @Override

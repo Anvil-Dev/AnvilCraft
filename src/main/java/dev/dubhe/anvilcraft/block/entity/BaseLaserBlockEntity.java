@@ -360,7 +360,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         this.laserLevel = value;
     }
 
-    public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
+    public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.irradiateBlockPos = irradiateBlockPos;
         this.laserLevel = laserLevel;
         Objects.requireNonNull(CachedBlockEntityRenderingPipeline.getInstance()).update(this, true);
