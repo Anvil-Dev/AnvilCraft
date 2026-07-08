@@ -379,7 +379,7 @@ public abstract class PipeBlock extends Block
     protected boolean addCheckValve(Level level, BlockPos pos, BlockState state, Direction face, Direction flowOut) {
         if (level.isClientSide()) return false;
         BlockState newState = state.setValue(HAS_CHECK_VALVE, true);
-        level.setBlockAndUpdate(pos, newState);
+        setBlockPreservingValve(level, pos, newState);
         AbstractPipeBlockEntity valve = getCheckValve(level, pos);
         if (valve != null) {
             valve.setValve(face, flowOut);
@@ -400,7 +400,7 @@ public abstract class PipeBlock extends Block
         valve.sendUpdate();
         if (valve.isEmpty()) {
             BlockState newState = state.setValue(HAS_CHECK_VALVE, false);
-            level.setBlockAndUpdate(pos, newState);
+            setBlockPreservingValve(level, pos, newState);
         }
         FluidNetworkManager.INSTANCE.markDirty(level);
         return true;
@@ -422,19 +422,24 @@ public abstract class PipeBlock extends Block
         }
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
-        Direction flowOut = getArmDirection(pos, hitResult);
-        if (flowOut == null || !this.hasArmToward(state, flowOut)) {
+        Direction face = getArmDirection(pos, hitResult);
+        if (face == null || !this.hasArmToward(state, face)) {
             return InteractionResult.PASS;
         }
 
         // 已有止回阀 → 不重复安装
         AbstractPipeBlockEntity existing = getCheckValve(level, pos);
-        if (existing != null && existing.hasValveOn(flowOut)) {
+        if (existing != null && existing.hasValveOn(face)) {
+            if (this.removeCheckValve(level, pos, state, face)) {
+                giveOrDrop(player, level, pos, new ItemStack(ModItems.CHECK_VALVE.get()));
+                return InteractionResult.CONSUME;
+            }
             return InteractionResult.PASS;
         }
 
         // 流出方向为击中面的朝向
-        if (this.addCheckValve(level, pos, state, flowOut, flowOut)) {
+        Direction flowOut = player.isShiftKeyDown() ? face.getOpposite() : face;
+        if (this.addCheckValve(level, pos, state, face, flowOut)) {
             if (!player.isCreative()) {
                 stack.shrink(1);
             }
@@ -509,6 +514,20 @@ public abstract class PipeBlock extends Block
             return this.detachCheckValve(state, level, pos, player, hitResult);
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(
+        BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
+    ) {
+        Direction face = getArmDirection(pos, hitResult);
+        if (face != null && this.hasArmToward(state, face)) {
+            AbstractPipeBlockEntity valve = getCheckValve(level, pos);
+            if (valve != null && valve.hasValveOn(face)) {
+                return this.detachCheckValve(state, level, pos, player, hitResult);
+            }
+        }
+        return super.useWithoutItem(state, level, pos, player, hitResult);
     }
 
     // ======================== Lifecycle & Network ========================

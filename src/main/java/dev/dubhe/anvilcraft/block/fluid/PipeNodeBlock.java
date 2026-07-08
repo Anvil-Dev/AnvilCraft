@@ -71,6 +71,11 @@ public class PipeNodeBlock extends PipeBlock {
     }
 
     @Override
+    protected boolean hasArmToward(BlockState state, Direction dir) {
+        return state.getValue(getPropertyForDirection(dir)) != NodePipe.NONE;
+    }
+
+    @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (state.is(oldState.getBlock())) return;
@@ -175,8 +180,9 @@ public class PipeNodeBlock extends PipeBlock {
         ItemStack stack, BlockState state, Level level, BlockPos pos,
         Player player, InteractionHand hand, BlockHitResult hitResult
     ) {
-        if (!stack.is(Tags.Items.TOOLS_WRENCH)) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        if (result != InteractionResult.PASS || !stack.is(Tags.Items.TOOLS_WRENCH)) {
+            return result;
         }
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         Direction armDir = getNodeArmDirection(pos, hitResult);

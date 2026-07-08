@@ -159,7 +159,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
             nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(dir),
                 PipeNodeBlock.evaluateNeighbor(level, pos, dir));
         }
-        level.setBlockAndUpdate(pos, nodeState);
+        PipeBlock.setBlockPreservingValve(level, pos, nodeState);
     }
 
     @Override

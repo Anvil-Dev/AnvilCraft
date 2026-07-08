@@ -93,7 +93,7 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
 
         List<Exit> exits = new ArrayList<>();
         // 节点内部储罐作为节点自身高度处的一个出口
-        exits.add(new Exit(pos, null, pos.getY()));
+        exits.add(new Exit(pos, null, pos.getY(), null));
 
         for (Direction direction : Direction.values()) {
             PipeBlock.NodePipe value = state.getValue(PipeBlock.getPropertyForDirection(direction));
@@ -112,6 +112,9 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
             for (int j = i + 1; j < exits.size(); j++) {
                 Exit target = exits.get(j);
                 if (source.effectiveHeight() <= target.effectiveHeight()) {
+                    continue;
+                }
+                if (!canMoveBetweenExits(level, pos, source, target)) {
                     continue;
                 }
                 AbstractPipeBlockEntity.moveFluidByEffectiveHeight(
@@ -135,12 +138,12 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
     private static @Nullable Exit resolveExit(Level level, BlockPos pos, Direction direction, PipeBlock.NodePipe value) {
         if (value == PipeBlock.NodePipe.PIPE) {
             // 沿管道追踪至端点容器
-            PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos.relative(direction), direction.getOpposite());
+            PipeEnd pipeEnd = AbstractPipeBlockEntity.getPipeEnd(level, pos.relative(direction), direction.getOpposite(), 0, false);
             if (pipeEnd == null) {
                 return null;
             }
             BlockPos containerPos = pipeEnd.pos().relative(pipeEnd.direction());
-            return new Exit(pipeEnd.pos(), pipeEnd.direction(), containerPos.getY() - pipeEnd.effectiveHeight());
+            return new Exit(pipeEnd.pos(), pipeEnd.direction(), containerPos.getY() - pipeEnd.effectiveHeight(), direction);
         }
         if (value == PipeBlock.NodePipe.END) {
             BlockPos neighborPos = pos.relative(direction);
@@ -151,10 +154,10 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
                     return null;
                 }
                 BlockPos containerPos = pumpEnd.pos().relative(pumpEnd.direction());
-                return new Exit(pumpEnd.pos(), pumpEnd.direction(), containerPos.getY() - pumpEnd.effectiveHeight());
+                return new Exit(pumpEnd.pos(), pumpEnd.direction(), containerPos.getY() - pumpEnd.effectiveHeight(), direction);
             }
             // 端头直连流体容器
-            return new Exit(pos, direction, neighborPos.getY());
+            return new Exit(pos, direction, neighborPos.getY(), direction);
         }
         return null;
     }
@@ -167,5 +170,39 @@ public class PipeNodeBlockEntity extends AbstractPipeBlockEntity implements IFlu
      * @param direction       出口朝向；{@code null} 表示节点自身内部储罐
      * @param effectiveHeight 该出口目标容器的等效高度（已计入泵扬程修正）
      */
-    record Exit(BlockPos pos, @Nullable Direction direction, int effectiveHeight) {}
+    private static boolean canMoveBetweenExits(Level level, BlockPos nodePos, Exit source, Exit target) {
+        Direction sourceNodeDirection = source.nodeDirection();
+        if (sourceNodeDirection != null) {
+            if (!AbstractPipeBlockEntity.canFlowThroughCheckValve(
+                level,
+                nodePos,
+                sourceNodeDirection,
+                sourceNodeDirection.getOpposite()
+            )) {
+                return false;
+            }
+            if (!source.pos().equals(nodePos)
+                && (source.direction() == null || AbstractPipeBlockEntity.getPipeEnd(level, source.pos(), source.direction()) == null)) {
+                return false;
+            }
+        }
+
+        Direction targetNodeDirection = target.nodeDirection();
+        if (targetNodeDirection != null) {
+            if (!AbstractPipeBlockEntity.canFlowThroughCheckValve(level, nodePos, targetNodeDirection, targetNodeDirection)) {
+                return false;
+            }
+            if (!target.pos().equals(nodePos)
+                && AbstractPipeBlockEntity.getPipeEnd(
+                    level,
+                    nodePos.relative(targetNodeDirection),
+                    targetNodeDirection.getOpposite()
+                ) == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    record Exit(BlockPos pos, @Nullable Direction direction, int effectiveHeight, @Nullable Direction nodeDirection) {}
 }

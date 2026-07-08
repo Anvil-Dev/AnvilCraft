@@ -156,25 +156,45 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         this.level.updateNeighborsAt(this.getBlockPos(), this.getBlockState().getBlock());
     }
 
+    public static boolean canFlowThroughCheckValve(Level level, BlockPos pipePos, Direction face, Direction flowDirection) {
+        if (!level.isLoaded(pipePos)) return false;
+        if (level.getBlockEntity(pipePos) instanceof AbstractPipeBlockEntity pipe) {
+            Direction allowed = pipe.effectiveFlow(face);
+            return allowed == null || allowed == flowDirection;
+        }
+        return true;
+    }
+
     /**
      * 从指定位置出发，沿管道递归追踪 PipeEnd。
      */
     public static @Nullable PipeEnd getPipeEnd(Level level, BlockPos blockPos, Direction direction, int accumulatedHeight) {
+        return getPipeEnd(level, blockPos, direction, accumulatedHeight, true);
+    }
+
+    public static @Nullable PipeEnd getPipeEnd(
+        Level level, BlockPos blockPos, Direction direction, int accumulatedHeight, boolean checkValves
+    ) {
         if (!level.isLoaded(blockPos)) return null;
         BlockState blockState = level.getBlockState(blockPos);
+        if (checkValves
+            && blockState.getBlock() instanceof PipeBlock
+            && !canFlowThroughCheckValve(level, blockPos, direction, direction.getOpposite())) {
+            return null;
+        }
         if (blockState.getBlock() instanceof PipeNodeBlock) {
             return new PipeEnd(blockPos.relative(direction.getOpposite()), direction, accumulatedHeight);
         }
         if (blockState.getBlock() instanceof PipeStraightBlock) {
-            return getPipeStraightEnd(level, blockPos, blockState, direction, accumulatedHeight);
+            return getPipeStraightEnd(level, blockPos, blockState, direction, accumulatedHeight, checkValves);
         }
         if (blockState.getBlock() instanceof PipeCornerBlock) {
-            return getPipeCornerEnd(level, blockPos, blockState, direction, accumulatedHeight);
+            return getPipeCornerEnd(level, blockPos, blockState, direction, accumulatedHeight, checkValves);
         }
         if (blockState.getBlock() instanceof PumpBlock) {
             Direction pumpOutputDir = blockState.getValue(PumpBlock.ORIENTATION).getDirection();
             if (direction == pumpOutputDir && level.getBlockEntity(blockPos) instanceof PumpBlockEntity pumpBe && pumpBe.canPump()) {
-                return getPumpPipeEnd(level, blockPos, direction, accumulatedHeight);
+                return getPumpPipeEnd(level, blockPos, direction, accumulatedHeight, checkValves);
             }
             return null;
         }
@@ -186,7 +206,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     }
 
     public static @Nullable PipeEnd getPipeStraightEnd(
-        Level level, BlockPos blockPos, BlockState blockState, Direction direction, int accumulatedHeight
+        Level level, BlockPos blockPos, BlockState blockState, Direction direction, int accumulatedHeight, boolean checkValves
     ) {
         Direction.Axis axis = blockState.getValue(PipeStraightBlock.AXIS);
         if (!direction.getAxis().equals(axis)) return null;
@@ -195,18 +215,19 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         if (direction.equals(startDir)) hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_END);
         else hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_START);
         Direction targetDir = direction.getOpposite();
+        if (checkValves && !canFlowThroughCheckValve(level, blockPos, targetDir, targetDir)) return null;
         if (!hasNext) {
             BlockPos neighborPos = blockPos.relative(targetDir);
             if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
-                return getPipeEnd(level, neighborPos, direction, accumulatedHeight);
+                return getPipeEnd(level, neighborPos, direction, accumulatedHeight, checkValves);
             }
             return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
-        return getPipeEnd(level, blockPos.relative(targetDir), direction, accumulatedHeight);
+        return getPipeEnd(level, blockPos.relative(targetDir), direction, accumulatedHeight, checkValves);
     }
 
     public static @Nullable PipeEnd getPipeCornerEnd(
-        Level level, BlockPos blockPos, BlockState blockState, Direction direction, int accumulatedHeight
+        Level level, BlockPos blockPos, BlockState blockState, Direction direction, int accumulatedHeight, boolean checkValves
     ) {
         PipeBlock.CornerEnded corner = blockState.getValue(PipeCornerBlock.CORNER_ENDED);
         if (!direction.equals(corner.getFirstDirection()) && !direction.equals(corner.getSecondDirection())) return null;
@@ -220,17 +241,20 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_START);
             targetDir = startDir;
         }
+        if (checkValves && !canFlowThroughCheckValve(level, blockPos, targetDir, targetDir)) return null;
         if (!hasNext) {
             BlockPos neighborPos = blockPos.relative(targetDir);
             if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
-                return getPipeEnd(level, neighborPos, targetDir.getOpposite(), accumulatedHeight);
+                return getPipeEnd(level, neighborPos, targetDir.getOpposite(), accumulatedHeight, checkValves);
             }
             return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
-        return getPipeEnd(level, blockPos.relative(targetDir), targetDir.getOpposite(), accumulatedHeight);
+        return getPipeEnd(level, blockPos.relative(targetDir), targetDir.getOpposite(), accumulatedHeight, checkValves);
     }
 
-    private static @Nullable PipeEnd getPumpPipeEnd(Level level, BlockPos pumpPos, Direction direction, int accumulatedHeight) {
+    private static @Nullable PipeEnd getPumpPipeEnd(
+        Level level, BlockPos pumpPos, Direction direction, int accumulatedHeight, boolean checkValves
+    ) {
         BlockPos nextPos = pumpPos.relative(direction.getOpposite());
         if (!level.isLoaded(nextPos)) return null;
         BlockState nextState = level.getBlockState(nextPos);
@@ -238,7 +262,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             || nextState.getBlock() instanceof PipeStraightBlock
             || nextState.getBlock() instanceof PipeCornerBlock
             || nextState.getBlock() instanceof PumpBlock) {
-            return getPipeEnd(level, nextPos, direction, accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT);
+            return getPipeEnd(level, nextPos, direction, accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT, checkValves);
         }
         if (PipeBlock.isFluidHandler(level, nextPos)) {
             return new PipeEnd(pumpPos, direction.getOpposite(), accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT);
@@ -257,6 +281,12 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         if (sourceEffectiveY <= targetEffectiveY) return;
         Direction sourceDirection = sourceCurDirection.getOpposite();
         Direction targetDirection = targetCurDirection.getOpposite();
+        if (!canFlowThroughCheckValve(level, sourceCurPos, sourceCurDirection, sourceCurDirection.getOpposite())
+            || !canFlowThroughCheckValve(level, targetCurPos, targetCurDirection, targetCurDirection)
+            || !canFlowThroughCheckValve(level, sourcePos, sourceDirection, sourceDirection)
+            || !canFlowThroughCheckValve(level, targetPos, targetDirection, targetDirection.getOpposite())) {
+            return;
+        }
         moveFluid(level, sourcePos, sourceDirection, targetPos, targetDirection, sourceEffectiveY - targetEffectiveY);
     }
 
@@ -290,6 +320,20 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         BlockPos targetPos = targetCurDirection == null ? targetCurPos : targetCurPos.relative(targetCurDirection);
         Direction sourceSide = sourceCurDirection == null ? null : sourceCurDirection.getOpposite();
         Direction targetSide = targetCurDirection == null ? null : targetCurDirection.getOpposite();
+        if (sourceCurDirection != null
+            && !canFlowThroughCheckValve(level, sourceCurPos, sourceCurDirection, sourceCurDirection.getOpposite())) {
+            return;
+        }
+        if (targetCurDirection != null
+            && !canFlowThroughCheckValve(level, targetCurPos, targetCurDirection, targetCurDirection)) {
+            return;
+        }
+        if (sourceSide != null && !canFlowThroughCheckValve(level, sourcePos, sourceSide, sourceSide)) {
+            return;
+        }
+        if (targetSide != null && !canFlowThroughCheckValve(level, targetPos, targetSide, targetSide.getOpposite())) {
+            return;
+        }
         moveFluid(level, sourcePos, sourceSide, targetPos, targetSide, sourceEffectiveHeight - targetEffectiveHeight);
     }
 

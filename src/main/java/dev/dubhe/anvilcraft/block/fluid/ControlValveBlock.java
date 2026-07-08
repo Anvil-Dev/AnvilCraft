@@ -170,7 +170,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock
                 PipeNodeBlock.evaluateNeighbor(level, pos, dir)
             );
         }
-        level.setBlockAndUpdate(pos, nodeState);
+        PipeBlock.setBlockPreservingValve(level, pos, nodeState);
     }
 
     @Override
