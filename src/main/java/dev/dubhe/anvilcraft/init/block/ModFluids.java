@@ -319,7 +319,9 @@ public class ModFluids {
                     AnvilCraft.of("block/%s_cement".formatted(color)),
                     AnvilCraft.of("block/%s_cement".formatted(color)),
                     ColorUtil.mulValue(((DyeItem) color.dyeItem()).getDyeColor().getTextColor(), 0.6f),
-                    1.0f
+                    1.0f,
+                    0xFFFFFFFF,
+                    false
                 ), CEMENT_TYPES.get(color)
             );
         }
