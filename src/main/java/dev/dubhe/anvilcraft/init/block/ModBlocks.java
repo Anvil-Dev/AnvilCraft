@@ -260,6 +260,8 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -285,7 +287,9 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.Tags;
 
@@ -4106,6 +4110,76 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::advancedComparator)
+        .register();
+
+    public static final BlockEntry<Block> ANCIENT_SEA_REEF = REGISTRUM
+        .block("ancient_sea_reef", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .properties(p -> p
+            .noOcclusion()
+            .requiresCorrectToolForDrops()
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::onlyState)
+        .simpleItem()
+        .loot((tables, block) -> {
+            var silkTouch = DataGenUtil.hasSilkTouch(tables.getRegistries());
+            tables.add(
+                block, LootTable.lootTable()
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(block))
+                        .when(silkTouch))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.PRISMARINE_SHARD)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4.0F))))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.PRISMARINE_CRYSTALS)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(4.0F))))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.TUBE_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.BRAIN_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.BUBBLE_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.FIRE_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.HORN_CORAL))
+                        .when(silkTouch.invert()))
+                    .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA)
+                            .when(() -> new LootItemRandomChanceWithEnchantedBonusCondition(
+                                0.1F,
+                                LevelBasedValue.perLevel(0.1F, 0.1F),
+                                tables.getRegistries()
+                                    .lookupOrThrow(Registries.ENCHANTMENT)
+                                    .getOrThrow(Enchantments.FORTUNE)
+                            )))
+                        .when(silkTouch.invert()))
+            );
+        })
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRUM.block(

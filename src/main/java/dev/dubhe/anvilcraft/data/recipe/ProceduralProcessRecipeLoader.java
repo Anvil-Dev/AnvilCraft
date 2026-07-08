@@ -113,5 +113,20 @@ public class ProceduralProcessRecipeLoader {
                 .input(Blocks.IRON_BLOCK).input(ModBlocks.WIP_BLOCK.get())
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
             .save(provider);
+
+        // 杩滃彜娴风
+        ProceduralProcessRecipeBuilder.of(Blocks.WET_SPONGE)
+            .addStep(ItemInjectRecipe.builder()
+                .inputBlock(Blocks.WET_SPONGE).requires(Items.HEART_OF_THE_SEA)
+                .resultBlock(ModBlocks.WIP_BLOCK).buildRecipe())
+            .addStep(ItemInjectRecipe.builder()
+                .inputBlock(ModBlocks.WIP_BLOCK).requires(ModItems.SAPPHIRE)
+                .resultBlock(ModBlocks.WIP_BLOCK).buildRecipe())
+            .addStep(BlockProcessingRecipe.builder()
+                .fakeTimeWarp(ModBlocks.WIP_BLOCK.get())
+                .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
+            .result(ModBlocks.ANCIENT_SEA_REEF)
+            .displayedModel(AnvilCraft.of("block/ancient_sea_reef_wip"))
+            .save(provider);
     }
 }
