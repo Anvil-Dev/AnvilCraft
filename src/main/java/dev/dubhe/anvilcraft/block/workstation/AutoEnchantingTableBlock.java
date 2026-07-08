@@ -102,8 +102,12 @@ public class AutoEnchantingTableBlock extends BetterBaseEntityBlock {
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> type) {
         return level.isClientSide()
-            ? createTickerHelper(type, ModBlockEntities.AUTO_ENCHANTING_TABLE.get(), (world, pos, state, be) -> be.bookAnimationTick(world, pos, state))
-            : createTickerHelper(type, ModBlockEntities.AUTO_ENCHANTING_TABLE.get(), (world, pos, state, be) -> be.serverTick(world, pos, state));
+            ? createTickerHelper(
+                type, ModBlockEntities.AUTO_ENCHANTING_TABLE.get(),
+            (world, pos, state, be) -> be.bookAnimationTick(world, pos, state))
+            : createTickerHelper(
+                type, ModBlockEntities.AUTO_ENCHANTING_TABLE.get(), (
+                    world, pos, state, be) -> be.serverTick(world, pos, state));
     }
 
     @Override

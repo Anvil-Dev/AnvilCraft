@@ -239,11 +239,11 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
 
         if (!this.getItem(0).isEmpty()) {
             this.open += 0.1f;
-            if (this.open < 0.5f || random.nextInt(40) == 0) {
+            if (this.open < 0.5f || this.random.nextInt(40) == 0) {
                 float old = this.flipT;
 
                 do {
-                    this.flipT = this.flipT + (random.nextInt(4) - random.nextInt(4));
+                    this.flipT = this.flipT + (this.random.nextInt(4) - this.random.nextInt(4));
                 } while (old == this.flipT);
             }
         } else {
@@ -345,7 +345,14 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
                     this.onChange();
                 }
                 this.enchantmentSeed = level.getRandom().nextInt();
-                level.playSound(null, this.getBlockPos(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.1F + 0.9F);
+                level.playSound(
+                    null,
+                    this.getBlockPos(),
+                    SoundEvents.ENCHANTMENT_TABLE_USE,
+                    SoundSource.BLOCKS,
+                    1.0F,
+                    level.getRandom().nextFloat() * 0.1F + 0.9F
+                );
             } else {
                 // TODO: 引物模式
             }
@@ -360,7 +367,7 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
             return new int[][]{};
         }
         if (this.level != null) {
-            IdMap<Holder<Enchantment>> idMap = this.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).asHolderIdMap();
+            final IdMap<Holder<Enchantment>> idMap = this.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).asHolderIdMap();
             int bookcases = 0;
             for (BlockPos offset : AutoEnchantingTableBlock.BOOKSHELF_OFFSETS) {
                 if (EnchantingTableBlock.isValidBookShelf(this.level, this.getBlockPos(), offset)) {
@@ -370,9 +377,9 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
             if (this.enchantmentSeed == 0) {
                 this.enchantmentSeed = level.getRandom().nextInt();
             }
-            random.setSeed(this.enchantmentSeed);
+            this.random.setSeed(this.enchantmentSeed);
             for (int ixx = 0; ixx < 3; ixx++) {
-                costs[ixx] = EnchantmentHelper.getEnchantmentCost(random, ixx, bookcases, itemStack);
+                costs[ixx] = EnchantmentHelper.getEnchantmentCost(this.random, ixx, bookcases, itemStack);
                 enchantClue[ixx] = -1;
                 levelClue[ixx] = -1;
                 if (costs[ixx] < ixx + 1) {
@@ -384,7 +391,7 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
                 if (costs[ix] > 0) {
                     List<EnchantmentInstance> list = this.getEnchantmentList(level.registryAccess(), itemStack, ix, costs[ix]);
                     if (!list.isEmpty()) {
-                        EnchantmentInstance enchant = list.get(random.nextInt(list.size()));
+                        EnchantmentInstance enchant = list.get(this.random.nextInt(list.size()));
                         enchantClue[ix] = idMap.getId(enchant.enchantment());
                         levelClue[ix] = enchant.level();
                     }
@@ -399,16 +406,21 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
         return new int[][]{};
     }
 
-    private List<EnchantmentInstance> getEnchantmentList(final RegistryAccess access, final ItemStack itemStack, final int slot, final int enchantmentCost) {
-        random.setSeed(this.enchantmentSeed + slot);
+    private List<EnchantmentInstance> getEnchantmentList(
+        final RegistryAccess access,
+        final ItemStack itemStack,
+        final int slot,
+        final int enchantmentCost
+    ) {
+        this.random.setSeed(this.enchantmentSeed + slot);
         Optional<HolderSet.Named<Enchantment>> tag = access.lookupOrThrow(Registries.ENCHANTMENT).get(EnchantmentTags.IN_ENCHANTING_TABLE);
         if (tag.isEmpty()) {
             return List.of();
         }
 
-        List<EnchantmentInstance> list = EnchantmentHelper.selectEnchantment(random, itemStack, enchantmentCost, tag.get().stream());
+        List<EnchantmentInstance> list = EnchantmentHelper.selectEnchantment(this.random, itemStack, enchantmentCost, tag.get().stream());
         if (itemStack.is(Items.BOOK) && list.size() > 1) {
-            list.remove(random.nextInt(list.size()));
+            list.remove(this.random.nextInt(list.size()));
         }
 
         return list;

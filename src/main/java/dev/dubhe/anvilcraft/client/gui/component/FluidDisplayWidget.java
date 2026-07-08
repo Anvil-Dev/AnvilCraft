@@ -40,7 +40,7 @@ public class FluidDisplayWidget extends AbstractWidget {
 
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        Identifier fluidTexture = getFluidTexture();
+        Identifier fluidTexture = this.getFluidTexture();
         if (fluidTexture != null) {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,

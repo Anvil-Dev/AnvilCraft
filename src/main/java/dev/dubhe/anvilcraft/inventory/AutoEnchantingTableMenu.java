@@ -27,7 +27,12 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         Inventory inventory,
         FriendlyByteBuf extraData
     ) {
-        this(menuType, containerId, inventory, (AutoEnchantingTableBlockEntity) inventory.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(
+            menuType,
+            containerId,
+            inventory,
+            (AutoEnchantingTableBlockEntity) inventory.player.level().getBlockEntity(extraData.readBlockPos())
+        );
     }
 
     public AutoEnchantingTableMenu(
@@ -55,6 +60,7 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
                 return false;
             }
         });
+
         this.addSlot(new Slot(this.container, 1, 7,  52) {
             @Override
             public boolean mayPlace(ItemStack itemStack) {
