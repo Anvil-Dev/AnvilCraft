@@ -60,6 +60,7 @@ public class OtherLang {
         provider.add("subtitles.anvilcraft.smart_block_placer_extend", "Smart Block Placer extended");
         provider.add("subtitles.anvilcraft.smart_block_placer_retract", "Smart Block Placer retracted");
         provider.add("subtitles.anvilcraft.smart_block_placer_shulker_open", "Smart Block Placer whirs");
+        provider.add("subtitles.anvilcraft.anvil_hammer_rotate_block", "Anvil Hammer rotates block");
         provider.add("death.attack.anvilcraft.laser", "%1$s was pierced by laser");
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");

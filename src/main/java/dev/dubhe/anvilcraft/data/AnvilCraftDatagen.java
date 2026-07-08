@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.data.provider.ModFurnaceFuelProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootModifierProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
 import dev.dubhe.anvilcraft.data.provider.ModParticleDescriptionProvider;
+import dev.dubhe.anvilcraft.data.provider.ModSoundDefinitionsProvider;
 import dev.dubhe.anvilcraft.data.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.tags.TagsHandler;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
@@ -49,6 +50,7 @@ public class AnvilCraftDatagen {
         PackOutput packOutput = generator.getPackOutput();
 
         generator.addProvider(true, new ModParticleDescriptionProvider(packOutput));
+        generator.addProvider(true, new ModSoundDefinitionsProvider(packOutput));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientDataIntegrations();
