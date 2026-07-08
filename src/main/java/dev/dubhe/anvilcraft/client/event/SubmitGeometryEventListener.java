@@ -103,7 +103,13 @@ public class SubmitGeometryEventListener {
     }
 
     private static void renderDragonRodOutline(
-            PoseStack.Pose pose, BlockHitResult hitResult, VertexConsumer consumer, double camX, double camY, double camZ, ItemStack handItem
+            PoseStack.Pose pose,
+            BlockHitResult hitResult,
+            VertexConsumer consumer,
+            double camX,
+            double camY,
+            double camZ,
+            ItemStack handItem
     ) {
         if (handItem.has(ModComponents.DEVOUR_RANGE)) {
             int range = handItem.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
