@@ -88,6 +88,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeCrateRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankRenderer;
@@ -528,6 +529,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ControlValveBlockEntity> CONTROL_VALVE = REGISTRUM
         .blockEntity("control_valve", ControlValveBlockEntity::new)
         .validBlock(ModBlocks.CONTROL_VALVE)
+        .renderer(() -> ControlValveBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<DrainBlockEntity> DRAIN = REGISTRUM

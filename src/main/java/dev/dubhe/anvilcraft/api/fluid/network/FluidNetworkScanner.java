@@ -293,7 +293,11 @@ public final class FluidNetworkScanner {
     }
 
     private static void enqueuePart(BlockPos pos, int phi, Map<BlockPos, Integer> potential, Deque<BlockPos> queue) {
-        if (potential.containsKey(pos)) {
+        Integer old = potential.get(pos);
+        if (old != null) {
+            if (phi < old) {
+                potential.put(pos.immutable(), phi);
+            }
             return;
         }
         potential.put(pos.immutable(), phi);
@@ -308,9 +312,6 @@ public final class FluidNetworkScanner {
         Map<BlockPos, Integer> potential,
         Deque<BlockPos> queue
     ) {
-        if (potential.containsKey(pumpPos)) {
-            return;
-        }
         Direction outputDir = pumpState.getValue(PumpBlock.ORIENTATION).getDirection();
         int fromPhi = potential.get(fromPos);
         int lift = pumpHalfLift(level, pumpPos);
@@ -320,6 +321,13 @@ public final class FluidNetworkScanner {
         } else if (fromPos.equals(pumpPos.relative(outputDir.getOpposite()))) {
             pumpPhi = fromPhi + lift;      // fromPos 在输入侧：fromPhi = pumpPhi - lift
         } else {
+            return;
+        }
+        Integer old = potential.get(pumpPos);
+        if (old != null) {
+            if (pumpPhi < old) {
+                potential.put(pumpPos.immutable(), pumpPhi);
+            }
             return;
         }
         potential.put(pumpPos.immutable(), pumpPhi);

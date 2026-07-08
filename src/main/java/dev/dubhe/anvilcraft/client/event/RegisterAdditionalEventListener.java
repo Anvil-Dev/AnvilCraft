@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
@@ -261,6 +262,10 @@ public class RegisterAdditionalEventListener {
         event.register(
             PipeCheckValveBERenderer.ARM,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/check_valve_arm"))
+        );
+        event.register(
+            ControlValveBlockEntityRenderer.HANDWHEEL,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/control_valve_handwheel"))
         );
         // WIP block models for procedural process
         event.register(

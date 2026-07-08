@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "anvilcraft:block/control_valve"
+    "model": "anvilcraft:block/control_valve_item"
   }
 }

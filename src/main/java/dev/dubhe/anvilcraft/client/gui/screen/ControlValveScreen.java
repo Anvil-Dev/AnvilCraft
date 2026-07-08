@@ -3,18 +3,21 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.FluidRateSlider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
+import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
 import dev.dubhe.anvilcraft.network.ControlValveFilterPacket;
 import dev.dubhe.anvilcraft.network.ControlValveUpdatePacket;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -304,13 +307,15 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     }
 
     private void extractFluidSwatch(GuiGraphicsExtractor graphics, FluidStack fluid, int x, int y) {
-        int hash = BuiltInRegistries.FLUID.getKey(fluid.getFluid()).hashCode();
-        int tint = 0xFF000000
-                   | ((0x60 + (hash & 0x7F)) << 16)
-                   | ((0x60 + ((hash >> 8) & 0x7F)) << 8)
-                   | (0x60 + ((hash >> 16) & 0x7F));
-        graphics.fill(x, y, x + 16, y + 16, tint);
-        graphics.fill(x + 1, y + 1, x + 15, y + 2, 0x80FFFFFF);
-        graphics.fill(x + 1, y + 14, x + 15, y + 15, 0x80000000);
+        FluidResource resource = FluidResource.of(fluid);
+        FluidModel model = FluidRenderHelper.getModel(
+            Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
+            resource.getFluid()
+        );
+        var tintSource = model.fluidTintSource();
+        if (tintSource == null) return;
+        TextureAtlasSprite sprite = model.stillMaterial().sprite();
+        int tint = tintSource.colorAsStack(resource.toStack(1));
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, 16, 16, tint);
     }
 }

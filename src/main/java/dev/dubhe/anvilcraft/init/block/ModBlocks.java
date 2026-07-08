@@ -408,7 +408,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().sound(SoundType.METAL))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item()
+        .model(() -> DataGenUtil.blockItem("_item"))
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
