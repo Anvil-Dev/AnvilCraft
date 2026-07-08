@@ -294,16 +294,26 @@ public class VanillaRecipesWrap {
         Ingredient first = ingredients.getFirst();
         ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
         String ingredient = "empty";
+        boolean boost = true;
         for (Ingredient.Value value : first.getValues()) {
             if (value instanceof Ingredient.ItemValue(ItemStack item)) {
+                if (!item.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) boost = false;
                 ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
                 predicateBuilder.of(item);
             }
             if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
+                HolderSet.Named<Item> named = BuiltInRegistries.ITEM.getOrCreateTag(tag);
+                for (Holder<Item> holder : named) {
+                    if (!holder.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) {
+                        boost = false;
+                        break;
+                    }
+                }
                 ingredient = tag.location().getPath().replace("/", "_");
                 predicateBuilder.of(tag);
             }
         }
+        result.setCount(result.getCount() * (boost ? 2 : 1));
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
         ResourceLocation location = AnvilCraft.of("heating_warp_%s_2_%s".formatted(ingredient, res));
         VanillaRecipesWrap.recipes.add(
