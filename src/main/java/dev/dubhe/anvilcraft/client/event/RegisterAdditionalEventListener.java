@@ -93,7 +93,6 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("ancient_debris_wip"));
         event.register(standaloneBlock("netherite_block_wip"));
         event.register(standaloneBlock("heavy_iron_block_wip"));
-        event.register(standaloneBlock("redstone_computer_wip"));
         event.register(standaloneBlock("spacetime_supercomputer_wip"));
     }
 

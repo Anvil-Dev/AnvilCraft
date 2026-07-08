@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:procedural_process/redstone_computer_from_procedural"
+        "recipe": "anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator_2"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:procedural_process/redstone_computer_from_procedural"
+      "anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator_2"
     ]
   }
 }

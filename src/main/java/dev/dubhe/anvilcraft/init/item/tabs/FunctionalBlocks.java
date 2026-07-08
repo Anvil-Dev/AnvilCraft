@@ -80,7 +80,6 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.ITEM_DETECTOR); // 物品探测器
         this.plain(ModBlocks.PULSE_GENERATOR); // 脉冲发生器
         this.plain(ModBlocks.ADVANCED_COMPARATOR); // 高级比较器
-        this.plain(ModBlocks.REDSTONE_COMPUTER); // 红石计算机
         this.plain(ModBlocks.PROPEL_PISTON); // 推进活塞
         this.plain(ModBlocks.OVERSEER_BLOCK); // 监督者
         this.plain(ModBlocks.JEWEL_CRAFTING_TABLE); // 珠宝加工台
