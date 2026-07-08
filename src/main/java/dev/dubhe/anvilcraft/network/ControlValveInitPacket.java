@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.network;
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -24,5 +26,9 @@ public record ControlValveInitPacket(int maxRate, FluidStack filter) implements 
 
     @Override
     public void handleOnClient(Player player) {
+        if (Minecraft.getInstance().screen instanceof ControlValveScreen screen) {
+            screen.setValue(this.maxRate);
+            screen.setFilter(0, this.filter);
+        }
     }
 }

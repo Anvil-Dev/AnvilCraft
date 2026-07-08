@@ -1623,6 +1623,7 @@
   "screen.anvilcraft.cfa.wind": "Wind Speed: %s",
   "screen.anvilcraft.cfa.wind.high": "High",
   "screen.anvilcraft.cfa.wind.very_high": "Very High",
+  "screen.anvilcraft.control_valve.redstone_locked": "Locked by Redstone",
   "screen.anvilcraft.deflection_ring.speed": "  Last Entity Speed: %d m/tick",
   "screen.anvilcraft.deflection_ring.state": "Deflection Ring State",
   "screen.anvilcraft.ember_grindstone.cost": "Exp. Cost: %d",

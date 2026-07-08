@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.Lazy;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.BaseChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FilterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
@@ -354,6 +355,10 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         );
         registration.addGhostIngredientHandler(
             ItemCollectorScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
+            ControlValveScreen.class,
             new GhostIngredientHandler<>()
         );
     }

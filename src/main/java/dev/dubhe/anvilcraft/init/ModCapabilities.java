@@ -100,6 +100,7 @@ public class ModCapabilities {
             ModBlocks.LARGE_FLUID_TANK.get()
         );
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PIPE_NODE.get(), ModCapabilities::fluid);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.DRAIN.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.CREATIVE_FLUID_TANK.get(), ModCapabilities::fluid);
         event.registerBlockEntity(
             Capabilities.Fluid.BLOCK,
