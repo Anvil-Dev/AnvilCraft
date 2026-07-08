@@ -154,7 +154,7 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
                     Minecraft.getInstance().font,
                     Component.translatable(
                         "gui.anvilcraft.category.bulging.produce_fluid",
-                        -hasCauldron.consume(),
+                        hasCauldron.produce(),
                         hasCauldron.getTransformCauldron().getName()
                     ),
                     0,
@@ -166,7 +166,10 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
             }
         } else {
             Block result = recipe.getHasCauldron().getTransformCauldron();
-            if (recipe.isConsumeFluid()) {
+            if (recipe.isConsumeFluid() && recipe.isProduceFluid()) {
+                // 既消耗又产生 = 流体替换，显示满的输出炼药锅
+                state = CauldronUtil.fullState(result);
+            } else if (recipe.isConsumeFluid()) {
                 state = CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);
             } else if (recipe.isProduceFluid()) {
                 state = CauldronUtil.getStateFromContentAndLevel(result, 1);
@@ -207,7 +210,10 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
                 Block result = recipe.getHasCauldron().getTransformCauldron();
                 Component text;
                 if (recipe.getResultItems().isEmpty()) {
-                    if (recipe.isConsumeFluid()) {
+                    if (recipe.isConsumeFluid() && recipe.isProduceFluid()) {
+                        // 既消耗又产生 = 流体替换，显示输出炼药锅名称
+                        text = result.getName();
+                    } else if (recipe.isConsumeFluid()) {
                         if (CauldronUtil.maxLevel(result) > 1) {
                             text = result.getName();
                         } else {
@@ -224,7 +230,8 @@ public class BulgingCategory implements IRecipeCategory<RecipeHolder<BulgingReci
 
     public static void registerRecipes(IRecipeRegistration registration) {
         List<RecipeHolder<BulgingRecipe>> holders = JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BULGING_TYPE.get());
-        holders.removeIf(holder -> holder.id().getPath().startsWith("concrete/"));
+        holders.removeIf(holder -> holder.id().getPath().startsWith("concrete/")
+            || holder.id().getPath().startsWith("cement_staining/"));
         registration.addRecipes(AnvilCraftJeiPlugin.BULGING, holders);
     }
 

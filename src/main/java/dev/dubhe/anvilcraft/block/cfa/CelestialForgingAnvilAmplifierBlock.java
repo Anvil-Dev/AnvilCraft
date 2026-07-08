@@ -300,14 +300,51 @@ public class CelestialForgingAnvilAmplifierBlock
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation))
+        return state
+            .setValue(HALF, rotateHalf(state.getValue(HALF), rotation))
             .setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror))
+        return state
+            .setValue(HALF, mirrorHalf(state.getValue(HALF), mirror))
             .setValue(FACING, mirror.mirror(state.getValue(FACING)));
+    }
+
+    /// 将 HALF 按角色语义旋转：同层的 4 个部件沿 PART → W → WS → S → PART 循环。
+    private static DirectionCube232PartHalf rotateHalf(DirectionCube232PartHalf half, Rotation rotation) {
+        return switch (rotation) {
+            case NONE -> half;
+            case CLOCKWISE_90 -> rotateHalfCW(half);
+            case CLOCKWISE_180 -> rotateHalfCW(rotateHalfCW(half));
+            case COUNTERCLOCKWISE_90 -> rotateHalfCW(rotateHalfCW(rotateHalfCW(half)));
+        };
+    }
+
+    private static DirectionCube232PartHalf rotateHalfCW(DirectionCube232PartHalf half) {
+        return switch (half) {
+            case BOTTOM_PART -> DirectionCube232PartHalf.BOTTOM_W;
+            case BOTTOM_W -> DirectionCube232PartHalf.BOTTOM_WS;
+            case BOTTOM_WS -> DirectionCube232PartHalf.BOTTOM_S;
+            case BOTTOM_S -> DirectionCube232PartHalf.BOTTOM_PART;
+            case MID_PART -> DirectionCube232PartHalf.MID_W;
+            case MID_W -> DirectionCube232PartHalf.MID_WS;
+            case MID_WS -> DirectionCube232PartHalf.MID_S;
+            case MID_S -> DirectionCube232PartHalf.MID_PART;
+            case TOP_PART -> DirectionCube232PartHalf.TOP_W;
+            case TOP_W -> DirectionCube232PartHalf.TOP_WS;
+            case TOP_WS -> DirectionCube232PartHalf.TOP_S;
+            case TOP_S -> DirectionCube232PartHalf.TOP_PART;
+        };
+    }
+
+    private static DirectionCube232PartHalf mirrorHalf(DirectionCube232PartHalf half, Mirror mirror) {
+        return switch (mirror) {
+            case NONE -> half;
+            case LEFT_RIGHT -> rotateHalf(half, Rotation.CLOCKWISE_180);
+            case FRONT_BACK -> rotateHalf(half, Rotation.COUNTERCLOCKWISE_90);
+        };
     }
 
     @Override

@@ -29,6 +29,7 @@ import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implements IFilterScreen<BatchCutterMenu> {
@@ -111,7 +112,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
     protected void renderSelectingArea(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltip = null;
         if (!this.scrollable.canScroll() && this.head != 0) this.head = 0;
-        if (this.menu.getRecipes().isEmpty()) return;
+        if (Objects.requireNonNull(this.menu.getRecipes()).isEmpty()) return;
         int maxSize = this.scrollable.row() * this.scrollable.column();
         for (int i = this.head; i < this.head + Math.min(this.menu.getRecipes().size() - this.head, maxSize); i++) {
             int x = this.leftPos + 39 + 18 * (i % this.scrollable.column());
@@ -194,7 +195,9 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
                 return true;
             }
             int maxSize = this.scrollable.row() * this.scrollable.column();
-            for (int i = this.head; i < this.head + Math.min(this.menu.getRecipes().size() - this.head, maxSize); i++) {
+            for (
+                int i = this.head; i < this.head + Math.min(Objects.requireNonNull(this.menu.getRecipes()).size() - this.head, maxSize); i++
+            ) {
                 int x = this.leftPos + 39 + 18 * (i % this.scrollable.column());
                 int y = this.topPos + 23 + 18 * ((i - this.head) / this.scrollable.column());
 
@@ -258,7 +261,6 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
                 PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
                 this.menu.setFilter(realSlotId, carriedItem);
                 if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-                slot.set(carriedItem);
             } else if (Screen.hasShiftDown()) {
                 PacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,

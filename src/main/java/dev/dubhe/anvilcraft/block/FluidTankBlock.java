@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
+import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -21,6 +22,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
@@ -41,6 +44,13 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.FLUID_TANK.create(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (level.isClientSide) return null;
+        return createTickerHelper(type, ModBlockEntities.FLUID_TANK.get(), FluidTankBlockEntity::serverTick);
     }
 
     @Override
@@ -82,6 +92,7 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
 
     @Override
     public void onFormed(Level level, MultiblockState state) {
+        if (!TankUtil.isMengerStructure(level, state.getControllerPos(), 3)) return;
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.FLUID_TANK.get())
             .ifPresent(FluidTankBlockEntity::onFormed);
     }

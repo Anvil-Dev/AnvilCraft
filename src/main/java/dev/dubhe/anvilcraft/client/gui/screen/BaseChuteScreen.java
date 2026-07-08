@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
@@ -51,7 +52,7 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
         this.enableFilterButton = enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         for (Direction value : Direction.values()) {
             if (shouldSkipDirection(value)) {
-                this.getDirectionButton().skip(value);
+                Objects.requireNonNull(this.getDirectionButton()).skip(value);
             }
         }
         this.addRenderableWidget(this.enableFilterButton);
@@ -123,7 +124,6 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
                 PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
                 this.menu.setFilter(realSlotId, carriedItem);
                 if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-                slot.set(carriedItem);
             } else if (Screen.hasShiftDown()) {
                 PacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,

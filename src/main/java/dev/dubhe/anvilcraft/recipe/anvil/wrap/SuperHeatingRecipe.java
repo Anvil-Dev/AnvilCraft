@@ -22,12 +22,14 @@ import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -43,19 +45,30 @@ import java.util.List;
  */
 @Getter
 public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe> {
-    /**
-     * 构造一个超级加热配方
-     *
-     * @param itemIngredients 物品原料列表
-     * @param results         结果物品列表
-     * @param hasCauldron     炼药锅条件
-     */
+    private final boolean hasRoyalPreference;
+
     public SuperHeatingRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results,
         HasCauldronSimple hasCauldron
     ) {
         super(createProperty(itemIngredients, results, hasCauldron));
+        this.hasRoyalPreference = results.stream().anyMatch(
+            r -> r.stack().is(ModItems.ROYAL_STEEL_INGOT.get())
+                 || r.stack().is(ModBlocks.ROYAL_STEEL_BLOCK.get().asItem()));
+    }
+
+    @Override
+    public ItemStack assemble(InWorldRecipeContext context, HolderLookup.Provider registries) {
+        if (hasRoyalPreference) {
+            context.put(RoyalPreferenceOutcome.IS_ROYAL_STEEL_RECIPE, true);
+        }
+        return super.assemble(context, registries);
+    }
+
+    @Override
+    public RecipeSerializer<SuperHeatingRecipe> getSerializer() {
+        return ModRecipeTypes.SUPER_HEATING_SERIALIZER.get();
     }
 
     private static Property createProperty(
@@ -89,11 +102,6 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
             }
         }
         return property;
-    }
-
-    @Override
-    public RecipeSerializer<SuperHeatingRecipe> getSerializer() {
-        return ModRecipeTypes.SUPER_HEATING_SERIALIZER.get();
     }
 
     @Override

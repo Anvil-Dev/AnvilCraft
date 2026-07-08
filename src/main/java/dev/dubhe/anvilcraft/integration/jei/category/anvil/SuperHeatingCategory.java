@@ -117,7 +117,7 @@ public class SuperHeatingCategory extends AbstractProgressCategory<SuperHeatingR
                 Minecraft.getInstance().font,
                 Component.translatable(
                     "gui.anvilcraft.category.super_heating.produce_fluid",
-                    -recipe.getHasCauldron().consume(),
+                    recipe.getHasCauldron().produce(),
                     recipe.getHasCauldron().getTransformCauldron().getName()
                 ),
                 0,

@@ -221,6 +221,17 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
             return this;
         }
 
+        /**
+         * 设置流体标签ID，用于标签匹配（如 "#c:cement" 匹配所有水泥流体）
+         *
+         * @param fluidTag 流体标签ID
+         * @return 构建器实例
+         */
+        public Builder fluidTag(ResourceLocation fluidTag) {
+            this.hasCauldron.fluidTag(fluidTag);
+            return this;
+        }
+
         @Override
         protected BulgingRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
             return new BulgingRecipe(itemIngredients, results, this.hasCauldron.build());
