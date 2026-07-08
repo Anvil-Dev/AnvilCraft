@@ -67,7 +67,6 @@ import dev.dubhe.anvilcraft.block.entity.batch.BatchCutterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.DrainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.GlowingBlockEntity;
@@ -509,11 +508,13 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<PipeBlockEntity> PIPE = REGISTRUM
         .blockEntity("pipe", PipeBlockEntity::create)
         .validBlocks(ModBlocks.PIPE_STRAIGHT, ModBlocks.PIPE_CORNER)
+        .renderer(() -> PipeCheckValveBERenderer::new)
         .register();
 
     public static final BlockEntityEntry<PipeNodeBlockEntity> PIPE_NODE = REGISTRUM
         .blockEntity("pipe_node", PipeNodeBlockEntity::create)
         .validBlock(ModBlocks.PIPE_NODE)
+        .renderer(() -> PipeCheckValveBERenderer::new)
         .register();
 
     public static final BlockEntityEntry<PumpBlockEntity> PUMP = REGISTRUM
@@ -525,12 +526,6 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ControlValveBlockEntity> CONTROL_VALVE = REGISTRUM
         .blockEntity("control_valve", ControlValveBlockEntity::new)
         .validBlock(ModBlocks.CONTROL_VALVE)
-        .register();
-
-    public static final BlockEntityEntry<PipeCheckValveBlockEntity> PIPE_CHECK_VALVE = REGISTRUM
-        .blockEntity("pipe_check_valve", PipeCheckValveBlockEntity::new)
-        .validBlocks(ModBlocks.PIPE_STRAIGHT, ModBlocks.PIPE_CORNER, ModBlocks.PIPE_NODE)
-        .renderer(() -> PipeCheckValveBERenderer::new)
         .register();
 
     public static final BlockEntityEntry<DrainBlockEntity> DRAIN = REGISTRUM

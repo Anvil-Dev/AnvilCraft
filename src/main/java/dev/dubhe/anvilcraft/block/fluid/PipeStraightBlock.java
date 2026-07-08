@@ -79,6 +79,7 @@ public class PipeStraightBlock extends PipeBlock {
         Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
+        this.updateCheckValvePower(level, pos, state);
         Direction.Axis axis = state.getValue(AXIS);
 
         // 侧面（非轴向）出现对准的管道或连接面正对的泵 → 升级为节点
@@ -98,7 +99,7 @@ public class PipeStraightBlock extends PipeBlock {
                 }
                 BlockState simplified = PipeNodeBlock.trySimplify(nodeState);
                 if (!simplified.equals(state)) {
-                    level.setBlockAndUpdate(pos, simplified);
+                    setBlockPreservingValve(level, pos, simplified);
                 }
                 return;
             }
@@ -111,7 +112,7 @@ public class PipeStraightBlock extends PipeBlock {
             .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, startDir))
             .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, endDir));
         if (!newState.equals(state)) {
-            level.setBlockAndUpdate(pos, newState);
+            setBlockPreservingValve(level, pos, newState);
         }
     }
 

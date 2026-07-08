@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PipeCheckValveRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckValveBlockEntity, PipeCheckValveRenderState> {
+public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity> implements BlockEntityRenderer<T, PipeCheckValveRenderState> {
     public static final StandaloneModelKey<BlockStateModel> ARM = new StandaloneModelKey<>(
         () -> "AnvilCraft: Check Valve Arm Model"
     );
@@ -37,7 +37,7 @@ public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckVa
 
     @Override
     public void extractRenderState(
-        PipeCheckValveBlockEntity be,
+        T be,
         PipeCheckValveRenderState state,
         float partialTicks,
         Vec3 cameraPosition,
@@ -83,7 +83,7 @@ public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckVa
     }
 
     @Override
-    public AABB getRenderBoundingBox(PipeCheckValveBlockEntity blockEntity) {
+    public AABB getRenderBoundingBox(T blockEntity) {
         return AABB.ofSize(blockEntity.getBlockPos().getCenter(), 2, 2, 2);
     }
 

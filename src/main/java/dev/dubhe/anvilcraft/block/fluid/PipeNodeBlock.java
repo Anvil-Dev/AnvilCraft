@@ -76,7 +76,7 @@ public class PipeNodeBlock extends PipeBlock {
         if (state.is(oldState.getBlock())) return;
         BlockState updated = scanAllDirections(state, level, pos);
         updated = trySimplify(updated);
-        if (!updated.equals(state)) level.setBlockAndUpdate(pos, updated);
+        if (!updated.equals(state)) setBlockPreservingValve(level, pos, updated);
     }
 
     @Override
@@ -85,9 +85,10 @@ public class PipeNodeBlock extends PipeBlock {
         Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
+        this.updateCheckValvePower(level, pos, state);
         BlockState updated = scanAllDirections(state, level, pos);
         BlockState simplified = trySimplify(updated);
-        if (!simplified.equals(state)) level.setBlockAndUpdate(pos, simplified);
+        if (!simplified.equals(state)) setBlockPreservingValve(level, pos, simplified);
     }
 
     public static NodePipe evaluateNeighbor(Level level, BlockPos pos, Direction dir) {
@@ -192,7 +193,7 @@ public class PipeNodeBlock extends PipeBlock {
         }
         BlockState newState = state.setValue(prop, NodePipe.NONE);
         newState = trySimplify(newState);
-        level.setBlockAndUpdate(pos, newState);
+        setBlockPreservingValve(level, pos, newState);
         return InteractionResult.CONSUME;
     }
 

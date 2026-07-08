@@ -4,8 +4,7 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
@@ -331,21 +330,13 @@ public abstract class PipeBlock extends Block
      * 仅在管道安装了止回阀时创建 BlockEntity。
      * 子类（PipeStraightBlock/PipeCornerBlock/PipeNodeBlock）各自创建自己的管道 BE 用于流体传输。
      */
-    @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (!state.getValue(HAS_CHECK_VALVE)) {
-            return null;
-        }
-        return ModBlockEntities.PIPE_CHECK_VALVE.get().create(pos, state);
-    }
-
     /**
      * 获取指定位置的止回阀 BE（若存在）。
      */
     @Nullable
-    public static PipeCheckValveBlockEntity getCheckValve(Level level, BlockPos pos) {
+    public static AbstractPipeBlockEntity getCheckValve(Level level, BlockPos pos) {
         BlockEntity be = level.getBlockEntity(pos);
-        return be instanceof PipeCheckValveBlockEntity valve ? valve : null;
+        return be instanceof AbstractPipeBlockEntity pipe ? pipe : null;
     }
 
     /**
@@ -389,7 +380,7 @@ public abstract class PipeBlock extends Block
         if (level.isClientSide()) return false;
         BlockState newState = state.setValue(HAS_CHECK_VALVE, true);
         level.setBlockAndUpdate(pos, newState);
-        PipeCheckValveBlockEntity valve = getCheckValve(level, pos);
+        AbstractPipeBlockEntity valve = getCheckValve(level, pos);
         if (valve != null) {
             valve.setValve(face, flowOut);
             valve.sendUpdate();
@@ -403,7 +394,7 @@ public abstract class PipeBlock extends Block
      */
     protected boolean removeCheckValve(Level level, BlockPos pos, BlockState state, Direction face) {
         if (level.isClientSide()) return false;
-        PipeCheckValveBlockEntity valve = getCheckValve(level, pos);
+        AbstractPipeBlockEntity valve = getCheckValve(level, pos);
         if (valve == null || !valve.hasValveOn(face)) return false;
         valve.removeValve(face);
         valve.sendUpdate();
@@ -437,7 +428,7 @@ public abstract class PipeBlock extends Block
         }
 
         // 已有止回阀 → 不重复安装
-        PipeCheckValveBlockEntity existing = getCheckValve(level, pos);
+        AbstractPipeBlockEntity existing = getCheckValve(level, pos);
         if (existing != null && existing.hasValveOn(flowOut)) {
             return InteractionResult.PASS;
         }
@@ -461,7 +452,7 @@ public abstract class PipeBlock extends Block
         Direction face = getArmDirection(pos, hitResult);
         if (face == null) return InteractionResult.PASS;
 
-        PipeCheckValveBlockEntity valve = getCheckValve(level, pos);
+        AbstractPipeBlockEntity valve = getCheckValve(level, pos);
         if (valve == null || !valve.hasValveOn(face)) {
             return InteractionResult.PASS;
         }
@@ -554,7 +545,7 @@ public abstract class PipeBlock extends Block
      * 根据红石信号更新止回阀的反向状态。
      */
     protected void updateCheckValvePower(Level level, BlockPos pos, BlockState state) {
-        PipeCheckValveBlockEntity valve = getCheckValve(level, pos);
+        AbstractPipeBlockEntity valve = getCheckValve(level, pos);
         if (valve == null) return;
         boolean powered = level.hasNeighborSignal(pos);
         if (valve.setPowered(powered)) {
@@ -573,7 +564,7 @@ public abstract class PipeBlock extends Block
         boolean savedPowered = false;
 
         if (oldState.hasProperty(HAS_CHECK_VALVE) && oldState.getValue(HAS_CHECK_VALVE)) {
-            PipeCheckValveBlockEntity oldValve = getCheckValve(level, pos);
+            AbstractPipeBlockEntity oldValve = getCheckValve(level, pos);
             if (oldValve != null && !oldValve.isEmpty()) {
                 savedFlows = oldValve.baseFlowCopy();
                 savedPowered = oldValve.isPowered();
@@ -584,7 +575,7 @@ public abstract class PipeBlock extends Block
         level.setBlockAndUpdate(pos, newState);
 
         if (savedFlows != null) {
-            PipeCheckValveBlockEntity newValve = getCheckValve(level, pos);
+            AbstractPipeBlockEntity newValve = getCheckValve(level, pos);
             if (newValve != null) {
                 newValve.restore(savedFlows, savedPowered);
                 newValve.sendUpdate();

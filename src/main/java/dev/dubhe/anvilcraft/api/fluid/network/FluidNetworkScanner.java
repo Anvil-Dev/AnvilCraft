@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
@@ -17,6 +18,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +105,7 @@ public final class FluidNetworkScanner {
         Map<BlockPos, List<BlockPos>> adjacency = new HashMap<>();
         Map<BlockPos, ValveState> valves = new HashMap<>();
         Map<BlockPos, Direction> diodes = new HashMap<>();
+        Map<BlockPos, Map<Direction, Direction>> faceFlow = new HashMap<>();
         List<FluidEndpoint> endpoints = new ArrayList<>();
         Map<ResourceHandler<FluidResource>, Boolean> seenHandlers = new HashMap<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
@@ -136,11 +139,17 @@ public final class FluidNetworkScanner {
             } else if (state.getBlock() instanceof PipeBlock) {
                 // 管道面止逆阀（HAS_CHECK_VALVE 属性需后续添加到 PipeBlock）
                 // TODO: re-enable when PipeBlock gets HAS_CHECK_VALVE property
+                if (state.getValue(PipeBlock.HAS_CHECK_VALVE)
+                    && level.getBlockEntity(pos) instanceof AbstractPipeBlockEntity pipe) {
+                    Map<Direction, Direction> flows = pipe.effectiveFlows();
+                    if (!flows.isEmpty()) {
+                        faceFlow.put(pos.immutable(), new EnumMap<>(flows));
+                    }
+                }
                 expandPipe(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             }
         }
 
-        Map<BlockPos, Map<Direction, Direction>> faceFlow = new HashMap<>();
         return new FluidPipeNetwork(level, potential.keySet(), adjacency, valves, diodes, faceFlow, endpoints);
     }
 
