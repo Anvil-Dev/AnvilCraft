@@ -99,6 +99,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.IncandescentBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
@@ -359,6 +360,7 @@ public class ModBlockEntities {
         .register();
     public static final BlockEntityEntry<IncandescentBlockEntity> INCANDESCENT_BLOCK = REGISTRUM
         .blockEntity("incandescent_block", IncandescentBlockEntity::createBlockEntity)
+        .renderer(() -> IncandescentBlockRenderer::new)
         .validBlocks(ModBlocks.INCANDESCENT_NETHERITE_BLOCK, ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK)
         .register();
     public static final BlockEntityEntry<OverheatedBlockEntity> OVERHEATED_BLOCK = REGISTRUM
