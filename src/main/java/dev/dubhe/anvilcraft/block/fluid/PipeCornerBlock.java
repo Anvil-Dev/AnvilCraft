@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -73,6 +74,7 @@ public class PipeCornerBlock extends PipeBlock {
         if (level.isClientSide) {
             return;
         }
+        FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
         // 红石信号变化 → 更新本管道止逆阀反向状态
         updateCheckValvePower(state, level, pos);
         CornerEnded corner = state.getValue(CORNER_ENDED);

@@ -534,7 +534,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderMegastructureModel(GuiGraphics guiGraphics, CelestialRefactorOption option, int x, int y, int w, int h) {
         BakedModel model = null;
         if (minecraft != null) {
-            model = minecraft.getModelManager().getModel(option.modelLocation());
+            model = minecraft.getModelManager().getModel(ModelResourceLocation.standalone(option.modelLocation()));
         }
 
         ModelBlockRenderer modelRenderer = minecraft.getBlockRenderer().getModelRenderer();
@@ -937,7 +937,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /// 通过方块模型渲染复杂模型天体（粉碎、空洞、错误天体等）。
     private void renderComplexModelPreview(GuiGraphics guiGraphics, SpecialCelestialBodyData special) {
         if (minecraft == null) return;
-        var modelLoc = special.getModelLocation();
+        var modelLoc = ModelResourceLocation.standalone(special.getModelLocation());
         BakedModel model = minecraft.getModelManager().getModel(modelLoc);
         if (model == minecraft.getModelManager().getMissingModel()) return;
 

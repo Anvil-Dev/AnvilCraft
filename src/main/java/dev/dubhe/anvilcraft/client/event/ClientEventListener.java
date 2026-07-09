@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
@@ -31,9 +32,12 @@ import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
+    private static boolean wasAttackDown = false;
+
     @SubscribeEvent
     public static void blockHighlight(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
@@ -95,6 +99,8 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
+        handleAttackKeyRelease();
+
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime < 0) {
             return;
@@ -104,6 +110,30 @@ public class ClientEventListener {
         long deltaTime = curTime - lastThoughtTime;
         if (deltaTime > ThoughtManager.getMAX_SECONDS() * 20) {
             ThoughtManager.onPostThought();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMouseButton(InputEvent.MouseButton.Post event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (event.getAction() == InputConstants.RELEASE && minecraft.options.keyAttack.matchesMouse(event.getButton())) {
+            sendDragonRodStopDevourPacket(minecraft);
+            wasAttackDown = false;
+        }
+    }
+
+    private static void handleAttackKeyRelease() {
+        Minecraft minecraft = Minecraft.getInstance();
+        boolean attackDown = minecraft.options.keyAttack.isDown();
+        if (wasAttackDown && !attackDown) {
+            sendDragonRodStopDevourPacket(minecraft);
+        }
+        wasAttackDown = attackDown;
+    }
+
+    private static void sendDragonRodStopDevourPacket(Minecraft minecraft) {
+        if (minecraft.player != null && minecraft.getConnection() != null) {
+            PacketDistributor.sendToServer(new DragonRodStopDevourPacket());
         }
     }
 

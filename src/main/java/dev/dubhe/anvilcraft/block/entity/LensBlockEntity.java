@@ -131,7 +131,8 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
         BlockPos tempIrradiateBlockPos = this.scanIrradiateBlockPos(
             this.maxTransmissionDistance, direction, this.getBlockPos()
         );
-        if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
+        boolean targetChanged = !tempIrradiateBlockPos.equals(this.irradiateBlockPos);
+        if (targetChanged) {
             if (this.irradiateBlockPos != null) {
                 BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity) {
@@ -139,11 +140,15 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
                 }
             }
         }
+        int newLaserLevel = this.calculateLaserLevel();
+        boolean laserLevelChanged = this.laserLevel != newLaserLevel;
+        this.updateLaserLevel(newLaserLevel);
         if (
             this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
             && !this.isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity)
         ) {
-            if (!irradiatedLaserBlockEntity.getIgnoreFace().contains(direction)) {
+            boolean needsIrradiationUpdate = targetChanged || laserLevelChanged;
+            if (needsIrradiationUpdate && !irradiatedLaserBlockEntity.getIgnoreFace().contains(direction)) {
                 this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
                 irradiatedLaserBlockEntity.onIrradiated(this);
             }
@@ -151,7 +156,6 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);
 
         if (!(this.level instanceof ServerLevel serverLevel)) return;
-        this.updateLaserLevel(this.calculateLaserLevel());
         int hurt = Math.min(16, this.laserLevel - 4);
         if (hurt > 0) {
             Vec3 startPos = this.getBlockPos()

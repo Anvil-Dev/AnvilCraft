@@ -43,7 +43,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -653,6 +657,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 ));
             }
         } else {
+            this.runLocalDefaultInteraction();
             PacketDistributor.sendToServer(new HammerUsePacket(this.targetBlockPos, this.hand, this.hitVec));
             super.removed();
             return;
@@ -689,6 +694,20 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     @Override
     public boolean shouldSkipRebuildBlock() {
         return !this.shouldRebuildChunk;
+    }
+
+    private void runLocalDefaultInteraction() {
+        Level level = this.minecraft.level;
+        if (level == null || this.minecraft.player == null) return;
+        BlockState state = level.getBlockState(this.targetBlockPos);
+        Block block = state.getBlock();
+        if (!(block instanceof DoorBlock
+              || block instanceof TrapDoorBlock
+              || block instanceof FenceGateBlock
+              || block instanceof ButtonBlock)) {
+            return;
+        }
+        state.useWithoutItem(level, this.minecraft.player, this.hitVec);
     }
 
     public static void renderRing(

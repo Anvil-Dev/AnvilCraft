@@ -86,8 +86,21 @@ public final class FluidNetworkManager {
         if (level.isClientSide()) {
             return;
         }
-        LevelData d = byLevel.get(level);
-        if (d != null) {
+        data(level).dirty = true;
+    }
+
+    public void addAdjacentContainers(Level level, BlockPos pipePos) {
+        if (level.isClientSide()) {
+            return;
+        }
+        LevelData d = data(level);
+        boolean changed = false;
+        for (Direction dir : Direction.values()) {
+            BlockPos pos = pipePos.relative(dir);
+            if (!level.isLoaded(pos)) continue;
+            if (FluidNetworkScanner.isContainer(level, pos) && d.containers.add(pos.immutable())) changed = true;
+        }
+        if (changed) {
             d.dirty = true;
         }
     }

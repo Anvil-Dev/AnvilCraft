@@ -159,9 +159,11 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 if (SpectralSlingshotItem.canTakeOutAmmo(itemstack)) player.addItem(stack); // 如果能拿出来，那么拿出来
                 itemstack.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
                 // 装载走正常的使用流程
-                this.startSoundPlayed = false;
-                this.midLoadSoundPlayed = false;
-                player.startUsingItem(hand);
+                if (!SpectralSlingshotItem.getSlingShotAmmo(player).isEmpty()) {
+                    this.startSoundPlayed = false;
+                    this.midLoadSoundPlayed = false;
+                    player.startUsingItem(hand);
+                }
             }
             return InteractionResultHolder.consume(itemstack);
         } else if (!SpectralSlingshotItem.getSlingShotAmmo(player).isEmpty()) {

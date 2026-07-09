@@ -7,21 +7,27 @@ import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHasAffectRange;
 import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
+import dev.dubhe.anvilcraft.network.ChargeCollectorIncomingChargePacket;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.LinkedList;
 
 public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerProducer, IHasAffectRange, IHeatCollector {
     public static final int BASE_OUTPUT_POWER = 256;
     public static final int RANGE = 3;
+    private static final int CHARGE_HISTORY_SIZE = 10;
 
     @Getter
     private int time = 0;
@@ -30,7 +36,11 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     private PowerGrid grid = null;
     @Getter
     private int outputPower = 0;
-    private int inputtingPower = 0;
+    private int inputtingHeatPower = 0;
+    private int inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
+    private double chargeCount = 0;
+    private int chargePower = 0;
+    private final LinkedList<Integer> charges = new LinkedList<>();
     @Getter
     private float rotation = 0;
     @Getter
@@ -39,6 +49,9 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     public InfiniteCollectorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+        for (int i = 0; i < CHARGE_HISTORY_SIZE; i++) {
+            this.charges.add(0);
+        }
     }
 
     public static InfiniteCollectorBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -54,27 +67,78 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("tickCache", this.time);
-        tag.putInt("inputtingPower", this.inputtingPower);
+        tag.putInt("inputtingHeatPower", this.inputtingHeatPower);
+        tag.putInt("InputCooldownCount", this.inputCooldownCount);
+        tag.putDouble("ChargeCount", this.chargeCount);
+        tag.putInt("ChargePower", this.chargePower);
+        tag.putIntArray("Charges", this.charges);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.time = tag.getInt("tickCache");
-        this.inputtingPower = tag.getInt("inputtingPower");
+        this.inputtingHeatPower = tag.contains("inputtingHeatPower")
+            ? tag.getInt("inputtingHeatPower")
+            : tag.getInt("inputtingPower");
+        this.inputCooldownCount = tag.getInt("InputCooldownCount");
+        if (this.inputCooldownCount <= 0) {
+            this.inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
+        }
+        this.chargeCount = tag.getDouble("ChargeCount");
+        this.chargePower = tag.getInt("ChargePower");
+        int[] savedCharges = tag.getIntArray("Charges");
+        this.charges.clear();
+        for (int charge : savedCharges) {
+            this.charges.add(charge);
+        }
+        while (this.charges.size() < CHARGE_HISTORY_SIZE) {
+            this.charges.add(0);
+        }
+        while (this.charges.size() > CHARGE_HISTORY_SIZE) {
+            this.charges.removeFirst();
+        }
     }
 
     @Override
     public void gridTick() {
-        if (!this.isWorking() || level == null || level.isClientSide()) return;
+        if (level == null || level.isClientSide()) return;
         int oldPower = this.outputPower;
-        this.outputPower = BASE_OUTPUT_POWER + this.inputtingPower;
+        if (!this.isWorking()) {
+            this.outputPower = 0;
+            this.inputtingHeatPower = 0;
+            this.chargeCount = 0;
+            if (this.outputPower != oldPower && grid != null) grid.markChanged();
+            return;
+        }
+        if (this.inputCooldownCount-- <= 1) {
+            this.inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
+            this.addCharge((int) Math.floor(this.chargeCount));
+            this.chargeCount = 0;
+            this.refreshChargePower();
+        }
+        this.outputPower = BASE_OUTPUT_POWER + this.inputtingHeatPower + this.chargePower;
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof InfiniteCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
         }
         if (this.outputPower != oldPower && grid != null) grid.markChanged();
-        this.inputtingPower = 0;
+        this.inputtingHeatPower = 0;
         this.time++;
+    }
+
+    private void addCharge(int charge) {
+        this.charges.add(charge);
+        while (this.charges.size() > CHARGE_HISTORY_SIZE) {
+            this.charges.removeFirst();
+        }
+    }
+
+    private void refreshChargePower() {
+        int power = 0;
+        for (Integer charge : this.charges) {
+            power += charge;
+        }
+        this.chargePower = power / this.charges.size();
     }
 
     @Override
@@ -118,7 +182,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
      */
     public int inputtingHeat(int num) {
         if (!this.isWorking()) return num;
-        this.inputtingPower += num;
+        this.inputtingHeatPower += num;
         return 0;
     }
 
@@ -130,8 +194,15 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
      * @return 溢出的电荷数(即未被添加至收集器的电荷数)
      */
     public double incomingCharge(double num, BlockPos srcPos) {
-        if (!this.isWorking()) return num;
-        this.inputtingPower += (int) Math.floor(num);
+        if (!this.isWorking() || this.level == null) return num;
+        if (this.level instanceof ServerLevel serverLevel) {
+            PacketDistributor.sendToPlayersTrackingChunk(
+                serverLevel,
+                this.level.getChunkAt(worldPosition).getPos(),
+                new ChargeCollectorIncomingChargePacket(srcPos, this.worldPosition, num)
+            );
+        }
+        this.chargeCount += num;
         return 0;
     }
 

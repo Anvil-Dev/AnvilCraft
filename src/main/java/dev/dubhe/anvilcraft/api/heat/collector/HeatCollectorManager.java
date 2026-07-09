@@ -145,7 +145,7 @@ public class HeatCollectorManager {
     private void collectSources(IHeatCollector collector, Map<Entry, Double2ObjectMap<IHeatCollector>> heatSources) {
         BlockPos collectorPos = collector.getCollectorPos();
         int collectorRange = collector.getCollectorRange();
-        int overlapRange = collectorRange + 1;
+        int overlapRange = collectorRange + InfiniteCollectorBlockEntity.RANGE;
         Map<Entry, Double2ObjectMap<IHeatCollector>> heatSourcesCache = new HashMap<>();
         for (BlockPos pos : BlockPos.betweenClosed(
             collectorPos.above(overlapRange).east(overlapRange).south(overlapRange),
@@ -153,11 +153,9 @@ public class HeatCollectorManager {
         )) {
             pos = pos.immutable();
             BlockState state = this.level.getBlockState(pos);
-            // Check for other collectors (both heat and infinite) in range
             if (!pos.equals(collectorPos)) {
-                boolean isNearHeatCollector = state.is(ModBlocks.HEAT_COLLECTOR.get());
-                boolean isNearInfiniteCollector = state.is(ModBlocks.INFINITE_COLLECTOR.get());
-                if (isNearHeatCollector || isNearInfiniteCollector) {
+                int otherCollectorRange = this.getCollectorRange(state);
+                if (otherCollectorRange > 0 && this.isRangeOverlapping(collectorPos, pos, collectorRange, otherCollectorRange)) {
                     collector.setCollectorWorking(false);
                     return;
                 }
@@ -187,6 +185,18 @@ public class HeatCollectorManager {
                 .computeIfAbsent(entry.getKey(), it -> new Double2ObjectAVLTreeMap<>())
                 .putAll(entry.getValue());
         }
+    }
+
+    private boolean isRangeOverlapping(BlockPos collectorPos, BlockPos otherPos, int collectorRange, int otherCollectorRange) {
+        return Math.abs(otherPos.getX() - collectorPos.getX()) <= collectorRange + otherCollectorRange
+            && Math.abs(otherPos.getY() - collectorPos.getY()) <= collectorRange + otherCollectorRange
+            && Math.abs(otherPos.getZ() - collectorPos.getZ()) <= collectorRange + otherCollectorRange;
+    }
+
+    private int getCollectorRange(BlockState state) {
+        if (state.is(ModBlocks.HEAT_COLLECTOR.get())) return 2;
+        if (state.is(ModBlocks.INFINITE_COLLECTOR.get())) return InfiniteCollectorBlockEntity.RANGE;
+        return 0;
     }
 
     /**

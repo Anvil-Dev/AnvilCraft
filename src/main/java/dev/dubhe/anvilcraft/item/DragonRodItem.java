@@ -189,7 +189,7 @@ public class DragonRodItem extends Item {
         if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
             long currentTick = level.getGameTime();
             long lastTick = LAST_TRANSCENDENCE_DEVOUR_TICK.getOrDefault(player.getUUID(), 0L);
-            boolean isWarmedUp = (currentTick - lastTick) < 15; // 0.75s内再次使用=已预热
+            boolean isWarmedUp = (currentTick - lastTick) < 10; // 0.5s内再次使用=已预热
             player.getCooldowns().addCooldown(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), isWarmedUp ? 0 : 10);
             LAST_TRANSCENDENCE_DEVOUR_TICK.put(player.getUUID(), currentTick);
             if (isWarmedUp) {
