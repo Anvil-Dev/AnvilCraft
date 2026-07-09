@@ -27,13 +27,13 @@ public abstract class DefaultDispenseItemBehaviorMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;split(I)Lnet/minecraft/world/item/ItemStack;"),
         cancellable = true
     )
-    @SuppressWarnings("resource")
     public void betterDispense(BlockSource blockSource, ItemStack item, CallbackInfoReturnable<ItemStack> cir) {
         if (!(item.getItem() instanceof BucketItem)
             && !item.is(Items.POWDER_SNOW_BUCKET)
             && !item.is(Items.GLASS_BOTTLE)
             && !item.is(Items.HONEY_BOTTLE)
-            && !item.is(Items.POTION)) {
+            && !item.is(Items.POTION)
+            && !item.is(Items.EXPERIENCE_BOTTLE)) {
             return;
         }
         Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
