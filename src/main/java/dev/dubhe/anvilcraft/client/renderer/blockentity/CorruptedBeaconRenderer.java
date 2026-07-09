@@ -109,11 +109,13 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
+            float normalX = i == 1 ? 1.0f : (i == 3 ? -1.0f : 0.0f);
+            float normalZ = i == 0 ? -1.0f : (i == 2 ? 1.0f : 0.0f);
 
-            beamVertex(vc, matrix, c0[0], BEAM_BASE_Y, c0[1], alpha, sprite.getU0(), sprite.getV0());
-            beamVertex(vc, matrix, c1[0], BEAM_BASE_Y, c1[1], alpha, sprite.getU0(), sprite.getV1());
-            beamVertex(vc, matrix, cx, apexY, cz, tipAlpha, sprite.getU1(), sprite.getV1());
-            beamVertex(vc, matrix, cx, apexY, cz, tipAlpha, sprite.getU0(), sprite.getV1());
+            beamVertex(vc, matrix, c0[0], BEAM_BASE_Y, c0[1], alpha, sprite.getU0(), sprite.getV0(), normalX, normalZ);
+            beamVertex(vc, matrix, c1[0], BEAM_BASE_Y, c1[1], alpha, sprite.getU0(), sprite.getV1(), normalX, normalZ);
+            beamVertex(vc, matrix, cx, apexY, cz, tipAlpha, sprite.getU1(), sprite.getV1(), normalX, normalZ);
+            beamVertex(vc, matrix, cx, apexY, cz, tipAlpha, sprite.getU0(), sprite.getV1(), normalX, normalZ);
         }
     }
 
@@ -125,12 +127,15 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float z,
         float alpha,
         float u,
-        float v
+        float v,
+        float normalX,
+        float normalZ
     ) {
         vc.addVertex(matrix, x, y, z)
             .setColor(BEAM_R, BEAM_G, BEAM_B, alpha)
             .setUv(u, v)
-            .setUv2(240, 240);
+            .setUv2(240, 240)
+            .setNormal(normalX, 0, normalZ);
     }
 
     @Override
