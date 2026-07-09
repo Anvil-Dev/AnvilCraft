@@ -132,10 +132,10 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         CommandSourceStack commandSourceStack;
         if (player == null) {
             MinecraftServer server = this.level.getServer();
-            ServerLevel serverLevel = server.overworld();
+            ServerLevel serverLevel = (ServerLevel) this.level;
             commandSourceStack = new CommandSourceStack(
-                server,
-                serverLevel == null ? Vec3.ZERO : Vec3.atLowerCornerOf(serverLevel.getSharedSpawnPos()),
+                Objects.requireNonNull(server),
+                Vec3.atCenterOf(this.getBlockPos()),
                 Vec2.ZERO,
                 serverLevel,
                 4,
@@ -164,10 +164,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                     if (this.source.acceptsFailure() && !this.isSilent()) {
                         if (this.source instanceof MinecraftServer server1) {
                             server1.getPlayerList()
-                                .broadcastSystemMessage(
-                                    Component.empty().append(message).withStyle(ChatFormatting.RED),
-                                    false
-                                );
+                                .broadcastSystemMessage(Component.empty().append(message).withStyle(ChatFormatting.RED), false);
                         }
                         this.source.sendSystemMessage(Component.empty().append(message).withStyle(ChatFormatting.RED));
                     }
@@ -181,10 +178,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             if (player == null) {
                 Objects.requireNonNull(this.level.getServer())
                     .getPlayerList()
-                    .broadcastSystemMessage(
-                        Component.literal("#itzlipofutzli"),
-                        false
-                    );
+                    .broadcastSystemMessage(Component.literal("#itzlipofutzli"), false);
             } else {
                 player.sendSystemMessage(Component.literal("#itzlipofutzli"));
             }
@@ -198,27 +192,20 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                 if (cmd.startsWith("time add")) {
                     int timeAddConsumeProcess = getTimeAddConsumeProcess(cmd);
                     if (this.chargingProgress >= 20f + timeAddConsumeProcess) {
-                        Objects.requireNonNull(
-                            this.level.getServer()).getCommands().performPrefixedCommand(
-                            commandSourceStack,
-                            this.command
-                        );
+                        Objects.requireNonNull(this.level.getServer())
+                            .getCommands()
+                            .performPrefixedCommand(commandSourceStack, this.command);
                         this.chargingProgress -= 20f + timeAddConsumeProcess;
                         this.addHistoryCommand(cmd);
                     } else {
                         if (player == null) {
-                            Objects.requireNonNull(this.level.getServer())
-                                .getPlayerList()
-                                .broadcastSystemMessage(
-                                    Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
-                                        .withStyle(ChatFormatting.RED),
-                                    false
-                                );
-                        } else {
-                            player.sendSystemMessage(
+                            Objects.requireNonNull(this.level.getServer()).getPlayerList().broadcastSystemMessage(
                                 Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
-                                    .withStyle(ChatFormatting.RED)
+                                    .withStyle(ChatFormatting.RED), false
                             );
+                        } else {
+                            player.sendSystemMessage(Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
+                                .withStyle(ChatFormatting.RED));
                         }
                     }
                 } else if (cmd.startsWith("tick sprint")) {
@@ -228,58 +215,40 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                     }
                     int tickSprintConsumeProcess = getTickSprintConsumeProcess(cmd);
                     if (this.chargingProgress >= 20f + tickSprintConsumeProcess) {
-                        Objects.requireNonNull(
-                            this.level.getServer()).getCommands().performPrefixedCommand(
-                            commandSourceStack,
-                            this.command
-                        );
+                        Objects.requireNonNull(this.level.getServer())
+                            .getCommands()
+                            .performPrefixedCommand(commandSourceStack, this.command);
                         this.chargingProgress -= 20f + tickSprintConsumeProcess;
                         this.addHistoryCommand(cmd);
                     } else {
-                        player.sendSystemMessage(
-                            Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
-                                .withStyle(ChatFormatting.RED)
-                        );
+                        player.sendSystemMessage(Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
+                            .withStyle(ChatFormatting.RED));
                     }
                 } else if (cmd.startsWith("locate")) {
-                    Objects.requireNonNull(
-                        this.level.getServer()).getCommands().performPrefixedCommand(
-                        commandSourceStack,
-                        this.command
-                    );
+                    Objects.requireNonNull(this.level.getServer()).getCommands().performPrefixedCommand(commandSourceStack, this.command);
                     this.chargingProgress -= 20f;
                     this.addHistoryCommand(cmd);
                 }
             } else {
                 if (player == null) {
-                    Objects.requireNonNull(this.level.getServer())
-                        .getPlayerList()
-                        .broadcastSystemMessage(
-                            Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
-                                .withStyle(ChatFormatting.RED),
-                            false
-                        );
-                } else {
-                    player.sendSystemMessage(
+                    Objects.requireNonNull(this.level.getServer()).getPlayerList().broadcastSystemMessage(
                         Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
-                            .withStyle(ChatFormatting.RED)
+                            .withStyle(ChatFormatting.RED), false
                     );
+                } else {
+                    player.sendSystemMessage(Component.translatable("block.anvilcraft.spacetime_supercomputer.insufficient_energy")
+                        .withStyle(ChatFormatting.RED));
                 }
             }
         } else {
             if (player == null) {
-                Objects.requireNonNull(this.level.getServer())
-                    .getPlayerList()
-                    .broadcastSystemMessage(
-                        Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command")
-                            .withStyle(ChatFormatting.RED),
-                        false
-                    );
-            } else {
-                player.sendSystemMessage(
-                    Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command")
-                        .withStyle(ChatFormatting.RED)
+                Objects.requireNonNull(this.level.getServer()).getPlayerList().broadcastSystemMessage(
+                    Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command").withStyle(ChatFormatting.RED),
+                    false
                 );
+            } else {
+                player.sendSystemMessage(Component.translatable("block.anvilcraft.spacetime_supercomputer.no_supported_command")
+                    .withStyle(ChatFormatting.RED));
             }
         }
     }

@@ -46,11 +46,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import static dev.dubhe.anvilcraft.util.MultiPartBlockUtil.getChainableMainPartPos;
@@ -99,6 +101,10 @@ public class AnvilHammerItem extends Item implements Equipable {
         state = level.getBlockState(pos);
         block = state.getBlock();
         BlockPos posToRemove = pos;
+        // Fire BlockEvent.BreakEvent to allow FTB Chunks and other protection mods to cancel
+        BlockEvent.BreakEvent breakEvent = new BlockEvent.BreakEvent(level, posToRemove, state, player);
+        NeoForge.EVENT_BUS.post(breakEvent);
+        if (breakEvent.isCanceled()) return;
         final List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         block.playerWillDestroy(level, posToRemove, state, player);
         level.destroyBlock(posToRemove, false);
@@ -195,7 +201,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         if (!AnvilHammerItem.canRocketJump(serverPlayer)) return false;
         ItemStack stack = serverPlayer.getOffhandItem();
         Fireworks fireworks = stack.get(DataComponents.FIREWORKS);
-        int i = fireworks.flightDuration();
+        int i = Objects.requireNonNull(fireworks).flightDuration();
         if (!serverPlayer.getAbilities().instabuild) stack.shrink(1);
         double power = i * 0.75 + 0.5;
         serverPlayer.setDeltaMovement(0, power, 0);

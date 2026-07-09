@@ -5,19 +5,8 @@
     {
       "type": "anvillib_recipe:has_item_ingredient",
       "item": {
-        "items": "anvilcraft:resin_block",
-        "predicates": {
-          "anvilcraft:saved_entity": {
-            "entitys": "minecraft:creeper",
-            "predicates": [
-              {
-                "expected": 1,
-                "requirement": "GREATER_OR_EQUAL",
-                "tagKeyPath": "powered"
-              }
-            ]
-          }
-        }
+        "count": 2,
+        "items": "#c:plates/iron"
       },
       "offset": [
         0.0,
@@ -33,8 +22,19 @@
     {
       "type": "anvillib_recipe:has_item_ingredient",
       "item": {
-        "count": 2,
-        "items": "#c:plates/iron"
+        "items": "anvilcraft:resin_block",
+        "predicates": {
+          "anvilcraft:saved_entity": {
+            "entitys": "minecraft:creeper",
+            "predicates": [
+              {
+                "expected": 1,
+                "requirement": "GREATER_OR_EQUAL",
+                "tagKeyPath": "powered"
+              }
+            ]
+          }
+        }
       },
       "offset": [
         0.0,

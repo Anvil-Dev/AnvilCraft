@@ -17,11 +17,13 @@ import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,6 +34,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * 炼药锅条件谓词
@@ -44,6 +47,7 @@ import java.util.Optional;
  * @param produce   产生量
  * @param chance    转换成功的概率
  * @param ignited   是否需要点燃
+ * @param fluidTag  流体标签ID，当非null时使用标签匹配而非精确匹配
  */
 public record HasCauldron(
     Vec3 offset,
@@ -52,7 +56,8 @@ public record HasCauldron(
     ResourceLocation transform,
     int produce,
     float chance,
-    boolean ignited
+    boolean ignited,
+    @Nullable ResourceLocation fluidTag
 ) implements IRecipePredicate<HasCauldron> {
     /**
      * 空炼药锅标识
@@ -85,7 +90,7 @@ public record HasCauldron(
      * @return HasCauldron实例
      */
     public static HasCauldron empty(Vec3 offset) {
-        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0f, false);
+        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0f, false, null);
     }
 
     @Override
@@ -121,7 +126,7 @@ public record HasCauldron(
 
         // 锅中流体检查不通过 否决
         ResourceLocation curFluid = HasCauldron.getCurFluid(cache, pos);
-        if (this.hasCheck() && !this.fluid().equals(curFluid)) return false;
+        if (this.hasCheck() && !this.matchesFluid(curFluid)) return false;
 
         // 如果锅必须为可点燃锅
         if (this.ignited) {
@@ -143,7 +148,10 @@ public record HasCauldron(
         if (afterConsume + this.produce() > capacity) return false;
 
         // 锅中有流体 且 转换有效 且 前后流体类型不同 且 锅中流体没有消耗完 否决
-        if (cur > 0 && HasCauldron.isNotEmpty(this.transform()) && !curFluid.equals(this.transform()) && afterConsume != 0) return false;
+        // 例外：consume==0 && produce==0 表示仅交换流体类型（如水泥染色），允许通过
+        if (cur > 0 && HasCauldron.isNotEmpty(this.transform()) && !curFluid.equals(this.transform()) && afterConsume != 0) {
+            if (!(this.consume() == 0 && this.produce() == 0)) return false;
+        }
 
         // 全部通过
         return true;
@@ -186,7 +194,23 @@ public record HasCauldron(
     }
 
     public boolean hasCheck() {
-        return !this.fluid().equals(HasCauldron.NULL);
+        return !this.fluid().equals(HasCauldron.NULL) || this.fluidTag() != null;
+    }
+
+    /**
+     * 检查当前流体是否匹配条件
+     *
+     * @param curFluid 当前流体ID
+     * @return 是否匹配
+     */
+    public boolean matchesFluid(ResourceLocation curFluid) {
+        if (this.fluidTag() != null) {
+            TagKey<Fluid> tagKey = TagKey.create(Registries.FLUID, this.fluidTag());
+            return BuiltInRegistries.FLUID.getHolder(curFluid)
+                .map(holder -> holder.is(tagKey))
+                .orElse(false);
+        }
+        return this.fluid().equals(curFluid);
     }
 
     public static double getCapacity(BlockCache cache, BlockPos pos) {
@@ -327,30 +351,43 @@ public record HasCauldron(
                     .forGetter(HasCauldron::chance),
                 Codec.BOOL
                     .optionalFieldOf("ignited", false)
-                    .forGetter(HasCauldron::ignited)
-            ).apply(instance, HasCauldron::new)
+                    .forGetter(HasCauldron::ignited),
+                ResourceLocation.CODEC
+                    .optionalFieldOf("fluidTag")
+                    .forGetter(h -> Optional.ofNullable(h.fluidTag()))
+            ).apply(instance, (offset, fluid, consume, transform, produce, chance, ignited, fluidTag) ->
+                new HasCauldron(offset, fluid, consume, transform, produce, chance, ignited, fluidTag.orElse(null)))
         );
 
         /**
          * 流编解码器
          */
-        public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = StreamCodecUtil.composite(
-            StreamCodecUtil.VEC3,
-            HasCauldron::offset,
-            ResourceLocation.STREAM_CODEC,
-            HasCauldron::fluid,
-            ByteBufCodecs.INT,
-            HasCauldron::consume,
-            ResourceLocation.STREAM_CODEC,
-            HasCauldron::transform,
-            ByteBufCodecs.INT,
-            HasCauldron::produce,
-            ByteBufCodecs.FLOAT,
-            HasCauldron::chance,
-            ByteBufCodecs.BOOL,
-            HasCauldron::ignited,
-            HasCauldron::new
-        );
+        public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = new StreamCodec<>() {
+            @Override
+            public HasCauldron decode(RegistryFriendlyByteBuf buf) {
+                Vec3 offset = StreamCodecUtil.VEC3.decode(buf);
+                ResourceLocation fluid = ResourceLocation.STREAM_CODEC.decode(buf);
+                int consume = ByteBufCodecs.INT.decode(buf);
+                ResourceLocation transform = ResourceLocation.STREAM_CODEC.decode(buf);
+                int produce = ByteBufCodecs.INT.decode(buf);
+                float chance = ByteBufCodecs.FLOAT.decode(buf);
+                boolean ignited = ByteBufCodecs.BOOL.decode(buf);
+                ResourceLocation fluidTag = ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buf).orElse(null);
+                return new HasCauldron(offset, fluid, consume, transform, produce, chance, ignited, fluidTag);
+            }
+
+            @Override
+            public void encode(RegistryFriendlyByteBuf buf, HasCauldron h) {
+                StreamCodecUtil.VEC3.encode(buf, h.offset());
+                ResourceLocation.STREAM_CODEC.encode(buf, h.fluid());
+                ByteBufCodecs.INT.encode(buf, h.consume());
+                ResourceLocation.STREAM_CODEC.encode(buf, h.transform());
+                ByteBufCodecs.INT.encode(buf, h.produce());
+                ByteBufCodecs.FLOAT.encode(buf, h.chance());
+                ByteBufCodecs.BOOL.encode(buf, h.ignited());
+                ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).encode(buf, Optional.ofNullable(h.fluidTag()));
+            }
+        };
 
         @Override
         public MapCodec<HasCauldron> codec() {
@@ -374,6 +411,7 @@ public record HasCauldron(
         private int produce = 0;
         private float chance = 1;
         private boolean ignited = false;
+        private ResourceLocation fluidTag = null;
 
         /**
          * 设置偏移量
@@ -524,12 +562,33 @@ public record HasCauldron(
         }
 
         /**
+         * 设置流体标签ID，用于标签匹配
+         *
+         * @param fluidTag 流体标签ID
+         * @return 构建器实例
+         */
+        public Builder fluidTag(ResourceLocation fluidTag) {
+            this.fluidTag = fluidTag;
+            if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
+            return this;
+        }
+
+        /**
          * 构建HasCauldron实例
          *
          * @return HasCauldron实例
          */
         public HasCauldron build() {
-            return new HasCauldron(this.offset, this.fluid, this.consume, this.transform, this.produce, this.chance, this.ignited);
+            return new HasCauldron(
+                this.offset,
+                this.fluid,
+                this.consume,
+                this.transform,
+                this.produce,
+                this.chance,
+                this.ignited,
+                this.fluidTag
+            );
         }
     }
 }

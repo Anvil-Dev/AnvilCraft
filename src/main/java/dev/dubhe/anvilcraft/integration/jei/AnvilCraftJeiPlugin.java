@@ -48,7 +48,6 @@ import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConver
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
-import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ColoredConcreteRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.TranscendiumRecipe;
@@ -116,8 +115,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     );
 
     public static final RecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
-    public static final RecipeType<CementStainingRecipe> CEMENT_STAINING =
-        createRecipeType("cement_staining", CementStainingRecipe.class);
+    public static final RecipeType<RecipeHolder<BulgingRecipe>> CEMENT_STAINING_BULGING =
+        createRecipeHolderType("cement_staining_bulging");
     public static final RecipeType<ColoredConcreteRecipe> COLORED_CONCRETE =
         createRecipeType("colored_concrete", ColoredConcreteRecipe.class);
     public static final RecipeType<BeaconConversionRecipe> BEACON_CONVERSION =

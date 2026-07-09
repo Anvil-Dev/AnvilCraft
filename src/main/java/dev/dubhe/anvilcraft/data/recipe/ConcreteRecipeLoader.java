@@ -17,6 +17,11 @@ import java.util.Map;
 
 public class ConcreteRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        initConcrete(provider);
+        initCementStaining(provider);
+    }
+
+    private static void initConcrete(RegistrumRecipeProvider provider) {
         for (Map.Entry<Color, BlockEntry<CementCauldronBlock>> entry : ModBlocks.CEMENT_CAULDRONS.entrySet()) {
             Color color = entry.getKey();
             CementCauldronBlock cauldronBlock = entry.getValue().get();
@@ -39,6 +44,21 @@ public class ConcreteRecipeLoader {
                 .requires(Items.IRON_BARS, 8)
                 .result(reinforcedConcrete, 16)
                 .save(provider, AnvilCraft.of("concrete/anvilcraft_reinforced_concrete_%s".formatted(color.getSerializedName())));
+        }
+    }
+
+    /**
+     * 生成水泥染色配方（铁砧加工），每种染料对应将任意颜色水泥炼药锅/鱼缸中的水泥染成对应颜色
+     */
+    private static void initCementStaining(RegistrumRecipeProvider provider) {
+        ResourceLocation cementTag = ResourceLocation.fromNamespaceAndPath("c", "cement");
+        for (Color color : Color.values()) {
+            ResourceLocation targetCement = AnvilCraft.of("%s_cement".formatted(color.getSerializedName()));
+            BulgingRecipe.builder()
+                .fluidTag(cementTag)
+                .transform(targetCement)
+                .requires(color.dyeItem())
+                .save(provider, AnvilCraft.of("cement_staining/%s".formatted(color.getSerializedName())));
         }
     }
 }

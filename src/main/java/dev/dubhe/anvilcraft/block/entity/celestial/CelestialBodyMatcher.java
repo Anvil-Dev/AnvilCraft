@@ -1,14 +1,15 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.util.RandomSource;
 
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 
 /// 三步天体匹配引擎，通过图表PNG进行匹配。
 /// 每张64x64图表将砧子计数映射到像素颜色，从而识别天体类别。
@@ -24,11 +25,11 @@ public final class CelestialBodyMatcher {
     private static final String AGE_RADIUS = DIR + "/age_radius_diagram_pixel.png";
     private static final String STAR_COLOR_TEMP = "assets/anvilcraft/textures/block/celestial_body/star_color_temperature.png";
 
-    private static NativeImage massRadiusImage;
-    private static NativeImage ageTempImage;
-    private static NativeImage ageTempSpImage;
-    private static NativeImage ageRadiusImage;
-    private static NativeImage starColorTempImage;
+    private static BufferedImage massRadiusImage;
+    private static BufferedImage ageTempImage;
+    private static BufferedImage ageTempSpImage;
+    private static BufferedImage ageRadiusImage;
+    private static BufferedImage starColorTempImage;
     private static boolean loadAttempted = false;
 
     /// 预计算的合法（时间,空间,质量,能量）组合
@@ -221,13 +222,13 @@ public final class CelestialBodyMatcher {
         ageRadiusImage = loadImage(AGE_RADIUS);
     }
 
-    private static NativeImage loadImage(String classpath) {
+    private static BufferedImage loadImage(String classpath) {
         try (InputStream is = AnvilCraft.class.getClassLoader().getResourceAsStream(classpath)) {
             if (is == null) {
                 AnvilCraft.LOGGER.warn("CelestialBodyMatcher: missing diagram {}", classpath);
                 return null;
             }
-            return NativeImage.read(is);
+            return ImageIO.read(is);
         } catch (Exception e) {
             AnvilCraft.LOGGER.warn("CelestialBodyMatcher: failed to load {}", classpath, e);
             return null;
@@ -235,7 +236,7 @@ public final class CelestialBodyMatcher {
     }
 
     @Nullable
-    private static NativeImage loadStarColorTemp() {
+    private static BufferedImage loadStarColorTemp() {
         if (starColorTempImage == null) {
             starColorTempImage = loadImage(STAR_COLOR_TEMP);
         }
@@ -245,26 +246,26 @@ public final class CelestialBodyMatcher {
     /// === 图查表找 ===
 
     @Nullable
-    private static CelestialBodyClass lookupClass(NativeImage image, int x, int y) {
+    private static CelestialBodyClass lookupClass(BufferedImage image, int x, int y) {
         if (image == null) return null;
         int xi = Math.clamp(x, 0, image.getWidth() - 1);
         int yi = Math.clamp(y, 0, image.getHeight() - 1);
-        int argb = image.getPixelRGBA(xi, yi);
-        int r = argb & 0xFF;
+        int argb = image.getRGB(xi, yi);
+        int r = (argb >> 16) & 0xFF;
         int g = (argb >> 8) & 0xFF;
-        int b = (argb >> 16) & 0xFF;
+        int b = argb & 0xFF;
         int rgb = (r << 16) | (g << 8) | b;
         return CelestialBodyClass.fromRgb(rgb);
     }
 
-    private static int getRgb(NativeImage image, int x, int y) {
+    private static int getRgb(BufferedImage image, int x, int y) {
         if (image == null) return 0;
         int xi = Math.clamp(x, 0, image.getWidth() - 1);
         int yi = Math.clamp(y, 0, image.getHeight() - 1);
-        int argb = image.getPixelRGBA(xi, yi);
-        int r = argb & 0xFF;
+        int argb = image.getRGB(xi, yi);
+        int r = (argb >> 16) & 0xFF;
         int g = (argb >> 8) & 0xFF;
-        int b = (argb >> 16) & 0xFF;
+        int b = argb & 0xFF;
         return (r << 16) | (g << 8) | b;
     }
 
@@ -455,13 +456,13 @@ public final class CelestialBodyMatcher {
 
     @SuppressWarnings("checkstyle:NeedBraces")
     private static int[] getStarColorFromTempDiagram(int energy) {
-        NativeImage img = loadStarColorTemp();
+        BufferedImage img = loadStarColorTemp();
         if (img == null) return new int[] {255, 255, 255};
         int row = toY(energy);
-        int argb = img.getPixelRGBA(0, row);
-        int r = argb & 0xFF;
+        int argb = img.getRGB(0, row);
+        int r = (argb >> 16) & 0xFF;
         int g = (argb >> 8) & 0xFF;
-        int b = (argb >> 16) & 0xFF;
+        int b = argb & 0xFF;
         return new int[] {r, g, b};
     }
 

@@ -109,7 +109,6 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
                 PacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
                 this.menu.setFilter(realSlotId, carriedItem);
                 if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-                slot.set(carriedItem);
             } else if (Screen.hasShiftDown()) {
                 PacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,
