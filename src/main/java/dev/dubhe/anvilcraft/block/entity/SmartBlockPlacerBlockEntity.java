@@ -45,7 +45,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -259,6 +258,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public final SyncProxy<Integer> currentPlacementIndexProxy = new SyncProxy<>(0);
     public final SyncProxy<Boolean> isPoweredProxy = new SyncProxy<>(false);
     public final SyncProxy<Boolean> hasRedstoneSignalProxy = new SyncProxy<>(false);
+    public final SyncProxy<ItemStack> missingBlockItemProxy = new SyncProxy<>(ItemStack.EMPTY);
 
     public int getPlaceCooldown() {
         Integer value = this.placeCooldownProxy.getValue();
@@ -283,6 +283,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public boolean isHasRedstoneSignal() {
         Boolean value = this.hasRedstoneSignalProxy.getValue();
         return value != null && value;
+    }
+
+    public ItemStack getMissingBlockItem() {
+        ItemStack value = this.missingBlockItemProxy.getValue();
+        return value != null ? value : ItemStack.EMPTY;
     }
 
     // 预览/模式数据同步（通过 SyncProxy 自动同步到客户端）
@@ -324,9 +329,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     // 比较器信号状态
     private int lastComparatorSignal = 0;
 
-    // 客户端结构缓存标记：首次从服务端同步后置为 true，避免重复同步检查
-    private transient boolean clientStructureCached = false;
-
     // 穿梭进度：记录预期邻居放置到的目标位置，邻居完成放置后触发进度
     @Nullable
     private BlockPos expectedShuttleTarget = null;
@@ -348,6 +350,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     private static final String DATA_KEY = "SmartBlockPlacerData";
+    private static final String CLEAR_STRUCTURE_KEY = "clearStructure";
 
     @Override
     protected void saveAdditional(ValueOutput output) {
@@ -460,20 +463,41 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     public void onChanged() {
         this.setChanged();
-        Level level = this.getLevel();
-        if (level != null) {
-            // 通过 SyncProxy 自动同步动画状态到客户端
-            this.placeCooldownProxy.setValue(this.placeCooldown);
-            this.currentHeldBlockProxy.setValue(this.currentHeldBlock);
-            this.currentPlacementIndexProxy.setValue(this.currentPlacementIndex);
-            this.isPoweredProxy.setValue(this.isPowered);
-            this.hasRedstoneSignalProxy.setValue(this.hasRedstoneSignal);
-            // 强制同步方块实体数据包到客户端，确保动画数据立即到达
-            if (!level.isClientSide()) {
-                ClientboundBlockEntityDataPacket packet = ClientboundBlockEntityDataPacket.create(this);
-                level.players().forEach(p -> ((ServerPlayer) p).connection.send(packet));
-            }
+        if (this.getLevel() != null) {
+            this.syncDynamicState();
         }
+    }
+
+    private void syncDynamicState() {
+        syncIfChanged(this.placeCooldownProxy, this.placeCooldown);
+        syncItemStackIfChanged(this.currentHeldBlockProxy, this.currentHeldBlock);
+        syncIfChanged(this.currentPlacementIndexProxy, this.currentPlacementIndex);
+        syncIfChanged(this.isPoweredProxy, this.isPowered);
+        syncIfChanged(this.hasRedstoneSignalProxy, this.hasRedstoneSignal);
+        syncItemStackIfChanged(this.missingBlockItemProxy, this.missingBlockItem);
+    }
+
+    private static <T> void syncIfChanged(SyncProxy<T> proxy, T value) {
+        if (!Objects.equals(proxy.getValue(), value)) {
+            proxy.setValue(value);
+        }
+    }
+
+    private static void syncItemStackIfChanged(SyncProxy<ItemStack> proxy, ItemStack value) {
+        ItemStack currentValue = proxy.getValue();
+        if (!isSameItemStack(currentValue, value)) {
+            proxy.setValue(value);
+        }
+    }
+
+    private static boolean isSameItemStack(@Nullable ItemStack left, ItemStack right) {
+        if (left == null) {
+            return right.isEmpty();
+        }
+        if (left.isEmpty() && right.isEmpty()) {
+            return true;
+        }
+        return left.getCount() == right.getCount() && ItemStack.isSameItemSameComponents(left, right);
     }
 
     @Nullable
@@ -621,8 +645,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 更新状态
         this.hasStructureDisk = nowHasDisk;
         this.loadedStructureUuid = currentUuid;
-        this.clientStructureCached = false;
-
         boolean structureChanged = false;
 
         if (!nowHasDisk) {
@@ -669,21 +691,29 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 只在结构数据真正变化时才同步
         if (structureChanged) {
             this.onChanged();
-            // 通过 SyncProxy 同步结构数据
-            CompoundTag structTag = new CompoundTag();
-            this.saveAdditionalDataToTag(structTag);
-            this.dataSyncProxy.setValue(structTag);
+            this.syncStructureData();
         }
+    }
+
+    private void syncStructureData() {
+        CompoundTag structTag = new CompoundTag();
+        this.saveAdditionalDataToTag(structTag);
+        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+            structTag.putBoolean(CLEAR_STRUCTURE_KEY, true);
+        }
+        syncIfChanged(this.dataSyncProxy, structTag);
+    }
+
+    private void syncLayerPositions() {
+        CompoundTag tag = new CompoundTag();
+        this.saveLayerPositions(tag);
+        syncIfChanged(this.dataSyncProxy, tag);
     }
 
     /**
      * 获取已加载的结构数据
      */
     public StructureLoadUtil.@Nullable StructureData getLoadedStructure() {
-        // 客户端已缓存结构数据，不再重复同步
-        if (this.level != null && this.level.isClientSide() && this.clientStructureCached) {
-            return this.loadedStructure;
-        }
         // 检查 SyncProxy 数据同步是否更新
         CompoundTag tag = this.dataSyncProxy.getValue();
         if (tag != null && !tag.isEmpty()) {
@@ -3916,12 +3946,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     public void setSelectedLayer(int layer) {
+        if (this.selectedLayer == layer) {
+            return;
+        }
         this.selectedLayer = layer;
         this.selectedLayerProxy.setValue(layer);
         this.onChanged();
     }
 
     public void setPickupMode(boolean pickupMode) {
+        if (this.isPickupMode == pickupMode) {
+            return;
+        }
         this.isPickupMode = pickupMode;
         this.isPickupModeProxy.setValue(pickupMode);
         this.expectedShuttleTarget = null;
@@ -3929,6 +3965,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     public void setSkipMissingMode(boolean skipMissingMode) {
+        if (this.isSkipMissingMode == skipMissingMode) {
+            return;
+        }
         this.isSkipMissingMode = skipMissingMode;
         this.isSkipMissingModeProxy.setValue(skipMissingMode);
         this.onChanged();
@@ -3951,30 +3990,34 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             }
             this.hasStructureDisk = true;
             this.hasInvalidStructure = false;
-            this.clientStructureCached = true;
-        } else {
+        } else if (tag.getBooleanOr(CLEAR_STRUCTURE_KEY, false)) {
             this.loadedStructure = null;
             this.loadedStructureName = "";
             this.loadedStructureUuid = null;
             this.hasStructureDisk = false;
             this.hasInvalidStructure = false;
-            this.clientStructureCached = false;
         }
         this.loadLayerPositions(tag);
     }
 
     public void togglePosition(int layer, int position, boolean selected) {
-        this.expectedShuttleTarget = null;
-        Set<Integer> positions = this.layerPositions.computeIfAbsent(layer, _ -> new HashSet<>());
         if (selected) {
-            positions.add(position);
+            Set<Integer> positions = this.layerPositions.computeIfAbsent(layer, _ -> new HashSet<>());
+            if (!positions.add(position)) {
+                return;
+            }
         } else {
-            positions.remove(position);
+            Set<Integer> positions = this.layerPositions.get(layer);
+            if (positions == null || !positions.remove(position)) {
+                return;
+            }
             if (positions.isEmpty()) {
                 this.layerPositions.remove(layer);
             }
         }
+        this.expectedShuttleTarget = null;
         this.onChanged();
+        this.syncLayerPositions();
     }
 
     /**
@@ -4079,6 +4122,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
         this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
         this.loadLayerPositions(tag);
+        this.selectedLayerProxy.setValue(this.selectedLayer);
+        this.isPickupModeProxy.setValue(this.isPickupMode);
+        this.isSkipMissingModeProxy.setValue(this.isSkipMissingMode);
 
         // 同步结构缓存数据（菜单打开包中包含 cachedStructure），
         // 用于客户端预览蓝图和结构信息
@@ -4172,7 +4218,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
         this.loadLayerPositions(tag);
         this.expectedShuttleTarget = null;
+        this.selectedLayerProxy.setValue(this.selectedLayer);
+        this.isPickupModeProxy.setValue(this.isPickupMode);
         this.onChanged();
+        this.syncLayerPositions();
     }
 
 }
