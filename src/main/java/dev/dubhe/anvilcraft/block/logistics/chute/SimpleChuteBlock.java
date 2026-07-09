@@ -155,7 +155,7 @@ public class SimpleChuteBlock
     ) {
         level.updateNeighbourForOutputSignal(pos, this);
     }
-    
+
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> blockEntityType) {

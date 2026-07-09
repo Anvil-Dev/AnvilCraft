@@ -397,7 +397,12 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             try (Transaction tx = Transaction.openRoot()) {
                 int actualDrained = source.extract(resourceToDrain, requestedDrain, tx);
                 if (actualDrained <= 0) continue;
-                target.insert(resourceToDrain, actualDrained, tx);
+                int inserted = target.insert(resourceToDrain, actualDrained, tx);
+                if (inserted <= 0) continue;
+                if (inserted < actualDrained) {
+                    int returned = source.insert(resourceToDrain, actualDrained - inserted, tx);
+                    if (returned < actualDrained - inserted) continue;
+                }
                 tx.commit();
             }
         }

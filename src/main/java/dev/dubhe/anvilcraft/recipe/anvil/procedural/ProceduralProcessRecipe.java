@@ -42,6 +42,12 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
         Optional<Identifier> displayedModel,
         Optional<ProceduralProcessStep> multiLoopFirstStep
     ) {
+        if (steps.isEmpty()) {
+            throw new IllegalArgumentException("Procedural process recipe must have at least one step");
+        }
+        if (loop <= 0) {
+            throw new IllegalArgumentException("Procedural process recipe loop count must be at least 1");
+        }
         this.initialBlock = initialBlock;
         this.steps = steps;
         this.resultBlock = resultBlock;
