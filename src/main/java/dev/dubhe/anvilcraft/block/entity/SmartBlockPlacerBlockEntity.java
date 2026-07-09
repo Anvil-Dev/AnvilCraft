@@ -45,7 +45,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -289,6 +288,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public final SyncProxy<Integer> selectedLayerProxy = new SyncProxy<>(0);
     public final SyncProxy<Boolean> isPickupModeProxy = new SyncProxy<>(true);
     public final SyncProxy<Boolean> isSkipMissingModeProxy = new SyncProxy<>(true);
+    public final SyncProxy<CompoundTag> stateSyncProxy = new SyncProxy<>(new CompoundTag());
     public final SyncProxy<CompoundTag> dataSyncProxy = new SyncProxy<>(new CompoundTag());
 
     public int getSelectedLayer() {
@@ -304,6 +304,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public boolean isSkipMissingMode() {
         Boolean value = this.isSkipMissingModeProxy.getValue();
         return value != null && value;
+    }
+
+    public Map<Integer, Set<Integer>> getLayerPositions() {
+        this.applyStateSyncIfUpdated();
+        return this.layerPositions;
+    }
+
+    public String getLoadedStructureName() {
+        this.applyStateSyncIfUpdated();
+        return this.loadedStructureName;
+    }
+
+    public ItemStack getMissingBlockItem() {
+        this.applyStateSyncIfUpdated();
+        return this.missingBlockItem;
     }
 
     // 客户端动画状态
@@ -468,10 +483,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.currentPlacementIndexProxy.setValue(this.currentPlacementIndex);
             this.isPoweredProxy.setValue(this.isPowered);
             this.hasRedstoneSignalProxy.setValue(this.hasRedstoneSignal);
-            // 强制同步方块实体数据包到客户端，确保动画数据立即到达
             if (!level.isClientSide()) {
-                ClientboundBlockEntityDataPacket packet = ClientboundBlockEntityDataPacket.create(this);
-                level.players().forEach(p -> ((ServerPlayer) p).connection.send(packet));
+                this.syncStateIfChanged();
             }
         }
     }
@@ -618,6 +631,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             return;
         }
 
+        final boolean diskStateChanged = nowHasDisk != this.hasStructureDisk
+                                         || !Objects.equals(currentUuid, this.loadedStructureUuid);
+        final boolean wasInvalidStructure = this.hasInvalidStructure;
+
         // 更新状态
         this.hasStructureDisk = nowHasDisk;
         this.loadedStructureUuid = currentUuid;
@@ -666,9 +683,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             }
         }
 
-        // 只在结构数据真正变化时才同步
-        if (structureChanged) {
+        boolean invalidStructureChanged = wasInvalidStructure != this.hasInvalidStructure;
+
+        if (structureChanged || diskStateChanged || invalidStructureChanged) {
             this.onChanged();
+        }
+
+        // 只在结构数据真正变化时才同步完整结构缓存
+        if (structureChanged) {
             // 通过 SyncProxy 同步结构数据
             CompoundTag structTag = new CompoundTag();
             this.saveAdditionalDataToTag(structTag);
@@ -680,6 +702,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 获取已加载的结构数据
      */
     public StructureLoadUtil.@Nullable StructureData getLoadedStructure() {
+        this.applyStateSyncIfUpdated();
         // 客户端已缓存结构数据，不再重复同步
         if (this.level != null && this.level.isClientSide() && this.clientStructureCached) {
             return this.loadedStructure;
@@ -701,6 +724,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      */
     @SuppressWarnings("unused")
     public boolean hasInvalidStructure() {
+        this.applyStateSyncIfUpdated();
         return this.hasInvalidStructure;
     }
 
@@ -3932,6 +3956,78 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.isSkipMissingMode = skipMissingMode;
         this.isSkipMissingModeProxy.setValue(skipMissingMode);
         this.onChanged();
+    }
+
+    // Hash for the compact state packet. Structure cache is synced separately.
+    private int lastStateSyncHash = 0;
+    private int lastStateApplyHash = 0;
+
+    private void syncStateIfChanged() {
+        CompoundTag tag = new CompoundTag();
+        this.saveStateSyncDataToTag(tag);
+        int hash = tag.hashCode();
+        if (hash == this.lastStateSyncHash) {
+            return;
+        }
+        this.lastStateSyncHash = hash;
+        this.stateSyncProxy.setValue(tag);
+    }
+
+    private void applyStateSyncIfUpdated() {
+        if (this.level == null || !this.level.isClientSide()) {
+            return;
+        }
+        CompoundTag tag = this.stateSyncProxy.getValue();
+        if (tag == null || tag.isEmpty()) {
+            return;
+        }
+        int hash = tag.hashCode();
+        if (hash == this.lastStateApplyHash) {
+            return;
+        }
+        this.lastStateApplyHash = hash;
+        this.applyStateSyncFromPacket(tag);
+    }
+
+    private void saveStateSyncDataToTag(CompoundTag tag) {
+        tag.putInt("selectedLayer", this.selectedLayer);
+        tag.putBoolean("isPickupMode", this.isPickupMode);
+        tag.putBoolean("isSkipMissingMode", this.isSkipMissingMode);
+        tag.putBoolean("hasStructureDisk", this.hasStructureDisk);
+        tag.putBoolean("hasInvalidStructure", this.hasInvalidStructure);
+        tag.putString("loadedStructureName", this.loadedStructureName);
+        if (this.loadedStructureUuid != null) {
+            UUIDUtil.CODEC.encodeStart(NbtOps.INSTANCE, this.loadedStructureUuid)
+                .result().ifPresent(nbt -> tag.put("loadedStructureUuid", nbt));
+        }
+        if (!this.missingBlockItem.isEmpty()) {
+            ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.missingBlockItem)
+                .result().ifPresent(nbt -> tag.put("missingBlockItem", nbt));
+        }
+        this.saveLayerPositions(tag);
+    }
+
+    private void applyStateSyncFromPacket(CompoundTag tag) {
+        this.selectedLayer = tag.getIntOr("selectedLayer", 0);
+        this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
+        this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
+        this.hasStructureDisk = tag.getBooleanOr("hasStructureDisk", false);
+        this.hasInvalidStructure = tag.getBooleanOr("hasInvalidStructure", false);
+        this.loadedStructureName = tag.getStringOr("loadedStructureName", "");
+        this.loadedStructureUuid = tag.contains("loadedStructureUuid")
+                                   ? UUIDUtil.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("loadedStructureUuid"))
+                                       .result().orElse(null)
+                                   : null;
+        this.missingBlockItem = tag.contains("missingBlockItem")
+                                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("missingBlockItem"))
+                                    .result().orElse(ItemStack.EMPTY)
+                                : ItemStack.EMPTY;
+        this.loadLayerPositions(tag);
+
+        if (!this.hasStructureDisk) {
+            this.loadedStructure = null;
+            this.clientStructureCached = false;
+        }
     }
 
     // 上一个同步的数据包哈希（用于检测变化）
