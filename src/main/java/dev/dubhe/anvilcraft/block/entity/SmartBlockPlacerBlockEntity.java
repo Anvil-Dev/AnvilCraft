@@ -1535,14 +1535,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     /**
-     * 方块操作成功回调接口
-     */
-    @FunctionalInterface
-    private interface BlockOperationSuccessHandler {
-        boolean handle(ItemStack blockItem, BlockItem blockItemObj, BlockPos targetPos);
-    }
-
-    /**
      * 方块操作成功回调接口（支持ExtractionResult）
      */
     @FunctionalInterface
@@ -2430,99 +2422,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 所有位置都遍历完了，没有找到可以放置的
         this.currentHeldBlock = ItemStack.EMPTY;
         this.onChanged();
-    }
-
-    /**
-     * 统一方块操作执行方法（用于move模式）
-     * 注意：move模式放置失败时不回滚物品，因为源方块仍在原位
-     *
-     * @param level            世界
-     * @param facing           朝向
-     * @param upsideDown       是否倒挂
-     * @param positionProvider 位置列表提供者
-     * @param itemExtractor    物品提取器（接收位置索引，返回物品）
-     * @param itemPeeker       物品预览器
-     * @param onSuccess        成功回调
-     */
-    private void executeUnifiedBlockOperation(
-        Level level,
-        Direction facing,
-        boolean upsideDown,
-        Supplier<List<BlockPos>> positionProvider,
-        IntFunction<ItemStack> itemExtractor,
-        @Nullable Supplier<ItemStack> itemPeeker,
-        BlockOperationSuccessHandler onSuccess
-    ) {
-
-        List<BlockPos> allPositions = positionProvider.get();
-
-        if (allPositions.isEmpty()) {
-            return;
-        }
-
-        // 重置索引（如果超出范围）
-        if (this.currentPlacementIndex >= allPositions.size()) {
-            this.currentPlacementIndex = 0;
-        }
-
-        // 从当前索引开始查找空位
-        for (int i = 0; i < allPositions.size(); i++) {
-            int index = (this.currentPlacementIndex + i) % allPositions.size();
-            BlockPos targetPos = allPositions.get(index);
-
-            // 检查目标位置是否可以放置
-            if (this.isPositionOccupied(level, targetPos, null)) {
-                continue;
-            }
-
-            // 如果有预览器，先预览检查（pickup/move 模式）
-            if (itemPeeker != null) {
-                ItemStack peekedBlockItem = itemPeeker.get();
-                if (peekedBlockItem.isEmpty() || !(peekedBlockItem.getItem() instanceof BlockItem peekedBlockItemObj)) {
-                    this.currentPlacementIndex = (index + 1) % allPositions.size();
-                    this.onChanged();
-                    return;
-                }
-
-                if (this.isPositionOccupied(level, targetPos, peekedBlockItemObj)) {
-                    this.currentPlacementIndex = (index + 1) % allPositions.size();
-                    this.onChanged();
-                    return;
-                }
-            }
-
-            // 提取物品（传入当前位置索引）
-            ItemStack blockItem = itemExtractor.apply(index);
-            if (blockItem.isEmpty() || !(blockItem.getItem() instanceof BlockItem blockItemObj)) {
-                // 容器中没有物品或物品类型不对，立即停止
-                this.currentHeldBlock = ItemStack.EMPTY;  // 清空动画显示
-                this.currentPlacementIndex = (index + 1) % allPositions.size();
-                this.onChanged();
-                return;
-            }
-
-            // 使用 FakePlayer 放置方块
-            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
-
-            // 放置失败时直接返回（move模式不需要回滚，源方块仍在原位）
-            if (!placeSuccess) {
-                this.onChanged();
-                return;
-            }
-
-            // 执行成功回调
-            boolean canStack = onSuccess.handle(blockItem, blockItemObj, targetPos);
-
-            if (canStack) {
-                this.onChanged();
-                return;
-            }
-
-            // 更新索引
-            this.currentPlacementIndex = (index + 1) % allPositions.size();
-            this.onChanged();
-            return;
-        }
     }
 
     /**
@@ -4130,43 +4029,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             );
         }
         tag.put("layerPositions", layerTag);
-    }
-
-    /**
-     * 从菜单打开包中同步的NBT数据应用状态（仅客户端调用）
-     */
-    public void applySyncDataFromMenu(CompoundTag tag) {
-        this.isPowered = tag.getBooleanOr("isPowered", false);
-        this.hasRedstoneSignal = tag.getBooleanOr("hasRedstoneSignal", false);
-        this.selectedLayer = tag.getIntOr("selectedLayer", 0);
-        this.currentPlacementIndex = tag.getIntOr("currentPlacementIndex", 0);
-        this.placeCooldown = tag.getIntOr("placeCooldown", 0);
-        this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
-        this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
-        this.missingBlockItem = tag.contains("missingBlockItem")
-                                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("missingBlockItem"))
-                                    .result().orElse(ItemStack.EMPTY)
-                                : ItemStack.EMPTY;
-        this.currentHeldBlock = tag.contains("currentHeldBlock")
-                                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("currentHeldBlock"))
-                                    .result().orElse(ItemStack.EMPTY)
-                                : ItemStack.EMPTY;
-        this.loadLayerPositions(tag);
-        this.syncAllProxySnapshots();
-
-        // 同步结构缓存数据（菜单打开包中包含 cachedStructure），
-        // 用于客户端预览蓝图和结构信息
-        if (tag.contains("cachedStructure")) {
-            this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
-            this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
-            if (tag.contains("cachedStructureUuid")) {
-                this.loadedStructureUuid = UUIDUtil.CODEC.parse(
-                    NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid")
-                ).result().orElse(null);
-            }
-            this.hasStructureDisk = true;
-            this.hasInvalidStructure = false;
-        }
     }
 
     void loadLayerPositions(CompoundTag tag) {
