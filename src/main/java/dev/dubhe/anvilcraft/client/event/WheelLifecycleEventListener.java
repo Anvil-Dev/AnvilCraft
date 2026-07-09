@@ -115,7 +115,8 @@ public class WheelLifecycleEventListener {
             if (!AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player)) return false;
             List<BlockState> possibleStates = possibleStatesFac.get();
             if (possibleStates.isEmpty()) return true;
-            WheelLifecycleEventListener.hammerWheelCache = Optional.ofNullable(WheelLifecycleEventListener.getHammerWheel(
+            if (client.getCameraEntity() == null) return false;
+            WheelLifecycleEventListener.hammerWheelCache = Optional.of(WheelLifecycleEventListener.getHammerWheel(
                 targetPos,
                 property,
                 possibleStates,
@@ -144,10 +145,15 @@ public class WheelLifecycleEventListener {
                 }
                 if (!stack.has(ModComponents.MULTIPHASE)) return;
                 MultiphaseRef ref = stack.get(ModComponents.MULTIPHASE);
-                if (ref.isEmpty()) return;
-                ClientPacketDistributor.sendToServer(new MultiphasePackets.SingleSync(stack.get(ModComponents.MULTIPHASE).id().get()));
-                WheelLifecycleEventListener.multiphaseWheelCache = Optional.ofNullable(
-                    WheelLifecycleEventListener.getMultiphaseWheel(hand, stack, ref.toMultiphase())
+                if (ref == null || ref.isEmpty()) return;
+                if (stack.get(ModComponents.MULTIPHASE) == null) return;
+                var component = stack.get(ModComponents.MULTIPHASE);
+                if (component == null) return;
+                ClientPacketDistributor.sendToServer(new MultiphasePackets.SingleSync(component.id().get()));
+                var multiphase = ref.toMultiphase();
+                if (multiphase == null) return;
+                WheelLifecycleEventListener.multiphaseWheelCache = Optional.of(
+                    WheelLifecycleEventListener.getMultiphaseWheel(hand, stack, multiphase)
                 );
             }
             if (WheelLifecycleEventListener.multiphaseWheelCache.isEmpty()) return;
@@ -168,7 +174,7 @@ public class WheelLifecycleEventListener {
                 stack = player.getOffhandItem();
             }
             if (!(stack.getItem() instanceof ResonatorItem)) return;
-            WheelLifecycleEventListener.resonatorWheelCache = Optional.ofNullable(
+            WheelLifecycleEventListener.resonatorWheelCache = Optional.of(
                 WheelLifecycleEventListener.getResonatorWheel(hand, stack)
             );
         }
@@ -194,7 +200,7 @@ public class WheelLifecycleEventListener {
                 stack = player.getOffhandItem();
             }
             if (!(stack.getItem() instanceof MultitoolItem)) return;
-            WheelLifecycleEventListener.multitoolWheelCache = Optional.ofNullable(
+            WheelLifecycleEventListener.multitoolWheelCache = Optional.of(
                 WheelLifecycleEventListener.getMultitoolWheel(hand, stack)
             );
         }
@@ -208,7 +214,7 @@ public class WheelLifecycleEventListener {
         }
     }
 
-    private static @Nullable WheelMenuModel getHammerWheel(
+    private static WheelMenuModel getHammerWheel(
         BlockPos targetPos,
         Property<?> property,
         List<BlockState> possibleStates,
@@ -247,11 +253,10 @@ public class WheelLifecycleEventListener {
                     Component.literal(name),
                     (graphics, _, _, _) -> {
                         PoseStack pose = new PoseStack();
-                        pose.translate(0.5F, 0.5F, 0.5F);
+                        pose.translate(0, 0, 0);
                         pose.mulPose(Axis.XP.rotationDegrees(camera.x));
                         pose.mulPose(Axis.YP.rotationDegrees(camera.y + 180F));
-                        pose.translate(-0.5F, -0.5F, -0.5F);
-                        GuiRenderExtras.tessellateBlock(graphics, state, 0, 0, pose);
+                        GuiRenderExtras.tessellateBlock(graphics, state, -15f, -5, pose);
                     },
                     action
                 );
@@ -259,7 +264,7 @@ public class WheelLifecycleEventListener {
         return builder.build();
     }
 
-    private static @Nullable WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
+    private static WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
         WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(multiphase.phases().size());
         multiphase.phases().stream()
             .sorted(Comparator.comparingInt(Multiphase.Phase::index))
@@ -278,7 +283,7 @@ public class WheelLifecycleEventListener {
         return builder.build();
     }
 
-    private static @Nullable WheelMenuModel getResonatorWheel(InteractionHand hand, ItemStack holding) {
+    private static WheelMenuModel getResonatorWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
             .slotsPerPage(5)
             .action(
@@ -344,7 +349,7 @@ public class WheelLifecycleEventListener {
             .build();
     }
 
-    private static @Nullable WheelMenuModel getMultitoolWheel(InteractionHand hand, ItemStack holding) {
+    private static WheelMenuModel getMultitoolWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
             .slotsPerPage(9)
             .action(

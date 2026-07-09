@@ -6,8 +6,6 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -37,7 +35,6 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
         if (player != null && player.isShiftKeyDown()) {
             original = true;
         }
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
         if (!(e instanceof HeatCollectorBlockEntity heatCollector)) return List.of();
         if (!heatCollector.isWorking()) {
             return List.of(
