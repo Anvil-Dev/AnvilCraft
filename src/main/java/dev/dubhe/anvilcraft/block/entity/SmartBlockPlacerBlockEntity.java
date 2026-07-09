@@ -432,6 +432,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         // NBT加载后尝试从磁盘更新结构（如果有磁盘的话）
+        this.syncAllProxySnapshots();
         this.tryLoadStructure();
     }
 
@@ -475,6 +476,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         syncIfChanged(this.isPoweredProxy, this.isPowered);
         syncIfChanged(this.hasRedstoneSignalProxy, this.hasRedstoneSignal);
         syncItemStackIfChanged(this.missingBlockItemProxy, this.missingBlockItem);
+    }
+
+    private void syncAllProxySnapshots() {
+        this.syncDynamicState();
+        syncIfChanged(this.selectedLayerProxy, this.selectedLayer);
+        syncIfChanged(this.isPickupModeProxy, this.isPickupMode);
+        syncIfChanged(this.isSkipMissingModeProxy, this.isSkipMissingMode);
     }
 
     private static <T> void syncIfChanged(SyncProxy<T> proxy, T value) {
@@ -697,8 +705,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     private void syncStructureData() {
         CompoundTag structTag = new CompoundTag();
-        this.saveAdditionalDataToTag(structTag);
-        if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
+        this.saveLayerPositions(structTag);
+        if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
+            structTag.put("cachedStructure", this.saveStructureData(this.loadedStructure));
+            structTag.putString("cachedStructureName", this.loadedStructureName);
+            if (this.loadedStructureUuid != null) {
+                UUIDUtil.CODEC.encodeStart(NbtOps.INSTANCE, this.loadedStructureUuid)
+                    .result().ifPresent(nbt -> structTag.put("cachedStructureUuid", nbt));
+            }
+        } else {
             structTag.putBoolean(CLEAR_STRUCTURE_KEY, true);
         }
         syncIfChanged(this.dataSyncProxy, structTag);
@@ -714,6 +729,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 获取已加载的结构数据
      */
     public StructureLoadUtil.@Nullable StructureData getLoadedStructure() {
+        if (this.level != null && !this.level.isClientSide()) {
+            return this.loadedStructure;
+        }
         // 检查 SyncProxy 数据同步是否更新
         CompoundTag tag = this.dataSyncProxy.getValue();
         if (tag != null && !tag.isEmpty()) {
@@ -4118,13 +4136,23 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 从菜单打开包中同步的NBT数据应用状态（仅客户端调用）
      */
     public void applySyncDataFromMenu(CompoundTag tag) {
+        this.isPowered = tag.getBooleanOr("isPowered", false);
+        this.hasRedstoneSignal = tag.getBooleanOr("hasRedstoneSignal", false);
         this.selectedLayer = tag.getIntOr("selectedLayer", 0);
+        this.currentPlacementIndex = tag.getIntOr("currentPlacementIndex", 0);
+        this.placeCooldown = tag.getIntOr("placeCooldown", 0);
         this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
         this.isSkipMissingMode = tag.getBooleanOr("isSkipMissingMode", false);
+        this.missingBlockItem = tag.contains("missingBlockItem")
+                                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("missingBlockItem"))
+                                    .result().orElse(ItemStack.EMPTY)
+                                : ItemStack.EMPTY;
+        this.currentHeldBlock = tag.contains("currentHeldBlock")
+                                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("currentHeldBlock"))
+                                    .result().orElse(ItemStack.EMPTY)
+                                : ItemStack.EMPTY;
         this.loadLayerPositions(tag);
-        this.selectedLayerProxy.setValue(this.selectedLayer);
-        this.isPickupModeProxy.setValue(this.isPickupMode);
-        this.isSkipMissingModeProxy.setValue(this.isSkipMissingMode);
+        this.syncAllProxySnapshots();
 
         // 同步结构缓存数据（菜单打开包中包含 cachedStructure），
         // 用于客户端预览蓝图和结构信息
@@ -4218,8 +4246,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         this.isPickupMode = tag.getBooleanOr("isPickupMode", false);
         this.loadLayerPositions(tag);
         this.expectedShuttleTarget = null;
-        this.selectedLayerProxy.setValue(this.selectedLayer);
-        this.isPickupModeProxy.setValue(this.isPickupMode);
+        this.syncAllProxySnapshots();
         this.onChanged();
         this.syncLayerPositions();
     }
