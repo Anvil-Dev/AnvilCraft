@@ -248,7 +248,51 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.PILL_BOX.asItem(), "Store pills for quick use");
         NORMAL.put(ModItems.AMULET_BOX.asItem(), "Stores multiple active amulets or totems");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), "Forge celestial bodies, build megastructures");
+        NORMAL.put(ModItems.TRANSCENDIUM_INGOT.get(), "Strong interaction material sustained by magic, immune to most destruction methods");
+        NORMAL.put(ModBlocks.TRANSCENDIUM_BLOCK.asItem(), "Strong interaction material sustained by magic, immune to most destruction methods");
+        NORMAL.put(ModItems.TRANSCENDIUM_NUGGET.get(), "A small piece of Transcendium");
+        NORMAL.put(ModItems.VOID_MATTER.get(), "The primordial substance that creates all things, mined from the void, decays outside the void");
+        NORMAL.put(ModItems.EXCITED_STATE_VOID_MATTER.get(), "The substance of black hole singularities, more unstable than ordinary void matter");
+        NORMAL.put(ModItems.EARTH_CORE_SHARD.get(), "A fragment of a planet's heart, pulsing with geological might");
+        NORMAL.put(
+            ModItems.MULTIPHASE_MATTER.get(),
+            "Matter that exists in multiple stable phases simultaneously, switchable under special conditions"
+        );
+        NORMAL.put(ModBlocks.OVERSEER.asItem(), "Chunk loader that works on Royal Steel base");
+        NORMAL.put(ModBlocks.PUMP.asItem(), "Boosts fluid transport height, consumes 32 kW power");
+        NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
+        NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
+        NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, places below or absorbs above at 5 gt per bucket");
+        NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up.");
+        NORMAL.put(ModBlocks.NEUTRON_IRRADIATOR.asItem(), "Performs neutron irradiation recipes, absorbs confined anvilons for block procedural process");
+        NORMAL.put(ModBlocks.CAKE_BASE_BLOCK.asItem(), "A slice of cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CREAM_BLOCK.asItem(), "A block of cream, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.BERRY_CREAM_BLOCK.asItem(), "A block of berry cream, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CAKE_BLOCK.asItem(), "A slice of assembled cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.BERRY_CAKE_BLOCK.asItem(), "A slice of berry cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CHOCOLATE_CAKE_BLOCK.asItem(), "A slice of chocolate cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.CONTROL_VALVE.asItem(), "Controls fluid flow direction, redstone-controllable on/off");
+        NORMAL.put(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem(), "Executes commands on a timer, runs on power");
+        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.asItem(), "Amplifies the Celestial Forging Anvil to support larger megastructures");
+        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.asItem(), "Item I/O interface for the Celestial Forging Anvil");
+        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.asItem(), "Fluid I/O interface for the Celestial Forging Anvil");
+        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.asItem(), "Laser I/O interface for the Celestial Forging Anvil");
+        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.asItem(), "Placeholder block for Celestial Forging Anvil structure");
+        NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and entities between two portals");
+        NORMAL.put(ModBlocks.LENS.asItem(), "Use special glass to enchant lasers");
+        NORMAL.put(ModItems.CHECK_VALVE.get(), "Allows fluid to flow in only one direction");
+        NORMAL.put(ModItems.DYSON_SPHERE_COMPONENT.get(), "Material for crafting the Dyson Sphere");
+        NORMAL.put(ModItems.PENROSE_SPHERE_COMPONENT.get(), "Material for crafting the Penrose Sphere");
+        NORMAL.put(ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), "Material for crafting the Matter Decompressor");
+        NORMAL.put(ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), "Material for crafting the Wormhole Stabilizer");
 
+        SHIFT.put(
+            ModItems.CHECK_VALVE.get(), """
+                When holding a check valve, right-click one end of a pipe to convert that end into a check valve.
+                Can remove check valve by right-clicking it while holding a check valve, or with an empty hand.
+                Supplying a redstone signal reverses the flow direction of the check valve"""
+        );
         SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), """
                 Place an anvil to determine celestial parameters
@@ -307,6 +351,44 @@ public class ItemTooltipManager {
                 After placing the heliostat, it will heat the targeted block during the day, as well as the blocks above it"""
         );
         SHIFT.put(
+            ModBlocks.OVERSEER.asItem(),
+            "Chunk loader on 3x3 Royal Steel base, higher base layers increase chunk load range (max 3 layers, 5x5 range)"
+        );
+        SHIFT.put(ModBlocks.PUMP.asItem(), """
+            Provides 10 blocks of headlift on both input and output sides (including the pump itself)
+            Also functions as check valve, allowing liquid to flow through only in the pump's direction""");
+        SHIFT.put(
+            ModBlocks.CREATIVE_CRATE.asItem(), """
+                Provides infinite items of a set type: place items inside to configure
+                Items will not be consumed when taken out
+                Destroys all input items when no item is configured
+                Creative players left-click to clear the configuration
+                Survival players left-click to take out items"""
+        );
+        SHIFT.put(
+            ModBlocks.CREATIVE_FLUID_TANK.asItem(), """
+                Provides infinite fluid of a set type: fill fluid inside to configure
+                Fluid will not be consumed when extracted
+                Destroys all input fluid when no fluid is configured"""
+        );
+        SHIFT.put(
+            ModBlocks.SPACETIME_SUPERCOMPUTER.asItem(), """
+                Executes commands stored in the supercomputer on a timer
+                Each execution consumes power from the grid
+                Acts as the computational core of the Celestial Forging Anvil"""
+        );
+        SHIFT.put(
+            ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), """
+                Teleports players and entities between two portals
+                Requires a Celestial Forging Anvil with an established wormhole connection"""
+        );
+        SHIFT.put(
+            ModBlocks.DRAIN.asItem(), """
+                Draining: >1B fluid inside and space below -> places fluid downward, fills from bottom up, 5 gt per bucket
+                Suction: <3B fluid inside and same fluid above (or empty + any fluid) -> absorbs fluid above without block updates, 5 gt per bucket
+                Ignores same-level fluid unless it forms an infinite source, then fills internal for free at 5 gt per bucket"""
+        );
+        SHIFT.put(
             ModItems.DRAGON_ROD.asItem(),
             "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
         );
@@ -337,7 +419,22 @@ public class ItemTooltipManager {
     /// @param flags   工具提示标识
     public static void addTooltip(ItemStack stack, Consumer<Component> builder, TooltipFlag flags) {
         final Item item = stack.getItem();
-        if (SHIFT.containsKey(item)) {
+        if (item == ModBlocks.LENS.asItem()) {
+            if (flags.hasShiftDown()) {
+                builder.accept(Component.literal(
+                    "Royal (cyan): drops raw ore blocks instead of raw materials, including Core Shard Ore and Void Stone"
+                ).withColor(0x00FFBF));
+                builder.accept(Component.literal(
+                    "Frost (light blue): drops Experience Gems instead of ores, 10% chance per mined block; Core Shard Ore and Void Stone also convert to EXP"
+                ).withColor(0xB4F0F6));
+                builder.accept(Component.literal(
+                    "Ember (yellow): drops smelted results directly; Core Shard Ore and Void Stone have no smelted form and remain unchanged"
+                ).withColor(0xFFAA00));
+            } else {
+                builder.accept(ItemTooltipManager.getItemTooltip(item));
+                builder.accept(SHIFT_TIP);
+            }
+        } else if (SHIFT.containsKey(item)) {
             // SHIFT 物品：默认显示短文本+提示，按住 Shift 显示长文本(.shift)
             if (flags.hasShiftDown()) {
                 builder.accept(ItemTooltipManager.getItemTooltipShift(item));

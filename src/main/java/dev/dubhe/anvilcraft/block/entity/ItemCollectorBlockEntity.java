@@ -282,7 +282,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void storeDiskData(ValueOutput output) {
         if (this.level == null) return;
-        this.itemHandler.serialize(output.child("Inventory"));
+        this.itemHandler.serializeFiltering(output.child("Filtering"));
         output.putInt("Cooldown", this.cooldown.index());
         output.putInt("RangeRadius", this.rangeRadius.index());
         output.putInt("cd", this.cd);
@@ -291,10 +291,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void applyDiskData(ValueInput input) {
         if (this.level == null) return;
-        this.itemHandler.deserialize(input.childOrEmpty("Inventory"));
-        this.cooldown.fromIndex(input.getIntOr("Cooldown", 0));
-        this.rangeRadius.fromIndex(input.getIntOr("RangeRadius", 0));
-        this.cd = input.getIntOr("cd", 0);
+        input.child("Filtering").ifPresent(this.itemHandler::deserializeFiltering);
+        input.getInt("Cooldown").ifPresent(this.cooldown::fromIndex);
+        input.getInt("RangeRadius").ifPresent(this.rangeRadius::fromIndex);
+        input.getInt("cd").ifPresent(cd -> this.cd = cd);
         this.setChanged();
         Vec3 center = this.getPos().getCenter();
         MinecraftServer server = level.getServer();
@@ -302,6 +302,11 @@ public class ItemCollectorBlockEntity extends BlockEntity
         Packet<ClientGamePacketListener> packet = this.getUpdatePacket();
         if (packet == null) return;
         server.getPlayerList().broadcast(null, center.x(), center.y(), center.z(), 256, this.level.dimension(), packet);
+    }
+
+    @Override
+    public List<String> getDiskCompatibleGroups() {
+        return List.of("anvilcraft:has_filter", "anvilcraft:has_collector_config");
     }
 
     @Override

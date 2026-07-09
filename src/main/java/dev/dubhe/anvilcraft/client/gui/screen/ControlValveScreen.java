@@ -124,7 +124,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     public void setValue(int value) {
         this.value = Math.clamp(value, 0, FluidRateSlider.MAX);
         if (this.slider != null) {
-            this.slider.setValue(this.value);
+            this.slider.setExactValue(this.value);
             this.value = this.slider.getValue();
         }
         this.setValueBoxText(this.value);
@@ -171,10 +171,12 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             this.setValueBoxText(this.value);
             return;
         }
-        int parsed = Math.clamp(Integer.parseInt(text), 0, FluidRateSlider.MAX);
-        this.slider.setValue(parsed);
+        int parsed = Integer.parseInt(text);
+        this.slider.setExactValue(parsed);
         this.value = this.slider.getValue();
-        this.setValueBoxText(this.value);
+        if (parsed != this.value) {
+            this.setValueBoxText(this.value);
+        }
         ClientPacketDistributor.sendToServer(new ControlValveUpdatePacket(this.value));
     }
 

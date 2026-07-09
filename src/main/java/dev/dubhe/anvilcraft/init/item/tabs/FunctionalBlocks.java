@@ -109,7 +109,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE); // 锻星砧物流接口
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE); // 锻星砧流体接口
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE); // 锻星砧激光接口
-        // this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER); // 锻星砧接口占位符
+        this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER); // 锻星砧接口占位符
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL); // 锻星砧传送门
         this.plain(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK); // 磁电核心
         this.plain(ModBlocks.CRAB_TRAP); // 蟹笼

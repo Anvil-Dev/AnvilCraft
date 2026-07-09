@@ -38,6 +38,10 @@ public class FluidRateSlider extends AbstractWidget {
         this.value = clampSnap(value);
     }
 
+    public void setExactValue(int value) {
+        this.value = Math.clamp(value, 0, MAX);
+    }
+
     public void setValueWithUpdate(int value) {
         this.setValue(value);
         this.update();

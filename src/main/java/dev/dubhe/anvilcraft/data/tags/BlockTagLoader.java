@@ -218,6 +218,7 @@ public class BlockTagLoader {
             .addElement(findId(Blocks.END_PORTAL_FRAME))
             .addElement(findId(Blocks.ATTACHED_MELON_STEM))
             .addElement(findId(Blocks.ATTACHED_PUMPKIN_STEM))
+            .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER.getId())
             .addTag(BlockTags.BEDS.location())
             .addTag(BlockTags.ALL_SIGNS.location())
             .addTag(Tags.Blocks.CHESTS.location())
