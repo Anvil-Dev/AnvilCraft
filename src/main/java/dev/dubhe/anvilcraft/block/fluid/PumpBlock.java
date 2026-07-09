@@ -12,11 +12,11 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -155,11 +155,14 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     }
 
     private void convertPipeToNode(Level level, BlockPos pos, BlockState state) {
-        BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
+        BlockState nodeState = ModBlocks.PIPE_NODE.get()
+            .defaultBlockState()
             .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
         for (Direction dir : Direction.values()) {
-            nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(dir),
-                PipeNodeBlock.evaluateNeighbor(level, pos, dir));
+            nodeState = nodeState.setValue(
+                PipeBlock.getPropertyForDirection(dir),
+                PipeNodeBlock.evaluateNeighbor(level, pos, dir)
+            );
         }
         PipeBlock.setBlockPreservingValve(level, pos, nodeState);
     }
