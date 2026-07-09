@@ -28,8 +28,10 @@ public abstract class ConnectivityChecker {
     }
 
     /**
+     * Checks whether a component should be connected to the power grid.
+     *
      * @return FALSE = 拒绝加入电网，且优先级最高；DEFAULT = 弃权；TRUE = 允许加入电网，
-     *     仅在没有 checker 返回 FALSE 时生效
+     * 仅在没有 checker 返回 FALSE 时生效
      */
     public abstract TriState checkInRange(PowerGrid powerGrid, IPowerComponent component);
 }
