@@ -2,9 +2,7 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -22,9 +20,6 @@ public class CrabTrapTooltipProvider extends ITooltipProvider.BlockTooltipProvid
 
     @Override
     public List<Component> tooltip(Level level, BlockPos pos, BlockState state) {
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) {
-            return List.of();
-        }
         List<Component> lines = new ObjectArrayList<>();
         int fishing = state.getValue(CrabTrapBlock.FISHING);
         lines.add(Component.translatable("tooltip.anvilcraft.crab_trap.state_name").withStyle(ChatFormatting.BLUE));

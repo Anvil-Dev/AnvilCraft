@@ -6,8 +6,6 @@ import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
@@ -28,7 +26,6 @@ public class DischargerTooltipProvider extends ITooltipProvider.BlockEntityToolt
 
     @Override
     public List<Component> tooltip(BlockEntity value) {
-        if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return List.of();
         if (!(value instanceof DischargerBlockEntity discharger)) return List.of();
 
         final List<Component> lines = new ArrayList<>();
