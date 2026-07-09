@@ -10,8 +10,10 @@ import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.HammerOpenedAnvilMenu;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
+import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
@@ -148,6 +150,28 @@ public class ClientEventListener {
             AnvilCraftClient.pillSelectorSupport.mouseScrolled(-amount);
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void onScreenMousePressed(ScreenEvent.MouseButtonPressed.Pre event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!minecraft.options.keyUse.matchesMouse(event.getButton())) return;
+        if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) return;
+        if (minecraft.player == null || minecraft.getConnection() == null) return;
+        if (!containerScreen.getMenu().getCarried().isEmpty()) return;
+        Slot slot = containerScreen.getSlotUnderMouse();
+        if (slot == null) return;
+        if (containerScreen.getMenu() instanceof HammerOpenedAnvilMenu menu
+            && slot.container == minecraft.player.getInventory()
+            && menu.anvilcraft$getOpenedHammerSlot() == slot.getContainerSlot()) {
+            return;
+        }
+        ItemStack stack = slot.getItem();
+        if (!(stack.getItem() instanceof AnvilHammerItem)) return;
+        int menuSlotId = containerScreen.getMenu().slots.indexOf(slot);
+        if (menuSlotId < 0) return;
+        PacketDistributor.sendToServer(new OpenHammerAnvilPacket(menuSlotId));
+        event.setCanceled(true);
     }
 
     @SubscribeEvent

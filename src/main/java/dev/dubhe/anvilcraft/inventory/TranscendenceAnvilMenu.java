@@ -8,12 +8,17 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.CommonHooks;
+import org.jetbrains.annotations.Nullable;
 
-public class TranscendenceAnvilMenu extends AnvilMenu {
+import java.util.Objects;
+
+public class TranscendenceAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
     public final AnvilMenuResult result = AnvilMenuResult.builder()
         .allowBeyondMaxLevel(AnvilCraft.CONFIG.transcendenceAnvilBeyondMaxLevel)
         .allowEnchantingMultipleItems()
@@ -22,13 +27,34 @@ public class TranscendenceAnvilMenu extends AnvilMenu {
         .noTaxInRepairUsingItem()
         .useNewRepairCostAlgorithm()
         .create();
+    private final Inventory playerInventory;
+    private final DataSlot openedHammerSlot = DataSlot.standalone();
+    private final @Nullable OpenedHammerSource openedHammerSource;
+    private boolean closingForHammerMove;
 
     public TranscendenceAnvilMenu(int containerId, Inventory playerInventory) {
-        super(containerId, playerInventory);
+        this(containerId, playerInventory, ContainerLevelAccess.NULL);
     }
 
     public TranscendenceAnvilMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access) {
+        this(containerId, playerInventory, access, HammerOpenedAnvilMenuHelper.NO_HAMMER_SLOT);
+    }
+
+    public TranscendenceAnvilMenu(int containerId, Inventory playerInventory, ContainerLevelAccess access, int openedHammerSlot) {
+        this(containerId, playerInventory, access, OpenedHammerSource.fromInventory(playerInventory, openedHammerSlot));
+    }
+
+    public TranscendenceAnvilMenu(
+        int containerId,
+        Inventory playerInventory,
+        ContainerLevelAccess access,
+        @Nullable OpenedHammerSource source
+    ) {
         super(containerId, playerInventory, access);
+        this.playerInventory = playerInventory;
+        this.openedHammerSource = source;
+        this.openedHammerSlot.set(source == null ? HammerOpenedAnvilMenuHelper.NO_HAMMER_SLOT : source.clientInventorySlot());
+        this.addDataSlot(this.openedHammerSlot);
     }
 
     @Override
@@ -50,7 +76,15 @@ public class TranscendenceAnvilMenu extends AnvilMenu {
             inputLeft,
             inputRight,
             this.itemName,
-            tax -> CommonHooks.onAnvilChange(this, inputLeft, inputRight, this.resultSlots, this.itemName, tax, this.player)
+            tax -> CommonHooks.onAnvilChange(
+                this,
+                inputLeft,
+                inputRight,
+                this.resultSlots,
+                Objects.requireNonNull(this.itemName),
+                tax,
+                this.player
+            )
         );
         this.resultSlots.setItem(0, this.result.result);
         this.cost.set(this.result.xpCost);
@@ -58,13 +92,54 @@ public class TranscendenceAnvilMenu extends AnvilMenu {
     }
 
     @Override
+    public int anvilcraft$getOpenedHammerSlot() {
+        return this.openedHammerSlot.get();
+    }
+
+    @Override
+    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+        boolean touchedHammer = HammerOpenedAnvilMenuHelper.touchesOpenedHammerSlot(
+            this,
+            this.playerInventory,
+            slotId,
+            button,
+            clickType,
+            this.openedHammerSlot.get()
+        );
+        if (touchedHammer) {
+            HammerOpenedAnvilMenuHelper.closeOnServer(player);
+            return;
+        }
+        super.clicked(slotId, button, clickType, player);
+        this.closeIfOpenedHammerMoved();
+    }
+
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+        this.closeIfOpenedHammerMoved();
+    }
+
+    private void closeIfOpenedHammerMoved() {
+        if (this.openedHammerSource == null || this.closingForHammerMove) return;
+        if (this.openedHammerSource.stillInPlace()) {
+            return;
+        }
+        this.closingForHammerMove = true;
+        HammerOpenedAnvilMenuHelper.closeOnServer(this.player);
+    }
+
+    @Override
     protected void onTake(Player player, ItemStack stack) {
-        int costCache = this.cost.get();
         super.onTake(player, stack);
-        if (costCache >= 5 && costCache < 15) {
+        if (this.openedHammerSource != null) {
+            HammerOpenedAnvilMenuHelper.playUseSound(player);
+        }
+        this.closeIfOpenedHammerMoved();
+        if (this.cost.get() >= 5 && this.cost.get() < 15) {
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 6000, 1));
             player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 6000, 1));
-        } else if (costCache >= 15) {
+        } else if (this.cost.get() >= 15) {
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 12000, 2));
             player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 12000, 2));
         }
