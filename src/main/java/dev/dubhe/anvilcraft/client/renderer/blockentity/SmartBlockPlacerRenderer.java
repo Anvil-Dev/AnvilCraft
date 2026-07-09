@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.block.power.consumer.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.SmartBlockPlacerRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
-import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -22,7 +21,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CandleBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -633,13 +631,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         // 蓝图模式：使用结构数据计算目标位置
         var loadedStructure = entity.getLoadedStructure();
         if (loadedStructure != null && !loadedStructure.isEmpty()) {
-            // 先旋转结构数据，再计算目标位置
-            var rotatedStructure = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
-                loadedStructure);
-            if (!rotatedStructure.isEmpty()) {
-                return this.getBlueprintTargetPosition(entity, facing, upsideDown, rotatedStructure);
-            }
-            return null;
+            return entity.getCurrentTargetPos();
         }
 
         // 普通模式：使用 layerPositions
@@ -687,139 +679,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     if (this.canBeStacked(targetState, null)) {
                         return targetPos;
                     }
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * 获取蓝图模式的目标位置
-     */
-    @Nullable
-    private BlockPos getBlueprintTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown,
-        StructureLoadUtil.StructureData structure) {
-
-        // 直接使用 BlockEntity 提供的方法获取当前目标位置
-        // 这个方法会正确处理 currentPlacementIndex 到实际索引的转换
-        BlockPos currentTarget = entity.getCurrentBlueprintTargetPosition();
-
-        if (currentTarget == null) {
-            return null;
-        }
-
-        // 获取当前钳子中的方块类型
-        ItemStack heldItem = entity.getCurrentHeldBlock();
-        Block heldBlock = null;
-        if (!heldItem.isEmpty() && heldItem.getItem() instanceof BlockItem heldBlockItem) {
-            heldBlock = heldBlockItem.getBlock();
-        }
-
-        // 如果有 heldBlock，检查当前位置是否匹配
-        if (heldBlock != null) {
-            if (entity.getLevel() == null) {
-                return null;
-            }
-
-            BlockState targetState = entity.getLevel().getBlockState(currentTarget);
-
-            // 检查位置是否可以放置
-            boolean canPlace = false;
-            if (targetState.isAir()) {
-                canPlace = true;
-            } else if (!targetState.getFluidState().isEmpty()) {
-                canPlace = true;
-            } else if (this.canBeStacked(
-                                targetState, heldItem.getItem()
-                                                 instanceof BlockItem
-                                             ? (BlockItem) heldItem.getItem() : null)) {
-                canPlace = true;
-            } else if (this.canBeStacked(targetState, null)) {
-                canPlace = true;
-            }
-
-            if (canPlace) {
-                // 检查这个位置在蓝图中需要的方块是否与 heldBlock 匹配
-                int currentIndex = entity.getCurrentPlacementIndex();
-                // 使用传入的 structure 参数（已经是旋转后的数据）
-                List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
-
-                if (currentIndex < orderedIndices.size()) {
-                    int actualIndex = orderedIndices.get(currentIndex);
-                    if (actualIndex < structure.blocks.size()) {
-                        Block requiredBlock = structure.blocks.get(actualIndex).state().getBlock();
-                        if (requiredBlock == heldBlock) {
-                            return currentTarget;
-                        }
-                    }
-                }
-            }
-
-            // 当前位置不匹配，查找下一个匹配的位置
-            List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
-                entity.getBlockPos(), facing, upsideDown, structure);
-            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
-
-            int currentOrderIndex = entity.getCurrentPlacementIndex();
-            for (int i = 1; i < orderedIndices.size(); i++) {
-                int orderIndex = (currentOrderIndex + i) % orderedIndices.size();
-                int actualIndex = orderedIndices.get(orderIndex);
-                BlockPos targetPos = allPositions.get(actualIndex);
-
-                if (entity.getLevel() == null) {
-                    return null;
-                }
-
-                BlockState loopState = entity.getLevel().getBlockState(targetPos);
-
-                boolean loopCanPlace = loopState.isAir() || !loopState.getFluidState().isEmpty()
-                    || this.canBeStacked(loopState, heldItem.getItem() instanceof BlockItem
-                                                    ? (BlockItem) heldItem.getItem() : null)
-                    || this.canBeStacked(loopState, null);
-
-                if (!loopCanPlace) {
-                    continue;
-                }
-
-                if (actualIndex < structure.blocks.size()) {
-                    Block requiredBlock = structure.blocks.get(actualIndex).state().getBlock();
-                    if (requiredBlock == heldBlock) {
-                        return targetPos;
-                    }
-                }
-            }
-        } else {
-            // 没有 heldBlock，返回当前目标位置（如果可以放置）
-            if (entity.getLevel() == null) {
-                return null;
-            }
-
-            BlockState targetState = entity.getLevel().getBlockState(currentTarget);
-
-            if (targetState.isAir() || !targetState.getFluidState().isEmpty()) {
-                return currentTarget;
-            }
-
-            // 当前位置不可放置，查找下一个空位
-            List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
-                entity.getBlockPos(), facing, upsideDown, structure);
-            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
-
-            int currentOrderIndex = entity.getCurrentPlacementIndex();
-            for (int i = 1; i < orderedIndices.size(); i++) {
-                int orderIndex = (currentOrderIndex + i) % orderedIndices.size();
-                int actualIndex = orderedIndices.get(orderIndex);
-                BlockPos targetPos = allPositions.get(actualIndex);
-
-                if (entity.getLevel() == null) {
-                    return null;
-                }
-
-                BlockState state = entity.getLevel().getBlockState(targetPos);
-
-                if (state.isAir() || !state.getFluidState().isEmpty()) {
-                    return targetPos;
                 }
             }
         }

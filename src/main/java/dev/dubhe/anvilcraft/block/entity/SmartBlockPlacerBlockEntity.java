@@ -184,6 +184,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     private long lastTickGameTime = -1;
     private ItemStack currentHeldBlock = ItemStack.EMPTY;
     private int currentPlacementIndex = 0;
+    private @Nullable BlockPos currentTargetPos = null;
     private final Map<Integer, Set<Integer>> layerPositions = new HashMap<>();
     private boolean isPickupMode = true;
     private boolean isSkipMissingMode = true;  // true=跳过缺少方块, false=停止在缺少方块
@@ -259,6 +260,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public final SyncProxy<Boolean> isPoweredProxy = new SyncProxy<>(false);
     public final SyncProxy<Boolean> hasRedstoneSignalProxy = new SyncProxy<>(false);
     public final SyncProxy<ItemStack> missingBlockItemProxy = new SyncProxy<>(ItemStack.EMPTY);
+    public final SyncProxy<BlockPos> currentTargetPosProxy = new SyncProxy<>(BlockPos.class);
 
     public int getPlaceCooldown() {
         Integer value = this.placeCooldownProxy.getValue();
@@ -288,6 +290,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public ItemStack getMissingBlockItem() {
         ItemStack value = this.missingBlockItemProxy.getValue();
         return value != null ? value : ItemStack.EMPTY;
+    }
+
+    public @Nullable BlockPos getCurrentTargetPos() {
+        if (this.level != null && !this.level.isClientSide()) {
+            return this.currentTargetPos;
+        }
+        return this.currentTargetPosProxy.getValue();
     }
 
     // 预览/模式数据同步（通过 SyncProxy 自动同步到客户端）
@@ -416,6 +425,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                                 ? ItemStack.CODEC.parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty("currentHeldBlock"))
                                     .result().orElse(ItemStack.EMPTY)
                                 : ItemStack.EMPTY;
+        this.currentTargetPos = tag.contains("currentTargetPos")
+                                ? BlockPos.of(tag.getLongOr("currentTargetPos", 0L))
+                                : null;
         this.loadLayerPositions(tag);
 
         // 优先从缓存加载结构数据(原始未旋转的数据)
@@ -476,6 +488,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         syncIfChanged(this.isPoweredProxy, this.isPowered);
         syncIfChanged(this.hasRedstoneSignalProxy, this.hasRedstoneSignal);
         syncItemStackIfChanged(this.missingBlockItemProxy, this.missingBlockItem);
+        syncIfChanged(this.currentTargetPosProxy, this.currentTargetPos);
     }
 
     private void syncAllProxySnapshots() {
@@ -506,6 +519,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             return true;
         }
         return left.getCount() == right.getCount() && ItemStack.isSameItemSameComponents(left, right);
+    }
+
+    private boolean setCurrentTargetPos(@Nullable BlockPos currentTargetPos) {
+        if (Objects.equals(this.currentTargetPos, currentTargetPos)) {
+            return false;
+        }
+        this.currentTargetPos = currentTargetPos;
+        return true;
     }
 
     @Nullable
@@ -1133,13 +1154,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             // 停止工作时清除穿梭预期标记
             this.expectedShuttleTarget = null;
+            boolean targetCleared = this.setCurrentTargetPos(null);
 
             // 断电时也更新缺失方块信息（清空显示）
             if (!level.isClientSide()) {
                 this.updateMissingBlockInfo(level, pos);
             }
 
-            if (stateChanged || cooldownReset || heldItemCleared || shutdownIndexReset) {
+            if (stateChanged || cooldownReset || heldItemCleared || shutdownIndexReset || targetCleared) {
                 this.onChanged();
             }
         }
@@ -1359,6 +1381,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 准备蓝图模式的钳子方块
      */
     private void prepareBlueprintModeHeldBlock(Level level, BlockPos pos) {
+        this.setCurrentTargetPos(null);
         if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
             return;
@@ -1441,6 +1464,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                         continue;
                     }
                     this.currentHeldBlock = blockItem.copy();
+                    this.setCurrentTargetPos(targetPos);
                     return;
                 }
 
@@ -1448,6 +1472,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
                 if (!blockItem.isEmpty()) {
                     this.currentHeldBlock = blockItem.copy();
+                    this.setCurrentTargetPos(targetPos);
                     return;
                 }
             }
@@ -1491,6 +1516,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                     ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
                     if (!sourceItem.isEmpty()) {
                         this.currentHeldBlock = sourceItem.copy();
+                        this.setCurrentTargetPos(targetPos);
                         return;
                     }
                 }
@@ -1519,6 +1545,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         if (!this.currentHeldBlock.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
         }
+        this.setCurrentTargetPos(null);
 
         // 重置冷却，让下一个 tick 可以立即检查是否可以继续工作
         if (this.placeCooldown > 0) {
@@ -2110,11 +2137,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.currentPlacementIndex = 0;
         }
 
+        BlockPos plannedTargetPos = this.currentTargetPos;
+
         // 按有序索引列表遍历
         for (int i = 0; i < orderedIndices.size(); i++) {
             int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
             int index = orderedIndices.get(orderIndex);  // 获取原始数据中的真实索引
             final BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
+            if (plannedTargetPos != null && !targetPos.equals(plannedTargetPos)) {
+                continue;
+            }
 
             // 获取当前索引需要的方块
             Block requiredBlock = this.getRequiredBlockForPosition(index);
@@ -2136,12 +2168,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 // Stop mode：容器中没有需要的方块，停止在当前位置
                 if (!this.isSkipMissingMode) {
                     this.currentHeldBlock = ItemStack.EMPTY;
+                    this.setCurrentTargetPos(null);
                     this.onChanged();
                     return;
                 }
                 // Skip mode：容器中没有这个方块，继续查找下一个
                 if (!this.currentHeldBlock.isEmpty()) {
                     this.currentHeldBlock = ItemStack.EMPTY;
+                    this.setCurrentTargetPos(null);
                     this.onChanged();
                 }
                 continue;
@@ -2159,6 +2193,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                     if (!this.isSkipMissingMode) {
                         // Stop mode：停止在当前位置
                         this.currentHeldBlock = ItemStack.EMPTY;
+                        this.setCurrentTargetPos(null);
                         this.onChanged();
                         return;
                     }
@@ -2174,6 +2209,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             // 物品充足且位置可以放置，设置 currentHeldBlock 用于动画显示
             this.currentHeldBlock = blockItem.copy();
+            this.setCurrentTargetPos(targetPos);
             this.onChanged();
 
             if (stackCount > 1) {
@@ -2184,6 +2220,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 )) {
                     // 提取或放置失败
                     this.currentHeldBlock = ItemStack.EMPTY;
+                    this.setCurrentTargetPos(null);
                     this.onChanged();
                     return;
                 }
@@ -2196,6 +2233,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             if (extractedItem.isEmpty() || !(extractedItem.getItem() instanceof BlockItem extractedBlockItemObj)) {
                 // 提取失败，清空并继续
                 this.currentHeldBlock = ItemStack.EMPTY;
+                this.setCurrentTargetPos(null);
                 this.onChanged();
                 continue;
             }
@@ -2218,6 +2256,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 this.rollbackExtractedItem(level, placerPos, extractedItem);
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
+                this.setCurrentTargetPos(null);
                 this.onChanged();
                 return;
             }
@@ -2242,6 +2281,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         // 所有位置都遍历完了，没有找到可以放置的
         this.currentHeldBlock = ItemStack.EMPTY;
+        this.setCurrentTargetPos(null);
         this.onChanged();
     }
 
@@ -2283,6 +2323,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.currentPlacementIndex = 0;
         }
 
+        BlockPos plannedTargetPos = this.currentTargetPos;
+
         // 保存源BlockEntity的NBT数据（如果有）
         final CompoundTag sourceBlockEntityData;
         BlockEntity sourceBlockEntity = level.getBlockEntity(sourcePos);
@@ -2299,6 +2341,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             int orderIndex = (this.currentPlacementIndex + i) % orderedIndices.size();
             int index = orderedIndices.get(orderIndex);  // 获取原始数据中的真实索引
             BlockPos targetPos = allPositions.get(index);  // 使用真实索引获取位置
+            if (plannedTargetPos != null && !targetPos.equals(plannedTargetPos)) {
+                continue;
+            }
 
             // 检查目标位置是否可以放置（蓝图模式：只检查是否有方块，不检查状态）
             if (this.isBlueprintPositionOccupied(level, targetPos)) {
@@ -2324,6 +2369,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 // Stop mode：源方块与蓝图不匹配，停止在当前位置
                 if (!this.isSkipMissingMode) {
                     this.currentHeldBlock = ItemStack.EMPTY;
+                    this.setCurrentTargetPos(null);
                     this.onChanged();
                     return;
                 }
@@ -2333,6 +2379,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             // 设置 currentHeldBlock 用于动画显示
             this.currentHeldBlock = sourceItem.copy();
+            this.setCurrentTargetPos(targetPos);
             this.onChanged();
 
             // 获取蓝图中的目标状态（已经包含旋转、倒挂和状态过滤处理）
@@ -2386,6 +2433,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 }
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
+                this.setCurrentTargetPos(null);
                 this.onChanged();
                 return;
             }
@@ -2421,6 +2469,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         // 所有位置都遍历完了，没有找到可以放置的
         this.currentHeldBlock = ItemStack.EMPTY;
+        this.setCurrentTargetPos(null);
         this.onChanged();
     }
 
@@ -2780,41 +2829,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             return null;
         }
         return rotatedData.blocks.get(index).state().getBlock();
-    }
-
-    /**
-     * 获取当前放置索引对应的实际目标位置（用于渲染器）
-     * 注意：currentPlacementIndex 是有序索引列表中的位置，需要转换为原始索引
-     *
-     * @return 当前应该放置的方块的实际位置，如果没有则返回 null
-     */
-    @Nullable
-    public BlockPos getCurrentBlueprintTargetPosition() {
-        if (this.loadedStructure == null || this.loadedStructure.isEmpty() || this.level == null) {
-            return null;
-        }
-
-        Direction facing = this.getFacing(this.getBlockPos(), this.level);
-        boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
-
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
-        List<BlockPos> allPositions = buildBlueprintPositions(this.getBlockPos(), facing, upsideDown, rotatedData);
-
-        if (allPositions.isEmpty()) {
-            return null;
-        }
-
-        // 获取有序索引列表
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
-        if (orderedIndices.isEmpty() || this.currentPlacementIndex >= orderedIndices.size()) {
-            return null;
-        }
-
-        // 获取当前有序位置对应的原始索引
-        int actualIndex = orderedIndices.get(this.currentPlacementIndex);
-
-        // 返回该索引对应的位置
-        return allPositions.get(actualIndex);
     }
 
     /**
@@ -4008,6 +4022,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         if (!this.currentHeldBlock.isEmpty()) {
             ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.currentHeldBlock)
                 .result().ifPresent(nbt -> tag.put("currentHeldBlock", nbt));
+        }
+        if (this.currentTargetPos != null) {
+            tag.putLong("currentTargetPos", this.currentTargetPos.asLong());
         }
         this.saveLayerPositions(tag);
         if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
