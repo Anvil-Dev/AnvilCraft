@@ -1,11 +1,12 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
-import dev.dubhe.anvilcraft.api.fluid.CauldronFluidHandler;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
@@ -32,6 +33,7 @@ import java.util.TreeMap;
  *   <li>每组流速按高度差<b>线性增长</b>：每格 {@value #HEIGHT_RATE} mB/tick，
  *       {@value #FULL_SPEED_HEIGHT} 格达上限 {@value #MAX_SPEED} mB/tick（见 {@link #speedForHeightDiff}）。</li>
  *   <li>组内对活跃目标做"基础均分 + 余量轮转"，使同高容器均匀进水。</li>
+ *   <li>炼药锅仅在满锅时输出、空锅时输入，并以整锅为单位按组内优先顺序转移。</li>
  * </ul>
  *
  * <p>等效高度 = 容器 Y + 沿管道路径累计的泵势场偏移（见 {@link FluidNetworkScanner}）。
@@ -118,6 +120,9 @@ public class FluidPipeNetwork {
      */
     public void tick() {
         this.transferredThisTick = false;
+        if (!canTickEndpoints()) {
+            return;
+        }
         if (endpoints.size() < 2) {
             return;
         }
@@ -148,7 +153,9 @@ public class FluidPipeNetwork {
         if (endpoints.isEmpty()) {
             return;
         }
-        distributeFromSource(new FluidEndpoint(srcPos, entryPipePos, null, srcHandler, sourceEffectiveHeight));
+        distributeFromSource(new FluidEndpoint(
+            srcPos, entryPipePos, null, srcHandler, sourceEffectiveHeight,
+            level.getBlockState(srcPos).getBlock(), false));
     }
 
     /** 从单个源端点向所有更低的端点分配其持有的流体。 */
@@ -171,7 +178,7 @@ public class FluidPipeNetwork {
                 : null;
             Map<BlockPos, List<ValveState>> pathValves = reach == null ? Map.of() : reach.pathValves();
             // 按等效高度升序分组，仅收集严格更低、接受该流体、且可达的目标
-            TreeMap<Integer, List<FluidEndpoint>> byHeight = collectTargetsByHeight(source, stored, reach);
+            TreeMap<Integer, List<FluidEndpoint>> byHeight = collectTargetsByHeight(source, tankIdx, stored, reach);
             if (byHeight.isEmpty()) {
                 continue;
             }
@@ -207,6 +214,8 @@ public class FluidPipeNetwork {
      * 仅靠余量轮转——于是每 tick 喂到不同容器，长期仍然均摊（解决阀门限流为 1~2 时依次灌满的问题）。
      * 就近排序仅决定轮转的基准顺序。
      *
+     * <p>炼药锅不参与均分：每次只对优先级最高的可用目标执行一笔整锅事务。
+     *
      * @return 本组是否已被<b>按容量填满</b>（与阀门限流无关）——用于决定是否向更高组溢流
      */
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
@@ -221,10 +230,20 @@ public class FluidPipeNetwork {
             .thenComparingInt(e -> Math.abs(e.containerPos().getX() - src.getX()))
             .thenComparingInt(e -> Math.abs(e.containerPos().getZ() - src.getZ())));
 
+        List<FluidEndpoint> allTargets = group;
         IFluidHandler srcHandler = source.handler();
-        if (usesLayerTransfer(source, group)) {
-            return fillGroupByLayers(source, tankIdx, group, groupSpeed, pathValves);
+        if (isCauldron(source)) {
+            fillFromFullCauldron(source, tankIdx, group, pathValves);
+            return isGroupCapacityFull(group);
         }
+        if (fillFirstWholeCauldronTarget(source, tankIdx, group, pathValves)) {
+            return isGroupCapacityFull(group);
+        }
+        List<FluidEndpoint> regularTargets = group.stream().filter(target -> !isCauldron(target)).toList();
+        if (regularTargets.isEmpty()) {
+            return false;
+        }
+        group = regularTargets;
         int budget = groupSpeed;
 
         while (budget > 0) {
@@ -299,84 +318,7 @@ public class FluidPipeNetwork {
                 break;
             }
         }
-        return isGroupCapacityFull(group);
-    }
-
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
-    private boolean fillGroupByLayers(
-        FluidEndpoint source, int tankIdx, List<FluidEndpoint> group, int groupSpeed,
-        Map<BlockPos, List<ValveState>> pathValves
-    ) {
-        IFluidHandler srcHandler = source.handler();
-        FluidStack initialStored = srcHandler.getFluidInTank(tankIdx);
-        int budgetLayers = Math.max(1, Math.ceilDiv(groupSpeed, minLayerAmount(source, group, initialStored)));
-
-        while (budgetLayers > 0) {
-            FluidStack stored = srcHandler.getFluidInTank(tankIdx);
-            if (stored.isEmpty()) {
-                break;
-            }
-            List<FluidEndpoint> active = new ArrayList<>();
-            for (FluidEndpoint target : group) {
-                int amount = transferAmount(source, target, stored);
-                if (amount <= 0 || minValveRemaining(pathValves.get(target.fromPipePos())) < amount) {
-                    continue;
-                }
-                if (canMoveLayer(source, tankIdx, target, amount, stored)) {
-                    active.add(target);
-                }
-            }
-            if (active.isEmpty()) {
-                break;
-            }
-            active.sort(layerTargetComparator(source));
-            FluidEndpoint target = active.getFirst();
-            List<ValveState> valvePath = pathValves.get(target.fromPipePos());
-            int amount = transferAmount(source, target, stored);
-            if (amount <= 0 || minValveRemaining(valvePath) < amount) {
-                break;
-            }
-            if (!canMoveLayer(source, tankIdx, target, amount, stored)) {
-                break;
-            }
-            int moved;
-            if (source.handler() instanceof CauldronFluidHandler sourceCauldron
-                && target.handler() instanceof CauldronFluidHandler targetCauldron) {
-                moved = sourceCauldron.transferLayerTo(targetCauldron, IFluidHandler.FluidAction.EXECUTE);
-            } else if (target.handler() instanceof CauldronFluidHandler targetCauldron) {
-                int drainAmount = Math.min(amount, stored.getAmount());
-                FluidStack drained = srcHandler.drain(stored.copyWithAmount(drainAmount), IFluidHandler.FluidAction.EXECUTE);
-                if (drained.isEmpty()) {
-                    break;
-                }
-                moved = targetCauldron.fillLayer(drained, IFluidHandler.FluidAction.EXECUTE);
-                if (moved <= 0) {
-                    srcHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-                    break;
-                }
-                discardOneMbRemainderAfterFillingCauldron(source, tankIdx, target);
-            } else {
-                FluidStack drained = srcHandler.drain(stored.copyWithAmount(amount), IFluidHandler.FluidAction.EXECUTE);
-                if (drained.isEmpty()) {
-                    break;
-                }
-                moved = target.handler().fill(drained, IFluidHandler.FluidAction.EXECUTE);
-                if (moved < drained.getAmount()) {
-                    srcHandler.fill(drained.copyWithAmount(drained.getAmount() - moved), IFluidHandler.FluidAction.EXECUTE);
-                }
-                discardOneMbRemainderAfterFillingCauldron(source, tankIdx, target);
-            }
-            if (moved <= 0) {
-                break;
-            }
-            budgetLayers--;
-            deductValves(valvePath, moved);
-            this.transferredThisTick = true;
-            if (!level.isClientSide()) {
-                TriggerUtil.pipeConnectContainers(level, source.containerPos());
-            }
-        }
-        return isGroupCapacityFull(group);
+        return isGroupCapacityFull(allTargets);
     }
 
     /**
@@ -408,7 +350,7 @@ public class FluidPipeNetwork {
                     ? computeReachable(higher.fromPipePos(), higherStored)
                     : null;
                 TreeMap<Integer, List<FluidEndpoint>> higherTargets =
-                    collectTargetsByHeight(higher, higherStored, higherReach);
+                    collectTargetsByHeight(higher, i, higherStored, higherReach);
                 for (List<FluidEndpoint> group : higherTargets.values()) {
                     if (group.contains(source)) {
                         return true;
@@ -425,7 +367,7 @@ public class FluidPipeNetwork {
     }
 
     private TreeMap<Integer, List<FluidEndpoint>> collectTargetsByHeight(
-        FluidEndpoint source, FluidStack stored, Reachability reach
+        FluidEndpoint source, int tankIdx, FluidStack stored, Reachability reach
     ) {
         TreeMap<Integer, List<FluidEndpoint>> byHeight = new TreeMap<>();
         for (FluidEndpoint target : endpoints) {
@@ -438,9 +380,12 @@ public class FluidPipeNetwork {
             if (target.handler().equals(source.handler())) {
                 continue; // 同一容器（如巨型储罐多 part）不自我搬运
             }
-            int amount = transferAmount(source, target, stored);
-            if (amount <= 0 || !canMoveLayer(source, 0, target, amount, stored)) {
-                continue; // Cannot accept one full transfer unit.
+            if (isCauldron(source) || isCauldron(target)) {
+                if (wholeCauldronTransferAmount(source, tankIdx, target, stored) <= 0) {
+                    continue;
+                }
+            } else if (target.handler().fill(stored.copyWithAmount(1), IFluidHandler.FluidAction.SIMULATE) <= 0) {
+                continue;
             }
             if (reach != null && !isEndpointReachable(reach, target)) {
                 continue; // 不可达（逆二极管方向 或 被阀门过滤阻断）
@@ -467,114 +412,138 @@ public class FluidPipeNetwork {
         return allowed == null || allowed != faceToContainer;
     }
 
-    private static boolean usesLayerTransfer(FluidEndpoint source, List<FluidEndpoint> group) {
-        if (source.handler() instanceof CauldronFluidHandler) {
-            return true;
-        }
+    private boolean isCauldron(FluidEndpoint endpoint) {
+        return endpoint.cauldron();
+    }
+
+    private void fillFromFullCauldron(
+        FluidEndpoint source, int tankIdx, List<FluidEndpoint> group,
+        Map<BlockPos, List<ValveState>> pathValves
+    ) {
+        FluidStack stored = source.handler().getFluidInTank(tankIdx);
         for (FluidEndpoint target : group) {
-            if (target.handler() instanceof CauldronFluidHandler) {
-                return true;
+            int amount = wholeCauldronTransferAmount(source, tankIdx, target, stored);
+            List<ValveState> valvePath = pathValves.get(target.fromPipePos());
+            if (amount <= 0 || minValveRemaining(valvePath) < amount) {
+                continue;
             }
+            if (moveWholeCauldron(source, tankIdx, target, amount) == amount) {
+                deductValves(valvePath, amount);
+                onTransferred(source);
+                return;
+            }
+        }
+    }
+
+    private boolean canTickEndpoints() {
+        for (FluidEndpoint endpoint : endpoints) {
+            if (!level.isLoaded(endpoint.containerPos())) {
+                return false;
+            }
+            var currentState = level.getBlockState(endpoint.containerPos());
+            boolean currentCauldron = CauldronFluidContent.getForBlock(currentState.getBlock()) != null;
+            if (endpoint.cauldron() ? !currentCauldron : currentState.getBlock() != endpoint.containerBlock()) {
+                FluidNetworkManager.INSTANCE.markDirty(level);
+                return false;
+            }
+            IFluidHandler current = level.getCapability(
+                Capabilities.FluidHandler.BLOCK, endpoint.containerPos(), endpoint.sideToPipe());
+            if (current == null) {
+                FluidNetworkManager.INSTANCE.markDirty(level);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean fillFirstWholeCauldronTarget(
+        FluidEndpoint source, int tankIdx, List<FluidEndpoint> group,
+        Map<BlockPos, List<ValveState>> pathValves
+    ) {
+        for (FluidEndpoint target : group) {
+            if (!isCauldron(target)) {
+                continue;
+            }
+            FluidStack stored = source.handler().getFluidInTank(tankIdx);
+            int amount = wholeCauldronTransferAmount(source, tankIdx, target, stored);
+            if (amount <= 0) {
+                continue;
+            }
+            List<ValveState> valvePath = pathValves.get(target.fromPipePos());
+            if (minValveRemaining(valvePath) < amount) {
+                continue;
+            }
+            if (moveWholeCauldron(source, tankIdx, target, amount) != amount) {
+                continue;
+            }
+            deductValves(valvePath, amount);
+            onTransferred(source);
+            return true;
         }
         return false;
     }
 
-    private static int minLayerAmount(FluidEndpoint source, List<FluidEndpoint> group, FluidStack stored) {
-        int min = MAX_SPEED;
-        if (source.handler() instanceof CauldronFluidHandler cauldron) {
-            int amount = cauldron.nextDrainAmount();
-            if (amount > 0) {
-                min = Math.min(min, amount);
-            }
-        }
-        for (FluidEndpoint target : group) {
-            if (target.handler() instanceof CauldronFluidHandler cauldron) {
-                int amount = cauldron.nextFillAmount(stored);
-                if (amount > 0) {
-                    min = Math.min(min, amount);
-                }
-            }
-        }
-        return min == MAX_SPEED ? 1 : min;
-    }
-
-    private static int transferAmount(FluidEndpoint source, FluidEndpoint target, FluidStack stored) {
-        if (source.handler() instanceof CauldronFluidHandler sourceCauldron) {
-            if (target.handler() instanceof CauldronFluidHandler targetCauldron) {
-                return sourceCauldron.layerTransferAmountTo(targetCauldron);
-            }
-            return sourceCauldron.nextDrainAmount();
-        }
-        if (target.handler() instanceof CauldronFluidHandler cauldron) {
-            return cauldron.nextFillAmount(stored);
-        }
-        return 1;
-    }
-
-    private static Comparator<FluidEndpoint> layerTargetComparator(FluidEndpoint source) {
-        return Comparator.comparingInt(FluidPipeNetwork::currentAmount);
-    }
-
-    private static boolean canMoveLayer(
-        FluidEndpoint source, int tankIdx, FluidEndpoint target, int amount, FluidStack stored
+    private int wholeCauldronTransferAmount(
+        FluidEndpoint source, int tankIdx, FluidEndpoint target, FluidStack stored
     ) {
-        if (source.handler() instanceof CauldronFluidHandler sourceCauldron
-            && target.handler() instanceof CauldronFluidHandler targetCauldron) {
-            return sourceCauldron.canTransferLayerTo(targetCauldron);
+        boolean sourceCauldron = isCauldron(source);
+        boolean targetCauldron = isCauldron(target);
+        if ((!sourceCauldron && !targetCauldron) || stored.isEmpty()) {
+            return 0;
         }
-        if (source.handler() instanceof CauldronFluidHandler sourceCauldron
-            && !canAcceptCauldronLayerWithoutRemainder(sourceCauldron, target, amount)) {
-            return false;
+
+        int amount;
+        if (sourceCauldron) {
+            amount = source.handler().getTankCapacity(tankIdx);
+            if (amount <= 0 || stored.getAmount() != amount) {
+                return 0;
+            }
+        } else {
+            amount = totalCapacity(target.handler());
+            if (amount <= 0 || stored.getAmount() < amount) {
+                return 0;
+            }
         }
-        if (!(source.handler() instanceof CauldronFluidHandler)
-            && target.handler() instanceof CauldronFluidHandler cauldron) {
-            return canFillCauldronLayerFromContainer(cauldron, stored, amount);
+
+        if (targetCauldron
+            && (currentAmount(target) != 0 || totalCapacity(target.handler()) != amount)) {
+            return 0;
         }
-        if (amount <= 0 || stored.getAmount() < amount) {
-            return false;
-        }
+
         FluidStack toMove = stored.copyWithAmount(amount);
-        if (source.handler().drain(toMove, IFluidHandler.FluidAction.SIMULATE).getAmount() < amount) {
-            return false;
+        if (source.handler().drain(toMove, IFluidHandler.FluidAction.SIMULATE).getAmount() != amount) {
+            return 0;
         }
-        return target.handler().fill(toMove, IFluidHandler.FluidAction.SIMULATE) >= amount;
+        return target.handler().fill(toMove, IFluidHandler.FluidAction.SIMULATE) == amount ? amount : 0;
     }
 
-    private static boolean canFillCauldronLayerFromContainer(
-        CauldronFluidHandler cauldron, FluidStack stored, int amount
+    private int moveWholeCauldron(
+        FluidEndpoint source, int tankIdx, FluidEndpoint target, int amount
     ) {
-        if (amount <= 0 || stored.isEmpty()) {
-            return false;
+        FluidStack stored = source.handler().getFluidInTank(tankIdx);
+        if (stored.isEmpty() || wholeCauldronTransferAmount(source, tankIdx, target, stored) != amount) {
+            return 0;
         }
-        if (stored.getAmount() >= amount) {
-            return cauldron.fillLayer(stored.copyWithAmount(amount), IFluidHandler.FluidAction.SIMULATE) > 0;
+        FluidStack drained = source.handler().drain(
+            stored.copyWithAmount(amount), IFluidHandler.FluidAction.EXECUTE);
+        if (drained.getAmount() != amount) {
+            if (!drained.isEmpty()) {
+                source.handler().fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            }
+            return 0;
         }
-        int minLayerAmount = cauldron.minLayerAmount();
-        boolean roundingShortfall = cauldron.currentLevel() > 0
-            && amount > minLayerAmount
-            && stored.getAmount() >= minLayerAmount - 1;
-        return roundingShortfall
-            && cauldron.fillLayer(stored.copyWithAmount(stored.getAmount()), IFluidHandler.FluidAction.SIMULATE) > 0;
+        int filled = target.handler().fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (filled < amount) {
+            source.handler().fill(drained.copyWithAmount(amount - filled), IFluidHandler.FluidAction.EXECUTE);
+        }
+        return filled;
     }
 
-    private static void discardOneMbRemainderAfterFillingCauldron(
-        FluidEndpoint source, int tankIdx, FluidEndpoint target
-    ) {
-        if (source.handler() instanceof CauldronFluidHandler
-            || !(target.handler() instanceof CauldronFluidHandler)) {
-            return;
+    private void onTransferred(FluidEndpoint source) {
+        this.transferredThisTick = true;
+        if (!level.isClientSide()) {
+            TriggerUtil.pipeConnectContainers(level, source.containerPos());
         }
-        FluidStack remaining = source.handler().getFluidInTank(tankIdx);
-        if (remaining.getAmount() == 1) {
-            source.handler().drain(remaining.copyWithAmount(1), IFluidHandler.FluidAction.EXECUTE);
-        }
-    }
-
-    private static boolean canAcceptCauldronLayerWithoutRemainder(
-        CauldronFluidHandler sourceCauldron, FluidEndpoint target, int amount
-    ) {
-        int remainingAfterFill = totalCapacity(target.handler()) - currentAmount(target) - amount;
-        return remainingAfterFill == 0 || remainingAfterFill >= sourceCauldron.minLayerAmount();
     }
 
     private static int totalCapacity(IFluidHandler handler) {

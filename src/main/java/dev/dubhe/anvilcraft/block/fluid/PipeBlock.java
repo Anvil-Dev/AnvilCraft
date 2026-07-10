@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.dubhe.anvilcraft.api.fluid.CauldronFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -272,7 +271,6 @@ public abstract class PipeBlock extends Block
      */
     public static boolean isFluidHandler(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        if (CauldronFluidHandler.isCauldron(level, pos)) return true;
         BlockEntity be = level.getBlockEntity(pos);
         return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, state, be, null) != null;
     }
@@ -297,7 +295,6 @@ public abstract class PipeBlock extends Block
         if (state.getBlock() instanceof ControlValveBlock) {
             return ControlValveBlock.isConnectableFace(state, towardNeighbor);
         }
-        if (CauldronFluidHandler.isCauldron(level, pos)) return true;
         BlockEntity be = level.getBlockEntity(pos);
         return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, state, be, null) != null;
     }

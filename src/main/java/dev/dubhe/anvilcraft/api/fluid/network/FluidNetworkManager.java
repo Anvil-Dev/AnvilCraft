@@ -98,7 +98,11 @@ public final class FluidNetworkManager {
         for (Direction dir : Direction.values()) {
             BlockPos pos = pipePos.relative(dir);
             if (!level.isLoaded(pos)) continue;
-            if (FluidNetworkScanner.isContainer(level, pos) && d.containers.add(pos.immutable())) changed = true;
+            if (FluidNetworkScanner.isContainer(level, pos)) {
+                if (d.containers.add(pos.immutable())) changed = true;
+            } else if (d.containers.remove(pos)) {
+                changed = true;
+            }
         }
         if (changed) {
             d.dirty = true;

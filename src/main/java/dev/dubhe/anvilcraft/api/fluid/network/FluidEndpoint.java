@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.fluid.network;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 /**
@@ -15,12 +16,16 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
  * @param sideToPipe      从容器看向管道的方向（即查询 capability 时使用的 side）
  * @param handler         容器的 {@link IFluidHandler}
  * @param effectiveHeight 等效高度 = 容器 Y + 沿路径累计的泵势场偏移
+ * @param containerBlock  扫描网络时的容器方块类型
+ * @param cauldron        该端点是否为 NeoForge 注册的炼药锅
  */
 public record FluidEndpoint(
     BlockPos containerPos,
     BlockPos fromPipePos,
     Direction sideToPipe,
     IFluidHandler handler,
-    int effectiveHeight
+    int effectiveHeight,
+    Block containerBlock,
+    boolean cauldron
 ) {
 }
