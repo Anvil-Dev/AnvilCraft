@@ -30,11 +30,18 @@ public class PowerGridSupport {
     public static void submitPowerGridBounds(PoseStack poseStack, SubmitNodeCollector nodeCollector, Vec3 camera) {
         if (Minecraft.getInstance().level == null) return;
         String level = Minecraft.getInstance().level.dimension().identifier().toString();
+        List<SimplePowerGrid> gridsToRender = new ArrayList<>();
+        for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
+            if (!grid.shouldRender(camera)) continue;
+            if (!grid.getLevel().equals(level)) continue;
+            grid.requestGridOutline();
+            if (grid.getPowerGridBoundLines().isEmpty()) continue;
+            gridsToRender.add(grid);
+        }
+        if (gridsToRender.isEmpty()) return;
         nodeCollector.submitCustomGeometry(
             poseStack, RenderTypes.lines(), (pose, buffer) -> {
-                for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
-                    if (!grid.shouldRender(camera)) continue;
-                    if (!grid.getLevel().equals(level)) continue;
+                for (SimplePowerGrid grid : gridsToRender) {
                     for (Line line : grid.getPowerGridBoundLines()) {
                         line.render(pose, buffer, camera, grid.getColor());
                     }
@@ -94,7 +101,7 @@ public class PowerGridSupport {
     }
 
     public static void clearAllGrid() {
-        SimplePowerGrid.recreateExecutor();
+        SimplePowerGrid.recreateExecutorLimitedParallelism();
         for (SimplePowerGrid value : GRID_MAP.values()) {
             value.destroy();
         }
