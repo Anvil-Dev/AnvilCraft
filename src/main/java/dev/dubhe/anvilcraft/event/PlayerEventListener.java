@@ -127,6 +127,11 @@ public class PlayerEventListener {
         final ItemStack stack = event.getItemStack();
         final Direction blockFace = event.getFace();
 
+        if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.STOP
+            || event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.ABORT) {
+            DragonRodItem.stopContinuousMode(player);
+            return;
+        }
         if (blockFace == null) return;
         if (state.getDestroySpeed(level, pos) < 0.0F) return;
         if (!stack.has(ModComponents.DEVOUR_RANGE)) return;
@@ -139,9 +144,6 @@ public class PlayerEventListener {
             DragonRodItem.devourBlock((ServerLevel) level, player, hand, pos, state, blockFace);
         } else if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD) {
             PacketDistributor.sendToServer(new DragonRodDevourPacket(hand, pos, blockFace));
-        } else if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.STOP
-            || event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.ABORT) {
-            DragonRodItem.stopContinuousMode(player);
         }
     }
 

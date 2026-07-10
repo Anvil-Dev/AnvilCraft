@@ -11,6 +11,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
+
 /**
  * 限制方块放置间距的抽象 {@link BlockItem}。
  *
@@ -33,6 +35,10 @@ public abstract class PlacementIntervalsBlockItem extends BlockItem {
         return false;
     }
 
+    protected List<Block> getIntervalBlocks() {
+        return List.of(this.getBlock());
+    }
+
     /**
      * 获取放置间距半径。
      *
@@ -42,6 +48,21 @@ public abstract class PlacementIntervalsBlockItem extends BlockItem {
      * @return 放置间距半径（方块数）
      */
     public abstract int getIntervalsRadius();
+
+    protected int getIntervalsRadius(BlockState state) {
+        return this.getIntervalsRadius();
+    }
+
+    protected int getMaxIntervalsRadius() {
+        return this.getIntervalsRadius();
+    }
+
+    protected boolean isIntervalBlock(BlockState state) {
+        for (Block block : this.getIntervalBlocks()) {
+            if (state.is(block)) return true;
+        }
+        return false;
+    }
 
     /**
      * 判断是否可以在指定上下文中放置该方块。
@@ -60,12 +81,16 @@ public abstract class PlacementIntervalsBlockItem extends BlockItem {
         Player player = context.getPlayer();
         BlockPos clickedPos = context.getClickedPos();
         Iterable<BlockPos> blockPoss = BlockPos.betweenClosed(
-            clickedPos.offset(getIntervalsRadius(), getIntervalsRadius(), getIntervalsRadius()),
-            clickedPos.offset(-getIntervalsRadius(), -getIntervalsRadius(), -getIntervalsRadius())
+            clickedPos.offset(getMaxIntervalsRadius(), getMaxIntervalsRadius(), getMaxIntervalsRadius()),
+            clickedPos.offset(-getMaxIntervalsRadius(), -getMaxIntervalsRadius(), -getMaxIntervalsRadius())
         );
         for (BlockPos blockPos : blockPoss) {
             BlockState blockState = level.getBlockState(blockPos);
-            if (blockState.is(this.getBlock())) {
+            int distance = Math.max(
+                Math.max(Math.abs(blockPos.getX() - clickedPos.getX()), Math.abs(blockPos.getY() - clickedPos.getY())),
+                Math.abs(blockPos.getZ() - clickedPos.getZ())
+            );
+            if (this.isIntervalBlock(blockState) && distance <= this.getIntervalsRadius(blockState)) {
                 if (level.isClientSide() && player instanceof LocalPlayer localPlayer) {
                     if (this.doRangeNoOverlap()) {
                         localPlayer.displayClientMessage(

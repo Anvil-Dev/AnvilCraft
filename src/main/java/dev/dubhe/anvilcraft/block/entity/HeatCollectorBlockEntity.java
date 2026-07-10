@@ -62,8 +62,14 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
 
     @Override
     public void gridTick() {
-        if (!this.isWorking() || level == null || level.isClientSide()) return;
+        if (level == null || level.isClientSide()) return;
         int oldPower = this.outputPower;
+        if (!this.isWorking()) {
+            this.outputPower = 0;
+            this.inputtingPower = 0;
+            if (this.outputPower != oldPower && grid != null) grid.markChanged();
+            return;
+        }
         this.outputPower = this.inputtingPower;
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof HeatCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());

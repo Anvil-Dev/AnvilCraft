@@ -16,12 +16,14 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
@@ -385,8 +387,25 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
             accessor.setUpdateMerchantTimer(40);
             accessor.setIncreaseProfessionLevelOnUpdate(true);
         }
+        this.spawnVillagerTradeParticles();
         TradingStationBlockEntity.updateAndSend(this);
         return true;
+    }
+
+    private void spawnVillagerTradeParticles() {
+        if (!(this.level instanceof ServerLevel serverLevel)) return;
+        BlockPos pos = this.getBlockPos();
+        serverLevel.sendParticles(
+            ParticleTypes.HAPPY_VILLAGER,
+            pos.getX() + 0.5,
+            pos.getY() + 1.0,
+            pos.getZ() + 0.5,
+            12,
+            0.35,
+            0.3,
+            0.35,
+            0.02
+        );
     }
 
     private Optional<MerchantOffer> findAcceptableOffer(Villager villager) {

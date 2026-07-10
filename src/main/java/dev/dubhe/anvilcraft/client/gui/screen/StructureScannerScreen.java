@@ -46,8 +46,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -803,63 +803,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
      * 根据 Scanner 朝向旋转方块状态
      */
     private BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
-        if (scannerFacing == Direction.NORTH) {
-            return state;
-        }
-
-        // 处理水平朝向属性（HORIZONTAL_FACING）
-        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-            Direction rotatedFacing = rotateDirection(blockFacing, scannerFacing);
-            return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
-        }
-
-        // 处理水平朝向属性（HorizontalDirectionalBlock.FACING）
-        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
-            Direction rotatedFacing = rotateDirection(blockFacing, scannerFacing);
-            return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
-        }
-
-        // 处理六向朝向属性（FACING）- 用于活塞、发射器等
-        if (state.hasProperty(BlockStateProperties.FACING)) {
-            Direction blockFacing = state.getValue(BlockStateProperties.FACING);
-            Direction rotatedFacing = rotateDirection6Way(blockFacing, scannerFacing);
-            return state.setValue(BlockStateProperties.FACING, rotatedFacing);
-        }
-
-        return state;
-    }
-
-    /**
-     * 根据 Scanner 朝向旋转方向（水平4向）
-     */
-    private Direction rotateDirection(Direction blockFacing, Direction scannerFacing) {
-        return switch (scannerFacing) {
-            case SOUTH -> blockFacing.getOpposite();
-            case WEST -> blockFacing.getClockWise();
-            case EAST -> blockFacing.getCounterClockWise();
-            default -> blockFacing;
+        Rotation rotation = switch (scannerFacing) {
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.CLOCKWISE_90;
+            case EAST -> Rotation.COUNTERCLOCKWISE_90;
+            default -> Rotation.NONE;
         };
-    }
-
-    /**
-     * 根据 Scanner 朝向旋转方向（六向，包括UP和DOWN）
-     * 用于活塞、发射器等方块
-     */
-    private Direction rotateDirection6Way(Direction blockFacing, Direction scannerFacing) {
-        // UP和DOWN不受水平旋转影响
-        if (blockFacing == Direction.UP || blockFacing == Direction.DOWN) {
-            return blockFacing;
-        }
-
-        // 水平方向正常旋转
-        return switch (scannerFacing) {
-            case SOUTH -> blockFacing.getOpposite();
-            case WEST -> blockFacing.getClockWise();
-            case EAST -> blockFacing.getCounterClockWise();
-            default -> blockFacing;
-        };
+        return state.rotate(rotation);
     }
 
     @SuppressWarnings("unused")

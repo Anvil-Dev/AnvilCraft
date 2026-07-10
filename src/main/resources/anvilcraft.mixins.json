@@ -84,6 +84,7 @@
     "tsmm.SetBlockCommandMixin"
   ],
   "client": [
+    "AbstractContainerScreenMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "GameRendererMixin",

@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -214,9 +214,7 @@ public final class CelestialRefactorRegistry {
         return options;
     }
 
-    private static ModelResourceLocation ringModel(int ring, String megastructure) {
-        return ModelResourceLocation.standalone(
-            AnvilCraft.of("block/celestial_forging_anvil_ring_" + ring + "_" + megastructure)
-        );
+    private static ResourceLocation ringModel(int ring, String megastructure) {
+        return AnvilCraft.of("block/celestial_forging_anvil_ring_" + ring + "_" + megastructure);
     }
 }

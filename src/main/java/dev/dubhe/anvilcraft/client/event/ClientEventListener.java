@@ -10,7 +10,10 @@ import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.HammerOpenedAnvilMenu;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
+import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
@@ -31,9 +34,12 @@ import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
+    private static boolean wasAttackDown = false;
+
     @SubscribeEvent
     public static void blockHighlight(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
@@ -95,6 +101,8 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
+        handleAttackKeyRelease();
+
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime < 0) {
             return;
@@ -104,6 +112,30 @@ public class ClientEventListener {
         long deltaTime = curTime - lastThoughtTime;
         if (deltaTime > ThoughtManager.getMAX_SECONDS() * 20) {
             ThoughtManager.onPostThought();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMouseButton(InputEvent.MouseButton.Post event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (event.getAction() == InputConstants.RELEASE && minecraft.options.keyAttack.matchesMouse(event.getButton())) {
+            sendDragonRodStopDevourPacket(minecraft);
+            wasAttackDown = false;
+        }
+    }
+
+    private static void handleAttackKeyRelease() {
+        Minecraft minecraft = Minecraft.getInstance();
+        boolean attackDown = minecraft.options.keyAttack.isDown();
+        if (wasAttackDown && !attackDown) {
+            sendDragonRodStopDevourPacket(minecraft);
+        }
+        wasAttackDown = attackDown;
+    }
+
+    private static void sendDragonRodStopDevourPacket(Minecraft minecraft) {
+        if (minecraft.player != null && minecraft.getConnection() != null) {
+            PacketDistributor.sendToServer(new DragonRodStopDevourPacket());
         }
     }
 
@@ -118,6 +150,28 @@ public class ClientEventListener {
             AnvilCraftClient.pillSelectorSupport.mouseScrolled(-amount);
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void onScreenMousePressed(ScreenEvent.MouseButtonPressed.Pre event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!minecraft.options.keyUse.matchesMouse(event.getButton())) return;
+        if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) return;
+        if (minecraft.player == null || minecraft.getConnection() == null) return;
+        if (!containerScreen.getMenu().getCarried().isEmpty()) return;
+        Slot slot = containerScreen.getSlotUnderMouse();
+        if (slot == null) return;
+        if (containerScreen.getMenu() instanceof HammerOpenedAnvilMenu menu
+            && slot.container == minecraft.player.getInventory()
+            && menu.anvilcraft$getOpenedHammerSlot() == slot.getContainerSlot()) {
+            return;
+        }
+        ItemStack stack = slot.getItem();
+        if (!(stack.getItem() instanceof AnvilHammerItem)) return;
+        int menuSlotId = containerScreen.getMenu().slots.indexOf(slot);
+        if (menuSlotId < 0) return;
+        PacketDistributor.sendToServer(new OpenHammerAnvilPacket(menuSlotId));
+        event.setCanceled(true);
     }
 
     @SubscribeEvent

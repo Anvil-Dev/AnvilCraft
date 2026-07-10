@@ -969,7 +969,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         MultiBufferSource bufferSource,
         int packedOverlay
     ) {
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(special.getModelLocation());
+        BakedModel model = Minecraft.getInstance()
+            .getModelManager()
+            .getModel(ModelResourceLocation.standalone(special.getModelLocation()));
         if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
 
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());

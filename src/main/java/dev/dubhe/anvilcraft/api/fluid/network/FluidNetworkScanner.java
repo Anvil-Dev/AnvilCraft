@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.api.fluid.CauldronFluidHandler;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
@@ -49,7 +50,8 @@ public final class FluidNetworkScanner {
 
     /** 判断某位置是否为流体容器（提供 IFluidHandler 且非管道部件）。供管理器剔除失效容器用。 */
     public static boolean isContainer(Level level, BlockPos pos) {
-        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null) != null
+        return (level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null) != null
+            || CauldronFluidHandler.isCauldron(level, pos))
             && !isPipePart(level.getBlockState(pos));
     }
 
@@ -85,6 +87,8 @@ public final class FluidNetworkScanner {
         if (isPipePart(level.getBlockState(pos))) {
             return null;
         }
+        IFluidHandler cauldron = CauldronFluidHandler.create(level, pos);
+        if (cauldron != null) return cauldron;
         return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, sideToPipe);
     }
 

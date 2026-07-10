@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 
@@ -85,8 +85,8 @@ public record SpecialCelestialBodyData(
     }
 
     /// 获取此特殊天体的独立模型/贴图资源路径
-    public ModelResourceLocation getModelLocation() {
-        return ModelResourceLocation.standalone(AnvilCraft.of("block/celestial_body/" + model));
+    public ResourceLocation getModelLocation() {
+        return AnvilCraft.of("block/celestial_body/" + model);
     }
 
     @Override

@@ -1,6 +1,10 @@
 package dev.dubhe.anvilcraft.block.item;
 
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.List;
 
 public class HeatCollectorBlockItem extends PlacementIntervalsBlockItem {
     public HeatCollectorBlockItem(Block block, Properties properties) {
@@ -15,5 +19,21 @@ public class HeatCollectorBlockItem extends PlacementIntervalsBlockItem {
     @Override
     public int getIntervalsRadius() {
         return 4;
+    }
+
+    @Override
+    protected int getIntervalsRadius(BlockState state) {
+        if (state.is(ModBlocks.INFINITE_COLLECTOR.get())) return 5;
+        return super.getIntervalsRadius(state);
+    }
+
+    @Override
+    protected List<Block> getIntervalBlocks() {
+        return List.of(ModBlocks.HEAT_COLLECTOR.get(), ModBlocks.INFINITE_COLLECTOR.get());
+    }
+
+    @Override
+    protected int getMaxIntervalsRadius() {
+        return 5;
     }
 }

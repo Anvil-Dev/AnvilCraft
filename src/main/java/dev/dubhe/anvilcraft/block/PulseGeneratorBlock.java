@@ -168,8 +168,13 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     protected void checkIsDeadlock(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
         if (generator.getStartMode() == PulseGeneratorBlockEntity.Mode.LOOP) {
             if (generator.isDeadlock() && !generator.isInputtingSignal()) {
-                this.startWaiting(level, pos, stateGetter, generator);
                 generator.setDeadlock(false);
+                if (generator.getWaitingTime() == 0) {
+                    generator.setState(PulseGeneratorBlockEntity.State.WAITING);
+                    level.scheduleTick(pos, this, 1, TickPriority.LOW);
+                } else {
+                    this.startWaiting(level, pos, stateGetter, generator);
+                }
             } else {
                 generator.setDeadlock(generator.isInputtingSignal());
             }
