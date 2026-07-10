@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
@@ -21,8 +20,11 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 从一个种子管道位置出发，flood-fill 出整张流体管道网络：
@@ -105,8 +107,8 @@ public final class FluidNetworkScanner {
         Map<BlockPos, ValveState> valves = new HashMap<>();
         Map<BlockPos, Direction> diodes = new HashMap<>();
         Map<BlockPos, Map<Direction, Direction>> faceFlow = new HashMap<>();
-        List<FluidEndpoint> endpoints = new ArrayList<>();
-        Map<IFluidHandler, Boolean> seenHandlers = new HashMap<>();
+        Map<BlockPos, FluidEndpoint> endpoints = new LinkedHashMap<>();
+        Set<IFluidHandler> seenHandlers = new HashSet<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
 
         potential.put(seed, 0);
@@ -137,20 +139,29 @@ public final class FluidNetworkScanner {
             }
         }
 
-        return new FluidPipeNetwork(level, potential.keySet(), adjacency, valves, diodes, faceFlow, endpoints);
+        return new FluidPipeNetwork(
+            level, potential.keySet(), adjacency, valves, diodes, faceFlow, new ArrayList<>(endpoints.values()));
     }
 
     /** 记录一条 part↔part 无向邻接边。 */
     private static void link(Map<BlockPos, List<BlockPos>> adjacency, BlockPos a, BlockPos b) {
-        adjacency.computeIfAbsent(a, k -> new ArrayList<>()).add(b.immutable());
-        adjacency.computeIfAbsent(b, k -> new ArrayList<>()).add(a.immutable());
+        BlockPos immutableA = a.immutable();
+        BlockPos immutableB = b.immutable();
+        List<BlockPos> fromA = adjacency.computeIfAbsent(immutableA, k -> new ArrayList<>());
+        if (!fromA.contains(immutableB)) {
+            fromA.add(immutableB);
+        }
+        List<BlockPos> fromB = adjacency.computeIfAbsent(immutableB, k -> new ArrayList<>());
+        if (!fromB.contains(immutableA)) {
+            fromB.add(immutableA);
+        }
     }
 
     /** 展开直管/弯管/节点的所有连接方向。 */
     private static void expandPipe(
         Level level, BlockPos pos, BlockState state, int phi,
         Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue, List<FluidEndpoint> endpoints, Map<IFluidHandler, Boolean> seenHandlers
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<IFluidHandler> seenHandlers
     ) {
         for (Direction dir : Direction.values()) {
             if (!hasAnyConnectionToward(state, dir)) {
@@ -164,7 +175,7 @@ public final class FluidNetworkScanner {
     private static void expandPump(
         Level level, BlockPos pos, BlockState state, int phi,
         Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue, List<FluidEndpoint> endpoints, Map<IFluidHandler, Boolean> seenHandlers
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<IFluidHandler> seenHandlers
     ) {
         Direction outputDir = state.getValue(PumpBlock.ORIENTATION).getDirection();
         int lift = pumpHalfLift(level, pos);
@@ -178,7 +189,7 @@ public final class FluidNetworkScanner {
     private static void expandAxial(
         Level level, BlockPos pos, Direction.Axis axis, int phi, boolean unusedFlag,
         Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue, List<FluidEndpoint> endpoints, Map<IFluidHandler, Boolean> seenHandlers
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<IFluidHandler> seenHandlers
     ) {
         for (Direction side : new Direction[]{
             Direction.get(Direction.AxisDirection.POSITIVE, axis),
@@ -192,7 +203,7 @@ public final class FluidNetworkScanner {
     private static void visitNeighbor(
         Level level, BlockPos pos, Direction dir, int phi,
         Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue, List<FluidEndpoint> endpoints, Map<IFluidHandler, Boolean> seenHandlers
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<IFluidHandler> seenHandlers
     ) {
         visitNeighborWithPhi(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
     }
@@ -201,7 +212,7 @@ public final class FluidNetworkScanner {
     private static void visitNeighborWithPhi(
         Level level, BlockPos pos, Direction dir, int neighborPhi,
         Map<BlockPos, Integer> potential, Map<BlockPos, List<BlockPos>> adjacency,
-        Deque<BlockPos> queue, List<FluidEndpoint> endpoints, Map<IFluidHandler, Boolean> seenHandlers
+        Deque<BlockPos> queue, Map<BlockPos, FluidEndpoint> endpoints, Set<IFluidHandler> seenHandlers
     ) {
         BlockPos neighborPos = pos.relative(dir);
         if (!level.isLoaded(neighborPos)) {
@@ -277,28 +288,25 @@ public final class FluidNetworkScanner {
 
     private static void addEndpointIfContainer(
         Level level, BlockPos containerPos, Direction sideToPipe, int phi, BlockPos attachPipePos,
-        List<FluidEndpoint> endpoints, Map<IFluidHandler, Boolean> seenHandlers
+        Map<BlockPos, FluidEndpoint> endpoints, Set<IFluidHandler> seenHandlers
     ) {
         if (!level.isLoaded(containerPos)) {
             return;
         }
-        for (FluidEndpoint endpoint : endpoints) {
-            if (endpoint.containerPos().equals(containerPos)) {
-                return;
-            }
+        BlockPos immutablePos = containerPos.immutable();
+        if (endpoints.containsKey(immutablePos)) {
+            return;
         }
         IFluidHandler handler = containerHandler(level, containerPos, sideToPipe);
         if (handler == null) {
             return;
         }
-        if (seenHandlers.putIfAbsent(handler, Boolean.TRUE) != null) {
+        if (!seenHandlers.add(handler)) {
             return;
         }
         int effectiveHeight = containerPos.getY() + phi;
-        Block containerBlock = level.getBlockState(containerPos).getBlock();
-        boolean cauldron = CauldronFluidContent.getForBlock(containerBlock) != null;
-        endpoints.add(new FluidEndpoint(
-            containerPos.immutable(), attachPipePos.immutable(), sideToPipe, handler,
-            effectiveHeight, containerBlock, cauldron));
+        boolean cauldron = CauldronFluidContent.getForBlock(level.getBlockState(containerPos).getBlock()) != null;
+        endpoints.put(immutablePos, new FluidEndpoint(
+            immutablePos, attachPipePos.immutable(), sideToPipe, handler, effectiveHeight, cauldron));
     }
 }

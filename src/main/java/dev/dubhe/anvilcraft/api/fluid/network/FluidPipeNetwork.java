@@ -5,7 +5,6 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -74,8 +73,13 @@ public class FluidPipeNetwork {
      */
     private final Map<BlockPos, Map<Direction, Direction>> faceFlow;
     private final List<FluidEndpoint> endpoints;
+    private final List<FluidEndpoint> cauldronEndpoints;
+    private final boolean directionalConstraints;
     /** 端点按等效高度<b>降序</b>预排序（作为源的遍历顺序），构建时排一次，避免每 tick 重排。 */
     private final List<FluidEndpoint> sourcesByHeightDesc;
+    private final Map<BlockPos, List<CachedReachability>> reachabilityCache = new HashMap<>();
+    private final Set<BlockPos> triggeredSources = new HashSet<>();
+    private long triggerGameTime = Long.MIN_VALUE;
 
     /** 本 tick 是否发生过流体转移（供管理器判定网络是否活跃，见 #4 降频）。 */
     private boolean transferredThisTick;
@@ -107,6 +111,13 @@ public class FluidPipeNetwork {
         this.diodes = diodes;
         this.faceFlow = faceFlow;
         this.endpoints = endpoints;
+        this.directionalConstraints = !valves.isEmpty() || !diodes.isEmpty() || !faceFlow.isEmpty();
+        this.cauldronEndpoints = new ArrayList<>();
+        for (FluidEndpoint endpoint : endpoints) {
+            if (endpoint.cauldron()) {
+                this.cauldronEndpoints.add(endpoint);
+            }
+        }
         // 预排序一次（缓存网络下每 tick 复用）
         this.sourcesByHeightDesc = new ArrayList<>(endpoints);
         this.sourcesByHeightDesc.sort(Comparator.comparingInt(FluidEndpoint::effectiveHeight).reversed());
@@ -120,12 +131,13 @@ public class FluidPipeNetwork {
      */
     public void tick() {
         this.transferredThisTick = false;
-        if (!canTickEndpoints()) {
-            return;
-        }
         if (endpoints.size() < 2) {
             return;
         }
+        if (!canTickEndpoints()) {
+            return;
+        }
+        reachabilityCache.clear();
         // 每 tick 分配前重置各阀门预算（实时读取阀门当前流速设置）
         if (!valves.isEmpty()) {
             for (ValveState valve : valves.values()) {
@@ -150,12 +162,12 @@ public class FluidPipeNetwork {
     public void pushFromExternalSource(
         IFluidHandler srcHandler, BlockPos srcPos, BlockPos entryPipePos, int sourceEffectiveHeight
     ) {
-        if (endpoints.isEmpty()) {
+        if (endpoints.isEmpty() || !canTickEndpoints()) {
             return;
         }
+        reachabilityCache.clear();
         distributeFromSource(new FluidEndpoint(
-            srcPos, entryPipePos, null, srcHandler, sourceEffectiveHeight,
-            level.getBlockState(srcPos).getBlock(), false));
+            srcPos, entryPipePos, null, srcHandler, sourceEffectiveHeight, false));
     }
 
     /** 从单个源端点向所有更低的端点分配其持有的流体。 */
@@ -172,9 +184,8 @@ public class FluidPipeNetwork {
                 continue;
             }
             // 从源出发做方向感知可达 BFS：二极管（泵）只能正向穿过、阀门按过滤放行、面止逆阀只能沿允许方向穿过；得到 可达接管口 → 路径上的阀门列表。
-            boolean needReachability = hasDirectionalConstraints();
-            Reachability reach = needReachability
-                ? computeReachable(source.fromPipePos(), stored)
+            Reachability reach = directionalConstraints
+                ? computeReachableCached(source.fromPipePos(), stored)
                 : null;
             Map<BlockPos, List<ValveState>> pathValves = reach == null ? Map.of() : reach.pathValves();
             // 按等效高度升序分组，仅收集严格更低、接受该流体、且可达的目标
@@ -252,13 +263,13 @@ public class FluidPipeNetwork {
                 break; // 源已空
             }
             // 重算活跃目标：仍能按容量接受、且路径阀门有剩余预算
-            List<FluidEndpoint> active = new ArrayList<>();
+            List<ActiveTarget> active = new ArrayList<>();
             for (FluidEndpoint target : group) {
                 if (minValveRemaining(pathValves.get(target.fromPipePos())) <= 0) {
                     continue;
                 }
                 if (target.handler().fill(stored.copyWithAmount(1), IFluidHandler.FluidAction.SIMULATE) > 0) {
-                    active.add(target);
+                    active.add(new ActiveTarget(target, currentAmount(target)));
                 }
             }
             if (active.isEmpty()) {
@@ -272,12 +283,12 @@ public class FluidPipeNetwork {
             int remainder = roundBudget % n;
             // 余量的 +1mB 发给<b>当前存量最少</b>的容器（自纠偏），使长期精确均分而非 ±1 抖动。
             // active 原为就近序，稳定排序后同存量仍按就近，保证确定性。
-            active.sort(Comparator.comparingInt(FluidPipeNetwork::currentAmount));
+            active.sort(Comparator.comparingInt(ActiveTarget::amount));
             boolean progressed = false;
 
             for (int k = 0; k < n && budget > 0; k++) {
                 // active 已按当前存量升序：前 remainder 个（存量最少者）多给 1mB → 自纠偏至精确均分
-                FluidEndpoint target = active.get(k);
+                FluidEndpoint target = active.get(k).endpoint();
                 int want = base + (k < remainder ? 1 : 0);
                 if (want <= 0) {
                     continue;
@@ -308,10 +319,7 @@ public class FluidPipeNetwork {
                 deductValves(valvePath, actuallyFilled);
                 if (actuallyFilled > 0) {
                     progressed = true;
-                    this.transferredThisTick = true;
-                    if (!level.isClientSide()) {
-                        TriggerUtil.pipeConnectContainers(level, source.containerPos());
-                    }
+                    onTransferred(source);
                 }
             }
             if (!progressed) {
@@ -328,11 +336,6 @@ public class FluidPipeNetwork {
     private boolean hasHigherPrioritySource(
         FluidEndpoint source, FluidStack stored, TreeMap<Integer, List<FluidEndpoint>> targetsByHeight
     ) {
-        Set<FluidEndpoint> competingTargets = new HashSet<>();
-        for (List<FluidEndpoint> targets : targetsByHeight.values()) {
-            competingTargets.addAll(targets);
-        }
-        boolean needReachability = hasDirectionalConstraints();
         for (FluidEndpoint higher : sourcesByHeightDesc) {
             if (higher.effectiveHeight() <= source.effectiveHeight()) {
                 return false;
@@ -346,17 +349,15 @@ public class FluidPipeNetwork {
                 if (higherStored.isEmpty() || !FluidStack.isSameFluidSameComponents(higherStored, stored)) {
                     continue;
                 }
-                Reachability higherReach = needReachability
-                    ? computeReachable(higher.fromPipePos(), higherStored)
+                Reachability higherReach = directionalConstraints
+                    ? computeReachableCached(higher.fromPipePos(), higherStored)
                     : null;
-                TreeMap<Integer, List<FluidEndpoint>> higherTargets =
-                    collectTargetsByHeight(higher, i, higherStored, higherReach);
-                for (List<FluidEndpoint> group : higherTargets.values()) {
-                    if (group.contains(source)) {
-                        return true;
-                    }
-                    for (FluidEndpoint target : group) {
-                        if (competingTargets.contains(target)) {
+                if (canTarget(higher, i, source, higherStored, higherReach)) {
+                    return true;
+                }
+                for (List<FluidEndpoint> targets : targetsByHeight.values()) {
+                    for (FluidEndpoint target : targets) {
+                        if (canTarget(higher, i, target, higherStored, higherReach)) {
                             return true;
                         }
                     }
@@ -371,32 +372,32 @@ public class FluidPipeNetwork {
     ) {
         TreeMap<Integer, List<FluidEndpoint>> byHeight = new TreeMap<>();
         for (FluidEndpoint target : endpoints) {
-            if (target == source) {
+            if (!canTarget(source, tankIdx, target, stored, reach)) {
                 continue;
-            }
-            if (target.effectiveHeight() >= source.effectiveHeight()) {
-                continue;
-            }
-            if (target.handler().equals(source.handler())) {
-                continue; // 同一容器（如巨型储罐多 part）不自我搬运
-            }
-            if (isCauldron(source) || isCauldron(target)) {
-                if (wholeCauldronTransferAmount(source, tankIdx, target, stored) <= 0) {
-                    continue;
-                }
-            } else if (target.handler().fill(stored.copyWithAmount(1), IFluidHandler.FluidAction.SIMULATE) <= 0) {
-                continue;
-            }
-            if (reach != null && !isEndpointReachable(reach, target)) {
-                continue; // 不可达（逆二极管方向 或 被阀门过滤阻断）
             }
             byHeight.computeIfAbsent(target.effectiveHeight(), k -> new ArrayList<>()).add(target);
         }
         return byHeight;
     }
 
-    private boolean hasDirectionalConstraints() {
-        return !valves.isEmpty() || !diodes.isEmpty() || !faceFlow.isEmpty();
+    private boolean canTarget(
+        FluidEndpoint source, int tankIdx, FluidEndpoint target, FluidStack stored, Reachability reach
+    ) {
+        if (target == source || target.effectiveHeight() >= source.effectiveHeight()) {
+            return false;
+        }
+        if (target.handler().equals(source.handler())) {
+            return false;
+        }
+        if (isCauldron(source) || isCauldron(target)) {
+            if (wholeCauldronTransferAmount(source, tankIdx, target, stored) <= 0) {
+                return false;
+            }
+        } else if (target.handler().fill(
+            stored.copyWithAmount(1), IFluidHandler.FluidAction.SIMULATE) <= 0) {
+            return false;
+        }
+        return reach == null || isEndpointReachable(reach, target);
     }
 
     private boolean canDrainFromEndpoint(FluidEndpoint source) {
@@ -436,19 +437,11 @@ public class FluidPipeNetwork {
     }
 
     private boolean canTickEndpoints() {
-        for (FluidEndpoint endpoint : endpoints) {
+        for (FluidEndpoint endpoint : cauldronEndpoints) {
             if (!level.isLoaded(endpoint.containerPos())) {
                 return false;
             }
-            var currentState = level.getBlockState(endpoint.containerPos());
-            boolean currentCauldron = CauldronFluidContent.getForBlock(currentState.getBlock()) != null;
-            if (endpoint.cauldron() ? !currentCauldron : currentState.getBlock() != endpoint.containerBlock()) {
-                FluidNetworkManager.INSTANCE.markDirty(level);
-                return false;
-            }
-            IFluidHandler current = level.getCapability(
-                Capabilities.FluidHandler.BLOCK, endpoint.containerPos(), endpoint.sideToPipe());
-            if (current == null) {
+            if (CauldronFluidContent.getForBlock(level.getBlockState(endpoint.containerPos()).getBlock()) == null) {
                 FluidNetworkManager.INSTANCE.markDirty(level);
                 return false;
             }
@@ -542,6 +535,14 @@ public class FluidPipeNetwork {
     private void onTransferred(FluidEndpoint source) {
         this.transferredThisTick = true;
         if (!level.isClientSide()) {
+            long gameTime = level.getGameTime();
+            if (triggerGameTime != gameTime) {
+                triggerGameTime = gameTime;
+                triggeredSources.clear();
+            }
+            if (!triggeredSources.add(source.containerPos())) {
+                return;
+            }
             TriggerUtil.pipeConnectContainers(level, source.containerPos());
         }
     }
@@ -586,6 +587,12 @@ public class FluidPipeNetwork {
         for (ValveState v : valvePath) {
             v.consume(amount);
         }
+    }
+
+    private record ActiveTarget(FluidEndpoint endpoint, int amount) {
+    }
+
+    private record CachedReachability(FluidStack fluid, Reachability reachability) {
     }
 
     /**
@@ -665,6 +672,19 @@ public class FluidPipeNetwork {
             }
         }
         return new Reachability(result, cameFrom);
+    }
+
+    private Reachability computeReachableCached(BlockPos start, FluidStack fluid) {
+        List<CachedReachability> cached = reachabilityCache.computeIfAbsent(
+            start.immutable(), key -> new ArrayList<>());
+        for (CachedReachability entry : cached) {
+            if (FluidStack.isSameFluidSameComponents(entry.fluid(), fluid)) {
+                return entry.reachability();
+            }
+        }
+        Reachability reachability = computeReachable(start, fluid);
+        cached.add(new CachedReachability(fluid.copyWithAmount(1), reachability));
+        return reachability;
     }
 
     /**
