@@ -47,6 +47,10 @@ public class AnvilCraftClientConfig {
     @Comment("Scanline post-processing effect on 3D structure previews.")
     public boolean renderScanPreviewEffect = true;
 
+    @Comment("Scale of GUI of anvil hammer screen")
+    @BoundedDiscrete(max = 4.0, min = 1.0)
+    public float anvilHammerScreenScale = 2.0f;
+
     @CollapsibleObject
     public GravitationalLens gravitationalLens = new GravitationalLens();
 
