@@ -242,7 +242,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             (float) mouseX - screenCenterX,
             (float) mouseY - screenCenterY
         );
-        if (cursorVec2.length() < IGNORE_CURSOR_MOVE_LENGTH) {
+        if (cursorVec2.length() < IGNORE_CURSOR_MOVE_LENGTH * guiScale()) {
             return true;
         }
         Vector2f rotationStart = new Vector2f(0, 1);
@@ -407,8 +407,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 renderRotatedBlock(
                     poseStack,
                     value.modelBlock,
-                    x + 5,
-                    y - 4,
+                    x + 5 * guiScale(),
+                    y - 4 * guiScale(),
                     100,
                     5
                 );
@@ -491,8 +491,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 renderRotatedBlock(
                     poseStack,
                     value.modelBlock,
-                    x + 4,
-                    y - 4,
+                    x + 4 * guiScale(),
+                    y - 4 * guiScale(),
                     -100,
                     5
                 );
