@@ -330,7 +330,6 @@ public class CelestialForgingAnvilBlock
     // === Interaction ===
 
     @Override
-    @SuppressWarnings({"checkstyle:VariableDeclarationUsageDistance"})
     public InteractionResult use(
         BlockState state,
         Level level,

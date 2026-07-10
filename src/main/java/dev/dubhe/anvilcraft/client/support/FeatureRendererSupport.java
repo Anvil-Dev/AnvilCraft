@@ -8,8 +8,8 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Matrix4f;
 import org.slf4j.Logger;
@@ -31,6 +31,7 @@ public class FeatureRendererSupport {
         );
         return state;
     }
+
     public static BlockModelRenderState initialize(StandaloneModelKey<BlockStateModel> standalone, BlockEntity be) {
         BlockModelRenderState state = new BlockModelRenderState();
         Minecraft mc = Minecraft.getInstance();

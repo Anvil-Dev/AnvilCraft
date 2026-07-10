@@ -29,7 +29,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
-
 @EventBusSubscriber(value = Dist.CLIENT)
 public class SubmitGeometryEventListener {
 
@@ -43,10 +42,10 @@ public class SubmitGeometryEventListener {
         SubmitNodeCollector nodeCollector = event.getSubmitNodeCollector();
         // Inspection
         InspectionSupport.INSTANCE.onRenderInspectionAction(
-                poseStack,
-                nodeCollector,
-                camera,
-                deltaTracker
+            poseStack,
+            nodeCollector,
+            camera,
+            deltaTracker
         );
 
         if (Minecraft.getInstance().options.hideGui) return;
@@ -61,23 +60,27 @@ public class SubmitGeometryEventListener {
         ItemStack handItem = mainHandItem.isEmpty() ? offHandItem : mainHandItem;
 
         if (!handItem.isEmpty()) {
-            nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), (pose, buffer) -> {
-                PoseStack poses = new PoseStack();
-                poses.pushPose();
-                poses.last().set(pose);
-                HudTooltipManager.INSTANCE.submitHandItemInWorldTooltip(handItem, poses, buffer, camX, camY, camZ);
-                poses.popPose();
-            });
+            nodeCollector.submitCustomGeometry(
+                poseStack, RenderTypes.lines(), (pose, buffer) -> {
+                    PoseStack poses = new PoseStack();
+                    poses.pushPose();
+                    poses.last().set(pose);
+                    HudTooltipManager.INSTANCE.submitHandItemInWorldTooltip(handItem, poses, buffer, camX, camY, camZ);
+                    poses.popPose();
+                }
+            );
         }
 
         HitResult hitResult = Minecraft.getInstance().hitResult;
         if (hitResult instanceof BlockHitResult blockHitResult) {
-            nodeCollector.submitCustomGeometry(poseStack, RenderTypes.lines(), ((pose, buffer) -> {
-                if (AnvilHammerItem.shouldRenderEffect(player)) {
-                    renderAffectRange(poseStack, blockHitResult, buffer, camX, camY, camZ);
-                }
-                renderDragonRodOutline(pose, blockHitResult, buffer, camX, camY, camZ, handItem);
-            }));
+            nodeCollector.submitCustomGeometry(
+                poseStack, RenderTypes.lines(), ((pose, buffer) -> {
+                    if (AnvilHammerItem.shouldRenderEffect(player)) {
+                        renderAffectRange(poseStack, blockHitResult, buffer, camX, camY, camZ);
+                    }
+                    renderDragonRodOutline(pose, blockHitResult, buffer, camX, camY, camZ, handItem);
+                })
+            );
 
         }
 
@@ -92,8 +95,8 @@ public class SubmitGeometryEventListener {
     }
 
     private static void renderAffectRange(
-            PoseStack pose, BlockHitResult hit, VertexConsumer vertexConsumer3,
-            double camX, double camY, double camZ
+        PoseStack pose, BlockHitResult hit, VertexConsumer vertexConsumer3,
+        double camX, double camY, double camZ
     ) {
         BlockPos blockPos = hit.getBlockPos();
         if (Minecraft.getInstance().level == null) return;
@@ -103,13 +106,13 @@ public class SubmitGeometryEventListener {
     }
 
     private static void renderDragonRodOutline(
-            PoseStack.Pose pose,
-            BlockHitResult hitResult,
-            VertexConsumer consumer,
-            double camX,
-            double camY,
-            double camZ,
-            ItemStack handItem
+        PoseStack.Pose pose,
+        BlockHitResult hitResult,
+        VertexConsumer consumer,
+        double camX,
+        double camY,
+        double camZ,
+        ItemStack handItem
     ) {
         if (handItem.has(ModComponents.DEVOUR_RANGE)) {
             int range = handItem.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();

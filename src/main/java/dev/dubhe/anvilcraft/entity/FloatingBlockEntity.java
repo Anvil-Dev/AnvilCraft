@@ -46,8 +46,8 @@ public class FloatingBlockEntity extends FallingBlockEntity {
         this.setStartPos(this.blockPosition());
     }
 
-    @SuppressWarnings({"checkstyle:MethodName", "UnusedReturnValue"})
-    public static FloatingBlockEntity _float(Level level, BlockPos pos, BlockState blockState) {
+    @SuppressWarnings("UnusedReturnValue")
+    public static FloatingBlockEntity floatBlock(Level level, BlockPos pos, BlockState blockState) {
         FloatingBlockEntity floatingBlockEntity = new FloatingBlockEntity(
             level,
             (double) pos.getX() + 0.5,

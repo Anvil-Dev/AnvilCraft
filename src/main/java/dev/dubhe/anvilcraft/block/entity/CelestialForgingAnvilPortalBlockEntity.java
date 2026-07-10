@@ -94,7 +94,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     private BlockPos gammaIrradiatingPos = null;
     private int gammaExposureTicks = 0;
 
-    /// [0-4级不破坏, ≥4级3s破坏, ≥8级1s破坏, ≥12级5gt破坏, ≥16级1gt破坏]
+    /// [0-4级不破坏,≥4级3s破坏,≥8级1s破坏,≥12级5gt破坏,≥16级1gt破坏]
     private static final int[] GAMMA_EXPOSURE_TICKS = {
         Integer.MAX_VALUE, 60, 20, 5, 1
     };
@@ -183,7 +183,10 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         if (this.tickCount >= cooldown) {
             this.tickCount = 0;
             if (irradiateBlock.is(Tags.Blocks.ORES)) {
-                List<ItemStack> drops = dev.dubhe.anvilcraft.util.BreakBlockUtil.drop(serverLevel, this.irradiateBlockPos);
+                List<ItemStack> drops = dev.dubhe.anvilcraft.util.BreakBlockUtil.drop(
+                    serverLevel,
+                    this.irradiateBlockPos
+                );
                 this.deliverItem(drops, direction, this.irradiateBlockPos);
             }
         }
@@ -423,21 +426,31 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                             boolean targetWaterlogged = targetState.getValue(BlockStateProperties.WATERLOGGED);
                             if (thisWaterlogged) {
                                 if (!targetWaterlogged) {
-                                    targetLevel.setBlock(targetPortalPos,
-                                        targetState.setValue(BlockStateProperties.WATERLOGGED, true), 3);
-                                    targetLevel.scheduleTick(targetPortalPos, Fluids.WATER,
-                                        Fluids.WATER.getTickDelay(targetLevel));
+                                    targetLevel.setBlock(
+                                        targetPortalPos,
+                                        targetState.setValue(BlockStateProperties.WATERLOGGED, true), 3
+                                    );
+                                    targetLevel.scheduleTick(
+                                        targetPortalPos, Fluids.WATER,
+                                        Fluids.WATER.getTickDelay(targetLevel)
+                                    );
                                 }
                             } else {
                                 if (targetWaterlogged && connectedPortal.isJustPlacedWaterlogged()) {
-                                    level.setBlock(worldPosition,
-                                        state.setValue(BlockStateProperties.WATERLOGGED, true), 3);
-                                    level.scheduleTick(worldPosition, Fluids.WATER,
-                                        Fluids.WATER.getTickDelay(level));
+                                    level.setBlock(
+                                        worldPosition,
+                                        state.setValue(BlockStateProperties.WATERLOGGED, true), 3
+                                    );
+                                    level.scheduleTick(
+                                        worldPosition, Fluids.WATER,
+                                        Fluids.WATER.getTickDelay(level)
+                                    );
                                     this.lastWaterlogged = true;
                                 } else if (targetWaterlogged) {
-                                    targetLevel.setBlock(targetPortalPos,
-                                        targetState.setValue(BlockStateProperties.WATERLOGGED, false), 3);
+                                    targetLevel.setBlock(
+                                        targetPortalPos,
+                                        targetState.setValue(BlockStateProperties.WATERLOGGED, false), 3
+                                    );
                                 }
                             }
                         }
@@ -454,15 +467,23 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                     if (targetState.getBlock() instanceof CelestialForgingAnvilPortalBlock) {
                         boolean targetWaterlogged = targetState.getValue(BlockStateProperties.WATERLOGGED);
                         if (thisWaterlogged && !targetWaterlogged) {
-                            targetLevel.setBlock(targetPortalPos,
-                                targetState.setValue(BlockStateProperties.WATERLOGGED, true), 3);
-                            targetLevel.scheduleTick(targetPortalPos, Fluids.WATER,
-                                Fluids.WATER.getTickDelay(targetLevel));
+                            targetLevel.setBlock(
+                                targetPortalPos,
+                                targetState.setValue(BlockStateProperties.WATERLOGGED, true), 3
+                            );
+                            targetLevel.scheduleTick(
+                                targetPortalPos, Fluids.WATER,
+                                Fluids.WATER.getTickDelay(targetLevel)
+                            );
                         } else if (!thisWaterlogged && targetWaterlogged) {
-                            level.setBlock(worldPosition,
-                                state.setValue(BlockStateProperties.WATERLOGGED, true), 3);
-                            level.scheduleTick(worldPosition, Fluids.WATER,
-                                Fluids.WATER.getTickDelay(level));
+                            level.setBlock(
+                                worldPosition,
+                                state.setValue(BlockStateProperties.WATERLOGGED, true), 3
+                            );
+                            level.scheduleTick(
+                                worldPosition, Fluids.WATER,
+                                Fluids.WATER.getTickDelay(level)
+                            );
                             this.lastWaterlogged = true;
                         }
                     }
@@ -566,7 +587,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         WormholeNetwork network = WormholeNetwork.get();
         List<WormholeNetwork.Entry> connected = network.getConnected(
-            Objects.requireNonNull(parent.getWormholeParamsHash()), Objects.requireNonNull(level).dimension(), parent.getBlockPos()
+            Objects.requireNonNull(parent.getWormholeParamsHash()),
+            Objects.requireNonNull(level).dimension(),
+            parent.getBlockPos()
         );
         // 仅当恰好有另一个 CFA 在此同侧有传送门时才传送
         List<WormholeNetwork.Entry> matching = connected.stream()
@@ -681,10 +704,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     // PLACEHOLDER_GAMMA
 
     /// 伽马激光发射
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private void emitPortalGammaLaser(Direction direction) {
         if (this.level == null) return;
-        int originalMaxDistance = this.maxTransmissionDistance;
+        final int originalMaxDistance = this.maxTransmissionDistance;
         this.maxTransmissionDistance = 16;
 
         BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(direction);
