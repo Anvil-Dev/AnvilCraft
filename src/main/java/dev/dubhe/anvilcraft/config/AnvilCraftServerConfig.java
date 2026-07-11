@@ -97,6 +97,10 @@ public class AnvilCraftServerConfig {
     @Comment("Is laser do impact checking")
     public boolean isLaserDoImpactChecking = true;
 
+    @Comment("Maximum number of connected ore blocks collected by a laser gun")
+    @BoundedDiscrete(min = 1, max = 4096)
+    public int laserOreClusterMaxSize = 64;
+
     @Comment("Induction light block ripening cooldown")
     public int inductionLightBlockRipeningCooldown = 400;
 

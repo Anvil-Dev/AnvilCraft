@@ -1,11 +1,14 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.RedstoneWireBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -23,7 +26,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.RedstoneSide;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -32,27 +35,30 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 
 /** A surface-mounted, non-attenuating redstone network with electrical contacts at its visible open ends. */
-public class RedstoneWireBlock extends Block implements EntityBlock {
-    public static final EnumProperty<RedstoneSide> NORTH = BlockStateProperties.NORTH_REDSTONE;
-    public static final EnumProperty<RedstoneSide> EAST = BlockStateProperties.EAST_REDSTONE;
-    public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.SOUTH_REDSTONE;
-    public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.WEST_REDSTONE;
-    public static final List<EnumProperty<RedstoneSide>> CONNECTION_PROPERTIES = List.of(NORTH, EAST, SOUTH, WEST);
+public class RedstoneWireBlock extends Block implements EntityBlock, IHammerRemovable {
+    public static final EnumProperty<ConnectionType> NORTH = EnumProperty.create("north", ConnectionType.class);
+    public static final EnumProperty<ConnectionType> EAST = EnumProperty.create("east", ConnectionType.class);
+    public static final EnumProperty<ConnectionType> SOUTH = EnumProperty.create("south", ConnectionType.class);
+    public static final EnumProperty<ConnectionType> WEST = EnumProperty.create("west", ConnectionType.class);
+    public static final List<EnumProperty<ConnectionType>> CONNECTION_PROPERTIES = List.of(NORTH, EAST, SOUTH, WEST);
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
     public static final DirectionProperty ATTACHMENT = DirectionProperty.create("attachment");
     public static final BooleanProperty DOT = BooleanProperty.create("dot");
 
     private static final ThreadLocal<Boolean> UPDATING = ThreadLocal.withInitial(() -> false);
     private static final ThreadLocal<Boolean> SUPPRESS_SIGNAL = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<BlockPos> PENDING_UPDATE = new ThreadLocal<>();
     private static final int MAX_NETWORK_SIZE = 65536;
     private static final Map<Direction, VoxelShape> DOT_SHAPES = new EnumMap<>(Direction.class);
     private static final Map<Direction, List<VoxelShape>> SIDE_SHAPES = new EnumMap<>(Direction.class);
+    private static final Map<Direction, List<VoxelShape>> CORNER_SHAPES = new EnumMap<>(Direction.class);
     private static final Map<Direction, List<VoxelShape>> UP_SHAPES = new EnumMap<>(Direction.class);
 
     static {
@@ -60,19 +66,16 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
             Direction north = getLocalDirection(attachment, 0);
             DOT_SHAPES.put(attachment, transformedBox(attachment, north, 4.0, 0.0, 4.0, 12.0, 2.5, 12.0));
             List<VoxelShape> sides = new ArrayList<>(4);
+            List<VoxelShape> corners = new ArrayList<>(4);
             List<VoxelShape> ups = new ArrayList<>(4);
             for (int index = 0; index < 4; index++) {
                 Direction tangent = getLocalDirection(attachment, index);
                 sides.add(transformedBox(attachment, tangent, 5.0, 0.0, 0.0, 11.0, 2.0, 8.0));
-                if (attachment.getAxis().isHorizontal() && tangent == Direction.UP) {
-                    ups.add(transformedBox(Direction.DOWN, attachment, 5.0, 0.0, -0.1, 11.0, 18.0, 2.0));
-                } else if (attachment.getAxis().isHorizontal() && tangent == Direction.DOWN) {
-                    ups.add(transformedBox(Direction.DOWN, attachment, 5.0, -1.0, -0.1, 11.0, 17.0, 2.0));
-                } else {
-                    ups.add(transformedBox(attachment, tangent, 5.0, 1.0, -0.1, 11.0, 18.0, 2.0));
-                }
+                corners.add(transformedBox(attachment, tangent, 5.0, 0.0, -2.0, 11.0, 2.0, 8.0));
+                ups.add(transformedBox(attachment, tangent, 5.0, 1.0, -0.1, 11.0, 18.0, 2.0));
             }
             SIDE_SHAPES.put(attachment, List.copyOf(sides));
+            CORNER_SHAPES.put(attachment, List.copyOf(corners));
             UP_SHAPES.put(attachment, List.copyOf(ups));
         }
     }
@@ -80,10 +83,10 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
     public RedstoneWireBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
-            .setValue(NORTH, RedstoneSide.SIDE)
-            .setValue(EAST, RedstoneSide.NONE)
-            .setValue(SOUTH, RedstoneSide.SIDE)
-            .setValue(WEST, RedstoneSide.NONE)
+            .setValue(NORTH, ConnectionType.SIDE)
+            .setValue(EAST, ConnectionType.NONE)
+            .setValue(SOUTH, ConnectionType.SIDE)
+            .setValue(WEST, ConnectionType.NONE)
             .setValue(POWER, 0)
             .setValue(ATTACHMENT, Direction.DOWN)
             .setValue(DOT, false));
@@ -107,8 +110,8 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
             }
         }
         int index = getLocalIndex(attachment, preferred);
-        state = state.setValue(CONNECTION_PROPERTIES.get(index), RedstoneSide.SIDE)
-            .setValue(CONNECTION_PROPERTIES.get((index + 2) % 4), RedstoneSide.SIDE);
+        state = state.setValue(CONNECTION_PROPERTIES.get(index), ConnectionType.SIDE)
+            .setValue(CONNECTION_PROPERTIES.get((index + 2) % 4), ConnectionType.SIDE);
         return this.connectionState(context.getLevel(), context.getClickedPos(), state);
     }
 
@@ -126,11 +129,14 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
         Direction attachment = state.getValue(ATTACHMENT);
         VoxelShape shape = state.getValue(DOT) ? DOT_SHAPES.get(attachment) : Shapes.empty();
         for (int index = 0; index < 4; index++) {
-            RedstoneSide side = state.getValue(CONNECTION_PROPERTIES.get(index));
-            if (side.isConnected()) {
+            ConnectionType side = state.getValue(CONNECTION_PROPERTIES.get(index));
+            if (side.isConnected() && side != ConnectionType.CORNER) {
                 shape = Shapes.or(shape, SIDE_SHAPES.get(attachment).get(index));
             }
-            if (side == RedstoneSide.UP) {
+            if (side == ConnectionType.CORNER) {
+                shape = Shapes.or(shape, CORNER_SHAPES.get(attachment).get(index));
+            }
+            if (side == ConnectionType.UP) {
                 shape = Shapes.or(shape, UP_SHAPES.get(attachment).get(index));
             }
         }
@@ -163,7 +169,9 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
             dropResources(state, level, pos);
             level.removeBlock(pos, false);
         } else if (UPDATING.get()) {
-            level.scheduleTick(pos, this, 1);
+            if (!(neighborBlock instanceof RedstoneWireBlock) && PENDING_UPDATE.get() == null) {
+                PENDING_UPDATE.set(pos.immutable());
+            }
         } else {
             updateNetworksAround(level, pos);
         }
@@ -223,14 +231,21 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
     }
 
     private BlockState connectionState(BlockGetter level, BlockPos pos, BlockState oldState) {
+        return this.connectionState(level, pos, oldState, findConnections(level, pos, oldState));
+    }
+
+    private BlockState connectionState(
+        BlockGetter level, BlockPos pos, BlockState oldState, Connection[] connections
+    ) {
         BlockState result = emptyState(this.defaultBlockState()
             .setValue(POWER, oldState.getValue(POWER))
             .setValue(ATTACHMENT, oldState.getValue(ATTACHMENT)));
-        int connections = 0;
+        int connectionCount = 0;
         int first = -1;
         int second = -1;
         for (int index = 0; index < 4; index++) {
-            RedstoneSide side = getConnection(level, pos, result, index);
+            Connection connection = connections[index];
+            ConnectionType side = getConnection(level, pos, result, index, connection);
             result = result.setValue(CONNECTION_PROPERTIES.get(index), side);
             if (side.isConnected()) {
                 if (first < 0) {
@@ -238,38 +253,39 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
                 } else if (second < 0) {
                     second = index;
                 }
-                connections++;
+                connectionCount++;
             }
         }
 
-        if (connections == 0) {
+        if (connectionCount == 0) {
             boolean eastWest = oldState.getValue(EAST).isConnected() || oldState.getValue(WEST).isConnected();
-            result = result.setValue(eastWest ? EAST : NORTH, RedstoneSide.SIDE)
-                .setValue(eastWest ? WEST : SOUTH, RedstoneSide.SIDE);
-        } else if (connections == 1) {
-            result = result.setValue(CONNECTION_PROPERTIES.get((first + 2) % 4), RedstoneSide.SIDE);
+            result = result.setValue(eastWest ? EAST : NORTH, ConnectionType.SIDE)
+                .setValue(eastWest ? WEST : SOUTH, ConnectionType.SIDE);
+        } else if (connectionCount == 1) {
+            result = result.setValue(CONNECTION_PROPERTIES.get((first + 2) % 4), ConnectionType.SIDE);
         }
 
-        boolean dot = connections >= 3 || connections == 2 && second != (first + 2) % 4;
+        boolean dot = connectionCount >= 3 || connectionCount == 2 && second != (first + 2) % 4;
         return result.setValue(DOT, dot);
     }
 
     private static BlockState emptyState(BlockState state) {
-        for (EnumProperty<RedstoneSide> property : CONNECTION_PROPERTIES) {
-            state = state.setValue(property, RedstoneSide.NONE);
+        for (EnumProperty<ConnectionType> property : CONNECTION_PROPERTIES) {
+            state = state.setValue(property, ConnectionType.NONE);
         }
         return state.setValue(DOT, false);
     }
 
-    private static RedstoneSide getConnection(BlockGetter level, BlockPos pos, BlockState state, int index) {
-        Connection connection = findConnection(level, pos, state, index);
+    private static ConnectionType getConnection(
+        BlockGetter level, BlockPos pos, BlockState state, int index, @Nullable Connection connection
+    ) {
         if (connection != null) {
             return connection.side();
         }
         Direction tangent = getLocalDirection(state.getValue(ATTACHMENT), index);
         BlockPos adjacentPos = pos.relative(tangent);
         BlockState adjacent = level.getBlockState(adjacentPos);
-        return canAttachTo(level, adjacentPos, adjacent, tangent) ? RedstoneSide.SIDE : RedstoneSide.NONE;
+        return canAttachTo(level, adjacentPos, adjacent, tangent) ? ConnectionType.SIDE : ConnectionType.NONE;
     }
 
     private static boolean canAttachTo(BlockGetter level, BlockPos pos, BlockState state, Direction direction) {
@@ -306,23 +322,39 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
                         Direction candidateTangent = getLocalDirection(candidateAttachment, candidateIndex);
                         BlockPos candidateEndpoint = endpoint(candidatePos, candidateAttachment, candidateTangent);
                         if (candidateEndpoint.equals(endpoint)) {
-                            RedstoneSide side = attachment.getAxis().isHorizontal()
-                                && candidateAttachment.getAxis() == Direction.Axis.Y
-                                ? RedstoneSide.UP
-                                : RedstoneSide.SIDE;
-                            return new Connection(candidatePos.immutable(), side);
+                            boolean crossesSurface = candidateAttachment != attachment;
+                            if (crossesSurface && isCornerBlocked(level, pos, tangent)) {
+                                continue;
+                            }
+                            boolean corner = attachment.getAxis().isHorizontal() && crossesSurface;
+                            return new Connection(
+                                candidatePos.immutable(), corner ? ConnectionType.CORNER : ConnectionType.SIDE
+                            );
                         }
                         if (candidateEndpoint.equals(raisedEndpoint) && canClimb(level, pos, attachment, tangent)) {
-                            fallback = new Connection(candidatePos.immutable(), RedstoneSide.UP);
+                            fallback = new Connection(candidatePos.immutable(), ConnectionType.UP);
                         } else if (endpoint.equals(candidateEndpoint.relative(candidateAttachment.getOpposite(), 2))
                             && canClimb(level, candidatePos, candidateAttachment, candidateTangent)) {
-                            fallback = new Connection(candidatePos.immutable(), RedstoneSide.SIDE);
+                            fallback = new Connection(candidatePos.immutable(), ConnectionType.SIDE);
                         }
                     }
                 }
             }
         }
         return fallback;
+    }
+
+    private static boolean isCornerBlocked(BlockGetter level, BlockPos pos, Direction tangent) {
+        BlockPos diagonalPos = pos.relative(tangent);
+        return level.getBlockState(diagonalPos).isRedstoneConductor(level, diagonalPos);
+    }
+
+    private static Connection[] findConnections(BlockGetter level, BlockPos pos, BlockState state) {
+        Connection[] connections = new Connection[4];
+        for (int index = 0; index < connections.length; index++) {
+            connections[index] = findConnection(level, pos, state, index);
+        }
+        return connections;
     }
 
     private static boolean canClimb(BlockGetter level, BlockPos pos, Direction attachment, Direction tangent) {
@@ -336,7 +368,7 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
     private static boolean isFullHeightSupport(
         BlockGetter level, BlockPos pos, BlockState state, Direction side
     ) {
-        return !(state.getBlock() instanceof SlabBlock)
+        return (!(state.getBlock() instanceof SlabBlock) || state.getValue(SlabBlock.TYPE) == SlabType.DOUBLE)
             && !(state.getBlock() instanceof StairBlock)
             && state.isFaceSturdy(level, pos, side);
     }
@@ -368,6 +400,11 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
             }
         } finally {
             UPDATING.set(false);
+            BlockPos pending = PENDING_UPDATE.get();
+            PENDING_UPDATE.remove();
+            if (pending != null && level.getBlockState(pending).getBlock() instanceof RedstoneWireBlock wire) {
+                level.scheduleTick(pending, wire, 1);
+            }
         }
     }
 
@@ -381,50 +418,87 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
     }
 
     private static void updateNetwork(Level level, BlockPos seed, Set<BlockPos> visited) {
-        Set<BlockPos> network = collectNetwork(level, seed, visited);
-        Set<BlockPos> changed = new HashSet<>();
-        for (BlockPos pos : network) {
+        Map<BlockPos, Connection[]> network = collectNetwork(level, seed, visited);
+        Set<BlockPos> topologyChanged = new HashSet<>();
+        Set<BlockPos> signalChanged = new HashSet<>();
+        for (Map.Entry<BlockPos, Connection[]> entry : network.entrySet()) {
+            BlockPos pos = entry.getKey();
             BlockState state = level.getBlockState(pos);
             RedstoneWireBlock block = (RedstoneWireBlock) state.getBlock();
-            BlockState connected = block.connectionState(level, pos, state);
+            BlockState connected = block.connectionState(level, pos, state, entry.getValue());
             if (connected != state) {
                 level.setBlock(pos, connected, Block.UPDATE_CLIENTS);
-                changed.add(pos);
+                topologyChanged.add(pos);
             }
         }
 
         InputPower inputPower = getInputPower(level, network);
-        for (BlockPos pos : network) {
+        for (Map.Entry<BlockPos, Connection[]> entry : network.entrySet()) {
+            BlockPos pos = entry.getKey();
             BlockState state = level.getBlockState(pos);
             boolean powerChanged = state.getValue(POWER) != inputPower.total();
+            boolean terminal = hasTerminal(state, entry.getValue());
             boolean sourceChanged = level.getBlockEntity(pos) instanceof RedstoneWireBlockEntity wire
                 && wire.setNonDustPower(inputPower.nonDust());
             if (powerChanged) {
                 level.setBlock(pos, state.setValue(POWER, inputPower.total()), Block.UPDATE_CLIENTS);
+            } else if (sourceChanged) {
+                level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
             }
-            if (powerChanged || sourceChanged) {
-                changed.add(pos);
+            if (terminal && (powerChanged || sourceChanged)) {
+                signalChanged.add(pos);
             }
         }
-        for (BlockPos pos : changed) {
+        for (BlockPos pos : topologyChanged) {
             level.updateNeighborsAt(pos, level.getBlockState(pos).getBlock());
+        }
+        for (BlockPos pos : signalChanged) {
+            updateTerminalNeighbors(level, pos, network.get(pos));
         }
     }
 
-    private static Set<BlockPos> collectNetwork(Level level, BlockPos seed, Set<BlockPos> visited) {
-        Set<BlockPos> network = new HashSet<>();
+    private static boolean hasTerminal(BlockState state, Connection[] connections) {
+        for (int index = 0; index < connections.length; index++) {
+            if (state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected() && connections[index] == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void updateTerminalNeighbors(Level level, BlockPos pos, Connection[] connections) {
+        BlockState state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof RedstoneWireBlock)) {
+            return;
+        }
+        Direction attachment = state.getValue(ATTACHMENT);
+        for (int index = 0; index < 4; index++) {
+            if (!state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()
+                || connections[index] != null) {
+                continue;
+            }
+            Direction tangent = getLocalDirection(attachment, index);
+            BlockPos targetPos = pos.relative(tangent);
+            level.neighborChanged(targetPos, state.getBlock(), pos);
+            level.updateNeighborsAtExceptFromFacing(targetPos, state.getBlock(), tangent.getOpposite());
+        }
+    }
+
+    private static Map<BlockPos, Connection[]> collectNetwork(Level level, BlockPos seed, Set<BlockPos> visited) {
+        Map<BlockPos, Connection[]> network = new LinkedHashMap<>();
         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
         queue.add(seed.immutable());
         while (!queue.isEmpty() && network.size() < MAX_NETWORK_SIZE) {
             BlockPos pos = queue.removeFirst();
-            if (!network.add(pos)) {
+            if (network.containsKey(pos)) {
                 continue;
             }
             visited.add(pos);
             BlockState state = level.getBlockState(pos);
-            for (int index = 0; index < 4; index++) {
-                Connection connection = findConnection(level, pos, state, index);
-                if (connection != null && !network.contains(connection.pos())) {
+            Connection[] connections = findConnections(level, pos, state);
+            network.put(pos, connections);
+            for (Connection connection : connections) {
+                if (connection != null && !network.containsKey(connection.pos())) {
                     queue.addLast(connection.pos());
                 }
             }
@@ -432,17 +506,18 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
         return network;
     }
 
-    private static InputPower getInputPower(Level level, Set<BlockPos> network) {
+    private static InputPower getInputPower(Level level, Map<BlockPos, Connection[]> network) {
         int totalPower = 0;
         int nonDustPower = 0;
         SUPPRESS_SIGNAL.set(true);
         try {
-            for (BlockPos pos : network) {
+            for (Map.Entry<BlockPos, Connection[]> entry : network.entrySet()) {
+                BlockPos pos = entry.getKey();
                 BlockState state = level.getBlockState(pos);
                 Direction attachment = state.getValue(ATTACHMENT);
                 for (int index = 0; index < 4; index++) {
                     if (!state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()
-                        || findConnection(level, pos, state, index) != null) {
+                        || entry.getValue()[index] != null) {
                         continue;
                     }
                     Direction tangent = getLocalDirection(attachment, index);
@@ -566,7 +641,28 @@ public class RedstoneWireBlock extends Block implements EntityBlock {
         return Block.box(box[0], box[1], box[2], box[3], box[4], box[5]);
     }
 
-    private record Connection(BlockPos pos, RedstoneSide side) {
+    public enum ConnectionType implements StringRepresentable {
+        NONE("none", false),
+        SIDE("side", true),
+        UP("up", true),
+        CORNER("corner", true);
+
+        private final String name;
+        @Getter
+        private final boolean connected;
+
+        ConnectionType(String name, boolean connected) {
+            this.name = name;
+            this.connected = connected;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
+        }
+    }
+
+    private record Connection(BlockPos pos, ConnectionType side) {
     }
 
     private record InputPower(int total, int nonDust) {

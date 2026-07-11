@@ -446,5 +446,8 @@
 		27,
 		28,
 		29
+	],
+	"overrides": [
+		{"predicate": {"custom_model_data": 1}, "model": "anvilcraft:item/corrupted_beacon_activator_exhausted"}
 	]
 }

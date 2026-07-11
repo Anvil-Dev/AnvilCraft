@@ -435,24 +435,33 @@ public class ModItems {
     public static final ItemEntry<? extends AnvilRailgunItem> ANVIL_RAILGUN = REGISTRUM
         .item("anvil_railgun", AnvilRailgunItem::new)
         .properties(properties -> properties.stacksTo(1))
+        .tag(ItemTags.CROSSBOW_ENCHANTABLE, ItemTags.BOW_ENCHANTABLE, ItemTags.SWORD_ENCHANTABLE)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final ItemEntry<? extends CorruptedBeaconActivatorItem> CORRUPTED_BEACON_ACTIVATOR = REGISTRUM
         .item("corrupted_beacon_activator", CorruptedBeaconActivatorItem::new)
         .properties(properties -> properties.stacksTo(1))
+        .tag(ItemTags.CROSSBOW_ENCHANTABLE, ItemTags.BOW_ENCHANTABLE, ItemTags.SWORD_ENCHANTABLE)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final ItemEntry<? extends TeslaGunItem> TESLA_GUN = REGISTRUM
         .item("tesla_gun", TeslaGunItem::new)
         .properties(properties -> properties.stacksTo(1))
+        .tag(ItemTags.CROSSBOW_ENCHANTABLE, ItemTags.SWORD_ENCHANTABLE)
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final ItemEntry<? extends LaserGunItem> LASER_GUN = REGISTRUM
         .item("laser_gun", LaserGunItem::new)
         .properties(properties -> properties.stacksTo(1))
+        .tag(
+            ItemTags.CROSSBOW_ENCHANTABLE,
+            ItemTags.SWORD_ENCHANTABLE,
+            ItemTags.MINING_ENCHANTABLE,
+            ItemTags.MINING_LOOT_ENCHANTABLE
+        )
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 

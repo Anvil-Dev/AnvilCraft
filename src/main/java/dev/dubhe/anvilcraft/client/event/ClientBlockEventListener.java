@@ -63,7 +63,7 @@ public class ClientBlockEventListener {
         if (property != null) {
             if (event.getEntity().isShiftKeyDown()) {
                 PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
-                return false;
+                return true;
             }
             if (!event.getEntity().getAbilities().mayBuild) return false;
             if (!AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) return false;
@@ -82,8 +82,11 @@ public class ClientBlockEventListener {
             }
             return true;
         } else {
+            boolean interacted = AnvilHammerItem.interactWithBlock(
+                event.getEntity(), event.getPos(), event.getLevel(), event.getEntity().getItemInHand(hand), hand, hitVec
+            );
             PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
+            return interacted;
         }
-        return false;
     }
 }

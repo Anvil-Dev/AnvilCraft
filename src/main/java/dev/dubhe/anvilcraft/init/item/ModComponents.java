@@ -24,6 +24,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -78,6 +79,11 @@ public class ModComponents {
     public static final DataComponentType<Integer> STORED_ENERGY = register(
         "stored_energy",
         (builder) -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
+    public static final DataComponentType<ChargedProjectiles> RAILGUN_AMMO = register(
+        "railgun_ammo",
+        builder -> builder.persistent(ChargedProjectiles.CODEC).networkSynchronized(ChargedProjectiles.STREAM_CODEC)
     );
 
     public static final DataComponentType<Unit> FIRE_REFORGING = registerEmpty("reforging");

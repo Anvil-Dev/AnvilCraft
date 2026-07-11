@@ -35,7 +35,7 @@ public final class AnvilHammerUseHUD {
         renderRing(graphics, 24, minecraft.getWindow().getGuiScaledHeight() - 24, progress);
     }
 
-    private static void renderRing(GuiGraphics graphics, int centerX, int centerY, float progress) {
+    public static void renderRing(GuiGraphics graphics, int centerX, int centerY, float progress) {
         drawRing(graphics, centerX, centerY, SEGMENTS, BACKGROUND_COLOR);
         drawRing(graphics, centerX, centerY, Mth.ceil(SEGMENTS * progress), PROGRESS_COLOR);
     }

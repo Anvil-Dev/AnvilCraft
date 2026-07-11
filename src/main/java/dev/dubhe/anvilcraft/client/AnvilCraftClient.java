@@ -16,10 +16,13 @@ import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.particle.FlyTowardsPositionParticle;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -30,6 +33,8 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+
+import java.util.Objects;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
 public class AnvilCraftClient {
@@ -65,6 +70,13 @@ public class AnvilCraftClient {
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
+        e.registerItem(
+            new EnergyWeaponExtensionImpl(),
+            ModItems.ANVIL_RAILGUN,
+            ModItems.CORRUPTED_BEACON_ACTIVATOR,
+            ModItems.TESLA_GUN,
+            ModItems.LASER_GUN
+        );
     }
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
@@ -92,6 +104,20 @@ public class AnvilCraftClient {
                 return ModModelLayers.getIonocraftBackpackModel();
             }
             return IClientItemExtensions.super.getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
+        }
+    }
+
+    public static class EnergyWeaponExtensionImpl implements IClientItemExtensions {
+        @Override
+        public HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack stack) {
+            if (!entity.isUsingItem() || entity.getUseItem().getItem() != stack.getItem()) {
+                return Objects.requireNonNull(IClientItemExtensions.super.getArmPose(entity, hand, stack));
+            }
+            if (stack.getItem() instanceof AnvilRailgunItem && entity instanceof Player player
+                && AnvilRailgunItem.isLoading(player, stack, hand)) {
+                return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
+            }
+            return HumanoidModel.ArmPose.CROSSBOW_HOLD;
         }
     }
 }

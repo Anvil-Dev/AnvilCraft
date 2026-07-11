@@ -120,18 +120,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
 
             float beamHeight = (float) (data.beamTopY - data.pos.getY()) - BEAM_BASE_Y;
             if (beamHeight > 0.01f) {
-                PoseStack.Pose pose = poseStack.last();
-                float apexY = BEAM_BASE_Y + beamHeight;
-                for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
-                    float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer;
-                    float falloff = 1.0f / (layer + 1);
-                    falloff *= falloff;
-                    float alpha = 0.45f * falloff;
-                    float tipFade = 0.3f * falloff;
-                    emitBeamPyramid(vc, pose, half, apexY, BEAM_R, BEAM_G, BEAM_B, alpha, tipFade);
-                }
-                emitBeamPyramid(vc, pose, BEAM_INNER_HALF, apexY,
-                    BEAM_R, BEAM_G, BEAM_B, 0.82f, 0.25f);
+                renderBeam(vc, poseStack.last(), 0.5f, BEAM_BASE_Y, 0.5f, beamHeight);
             }
 
             poseStack.popPose();
@@ -140,17 +129,58 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         deferredBeams.clear();
     }
 
+    public static void renderBeam(
+        VertexConsumer vc,
+        PoseStack.Pose pose,
+        float centerX,
+        float baseY,
+        float centerZ,
+        float length
+    ) {
+        renderBeam(vc, pose, centerX, baseY, centerZ, length, 1.0f);
+    }
+
+    public static void renderBeam(
+        VertexConsumer vc,
+        PoseStack.Pose pose,
+        float centerX,
+        float baseY,
+        float centerZ,
+        float length,
+        float glowSpreadScale
+    ) {
+        float apexY = baseY + length;
+        for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
+            float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer * glowSpreadScale;
+            float falloff = 1.0f / (layer + 1);
+            falloff *= falloff;
+            float alpha = 0.45f * falloff;
+            float tipFade = 0.3f * falloff;
+            emitBeamPyramid(
+                vc, pose, centerX, baseY, centerZ, half, apexY,
+                BEAM_R, BEAM_G, BEAM_B, alpha, tipFade
+            );
+        }
+        emitBeamPyramid(
+            vc, pose, centerX, baseY, centerZ, BEAM_INNER_HALF, apexY,
+            BEAM_R, BEAM_G, BEAM_B, 0.82f, 0.25f
+        );
+    }
+
     private static void emitBeamPyramid(
         VertexConsumer vc,
         PoseStack.Pose pose,
+        float centerX,
+        float baseY,
+        float centerZ,
         float halfWidth,
         float apexY,
         float r, float g, float b,
         float alpha,
         float tipFade
     ) {
-        float cx = 0.5f;
-        float cz = 0.5f;
+        float cx = centerX;
+        float cz = centerZ;
         float x0 = cx - halfWidth;
         float x1 = cx + halfWidth;
         float z0 = cz - halfWidth;
@@ -162,8 +192,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
-            vc.addVertex(pose, c0[0], BEAM_BASE_Y, c0[1]).setColor(r, g, b, alpha);
-            vc.addVertex(pose, c1[0], BEAM_BASE_Y, c1[1]).setColor(r, g, b, alpha);
+            vc.addVertex(pose, c0[0], baseY, c0[1]).setColor(r, g, b, alpha);
+            vc.addVertex(pose, c1[0], baseY, c1[1]).setColor(r, g, b, alpha);
             vc.addVertex(pose, cx, apexY, cz).setColor(r, g, b, tipAlpha);
             vc.addVertex(pose, cx, apexY, cz).setColor(r, g, b, tipAlpha);
         }

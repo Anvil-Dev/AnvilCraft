@@ -210,7 +210,9 @@ public class ItemTagLoader {
         provider.addTag(ModItemTags.COMPRESS_ITEM)
             .add(findResourceKey(Items.SNOW_BLOCK))
             .add(findResourceKey(Items.WHITE_WOOL))
+            .add(findResourceKey(Items.MAGMA_BLOCK))
             .add(findResourceKey(ModBlocks.HEAVY_IRON_BLOCK.asItem()))
+            .add(findResourceKey(ModBlocks.LEVITATION_POWDER_BLOCK.asItem()))
             .addTag(Tags.Items.INGOTS)
             .addTag(Tags.Items.STORAGE_BLOCKS);
 
@@ -237,6 +239,7 @@ public class ItemTagLoader {
 
         provider.addTag(ModItemTags.DISINTEGRATION_SUPPORTED)
             .addTag(ItemTags.MINING_LOOT_ENCHANTABLE)
+            .add(ModItems.LASER_GUN.getKey())
             .add(ModItems.FROST_METAL_PICKAXE.getKey())
             .add(ModItems.FROST_METAL_AXE.getKey())
             .add(ModItems.FROST_METAL_SHOVEL.getKey())
@@ -246,6 +249,7 @@ public class ItemTagLoader {
 
         provider.addTag(ModItemTags.SMELTING_SUPPORTED)
             .addTag(ItemTags.MINING_LOOT_ENCHANTABLE)
+            .add(ModItems.LASER_GUN.getKey())
             .add(ModItems.EMBER_METAL_PICKAXE.getKey())
             .add(ModItems.EMBER_METAL_AXE.getKey())
             .add(ModItems.EMBER_METAL_SHOVEL.getKey())

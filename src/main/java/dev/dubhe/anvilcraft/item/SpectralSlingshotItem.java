@@ -11,6 +11,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -260,11 +261,23 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
             shooter.getX(),
             shooter.getY(),
             shooter.getZ(),
-            SoundEvents.CROSSBOW_SHOOT,
+            this.getShootSound(),
             shooter.getSoundSource(),
-            1.0F,
-            f
+            this.getShootVolume(),
+            f * this.getShootPitch()
         );
+    }
+
+    protected SoundEvent getShootSound() {
+        return SoundEvents.CROSSBOW_SHOOT;
+    }
+
+    protected float getShootVolume() {
+        return 1.0F;
+    }
+
+    protected float getShootPitch() {
+        return 1.0F;
     }
 
     private static Vector3f getProjectileShotVector(LivingEntity shooter, Vec3 distance, float angle) {

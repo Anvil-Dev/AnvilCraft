@@ -49,13 +49,27 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
 
     @Override
     public void onClose() {
+        this.sendUpdate();
+        super.onClose();
+    }
+
+    private void sendUpdate() {
         PacketDistributor.sendToServer(new PulseGeneratorUpdatePacket(
             this.menu.getBlockEntity().getStartMode().index(),
             this.menu.getBlockEntity().isOutputInvert(),
             this.menu.getBlockEntity().getWaitingTime(),
             this.menu.getBlockEntity().getSignalDuration()
         ));
-        super.onClose();
+    }
+
+    private void addWaitingTime(int delta) {
+        this.menu.addWaitingTime(delta);
+        this.sendUpdate();
+    }
+
+    private void addSignalDuration(int delta) {
+        this.menu.addSignalDuration(delta);
+        this.sendUpdate();
     }
 
     @Override
@@ -70,7 +84,10 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16, 16,
             List.of(SharedTextures.BUTTON_RISING_EDGE, SharedTextures.BUTTON_FALLING_EDGE, SharedTextures.BUTTON_LOOP),
             16, 16, 32,
-            (button, index) -> this.menu.setStartMode((byte) index),
+            (button, index) -> {
+                this.menu.setStartMode((byte) index);
+                this.sendUpdate();
+            },
             List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop"))
@@ -81,9 +98,12 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16, 16,
             List.of(SharedTextures.BUTTON_REVERSE_OFF, SharedTextures.BUTTON_REVERSE_ON),
             16, 16, 32,
-            (button, index) -> this.menu.setOutputInvert(index == 1),
-            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on"),
-                Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"))
+            (button, index) -> {
+                this.menu.setOutputInvert(index == 1);
+                this.sendUpdate();
+            },
+            List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
+                Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on"))
         );
         final BiFunction<Integer, Consumer<Integer>, TexturedButton> addTickFunc = (offsetX, tickAdder) -> new TexturedButton(
             this.leftPos + offsetX,
@@ -152,19 +172,19 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
         this.addRenderableWidget(startMode);
         this.addRenderableWidget(outputMode);
         this.addRenderableOnly(this.waitingTime);
-        this.addRenderableWidget(addTickFunc.apply(62, this.menu::addWaitingTime));
-        this.addRenderableWidget(addSecFunc.apply(74, this.menu::addWaitingTime));
-        this.addRenderableWidget(addMinFunc.apply(86, this.menu::addWaitingTime));
-        this.addRenderableWidget(minusTickFunc.apply(62, this.menu::addWaitingTime));
-        this.addRenderableWidget(minusSecFunc.apply(74, this.menu::addWaitingTime));
-        this.addRenderableWidget(minusMinFunc.apply(86, this.menu::addWaitingTime));
+        this.addRenderableWidget(addTickFunc.apply(62, this::addWaitingTime));
+        this.addRenderableWidget(addSecFunc.apply(74, this::addWaitingTime));
+        this.addRenderableWidget(addMinFunc.apply(86, this::addWaitingTime));
+        this.addRenderableWidget(minusTickFunc.apply(62, this::addWaitingTime));
+        this.addRenderableWidget(minusSecFunc.apply(74, this::addWaitingTime));
+        this.addRenderableWidget(minusMinFunc.apply(86, this::addWaitingTime));
         this.addRenderableOnly(this.signalDuration);
-        this.addRenderableWidget(addTickFunc.apply(114, this.menu::addSignalDuration));
-        this.addRenderableWidget(addSecFunc.apply(126, this.menu::addSignalDuration));
-        this.addRenderableWidget(addMinFunc.apply(138, this.menu::addSignalDuration));
-        this.addRenderableWidget(minusTickFunc.apply(114, this.menu::addSignalDuration));
-        this.addRenderableWidget(minusSecFunc.apply(126, this.menu::addSignalDuration));
-        this.addRenderableWidget(minusMinFunc.apply(138, this.menu::addSignalDuration));
+        this.addRenderableWidget(addTickFunc.apply(114, this::addSignalDuration));
+        this.addRenderableWidget(addSecFunc.apply(126, this::addSignalDuration));
+        this.addRenderableWidget(addMinFunc.apply(138, this::addSignalDuration));
+        this.addRenderableWidget(minusTickFunc.apply(114, this::addSignalDuration));
+        this.addRenderableWidget(minusSecFunc.apply(126, this::addSignalDuration));
+        this.addRenderableWidget(minusMinFunc.apply(138, this::addSignalDuration));
     }
 
     @Override
@@ -186,11 +206,11 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.waitingTime.getY() + this.waitingTime.getHeight())
         ) {
             if (hasControlDown()) {
-                this.menu.addWaitingTime(scrollY < 0 ? -20 : 20);
+                this.addWaitingTime(scrollY < 0 ? -20 : 20);
             } else if (hasShiftDown()) {
-                this.menu.addWaitingTime(scrollY < 0 ? -1200 : 1200);
+                this.addWaitingTime(scrollY < 0 ? -1200 : 1200);
             } else {
-                this.menu.addWaitingTime(scrollY < 0 ? -1 : 1);
+                this.addWaitingTime(scrollY < 0 ? -1 : 1);
             }
         }
         if (MathUtil.isInRange(
@@ -200,11 +220,11 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.signalDuration.getY() + this.signalDuration.getHeight())
         ) {
             if (hasControlDown()) {
-                this.menu.addSignalDuration(scrollY < 0 ? -20 : 20);
+                this.addSignalDuration(scrollY < 0 ? -20 : 20);
             } else if (hasShiftDown()) {
-                this.menu.addSignalDuration(scrollY < 0 ? -1200 : 1200);
+                this.addSignalDuration(scrollY < 0 ? -1200 : 1200);
             } else {
-                this.menu.addSignalDuration(scrollY < 0 ? -1 : 1);
+                this.addSignalDuration(scrollY < 0 ? -1 : 1);
             }
         }
         return true;

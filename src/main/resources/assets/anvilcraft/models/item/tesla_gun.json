@@ -429,5 +429,8 @@
 		26,
 		27,
 		28
+	],
+	"overrides": [
+		{"predicate": {"custom_model_data": 1}, "model": "anvilcraft:item/tesla_gun_exhausted"}
 	]
 }

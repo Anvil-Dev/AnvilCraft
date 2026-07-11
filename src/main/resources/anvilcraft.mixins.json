@@ -94,6 +94,7 @@
     "ItemInHandRendererMixin",
     "ItemOverridesMixin",
     "LevelRendererMixin",
+    "LocalPlayerMixin",
     "MinecraftClientMixin",
     "MouseHandlerMixin",
     "ParticleEngineMixin",

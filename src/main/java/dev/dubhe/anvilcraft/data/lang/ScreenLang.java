@@ -90,6 +90,7 @@ public class ScreenLang {
 
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
         provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");
+        provider.add("tooltip.anvilcraft.redstone.output_to_redstone", "  Can Output to Redstone: %d");
         provider.add("tooltip.anvilcraft.redstone.output_power", "  Output Power: %d");
         provider.add("tooltip.anvilcraft.redstone.output_mode", "  Output Mode: %s");
         provider.add("tooltip.anvilcraft.redstone.output_mode.compare", "Compare");

@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.ResentmentAmberOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -30,6 +31,12 @@ public class ModRecipeOutcomeTypes {
         "royal_preference",
         RoyalPreferenceOutcome.Type::new
     );
+
+    public static final DeferredHolder<IRecipeOutcome.Type<?>, ResentmentAmberOutcome.Type> RESENTMENT_AMBER =
+        OUTCOME_TYPE.register(
+            "resentment_amber",
+            ResentmentAmberOutcome.Type::new
+        );
 
     public static final DeferredHolder<IRecipeOutcome.Type<?>, SuperHeatingRecipe.ConsumeFuel.Type>
         CONSUME_BURNING_HEATER_FUEL = OUTCOME_TYPE.register(

@@ -13,6 +13,7 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
         provider.add("tooltip.anvilcraft.item.power_converter", "Convert power into FE, consumes %d kW");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
+        provider.add("tooltip.anvilcraft.item.resin_block.resentment", "Resentment: %s%%");
 
         provider.add("tooltip.anvilcraft.item.structure_tool.line_1", "Developer tool");
         provider.add("tooltip.anvilcraft.item.structure_tool.line_2", "Right click to select an area for multiblock recipe");
