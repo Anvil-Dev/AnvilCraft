@@ -2168,4 +2168,13 @@ public class RegistrumBlockRecipeLoader {
             )
             .save(provider);
     }
+
+    public static <T extends Block> void redstoneWire(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, ctx.get(), 4)
+            .pattern("CRC")
+            .define('C', ModItemTags.COPPER_NUGGETS)
+            .define('R', Items.REDSTONE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.REDSTONE), RegistrumRecipeProvider.has(Items.REDSTONE))
+            .save(provider);
+    }
 }

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "C": {
+      "tag": "c:nuggets/copper"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "CRC"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:redstone_wire"
+  }
+}

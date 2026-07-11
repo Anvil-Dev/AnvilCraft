@@ -1,0 +1,82 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_dot"
+      },
+      "when": {
+        "dot": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_side"
+      },
+      "when": {
+        "north": "side|up"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_up"
+      },
+      "when": {
+        "north": "up"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_side",
+        "y": 90
+      },
+      "when": {
+        "east": "side|up"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_up",
+        "y": 90
+      },
+      "when": {
+        "east": "up"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_side",
+        "y": 180
+      },
+      "when": {
+        "south": "side|up"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_up",
+        "y": 180
+      },
+      "when": {
+        "south": "up"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_side",
+        "y": 270
+      },
+      "when": {
+        "west": "side|up"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire_up",
+        "y": 270
+      },
+      "when": {
+        "west": "up"
+      }
+    }
+  ]
+}

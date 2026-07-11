@@ -111,6 +111,7 @@ import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
 import dev.dubhe.anvilcraft.block.ResinBlock;
 import dev.dubhe.anvilcraft.block.RottenFleshBlock;
@@ -219,6 +220,7 @@ import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.generator.PipeBlockStateGenerator;
+import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -4215,6 +4217,17 @@ public class ModBlocks {
         .tag(ModItemTags.PLATES, ModItemTags.COPPER_PLATES)
         .build()
         .recipe(RegistrumBlockRecipeLoader::copperPressurePlate)
+        .register();
+
+    public static final BlockEntry<RedstoneWireBlock> REDSTONE_WIRE = REGISTRUM.block("redstone_wire", RedstoneWireBlock::new)
+        .lang("Redstone Wire")
+        .initialProperties(() -> Blocks.REDSTONE_WIRE)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(RedstoneWireBlockStateGenerator::generate)
+        .item()
+        .model((ctx, provider) -> provider.generated(ctx))
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::redstoneWire)
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> EXPOSED_COPPER_PRESSURE_PLATE =
