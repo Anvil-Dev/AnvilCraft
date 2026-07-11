@@ -24,7 +24,9 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.SpaceOvercompressorTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IAffectRangeProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHandHeldItemTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -208,8 +210,19 @@ public class HudTooltipManager {
     private ITooltipProvider.@Nullable BlockEntityTooltipProvider determineBlockEntityTooltipProvider(BlockEntity entity) {
         return this.blockEntityProviders.stream()
             .filter(it -> it.accepts(entity))
+            .filter(it -> !shouldSuppressForJade(it))
             .min(Comparator.comparingInt(ITooltipProvider::priority))
             .orElse(null);
+    }
+
+    /**
+     * Jade 存在且用户启用兼容选项时，仅抑制 Jade 已能展示的电网信息。
+     * CFA 接口等没有 Jade 数据提供器的提示仍应正常显示。
+     */
+    private static boolean shouldSuppressForJade(ITooltipProvider.BlockEntityTooltipProvider provider) {
+        return provider instanceof PowerComponentTooltipProvider
+            && CompatUtil.HAS_JADE.get()
+            && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent;
     }
 
     private @Nullable IAffectRangeProvider determineAffectRangeProvider(BlockEntity entity) {

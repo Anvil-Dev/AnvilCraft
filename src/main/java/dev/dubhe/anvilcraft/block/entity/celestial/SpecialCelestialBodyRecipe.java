@@ -28,8 +28,7 @@ import java.util.Optional;
 import java.util.Random;
 
 /**
- * Recipe defining a hidden (special) celestial body discoverable via seed items
- * in the Celestial Forging Anvil.
+ * 定义可通过锻星砧种子物品发现的隐藏特殊天体。
  */
 public record SpecialCelestialBodyRecipe(
     String name,

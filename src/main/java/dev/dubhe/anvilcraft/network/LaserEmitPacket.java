@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -45,17 +46,14 @@ public record LaserEmitPacket(int level, BlockPos laserPos, @Nullable BlockPos i
 
     @Override
     public void handleOnClient(Player player) {
-        if (player.level().getBlockEntity(this.laserPos) instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser) {
-            if (this.gamma) {
-                cfaLaser.clientUpdateGamma(this.irradiatePos, this.level);
-            } else {
-                cfaLaser.clientUpdate(this.irradiatePos, this.level);
-            }
-            Minecraft.getInstance().levelRenderer.setBlockDirty(this.laserPos, false);
-            return;
-        }
         if (!(player.level().getBlockEntity(this.laserPos) instanceof BaseLaserBlockEntity laser)) return;
-        laser.clientUpdate(this.irradiatePos, this.level);
+        if (this.gamma && laser instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser) {
+            cfaLaser.clientUpdateGamma(this.irradiatePos, this.level);
+        } else if (this.gamma && laser instanceof CelestialForgingAnvilPortalBlockEntity portal) {
+            portal.clientUpdateGamma(this.irradiatePos, this.level);
+        } else {
+            laser.clientUpdate(this.irradiatePos, this.level);
+        }
         Minecraft.getInstance().levelRenderer.setBlockDirty(this.laserPos, false);
     }
 }

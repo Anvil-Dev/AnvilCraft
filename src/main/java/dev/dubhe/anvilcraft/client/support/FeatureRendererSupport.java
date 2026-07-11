@@ -33,6 +33,17 @@ public class FeatureRendererSupport {
     }
 
     public static BlockModelRenderState initialize(StandaloneModelKey<BlockStateModel> standalone, BlockEntity be) {
+        return initialize(standalone, be, false);
+    }
+
+    /**
+     * 初始化独立方块模型，并明确指定其是否使用半透明方块渲染层。
+     */
+    public static BlockModelRenderState initialize(
+        StandaloneModelKey<BlockStateModel> standalone,
+        BlockEntity be,
+        boolean translucent
+    ) {
         BlockModelRenderState state = new BlockModelRenderState();
         Minecraft mc = Minecraft.getInstance();
         BlockStateModel model = mc.getModelManager().getStandaloneModel(standalone);
@@ -45,7 +56,7 @@ public class FeatureRendererSupport {
             be.getBlockPos(),
             be.getBlockState(),
             RandomSource.create(),
-            state.setupModel(new Matrix4f(), false)
+            state.setupModel(new Matrix4f(), translucent)
         );
         return state;
     }

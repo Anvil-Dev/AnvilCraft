@@ -17,8 +17,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -34,13 +32,12 @@ import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Fluid interface for the Celestial Forging Anvil.
- * Stores 4 fluid types, each up to 80 buckets.
- * Consumes 128kW power. Supports fluid I/O via pipes.
+ * 锻星砧流体接口。
+ * 最多存储 4 种流体，每种容量为 80 桶；工作时消耗 128 kW，并支持管道输入输出。
  */
 public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity implements IPowerConsumer, IFluidResourceHandlerHolder {
     private static final int TANK_COUNT = 4;
-    private static final int CAPACITY_PER_TANK = 80_000; // 80 buckets in mB
+    private static final int CAPACITY_PER_TANK = 80_000; // 80 桶，以 mB 计
     private static final int PUMP_HEADLIFT = 10; // 10 米扬程
 
     @Getter
@@ -72,7 +69,8 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
                 return false;
             }
 
-            private void onContentsChanged() {
+            @Override
+            protected void onContentsChanged(int index, FluidStack previousContents) {
                 CelestialForgingAnvilFluidInterfaceBlockEntity.this.setChanged();
             }
         };
@@ -89,15 +87,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
     }
 
     public void syncToClients() {
-        if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = this.getUpdatePacket();
-            if (packet != null) {
-                for (ServerPlayer player : serverLevel.getChunkSource().chunkMap
-                    .getPlayers(serverLevel.getChunkAt(worldPosition).getPos(), false)) {
-                    player.connection.send(packet);
-                }
-            }
-        }
+        CfaBlockEntitySync.sendToTracking(this, this.getUpdatePacket());
     }
 
     @Override
@@ -162,7 +152,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
     }
 
     /**
-     * Returns the fluid handler capability for pipe I/O.
+     * 返回供管道和巨构访问的流体处理器。
      */
     @SuppressWarnings("unused")
     public ResourceHandler<FluidResource> getFluidHandler() {

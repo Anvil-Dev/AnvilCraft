@@ -3,10 +3,12 @@ package dev.dubhe.anvilcraft.data.lang;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class ScreenLang {
-    /// 初始化 GUI 文本生成器
-    ///
-    /// @param provider 提供器
-    // 禁用行长警告"""
+    /**
+     * 初始化界面文本生成器。
+     *
+     * @param provider 语言提供器
+     */
+    @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
         provider.add("screen.anvilcraft.button.direction", "Output Direction: %s");
         provider.add("screen.anvilcraft.button.direction.down", "Down");
@@ -282,7 +284,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.no_match", "Null"); // ？？？
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon"); // 大型卫星
         provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet"); // 岩石行星
-        // Rocky planet types — keyed by temperature × liquid × atmosphere
+        // 岩石行星类型，按温度、液体覆盖和大气层组合区分。
         provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_no_atmos", "Deathly Frozen"); // 死寂冻土
         provider.add("screen.anvilcraft.cfa.class.freezing_no_liquid_atmos", "Desolate Frozen"); // 荒原冻土
         provider.add("screen.anvilcraft.cfa.class.freezing_liquid", "Frozen Planet"); // 冰封星球
@@ -328,7 +330,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.o_supergiant", "O-Supergiant"); // Blue Supergiant 蓝超巨星
         provider.add("screen.anvilcraft.cfa.class.white_dwarf", "White Dwarf"); // 白矮星
 
-        // Celestial Restriction Ring Refactor
+        // 束星环巨构重构。
         provider.add("screen.anvilcraft.cfa.refactor_title", "Refactor"); // 束星环重构
         provider.add("screen.anvilcraft.cfa.need_lock", "Need to lock"); // 需要先锁定搜索结果
         provider.add("screen.anvilcraft.cfa.no_refactor_option", "No refactoring option selected"); // 未选择再构选项
@@ -336,7 +338,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.material_required", "Requires: %s × %s"); // 需求: %s × %s
         provider.add("screen.anvilcraft.cfa.refactor_materials", "Refactor materials"); // 重构建材
         provider.add("screen.anvilcraft.cfa.refactor_start_tooltip", "Refactor Celestial Restriction into a selected megastructure"); // 将束星环重构为选择的巨构
-        // CFA Interface tooltips
+        // 锻星砧接口物品提示。
         provider.add("screen.anvilcraft.cfa.logistics_interface.title", "Logistics Interface"); // 物流接口
         provider.add("screen.anvilcraft.cfa.fluid_interface.title", "Fluid Interface"); // 流体接口
         provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface"); // 激光接口
@@ -351,13 +353,13 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid"); // ✓ 达成
         provider.add("screen.anvilcraft.cfa.laser_interface.invalid", "✗ Invalid"); // ✗ 未达成
 
-        // CFA interface HUD tooltip (displayed on logistics interface)
+        // 锻星砧接口的铁砧锤浮窗。
         provider.add("screen.anvilcraft.cfa.temple_demand", "◇ Temple Demand ◇"); // ◇ 神庙需求 ◇
         provider.add("screen.anvilcraft.cfa.collider_targets", "◇ Collider Targets ◇"); // ◇ 可撞击的物品 ◇
         provider.add("screen.anvilcraft.cfa.collider_processing", "◇ Processing"); // ◇ 正在加工
         provider.add("screen.anvilcraft.cfa.collider_star_missing", "! Star Missing !"); // ! 天体丢失 !
 
-        // Megastructure names (English) — 11 unique megastructures
+        // 十一种巨构的名称。
         provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator", "Planet Excavator"); // 行星开采器
         provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor", "Planet Exctractor"); // 行星抽取器
         provider.add("screen.anvilcraft.cfa.megastructure.eco_station", "Ecological Station"); // 生态站
@@ -372,7 +374,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_evolution_accelerator", "Stellar Evolution Accelerator"); // 恒星演化加速器
         provider.add("screen.anvilcraft.cfa.megastructure.wormhole_stabilizer", "Wormhole Stabilizer"); // 虫洞稳定器
 
-        // Megastructure descriptions (Shift-expanded tooltips)
+        // 按住 Shift 展开的巨构说明。
         provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator.description", "Excavating mineral resources on the planet, and this may damage the planet's ecology");
         provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor.description", "Extracting fluid resources from the planet, and this may damage the planet's ecology");
         provider.add("screen.anvilcraft.cfa.megastructure.eco_station.description", "Cultivate creatures on the planet and harvest biological resources");
@@ -387,14 +389,197 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_evolution_accelerator.description", "Accelerate the stellar evolution until the end of its lifespan, which may trigger a supernova explosion and give birth to extreme celestial bodys");
         provider.add("screen.anvilcraft.cfa.megastructure.wormhole_stabilizer.description", "By stabilizing the energy of black holes with negative matter, wormholes can be established between multiple identical black holes to enable the transmission of matter and energy");
 
-        // Planet resource bar
-        provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —"); // — 天体资源 —
+        // 增幅锻星砧不能建造小型巨构时显示的警告。
+        provider.add(
+            "screen.anvilcraft.cfa.amplified_planet_warning",
+            "Cannot build small megastructures on an amplified CFA"
+        );
 
-        // Seed slot tooltip
+        // 已建成巨构的接口需求、产物和副作用说明。
+        provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator.usage",
+            """
+                Requires:
+                §c[Lsr Int]§r
+                §cLaser Lv.16+ §r§f(each beam adds 1× work efficiency)§r
+                ———————
+                Outputs:
+                §e[Log Int]§r
+                §fPlanetary mineral resources§r
+                ———————
+                Side Effects:
+                §fReduces liquid coverage, causes biological extinction until the planet becomes a Deathly Planet§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor.usage",
+            """
+                Requires:
+                §7None§r
+                ———————
+                Outputs:
+                §b[Flu Int]§r
+                §fPlanetary fluid resources§r
+                ———————
+                Side Effects:
+                §fReduces liquid coverage, causes biological extinction until the planet becomes a Deathly Planet§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.eco_station.usage",
+            """
+                Requires:
+                §a[Power Grid]§r
+                §f1000kW§r
+                ———————
+                Outputs:
+                §e[Log Int]§r
+                §fPlanetary biological items§r
+                §b[Flu Int]§r
+                §fPlanetary biological fluids§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.temple.usage",
+            """
+                Requires:
+                §e[Log Int]§r
+                §fOfferings and punishments§r
+                ———————
+                Outputs:
+                §e[Log Int]§r
+                §fPrimitive civilization offering§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor.usage",
+            """
+                Requires:
+                §7None§r
+                ———————
+                Outputs:
+                §e[Log Int]§r
+                §fGiant planet solid resources§r
+                §b[Flu Int]§r
+                §fGiant planet fluid resources§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider.usage",
+            """
+                Requires:
+                §e[Log Int]§r
+                §fCollision materials and anvils§r
+                §a[Power Grid]§r
+                §f4000kW§r
+                ———————
+                Outputs:
+                §e[Log Int]§r
+                §fHigh-speed impact processed products§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small.usage",
+            """
+                Requires:
+                §7None§r
+                ———————
+                Outputs:
+                §a[Power Grid]§r
+                §fGenerates power based on stellar temperature and radius§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large.usage",
+            """
+                Requires:
+                §7None§r
+                ———————
+                Outputs:
+                §a[Power Grid]§r
+                §fGenerates power based on stellar temperature and radius§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil.usage",
+            """
+                Requires:
+                §7None§r
+                ———————
+                Outputs:
+                §a[Power Grid]§r
+                §fGenerates power based on neutron star magnetic field strength and rotation speed§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere.usage",
+            """
+                Requires:
+                §c[Lsr Int]§r
+                §cLaser Lv.1+ §r§f(cannot be on the side center of the CFA)§r
+                ———————
+                Outputs:
+                §c[Lsr Int]§r
+                §dGamma Laser Lv.= §r§f(output interface is opposite the input on the same side)§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor.usage",
+            """
+                Requires:
+                §c[Lsr Int]§r
+                §dGamma Laser Lv.1+ §r§f(each level provides higher work efficiency)§r
+                ———————
+                Outputs:
+                §e[Log Int]§r
+                §fOutputs corresponding matter based on celestial body type§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.stellar_evolution_accelerator.usage",
+            """
+                Requires:
+                §7None§r
+                ———————
+                Outputs:
+                §a[Power Grid]§r
+                §fDyson Sphere generates infinite power during acceleration§r
+                ———————
+                Side Effects:
+                §fThe star becomes a white dwarf, or undergoes a supernova producing a neutron star or black hole§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.wormhole_stabilizer.usage",
+            """
+                Requires:
+                §fIdentical Black Holes§r
+                ———————
+                Outputs:
+                §fEstablish Wormhole Connections§r
+                ———————
+                Side Effects:
+                §7None§r"""
+        );
+
+        // 行星资源条。
+        provider.add("screen.anvilcraft.cfa.resource_title", "— Celestial Resources —"); // — 天体资源 —
+        provider.add("screen.anvilcraft.cfa.resource.mineral", "Mineral: "); // 矿物资源：
+        provider.add("screen.anvilcraft.cfa.resource.fluid", "Fluid: "); // 液体资源：
+        provider.add("screen.anvilcraft.cfa.resource.giant_item", "Giant Planet: "); // 巨行星资源：
+        provider.add("screen.anvilcraft.cfa.resource.giant_fluid", "Giant Planet Fluid: "); // 巨行星液体资源：
+        provider.add("screen.anvilcraft.cfa.resource.biological_item", "Biological: "); // 生物资源：
+        provider.add("screen.anvilcraft.cfa.resource.biological_fluid", "Biological Fluid: "); // 生物液体资源：
+        provider.add("screen.anvilcraft.cfa.resource.offering", "Offerings: "); // 祭品资源：
+        provider.add("screen.anvilcraft.cfa.resource.wasteland", "Wasteland: "); // 废土资源：
+
+        // 种子槽位提示。
         provider.add("screen.anvilcraft.cfa.seed_slot.title", "Seed Item"); // 种子物品
         provider.add("screen.anvilcraft.cfa.seed_slot.description", "Consume all items placed in. If specific item has been consumed, a hidden celestial body will be discovered.");
 
-        // Special celestial body type names
+        // 特殊天体类型名称。
         provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like"); // 类主世界
         provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet"); // 血肉星球
         provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet"); // 智慧星球
@@ -402,11 +587,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.special.hollow_planet", "Hollow Planet"); // 中空星球
         provider.add("screen.anvilcraft.cfa.class.special.error_planet", "Error Planet"); // 错误星球
 
-        // Stellar remnant type names
+        // 恒星残骸类型名称。
         provider.add("screen.anvilcraft.cfa.class.neutron_star", "Neutron Star"); // 中子星
         provider.add("screen.anvilcraft.cfa.class.black_hole", "Black Hole"); // 黑洞
 
-        // Stellar evolution accelerator stages
+        // 恒星演化加速器阶段。
         provider.add("screen.anvilcraft.cfa.evolution.stage1", "Main Sequence"); // 主序星阶段
         provider.add("screen.anvilcraft.cfa.evolution.stage2", "Giant Phase"); // 巨星阶段
         provider.add("screen.anvilcraft.cfa.evolution.stage3", "Supernova"); // 超新星爆发
@@ -416,9 +601,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power"); // 无限发电中
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked"); // 天体正在演化，无法解锁
 
-        // Portal placement messages
+        // 传送门放置提示。
         provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers"); // 传送门只能放置在锻星砧侧面的中心位置
-        // Smart Block Placer
+        // 智能方块放置器。
         provider.add("screen.anvilcraft.smart_block_placer.book_slot", "Book Slot: Place book in blueprint mode");
         provider.add("screen.anvilcraft.smart_block_placer.disk_slot", "Disk Slot: Place Disk and enable blueprint mode");
         provider.add("screen.anvilcraft.smart_block_placer.layer.1", "Layer 1");
@@ -439,7 +624,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.smart_block_placer.preview.empty", "No positions configured");
         provider.add("screen.anvilcraft.smart_block_placer.structure.loaded", "Loaded: ");
 
-        // Structure Scanner
+        // 结构扫描仪。
         provider.add("screen.anvilcraft.structure_scanner.info_title", "Structure Info");
         provider.add("screen.anvilcraft.structure_scanner.ready", "Scan ready");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.large_structure", "This structure is large and cannot be placed by the Smart Block Placer, but can still be saved");
@@ -457,5 +642,4 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to select, right click to delete this category");
         provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to select");
     }
-    // 启用行长警告"""
 }

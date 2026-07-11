@@ -21,14 +21,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Global saved data that stores the canonical state for each wormhole interface pair
- * (logistics items &amp; fluid tanks). Each pair — identified by the wormhole network's
- * {@code bodyUuid}, the relative block offset, and the interface type — receives a
- * deterministic {@link UUID}. All CFAs sharing the same wormhole network group access the
- * same canonical state, ensuring they behave like a single unified interface.
- *
- * <p>Laser interfaces are NOT stored here; their sync is purely computational
- * (sum inputs, split among outputs) each tick.</p>
+ * 保存每组虫洞物流和流体接口权威状态的全局存档数据。
+ * 每组接口由虫洞天体标识、相对方块偏移和接口类型生成确定性的 {@link UUID}，
+ * 同一虫洞网络中的全部锻星砧共享该状态，因此表现为一个统一接口。
+ * 激光接口不在此持久化，其输入汇总与输出分配会在每刻重新计算。
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WormholeInterfaceStates extends BetterSavedData {
@@ -60,29 +56,22 @@ public class WormholeInterfaceStates extends BetterSavedData {
     private static final String TYPE_LOGISTICS = "logistics";
     private static final String TYPE_FLUID = "fluid";
 
-    /**
-     * UUID → slot list for logistics (item) interfaces.
-     * Each list position corresponds to a slot index. Empty slots are UnlimitedItemStack.EMPTY.
-     */
+    /** 物流接口标识到槽位列表的映射，空槽使用 {@link UnlimitedItemStack#EMPTY}。 */
     private final Map<UUID, List<UnlimitedItemStack>> itemStates = new HashMap<>();
 
-    /**
-     * UUID → tank list for fluid interfaces.
-     * Each list position corresponds to a tank index. Empty tanks are FluidStack.EMPTY.
-     */
+    /** 流体接口标识到储罐列表的映射，空储罐使用 {@link FluidStack#EMPTY}。 */
     private final Map<UUID, List<FluidStack>> fluidStates = new HashMap<>();
 
-    // ==================== Static accessors ====================
+    // ==================== 静态访问 ====================
 
     public static WormholeInterfaceStates get() {
         return BetterSavedData.get(TYPE, CLIENT_COPY);
     }
 
-    // ==================== UUID generation ====================
+    // ==================== 接口标识生成 ====================
 
     /**
-     * Generate a deterministic UUID for an interface pair.
-     * Uses the black hole's body UUID so only CFA copies from the same source share state.
+     * 为一组接口生成确定性标识，只有源自同一黑洞天体的锻星砧副本才会共享状态。
      */
     public static UUID interfaceUuid(UUID bodyUuid, int relX, int relZ, String type) {
         String input = "wormhole:" + bodyUuid + ":" + relX + ":" + relZ + ":" + type;
@@ -97,12 +86,10 @@ public class WormholeInterfaceStates extends BetterSavedData {
         return interfaceUuid(bodyUuid, relX, relZ, TYPE_FLUID);
     }
 
-    // ==================== Item state access ====================
+    // ==================== 物品状态访问 ====================
 
     /**
-     * Get or create the canonical item state for a UUID.
-     * The returned list is mutable; modifications are reflected in the saved data.
-     * Call {@link #setDirty()} after structural changes.
+     * 获取或创建指定标识的权威物品状态。返回列表可修改，结构变化后必须调用 {@link #setDirty()}。
      */
     public List<UnlimitedItemStack> getOrCreateItemState(UUID uuid, int slotCount) {
         List<UnlimitedItemStack> state = this.itemStates.get(uuid);
@@ -121,12 +108,10 @@ public class WormholeInterfaceStates extends BetterSavedData {
         return state;
     }
 
-    // ==================== Fluid state access ====================
+    // ==================== 流体状态访问 ====================
 
     /**
-     * Get or create the canonical fluid state for a UUID.
-     * The returned list is mutable; modifications are reflected in the saved data.
-     * Call {@link #setDirty()} after structural changes.
+     * 获取或创建指定标识的权威流体状态。返回列表可修改，结构变化后必须调用 {@link #setDirty()}。
      */
     public List<FluidStack> getOrCreateFluidState(UUID uuid, int tankCount) {
         List<FluidStack> state = this.fluidStates.get(uuid);
@@ -149,7 +134,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
         return this.fluidStates.get(uuid);
     }
 
-    // ==================== NBT Serialization (used by Codec) ====================
+    // ==================== 编解码器使用的 NBT 序列化 ====================
 
     private void writeToTag(CompoundTag nbt) {
         if (!this.itemStates.isEmpty()) {
@@ -268,7 +253,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
         }
     }
 
-    // ==================== BetterSavedData abstract methods ====================
+    // ==================== 存档数据抽象方法 ====================
 
     @Override
     protected void registerDataFixers() {
@@ -278,7 +263,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
     protected Packet<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> createPacket(
         RegistryAccess registryAccess
     ) {
-        // Server-side only; wormhole interface states are not synced to clients.
+        // 虫洞接口状态仅在服务端使用，不向客户端同步。
         return null;
     }
 }

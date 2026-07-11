@@ -12,25 +12,18 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 /**
- * Three-step celestial body matching engine using diagram PNGs.
- * Each 64×64 diagram maps anvil counts to pixel colors that identify body classes.
- * Uses classloader-based loading (works on both server and client).
+ * 基于 PNG 星图的三步天体匹配引擎。
+ * 每张 64×64 星图把砧子数量映射为天体类别像素颜色，并通过类加载器在服务端和客户端读取。
  *
- * <p>
- * In 26.1, {@code NativeImage} became {@code @OnlyIn(Dist.CLIENT)} and is unavailable
- * on the server. This class now uses {@link javax.imageio.ImageIO} + {@link BufferedImage}
- * which works everywhere.
- *
- * <p>
- * Pixel format difference: {@code BufferedImage.getRGB()} returns ARGB (0xAARRGGBB),
- * whereas the old {@code NativeImage.getPixelRGBA()} returned ABGR (0xAABBGGRR).
- * The RGB extraction has been updated accordingly.
+ * <p>26.1 的 {@code NativeImage} 仅客户端可用，因此改用服务端同样可用的
+ * {@link javax.imageio.ImageIO} 和 {@link BufferedImage}。后者返回 ARGB（0xAARRGGBB），
+ * 与旧版 ABGR 像素顺序不同，读取时需要按新顺序提取 RGB。</p>
  */
 public final class CelestialBodyMatcher {
 
     private static final String DIR = "assets/anvilcraft/textures/misc";
 
-    // Diagram files
+    // 星图资源路径
     private static final String MASS_RADIUS = DIR + "/mass_radius_diagram_pixel.png";
     private static final String AGE_TEMP = DIR + "/age_temp_diagram_pixel.png";
     private static final String AGE_TEMP_SP = DIR + "/age_temp_diagram_pixel_sp.png";
@@ -44,7 +37,7 @@ public final class CelestialBodyMatcher {
     private static @Nullable BufferedImage starColorTempImage;
     private static boolean loadAttempted = false;
 
-    // Precomputed valid (time,space,mass,energy) combinations
+    // 预计算的合法（时间、空间、质量、能量）组合
     private static @Nullable BitSet validAmplified;
     private static @Nullable BitSet validNormal;
     private static boolean precomputed = false;
@@ -52,14 +45,11 @@ public final class CelestialBodyMatcher {
     private CelestialBodyMatcher() {
     }
 
-    // === Public API ===
+    // === 公共接口 ===
 
-    /**
-     * Try to match celestial body from the four anvil counts.
-     */
-    // Diagrams are 64×64 pixels. Anvil counts range 1–64.
-    // Pixel (1,1) bottom-left → 0-indexed (x=0, y=63).
-    // Pixel (64,64) top-right → 0-indexed (x=63, y=0).
+    /** 根据四种砧子数量尝试匹配天体。 */
+    // 星图为 64×64 像素，砧子数量范围为 1-64。
+    // 左下角 (1,1) 对应零基坐标 (0,63)，右上角 (64,64) 对应 (63,0)。
     private static final int DIAG_SIZE = 64;
 
     @Nullable
@@ -68,45 +58,39 @@ public final class CelestialBodyMatcher {
     ) {
         ensureLoaded();
 
-        // Step 1: Mass-Radius diagram (mass=x, space=y inverted)
+        // 第一步：质量-半径图，质量为 X，空间为反向 Y。
         CelestialBodyClass bodyClass = lookupClass(massRadiusImage, toX(mass), toY(space));
         if (bodyClass == null) return null;
 
-        // Stellar bodies require amplifier
+        // 恒星类天体必须使用增幅器。
         if (bodyClass.isStellar() && !isAmplified) return null;
 
-        // Step 2: Temperature-Age diagram (time=x, energy=y inverted)
+        // 第二步：温度-年龄图，时间为 X，能量为反向 Y。
         if (!step2(toX(time), toY(energy), bodyClass)) return null;
 
-        // Step 3: Age-Radius diagram (time=x, space=y inverted, for stellar+brown dwarf)
+        // 第三步：年龄-半径图，供恒星和褐矮星继续细分。
         if (bodyClass.needsStep3() && !step3(toX(time), toY(space), bodyClass)) return null;
 
-        // Generate rendering data
+        // 根据匹配结果生成完整天体数据。
         return generateBodyData(bodyClass, time, space, mass, energy, random);
     }
 
-    /**
-     * Maps anvil count (1–64) to 0-indexed diagram x pixel.
-     */
+    /** 将 1-64 的砧子数量映射到星图零基 X 坐标。 */
     public static int toX(int count) {
         return Math.clamp(count - 1, 0, DIAG_SIZE - 1);
     }
 
-    /**
-     * Maps anvil count (1–64) to 0-indexed diagram y pixel (inverted: bottom→top).
-     */
+    /** 将 1-64 的砧子数量映射到反向的星图零基 Y 坐标。 */
     public static int toY(int count) {
         return Math.clamp(DIAG_SIZE - count, 0, DIAG_SIZE - 1);
     }
 
-    /**
-     * Encode a 4-tuple of anvil counts (1–64) into a single int index for the bitset.
-     */
+    /** 将四种砧子数量编码为位集使用的单个整数索引。 */
     private static int encode(int time, int space, int mass, int energy) {
         return ((time - 1) << 18) | ((space - 1) << 12) | ((mass - 1) << 6) | (energy - 1);
     }
 
-    // === Precomputation of all valid combinations ===
+    // === 全部合法组合预计算 ===
 
     private static void ensurePrecomputed() {
         if (precomputed) return;
@@ -150,19 +134,15 @@ public final class CelestialBodyMatcher {
         }
     }
 
-    /**
-     * Trigger precomputation early (e.g. when the CFA screen opens) so the first
-     * tooltip query has no delay.
-     */
+    /** 提前触发预计算，避免界面首次查询有效范围时卡顿。 */
     public static void warmup() {
         ensurePrecomputed();
     }
 
-    // === Range query for tooltip ===
+    // === 界面提示范围查询 ===
 
     /**
-     * Get the valid range [min, max] for one anvil type given partial counts.
-     * Count values of 0 mean "unknown / not placed yet".
+     * 根据部分已知数量查询某种砧子的合法范围 [min, max]，数量 0 表示尚未放置。
      */
     public static int @Nullable [] getValidRange(int time, int space, int mass, int energy, boolean isAmplified, int targetIndex) {
         ensurePrecomputed();
@@ -224,7 +204,7 @@ public final class CelestialBodyMatcher {
         return false;
     }
 
-    // === Diagram loading (classloader-based — works server-side) ===
+    // === 通过类加载器读取星图，兼容服务端 ===
 
     private static void ensureLoaded() {
         if (loadAttempted) return;
@@ -256,18 +236,15 @@ public final class CelestialBodyMatcher {
         return starColorTempImage;
     }
 
-    // === Diagram lookups ===
+    // === 星图查找 ===
 
-    /**
-     * Extract RGB from a {@link BufferedImage} pixel.
-     * {@code BufferedImage.getRGB()} returns ARGB format: {@code 0xAARRGGBB}.
-     */
+    /** 从 {@link BufferedImage} 的 ARGB 像素中提取 RGB。 */
     private static int getRgb(@Nullable BufferedImage image, int x, int y) {
         if (image == null) return 0;
         int xi = Math.clamp(x, 0, image.getWidth() - 1);
         int yi = Math.clamp(y, 0, image.getHeight() - 1);
         int argb = image.getRGB(xi, yi);
-        // BufferedImage: ARGB → extract R,G,B
+        // BufferedImage 使用 ARGB 顺序。
         int r = (argb >> 16) & 0xFF;
         int g = (argb >> 8) & 0xFF;
         int b = argb & 0xFF;
@@ -281,17 +258,17 @@ public final class CelestialBodyMatcher {
         return CelestialBodyClass.fromRgb(rgb);
     }
 
-    // === Step logic ===
+    // === 三步匹配逻辑 ===
 
     private static boolean step2(int time, int energy, CelestialBodyClass bodyClass) {
         if (bodyClass.step2UsesSp()) {
             return getRgb(ageTempSpImage, time, energy) == bodyClass.rgb();
         }
         if (bodyClass.isPlanetary() && bodyClass != CelestialBodyClass.BROWN_DWARF) {
-            // Planetary: step 2 match color; rocky planets all accept 0x339933
+            // 行星类在第二步匹配颜色；岩石行星统一接受 0x339933。
             return getRgb(ageTempImage, time, energy) == bodyClass.step2MatchRgb();
         }
-        // Main sequence
+        // 主序星
         return getRgb(ageTempImage, time, energy) == bodyClass.rgb();
     }
 
@@ -299,7 +276,7 @@ public final class CelestialBodyMatcher {
         return getRgb(ageRadiusImage, time, space) == bodyClass.rgb();
     }
 
-    // === Body data generation ===
+    // === 天体数据生成 ===
 
     private static CelestialBodyData generateBodyData(
         CelestialBodyClass bodyClass, int time, int space, int mass, int energy, RandomSource random
@@ -315,7 +292,7 @@ public final class CelestialBodyMatcher {
         };
     }
 
-    // === Large Moon ===
+    // === 大型卫星 ===
     private static CelestialBodyData generateLargeMoon(int space, int energy, RandomSource random) {
         int size = sizeForSpace(space);
         int mag = random.nextFloat() < 0.5f ? 0 : 1;
@@ -329,7 +306,7 @@ public final class CelestialBodyMatcher {
         );
     }
 
-    // === Rocky Planet ===
+    // === 岩石行星 ===
     private static CelestialBodyData generateRockyPlanet(
         CelestialBodyClass bodyClass, int energy, int space, RandomSource random
     ) {
@@ -356,7 +333,7 @@ public final class CelestialBodyMatcher {
         );
     }
 
-    // === Brown Dwarf ===
+    // === 褐矮星 ===
     private static CelestialBodyData generateBrownDwarf(int space, int energy, RandomSource random) {
         int size = sizeForSpace(space);
         int baseRow = random.nextInt(16);
@@ -373,7 +350,7 @@ public final class CelestialBodyMatcher {
         );
     }
 
-    // === Giant Planet ===
+    // === 巨行星 ===
     private static CelestialBodyData generateGiantPlanet(
         CelestialBodyClass bodyClass, PressureType pressure, int space, RandomSource random
     ) {
@@ -394,7 +371,7 @@ public final class CelestialBodyMatcher {
         );
     }
 
-    // === Star ===
+    // === 恒星 ===
     private static CelestialBodyData generateStar(
         CelestialBodyClass bodyClass, int energy, int space, RandomSource random
     ) {
@@ -411,7 +388,7 @@ public final class CelestialBodyMatcher {
         );
     }
 
-    // === Helpers ===
+    // === 辅助方法 ===
 
     private static int sizeForSpace(int space) {
         return Math.clamp(space, 1, 64);
@@ -461,14 +438,14 @@ public final class CelestialBodyMatcher {
         }
         int row = toY(energy);
         int argb = img.getRGB(0, row);
-        // BufferedImage ARGB: AARRGGBB
+        // BufferedImage 的像素格式为 AARRGGBB。
         int r = (argb >> 16) & 0xFF;
         int g = (argb >> 8) & 0xFF;
         int b = argb & 0xFF;
         return new int[] {r, g, b};
     }
 
-    // === Public diagram pixel lookups (for UI guide display) ===
+    // === 供界面星图指南使用的公开像素查询 ===
 
     public static int getMassRadiusRgb(int mass, int space) {
         ensureLoaded();
@@ -490,7 +467,7 @@ public final class CelestialBodyMatcher {
         return getRgb(ageRadiusImage, toX(time), toY(space));
     }
 
-    // === Pixel scanning for stellar evolution accelerator ===
+    // === 恒星演化加速器使用的像素扫描 ===
 
     public static int countPixelsRightInAgeTemp(int x, int y) {
         ensureLoaded();

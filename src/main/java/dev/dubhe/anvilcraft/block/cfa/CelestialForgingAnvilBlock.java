@@ -30,7 +30,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -226,14 +225,14 @@ public class CelestialForgingAnvilBlock
         return ModMultiblockDefinitions.CELESTIAL_FORGING_ANVIL.identifier();
     }
 
-    // === Destruction (26.1: onRemove removed, use playerWillDestroy + setRemoved) ===
+    // === 结构拆除：26.1 使用 playerWillDestroy 和 setRemoved ===
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockPos mainPos = getMainPartPos(pos, state);
         boolean isMain = state.hasProperty(HALF) && state.getValue(HALF) == Cube323PartHalf.BOTTOM_CENTER;
         if (isMain && level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
-            // Drop all inventory contents into the world
+            // 将全部内部物品栏内容掉落到世界。
             for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
                 ItemStack stack = be.getAnvilInventory().getItem(i);
                 if (!stack.isEmpty()) {
@@ -245,14 +244,13 @@ public class CelestialForgingAnvilBlock
                 Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, matStack);
             }
 
-            // Drop the block item, preserving celestial body, megastructure,
-            // and matching parameters so the body reappears when placed elsewhere.
-            // Runtime & position-dependent flags are stripped from the item tag.
+            // 掉落控制器物品并保留天体、巨构和匹配参数，使其重新放置后恢复；
+            // 同时移除与当前位置或运行时绑定的临时字段。
             if (!level.isClientSide()) {
                 final ItemStack blockStack = new ItemStack(asItem());
                 CompoundTag beTag = be.saveCustomOnly(level.registryAccess());
 
-                // Strip data that is tied to the current world position or transient runtime
+                // 清除与原世界位置或瞬时运行状态绑定的数据。
                 beTag.remove("anvils");               // inventory — already dropped above
                 beTag.remove("materialFilter");       // UI state — resets on menu close
                 beTag.remove("materialLimit");        // UI state
@@ -276,7 +274,7 @@ public class CelestialForgingAnvilBlock
         return super.playerWillDestroy(level, pos, state, player);
     }
 
-    // === Multiblock lifecycle ===
+    // === 多方块结构生命周期 ===
 
     @Override
     public void onFormed(Level level, MultiblockState state) {
@@ -299,9 +297,8 @@ public class CelestialForgingAnvilBlock
                 be.removeGravitySource(); // immediately remove gravity
                 if (be.getCelestialBodyData() instanceof StarData) {
                     be.setLocked(true);
-                    be.getSearchHistory().clear();
-                    // Keep isAmplify true so stellar body stays in data,
-                    // but the renderer hides it when amplifier is missing
+                    be.clearSearchHistory();
+                    // 保留增幅标记和恒星数据；增幅器缺失时由渲染器隐藏天体。
                 } else {
                     be.setAmplify(false);
                 }
@@ -316,7 +313,7 @@ public class CelestialForgingAnvilBlock
     protected void neighborChanged(BlockState state, Level level, BlockPos pos,
                                    Block block, @Nullable Orientation orientation, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
-        // Invalidate the CFA's cached redstone signal so the renderer picks up the change promptly.
+        // 使控制器红石缓存失效，让渲染器及时响应变化。
         if (level.getBlockEntity(getMainPartPos(pos, state)) instanceof CelestialForgingAnvilBlockEntity be) {
             be.markRedstoneSignalDirty();
         }
@@ -327,7 +324,7 @@ public class CelestialForgingAnvilBlock
         return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
     }
 
-    // === Interaction ===
+    // === 交互 ===
 
     @Override
     public InteractionResult use(
@@ -341,7 +338,7 @@ public class CelestialForgingAnvilBlock
         BlockPos mainPos = getMainPartPos(pos, state);
         BlockEntity be = level.getBlockEntity(mainPos);
         if (be instanceof CelestialForgingAnvilBlockEntity cfaBe) {
-            // Disk right-click: delegate to DiskItem.useOn
+            // 磁盘右键交给 DiskItem.useOn 处理。
             ItemStack stack = player.getItemInHand(hand);
             InteractionResult diskResult = cfaBe.useDisk(level, player, hand, stack, hit);
             if (diskResult == InteractionResult.SUCCESS) {
@@ -350,14 +347,14 @@ public class CelestialForgingAnvilBlock
             if (diskResult == InteractionResult.FAIL) {
                 return InteractionResult.FAIL;
             }
-            // Singularity crystal right-click: store snapshot (apply only via seed slot)
+            // 奇点晶体右键只写入快照，应用仍必须通过种子槽。
             if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
                 if (level.isClientSide()) return InteractionResult.SUCCESS;
                 if (!player.getAbilities().mayBuild) return InteractionResult.PASS;
                 if (player.isShiftKeyDown()) return InteractionResult.PASS;
                 CompoundTag stored = CelestialForgingAnvilBlockEntity.loadSnapshotFromStack(stack);
                 if (stored != null) {
-                    // Already has data — don't apply here, use seed slot instead
+                    // 已有数据时不在此覆盖，要求玩家通过种子槽应用。
                     return InteractionResult.PASS;
                 }
                 TagValueOutput output = TagValueOutput.createWithoutContext(
@@ -369,10 +366,9 @@ public class CelestialForgingAnvilBlock
             }
         }
 
-        // Open GUI (right-click without special items)
+        // 未使用特殊物品时打开锻星砧界面。
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (be instanceof CelestialForgingAnvilBlockEntity cfaBe && player instanceof ServerPlayer sp) {
-            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
             ModMenuTypes.open(sp, cfaBe, mainPos);
             return InteractionResult.SUCCESS;
         }

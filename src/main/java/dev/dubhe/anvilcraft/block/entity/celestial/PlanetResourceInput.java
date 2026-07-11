@@ -4,8 +4,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeInput;
 
 /**
- * Input wrapper for {@link PlanetResourceRecipe#matches}.
- * Carries the celestial body data and age anvil count for condition checking.
+ * {@link PlanetResourceRecipe#matches} 的输入，携带天体数据和时间砧子数量。
  */
 public record PlanetResourceInput(CelestialBodyData body, int ageAnvilCount) implements RecipeInput {
 

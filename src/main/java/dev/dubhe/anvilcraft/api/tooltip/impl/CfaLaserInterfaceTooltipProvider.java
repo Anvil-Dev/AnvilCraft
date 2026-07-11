@@ -1,23 +1,20 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
-import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CfaLaserInterfaceTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
-    @Override
-    public boolean accepts(BlockEntity value) {
-        return value instanceof CelestialForgingAnvilLaserInterfaceBlockEntity;
+public class CfaLaserInterfaceTooltipProvider
+    extends CfaInterfaceTooltipProvider<CelestialForgingAnvilLaserInterfaceBlockEntity> {
+    public CfaLaserInterfaceTooltipProvider() {
+        super(CelestialForgingAnvilLaserInterfaceBlockEntity.class);
     }
 
     @Override
-    public List<Component> tooltip(BlockEntity value) {
-        if (!(value instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laser)) return List.of();
+    protected List<Component> buildTooltip(CelestialForgingAnvilLaserInterfaceBlockEntity laser) {
         List<Component> lines = new ArrayList<>();
 
         int received = laser.getReceivedLaserLevel();
@@ -67,8 +64,4 @@ public class CfaLaserInterfaceTooltipProvider extends ITooltipProvider.BlockEnti
         return lines;
     }
 
-    @Override
-    public int priority() {
-        return -1;
-    }
 }

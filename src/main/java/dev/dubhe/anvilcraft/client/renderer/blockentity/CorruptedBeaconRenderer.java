@@ -4,18 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
-import dev.dubhe.anvilcraft.client.init.ModAtlasIds;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CorruptedBeaconRenderState;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.state.LaserRenderState;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -23,15 +19,25 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity, CorruptedBeaconRenderState> {
 
     private static final float BEAM_BASE_Y = 0.5f;
     private static final float BEAM_INNER_HALF = 0.08f;
     private static final int BEAM_GLOW_LAYERS = 4;
-    private static final float BEAM_GLOW_HALF_STEP = 0.06f;
-    private static final float BEAM_R = 0.02f;
-    private static final float BEAM_G = 0.0f;
-    private static final float BEAM_B = 0.05f;
+    private static final float BEAM_GLOW_HALF_STEP = 0.02f;
+    private static final float CORE_R = 0.008f;
+    private static final float CORE_G = 0.0f;
+    private static final float CORE_B = 0.018f;
+    private static final float GLOW_R = 0.055f;
+    private static final float GLOW_G = 0.004f;
+    private static final float GLOW_B = 0.095f;
+    private static final Map<BlockPos, BeamRenderData> DEFERRED_BEAMS = new LinkedHashMap<>();
+
+    private record BeamRenderData(BlockPos pos, float beamHeight) {
+    }
 
     public CorruptedBeaconRenderer(BlockEntityRendererProvider.Context ignored) {
     }
@@ -69,20 +75,62 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         if (!state.isLit()) return;
         float beamHeight = state.getBeamHeight();
         if (beamHeight <= 0.01f) return;
+        DEFERRED_BEAMS.put(state.blockPos, new BeamRenderData(state.blockPos, beamHeight));
+    }
+
+    /**
+     * 在天气与云层完成后渲染本帧收集的腐化信标光束。
+     */
+    public static void renderDeferredBeams(
+        PoseStack pose,
+        MultiBufferSource.BufferSource bufferSource,
+        Vec3 cameraPosition
+    ) {
+        if (DEFERRED_BEAMS.isEmpty()) return;
+        VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM);
+        for (BeamRenderData data : DEFERRED_BEAMS.values()) {
+            pose.pushPose();
+            pose.translate(
+                data.pos().getX() - cameraPosition.x(),
+                data.pos().getY() - cameraPosition.y(),
+                data.pos().getZ() - cameraPosition.z()
+            );
+            emitDeferredBeam(consumer, pose.last().pose(), data.beamHeight());
+            pose.popPose();
+        }
+        bufferSource.endBatch(ModRenderTypes.CORRUPTED_BEACON_BEAM);
+        DEFERRED_BEAMS.clear();
+    }
+
+    private static void emitDeferredBeam(VertexConsumer consumer, Matrix4f matrix, float beamHeight) {
         float apexY = BEAM_BASE_Y + beamHeight;
-        collector.submitCustomGeometry(
-            pose, ModRenderTypes.CORRUPTED_BEACON_BEAM, (last, consumer) -> {
-                Matrix4f matrix = last.pose();
-                for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
-                    float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer;
-                    float falloff = 1.0f / (layer + 1);
-                    falloff *= falloff;
-                    float alpha = 0.45f * falloff;
-                    float tipFade = 0.3f * falloff;
-                    emitBeamPyramid(consumer, matrix, half, apexY, alpha, tipFade);
-                }
-                emitBeamPyramid(consumer, matrix, BEAM_INNER_HALF, apexY, 0.82f, 0.25f);
-            }
+        for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
+            float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer;
+            float falloff = 1.0f / (layer + 1);
+            float alpha = 0.65f * falloff;
+            float tipFade = 0.24f * falloff;
+            emitBeamPyramid(
+                consumer,
+                matrix,
+                half,
+                apexY,
+                GLOW_R,
+                GLOW_G,
+                GLOW_B,
+                alpha,
+                tipFade
+            );
+        }
+        emitBeamPyramid(
+            consumer,
+            matrix,
+            BEAM_INNER_HALF,
+            apexY,
+            CORE_R,
+            CORE_G,
+            CORE_B,
+            0.94f,
+            0.22f
         );
     }
 
@@ -91,6 +139,9 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         Matrix4f matrix,
         float halfWidth,
         float apexY,
+        float red,
+        float green,
+        float blue,
         float alpha,
         float tipFade
     ) {
@@ -103,19 +154,13 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float[][] corners = {{x0, z0}, {x1, z0}, {x1, z1}, {x0, z1}};
         float tipAlpha = alpha * tipFade;
 
-        final TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(ModAtlasIds.LASER);
-        TextureAtlasSprite sprite = atlas.getSprite(LaserRenderState.LASER_TEXTURE);
-
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
-            float normalX = i == 1 ? 1.0f : (i == 3 ? -1.0f : 0.0f);
-            float normalZ = i == 0 ? -1.0f : (i == 2 ? 1.0f : 0.0f);
-
-            beamVertex(vc, matrix, c0[0], BEAM_BASE_Y, c0[1], alpha, sprite.getU0(), sprite.getV0(), normalX, normalZ);
-            beamVertex(vc, matrix, c1[0], BEAM_BASE_Y, c1[1], alpha, sprite.getU0(), sprite.getV1(), normalX, normalZ);
-            beamVertex(vc, matrix, cx, apexY, cz, tipAlpha, sprite.getU1(), sprite.getV1(), normalX, normalZ);
-            beamVertex(vc, matrix, cx, apexY, cz, tipAlpha, sprite.getU0(), sprite.getV1(), normalX, normalZ);
+            beamVertex(vc, matrix, c0[0], BEAM_BASE_Y, c0[1], red, green, blue, alpha);
+            beamVertex(vc, matrix, c1[0], BEAM_BASE_Y, c1[1], red, green, blue, alpha);
+            beamVertex(vc, matrix, cx, apexY, cz, red, green, blue, tipAlpha);
+            beamVertex(vc, matrix, cx, apexY, cz, red, green, blue, tipAlpha);
         }
     }
 
@@ -125,17 +170,13 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float x,
         float y,
         float z,
-        float alpha,
-        float u,
-        float v,
-        float normalX,
-        float normalZ
+        float red,
+        float green,
+        float blue,
+        float alpha
     ) {
         vc.addVertex(matrix, x, y, z)
-            .setColor(BEAM_R, BEAM_G, BEAM_B, alpha)
-            .setUv(u, v)
-            .setUv2(240, 240)
-            .setNormal(normalX, 0, normalZ);
+            .setColor(red, green, blue, alpha);
     }
 
     @Override

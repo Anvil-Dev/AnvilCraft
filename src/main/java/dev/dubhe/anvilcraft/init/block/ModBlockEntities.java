@@ -491,7 +491,7 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.LARGE_LASER)
         .renderer(() -> LaserBlockEntityRenderer::new)
         .register();
-    // ==== Pipe & Pump ====
+    // ==== 管道与泵 ====
 
     public static final BlockEntityEntry<PipeBlockEntity> PIPE = REGISTRUM
         .blockEntity("pipe", PipeBlockEntity::create)

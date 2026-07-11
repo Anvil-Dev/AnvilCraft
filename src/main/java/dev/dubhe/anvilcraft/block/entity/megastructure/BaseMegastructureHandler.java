@@ -20,15 +20,15 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * Base class for CFA megastructure handlers.
- * Provides utility methods for scanning adjacent interfaces and item/fluid manipulation.
+ * 锻星砧巨构处理器基类，提供接口扫描及物品、流体操作工具。
  */
 public abstract class BaseMegastructureHandler implements IMegastructureHandler {
 
-    // === NBT defaults (most handlers don't persist data) ===
+    // === 默认持久化实现，多数处理器没有额外数据 ===
 
     @Override
     public void saveAdditional(ValueOutput output) {
@@ -54,34 +54,31 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
     public void onClear(CelestialForgingAnvilBlockEntity be) {
     }
 
-    // === Interface scanning ===
+    // === 接口扫描 ===
 
     protected List<CelestialForgingAnvilLaserInterfaceBlockEntity> findLaserInterfaces(
         CelestialForgingAnvilBlockEntity be
     ) {
-        return CfaInterfaceScanner.findLaserInterfaces(be.getLevel(), be.getBlockPos());
+        return CfaInterfaceScanner.findLaserInterfaces(Objects.requireNonNull(be.getLevel()), be.getBlockPos());
     }
 
     protected List<ResourceHandler<ItemResource>> findLogisticsInterfaces(CelestialForgingAnvilBlockEntity be) {
-        return CfaInterfaceScanner.findLogisticsInterfaces(be.getLevel(), be.getBlockPos());
+        return CfaInterfaceScanner.findLogisticsInterfaces(Objects.requireNonNull(be.getLevel()), be.getBlockPos());
     }
 
     protected List<CelestialForgingAnvilFluidInterfaceBlockEntity> findFluidInterfaces(
         CelestialForgingAnvilBlockEntity be
     ) {
-        return CfaInterfaceScanner.findFluidInterfaces(be.getLevel(), be.getBlockPos());
+        return CfaInterfaceScanner.findFluidInterfaces(Objects.requireNonNull(be.getLevel()), be.getBlockPos());
     }
 
     protected void scanAdjacentBlocks(Consumer<BlockPos> consumer, CelestialForgingAnvilBlockEntity be) {
-        CfaInterfaceScanner.scanAdjacentBlocks(be.getBlockPos(), be.getLevel(), consumer);
+        CfaInterfaceScanner.scanAdjacentBlocks(be.getBlockPos(), Objects.requireNonNull(be.getLevel()), consumer);
     }
 
-    // === Item manipulation (26.1 ResourceHandler API) ===
+    // === 物品操作，使用 26.1 ResourceHandler API ===
 
-    /**
-     * Insert a stack into a {@link ResourceHandler}, spreading across available slots.
-     * Uses {@link Transaction} — the entire insert commits at once.
-     */
+    /** 使用同一事务把物品栈分散插入处理器的可用槽位。 */
     protected static ItemStack insertIntoHandler(ResourceHandler<ItemResource> handler, ItemStack stack) {
         ItemStack remainder = stack.copy();
         try (Transaction tx = Transaction.openRoot()) {
@@ -96,19 +93,14 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         return remainder;
     }
 
-    /**
-     * Read an ItemStack from a slot of a {@link ResourceHandler}.
-     * {@code getStackFrom} is protected, so we use {@code getResource + getAmountAsInt + toStack}.
-     */
+    /** 从 ResourceHandler 指定槽位读取物品栈。 */
     protected static ItemStack getStackFromHandler(ResourceHandler<ItemResource> handler, int slot) {
         ItemResource resource = handler.getResource(slot);
         if (resource.isEmpty()) return ItemStack.EMPTY;
         return resource.toStack(handler.getAmountAsInt(slot));
     }
 
-    /**
-     * Extract from a specific slot without simulation — committed immediately.
-     */
+    /** 从指定槽位立即提取物品，不进行模拟。 */
     protected static ItemStack extractFromHandler(ResourceHandler<ItemResource> handler, int slot, int amount) {
         ItemResource resource = handler.getResource(slot);
         if (resource.isEmpty()) return ItemStack.EMPTY;
@@ -123,9 +115,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         return ItemStack.EMPTY;
     }
 
-    /**
-     * Insert fluid into a tank slot.
-     */
+    /** 向指定储罐槽位插入流体。 */
     protected static int insertFluid(ResourceHandler<FluidResource> tank, int slot, FluidStack stack) {
         try (Transaction tx = Transaction.openRoot()) {
             int inserted = tank.insert(slot, FluidResource.of(stack), stack.getAmount(), tx);
@@ -134,9 +124,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         }
     }
 
-    /**
-     * Extract fluid from a tank slot.
-     */
+    /** 从指定储罐槽位提取流体。 */
     protected static void drainFluid(ResourceHandler<FluidResource> tank, int slot, FluidStack stack) {
         try (Transaction tx = Transaction.openRoot()) {
             tank.extract(slot, FluidResource.of(stack), stack.getAmount(), tx);
@@ -144,9 +132,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         }
     }
 
-    /**
-     * Read a FluidStack from a tank slot.
-     */
+    /** 从指定储罐槽位读取流体栈。 */
     protected static FluidStack getFluidFromTank(ResourceHandler<FluidResource> tank, int slot) {
         FluidResource resource = tank.getResource(slot);
         if (resource.isEmpty()) return FluidStack.EMPTY;
@@ -165,7 +151,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         level.addFreshEntity(entity);
     }
 
-    // === Laser helpers ===
+    // === 激光辅助方法 ===
 
     protected int countValidLasers(CelestialForgingAnvilBlockEntity be, int threshold) {
         List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers = this.findLaserInterfaces(be);
@@ -183,7 +169,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
     ) {
         return CfaInterfaceScanner.getInterfacesMap(
             CelestialForgingAnvilLaserInterfaceBlockEntity.class,
-            be.getLevel(),
+            Objects.requireNonNull(be.getLevel()),
             be.getBlockPos()
         );
     }
@@ -193,7 +179,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
     ) {
         return CfaInterfaceScanner.getInterfacesMap(
             CelestialForgingAnvilLogisticsInterfaceBlockEntity.class,
-            be.getLevel(),
+            Objects.requireNonNull(be.getLevel()),
             be.getBlockPos()
         );
     }
@@ -203,7 +189,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
     ) {
         return CfaInterfaceScanner.getInterfacesMap(
             CelestialForgingAnvilFluidInterfaceBlockEntity.class,
-            be.getLevel(),
+            Objects.requireNonNull(be.getLevel()),
             be.getBlockPos()
         );
     }

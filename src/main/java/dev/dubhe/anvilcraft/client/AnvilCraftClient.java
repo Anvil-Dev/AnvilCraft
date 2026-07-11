@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.rendering.cachedber.renderer.CachedBlockEntityRenderDispatcher;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -9,6 +10,8 @@ import dev.dubhe.anvilcraft.client.init.ModPostEffects;
 import dev.dubhe.anvilcraft.client.particle.IonoCraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
@@ -21,6 +24,7 @@ import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.particle.FlyTowardsPositionParticle;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -114,6 +118,22 @@ public class AnvilCraftClient {
             mainTarget.width,
             mainTarget.height,
             event.getLevelRenderState()
+        );
+    }
+
+    @SubscribeEvent
+    public static void renderDeferredBeams(RenderLevelStageEvent.AfterWeather event) {
+        PoseStack pose = event.getPoseStack();
+        MultiBufferSource.BufferSource bufferSource = event.getLevelRenderer().renderBuffers.bufferSource();
+        CFARenderer.renderDeferredTractorBeams(
+            pose,
+            bufferSource,
+            event.getLevelRenderState().cameraRenderState.pos
+        );
+        CorruptedBeaconRenderer.renderDeferredBeams(
+            pose,
+            bufferSource,
+            event.getLevelRenderState().cameraRenderState.pos
         );
     }
 

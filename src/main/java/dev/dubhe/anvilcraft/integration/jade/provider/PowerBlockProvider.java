@@ -32,6 +32,7 @@ public enum PowerBlockProvider implements IServerDataProvider<BlockAccessor> {
             }
             compoundTag.putInt("generate", powerGrid.getGenerate());
             compoundTag.putInt("consume", powerGrid.getConsume());
+            compoundTag.putBoolean("infinitePower", powerGrid.isHasInfinitePower());
         }
     }
 

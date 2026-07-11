@@ -5,15 +5,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 /**
- * Represents a possible Celestial Restriction Ring refactoring option.
- * Each option turns a ring into a megastructure.
+ * 束星环的巨构重构选项，每个选项把指定环改造为一种巨构。
  *
- * @param ring          which ring (R1-R6) to refactor
- * @param megastructure the megastructure model name suffix (e.g. "eco_station", "dyson_sphere")
- * @param modelLocation the model {@link Identifier} for the megastructure model
- * @param displayName   translation key for the megastructure display name
- * @param material      required building material as an ItemStack, or {@link ItemStack#EMPTY} if none
- * @param materialCount how many of the material are required
+ * @param ring          要重构的环编号（R1-R6）
+ * @param megastructure 巨构模型名称后缀
+ * @param modelLocation 巨构模型资源标识
+ * @param displayName   巨构显示名称翻译键
+ * @param material      所需建材；不需要时为 {@link ItemStack#EMPTY}
+ * @param materialCount 所需建材数量
  */
 public record CelestialRefactorOption(
     int ring,
@@ -23,9 +22,7 @@ public record CelestialRefactorOption(
     ItemStack material,
     int materialCount
 ) {
-    /**
-     * Create a refactor option that requires no building materials.
-     */
+    /** 创建不需要建材的重构选项。 */
     public static CelestialRefactorOption noMaterial(
         int ring, String megastructure, Identifier modelLocation, String displayName
     ) {
@@ -35,14 +32,14 @@ public record CelestialRefactorOption(
     }
 
     /**
-     * Create a refactor option that requires a building material.
+     * 创建需要指定建材的重构选项。
      *
-     * @param ring          ring index (1-6)
-     * @param megastructure megastructure name suffix
-     * @param modelLocation model identifier
-     * @param displayName   translation key
-     * @param material      the required item
-     * @param materialCount how many of the item are required
+     * @param ring          环编号（1-6）
+     * @param megastructure 巨构名称后缀
+     * @param modelLocation 模型资源标识
+     * @param displayName   显示名称翻译键
+     * @param material      所需物品
+     * @param materialCount 所需数量
      */
     public static CelestialRefactorOption withMaterial(
         int ring, String megastructure, Identifier modelLocation, String displayName,

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.megastructure;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
+import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.network.ScreenShakePacket;
 import lombok.Getter;
@@ -151,12 +152,13 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             this.ticksRemaining--;
             this.updateCollapseColor(be);
             if (this.collapseAnimTicks == 5) {
+                // 爆炸跟随坍缩中天体的当前视觉中心，而不是固定在锻星砧上方四格。
                 Objects.requireNonNull(be.getLevel()).explode(
                     null,
                     be.getBlockPos().getX() + 0.5,
-                    be.getBlockPos().getY() + 4.0,
+                    be.getBodyCenterWorldY(),
                     be.getBlockPos().getZ() + 0.5,
-                    6.0f,
+                    10.0f,
                     Level.ExplosionInteraction.BLOCK
                 );
             }
@@ -196,8 +198,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void triggerSupernova(CelestialForgingAnvilBlockEntity be) {
-        // Must capture the exploding star's center/scale and send the screen shake BEFORE the remnant
-        // replaces the body data. startSupernovaFlash() captures supernovaCenterY/Scale for rendering.
+        // 必须在残骸替换天体数据前记录爆炸恒星的中心和缩放并发送屏幕震动。
         be.startSupernovaFlash();
         if (be.getLevel() instanceof ServerLevel serverLevel) {
             double centerY = be.getBodyCenterWorldY();
@@ -257,7 +258,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             wdEnergy,
             star.bodyUuid()
         ));
-        be.setPlanetaryResourceSet(null);
+        be.setPlanetaryResourceSet(new PlanetaryResourceSet());
     }
 
     private void createNeutronStarRemnant(CelestialForgingAnvilBlockEntity be) {
@@ -279,7 +280,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             64,
             star.bodyUuid()
         ));
-        be.setPlanetaryResourceSet(null);
+        be.setPlanetaryResourceSet(new PlanetaryResourceSet());
     }
 
     private void createBlackHoleRemnant(CelestialForgingAnvilBlockEntity be) {
@@ -289,7 +290,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         be.setAgeAnvilCount(be.getAgeAnvilCount() + 1);
         be.setStellarMass(bhMass);
         be.setCelestialBodyData(new StarData(CelestialBodyClass.BLACK_HOLE, 1, 0, 0, 0, star.axialTilt(), 1, newMag, 64, star.bodyUuid()));
-        be.setPlanetaryResourceSet(null);
+        be.setPlanetaryResourceSet(new PlanetaryResourceSet());
     }
 
     private void finishAccelerator() {

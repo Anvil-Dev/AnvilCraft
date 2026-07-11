@@ -81,9 +81,25 @@ public class ModRenderPipelines {
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/supernova_beam"))
         .build();
+
+    /**
+     * 托举光束和超新星放射光束使用的纯顶点色叠加管线。
+     * 不采样纹理且不写入深度，与 1.21 的 POSITION_COLOR 渲染类型保持一致。
+     */
+    public static final RenderPipeline STELLAR_BEAM = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
+        .withColorTargetState(new ColorTargetState(ADDITIVE_BLEND))
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/stellar_beam"))
+        .build();
     
-    public static final RenderPipeline CORRUPTED_BEACON_BEAM = RenderPipeline.builder(RenderPipelines.BEACON_BEAM_SNIPPET)
-        .withShaderDefine("ALPHA_CUTOUT", 0.01F)
+    /**
+     * 腐化信标使用纯顶点色半透明管线，使深色顶点通过常规透明混合压暗背景。
+     * 不采样激光图集，避免贴图透明度冲淡黑紫色核心和外围暗光。
+     */
+    public static final RenderPipeline CORRUPTED_BEACON_BEAM = RenderPipeline.builder(
+        RenderPipelines.DEBUG_FILLED_SNIPPET
+    )
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
@@ -103,6 +119,18 @@ public class ModRenderPipelines {
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/celestial_atmosphere"))
+        .build();
+
+    /**
+     * 天体环使用方块半透明着色器，只写颜色并保留深度测试。
+     * 这样行星主体能够遮挡环的背面部分，同时不会让环本身写入深度。
+     */
+    public static final RenderPipeline CELESTIAL_RING = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
+        .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withShaderDefine("ALPHA_CUTOUT", 0.01F)
+        .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+        .withCull(false)
+        .withLocation(AnvilCraft.of("pipeline/celestial_ring"))
         .build();
 
     public static final RenderPipeline SUPERNOVA_FLASH = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
@@ -125,9 +153,11 @@ public class ModRenderPipelines {
         event.registerPipeline(LASER_TRANSLUCENT);
         event.registerPipeline(LIGHTNING);
         event.registerPipeline(SUPERNOVA_BEAM);
+        event.registerPipeline(STELLAR_BEAM);
         event.registerPipeline(CORRUPTED_BEACON_BEAM);
         event.registerPipeline(STAR_COLOR_OVERLAY);
         event.registerPipeline(CELESTIAL_ATMOSPHERE);
+        event.registerPipeline(CELESTIAL_RING);
         event.registerPipeline(SUPERNOVA_FLASH);
         event.registerPipeline(GRAVITATIONAL_LENS);
     }

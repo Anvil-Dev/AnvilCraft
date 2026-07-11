@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.cfa.interfaces;
 
 import com.mojang.serialization.MapCodec;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
@@ -17,20 +16,17 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jspecify.annotations.Nullable;
 
 public class CelestialForgingAnvilInterfacePlaceholderBlock
     extends HorizontalDirectionalBlock
-    implements IHammerRemovable, IHammerChangeable {
+    implements IHammerRemovable {
 
     public CelestialForgingAnvilInterfacePlaceholderBlock(Properties properties) {
         super(properties);
@@ -55,18 +51,6 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
 
     @Override
     protected boolean propagatesSkylightDown(BlockState state) {
-        return true;
-    }
-
-    @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
-    }
-
-    @Override
-    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        BlockState state = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, state.cycle(FACING));
         return true;
     }
 
@@ -117,7 +101,6 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
                         && checkState.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER) {
                         if (level.getBlockEntity(checkPos) instanceof CelestialForgingAnvilBlockEntity cfaBe
                             && player instanceof ServerPlayer sp) {
-                            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                             ModMenuTypes.open(sp, cfaBe, checkPos);
                             return InteractionResult.SUCCESS;
                         }

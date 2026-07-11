@@ -24,9 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Procedural texture baker for celestial body previews.
- * Generates dynamic textures by palette-mapping grayscale source images.
- * Adapted for 26.1: NativeImage uses ARGB pixel format, DynamicTexture takes label supplier.
+ * 天体预览的程序化贴图烘焙器，通过色板映射灰度源图生成动态贴图。
+ * 已适配 26.1 的 ARGB 原生图像格式和动态贴图标签接口。
  */
 public class CelestialBodyTextureBakery {
 

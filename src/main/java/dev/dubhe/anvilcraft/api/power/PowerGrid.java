@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,6 +40,9 @@ public class PowerGrid {
 
     @Getter
     private int consume = 0; // 耗电功率
+
+    @Getter
+    private boolean hasInfinitePower = false; // 是否包含无限电力源
     @Getter
     final Set<IPowerComponent> components = Collections.synchronizedSet(new HashSet<>());
     final Set<IPowerProducer> producers = Collections.synchronizedSet(new HashSet<>()); // 发电机
@@ -69,7 +73,7 @@ public class PowerGrid {
         if (forced || this.changed) {
             PacketDistributor.sendToPlayersTrackingChunk(
                 (ServerLevel) this.level,
-                this.level.getChunkAt(this.getPos()).getPos(),
+                this.level.getChunkAt(Objects.requireNonNull(this.getPos())).getPos(),
                 new PowerGridSyncPacket(this)
             );
         }
@@ -146,14 +150,19 @@ public class PowerGrid {
     public boolean flush() {
         final int oldGenerate = this.generate;
         final int oldConsume = this.consume;
+        final boolean oldInfinitePower = this.hasInfinitePower;
         this.generate = 0;
         this.consume = 0;
+        this.hasInfinitePower = false;
         for (IPowerTransmitter transmitter : this.transmitters) {
             if (this.checkRemove(transmitter)) return true;
         }
         for (IPowerProducer producer : this.producers) {
             if (this.checkRemove(producer)) return true;
             this.generate += producer.getOutputPower();
+            if (producer.isInfinitePower()) {
+                this.hasInfinitePower = true;
+            }
         }
         for (IPowerConsumer consumer : this.consumers) {
             if (this.checkRemove(consumer)) return true;
@@ -174,18 +183,20 @@ public class PowerGrid {
             }
         }
 
-        if (this.consume != oldConsume || this.generate != oldGenerate) {
+        if (this.consume != oldConsume
+            || this.generate != oldGenerate
+            || this.hasInfinitePower != oldInfinitePower) {
             this.changed = true;
         }
         return false;
     }
 
     public boolean inRangeFast(Vec3 pos) {
-        return this.shape.inRange(pos);
+        return Objects.requireNonNull(this.shape).inRange(pos);
     }
 
     public boolean collideFast(AABB box) {
-        return this.shape.intersects(box);
+        return Objects.requireNonNull(this.shape).intersects(box);
     }
 
     /// 是否正常工作（未过载）

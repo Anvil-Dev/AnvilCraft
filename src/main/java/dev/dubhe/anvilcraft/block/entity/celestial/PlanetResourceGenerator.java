@@ -33,15 +33,20 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Generates a {@link PlanetaryResourceSet} for a celestial body by applying
- * matching {@link PlanetResourceRecipe} instances and random generation logic.
+ * 根据匹配的 {@link PlanetResourceRecipe} 和随机规则生成天体资源集合。
  */
 public final class PlanetResourceGenerator {
 
     private PlanetResourceGenerator() {
     }
 
-    public static PlanetaryResourceSet generate(CelestialBodyData body, int ageAnvilCount, Level level, long seed) {
+    public static PlanetaryResourceSet generate(
+        CelestialBodyData body,
+        int ageAnvilCount,
+        Level level,
+        long seed,
+        @Nullable Identifier seedItemId
+    ) {
         PlanetaryResourceSet set = new PlanetaryResourceSet();
         final RandomSource random = RandomSource.create(seed);
         if (!(level instanceof ServerLevel serverLevel)) return set;
@@ -85,7 +90,7 @@ public final class PlanetResourceGenerator {
         }
 
         if (body instanceof RockyPlanetData rocky) {
-            generateMinerals(set, mineralRecipe, level.registryAccess(), random);
+            generateMinerals(set, mineralRecipe, level.registryAccess(), random, seedItemId);
             generateFluids(set, fluidRecipes, rocky);
 
             if (isLifeEligible(rocky)) {
@@ -115,7 +120,8 @@ public final class PlanetResourceGenerator {
         PlanetaryResourceSet set,
         @Nullable PlanetResourceRecipe recipe,
         HolderLookup.Provider registries,
-        RandomSource random
+        RandomSource random,
+        @Nullable Identifier seedItemId
     ) {
         if (recipe == null) return;
         PlanetResourceRecipe.MineralData md = recipe.mineralData();
@@ -142,17 +148,24 @@ public final class PlanetResourceGenerator {
 
         int step = md.step();
         int sum = 0;
+        int candidateIndex = 0;
         for (Identifier candidate : candidates) {
             if (sum >= 100) break;
             int remaining = 100 - sum;
             int maxSteps = remaining / step;
             if (maxSteps <= 0) break;
-            int steps = 1 + random.nextInt(maxSteps);
+            float exponent = 1.0f + 1.0f / (candidateIndex + 1);
+            float skewed = (float) Math.pow(random.nextFloat(), exponent);
+            int steps = 1 + (int) (skewed * maxSteps);
+            if (candidate.equals(seedItemId)) {
+                steps++;
+            }
             int weight = steps * step;
             if (sum + weight > 100) weight = remaining;
             if (weight <= 0) continue;
             set.addMineral(new PlanetaryResourceSet.WeightedItemStack(candidate, weight));
             sum += weight;
+            candidateIndex++;
         }
     }
 
@@ -282,17 +295,21 @@ public final class PlanetResourceGenerator {
 
             final int step = 10;
             int sum = 0;
+            int candidateIndex = 0;
             for (Map.Entry<Identifier, Integer> candidate : candidates) {
                 if (sum >= 100) break;
                 int remaining = 100 - sum;
                 int maxSteps = remaining / step;
                 if (maxSteps <= 0) break;
-                int steps = 1 + random.nextInt(maxSteps);
+                float exponent = 1.0f + 1.0f / (candidateIndex + 1);
+                float skewed = (float) Math.pow(random.nextFloat(), exponent);
+                int steps = 1 + (int) (skewed * maxSteps);
                 int weight = steps * step;
                 if (sum + weight > 100) weight = remaining;
                 if (weight <= 0) continue;
                 set.addBiologicalItem(new PlanetaryResourceSet.WeightedItemStack(candidate.getKey(), weight));
                 sum += weight;
+                candidateIndex++;
             }
         }
 
