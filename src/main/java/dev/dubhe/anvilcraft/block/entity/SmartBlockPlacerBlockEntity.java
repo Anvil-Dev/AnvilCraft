@@ -1799,6 +1799,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         return level.getBlockState(pos).getValue(HorizontalDirectionalBlock.FACING);
     }
 
+    private BlockState getMovedPlacementState(BlockState sourceState, Level level, BlockPos targetPos) {
+        BlockState stateToPlace = sourceState;
+        if (stateToPlace.is(Blocks.OBSERVER)
+            && stateToPlace.hasProperty(BlockStateProperties.POWERED)) {
+            stateToPlace = stateToPlace.setValue(BlockStateProperties.POWERED, false);
+        }
+        if (stateToPlace.hasProperty(BlockStateProperties.WATERLOGGED)) {
+            stateToPlace = stateToPlace.setValue(BlockStateProperties.WATERLOGGED, false);
+        }
+        return Block.updateFromNeighbourShapes(stateToPlace, level, targetPos);
+    }
+
     /**
      * 放置方块（pickup模式）
      */
@@ -1900,15 +1912,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 continue;
             }
 
-            BlockState stateToPlace = sourceState;
-
-            if (stateToPlace.is(Blocks.OBSERVER)
-                && stateToPlace.hasProperty(BlockStateProperties.POWERED)) {
-                stateToPlace = stateToPlace.setValue(BlockStateProperties.POWERED, false);
-            }
-            if (sourceState.hasProperty(BlockStateProperties.WATERLOGGED)) {
-                stateToPlace = sourceState.setValue(BlockStateProperties.WATERLOGGED, false);
-            }
+            BlockState stateToPlace = this.getMovedPlacementState(sourceState, level, targetPos);
 
             // 先删除源方块，再放置，放置失败则回滚
             IS_BEING_MOVED_BY_PLACER.set(true);
@@ -1920,7 +1924,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
                 level, targetPos, facing, upsideDown,
-                (BlockItem) sourceItem.getItem(), sourceItem
+                (BlockItem) sourceItem.getItem(), sourceItem, stateToPlace
             );
 
             if (!placeSuccess) {
@@ -1945,9 +1949,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 return;
             }
 
-            // 修正朝向
-            level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS);
-
+            // 恢复方块实体数据
             if (sourceBlockEntityData != null) {
                 BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
                 if (targetBlockEntity != null) {
@@ -1957,7 +1959,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 }
             }
 
-            level.neighborChanged(targetPos, stateToPlace.getBlock(), null);
+            BlockState placedState = level.getBlockState(targetPos);
+            level.neighborChanged(targetPos, placedState.getBlock(), null);
 
             if (targetPos.equals(this.expectedShuttleTarget)) {
                 TriggerUtil.placerShuttle(level, targetPos);
@@ -2297,6 +2300,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             // 获取蓝图中的目标状态（已经包含旋转、倒挂和状态过滤处理）
             BlockState blueprintState = this.getBlueprintBlockState(index, level);
+            final BlockState placementState = StructureLoadUtil.isMultiblockBlock(requiredBlock)
+                ? blueprintState
+                : Block.updateFromNeighbourShapes(blueprintState, level, targetPos);
 
             // 多方块方块使用蓝图中的朝向进行放置，确保所有部件位置正确
             Direction placementFacing = facing;
@@ -2315,17 +2321,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 IS_BEING_MOVED_BY_PLACER.set(false);
             }
 
-            // 先删除源方块
-            IS_BEING_MOVED_BY_PLACER.set(true);
-            try {
-                level.removeBlock(sourcePos, false);
-            } finally {
-                IS_BEING_MOVED_BY_PLACER.set(false);
-            }
-
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
                 level, targetPos, placementFacing, upsideDown,
-                (BlockItem) sourceItem.getItem(), sourceItem
+                (BlockItem) sourceItem.getItem(), sourceItem, placementState
             );
 
             if (!placeSuccess) {
@@ -2354,10 +2352,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
                 // 多方块方块：应用蓝图状态到所有部件（包括 setPlacedBy 创建的次要部件）
                 this.applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
-            } else {
-                this.applyBlueprintBlockFacing(level, targetPos, index);
-                // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向），只更新客户端
-                level.setBlock(targetPos, blueprintState, Block.UPDATE_CLIENTS);
             }
 
             if (sourceBlockEntityData != null) {
@@ -2370,7 +2364,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             }
 
             // 在目标位置发送方块更新通知
-            level.neighborChanged(targetPos, blueprintState.getBlock(), null);
+            BlockState placedState = level.getBlockState(targetPos);
+            level.neighborChanged(targetPos, placedState.getBlock(), null);
 
             // 放置成功，清空 currentHeldBlock；下一轮 prepareHeldBlock 会重新设置
             this.currentHeldBlock = ItemStack.EMPTY;
@@ -2879,9 +2874,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         Level level, BlockPos targetPos, Direction facing,
         boolean upsideDown, BlockItem blockItemObj, ItemStack blockItem
     ) {
+        return this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem, null);
+    }
+
+    private boolean tryPlaceBlockWithFakePlayer(
+        Level level,
+        BlockPos targetPos,
+        Direction facing,
+        boolean upsideDown,
+        BlockItem blockItemObj,
+        ItemStack blockItem,
+        @Nullable BlockState placementState
+    ) {
         Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
         return AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
-            level, targetPos, orientation, blockItemObj, blockItem) != InteractionResult.FAIL;
+            level, targetPos, orientation, blockItemObj, blockItem, placementState) != InteractionResult.FAIL;
     }
 
     /**
