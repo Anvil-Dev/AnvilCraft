@@ -44,7 +44,6 @@ import org.jspecify.annotations.Nullable;
  * rotation, palette-baked planet bodies, star overlay/halo, atmospheres, celestial rings,
  * the tractor beam (deferred to AFTER_WEATHER), and the supernova flash + rays.
  */
-@SuppressWarnings({"checkstyle:VariableDeclarationUsageDistance", "checkstyle:OverloadMethodsDeclarationOrder"})
 public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity, CFARenderState> {
     // === Ring models ===
     public static final StandaloneModelKey<BlockStateModel> RING1 = key("CFA Ring 1");
@@ -174,7 +173,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setAnimationProgress(animProgress);
         state.setAnimating(be.getAnimationTicks() > 0);
         state.setAnimationForward(be.isAnimationForward());
-        CelestialBodyData prevBody = be.getAnimationPreviousBodyData();
+        final CelestialBodyData prevBody = be.getAnimationPreviousBodyData();
 
         float rotationBoost = be.getAnimationRotationBoost(partialTicks);
         state.setBodyRotation((be.getBodyRotation() + partialTicks) * rotationBoost);
@@ -182,7 +181,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         // === Megastructure state ===
         String megastructure = be.getActiveMegastructureOption() != null
             ? be.getActiveMegastructureOption().megastructure() : null;
-        int activeIndex = be.getActiveMegastructureIndex();
+        final int activeIndex = be.getActiveMegastructureIndex();
         state.setAcceleratorActive(be.isAcceleratorActive());
         state.setPenroseLaserActive(be.isPenroseSphereLaserActive());
         state.setDysonSphereR4("dyson_sphere_small".equals(megastructure));
@@ -693,8 +692,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     private void submitCelestialBody(CFARenderState state, PoseStack pose, SubmitNodeCollector collector) {
         CelestialBodyData bodyData = state.getEffectiveBodyData();
         if (bodyData == null) return;
-        float centerY = state.getCenterY();
-        float bodyRot = state.getBodyRotation();
+        final float centerY = state.getCenterY();
+        final float bodyRot = state.getBodyRotation();
         float animProgress = state.getAnimationProgress();
 
         float baseScale = state.getBodyScaleMultiplier();
@@ -766,7 +765,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         }
 
         // Multiplicative color overlay
-        float[] rgb = CelestialBodyTextureBakery.starColor(star);
+        final float[] rgb = CelestialBodyTextureBakery.starColor(star);
         pose.pushPose();
         pose.translate(0.5, 0.5, 0.5);
         pose.scale(1.005f, 1.005f, 1.005f);
@@ -779,7 +778,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         for (int i = 0; i < haloIterations; i++) {
             float progress = (float) i / haloIterations;
             float haloScale = 1.0f + progress * 0.6f;
-            float alpha = (1.2f - 1.125f * progress) / haloIterations;
+            final float alpha = (1.2f - 1.125f * progress) / haloIterations;
             pose.pushPose();
             pose.translate(0.5, 0.5, 0.5);
             pose.scale(haloScale, haloScale, haloScale);
@@ -832,7 +831,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             for (int i = 0; i < haloIterations; i++) {
                 float progress = (float) i / haloIterations;
                 float haloScale = 1.15f + progress * 0.25f;
-                float alpha = (0.45f - 0.38f * progress) / haloIterations;
+                final float alpha = (0.45f - 0.38f * progress) / haloIterations;
                 pose.pushPose();
                 pose.translate(0.5, 0.5, 0.5);
                 pose.scale(haloScale, haloScale, haloScale);
@@ -914,7 +913,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float scale,
         long seed
     ) {
-        float[] rgb = CelestialBodyRenderer.getAtmosphereColor(temp);
+        final float[] rgb = CelestialBodyRenderer.getAtmosphereColor(temp);
         pose.pushPose();
         pose.translate(0.5, 0.5, 0.5);
         pose.scale(scale, scale, scale);

@@ -145,12 +145,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
 
-        @SuppressWarnings(
-            {
-            "checkstyle:OneStatementPerLine",
-            "checkstyle:LineLength"
-            }
-        )
         private float[] calculateTargetAngles(
             BlockPos targetPos,
             BlockPos placerPos,
@@ -228,12 +222,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
 
     }
 
-    @SuppressWarnings(
-        {
-            "checkstyle:VariableDeclarationUsageDistance",
-            "checkstyle:Indentation"
-        }
-    )
     @Override
     public void extractRenderState(
         SmartBlockPlacerBlockEntity entity,

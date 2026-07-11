@@ -28,14 +28,6 @@ import java.util.Map;
  * Generates dynamic textures by palette-mapping grayscale source images.
  * Adapted for 26.1: NativeImage uses ARGB pixel format, DynamicTexture takes label supplier.
  */
-@SuppressWarnings(
-    {
-        "checkstyle:MultipleVariableDeclarations",
-        "checkstyle:OneStatementPerLine",
-        "checkstyle:NeedBraces",
-        "checkstyle:Indentation"
-    }
-)
 public class CelestialBodyTextureBakery {
 
     private static final Map<String, Identifier> CACHE = new HashMap<>();
@@ -58,7 +50,10 @@ public class CelestialBodyTextureBakery {
 
     private static Identifier registerTexture(String key, NativeImage image) {
         Identifier loc = AnvilCraft.of("celestial_body/" + key);
-        Minecraft.getInstance().getTextureManager().register(loc, new DynamicTexture(() -> "celestial_body/" + key, image));
+        Minecraft.getInstance().getTextureManager().register(
+            loc,
+            new DynamicTexture(() -> "celestial_body/" + key, image)
+        );
         return loc;
     }
 
@@ -73,21 +68,26 @@ public class CelestialBodyTextureBakery {
         return CACHE.computeIfAbsent(ringCacheKey(data), k -> bakeRing(data, k));
     }
 
-    private record TexSet(String base, @Nullable String overlay, String palette) {}
+    private record TexSet(String base, @Nullable String overlay, String palette) {
+    }
 
     private static TexSet resolve(CelestialBodyData data) {
         if (data instanceof RockyPlanetData rp) return resolveRocky(rp);
         if (data instanceof GiantPlanetData gp) {
-            if (gp.brownDwarf()) return new TexSet("planet_giant.png",
+            if (gp.brownDwarf()) return new TexSet(
+                "planet_giant.png",
                 gp.windSpeed() == WindSpeed.VERY_HIGH ? "planet_giant_overlay_1.png" : "planet_giant_overlay_0.png",
-                "planet_mix_color_scorched.png");
+                "planet_mix_color_scorched.png"
+            );
             return resolveGiant(gp);
         }
         return null;
     }
 
     private static TexSet resolveRocky(RockyPlanetData rp) {
-        String base, overlay = null, palette;
+        String base;
+        String overlay = null;
+        String palette;
         boolean hasAtmos = rp.hasAtmosphere();
         boolean hasLiquid = rp.liquidCoverage() != LiquidCoverage.NONE;
         Temperature temp = rp.temperature();
@@ -146,9 +146,11 @@ public class CelestialBodyTextureBakery {
         String palette = gp.bodyClass() == CelestialBodyClass.ICE_GIANT
             ? "planet_giant_color_1.png"
             : "planet_giant_color_0.png";
-        return new TexSet("planet_giant.png",
+        return new TexSet(
+            "planet_giant.png",
             gp.windSpeed() == WindSpeed.VERY_HIGH ? "planet_giant_overlay_1.png" : "planet_giant_overlay_0.png",
-            palette);
+            palette
+        );
     }
 
     @Nullable
@@ -228,17 +230,21 @@ public class CelestialBodyTextureBakery {
     }
 
     private static String cacheKey(CelestialBodyData data) {
-        if (data instanceof SpecialCelestialBodyData s)
+        if (data instanceof SpecialCelestialBodyData s) {
             return "special_" + s.name();
-        if (data instanceof StarData s)
+        }
+        if (data instanceof StarData s) {
             return "star_" + s.size() + "_" + s.colorR() + "_" + s.colorG() + "_" + s.colorB();
-        if (data instanceof RockyPlanetData rp)
+        }
+        if (data instanceof RockyPlanetData rp) {
             return "rp_" + rp.hasAtmosphere() + "_" + rp.liquidCoverage().getSerializedName()
                 + "_" + rp.temperature().getSerializedName() + "_" + rp.size()
                 + "_" + rp.paletteBaseRow() + "_" + rp.paletteOverlayRow();
-        if (data instanceof GiantPlanetData gp)
+        }
+        if (data instanceof GiantPlanetData gp) {
             return "gp_" + gp.pressureType().getSerializedName() + "_" + gp.windSpeed().getSerializedName()
                 + "_" + gp.size() + "_" + gp.paletteBaseRow() + "_" + gp.paletteOverlayRow();
+        }
         return "unknown";
     }
 

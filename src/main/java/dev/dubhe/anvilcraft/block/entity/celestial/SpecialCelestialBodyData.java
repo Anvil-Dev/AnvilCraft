@@ -16,7 +16,6 @@ import org.jspecify.annotations.Nullable;
  * during rendering or NBT deserialization.
  * </p>
  */
-@SuppressWarnings("checkstyle:MissingJavadocMethod")
 public record SpecialCelestialBodyData(
     String recipeId,
     String name,

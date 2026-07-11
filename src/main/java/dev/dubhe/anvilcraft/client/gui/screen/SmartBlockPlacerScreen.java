@@ -44,7 +44,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@SuppressWarnings("checkstyle:LineLength")
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("machine", "smart_block_placer");
 
@@ -200,7 +199,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 int positionIndex = row * 5 + col;
                 boolean isSelected = currentPositions.contains(positionIndex);
 
-                TriStateButton button = this.createPositionButton(row, col, positionIndex, gridStartX, gridStartY, isSelected);
+                TriStateButton button = this.createPositionButton(
+                    row,
+                    col,
+                    positionIndex,
+                    gridStartX,
+                    gridStartY,
+                    isSelected
+                );
                 this.positionButtons[row][col] = button;
                 this.addRenderableWidget(button);
             }
@@ -288,7 +294,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         if (this.showAllLayers) {
             return Component.translatable("screen.anvilcraft.smart_block_placer.layer_mode.all");
         } else {
-            return Component.translatable("screen.anvilcraft.smart_block_placer.layer_mode.single", this.currentViewLayer + 1, 5);
+            return Component.translatable(
+                "screen.anvilcraft.smart_block_placer.layer_mode.single",
+                this.currentViewLayer + 1,
+                5
+            );
         }
     }
 
@@ -363,7 +373,14 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
     }
 
-    private TriStateButton createPositionButton(int row, int col, int positionIndex, int startX, int startY, boolean selected) {
+    private TriStateButton createPositionButton(
+        int row,
+        int col,
+        int positionIndex,
+        int startX,
+        int startY,
+        boolean selected
+    ) {
         List<Component> tooltipSelected = List.of(Component.translatable(
             "screen.anvilcraft.smart_block_placer.position.selected",
             row + 1,
@@ -449,7 +466,13 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
     }
 
-    private void onPositionButtonClick(int row, int col, int positionIndex, List<Component> tooltipSelected, List<Component> tooltipUnselected) {
+    private void onPositionButtonClick(
+        int row,
+        int col,
+        int positionIndex,
+        List<Component> tooltipSelected,
+        List<Component> tooltipUnselected
+    ) {
         this.layerPositions.putIfAbsent(this.currentViewLayer, new HashSet<>());
 
         boolean newState = !this.positionButtons[row][col].isSelected();
@@ -567,12 +590,34 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         super.extractBackground(graphics, mouseX, mouseY, a);
         int i = this.leftPos;
         int j = this.topPos;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            BACKGROUND,
+            i,
+            j,
+            0,
+            0,
+            this.imageWidth,
+            this.imageHeight,
+            256,
+            256
+        );
 
         if (this.isBlueprintMode) {
             int blueprintX = i + (this.imageWidth - 128) / 2 - 60;
             int blueprintY = j + (this.imageHeight - 128) / 2 - 19;
-            graphics.blit(RenderPipelines.GUI_TEXTURED, BLUEPRINT_MODE_BG, blueprintX, blueprintY, 0, 0, 128, 128, 128, 128);
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                BLUEPRINT_MODE_BG,
+                blueprintX,
+                blueprintY,
+                0,
+                0,
+                128,
+                128,
+                128,
+                128
+            );
         }
 
         var blockEntity = this.menu.getBlockEntity();
