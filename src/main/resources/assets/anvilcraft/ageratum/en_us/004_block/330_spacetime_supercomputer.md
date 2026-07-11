@@ -10,17 +10,16 @@ items:
 
 <color=#886611> Manipulates time and space </color>
 
-<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_redstone_computer"/>
-<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_redstone_computer_2"/>
+<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator"/>
+<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator_2"/>
 
 Crafting requires [Anvilon Irradiation](../002_material/321_anvilon.md#anvilon-irradiation)
 
-1. Continuously consumes 512kW of power, requires charging before operation
-2. Charges 1% every 3 seconds
-3. Interferes with spacetime via commands, consuming 20% charge per use
-4. Available commands can be selected on the left side of the GUI
-5. After entering input, the three buttons at the bottom from left to right: Save & Execute, Save Only, Cancel
-6. Executed commands are recorded on the right side of the GUI
+1. Continuously consumes 512kW of power
+2. Requires charging before operation, charges 1% every 3 seconds, each operation consumes at least 20% charge
+3. Interferes with spacetime via commands; available commands can be selected on the left side of the GUI
+4. After entering input, the three buttons at the bottom from left to right: Save & Execute, Save Only, Cancel
+5. Executed commands are recorded on the right side of the GUI
 
 ## Additional Costs
 - `/time add` command consumes an extra 1% charge per additional 1000gt

@@ -45,9 +45,12 @@ When placed on a <ref item="anvilcraft:crushing_table"/>, the **Item Crushing** 
 
 - Can recycle tools, weapons, and armor to decompose them into raw materials, yielding far more than smelting
 - Processing skulls: Skeleton Skull -> 64 Bone Meal; Creeper Head -> 64 Gunpowder
-- Compatible with all recipes from [Block Crushing](000_block_processing.md), but with **20%** loss
+- Crushes blocks that become **dropped items**, compatible with all recipes from [Block Crushing](000_block_processing.md), but with **20%** loss
+- Provides [efficient recipes](../008_recipe/001_efficient_recipe.md) for vanilla crafting
 
 <recipe id="anvilcraft:item_crush/armor/diamond_boots_2_diamond"/>
+
+<recipe id="anvilcraft:item_crush/string"/>
 
 # Compacting
 

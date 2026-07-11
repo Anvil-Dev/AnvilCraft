@@ -45,9 +45,12 @@ items:
 
 - 可以回收工具、武器和盔甲并分解出原料，远多于熔炼得到的
 - 处理头颅：骷髅头颅 → 64骨粉；苦力怕的头 → 64火药
-- 兼容[方块粉碎](000_block_processing.md)的所有配方，但是存在 **20%** 的损耗
+- 粉碎变成**掉落物**的方块，完成[方块粉碎](000_block_processing.md)的所有配方，但是存在 **20%** 的损耗
+- 对原版配方的[增产](../008_recipe/001_efficient_recipe.md)
 
 <recipe id="anvilcraft:item_crush/armor/diamond_boots_2_diamond"/>
+
+<recipe id="anvilcraft:item_crush/string"/>
 
 # 压缩
 

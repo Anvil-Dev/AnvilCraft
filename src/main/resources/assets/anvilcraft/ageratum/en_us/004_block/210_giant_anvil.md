@@ -31,8 +31,7 @@ You can use <ref item="anvilcraft:resin_block"/> to capture zombies
 
 # Convenient Crafting
 
-After obtaining the first <ref item="anvilcraft:giant_anvil"/>,
-you can produce <ref item="anvilcraft:giant_anvil"/> through **multi-block conversion**
+After obtaining the first <ref item="anvilcraft:giant_anvil"/>, you can produce <ref item="anvilcraft:giant_anvil"/> through **multi-block conversion**
 
 # Function
 
@@ -61,7 +60,7 @@ If you don't like the look of <ref item="minecraft:crafting_table"/>, try <ref i
 
 - When the center of <ref item="anvilcraft:giant_anvil"/> strikes <ref item="anvilcraft:heavy_iron_block"/>, it performs a **ground shaking** operation
 - At this point, it affects blocks or entities on the same horizontal plane. Depending on the blocks surrounding <ref item="anvilcraft:heavy_iron_block"/>, the shaking produces different effects
-- Each additional block of fall height expands the affected range by 1 ring
+- Each additional block of fall height expands the affected range by 1 ring, up to a maximum of 16 (configurable in settings)
 
 ### Definitions
 

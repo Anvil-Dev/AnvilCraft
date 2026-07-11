@@ -7,7 +7,6 @@ items:
   - anvilcraft:pulse_generator
   - anvilcraft:item_detector
   - anvilcraft:advanced_comparator
-  - anvilcraft:redstone_computer
 ---
 
 # Additional Redstone Components
@@ -54,8 +53,7 @@ In the GUI you can set the **condition**, **delay**, and **duration** of the emi
 In the GUI you can set range and filters
 
 - When <color=#999922>no filter is set</color>, the redstone signal strength varies **linearly** with the number of dropped items. At 64 items, it outputs full signal strength of 15
-- When <color=#999922>a filter is set</color>, if none of the filtered dropped items exist, no signal is output. Otherwise, for **each**
-  filter slot detecting an item, the redstone signal is calculated based on the corresponding item count (full signal strength reached when count = [64 * filter count]). The final output is the **minimum** of all redstone signals
+- When <color=#999922>a filter is set</color>, if none of the filtered dropped items exist, no signal is output. Otherwise, for **each** filter slot detecting an item, the redstone signal is calculated based on the corresponding item count (full signal strength reached when count = [64 * filter count]). The final output is the **minimum** of all redstone signals
 
 # <ref item="anvilcraft:advanced_comparator"/>
 
@@ -71,19 +69,6 @@ In the GUI you can set thresholds and other modes
 - The <color=#999922>first button</color> from top to bottom enables window mode: outputs signal when the signal is within a certain range
 - The <color=#999922>second button</color> from top to bottom enables inverted mode: outputs signal when it normally wouldn't, and vice versa
 - When the <color=#999922>third button</color> from top to bottom is enabled, uses the redstone signals received on both sides as thresholds (regardless of left/right, the higher one is the upper threshold)
-
-# <ref item="anvilcraft:redstone_computer"/>
-
-<row halign="center">
-<recipe id="anvilcraft:redstone_computer"/>
-<recipe id="anvilcraft:procedural_process/redstone_computer_from_procedural"/>
-</row>
-
-<info>
-Crafting via [Block Procedural Processing](../007_struct/000_block_processing.md#block-procedural-processing) is more complex but saves materials
-</info>
-
-- Outputs the sum of the signal strengths of the three inputs, capped at 15
 
 
 

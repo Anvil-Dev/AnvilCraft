@@ -7,7 +7,6 @@ items:
   - anvilcraft:pulse_generator
   - anvilcraft:item_detector
   - anvilcraft:advanced_comparator
-  - anvilcraft:redstone_computer
 ---
 
 # 额外红石元件
@@ -54,8 +53,7 @@ items:
 在GUI中可以设置范围和过滤
 
 - <color=#999922>不设置过滤</color>时，输出红石信号强度随掉落物的数量**线性变化**。数量达到64个时输出满信号强度15
-- <color=#999922>设置过滤</color>时，若过滤的掉落物都不存在，则不输出信号。否则，对**每个**
-  检测到物品的过滤格，分别根据对应掉落物数量计算红石信号(数量达到[64*过滤数量]时计算满信号强度)。最终输出选择所有红石信号的**最小值**输出
+- <color=#999922>设置过滤</color>时，若过滤的掉落物都不存在，则不输出信号。否则，对**每个**检测到物品的过滤格，分别根据对应掉落物数量计算红石信号(数量达到[64*过滤数量]时计算满信号强度)。最终输出选择所有红石信号的**最小值**输出
 
 # <ref item="anvilcraft:advanced_comparator"/>
 
@@ -71,16 +69,3 @@ items:
 - 从上往下<color=#999922>第一个按钮</color>可启用窗口模式：在信号位于一定区间时输出信号
 - 从上往下<color=#999922>第二个按钮</color>可启用反转模式：在原来不输出信号的时候输出信号，反之亦然
 - 从上往下<color=#999922>第三个按钮</color>启用后，将两侧收到的红石信号作为阈值(不分左右，高者为上阈值)
-
-# <ref item="anvilcraft:redstone_computer"/>
-
-<row halign="center">
-<recipe id="anvilcraft:redstone_computer"/>
-<recipe id="anvilcraft:procedural_process/redstone_computer_from_procedural"/>
-</row>
-
-<info>
-使用[方块流程处理](../007_struct/000_block_processing.md#方块流程处理)合成虽复杂，但更省材料
-</info>
-
-- 输出三个输入端的信号强度之和，最高不超过15
