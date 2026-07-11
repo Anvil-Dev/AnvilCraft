@@ -98,6 +98,11 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
     }
 
     @Override
+    protected int getCapacity(int index, ItemResource resource) {
+        return Math.min(super.getCapacity(index, resource), this.getSlotLimit(index));
+    }
+
+    @Override
     public void set(int index, ItemResource resource, int amount) {
         if (!this.filterEnabled && !resource.isEmpty()) {
             this.setSlotDisabled(index, false);
