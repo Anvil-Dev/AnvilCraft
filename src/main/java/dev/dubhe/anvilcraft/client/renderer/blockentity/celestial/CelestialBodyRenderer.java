@@ -4,20 +4,25 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
+import net.minecraft.util.ARGB;
 import org.joml.Vector3f;
 
 /**
- * Celestial body vertex rendering utilities for CFA screen preview.
- * Provides Lambert-lit cube rendering for planet bodies, atmospheres,
- * star halos, and ring planes. All methods operate on raw {@link VertexConsumer}.
+ * 锻星砧天体顶点渲染工具，提供带朗伯光照的行星、大气层、恒星光晕和天体环渲染。
+ * 所有方法都直接向 {@link VertexConsumer} 提交顶点。
+ * 各面的顶点绕序和纹理方向必须显式保留，避免抽象后误翻转贴图或法线。
  */
+@SuppressWarnings("DuplicatedCode")
 public class CelestialBodyRenderer {
 
     private static final Vector3f LIGHT_DIR = new Vector3f(0.7f, 0.5f, 0.5f).normalize();
 
-    /**
-     * Compute lambertian lighting color from a normal and light direction.
-     */
+    /** 将浮点 RGBA 分量打包为 26.1 顶点消费者使用的 ARGB 颜色。 */
+    private static int packColor(float r, float g, float b, float a) {
+        return ARGB.colorFromFloat(a, r, g, b);
+    }
+
+    /** 根据法线和光照方向计算朗伯光照颜色。 */
     public static int computeLambertColor(PoseStack.Pose pose, float nx, float ny, float nz, Vector3f lightDir) {
         Vector3f normal = new Vector3f(nx, ny, nz);
         normal.mul(pose.normal());
@@ -28,9 +33,7 @@ public class CelestialBodyRenderer {
         return (255 << 24) | (c << 16) | (c << 8) | c;
     }
 
-    /**
-     * Compute atmosphere transparency from view angle.
-     */
+    /** 根据观察角度计算大气层透明度。 */
     public static float computeAtmosphereAlpha(
         PoseStack.Pose pose,
         float nx,
@@ -49,9 +52,7 @@ public class CelestialBodyRenderer {
         return baseAlpha * (1.0f + 3.0f * rim);
     }
 
-    /**
-     * Get atmosphere color for a given temperature.
-     */
+    /** 获取指定温度对应的大气层颜色。 */
     public static float[] getAtmosphereColor(Temperature temperature) {
         return switch (temperature) {
             case FREEZING -> new float[]{
@@ -82,9 +83,7 @@ public class CelestialBodyRenderer {
         };
     }
 
-    /**
-     * Get RGB color for a star body.
-     */
+    /** 获取恒星天体的 RGB 颜色。 */
     public static float[] getStarColor(StarData star) {
         return new float[]{
             star.colorR() / 255f,
@@ -93,25 +92,20 @@ public class CelestialBodyRenderer {
         };
     }
 
-    // === Public render methods ===
+    // ==================== 公共渲染方法 ====================
 
     /**
-     * Render a textured planet cube with Lambert lighting.
-     * The cube texture is a 64×48 atlas with:
-     * Top face: (16,0)–(32,16)
-     * Bottom:   (16,32)–(32,48)
-     * North:    (48,16)–(64,32)
-     * East:     (32,16)–(48,32)
-     * West:     (0,16)–(16,32)
-     * South:    (16,16)–(32,32)
+     * 使用 64×48 展开贴图和朗伯光照绘制行星立方体。
+     * 顶面、底面、北面、东面、西面和南面的贴图区域依次为
+     * (16,0)-(32,16)、(16,32)-(32,48)、(48,16)-(64,32)、
+     * (32,16)-(48,32)、(0,16)-(16,32) 和 (16,16)-(32,32)。
      */
     public static void renderPlanetBody(PoseStack.Pose pose, VertexConsumer vc, int light, int overlay) {
         renderPlanetCube(pose, vc, light, overlay, LIGHT_DIR);
     }
 
     /**
-     * Render a translucent cube atmosphere using per-face alpha based on view angle.
-     * Does NOT require a BakedModel — renders faces directly.
+     * 根据观察角度为每个面计算透明度并直接绘制半透明立方体大气层，无需烘焙模型。
      */
     public static void renderAtmosphereCube(
         PoseStack.Pose pose,
@@ -141,7 +135,7 @@ public class CelestialBodyRenderer {
             vz /= vlen;
         }
 
-        // Each face gets its own alpha based on view angle
+        // 每个面根据观察角度使用独立透明度。
         float alphaUp = computeAtmosphereAlpha(pose, 0, 1, 0, baseAlpha, vx, vy, vz);
         tintedFaceUp(pose, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaUp);
 
@@ -161,9 +155,7 @@ public class CelestialBodyRenderer {
         tintedFaceWest(pose, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaW);
     }
 
-    /**
-     * Render a star halo as concentric translucent cubes.
-     */
+    /** 使用多层同心半透明立方体绘制恒星光晕。 */
     public static void renderStarHalo(PoseStack.Pose pose, VertexConsumer vc, StarData star, int light, int overlay) {
         float[] rgb = CelestialBodyTextureBakery.starColor(star);
         int iterations = 10;
@@ -183,8 +175,7 @@ public class CelestialBodyRenderer {
     }
 
     /**
-     * Render an opaque cube with a single constant vertex color on all six faces.
-     * Used for the star color overlay (multiplicative blend).
+     * 使用统一顶点颜色绘制六个面的不透明立方体，供恒星乘法颜色叠加层使用。
      */
     public static void renderColorCube(
         PoseStack.Pose ps,
@@ -210,9 +201,7 @@ public class CelestialBodyRenderer {
         tintedFaceWest(ps, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
     }
 
-    /**
-     * Render a flat ring plane at y=0.5 spanning from rmin to rmax.
-     */
+    /** 在 y=0.5 平面绘制从内半径延伸到外半径的扁平天体环。 */
     public static void renderRing(PoseStack.Pose pose, VertexConsumer vc, int light, int overlay) {
         float y = 0.5f;
         float rmin = -0.5f;
@@ -261,7 +250,7 @@ public class CelestialBodyRenderer {
             .setNormal(pose, 0, -1, 0);
     }
 
-    // === Cube geometry (textured planet body) ===
+    // ==================== 带贴图的行星立方体几何 ====================
 
     @SuppressWarnings("SameParameterValue")
     private static void renderPlanetCube(
@@ -319,7 +308,7 @@ public class CelestialBodyRenderer {
         faceSouth(pose, vc, x1, x2, y1, y2, z2, 16f / 64, 16f / 64, 32f / 64, 32f / 64, light, overlay, colorS);
     }
 
-    // === Textured face helpers ===
+    // ==================== 带贴图面的辅助方法 ====================
 
     @SuppressWarnings("SameParameterValue")
     private static void faceUp(
@@ -540,7 +529,7 @@ public class CelestialBodyRenderer {
         );
     }
 
-    // === Tinted face helpers (for atmosphere/halo — constant color per face) ===
+    // ==================== 大气层和光晕的统一着色面辅助方法 ====================
 
     @SuppressWarnings("SameParameterValue")
     private static void tintedFaceUp(
@@ -562,26 +551,26 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x1, y, z2).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+        int argb = packColor(r, g, b, a);
+        vc.addVertex(pose, x1, y, z2).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             1,
             0
         );
-        vc.addVertex(pose, x2, y, z2).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x2, y, z2).setColor(argb).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             1,
             0
         );
-        vc.addVertex(pose, x2, y, z1).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x2, y, z1).setColor(argb).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             1,
             0
         );
-        vc.addVertex(pose, x1, y, z1).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x1, y, z1).setColor(argb).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             1,
@@ -610,26 +599,26 @@ public class CelestialBodyRenderer {
         float a
     ) {
 
-        int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x1, y, z1).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+        int argb = packColor(r, g, b, a);
+        vc.addVertex(pose, x1, y, z1).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             -1,
             0
         );
-        vc.addVertex(pose, x2, y, z1).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x2, y, z1).setColor(argb).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             -1,
             0
         );
-        vc.addVertex(pose, x2, y, z2).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x2, y, z2).setColor(argb).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             -1,
             0
         );
-        vc.addVertex(pose, x1, y, z2).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x1, y, z2).setColor(argb).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             -1,
@@ -657,26 +646,26 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x2, y1, z).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+        int argb = packColor(r, g, b, a);
+        vc.addVertex(pose, x2, y1, z).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             0,
             -1
         );
-        vc.addVertex(pose, x1, y1, z).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x1, y1, z).setColor(argb).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             0,
             -1
         );
-        vc.addVertex(pose, x1, y2, z).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x1, y2, z).setColor(argb).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             0,
             -1
         );
-        vc.addVertex(pose, x2, y2, z).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x2, y2, z).setColor(argb).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             0,
@@ -704,26 +693,26 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x1, y1, z).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+        int argb = packColor(r, g, b, a);
+        vc.addVertex(pose, x1, y1, z).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             0,
             1
         );
-        vc.addVertex(pose, x2, y1, z).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x2, y1, z).setColor(argb).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             0,
             1
         );
-        vc.addVertex(pose, x2, y2, z).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x2, y2, z).setColor(argb).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             0,
             1
         );
-        vc.addVertex(pose, x1, y2, z).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x1, y2, z).setColor(argb).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
             0,
@@ -751,26 +740,26 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x, y1, z2).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+        int argb = packColor(r, g, b, a);
+        vc.addVertex(pose, x, y1, z2).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             1,
             0,
             0
         );
-        vc.addVertex(pose, x, y1, z1).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x, y1, z1).setColor(argb).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             1,
             0,
             0
         );
-        vc.addVertex(pose, x, y2, z1).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x, y2, z1).setColor(argb).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             1,
             0,
             0
         );
-        vc.addVertex(pose, x, y2, z2).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x, y2, z2).setColor(argb).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             1,
             0,
@@ -798,26 +787,26 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int abgr = ((int) (a * 255) << 24) | ((int) (b * 255) << 16) | ((int) (g * 255) << 8) | (int) (r * 255);
-        vc.addVertex(pose, x, y1, z1).setColor(abgr).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
+        int argb = packColor(r, g, b, a);
+        vc.addVertex(pose, x, y1, z1).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             -1,
             0,
             0
         );
-        vc.addVertex(pose, x, y1, z2).setColor(abgr).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x, y1, z2).setColor(argb).setUv(u2, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             -1,
             0,
             0
         );
-        vc.addVertex(pose, x, y2, z2).setColor(abgr).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x, y2, z2).setColor(argb).setUv(u2, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             -1,
             0,
             0
         );
-        vc.addVertex(pose, x, y2, z1).setColor(abgr).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
+        vc.addVertex(pose, x, y2, z1).setColor(argb).setUv(u1, v1).setOverlay(overlay).setLight(light).setNormal(
             pose,
             -1,
             0,

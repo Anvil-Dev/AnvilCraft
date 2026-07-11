@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Recipe defining what resources a planet produces based on its celestial parameters.
+ * 根据天体参数定义行星产出资源的配方。
  */
 public record PlanetResourceRecipe(
     Category category,

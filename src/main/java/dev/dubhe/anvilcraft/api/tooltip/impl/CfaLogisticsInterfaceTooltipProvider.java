@@ -1,9 +1,7 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
-import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLogisticsInterfaceBlockEntity;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,18 +11,17 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CfaLogisticsInterfaceTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
-    @Override
-    public boolean accepts(BlockEntity value) {
-        return value instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity;
+public class CfaLogisticsInterfaceTooltipProvider
+    extends CfaInterfaceTooltipProvider<CelestialForgingAnvilLogisticsInterfaceBlockEntity> {
+    public CfaLogisticsInterfaceTooltipProvider() {
+        super(CelestialForgingAnvilLogisticsInterfaceBlockEntity.class);
     }
 
     @Override
-    public List<Component> tooltip(BlockEntity value) {
-        if (!(value instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logistics)) return List.of();
+    protected List<Component> buildTooltip(CelestialForgingAnvilLogisticsInterfaceBlockEntity logistics) {
         List<Component> lines = new ArrayList<>();
 
-        // Show temple demand if active and unsatisfied
+        // 显示尚未完成的神庙供奉需求。
         ItemStack demandItem = logistics.getTempleDemandItem();
         if (!demandItem.isEmpty() && !logistics.isTempleDemandSatisfied()) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.temple_demand")
@@ -44,16 +41,16 @@ public class CfaLogisticsInterfaceTooltipProvider extends ITooltipProvider.Block
             lines.add(Component.literal(""));
         }
 
-        // Show collider info if active (pushed by CFA controller)
+        // 显示锻星砧控制器推送的对撞机状态。
         List<ItemStack> colliderTargets = logistics.getColliderTargetItems();
         if (!colliderTargets.isEmpty() || logistics.isColliderProcessing() || logistics.isColliderStarMissing()) {
-            // Star missing warning — shown instead of target items
+            // 缺少恒星时优先显示警告，不显示目标物品。
             if (logistics.isColliderStarMissing()) {
                 lines.add(Component.translatable("screen.anvilcraft.cfa.collider_star_missing")
                     .withStyle(ChatFormatting.RED));
                 lines.add(Component.literal(""));
             } else if (logistics.isColliderProcessing()) {
-                var level = Minecraft.getInstance().level;
+                var level = logistics.getLevel();
                 int dots = level != null ? (int) ((level.getGameTime() / 10) % 3) : 0;
                 String base = Component.translatable("screen.anvilcraft.cfa.collider_processing").getString();
                 lines.add(Component.literal(base + ".".repeat(dots + 1) + "◇")
@@ -62,7 +59,7 @@ public class CfaLogisticsInterfaceTooltipProvider extends ITooltipProvider.Block
                 lines.add(Component.translatable("screen.anvilcraft.cfa.collider_targets")
                     .withStyle(ChatFormatting.AQUA));
             }
-            // Only show target items when idle (not processing, not star missing)
+            // 仅在空闲且恒星存在时显示目标物品。
             if (!logistics.isColliderStarMissing() && !logistics.isColliderProcessing()) {
                 for (ItemStack target : colliderTargets) {
                     if (!target.isEmpty()) {
@@ -75,7 +72,7 @@ public class CfaLogisticsInterfaceTooltipProvider extends ITooltipProvider.Block
             lines.add(Component.literal(""));
         }
 
-        // Show stored items
+        // 显示接口内已存储的物品。
         ResourceHandler<ItemResource> handler = logistics.getItemHandler();
         boolean hasAny = false;
         for (int i = 0; i < handler.size(); i++) {
@@ -101,8 +98,4 @@ public class CfaLogisticsInterfaceTooltipProvider extends ITooltipProvider.Block
         return ItemStack.EMPTY;
     }
 
-    @Override
-    public int priority() {
-        return -1;
-    }
 }

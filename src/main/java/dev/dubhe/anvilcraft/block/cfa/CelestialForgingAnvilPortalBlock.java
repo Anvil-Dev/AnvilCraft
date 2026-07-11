@@ -151,7 +151,7 @@ public class CelestialForgingAnvilPortalBlock
                         .setValue(HALF, DirectionGate331PartHalf.BOTTOM_CENTER)
                         .setValue(FACING, dir.getOpposite())
                         .setValue(OPEN, false)
-                        .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+                        .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER && fluidState.isSource());
                 }
             }
         }
@@ -260,6 +260,7 @@ public class CelestialForgingAnvilPortalBlock
                                 InsideBlockEffectApplier effectApplier, boolean isPrecise) {
         if (level.isClientSide()) return;
         if (!state.getValue(OPEN)) return;
+        if (entity instanceof ServerPlayer) return;
         DirectionGate331PartHalf half = state.getValue(HALF);
         if (half != DirectionGate331PartHalf.BOTTOM_CENTER
             && half != DirectionGate331PartHalf.MID_CENTER) return;

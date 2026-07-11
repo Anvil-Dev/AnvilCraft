@@ -21,7 +21,7 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * Recipe defining temple demand entries for the Temple megastructure.
+ * 定义神庙巨构每日供奉需求条目的配方。
  */
 public record TempleDemandRecipe(
     Category category,

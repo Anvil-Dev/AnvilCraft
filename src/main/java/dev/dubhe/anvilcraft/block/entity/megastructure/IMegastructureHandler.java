@@ -8,14 +8,11 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 /**
- * Interface for CFA megastructure handlers.
- *
- * <p>
- * In 26.1, NBT persistence uses {@link ValueOutput}/{@link ValueInput} for disk save/load.
- * Network sync still uses {@link CompoundTag} via {@code getUpdateTag}.
- * {@code readUpdateTag} is kept for Phase 6 client sync integration.
+ * 锻星砧巨构处理器接口。
+ * 26.1 使用 {@link ValueOutput}/{@link ValueInput} 持久化，网络同步仍通过 {@link CompoundTag}。
  */
 public interface IMegastructureHandler {
+    LaserRequirement NO_LASER_REQUIREMENT = new LaserRequirement(0, false);
 
     String name();
 
@@ -25,16 +22,16 @@ public interface IMegastructureHandler {
 
     void onClear(CelestialForgingAnvilBlockEntity be);
 
-    /** Disk persistence — 26.1 uses ValueOutput */
+    /** 使用 ValueOutput 保存巨构持久化数据。 */
     void saveAdditional(ValueOutput output);
 
-    /** Disk persistence — 26.1 uses ValueInput */
+    /** 使用 ValueInput 读取巨构持久化数据。 */
     void loadAdditional(ValueInput input);
 
-    /** Network sync (server) — included in CFA BE's getUpdateTag */
+    /** 服务端写入随锻星砧更新标签发送的同步数据。 */
     void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries);
 
-    /** Network sync (client) — called from Phase 6 CFA BE sync path */
+    /** 客户端读取锻星砧更新标签中的同步数据。 */
     void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries);
 
     default int getInputPower(CelestialForgingAnvilBlockEntity be) {
@@ -50,5 +47,13 @@ public interface IMegastructureHandler {
     }
 
     default void gridTick(CelestialForgingAnvilBlockEntity be) {
+    }
+
+    default LaserRequirement getLaserRequirement() {
+        return NO_LASER_REQUIREMENT;
+    }
+
+    /** 所有相连激光接口需要满足的激光等级和类型。 */
+    record LaserRequirement(int level, boolean gamma) {
     }
 }

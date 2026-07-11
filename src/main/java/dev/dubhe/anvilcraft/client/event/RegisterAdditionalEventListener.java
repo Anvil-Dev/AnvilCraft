@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.screen.cfa.CfaPreviewPipRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
@@ -20,6 +21,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
 
@@ -101,7 +103,7 @@ public class RegisterAdditionalEventListener {
             CFARenderer.RING6,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_6"))
         );
-        // CFA megastructure models
+        // 锻星砧巨构模型。
         event.register(
             CFARenderer.R1_EXCAVATOR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_1_excavator"))
@@ -139,12 +141,22 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_5_dyson_sphere"))
         );
         event.register(
+            CFARenderer.R4_COIL,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil"))
+        );
+        event.register(
             CFARenderer.R4_COIL_FIX,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil_fix"))
         );
         event.register(
             CFARenderer.R4_COIL_RING,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil_ring"))
+        );
+        event.register(
+            CFARenderer.R4_PENROSE_SPHERE,
+            SimpleUnbakedStandaloneModel.blockStateModel(
+                AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere")
+            )
         );
         event.register(
             CFARenderer.R4_PENROSE_SPHERE_FIX,
@@ -157,6 +169,12 @@ public class RegisterAdditionalEventListener {
         event.register(
             CFARenderer.R4_PENROSE_SPHERE_LASER_OFF,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere_laser_off"))
+        );
+        event.register(
+            CFARenderer.R4_MATTER_DECOMPRESSOR,
+            SimpleUnbakedStandaloneModel.blockStateModel(
+                AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor")
+            )
         );
         event.register(
             CFARenderer.R4_MATTER_DECOMPRESSOR_FIX,
@@ -182,7 +200,7 @@ public class RegisterAdditionalEventListener {
                 AnvilCraft.of("block/celestial_forging_anvil_ring_6_stellar_evolution_accelerator")
             )
         );
-        // CFA body models
+        // 锻星砧天体模型。
         event.register(
             CFARenderer.BODY_STAR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/star"))
@@ -199,7 +217,7 @@ public class RegisterAdditionalEventListener {
             CFARenderer.BODY_BLACK_HOLE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/black_hole"))
         );
-        // CFA body models — planets (static-texture fallback)
+        // 行星模型，作为动态贴图不可用时的静态贴图后备。
         event.register(CFARenderer.BODY_PLANET_ARID,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_arid")));
         event.register(CFARenderer.BODY_PLANET_WET,
@@ -262,5 +280,11 @@ public class RegisterAdditionalEventListener {
     public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
         event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_weapon_launcher"), SpectralWeaponLauncherRenderer.Unbaked.CODEC);
+    }
+
+    /** 注册锻星砧界面使用的画中画渲染器。 */
+    @SubscribeEvent
+    public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
+        event.register(CfaPreviewPipRenderer.State.class, CfaPreviewPipRenderer::new);
     }
 }

@@ -3,25 +3,16 @@ package dev.dubhe.anvilcraft.client.init;
 import dev.anvilcraft.lib.v2.rendering.extension.ALRRenderTypeExtension;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 
 import java.util.function.Function;
 
 public class ModRenderTypes {
-
-    public static final RenderType TRANSLUCENT_COLORED_OVERLAY = RenderType.create(
-        "anvilcraft:laser_translucent",
-        RenderSetup.builder(ModRenderPipelines.COLORED_OVERLAY)
-            .useLightmap()
-            .sortOnUpload()
-            .withTexture("Sampler0", ModTextureAtlases.LOCATION_LASER)
-            .createRenderSetup()
-    );
 
     public static final RenderType LINE_BLOOM = ALRRenderTypeExtension.copyWithBloom(RenderTypes.LINES);
 
@@ -44,8 +35,6 @@ public class ModRenderTypes {
             .createRenderSetup()
     );
 
-    public static final RenderType LASER_SOLID_BLOOM = ALRRenderTypeExtension.copyWithBloom(LASER_SOLID);
-
     public static final RenderType LIGHTNING = RenderType.create(
         "anvilcraft:lightning",
         RenderSetup.builder(ModRenderPipelines.LIGHTNING)
@@ -62,13 +51,17 @@ public class ModRenderTypes {
             .createRenderSetup()
     );
 
-    public static final RenderType STELLAR_BEAM = SUPERNOVA_BEAM;
+    public static final RenderType STELLAR_BEAM = RenderType.create(
+        "anvilcraft:stellar_beam",
+        RenderSetup.builder(ModRenderPipelines.STELLAR_BEAM)
+            .sortOnUpload()
+            .createRenderSetup()
+    );
 
     public static final RenderType CORRUPTED_BEACON_BEAM = RenderType.create(
             "anvilcraft:corrupted_beacon_beam",
             RenderSetup.builder(ModRenderPipelines.CORRUPTED_BEACON_BEAM)
-                    .useLightmap()
-                    .withTexture("Sampler0", ModTextureAtlases.LOCATION_LASER)
+                    .sortOnUpload()
                     .createRenderSetup()
     );
 
@@ -96,8 +89,21 @@ public class ModRenderTypes {
     public static final Function<Identifier, RenderType> STAR_CUTOUT =
             Util.memoize((Identifier tex) -> RenderTypes.entityCutout(tex));
 
-    public static final Function<Identifier, RenderType> CELESTIAL_RING =
-            Util.memoize((Identifier tex) -> RenderTypes.entityTranslucent(tex));
+    /**
+     * 天体环使用独立的方块半透明管线，以保持与 1.21 相同的深度和混合行为。
+     * 环的正反面使用贴图中的不同象限，因此保持双面渲染。
+     */
+    public static final Function<Identifier, RenderType> CELESTIAL_RING = Util.memoize(
+            tex -> RenderType.create(
+                    "anvilcraft:celestial_ring",
+                    RenderSetup.builder(ModRenderPipelines.CELESTIAL_RING)
+                            .withTexture("Sampler0", tex)
+                            .useLightmap()
+                            .useOverlay()
+                            .affectsCrumbling()
+                            .createRenderSetup()
+            )
+    );
 
     public static final Function<Identifier, RenderType> SUPERNOVA_FLASH = Util.memoize(
             tex -> RenderType.create(
@@ -120,5 +126,21 @@ public class ModRenderTypes {
             )
     );
 
-    public static final RenderType CUTOUT_BLOCK = CUTOUT_NO_LIGHTING.apply(TextureAtlas.LOCATION_BLOCKS);
+    /**
+     * 使用方块图集并保留半透明混合的模型渲染类型。
+     * 配合全亮光照值和显式模型提交使用，可绕过方块模型的环境光遮蔽。
+     */
+    public static final Function<Identifier, RenderType> TRANSLUCENT_NO_LIGHTING = Util.memoize(
+            tex -> RenderType.create(
+                    "anvilcraft:translucent_no_lighting",
+                    RenderSetup.builder(RenderPipelines.TRANSLUCENT_BLOCK)
+                            .withTexture("Sampler0", tex)
+                            .useLightmap()
+                            .sortOnUpload()
+                            .createRenderSetup()
+            )
+    );
+
+    public static final RenderType CUTOUT_BLOCK = CUTOUT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());
+    public static final RenderType TRANSLUCENT_BLOCK = TRANSLUCENT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());
 }

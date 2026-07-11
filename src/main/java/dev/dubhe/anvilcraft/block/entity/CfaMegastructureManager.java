@@ -25,9 +25,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class CfaMegastructureManager {
     private int activeMegastructureIndex = -1;
+    private @Nullable String activeMegastructureName;
+    private int activeMegastructureRing = -1;
 
     private final Map<String, IMegastructureHandler> handlers = new LinkedHashMap<>();
     @Getter
@@ -41,7 +44,7 @@ public class CfaMegastructureManager {
         this.registerHandler(new DysonSphereHandler("dyson_sphere_small"));
         this.registerHandler(new DysonSphereHandler("dyson_sphere_large"));
         this.registerHandler(new MagnetarCoilHandler());
-        this. registerHandler(new PenroseSphereHandler());
+        this.registerHandler(new PenroseSphereHandler());
         this.registerHandler(new MatterDecompressorHandler());
         this.registerHandler(new WormholeStabilizerHandler());
         this.registerHandler(new EcoStationHandler());
@@ -59,21 +62,34 @@ public class CfaMegastructureManager {
 
     @Nullable
     public IMegastructureHandler getActiveHandler(CelestialForgingAnvilBlockEntity be) {
-        CelestialRefactorOption option = this.getActiveOption(be);
-        if (option == null) return null;
-        return this.handlers.get(option.megastructure());
+        if (this.activeMegastructureName == null) {
+            this.getActiveOption(be);
+        }
+        return this.activeMegastructureName == null ? null : this.handlers.get(this.activeMegastructureName);
     }
 
     @Nullable
     public CelestialRefactorOption getActiveOption(CelestialForgingAnvilBlockEntity be) {
-        if (this.activeMegastructureIndex < 0 || be.getCelestialBodyData() == null) return null;
+        if (this.activeMegastructureIndex < 0) return null;
+        if (this.activeMegastructureName != null) {
+            for (CelestialRefactorOption option : CelestialRefactorRegistry.getOptionsForRing(0, 6)) {
+                if (option.megastructure().equals(this.activeMegastructureName)
+                    && option.ring() == this.activeMegastructureRing) {
+                    return option;
+                }
+            }
+        }
+        if (be.getCelestialBodyData() == null) return null;
         var options = CelestialRefactorRegistry.getOptions(
             be.getCelestialBodyData(),
             be.isAmplify(),
             be.getPlanetaryResourceSet()
         );
         if (this.activeMegastructureIndex >= options.size()) return null;
-        return options.get(this.activeMegastructureIndex);
+        CelestialRefactorOption option = options.get(this.activeMegastructureIndex);
+        this.activeMegastructureName = option.megastructure();
+        this.activeMegastructureRing = option.ring();
+        return option;
     }
 
     @Nullable
@@ -86,10 +102,12 @@ public class CfaMegastructureManager {
     }
 
     public WormholeStabilizerHandler getWormholeHandler() {
-        return this.findHandler(WormholeStabilizerHandler.class);
+        return Objects.requireNonNull(
+            this.findHandler(WormholeStabilizerHandler.class), "Wormhole handler was not registered"
+        );
     }
 
-    // === Tick ===
+    // ==================== 巨构刻逻辑 ====================
 
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (this.activeMegastructureIndex >= 0) {
@@ -104,7 +122,7 @@ public class CfaMegastructureManager {
         }
     }
 
-    // === Laser requirements ===
+    // ==================== 激光需求 ====================
 
     public void syncLaserRequirements(CelestialForgingAnvilBlockEntity be) {
         IMegastructureHandler active = this.getActiveHandler(be);
@@ -113,17 +131,9 @@ public class CfaMegastructureManager {
             return;
         }
         var lasers = CfaInterfaceScanner.findLaserInterfaces(be.getLevel(), be.getBlockPos());
-        String name = active.name();
-        if ("planet_excavator".equals(name)) {
-            for (var laser : lasers) {
-                laser.setLaserRequirement(16, false);
-            }
-        } else if ("matter_decompressor".equals(name)) {
-            for (var laser : lasers) {
-                laser.setLaserRequirement(1, true);
-            }
-        } else {
-            this.clearAllLaserRequirements(be);
+        IMegastructureHandler.LaserRequirement requirement = active.getLaserRequirement();
+        for (var laser : lasers) {
+            laser.setLaserRequirement(requirement.level(), requirement.gamma());
         }
     }
 
@@ -134,7 +144,7 @@ public class CfaMegastructureManager {
         }
     }
 
-    // === Build / Clear ===
+    // ==================== 建造与清除 ====================
 
     public void buildMegastructure(int optionIndex, CelestialForgingAnvilBlockEntity be) {
         var body = be.getCelestialBodyData();
@@ -148,6 +158,8 @@ public class CfaMegastructureManager {
         }
         if (this.activeMegastructureIndex >= 0) return;
         this.activeMegastructureIndex = optionIndex;
+        this.activeMegastructureName = option.megastructure();
+        this.activeMegastructureRing = option.ring();
         IMegastructureHandler handler = this.handlers.get(option.megastructure());
         if (handler != null) {
             handler.onBuild(be);
@@ -162,6 +174,8 @@ public class CfaMegastructureManager {
             }
         }
         this.activeMegastructureIndex = -1;
+        this.activeMegastructureName = null;
+        this.activeMegastructureRing = -1;
         this.clearAllLaserRequirements(be);
     }
 
@@ -170,10 +184,11 @@ public class CfaMegastructureManager {
         this.clearMegastructure(be);
     }
 
-    // === Persistence: disk (ValueOutput/ValueInput) ===
+    // ==================== 磁盘持久化 ====================
 
     public void saveAdditional(ValueOutput output) {
         output.putInt("activeMegastructure", this.activeMegastructureIndex);
+        this.saveActiveIdentity(output);
         for (var handler : this.handlers.values()) {
             handler.saveAdditional(output);
         }
@@ -182,16 +197,21 @@ public class CfaMegastructureManager {
 
     public void loadAdditional(ValueInput input) {
         this.activeMegastructureIndex = input.getIntOr("activeMegastructure", -1);
+        this.loadActiveIdentity(input);
         for (var handler : this.handlers.values()) {
             handler.loadAdditional(input);
         }
         this.acceleratorHandler.loadAdditional(input);
     }
 
-    // === Network sync (still CompoundTag-based) ===
+    // ==================== 基于 CompoundTag 的网络同步 ====================
 
     public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         tag.putInt("activeMegastructure", this.activeMegastructureIndex);
+        if (this.activeMegastructureName != null) {
+            tag.putString("activeMegastructureName", this.activeMegastructureName);
+            tag.putInt("activeMegastructureRing", this.activeMegastructureRing);
+        }
         for (var handler : this.handlers.values()) {
             handler.writeUpdateTag(tag, registries);
         }
@@ -200,13 +220,16 @@ public class CfaMegastructureManager {
 
     public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         this.activeMegastructureIndex = tag.getIntOr("activeMegastructure", -1);
+        String activeName = tag.getStringOr("activeMegastructureName", "");
+        this.activeMegastructureName = activeName.isEmpty() ? null : activeName;
+        this.activeMegastructureRing = tag.getIntOr("activeMegastructureRing", -1);
         for (var handler : this.handlers.values()) {
             handler.readUpdateTag(tag, registries);
         }
         this.acceleratorHandler.readUpdateTag(tag, registries);
     }
 
-    // === Power ===
+    // ==================== 电力 ====================
 
     public int getInputPower(CelestialForgingAnvilBlockEntity be) {
         IMegastructureHandler handler = this.getActiveHandler(be);
@@ -216,6 +239,15 @@ public class CfaMegastructureManager {
     public int getOutputPower(CelestialForgingAnvilBlockEntity be) {
         IMegastructureHandler handler = this.getActiveHandler(be);
         return handler != null ? handler.getOutputPower(be) : 0;
+    }
+
+    /** 戴森球在恒星演化第一阶段是否正在提供无限电力。 */
+    public boolean isInfinitePower(CelestialForgingAnvilBlockEntity be) {
+        if (!be.isAcceleratorActive() || be.getAcceleratorStage() != 1 || !be.isAmplifierPresent()) {
+            return false;
+        }
+        CelestialRefactorOption option = this.getActiveOption(be);
+        return option != null && option.megastructure().contains("dyson_sphere");
     }
 
     public PowerComponentType getComponentType(CelestialForgingAnvilBlockEntity be) {
@@ -228,5 +260,17 @@ public class CfaMegastructureManager {
         IMegastructureHandler handler = this.getActiveHandler(be);
         if (handler != null) handler.gridTick(be);
         this.acceleratorHandler.gridTick(be);
+    }
+
+    private void saveActiveIdentity(ValueOutput output) {
+        if (this.activeMegastructureName == null) return;
+        output.putString("activeMegastructureName", this.activeMegastructureName);
+        output.putInt("activeMegastructureRing", this.activeMegastructureRing);
+    }
+
+    private void loadActiveIdentity(ValueInput input) {
+        String activeName = input.getStringOr("activeMegastructureName", "");
+        this.activeMegastructureName = activeName.isEmpty() ? null : activeName;
+        this.activeMegastructureRing = input.getIntOr("activeMegastructureRing", -1);
     }
 }

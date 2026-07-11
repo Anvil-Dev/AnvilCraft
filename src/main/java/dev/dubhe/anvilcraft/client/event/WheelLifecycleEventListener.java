@@ -74,6 +74,12 @@ public class WheelLifecycleEventListener {
     private static boolean multitoolKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> multitoolWheelCache = null;
 
+    /** 判断当前是否正在通过长按铁砧锤打开方块状态选择轮。 */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean isHammerWheelOpen() {
+        return hammerKeyWasDown && hammerWheelCache != null && hammerWheelCache.isPresent();
+    }
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft client = Minecraft.getInstance();

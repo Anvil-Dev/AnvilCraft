@@ -364,7 +364,7 @@ public class BlockTagLoader {
 
         provider.rawBuilder(ModBlockTags.INCORRECT_FOR_TRANSCENDIUM_TOOL);
 
-        // === CFA blocks: immune to Wither, Ender Dragon ===
+        // 锻星砧相关方块免疫凋灵和末影龙破坏。
         provider.rawBuilder(BlockTags.WITHER_IMMUNE)
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.getId())

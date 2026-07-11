@@ -4,10 +4,8 @@ import com.mojang.blaze3d.platform.Window;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
-import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.hud.IonoCraftBackpackHUD;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -30,7 +28,6 @@ public class GuiLayerRegistrationEventListener {
     @SubscribeEvent
     public static void onRegister(RegisterGuiLayersEvent event) {
         event.registerAboveAll(AnvilCraft.of("power"), (graphics, deltaTracker) -> {
-            if (CompatUtil.HAS_JADE.get() && AnvilCraftClient.CONFIG.doNotShowTooltipWhenJadePresent) return;
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.options.hideGui) return;
             float partialTick = deltaTracker.getGameTimeDeltaPartialTick(

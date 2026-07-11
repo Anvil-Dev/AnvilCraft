@@ -4,7 +4,9 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import lombok.Getter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -28,6 +30,11 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
     @Override
     public String name() {
         return "planet_excavator";
+    }
+
+    @Override
+    public LaserRequirement getLaserRequirement() {
+        return new LaserRequirement(16, false);
     }
 
     @Override
@@ -106,6 +113,16 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
     @Override
     public void loadAdditional(ValueInput input) {
         this.laserActive = input.getBooleanOr("excavatorLaserActive", false);
+    }
+
+    @Override
+    public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putBoolean("excavatorLaserActive", this.laserActive);
+    }
+
+    @Override
+    public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        this.laserActive = tag.getBooleanOr("excavatorLaserActive", false);
     }
 
     @Override

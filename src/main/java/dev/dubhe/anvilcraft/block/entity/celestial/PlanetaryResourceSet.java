@@ -11,14 +11,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Container for all resources generated for a celestial body.
- * Stored alongside {@link CelestialBodyData} in the block entity NBT.
+ * 天体生成的全部资源集合，与 {@link CelestialBodyData} 一同保存在方块实体 NBT 中。
  */
 public class PlanetaryResourceSet {
 
-    /**
-     * A weighted item entry — item identifier with its percentage weight.
-     */
+    /** 带权重的物品资源条目。 */
     public record WeightedItemStack(Identifier itemId, int weight) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
@@ -34,9 +31,7 @@ public class PlanetaryResourceSet {
         }
     }
 
-    /**
-     * A weighted fluid entry — fluid identifier with its percentage weight.
-     */
+    /** 带权重的流体资源条目。 */
     public record WeightedFluidStack(Identifier fluidId, int weight) {
         public CompoundTag toTag() {
             CompoundTag tag = new CompoundTag();
@@ -52,7 +47,7 @@ public class PlanetaryResourceSet {
         }
     }
 
-    // === Fields ===
+    // === 数据字段 ===
 
     private final List<WeightedItemStack> minerals = new ArrayList<>();
     private final List<WeightedFluidStack> fluids = new ArrayList<>();
@@ -66,7 +61,7 @@ public class PlanetaryResourceSet {
     @Getter
     private boolean isWasteland = false;
 
-    // === Getters ===
+    // === 只读访问 ===
 
     public List<WeightedItemStack> getMinerals() {
         return Collections.unmodifiableList(this.minerals);
@@ -115,7 +110,7 @@ public class PlanetaryResourceSet {
             && this.wastelandItems.isEmpty();
     }
 
-    // === Mutators (package-private, for PlanetResourceGenerator) ===
+    // === 包内写入方法，仅供资源生成器使用 ===
 
     void addMineral(WeightedItemStack entry) {
         this.minerals.add(entry);
@@ -157,7 +152,7 @@ public class PlanetaryResourceSet {
         this.isWasteland = true;
     }
 
-    // === NBT Serialization ===
+    // === NBT 序列化 ===
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();

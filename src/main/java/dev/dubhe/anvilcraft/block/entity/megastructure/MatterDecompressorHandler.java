@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -22,6 +21,11 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
     @Override
     public String name() {
         return "matter_decompressor";
+    }
+
+    @Override
+    public LaserRequirement getLaserRequirement() {
+        return new LaserRequirement(1, true);
     }
 
     @Override
@@ -50,7 +54,7 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
         if (bodyClass == CelestialBodyClass.BLACK_HOLE) {
             ItemLike voidMatter = ModItems.VOID_MATTER.get();
             ItemStack output = new ItemStack(voidMatter, efficiency);
-            List<ResourceHandler<@NotNull ItemResource>> logistics = findLogisticsInterfaces(be);
+            List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
             this.tryInsert(logistics, output);
 
             // 激发态虚空物质：概率 = ((B-4)×2)%，最低为0，B是磁场强度
@@ -69,7 +73,7 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
                 this.counter = 0;
                 ItemLike neutroniumIngot = ModItems.NEUTRONIUM_INGOT.get();
                 ItemStack output = new ItemStack(neutroniumIngot, 1);
-                List<ResourceHandler<@NotNull ItemResource>> logistics = findLogisticsInterfaces(be);
+                List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
                 this.tryInsert(logistics, output);
 
                 // 充能中子锭：概率 = ((B-3)^2)%，最低为0，B是磁场强度
@@ -84,7 +88,7 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
         }
     }
 
-    private void tryInsert(List<ResourceHandler<@NotNull ItemResource>> logistics, ItemStack output) {
+    private void tryInsert(List<ResourceHandler<ItemResource>> logistics, ItemStack output) {
         if (logistics.isEmpty()) return;
         int startIdx = this.logisticsRoundRobin % logistics.size();
         for (int attempt = 0; attempt < logistics.size(); attempt++) {

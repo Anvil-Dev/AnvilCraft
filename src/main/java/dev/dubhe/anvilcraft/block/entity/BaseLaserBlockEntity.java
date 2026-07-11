@@ -72,7 +72,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             || blockState.is(Tags.Blocks.GLASS_BLOCKS)
             || blockState.is(Tags.Blocks.GLASS_PANES)
             || blockState.is(BlockTags.REPLACEABLE)) return true;
-        // Empty lens aligned with the laser axis is transparent
+        // 与激光轴方向一致的空透镜允许激光穿过。
         if (blockState.getBlock() instanceof LensBlock
             && blockState.getValue(LensBlock.TYPE) == LensType.NONE
             && direction.getAxis() == blockState.getValue(LensBlock.AXIS)) {
@@ -360,7 +360,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         this.laserLevel = value;
     }
 
-    public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
+    public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.irradiateBlockPos = irradiateBlockPos;
         this.laserLevel = laserLevel;
         Objects.requireNonNull(CachedBlockEntityRenderingPipeline.getInstance()).update(this, true);

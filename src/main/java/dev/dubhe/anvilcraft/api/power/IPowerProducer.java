@@ -12,6 +12,11 @@ public interface IPowerProducer extends IPowerComponent {
         return 0;
     }
 
+    /** 是否正在提供无限电力。 */
+    default boolean isInfinitePower() {
+        return false;
+    }
+
     @Override
     default PowerComponentType getComponentType() {
         return PowerComponentType.PRODUCER;

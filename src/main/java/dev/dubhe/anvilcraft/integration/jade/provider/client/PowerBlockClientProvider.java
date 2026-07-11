@@ -32,6 +32,15 @@ public enum PowerBlockClientProvider implements IBlockComponentProvider {
         if (serverData.contains("generate") && serverData.contains("consume")) {
             int generate = serverData.getIntOr("generate", 0);
             int consume = serverData.getIntOr("consume", 0);
+            boolean infinitePower = serverData.getBooleanOr("infinitePower", false);
+
+            if (infinitePower) {
+                tooltip.add(Component.translatable(
+                    "tooltip.anvilcraft.jade.power_information",
+                    UnitUtil.INFINITE_POWER
+                ).withStyle(ChatFormatting.WHITE));
+                return;
+            }
 
             float percent = Mth.clamp(MathUtil.safeDiv(consume, generate == 0 ? consume : generate), 0, 1);
             int color;

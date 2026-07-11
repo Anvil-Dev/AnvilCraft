@@ -98,6 +98,8 @@
     "SectionCompilerMixin",
     "SoundEngineMixin",
     "SubmitNodeCollectionMixin",
+    "WheelScreenMixin",
+    "WheelWidgetMixin",
     "accessor.FluidStateModelSetAccessor",
     "accessor.LevelRendererAccessor",
     "accessor.MultiPlayerGameModeAccessor",

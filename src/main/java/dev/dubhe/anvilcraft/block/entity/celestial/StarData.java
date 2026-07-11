@@ -29,9 +29,7 @@ public record StarData(
         return RingType.NONE;
     }
 
-    /**
-     * Create a copy with a new body UUID, preserving all other fields.
-     */
+    /** 保留其他字段，仅替换天体 UUID。 */
     public StarData withBodyUuid(UUID uuid) {
         return new StarData(
             this.bodyClass,
@@ -48,9 +46,7 @@ public record StarData(
     }
 
     /**
-     * Derive a reproducible UUID from the bodySeed. The same bodySeed always
-     * produces the same UUID, which enables singularity crystal copies to share
-     * the wormhole identity of the original discovery.
+     * 根据 bodySeed 生成可复现的 UUID，使奇点晶体复制品与原始天体共享虫洞身份。
      */
     public static UUID uuidFromBodySeed(long bodySeed) {
         return new UUID(bodySeed, bodySeed);

@@ -7,9 +7,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     CelestialBodyType type();
 
-    /**
-     * The matched body class from the diagram.
-     */
+    /** 从星图中匹配得到的天体类别。 */
     CelestialBodyClass bodyClass();
 
     RingType ringType();
@@ -19,23 +17,21 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
     float axialTilt();
 
     /**
-     * Rotation speed level (0-5).
+     * 自转速度等级（0-5）。
      * <ul>
-     *   <li>0 = Very Slow</li>
-     *   <li>1 = Slow</li>
-     *   <li>2 = Medium</li>
-     *   <li>3 = Fast</li>
-     *   <li>4 = Very Fast</li>
-     *   <li>5 = Super Fast</li>
+     *   <li>0 = 极慢</li>
+     *   <li>1 = 慢</li>
+     *   <li>2 = 中等</li>
+     *   <li>3 = 快</li>
+     *   <li>4 = 极快</li>
+     *   <li>5 = 超高速</li>
      * </ul>
      */
     int rotationSpeed();
 
     int magneticFieldStrength();
 
-    /**
-     * Convert rotation speed level to visual rotation multiplier (deg/tick).
-     */
+    /** 将自转速度等级转换为视觉旋转速度（度/刻）。 */
     static float getVisualRotationSpeed(int level) {
         return switch (level) {
             case 0 -> 0.1f;
@@ -43,13 +39,13 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
             case 2 -> 1.0f;
             case 3 -> 1.5f;
             case 4 -> 3.0f;
-            default -> 100.0f; // 5+ = Super Fast
+            default -> 100.0f; // 5 级及以上为超高速
         };
     }
 
     /**
-     * Compute the raw visual scale of the body (without the {@link #BODY_SCALE_FACTOR} multiplier).
-     * Black holes and neutron stars use fixed values; other bodies use a piecewise size→scale mapping.
+     * 计算天体原始视觉缩放，不包含 {@link #BODY_SCALE_FACTOR} 倍率。
+     * 黑洞和中子星使用固定值，其余天体按大小进行分段映射。
      */
     default float bodyScale() {
         if (this instanceof StarData star) {
@@ -65,24 +61,22 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
         }
     }
 
-    // === Ring-system / body-scale constants (shared by rendering and gravity) ===
+    // === 束星环与天体缩放常量，渲染和引力共用 ===
 
-    /** Full visual scale multiplier of a body (BODY_SCALE_FACTOR × bodyScale = full visual size). */
+    /** 天体完整视觉缩放倍率。 */
     float BODY_SCALE_FACTOR = 10.0f / 1.5f;
-    /** Ratio between the ring-system scale and the body scale. */
+    /** 束星环系统缩放与天体缩放的比值。 */
     float RING_TO_BODY_RATIO = 1.8f;
-    /** Extra factor so non-amplified R1-R3 rings (roughly half the inner radius of R4-R6) keep the same body spacing. */
+    /** 非增幅 R1-R3 内半径较小，用此补偿系数保持与 R4-R6 一致的天体间距。 */
     float RING_SMALL_INNER_RADIUS_FACTOR = 2.0f;
-    /** Upper bound of the visual compensation applied to the accumulated "in" bone tilt. */
+    /** 内层骨骼累积倾斜的视觉补偿上限。 */
     float INNER_BONE_BOOST_MAX = 5.5f;
-    /** Decay rate of the "in" bone visual compensation with respect to bodyScale. */
+    /** 内层骨骼视觉补偿随天体缩放衰减的速率。 */
     float INNER_BONE_BOOST_RATE = 0.8f;
-    /** Default ring scale used when there is no body. */
+    /** 没有天体时使用的默认束星环缩放。 */
     float BASE_RING_SCALE = 6.0f;
 
-    /**
-     * Compute the full ring-system scale for the given body data (without redstone interpolation).
-     */
+    /** 计算指定天体的完整束星环系统缩放，不包含红石插值。 */
     static float ringSystemScale(@Nullable CelestialBodyData data, boolean isAmplify) {
         if (data == null) return BASE_RING_SCALE;
         float bodyS = data.bodyScale();
@@ -96,9 +90,7 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
         }
     }
 
-    /**
-     * Compute the dynamic body-center height for the given body data (without redstone interpolation).
-     */
+    /** 计算指定天体的动态中心高度，不包含红石插值。 */
     static float dynamicCenterY(@Nullable CelestialBodyData data, boolean isAmplify) {
         if (data == null) return isAmplify ? 6.5f : 4.5f;
         float ringScale = ringSystemScale(data, isAmplify);

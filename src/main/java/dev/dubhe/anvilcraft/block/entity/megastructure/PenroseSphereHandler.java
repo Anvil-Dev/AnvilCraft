@@ -6,6 +6,8 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBloc
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -108,6 +110,16 @@ public class PenroseSphereHandler extends BaseMegastructureHandler {
     @Override
     public void loadAdditional(ValueInput input) {
         this.laserActive = input.getBooleanOr("penroseSphereLaserActive", false);
+    }
+
+    @Override
+    public void writeUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putBoolean("penroseSphereLaserActive", this.laserActive);
+    }
+
+    @Override
+    public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+        this.laserActive = tag.getBooleanOr("penroseSphereLaserActive", false);
     }
 
     @Override
