@@ -1492,21 +1492,28 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         // 清空钳子中的物品（停止动画）
+        boolean stateChanged = false;
+
         if (!this.currentHeldBlock.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
+            stateChanged = true;
         }
 
         // 重置冷却，让下一个 tick 可以立即检查是否可以继续工作
         if (this.placeCooldown > 0) {
             this.placeCooldown = 0;
+            stateChanged = true;
         }
 
         // 任何模式下，资源耗尽时都重置索引，从第一个位置开始重新检索
         if (this.currentPlacementIndex != 0) {
             this.currentPlacementIndex = 0;
+            stateChanged = true;
         }
 
-        this.onChanged();
+        if (stateChanged) {
+            this.onChanged();
+        }
         return true;
     }
 
