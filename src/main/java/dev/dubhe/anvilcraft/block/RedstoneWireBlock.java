@@ -37,6 +37,7 @@ public class RedstoneWireBlock extends Block {
     public static final EnumProperty<RedstoneSide> SOUTH = BlockStateProperties.SOUTH_REDSTONE;
     public static final EnumProperty<RedstoneSide> WEST = BlockStateProperties.WEST_REDSTONE;
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
+    public static final IntegerProperty NON_DUST_POWER = IntegerProperty.create("non_dust_power", 0, 15);
     public static final BooleanProperty DOT = BooleanProperty.create("dot");
     public static final Map<Direction, EnumProperty<RedstoneSide>> PROPERTY_BY_DIRECTION = ImmutableMap.copyOf(
         Maps.newEnumMap(Map.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST))
@@ -67,6 +68,7 @@ public class RedstoneWireBlock extends Block {
             .setValue(SOUTH, RedstoneSide.SIDE)
             .setValue(WEST, RedstoneSide.NONE)
             .setValue(POWER, 0)
+            .setValue(NON_DUST_POWER, 0)
             .setValue(DOT, false));
     }
 
@@ -150,7 +152,12 @@ public class RedstoneWireBlock extends Block {
     public boolean canConnectRedstone(
         BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction
     ) {
-        return false;
+        if (direction == null || !direction.getAxis().isHorizontal()) {
+            return false;
+        }
+        Direction terminalDirection = direction.getOpposite();
+        return state.getValue(PROPERTY_BY_DIRECTION.get(terminalDirection)).isConnected()
+            && findConnectedWire(level, pos, terminalDirection) == null;
     }
 
     @Override
@@ -166,20 +173,21 @@ public class RedstoneWireBlock extends Block {
         Direction outputDirection = direction.getOpposite();
         BlockState receiver = level.getBlockState(pos.relative(outputDirection));
         if (!state.getValue(PROPERTY_BY_DIRECTION.get(outputDirection)).isConnected()
-            || receiver.is(Blocks.REDSTONE_WIRE)
             || findConnectedWire(level, pos, outputDirection) != null) {
             return 0;
         }
-        return state.getValue(POWER);
+        return receiver.is(Blocks.REDSTONE_WIRE) ? state.getValue(NON_DUST_POWER) : state.getValue(POWER);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, POWER, DOT);
+        builder.add(NORTH, EAST, SOUTH, WEST, POWER, NON_DUST_POWER, DOT);
     }
 
     private BlockState connectionState(BlockGetter level, BlockPos pos, BlockState oldState) {
-        BlockState result = this.defaultBlockState().setValue(POWER, oldState.getValue(POWER));
+        BlockState result = this.defaultBlockState()
+            .setValue(POWER, oldState.getValue(POWER))
+            .setValue(NON_DUST_POWER, oldState.getValue(NON_DUST_POWER));
         int connections = 0;
         Direction first = null;
         Direction second = null;
@@ -303,11 +311,16 @@ public class RedstoneWireBlock extends Block {
             }
         }
 
-        int power = getInputPower(level, network);
+        InputPower inputPower = getInputPower(level, network);
         for (BlockPos pos : network) {
             BlockState state = level.getBlockState(pos);
-            if (state.getValue(POWER) != power) {
-                level.setBlock(pos, state.setValue(POWER, power), Block.UPDATE_CLIENTS);
+            if (state.getValue(POWER) != inputPower.total()
+                || state.getValue(NON_DUST_POWER) != inputPower.nonDust()) {
+                level.setBlock(
+                    pos,
+                    state.setValue(POWER, inputPower.total()).setValue(NON_DUST_POWER, inputPower.nonDust()),
+                    Block.UPDATE_CLIENTS
+                );
                 changed.add(pos);
             }
         }
@@ -336,8 +349,9 @@ public class RedstoneWireBlock extends Block {
         return network;
     }
 
-    private static int getInputPower(Level level, Set<BlockPos> network) {
-        int power = 0;
+    private static InputPower getInputPower(Level level, Set<BlockPos> network) {
+        int totalPower = 0;
+        int nonDustPower = 0;
         SUPPRESS_SIGNAL.set(true);
         try {
             for (BlockPos pos : network) {
@@ -349,14 +363,19 @@ public class RedstoneWireBlock extends Block {
                     }
                     BlockPos inputPos = pos.relative(direction);
                     BlockState inputState = level.getBlockState(inputPos);
+                    int inputPower = level.getSignal(inputPos, direction);
+                    totalPower = Math.max(totalPower, inputPower);
                     if (!inputState.is(Blocks.REDSTONE_WIRE)) {
-                        power = Math.max(power, level.getSignal(inputPos, direction));
+                        nonDustPower = Math.max(nonDustPower, inputPower);
                     }
                 }
             }
         } finally {
             SUPPRESS_SIGNAL.set(false);
         }
-        return power;
+        return new InputPower(totalPower, nonDustPower);
+    }
+
+    private record InputPower(int total, int nonDust) {
     }
 }

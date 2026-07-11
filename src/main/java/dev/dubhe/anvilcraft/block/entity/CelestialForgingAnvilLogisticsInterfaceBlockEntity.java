@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -147,6 +148,17 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
 
         Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
         BlockPos targetPos = worldPosition.relative(facing);
+        IItemHandler targetHandler = level.getCapability(
+            Capabilities.ItemHandler.BLOCK, targetPos, facing.getOpposite()
+        );
+        Vec3 ejectPos = targetPos.getCenter();
+        if (targetHandler == null) {
+            AABB ejectArea = new AABB(
+                ejectPos.add(-0.125, -0.125, -0.125),
+                ejectPos.add(0.125, 0.125, 0.125)
+            );
+            if (!level.noCollision(ejectArea)) return;
+        }
         boolean ejected = false;
         int totalSlots = itemHandler.getSlots();
 
@@ -156,13 +168,20 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
             ItemStack stack = itemHandler.getStackInSlot(slot);
             if (stack.isEmpty()) continue;
             int toExtract = Math.min(stack.getCount(), MAX_EJECT_PER_OP);
+            if (targetHandler == null) {
+                AABB itemDetectionArea = new AABB(targetPos).expandTowards(0, -0.5, 0);
+                int existingCount = level.getEntitiesOfClass(ItemEntity.class, itemDetectionArea).stream()
+                    .map(ItemEntity::getItem)
+                    .filter(existing -> ItemStack.isSameItemSameComponents(existing, stack))
+                    .mapToInt(ItemStack::getCount)
+                    .sum();
+                toExtract = Math.min(toExtract, stack.getMaxStackSize() - existingCount);
+                if (toExtract <= 0) continue;
+            }
             ItemStack extracted = itemHandler.extractItem(slot, toExtract, false);
             if (extracted.isEmpty()) continue;
 
             /// 尝试插入到目标容器中
-            IItemHandler targetHandler = level.getCapability(
-                Capabilities.ItemHandler.BLOCK, targetPos, facing.getOpposite()
-            );
             if (targetHandler != null) {
                 ItemStack remainder = ItemHandlerHelper.insertItem(targetHandler, extracted, false);
                 if (!remainder.isEmpty()) {
@@ -175,7 +194,6 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
                 }
             } else {
                 /// 无目标容器——将物品以速度弹出到世界中
-                Vec3 ejectPos = worldPosition.relative(facing).getCenter();
                 Vec3 velocity = new Vec3(
                     facing.getStepX() * 0.25,
                     facing.getStepY() * 0.25,

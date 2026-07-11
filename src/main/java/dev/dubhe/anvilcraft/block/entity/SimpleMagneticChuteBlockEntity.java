@@ -131,7 +131,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
                         List<ItemEntity> itemEntities = getLevel()
                             .getEntitiesOfClass(
                                 ItemEntity.class,
-                                new AABB(getBlockPos().relative(facing)),
+                                new AABB(getBlockPos().relative(facing)).expandTowards(0, -0.5, 0),
                                 itemEntity -> !itemEntity.getItem().isEmpty()
                             );
                         int sameItemCount = 0;

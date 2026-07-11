@@ -1031,15 +1031,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::discharger)
         .register();
 
-    public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRUM.block("block_placer", BlockPlacerBlock::new)
-        .simpleItem()
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe(RegistrumBlockRecipeLoader::blockPlacer)
-        .register();
-
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)
         .item()
         .properties(Item.Properties::fireResistant)
@@ -1052,36 +1043,13 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::blockDevourer)
         .register();
 
-    public static final BlockEntry<? extends StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
-        .block("structure_scanner", StructureScannerBlock::new)
-        .lang("Structure Scanner")
+    public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRUM.block("block_placer", BlockPlacerBlock::new)
+        .simpleItem()
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .blockstate((ctx, provider) -> {
-            var model = provider.models().getExistingFile(AnvilCraft.of("block/structure_scanner"));
-            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
-                Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-                boolean upsideDown = state.getValue(StructureScannerBlock.UPSIDE_DOWN);
-
-                int rotation = switch (facing) {
-                    case EAST -> 90;
-                    case SOUTH -> 180;
-                    case WEST -> 270;
-                    default -> 0;
-                };
-
-                if (upsideDown) rotation = (rotation + 180) % 360;
-
-                return ConfiguredModel.builder()
-                    .modelFile(model)
-                    .rotationX(upsideDown ? 180 : 0)
-                    .rotationY(rotation)
-                    .build();
-            });
-        })
-        .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .recipe(RegistrumBlockRecipeLoader::structureScanner)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumBlockRecipeLoader::blockPlacer)
         .register();
 
     public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
@@ -1129,6 +1097,38 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
+        .register();
+
+    public static final BlockEntry<? extends StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
+        .lang("Structure Scanner")
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate((ctx, provider) -> {
+            var model = provider.models().getExistingFile(AnvilCraft.of("block/structure_scanner"));
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+                boolean upsideDown = state.getValue(StructureScannerBlock.UPSIDE_DOWN);
+
+                int rotation = switch (facing) {
+                    case EAST -> 90;
+                    case SOUTH -> 180;
+                    case WEST -> 270;
+                    default -> 0;
+                };
+
+                if (upsideDown) rotation = (rotation + 180) % 360;
+
+                return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX(upsideDown ? 180 : 0)
+                    .rotationY(rotation)
+                    .build();
+            });
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
+        .recipe(RegistrumBlockRecipeLoader::structureScanner)
         .register();
 
     public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRUM.block("ruby_laser", RubyLaserBlock::new)
@@ -4201,6 +4201,17 @@ public class ModBlocks {
         })
         .register();
 
+    public static final BlockEntry<RedstoneWireBlock> REDSTONE_WIRE = REGISTRUM.block("redstone_wire", RedstoneWireBlock::new)
+        .lang("Redstone Wire")
+        .initialProperties(() -> Blocks.REDSTONE_WIRE)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(RedstoneWireBlockStateGenerator::generate)
+        .item()
+        .model((ctx, provider) -> provider.generated(ctx))
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::redstoneWire)
+        .register();
+
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRUM.block(
             "copper_pressure_plate",
             properties -> new TimeCountedPressurePlateBlock(BlockSetType.IRON, properties, 10)
@@ -4217,17 +4228,6 @@ public class ModBlocks {
         .tag(ModItemTags.PLATES, ModItemTags.COPPER_PLATES)
         .build()
         .recipe(RegistrumBlockRecipeLoader::copperPressurePlate)
-        .register();
-
-    public static final BlockEntry<RedstoneWireBlock> REDSTONE_WIRE = REGISTRUM.block("redstone_wire", RedstoneWireBlock::new)
-        .lang("Redstone Wire")
-        .initialProperties(() -> Blocks.REDSTONE_WIRE)
-        .properties(BlockBehaviour.Properties::noOcclusion)
-        .blockstate(RedstoneWireBlockStateGenerator::generate)
-        .item()
-        .model((ctx, provider) -> provider.generated(ctx))
-        .build()
-        .recipe(RegistrumBlockRecipeLoader::redstoneWire)
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> EXPOSED_COPPER_PRESSURE_PLATE =

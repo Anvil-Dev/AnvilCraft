@@ -11,7 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,18 +74,12 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         if (item.asItem() == Items.AIR) return;
         ItemStack output = new ItemStack(item, efficiency);
 
-        List<IItemHandler> logistics = findLogisticsInterfaces(be);
-        if (logistics.isEmpty()) return;
+        var logistics = findOutputLogisticsInterfaces(be);
+        if (logistics.size() == 0) return;
 
-        int startIdx = logisticsRoundRobin % logistics.size();
-        for (int attempt = 0; attempt < logistics.size(); attempt++) {
-            int idx = (startIdx + attempt) % logistics.size();
-            IItemHandler handler = logistics.get(idx);
-            ItemStack remainder = insertIntoHandler(handler, output);
-            if (remainder.getCount() < output.getCount()) {
-                logisticsRoundRobin = (idx + 1) % logistics.size();
-                return;
-            }
+        ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+        if (result.remainder().getCount() < output.getCount()) {
+            logisticsRoundRobin = result.nextIndex();
         }
     }
 
