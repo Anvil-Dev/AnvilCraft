@@ -109,6 +109,7 @@ import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.RadioactiveBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.ReinforcedConcreteBlock;
 import dev.dubhe.anvilcraft.block.RemoteTransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.ResentfulAmberBlock;
@@ -185,6 +186,7 @@ import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.block.item.MultiphaseMatterBlockItem;
 import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.item.RadiationBlockItem;
+import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
@@ -219,6 +221,7 @@ import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import dev.dubhe.anvilcraft.block.state.Vertical4PartHalf;
 import dev.dubhe.anvilcraft.data.generator.PipeBlockStateGenerator;
+import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -1029,15 +1032,6 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::discharger)
         .register();
 
-    public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRUM.block("block_placer", BlockPlacerBlock::new)
-        .simpleItem()
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .recipe(RegistrumBlockRecipeLoader::blockPlacer)
-        .register();
-
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)
         .item()
         .properties(Item.Properties::fireResistant)
@@ -1050,36 +1044,13 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::blockDevourer)
         .register();
 
-    public static final BlockEntry<? extends StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
-        .block("structure_scanner", StructureScannerBlock::new)
-        .lang("Structure Scanner")
+    public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRUM.block("block_placer", BlockPlacerBlock::new)
+        .simpleItem()
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
-        .blockstate((ctx, provider) -> {
-            var model = provider.models().getExistingFile(AnvilCraft.of("block/structure_scanner"));
-            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
-                Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-                boolean upsideDown = state.getValue(StructureScannerBlock.UPSIDE_DOWN);
-
-                int rotation = switch (facing) {
-                    case EAST -> 90;
-                    case SOUTH -> 180;
-                    case WEST -> 270;
-                    default -> 0;
-                };
-
-                if (upsideDown) rotation = (rotation + 180) % 360;
-
-                return ConfiguredModel.builder()
-                    .modelFile(model)
-                    .rotationX(upsideDown ? 180 : 0)
-                    .rotationY(rotation)
-                    .build();
-            });
-        })
-        .simpleItem()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
-        .recipe(RegistrumBlockRecipeLoader::structureScanner)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumBlockRecipeLoader::blockPlacer)
         .register();
 
     public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
@@ -1127,6 +1098,38 @@ public class ModBlocks {
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::smartBlockPlacer)
+        .register();
+
+    public static final BlockEntry<? extends StructureScannerBlock> STRUCTURE_SCANNER = REGISTRUM
+        .block("structure_scanner", StructureScannerBlock::new)
+        .lang("Structure Scanner")
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .blockstate((ctx, provider) -> {
+            var model = provider.models().getExistingFile(AnvilCraft.of("block/structure_scanner"));
+            provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
+                Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+                boolean upsideDown = state.getValue(StructureScannerBlock.UPSIDE_DOWN);
+
+                int rotation = switch (facing) {
+                    case EAST -> 90;
+                    case SOUTH -> 180;
+                    case WEST -> 270;
+                    default -> 0;
+                };
+
+                if (upsideDown) rotation = (rotation + 180) % 360;
+
+                return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX(upsideDown ? 180 : 0)
+                    .rotationY(rotation)
+                    .build();
+            });
+        })
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
+        .recipe(RegistrumBlockRecipeLoader::structureScanner)
         .register();
 
     public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRUM.block("ruby_laser", RubyLaserBlock::new)
@@ -4197,6 +4200,17 @@ public class ModBlocks {
                         .when(silkTouch.invert()))
             );
         })
+        .register();
+
+    public static final BlockEntry<RedstoneWireBlock> REDSTONE_WIRE = REGISTRUM.block("redstone_wire", RedstoneWireBlock::new)
+        .lang("Redstone Wire")
+        .initialProperties(() -> Blocks.REDSTONE_WIRE)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(RedstoneWireBlockStateGenerator::generate)
+        .item(RedstoneWireBlockItem::new)
+        .model((ctx, provider) -> provider.generated(ctx))
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::redstoneWire)
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRUM.block(

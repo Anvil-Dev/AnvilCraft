@@ -13,6 +13,10 @@ public class AnvilCraftClientConfig {
     @Comment("The mode of the anvil hammer goggle info")
     public GoggleMode goggleMode = GoggleMode.WEARING_HAMMER;
 
+    @Comment("Scale of the anvil hammer radial menu")
+    @BoundedDiscrete(min = 0.5, max = 2.0)
+    public float anvilHammerRadialMenuScale = 1.0f;
+
     @Comment("Render distance of heliostats block entity")
     @BoundedDiscrete(min = 32, max = 512)
     public int heliostatsRenderDistance = 128;
@@ -89,6 +93,10 @@ public class AnvilCraftClientConfig {
         @SerializedName("Enabled")
         @Comment("If true, will show Ionocraft Backpack current power in hud")
         public boolean enabled = true;
+
+        @SerializedName("Capacitor Count Enabled")
+        @Comment("If true, will show charged capacitor counts in hud")
+        public boolean capacitorCountEnabled = true;
 
         @SerializedName("HUD Scale")
         @Comment("The Gui Hud Scale")

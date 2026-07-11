@@ -1,0 +1,125 @@
+{
+  "ambientocclusion": false,
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#0"
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            6.0
+          ]
+        },
+        "north": {
+          "texture": "#0",
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            6.0
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            6.0
+          ]
+        },
+        "up": {
+          "texture": "#0"
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            4.0,
+            4.0,
+            12.0,
+            6.0
+          ]
+        }
+      },
+      "from": [
+        4,
+        -0.5,
+        4
+      ],
+      "to": [
+        12,
+        1.5,
+        12
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            5.0,
+            5.0,
+            11.0,
+            6.0
+          ]
+        },
+        "north": {
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            5.0,
+            5.0,
+            11.0,
+            6.0
+          ]
+        },
+        "south": {
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            5.0,
+            5.0,
+            11.0,
+            6.0
+          ]
+        },
+        "up": {
+          "texture": "#1",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            5.0,
+            5.0,
+            11.0,
+            6.0
+          ]
+        }
+      },
+      "from": [
+        5,
+        1.5,
+        5
+      ],
+      "to": [
+        11,
+        2.5,
+        11
+      ]
+    }
+  ],
+  "textures": {
+    "0": "anvilcraft:block/redstone_wire_dot",
+    "1": "anvilcraft:block/redstone_wire_dot_overlay",
+    "particle": "anvilcraft:block/redstone_wire_dot"
+  }
+}

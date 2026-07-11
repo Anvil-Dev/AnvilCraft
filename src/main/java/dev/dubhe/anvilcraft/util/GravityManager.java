@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -32,6 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @EventBusSubscriber(modid = "anvilcraft")
 public class GravityManager {
+    private static final double MIN_SWEPT_MOVEMENT_SQR = 0.98 * 0.98;
+    private static final double VECTOR_EPSILON = 1.0e-12;
+    private static final SweptGravity ZERO_SWEPT_GRAVITY = new SweptGravity(Vec3.ZERO, Vec3.ZERO);
 
     /// 维度 -> 区块索引 -> 重力源列表
     private static final Map<ResourceKey<Level>, Map<Long, List<GravitySource>>> GRAVITY_CACHE = new ConcurrentHashMap<>();
@@ -117,6 +121,35 @@ public class GravityManager {
 
         // 根据实体引力类型修正向量方向/大小
         return gravityVector.scale(GravityManager.getGravityType(entity).getScalar());
+    }
+
+    /**
+     * Applies gravity when an entity crosses an entire gravity field between two movement updates.
+     * The normal point sample handles entities whose start or end position is inside the field.
+     */
+    public static Vec3 applySweptGravity(Entity entity, Vec3 movement) {
+        if (movement.lengthSqr() <= MIN_SWEPT_MOVEMENT_SQR
+            || entity.isNoGravity()
+            || entity instanceof Player player && player.getAbilities().flying) {
+            return movement;
+        }
+
+        SweptGravity sweptGravity = GravitySourceManager.calculateSweptGravity(entity, movement);
+        double gravityScalar = getGravityType(entity).getScalar();
+        Vec3 movementImpulse = sweptGravity.movementImpulse().scale(gravityScalar);
+        Vec3 velocityImpulse = sweptGravity.velocityImpulse().scale(gravityScalar);
+        if (!isFinite(movementImpulse) || !isFinite(velocityImpulse)) return movement;
+        if (movementImpulse.lengthSqr() <= VECTOR_EPSILON && velocityImpulse.lengthSqr() <= VECTOR_EPSILON) return movement;
+
+        entity.setDeltaMovement(entity.getDeltaMovement().add(velocityImpulse));
+        return movement.add(movementImpulse);
+    }
+
+    private static boolean isFinite(Vec3 vector) {
+        return Double.isFinite(vector.x) && Double.isFinite(vector.y) && Double.isFinite(vector.z);
+    }
+
+    private record SweptGravity(Vec3 movementImpulse, Vec3 velocityImpulse) {
     }
 
     /// 得到含维度的总体重力向量（仅用于下落方块方块）
@@ -282,34 +315,76 @@ public class GravityManager {
                     var list = cache.get(ChunkPos.asLong(cx + x, cz + z));
                     if (list == null) continue;
                     for (var s : list) {
-                        double dx = s.pos.getX() + 0.5 - p.x;
-                        double dy = s.pos.getY() + 0.5 - p.y;
-                        double dz = s.pos.getZ() + 0.5 - p.z;
-                        double radiusSquare = dx * dx + dy * dy + dz * dz;
-
-                        if (radiusSquare <= s.type.radiusSqr) {
-                            double dist = Math.sqrt(radiusSquare);
-                            double f;
-                            if (s.type.bodyRadius > 0 && dist < s.type.bodyRadius) {
-                                // 天体内部：均匀球壳近似，g ∝ r（越靠近中心越弱，中心处为 0）。
-                                // f = g * strength / bodyRadius³，力的大小 = f * dist = g * strength * dist / bodyRadius³
-                                f = (g * s.type.strength) / s.type.bodyRadiusCubed;
-                            } else {
-                                // 天体外部：标准 1/r² 衰减
-                                f = (g * s.type.strength) / (Math.max(radiusSquare, 1.0) * dist);
-                            }
-                            fx += dx * f;
-                            fy += dy * f;
-                            fz += dz * f;
-                        }
+                        Vec3 force = calculateGravityVector(s, p, g);
+                        fx += force.x;
+                        fy += force.y;
+                        fz += force.z;
                     }
                 }
             }
             return new Vec3(fx, fy, fz);
         }
 
+        private static Vec3 calculateGravityVector(GravitySource source, Vec3 p, double g) {
+            Vec3 offset = source.pos.getCenter().subtract(p);
+            double radiusSquare = offset.lengthSqr();
+            if (radiusSquare > source.type.radiusSqr || radiusSquare <= VECTOR_EPSILON) return Vec3.ZERO;
+
+            double dist = Math.sqrt(radiusSquare);
+            double factor;
+            if (source.type.bodyRadius > 0 && dist < source.type.bodyRadius) {
+                factor = (g * source.type.strength) / source.type.bodyRadiusCubed;
+            } else {
+                factor = (g * source.type.strength) / (Math.max(radiusSquare, 1.0) * dist);
+            }
+            return offset.scale(factor);
+        }
+
         public static Vec3 calculateGravityVector(Entity entity) {
             return calculateGravityVector(entity.level(), entity.getBoundingBox().getCenter(), getEntityG(entity));
+        }
+
+        private static SweptGravity calculateSweptGravity(Entity entity, Vec3 movement) {
+            Map<Long, List<GravitySource>> cache = GRAVITY_CACHE.get(entity.level().dimension());
+            if (cache == null) return ZERO_SWEPT_GRAVITY;
+
+            Vec3 start = entity.getBoundingBox().getCenter();
+            Vec3 end = start.add(movement);
+            double movementSqr = movement.lengthSqr();
+            double g = getEntityG(entity);
+            Vec3 movementImpulse = Vec3.ZERO;
+            Vec3 velocityImpulse = Vec3.ZERO;
+
+            for (List<GravitySource> sources : cache.values()) {
+                for (GravitySource source : sources) {
+                    Vec3 center = source.pos.getCenter();
+                    if (start.distanceToSqr(center) <= source.type.radiusSqr
+                        || end.distanceToSqr(center) <= source.type.radiusSqr) {
+                        continue;
+                    }
+
+                    Vec3 relativeStart = start.subtract(center);
+                    double projection = relativeStart.dot(movement);
+                    double discriminant = projection * projection
+                        - movementSqr * (relativeStart.lengthSqr() - source.type.radiusSqr);
+                    if (discriminant <= 0) continue;
+
+                    double root = Math.sqrt(discriminant);
+                    double enter = Math.max(0.0, (-projection - root) / movementSqr);
+                    double exit = Math.min(1.0, (-projection + root) / movementSqr);
+                    if (enter >= exit) continue;
+
+                    double interval = exit - enter;
+                    for (int sample = 0; sample < 3; sample++) {
+                        double t = enter + interval * ((sample + 0.5) / 3.0);
+                        Vec3 samplePosition = start.add(movement.scale(t));
+                        Vec3 impulse = calculateGravityVector(source, samplePosition, g).scale(interval / 3.0);
+                        velocityImpulse = velocityImpulse.add(impulse);
+                        movementImpulse = movementImpulse.add(impulse.scale(1.0 - t));
+                    }
+                }
+            }
+            return new SweptGravity(movementImpulse, velocityImpulse);
         }
     }
 }

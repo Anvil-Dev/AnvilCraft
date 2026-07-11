@@ -10,6 +10,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.List;
@@ -58,6 +60,17 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         return CfaInterfaceScanner.findFluidInterfaces(be.getLevel(), be.getBlockPos());
     }
 
+    protected CfaInterfaceScanner.PrioritizedInterfaces<IItemHandler> findOutputLogisticsInterfaces(
+        CelestialForgingAnvilBlockEntity be
+    ) {
+        return CfaInterfaceScanner.findPrioritizedLogisticsInterfaces(be.getLevel(), be.getBlockPos());
+    }
+
+    protected CfaInterfaceScanner.PrioritizedInterfaces<CelestialForgingAnvilFluidInterfaceBlockEntity>
+        findOutputFluidInterfaces(CelestialForgingAnvilBlockEntity be) {
+        return CfaInterfaceScanner.findPrioritizedFluidInterfaces(be.getLevel(), be.getBlockPos());
+    }
+
     protected void scanAdjacentBlocks(Consumer<BlockPos> consumer, CelestialForgingAnvilBlockEntity be) {
         CfaInterfaceScanner.scanAdjacentBlocks(be.getBlockPos(), be.getLevel(), consumer);
     }
@@ -68,6 +81,63 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
             remainder = handler.insertItem(slot, remainder, false);
         }
         return remainder;
+    }
+
+    protected record ItemOutputResult(ItemStack remainder, int nextIndex) {
+    }
+
+    protected static ItemOutputResult insertOutputItem(
+        CfaInterfaceScanner.PrioritizedInterfaces<IItemHandler> interfaces, ItemStack stack, int startIndex
+    ) {
+        return insertOutputItem(interfaces.preferred(), stack, startIndex);
+    }
+
+    private static ItemOutputResult insertOutputItem(List<IItemHandler> handlers, ItemStack stack, int startIndex) {
+        ItemStack remainder = stack.copy();
+        if (handlers.isEmpty() || remainder.isEmpty()) return new ItemOutputResult(remainder, startIndex);
+
+        int nextIndex = Math.floorMod(startIndex, handlers.size());
+        for (int attempt = 0; attempt < handlers.size() && !remainder.isEmpty(); attempt++) {
+            int index = (Math.floorMod(startIndex, handlers.size()) + attempt) % handlers.size();
+            int before = remainder.getCount();
+            remainder = insertIntoHandler(handlers.get(index), remainder);
+            if (remainder.getCount() < before) {
+                nextIndex = (index + 1) % handlers.size();
+            }
+        }
+        return new ItemOutputResult(remainder, nextIndex);
+    }
+
+    protected record FluidOutputResult(int filled, int nextIndex) {
+    }
+
+    protected static FluidOutputResult fillOutputFluid(
+        CfaInterfaceScanner.PrioritizedInterfaces<CelestialForgingAnvilFluidInterfaceBlockEntity> interfaces,
+        FluidStack stack,
+        int startIndex
+    ) {
+        return fillOutputFluid(interfaces.preferred(), stack, startIndex);
+    }
+
+    private static FluidOutputResult fillOutputFluid(
+        List<CelestialForgingAnvilFluidInterfaceBlockEntity> interfaces, FluidStack stack, int startIndex
+    ) {
+        if (interfaces.isEmpty() || stack.isEmpty()) return new FluidOutputResult(0, startIndex);
+
+        int remaining = stack.getAmount();
+        int nextIndex = Math.floorMod(startIndex, interfaces.size());
+        int normalizedStart = Math.floorMod(startIndex, interfaces.size());
+        for (int attempt = 0; attempt < interfaces.size() && remaining > 0; attempt++) {
+            int index = (normalizedStart + attempt) % interfaces.size();
+            int filled = interfaces.get(index).getInternalFluidHandler().fill(
+                stack.copyWithAmount(remaining), IFluidHandler.FluidAction.EXECUTE
+            );
+            if (filled > 0) {
+                remaining -= Math.min(filled, remaining);
+                nextIndex = (index + 1) % interfaces.size();
+            }
+        }
+        return new FluidOutputResult(stack.getAmount() - remaining, nextIndex);
     }
 
     protected static void dropItemOnGround(ItemStack stack, Level level, BlockPos pos) {

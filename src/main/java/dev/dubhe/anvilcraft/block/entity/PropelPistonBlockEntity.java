@@ -44,6 +44,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     public void notifyMoved() {
+        this.resetLaserStateAfterMove();
         this.delay = 0;
         this.power = 0;
     }

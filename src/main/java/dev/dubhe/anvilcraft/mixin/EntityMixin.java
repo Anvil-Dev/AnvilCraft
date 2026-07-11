@@ -33,6 +33,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -102,6 +103,11 @@ public abstract class EntityMixin implements IEntityExtension {
     @Override
     public Vec3 anvilcraft$getFixedDeltaMovement() {
         return anvil$fixedDeltaMovement;
+    }
+
+    @ModifyVariable(method = "move", at = @At("HEAD"), argsOnly = true)
+    private Vec3 anvilcraft$applySweptGravity(Vec3 movement) {
+        return GravityManager.applySweptGravity((Entity) (Object) this, movement);
     }
 
     @WrapOperation(

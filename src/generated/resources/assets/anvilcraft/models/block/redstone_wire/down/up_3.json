@@ -1,0 +1,149 @@
+{
+  "ambientocclusion": false,
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#0",
+          "uv": [
+            5.0,
+            15.0,
+            11.0,
+            16.0
+          ]
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            16.0
+          ]
+        },
+        "north": {
+          "texture": "#0",
+          "uv": [
+            10.0,
+            0.0,
+            11.0,
+            16.0
+          ]
+        },
+        "south": {
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            5.0,
+            16.0,
+            6.0,
+            0.0
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            1.0
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            11.0,
+            0.0,
+            5.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        -0.1,
+        1,
+        5
+      ],
+      "to": [
+        1,
+        17,
+        11
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#1",
+          "uv": [
+            6.0,
+            15.0,
+            10.0,
+            16.0
+          ]
+        },
+        "east": {
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            16.0
+          ]
+        },
+        "north": {
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            8.0,
+            16.0
+          ]
+        },
+        "south": {
+          "rotation": 180,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            8.0,
+            16.0
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "rotation": 180,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            1.0
+          ]
+        }
+      },
+      "from": [
+        0,
+        2,
+        6
+      ],
+      "to": [
+        2,
+        18,
+        10
+      ]
+    }
+  ],
+  "textures": {
+    "0": "anvilcraft:block/redstone_wire_line",
+    "1": "anvilcraft:block/redstone_wire_line_overlay",
+    "particle": "anvilcraft:block/redstone_wire_line"
+  }
+}

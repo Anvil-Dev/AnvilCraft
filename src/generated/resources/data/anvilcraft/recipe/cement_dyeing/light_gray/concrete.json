@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:light_gray_cement",
+  "ingredients": [
+    {
+      "items": "#c:concretes"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:light_gray_concrete"
+    }
+  ]
+}

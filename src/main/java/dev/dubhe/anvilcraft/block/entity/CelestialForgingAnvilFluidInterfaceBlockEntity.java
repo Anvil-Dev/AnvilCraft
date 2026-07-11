@@ -186,6 +186,15 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     /// 返回用于管道输入/输出的流体处理器能力。将全部 4 个储罐合并为一个处理器。
     @SuppressWarnings("unused")
     public IFluidHandler getFluidHandler() {
+        return createFluidHandler(false);
+    }
+
+    /// 返回供锻星砧内部产出和状态同步使用的流体处理器。
+    public IFluidHandler getInternalFluidHandler() {
+        return createFluidHandler(true);
+    }
+
+    private IFluidHandler createFluidHandler(boolean allowInputWhenActive) {
         return new IFluidHandler() {
             @Override
             public int getTanks() {
@@ -204,11 +213,13 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
 
             @Override
             public boolean isFluidValid(int tank, FluidStack stack) {
+                if (!allowInputWhenActive && isActive()) return false;
                 return tanks[tank].isFluidValid(stack);
             }
 
             @Override
             public int fill(FluidStack resource, FluidAction action) {
+                if (!allowInputWhenActive && isActive()) return 0;
                 if (resource.isEmpty()) return 0;
                 /// 优先尝试已有流体的储罐，再尝试空储罐
                 for (int i = 0; i < TANK_COUNT; i++) {
@@ -245,6 +256,12 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
                 return FluidStack.EMPTY;
             }
         };
+    }
+
+    private boolean isActive() {
+        BlockState state = getBlockState();
+        return state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
+               && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
     }
 
     /// 服务器端 tick：在主动模式（红石信号激活）且有电时，以 10 米扬程向 FACING 方向的

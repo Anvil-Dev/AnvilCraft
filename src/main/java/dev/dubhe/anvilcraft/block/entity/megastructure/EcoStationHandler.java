@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -9,14 +8,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.List;
 
 public class EcoStationHandler extends BaseMegastructureHandler {
     private static final int FLUID_PER_TICK = 250;
     private int logisticsRoundRobin = 0;
+    private int fluidRoundRobin = 0;
 
     @Override
     public String name() {
@@ -56,17 +54,11 @@ public class EcoStationHandler extends BaseMegastructureHandler {
                 ItemLike itemLike = BuiltInRegistries.ITEM.get(item.itemId());
                 if (itemLike.asItem() != Items.AIR) {
                     ItemStack output = new ItemStack(itemLike, 1);
-                    List<IItemHandler> logistics = findLogisticsInterfaces(be);
-                    if (!logistics.isEmpty()) {
-                        int startIdx = logisticsRoundRobin % logistics.size();
-                        for (int attempt = 0; attempt < logistics.size(); attempt++) {
-                            int idx = (startIdx + attempt) % logistics.size();
-                            IItemHandler handler = logistics.get(idx);
-                            ItemStack remainder = insertIntoHandler(handler, output);
-                            if (remainder.getCount() < output.getCount()) {
-                                logisticsRoundRobin = (idx + 1) % logistics.size();
-                                return;
-                            }
+                    var logistics = findOutputLogisticsInterfaces(be);
+                    if (logistics.size() > 0) {
+                        ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+                        if (result.remainder().getCount() < output.getCount()) {
+                            logisticsRoundRobin = result.nextIndex();
                         }
                     }
                 }
@@ -81,10 +73,10 @@ public class EcoStationHandler extends BaseMegastructureHandler {
                 if (f != net.minecraft.world.level.material.Fluids.EMPTY) {
                     FluidStack output = new FluidStack(f, FLUID_PER_TICK);
                     if (!output.isEmpty()) {
-                        List<CelestialForgingAnvilFluidInterfaceBlockEntity> fluidIfs = findFluidInterfaces(be);
-                        for (CelestialForgingAnvilFluidInterfaceBlockEntity fluidIf : fluidIfs) {
-                            int filled = fluidIf.getFluidHandler().fill(output, IFluidHandler.FluidAction.EXECUTE);
-                            if (filled > 0) return;
+                        var fluidInterfaces = findOutputFluidInterfaces(be);
+                        FluidOutputResult result = fillOutputFluid(fluidInterfaces, output, fluidRoundRobin);
+                        if (result.filled() > 0) {
+                            fluidRoundRobin = result.nextIndex();
                         }
                     }
                 }
@@ -96,5 +88,6 @@ public class EcoStationHandler extends BaseMegastructureHandler {
     @Override
     public void onClear(CelestialForgingAnvilBlockEntity be) {
         this.logisticsRoundRobin = 0;
+        this.fluidRoundRobin = 0;
     }
 }

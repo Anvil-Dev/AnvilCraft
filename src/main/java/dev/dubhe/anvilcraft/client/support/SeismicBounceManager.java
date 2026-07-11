@@ -54,6 +54,7 @@ public class SeismicBounceManager {
     }
 
     private final Map<BlockPos, BounceData> activeBounces = new ConcurrentHashMap<>();
+    private final Map<BlockPos, ResonanceData> activeResonances = new ConcurrentHashMap<>();
     private final RandomSource tesselateRandom = RandomSource.create();
 
     private SeismicBounceManager() {
@@ -102,27 +103,55 @@ public class SeismicBounceManager {
         }
     }
 
+    public void startResonance(BlockPos pos, int durationTicks) {
+        activeResonances.put(pos.immutable(), new ResonanceData(durationTicks));
+    }
+
+    public void stopResonance(BlockPos pos) {
+        activeResonances.remove(pos);
+    }
+
     public void tick() {
-        if (activeBounces.isEmpty()) return;
+        if (activeBounces.isEmpty() && activeResonances.isEmpty()) return;
 
         activeBounces.values().forEach(data -> data.remainingTicks--);
         activeBounces.entrySet().removeIf(entry -> entry.getValue().remainingTicks <= 0);
+        activeResonances.values().forEach(data -> data.remainingTicks--);
+        activeResonances.entrySet().removeIf(entry -> entry.getValue().remainingTicks <= 0);
     }
 
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, float partialTick, double camX, double camY, double camZ) {
-        if (activeBounces.isEmpty()) return;
+        if (activeBounces.isEmpty() && activeResonances.isEmpty()) return;
 
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
 
         BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
         BlockPos.MutableBlockPos lightPos = new BlockPos.MutableBlockPos();
-        for (Map.Entry<BlockPos, BounceData> entry : activeBounces.entrySet()) {
-            BounceData data = entry.getValue();
+        renderEntries(activeBounces, level, dispatcher, lightPos, poseStack, bufferSource, partialTick, camX, camY, camZ);
+        renderEntries(activeResonances, level, dispatcher, lightPos, poseStack, bufferSource, partialTick, camX, camY, camZ);
+    }
+
+    private void renderEntries(
+        Map<BlockPos, ? extends RenderOffset> entries,
+        Level level,
+        BlockRenderDispatcher dispatcher,
+        BlockPos.MutableBlockPos lightPos,
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        float partialTick,
+        double camX,
+        double camY,
+        double camZ
+    ) {
+        for (Map.Entry<BlockPos, ? extends RenderOffset> entry : entries.entrySet()) {
+            RenderOffset data = entry.getValue();
             BlockPos pos = entry.getKey();
 
+            float offsetX = data.getRenderOffsetX(partialTick);
             float offsetY = data.getRenderOffsetY(partialTick);
-            if (Math.abs(offsetY) < 0.001f) continue;
+            float offsetZ = data.getRenderOffsetZ(partialTick);
+            if (Math.abs(offsetX) < 0.001f && Math.abs(offsetY) < 0.001f && Math.abs(offsetZ) < 0.001f) continue;
 
             BlockState state = level.getBlockState(pos);
             if (state.isAir() || state.getRenderShape() != RenderShape.MODEL) continue;
@@ -131,9 +160,9 @@ public class SeismicBounceManager {
 
             poseStack.pushPose();
             poseStack.translate(
-                pos.getX() - camX,
+                pos.getX() - camX + offsetX,
                 pos.getY() - camY + offsetY,
-                pos.getZ() - camZ
+                pos.getZ() - camZ + offsetZ
             );
 
             // 微扩 0.1% 避免与原方块 z-fighting
@@ -164,7 +193,19 @@ public class SeismicBounceManager {
         }
     }
 
-    public static class BounceData {
+    private interface RenderOffset {
+        default float getRenderOffsetX(float partialTick) {
+            return 0.0f;
+        }
+
+        float getRenderOffsetY(float partialTick);
+
+        default float getRenderOffsetZ(float partialTick) {
+            return 0.0f;
+        }
+    }
+
+    public static class BounceData implements RenderOffset {
         private int totalTicks;
         private int startDelay;
         @Getter
@@ -205,6 +246,35 @@ public class SeismicBounceManager {
             );
 
             return amplitude * bounce;
+        }
+    }
+
+    private static class ResonanceData implements RenderOffset {
+        private final int totalTicks;
+        private int remainingTicks;
+
+        ResonanceData(int durationTicks) {
+            this.totalTicks = durationTicks;
+            this.remainingTicks = durationTicks;
+        }
+
+        @Override
+        public float getRenderOffsetX(float partialTick) {
+            return (float) Math.sin(elapsed(partialTick) * 10.7f) * 0.025f;
+        }
+
+        @Override
+        public float getRenderOffsetY(float partialTick) {
+            return (float) Math.sin(elapsed(partialTick) * 13.1f + 2.1f) * 0.02f;
+        }
+
+        @Override
+        public float getRenderOffsetZ(float partialTick) {
+            return (float) Math.sin(elapsed(partialTick) * 12.3f + 4.2f) * 0.025f;
+        }
+
+        private float elapsed(float partialTick) {
+            return totalTicks - remainingTicks + partialTick;
         }
     }
 }

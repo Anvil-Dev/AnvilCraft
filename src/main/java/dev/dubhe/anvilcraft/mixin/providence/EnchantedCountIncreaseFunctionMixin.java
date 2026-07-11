@@ -2,9 +2,12 @@ package dev.dubhe.anvilcraft.mixin.providence;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
 import net.minecraft.core.Holder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -21,6 +24,24 @@ public class EnchantedCountIncreaseFunctionMixin {
     @Shadow
     @Final
     private Holder<Enchantment> enchantment;
+
+    @WrapOperation(
+        method = "run",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;"
+                     + "getEnchantmentLevel(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/LivingEntity;)I"
+        )
+    )
+    private int getThrownHeavyHalberdEnchantmentLevel(
+        Holder<Enchantment> enchantment,
+        LivingEntity attacker,
+        Operation<Integer> original,
+        @Local(argsOnly = true) LootContext context
+    ) {
+        int originalLevel = original.call(enchantment, attacker);
+        return ModEnchantmentHelper.getEnchantmentLevelForLoot(context, enchantment, originalLevel);
+    }
 
     @WrapOperation(
         method = "run",

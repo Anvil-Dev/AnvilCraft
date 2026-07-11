@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -10,14 +9,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.List;
 
 public class GiantExtractorHandler extends BaseMegastructureHandler {
     private static final int FLUID_PER_TICK = 250;
     private int logisticsRoundRobin = 0;
+    private int fluidRoundRobin = 0;
 
     @Override
     public String name() {
@@ -34,10 +32,10 @@ public class GiantExtractorHandler extends BaseMegastructureHandler {
         List<PlanetaryResourceSet.WeightedFluidStack> giantFluids = be.getPlanetaryResourceSet().getGiantFluids();
         List<PlanetaryResourceSet.WeightedItemStack> giantItems = be.getPlanetaryResourceSet().getGiantItems();
 
-        List<CelestialForgingAnvilFluidInterfaceBlockEntity> fluidInterfaces = findFluidInterfaces(be);
-        if (fluidInterfaces.isEmpty()) return;
+        var fluidInterfaces = findOutputFluidInterfaces(be);
+        if (fluidInterfaces.size() == 0) return;
 
-        for (CelestialForgingAnvilFluidInterfaceBlockEntity fluidInterface : fluidInterfaces) {
+        for (int batch = 0; batch < fluidInterfaces.size(); batch++) {
             if (!giantFluids.isEmpty()) {
                 int totalFluidWeight = giantFluids.stream().mapToInt(PlanetaryResourceSet.WeightedFluidStack::weight).sum();
                 if (totalFluidWeight > 0) {
@@ -57,7 +55,10 @@ public class GiantExtractorHandler extends BaseMegastructureHandler {
                     if (fluid != net.minecraft.world.level.material.Fluids.EMPTY) {
                         FluidStack output = new FluidStack(fluid, FLUID_PER_TICK);
                         if (!output.isEmpty()) {
-                            fluidInterface.getFluidHandler().fill(output, IFluidHandler.FluidAction.EXECUTE);
+                            FluidOutputResult result = fillOutputFluid(fluidInterfaces, output, fluidRoundRobin);
+                            if (result.filled() > 0) {
+                                fluidRoundRobin = result.nextIndex();
+                            }
                         }
                     }
                 }
@@ -82,17 +83,11 @@ public class GiantExtractorHandler extends BaseMegastructureHandler {
                 ItemLike item = BuiltInRegistries.ITEM.get(chosenItem);
                 if (item.asItem() != Items.AIR) {
                     ItemStack output = new ItemStack(item, 1);
-                    List<IItemHandler> logistics = findLogisticsInterfaces(be);
-                    if (!logistics.isEmpty()) {
-                        int startIdx = logisticsRoundRobin % logistics.size();
-                        for (int attempt = 0; attempt < logistics.size(); attempt++) {
-                            int idx = (startIdx + attempt) % logistics.size();
-                            IItemHandler handler = logistics.get(idx);
-                            ItemStack remainder = insertIntoHandler(handler, output);
-                            if (remainder.getCount() < output.getCount()) {
-                                logisticsRoundRobin = (idx + 1) % logistics.size();
-                                break;
-                            }
+                    var logistics = findOutputLogisticsInterfaces(be);
+                    if (logistics.size() > 0) {
+                        ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+                        if (result.remainder().getCount() < output.getCount()) {
+                            logisticsRoundRobin = result.nextIndex();
                         }
                     }
                 }
@@ -103,5 +98,6 @@ public class GiantExtractorHandler extends BaseMegastructureHandler {
     @Override
     public void onClear(CelestialForgingAnvilBlockEntity be) {
         this.logisticsRoundRobin = 0;
+        this.fluidRoundRobin = 0;
     }
 }

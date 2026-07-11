@@ -264,7 +264,7 @@ public class ColliderHandler extends BaseMegastructureHandler {
 
     private void completeColliderCycle(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null) return;
-        List<IItemHandler> logistics = findLogisticsInterfaces(be);
+        var logistics = findOutputLogisticsInterfaces(be);
 
         List<RecipeHolder<AnvilCollisionCraftRecipe>> recipes = be.getLevel()
             .getRecipeManager()
@@ -294,22 +294,14 @@ public class ColliderHandler extends BaseMegastructureHandler {
         int hitRemaining = hitReserved - collisionCount;
         if (hitRemaining > 0) {
             ItemStack hitReturn = reservedHitBlock.copyWithCount(hitRemaining);
-            if (!logistics.isEmpty()) {
-                int startIdx = logisticsRoundRobin % logistics.size();
-                for (int attempt = 0; attempt < logistics.size(); attempt++) {
-                    int idx = (startIdx + attempt) % logistics.size();
-                    ItemStack remainder = insertIntoHandler(logistics.get(idx), hitReturn);
-                    if (remainder.getCount() < hitReturn.getCount()) {
-                        logisticsRoundRobin = (idx + 1) % logistics.size();
-                        if (remainder.isEmpty()) {
-                            hitReturn = ItemStack.EMPTY;
-                            break;
-                        }
-                        hitReturn = remainder;
-                    }
+            if (logistics.size() > 0) {
+                ItemOutputResult result = insertOutputItem(logistics, hitReturn, logisticsRoundRobin);
+                if (result.remainder().getCount() < hitReturn.getCount()) {
+                    logisticsRoundRobin = result.nextIndex();
                 }
+                hitReturn = result.remainder();
             }
-            if (!hitReturn.isEmpty() && logistics.isEmpty()) {
+            if (!hitReturn.isEmpty() && logistics.size() == 0) {
                 dropItemOnGround(hitReturn, be.getLevel(), be.getBlockPos());
             }
         }
@@ -319,41 +311,25 @@ public class ColliderHandler extends BaseMegastructureHandler {
             int anvilRemaining = anvilReserved - collisionCount;
             if (anvilRemaining > 0) {
                 ItemStack anvilReturn = reservedAnvil.copyWithCount(anvilRemaining);
-                if (!logistics.isEmpty()) {
-                    int startIdx = logisticsRoundRobin % logistics.size();
-                    for (int attempt = 0; attempt < logistics.size(); attempt++) {
-                        int idx = (startIdx + attempt) % logistics.size();
-                        ItemStack remainder = insertIntoHandler(logistics.get(idx), anvilReturn);
-                        if (remainder.getCount() < anvilReturn.getCount()) {
-                            logisticsRoundRobin = (idx + 1) % logistics.size();
-                            if (remainder.isEmpty()) {
-                                anvilReturn = ItemStack.EMPTY;
-                                break;
-                            }
-                            anvilReturn = remainder;
-                        }
+                if (logistics.size() > 0) {
+                    ItemOutputResult result = insertOutputItem(logistics, anvilReturn, logisticsRoundRobin);
+                    if (result.remainder().getCount() < anvilReturn.getCount()) {
+                        logisticsRoundRobin = result.nextIndex();
                     }
+                    anvilReturn = result.remainder();
                 }
-                if (!anvilReturn.isEmpty() && logistics.isEmpty()) {
+                if (!anvilReturn.isEmpty() && logistics.size() == 0) {
                     dropItemOnGround(anvilReturn, be.getLevel(), be.getBlockPos());
                 }
             }
         } else {
-            if (!reservedAnvil.isEmpty() && !logistics.isEmpty()) {
+            if (!reservedAnvil.isEmpty() && logistics.size() > 0) {
                 ItemStack anvilReturn = reservedAnvil.copy();
-                int startIdx = logisticsRoundRobin % logistics.size();
-                for (int attempt = 0; attempt < logistics.size(); attempt++) {
-                    int idx = (startIdx + attempt) % logistics.size();
-                    ItemStack remainder = insertIntoHandler(logistics.get(idx), anvilReturn);
-                    if (remainder.getCount() < anvilReturn.getCount()) {
-                        logisticsRoundRobin = (idx + 1) % logistics.size();
-                        if (remainder.isEmpty()) {
-                            anvilReturn = ItemStack.EMPTY;
-                            break;
-                        }
-                        anvilReturn = remainder;
-                    }
+                ItemOutputResult result = insertOutputItem(logistics, anvilReturn, logisticsRoundRobin);
+                if (result.remainder().getCount() < anvilReturn.getCount()) {
+                    logisticsRoundRobin = result.nextIndex();
                 }
+                anvilReturn = result.remainder();
                 if (!anvilReturn.isEmpty()) dropItemOnGround(anvilReturn, be.getLevel(), be.getBlockPos());
             } else if (!reservedAnvil.isEmpty()) {
                 dropItemOnGround(reservedAnvil.copy(), be.getLevel(), be.getBlockPos());
@@ -366,18 +342,9 @@ public class ColliderHandler extends BaseMegastructureHandler {
                 for (int c = 0; c < collisionCount; c++) {
                     ItemStack output = chanceStack.getResult(serverLevel);
                     if (output.isEmpty()) continue;
-                    int startIdx = logisticsRoundRobin % logistics.size();
-                    for (int attempt = 0; attempt < logistics.size(); attempt++) {
-                        int idx = (startIdx + attempt) % logistics.size();
-                        ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
-                        if (remainder.getCount() < output.getCount()) {
-                            logisticsRoundRobin = (idx + 1) % logistics.size();
-                            if (!remainder.isEmpty()) {
-                                output = remainder;
-                            } else {
-                                break;
-                            }
-                        }
+                    ItemOutputResult result = insertOutputItem(logistics, output, logisticsRoundRobin);
+                    if (result.remainder().getCount() < output.getCount()) {
+                        logisticsRoundRobin = result.nextIndex();
                     }
                 }
             }
@@ -389,28 +356,24 @@ public class ColliderHandler extends BaseMegastructureHandler {
 
     private void outputColliderReservedItems(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null) return;
-        List<IItemHandler> logistics = findLogisticsInterfaces(be);
+        var logistics = findOutputLogisticsInterfaces(be);
 
         if (!reservedAnvil.isEmpty()) {
             ItemStack remaining = reservedAnvil.copy();
-            if (!logistics.isEmpty()) {
-                int startIdx = logisticsRoundRobin % logistics.size();
-                for (int attempt = 0; attempt < logistics.size() && !remaining.isEmpty(); attempt++) {
-                    int idx = (startIdx + attempt) % logistics.size();
-                    remaining = insertIntoHandler(logistics.get(idx), remaining);
-                }
+            if (logistics.size() > 0) {
+                ItemOutputResult result = insertOutputItem(logistics, remaining, logisticsRoundRobin);
+                if (result.remainder().getCount() < remaining.getCount()) logisticsRoundRobin = result.nextIndex();
+                remaining = result.remainder();
             }
             if (!remaining.isEmpty()) dropItemOnGround(remaining, be.getLevel(), be.getBlockPos());
         }
 
         if (!reservedHitBlock.isEmpty()) {
             ItemStack remaining = reservedHitBlock.copy();
-            if (!logistics.isEmpty()) {
-                int startIdx = logisticsRoundRobin % logistics.size();
-                for (int attempt = 0; attempt < logistics.size() && !remaining.isEmpty(); attempt++) {
-                    int idx = (startIdx + attempt) % logistics.size();
-                    remaining = insertIntoHandler(logistics.get(idx), remaining);
-                }
+            if (logistics.size() > 0) {
+                ItemOutputResult result = insertOutputItem(logistics, remaining, logisticsRoundRobin);
+                if (result.remainder().getCount() < remaining.getCount()) logisticsRoundRobin = result.nextIndex();
+                remaining = result.remainder();
             }
             if (!remaining.isEmpty()) dropItemOnGround(remaining, be.getLevel(), be.getBlockPos());
         }

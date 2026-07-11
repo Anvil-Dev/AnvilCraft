@@ -44,11 +44,9 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Range;
@@ -247,13 +245,6 @@ public abstract class ResonatorItem extends TieredItem {
         int mode = ResonatorItem.getMode(stack);
         return switch (mode) {
             case AUTO_MODE -> {
-                if (isTranscendence(stack) && !isTooDamagedToUse(stack)) {
-                    Player player = context.getPlayer();
-                    if (player != null) {
-                        player.startUsingItem(context.getHand());
-                        yield InteractionResult.CONSUME;
-                    }
-                }
                 yield InteractionResult.PASS;
             }
             case AXE_MODE -> this.useOnAsAxe(context);
@@ -262,33 +253,6 @@ public abstract class ResonatorItem extends TieredItem {
             case PICKAXE_MODE -> this.useOnAsPickaxe(context);
             default -> super.useOn(context);
         };
-    }
-
-    @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return 72000;
-    }
-
-    @Override
-    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
-        if (level.isClientSide || !(livingEntity instanceof ServerPlayer player)) return;
-
-        // 0.5秒 = 10 ticks
-        if (getUseDuration(stack, livingEntity) - remainingUseDuration >= 10) {
-            // 获取视线方块
-            if (player.pick(player.blockInteractionRange(), 0f, false) instanceof BlockHitResult hit) {
-                BlockPos pos = hit.getBlockPos();
-                BlockState state = level.getBlockState(pos);
-                // 检查是否可破坏 (硬度 >= 0)
-                if (state.getDestroySpeed(level, pos) >= 0) {
-                    Block.dropResources(state, level, pos, level.getBlockEntity(pos), player, stack);
-                    level.destroyBlock(pos, false);
-                    stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
-                }
-            }
-            // 停止使用
-            player.stopUsingItem();
-        }
     }
 
     public InteractionResult useOnAsAxe(UseOnContext context) {

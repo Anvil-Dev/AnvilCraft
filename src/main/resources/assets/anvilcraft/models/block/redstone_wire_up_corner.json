@@ -1,0 +1,37 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "anvilcraft:block/redstone_wire_line",
+		"1": "anvilcraft:block/redstone_wire_line_overlay",
+		"particle": "anvilcraft:block/redstone_wire_line"
+	},
+	"elements": [
+		{
+			"from": [5, 0, -0.1],
+			"to": [11, 17, 1],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 9, 8]},
+			"faces": {
+				"north": {"uv": [11, 0, 5, 16], "rotation": 180, "texture": "#0", "cullface": "north"},
+				"east": {"uv": [10, 0, 11, 16], "texture": "#0"},
+				"south": {"uv": [5, 0, 11, 16], "texture": "#0"},
+				"west": {"uv": [5, 16, 6, 0], "rotation": 180, "texture": "#0"},
+				"up": {"uv": [5, 0, 11, 1], "rotation": 180, "texture": "#0", "cullface": "up"},
+				"down": {"uv": [5, 15, 11, 16], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 0.1, 0],
+			"to": [10, 18, 2],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 10, 8]},
+			"faces": {
+				"east": {"uv": [6, 0, 8, 16], "texture": "#1", "tintindex": 0},
+				"south": {"uv": [6, 0, 10, 16], "texture": "#1", "tintindex": 0},
+				"west": {"uv": [6, 0, 8, 16], "rotation": 180, "texture": "#1", "tintindex": 0},
+				"up": {"uv": [6, 0, 10, 1], "rotation": 180, "texture": "#1", "cullface": "up", "tintindex": 0},
+				"down": {"uv": [6, 15, 10, 16], "texture": "#1", "tintindex": 0}
+			}
+		}
+	]
+}

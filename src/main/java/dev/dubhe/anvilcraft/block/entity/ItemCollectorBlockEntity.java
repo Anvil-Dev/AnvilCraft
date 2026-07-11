@@ -72,7 +72,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         10,
         60
     );
-    private int cd = cooldown.next();
+    private int cd;
 
     public static final Map<Level, Map<ChunkPos, List<ItemCollectorBlockEntity>>> POACHING_COLLECTOR_MAP = new HashMap<>();
 
@@ -96,6 +96,8 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     public ItemCollectorBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+        this.cooldown.next();
+        this.resetCooldown();
     }
 
     @Override
@@ -228,13 +230,16 @@ public class ItemCollectorBlockEntity extends BlockEntity
         // 如果保持“截胡模式就不再主动吸取物品”的设定就把下面一行取消注释回来
         // if (cooldown.get() == 0) return;
 
+        BlockState state = level.getBlockState(getBlockPos());
+        if (!this.isGridWorking()
+            || state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) {
+            this.resetCooldown();
+            return;
+        }
         if (cd > 1) {
             cd--;
             return;
         }
-        if (!this.isGridWorking()) return;
-        BlockState state = level.getBlockState(getBlockPos());
-        if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) return;
         AABB box = AABB.ofSize(
             Vec3.atCenterOf(getBlockPos()),
             this.rangeRadius.get() * 2.0 + 1,
@@ -254,11 +259,11 @@ public class ItemCollectorBlockEntity extends BlockEntity
                 itemEntity.remove(Entity.RemovalReason.DISCARDED);
             }
         }
-        if (this.cooldown.get() > 0) {
-            this.cd = this.cooldown.get();
-        } else {
-            this.cd = 5; // 这个地方是给“即便是截胡模式也主动吸取物品”的设定准备的，暂时随便写了个数值
-        }
+        this.resetCooldown();
+    }
+
+    private void resetCooldown() {
+        this.cd = this.cooldown.get() > 0 ? this.cooldown.get() : 5;
     }
 
     public void tick(Level level, BlockPos blockPos) {

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,6 +13,16 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public final class CfaInterfaceScanner {
+
+    public record PrioritizedInterfaces<T>(List<T> active, List<T> passive) {
+        public List<T> preferred() {
+            return active.isEmpty() ? passive : active;
+        }
+
+        public int size() {
+            return preferred().size();
+        }
+    }
 
     private CfaInterfaceScanner() {
     }
@@ -61,6 +72,21 @@ public final class CfaInterfaceScanner {
         return result;
     }
 
+    public static PrioritizedInterfaces<IItemHandler> findPrioritizedLogisticsInterfaces(
+        Level level, BlockPos controllerPos
+    ) {
+        List<IItemHandler> active = new ArrayList<>();
+        List<IItemHandler> passive = new ArrayList<>();
+        if (level == null) return new PrioritizedInterfaces<>(active, passive);
+        scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
+            BlockEntity be = level.getBlockEntity(checkPos);
+            if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logisticsBe) {
+                (isActive(logisticsBe) ? active : passive).add(logisticsBe.getItemHandler());
+            }
+        });
+        return new PrioritizedInterfaces<>(active, passive);
+    }
+
     public static List<CelestialForgingAnvilFluidInterfaceBlockEntity> findFluidInterfaces(
         Level level, BlockPos controllerPos
     ) {
@@ -73,6 +99,25 @@ public final class CfaInterfaceScanner {
             }
         });
         return result;
+    }
+
+    public static PrioritizedInterfaces<CelestialForgingAnvilFluidInterfaceBlockEntity>
+        findPrioritizedFluidInterfaces(Level level, BlockPos controllerPos) {
+        List<CelestialForgingAnvilFluidInterfaceBlockEntity> active = new ArrayList<>();
+        List<CelestialForgingAnvilFluidInterfaceBlockEntity> passive = new ArrayList<>();
+        if (level == null) return new PrioritizedInterfaces<>(active, passive);
+        scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
+            BlockEntity be = level.getBlockEntity(checkPos);
+            if (be instanceof CelestialForgingAnvilFluidInterfaceBlockEntity fluidBe) {
+                (isActive(fluidBe) ? active : passive).add(fluidBe);
+            }
+        });
+        return new PrioritizedInterfaces<>(active, passive);
+    }
+
+    private static boolean isActive(BlockEntity blockEntity) {
+        return blockEntity.getBlockState().hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
+               && blockEntity.getBlockState().getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
     }
 
     public static <T extends BlockEntity> Map<BlockPos, T> getInterfacesMap(

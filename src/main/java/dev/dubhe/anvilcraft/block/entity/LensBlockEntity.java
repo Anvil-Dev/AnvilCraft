@@ -65,6 +65,12 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
         }
     }
 
+    @Override
+    public void onCancelingIrradiation(BaseLaserBlockEntity source) {
+        super.onCancelingIrradiation(source);
+        this.enabled = !this.irradiateSelfLaserBlockSet.isEmpty();
+    }
+
     private boolean determineEmissionDirection(BaseLaserBlockEntity source) {
         Direction.Axis axis = getBlockState().getValue(LensBlock.AXIS);
         BlockPos sourcePos = source.getBlockPos();
@@ -131,9 +137,16 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
         BlockPos tempIrradiateBlockPos = this.scanIrradiateBlockPos(
             this.maxTransmissionDistance, direction, this.getBlockPos()
         );
+        BaseLaserBlockEntity newLaserTarget =
+            this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity target ? target : null;
         boolean targetChanged = !tempIrradiateBlockPos.equals(this.irradiateBlockPos);
-        if (targetChanged) {
-            if (this.irradiateBlockPos != null) {
+        boolean targetEntityChanged = newLaserTarget != this.irradiatedLaserTarget;
+        boolean targetRevisionChanged = newLaserTarget != null
+                                        && newLaserTarget.laserLinkRevision != this.irradiatedLaserTargetRevision;
+        if (targetChanged || targetEntityChanged || targetRevisionChanged) {
+            if (this.irradiatedLaserTarget != null) {
+                this.irradiatedLaserTarget.onCancelingIrradiation(this);
+            } else if (targetChanged && this.irradiateBlockPos != null) {
                 BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity) {
                     lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
@@ -144,13 +157,18 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
         boolean laserLevelChanged = this.laserLevel != newLaserLevel;
         this.updateLaserLevel(newLaserLevel);
         if (
-            this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
-            && !this.isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity)
+            newLaserTarget != null
+            && !this.isInIrradiateSelfLaserBlockSet(newLaserTarget)
         ) {
-            boolean needsIrradiationUpdate = targetChanged || laserLevelChanged;
-            if (needsIrradiationUpdate && !irradiatedLaserBlockEntity.getIgnoreFace().contains(direction)) {
+            boolean needsIrradiationUpdate = targetChanged
+                                             || targetEntityChanged
+                                             || targetRevisionChanged
+                                             || laserLevelChanged;
+            if (needsIrradiationUpdate && !newLaserTarget.getIgnoreFace().contains(direction)) {
                 this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
-                irradiatedLaserBlockEntity.onIrradiated(this);
+                newLaserTarget.onIrradiated(this);
+                this.irradiatedLaserTarget = newLaserTarget;
+                this.irradiatedLaserTargetRevision = newLaserTarget.laserLinkRevision;
             }
         }
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);

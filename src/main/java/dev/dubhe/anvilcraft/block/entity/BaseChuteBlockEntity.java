@@ -166,7 +166,9 @@ public abstract class BaseChuteBlockEntity
                         List<ItemEntity> itemEntities = getLevel()
                             .getEntitiesOfClass(
                                 ItemEntity.class,
-                                new AABB(getBlockPos().relative(getOutputDirection())).inflate(0.01),
+                                new AABB(getBlockPos().relative(getOutputDirection()))
+                                    .inflate(0.01)
+                                    .expandTowards(0, -0.5, 0),
                                 itemEntity -> !itemEntity.getItem().isEmpty());
                         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
                             ItemStack stack = this.itemHandler.getStackInSlot(i);

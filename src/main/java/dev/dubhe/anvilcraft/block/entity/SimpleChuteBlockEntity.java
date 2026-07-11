@@ -101,7 +101,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemHandlerH
                 List<ItemEntity> itemEntities = Objects.requireNonNull(getLevel())
                     .getEntitiesOfClass(
                         ItemEntity.class,
-                        new AABB(getBlockPos().relative(getDirection())),
+                        new AABB(getBlockPos().relative(getDirection())).expandTowards(0, -0.5, 0),
                         itemEntity -> !itemEntity.getItem().isEmpty()
                     );
                 AABB aabb = new AABB(
