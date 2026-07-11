@@ -2410,15 +2410,19 @@ public class RegistrumBlockRecipeLoader {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 2)
             .pattern("PCP")
-            .pattern("P P")
-            .pattern("   ")
+            .pattern("PBP")
             .define('P', Items.PISTON)
             .define('C', ModBlocks.PIPE_STRAIGHT)
+            .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             .group(ctx.getId().toString())
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.PISTON), AnvilCraftDatagen.has(lookup, Items.PISTON))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.PIPE_STRAIGHT),
                 AnvilCraftDatagen.has(lookup, ModBlocks.PIPE_STRAIGHT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             )
             .save(provider);
     }
