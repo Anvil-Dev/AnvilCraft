@@ -984,6 +984,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         );
     }
 
+    private BlockState getMovedPlacementState(BlockState sourceState, Level level, BlockPos targetPos) {
+        BlockState stateToPlace = sourceState;
+
+        if (stateToPlace.is(Blocks.OBSERVER)
+            && stateToPlace.hasProperty(BlockStateProperties.POWERED)) {
+            stateToPlace = stateToPlace.setValue(BlockStateProperties.POWERED, false);
+        }
+
+        if (stateToPlace.hasProperty(BlockStateProperties.WATERLOGGED)) {
+            stateToPlace = stateToPlace.setValue(BlockStateProperties.WATERLOGGED, false);
+        }
+
+        return Block.updateFromNeighbourShapes(stateToPlace, level, targetPos);
+    }
+
     /**
      * 检查是否可以工作
      */
@@ -1302,6 +1317,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     @FunctionalInterface
     private interface BlockOperationSuccessHandler {
         boolean handle(ItemStack blockItem, BlockItem blockItemObj, BlockPos targetPos);
+    }
+
+    @FunctionalInterface
+    private interface PlacementStateProvider {
+        BlockState get(BlockItem blockItemObj, BlockPos targetPos);
     }
 
     /**
@@ -1697,6 +1717,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             () -> buildOrderedPositionsFromLayers(placerPos, facing, upsideDown),
             (index) -> sourceItem,  // 忽略 index，总是源方块
             () -> sourceItem,
+            (blockItemObj, targetPos) -> this.getMovedPlacementState(sourceState, level, targetPos),
             (ignoredTargetPos) -> {
                 // 移动前删除源方块
                 IS_BEING_MOVED_BY_PLACER.set(true);
@@ -1723,28 +1744,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
             },
             (blockItem, blockItemObj, targetPos) -> {
-                BlockState stateToPlace = sourceState;
+                BlockState placedState = level.getBlockState(targetPos);
 
-                // 侦测器不继承POWERED状态
-                if (stateToPlace.is(Blocks.OBSERVER)
-                    && stateToPlace.hasProperty(BlockStateProperties.POWERED)) {
-                    stateToPlace = stateToPlace.setValue(
-                        BlockStateProperties.POWERED,
-                        false
-                    );
-                }
-
-                if (sourceState.hasProperty(BlockStateProperties.WATERLOGGED)) {
-                    stateToPlace = sourceState.setValue(
-                        BlockStateProperties.WATERLOGGED,
-                        false
-                    );
-                }
-
-                // 修正朝向，并更新方块自身基于邻居的状态（如栅栏连接等）
-                stateToPlace = Block.updateFromNeighbourShapes(stateToPlace, level, targetPos);
-                level.setBlock(targetPos, stateToPlace, Block.UPDATE_CLIENTS);
-
+                // 目标状态已在 FakePlayer 放置阶段确定，这里只恢复方块实体数据。
                 if (sourceBlockEntityData != null) {
                     BlockEntity targetBlockEntity = level.getBlockEntity(targetPos);
                     if (targetBlockEntity != null) {
@@ -1754,7 +1756,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
 
                 // 在目标位置发送方块更新通知，让红石灯等方块根据新位置的红石信号更新状态
-                level.neighborChanged(targetPos, stateToPlace.getBlock(), targetPos);
+                level.neighborChanged(targetPos, placedState.getBlock(), targetPos);
 
                 // 检查是否是穿梭进度的回程：放置到了预期的穿梭目标位置
                 if (targetPos.equals(this.expectedShuttleTarget)) {
@@ -2115,9 +2117,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 IS_BEING_MOVED_BY_PLACER.set(false);
             }
 
+            BlockState placementState = StructureLoadUtil.isMultiblockBlock(requiredBlock)
+                                        ? blueprintState
+                                        : Block.updateFromNeighbourShapes(blueprintState, level, targetPos);
+
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
                 level, targetPos, placementFacing, upsideDown,
-                (BlockItem) sourceItem.getItem(), sourceItem
+                (BlockItem) sourceItem.getItem(), sourceItem, placementState
             );
 
             if (!placeSuccess) {
@@ -2146,10 +2152,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 // 多方块方块：应用蓝图状态到所有部件（包括 setPlacedBy 创建的次要部件）
                 applyMultiBlockBlueprintStates(level, allPositions, rotatedData, index, requiredBlock);
             } else {
-                this.applyBlueprintBlockFacing(level, targetPos, index);
-                // 使用蓝图的状态覆盖目标位置的方块（包含正确的朝向），并更新自身基于邻居的状态
-                blueprintState = Block.updateFromNeighbourShapes(blueprintState, level, targetPos);
-                level.setBlock(targetPos, blueprintState, Block.UPDATE_CLIENTS);
+                // FakePlayer 已按蓝图状态放置，保留该状态供后续邻居通知使用。
+                blueprintState = placementState;
             }
 
             if (sourceBlockEntityData != null) {
@@ -2194,6 +2198,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         Supplier<List<BlockPos>> positionProvider,
         IntFunction<ItemStack> itemExtractor,
         @Nullable Supplier<ItemStack> itemPeeker,
+        @Nullable PlacementStateProvider placementStateProvider,
         @Nullable Consumer<BlockPos> onBeforePlace,
         @Nullable Runnable onRollback,
         BlockOperationSuccessHandler onSuccess
@@ -2247,8 +2252,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
 
             // 再次确认目标位置可放置（无方块阻挡且无实体阻挡碰撞箱），然后前置处理
+            BlockState placementState = placementStateProvider == null
+                                        ? blockItemObj.getBlock().defaultBlockState()
+                                        : placementStateProvider.get(blockItemObj, targetPos);
+
             if (this.isPositionOccupied(level, targetPos, blockItemObj)
-                || !level.noCollision(blockItemObj.getBlock().defaultBlockState()
+                || !level.noCollision(placementState
                     .getCollisionShape(level, targetPos).bounds().move(targetPos))) {
                 this.onChanged();
                 return;
@@ -2258,7 +2267,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
 
             // 使用 FakePlayer 放置方块
-            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem);
+            boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
+                level, targetPos, facing, upsideDown, blockItemObj, blockItem,
+                placementStateProvider == null ? null : placementState
+            );
 
             if (!placeSuccess) {
                 if (onRollback != null) onRollback.run();
@@ -2684,9 +2696,17 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         Level level, BlockPos targetPos, Direction facing,
         boolean upsideDown, BlockItem blockItemObj, ItemStack blockItem
     ) {
+        return this.tryPlaceBlockWithFakePlayer(level, targetPos, facing, upsideDown, blockItemObj, blockItem, null);
+    }
+
+    private boolean tryPlaceBlockWithFakePlayer(
+        Level level, BlockPos targetPos, Direction facing,
+        boolean upsideDown, BlockItem blockItemObj, ItemStack blockItem,
+        @Nullable BlockState placementState
+    ) {
         Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
         return AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
-            level, targetPos, orientation, blockItemObj, blockItem) != InteractionResult.FAIL;
+            level, targetPos, orientation, blockItemObj, blockItem, placementState) != InteractionResult.FAIL;
     }
 
     /**
