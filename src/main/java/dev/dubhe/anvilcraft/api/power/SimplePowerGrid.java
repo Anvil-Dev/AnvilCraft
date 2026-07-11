@@ -2,9 +2,9 @@ package dev.dubhe.anvilcraft.api.power;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import dev.anvilcraft.lib.v2.util.OutlineUtil;
+import dev.anvilcraft.lib.v2.util.client.Line;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.renderer.Line;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import lombok.Getter;
@@ -18,20 +18,17 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -196,25 +193,23 @@ public class SimplePowerGrid {
             SimplePowerGrid.recreateExecutorLimitedParallelism();
         }
         this.shapeFuture = SimplePowerGrid.EXECUTOR.submit(() -> {
-            List<VoxelShape> input = new ArrayList<>();
-            for (PowerComponentInfo it : this.powerComponentInfoList) {
-                input.add(Shapes.create(it.boundingBox()));
-            }
-            // noinspection CatchMayIgnoreException
+            long startTime = System.nanoTime();
+            List<AABB> input = new ArrayList<>();
             try {
-                Future<VoxelShape> future = ShapeUtil.threadedJoin(input, BooleanOp.OR, EXECUTOR);
-                VoxelShape shape = future.get();
-                List<Line> lines = new ArrayList<>();
-                shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> {
-                    Vec3 min = new Vec3(minX, minY, minZ);
-                    Vec3 max = new Vec3(maxX, maxY, maxZ);
-                    lines.add(new Line(min, max));
-                });
-                this.powerGridBoundLines = lines;
-            } catch (Throwable e) {
-                if (e instanceof ExecutionException) {
-                    AnvilCraft.LOGGER.error("Exception thrown while building power grid shape.", e);
+                for (PowerComponentInfo powerComponentInfo : this.powerComponentInfoList) {
+                    AABB boundingBox = powerComponentInfo.boundingBox();
+                    input.add(boundingBox);
                 }
+                this.powerGridBoundLines = OutlineUtil.extractOutline(input);
+            } catch (RuntimeException e) {
+                AnvilCraft.LOGGER.error("Exception thrown while building power grid shape.", e);
+            } finally {
+                double elapsedMillis = (System.nanoTime() - startTime) / 1_000_000.0;
+                AnvilCraft.LOGGER.debug(
+                    "Build power grid outline from {} shapes took {} ms",
+                    input.size(),
+                    String.format(Locale.ROOT, "%.3f", elapsedMillis)
+                );
             }
         });
     }
