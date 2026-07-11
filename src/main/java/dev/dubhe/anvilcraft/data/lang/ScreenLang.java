@@ -37,6 +37,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.button.pulse_generator.start_mode.loop", "Mode: Loop Mode");
         provider.add("screen.anvilcraft.button.pulse_generator.reverse.off", "Reverse Mode: Off");
         provider.add("screen.anvilcraft.button.pulse_generator.reverse.on", "Reverse Mode: On");
+        provider.add("tooltip.anvilcraft.pulse_generator.title", "Pulse Generator Settings:");
+        provider.add("tooltip.anvilcraft.pulse_generator.delay", "Delay: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.output_duration", "Output Duration: %s");
 
         provider.add("screen.anvilcraft.filter.scroll_to_change", "Scroll mouse to change count");
         provider.add("screen.anvilcraft.filter.shift_to_scroll_faster", "Hold Shift to scroll faster");

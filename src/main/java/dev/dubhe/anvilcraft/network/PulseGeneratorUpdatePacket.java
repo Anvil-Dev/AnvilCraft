@@ -51,5 +51,6 @@ public record PulseGeneratorUpdatePacket(
         repeater.setOutputMode(this.outputInvert);
         repeater.setWaitingTime(this.waitingTime);
         repeater.setSignalDuration(this.signalDuration);
+        repeater.syncToClient();
     }
 }

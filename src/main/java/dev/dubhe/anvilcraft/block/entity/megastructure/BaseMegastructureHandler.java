@@ -129,7 +129,7 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         int normalizedStart = Math.floorMod(startIndex, interfaces.size());
         for (int attempt = 0; attempt < interfaces.size() && remaining > 0; attempt++) {
             int index = (normalizedStart + attempt) % interfaces.size();
-            int filled = interfaces.get(index).getFluidHandler().fill(
+            int filled = interfaces.get(index).getInternalFluidHandler().fill(
                 stack.copyWithAmount(remaining), IFluidHandler.FluidAction.EXECUTE
             );
             if (filled > 0) {

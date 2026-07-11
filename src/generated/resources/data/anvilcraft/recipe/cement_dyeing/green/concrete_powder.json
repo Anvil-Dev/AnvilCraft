@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:green_cement",
+  "ingredients": [
+    {
+      "items": "#c:concrete_powders"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:green_concrete_powder"
+    }
+  ]
+}

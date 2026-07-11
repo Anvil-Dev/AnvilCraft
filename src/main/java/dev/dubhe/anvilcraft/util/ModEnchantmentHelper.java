@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentEffectComponents;
 import dev.dubhe.anvilcraft.init.loot.ModLootContextParamSets;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -23,6 +25,17 @@ import java.util.List;
 import java.util.Optional;
 
 public class ModEnchantmentHelper {
+    public static int getEnchantmentLevelForLoot(
+        LootContext context, Holder<Enchantment> enchantment, int originalLevel
+    ) {
+        if (context.getParamOrNull(LootContextParams.DIRECT_ATTACKING_ENTITY)
+            instanceof ThrownHeavyHalberdEntity heavyHalberd
+        ) {
+            return heavyHalberd.getWeaponItem().getEnchantmentLevel(enchantment);
+        }
+        return originalLevel;
+    }
+
     public static void onUseOnBlock(
         ServerLevel level,
         ItemStack stack,

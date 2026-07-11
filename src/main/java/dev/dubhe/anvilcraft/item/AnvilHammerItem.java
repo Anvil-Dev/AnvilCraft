@@ -19,7 +19,6 @@ import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,6 +38,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
@@ -55,6 +55,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
@@ -231,7 +232,7 @@ public class AnvilHammerItem extends Item implements Equipable {
         ServerPlayer player, BlockPos blockPos, ServerLevel level, ItemStack anvilHammer, InteractionHand hand,
         BlockHitResult result
     ) {
-        if (rocketJump(player, level, blockPos)) return;
+        if (rocketJump(player, level, result)) return;
         if (!level.mayInteract(player, blockPos)) return;
         if (!player.getAbilities().mayBuild) return;
         if (player.isShiftKeyDown()) {
@@ -284,17 +285,31 @@ public class AnvilHammerItem extends Item implements Equipable {
         return UseAnim.NONE;
     }
 
-    private static boolean rocketJump(@Nullable ServerPlayer serverPlayer, ServerLevel level, BlockPos blockPos) {
+    private static boolean rocketJump(
+        @Nullable ServerPlayer serverPlayer,
+        ServerLevel level,
+        BlockHitResult result
+    ) {
         if (!AnvilHammerItem.canRocketJump(serverPlayer)) return false;
         ItemStack stack = serverPlayer.getOffhandItem();
         Fireworks fireworks = stack.get(DataComponents.FIREWORKS);
         int i = Objects.requireNonNull(fireworks).flightDuration();
+        Vec3 location = result.getLocation();
+        Vec3 offset = Vec3.atLowerCornerOf(result.getDirection().getNormal()).scale(0.15);
+        FireworkRocketEntity rocket = new FireworkRocketEntity(
+            level,
+            serverPlayer,
+            location.x + offset.x,
+            location.y + offset.y,
+            location.z + offset.z,
+            stack
+        );
+        level.addFreshEntity(rocket);
         if (!serverPlayer.getAbilities().instabuild) stack.shrink(1);
         double power = i * 0.75 + 0.5;
-        serverPlayer.setDeltaMovement(0, power, 0);
+        Vec3 movement = serverPlayer.getDeltaMovement();
+        serverPlayer.setDeltaMovement(movement.x, power, movement.z);
         PacketDistributor.sendToPlayer(serverPlayer, new RocketJumpPacket(power));
-        level.sendParticles(ParticleTypes.FIREWORK, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 20, 0, 0.5, 0, 0.05);
-        level.playSound(null, blockPos, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.AMBIENT, 3.0f, 1.0f);
         return true;
     }
 

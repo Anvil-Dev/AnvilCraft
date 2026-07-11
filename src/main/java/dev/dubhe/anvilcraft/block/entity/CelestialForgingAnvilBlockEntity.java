@@ -74,6 +74,10 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 public class CelestialForgingAnvilBlockEntity extends BlockEntity implements MenuProvider, IPowerConsumer, IPowerProducer, IDiskCloneable {
+    // 38 * 0.52 = 19.76 after Feather Falling IV.
+    private static final float PLANET_CONTACT_DAMAGE = 38.0f;
+    // 66 * 0.84 * 0.36 = 19.9584 after full Protection IV diamond armor.
+    private static final float STAR_CONTACT_DAMAGE = 66.0f;
 
     /// === 巨构建造委托 ===
     @Getter
@@ -720,12 +724,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
                 living.hurt(ModDamageTypes.lostInTime(Objects.requireNonNull(level)), Float.MAX_VALUE);
             } else {
-                /// 普通恒星 / 中子星 → 火焰烧死
-                living.hurt(Objects.requireNonNull(level).damageSources().inFire(), Float.MAX_VALUE);
+                /// 普通恒星 / 中子星使用火焰伤害。
+                living.hurt(Objects.requireNonNull(level).damageSources().inFire(), STAR_CONTACT_DAMAGE);
             }
         } else {
-            /// 行星 / 特殊天体 → 高额摔落伤害（类似撞上表面）
-            living.hurt(Objects.requireNonNull(level).damageSources().fall(), Float.MAX_VALUE);
+            /// 行星 / 特殊天体使用摔落伤害（类似撞上表面）。
+            living.hurt(Objects.requireNonNull(level).damageSources().fall(), PLANET_CONTACT_DAMAGE);
         }
     }
 

@@ -1,0 +1,112 @@
+{
+  "ambientocclusion": false,
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#0"
+        },
+        "east": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            10.0,
+            0.0,
+            11.0,
+            8.0
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#0"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#0",
+          "uv": [
+            11.0,
+            0.0,
+            5.0,
+            8.0
+          ]
+        },
+        "west": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            5.0,
+            8.0,
+            6.0,
+            0.0
+          ]
+        }
+      },
+      "from": [
+        5,
+        15,
+        8
+      ],
+      "to": [
+        11,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#1",
+          "tintindex": 0
+        },
+        "east": {
+          "rotation": 90,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            7.0,
+            8.0
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            1.0
+          ]
+        },
+        "west": {
+          "rotation": 90,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            7.0,
+            8.0
+          ]
+        }
+      },
+      "from": [
+        6,
+        14,
+        8
+      ],
+      "to": [
+        10,
+        15,
+        16
+      ]
+    }
+  ],
+  "textures": {
+    "0": "anvilcraft:block/redstone_wire_line",
+    "1": "anvilcraft:block/redstone_wire_line_overlay",
+    "particle": "anvilcraft:block/redstone_wire_line"
+  }
+}

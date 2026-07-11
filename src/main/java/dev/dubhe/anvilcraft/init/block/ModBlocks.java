@@ -186,6 +186,7 @@ import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.block.item.MultiphaseMatterBlockItem;
 import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.item.RadiationBlockItem;
+import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
@@ -4206,7 +4207,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.REDSTONE_WIRE)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(RedstoneWireBlockStateGenerator::generate)
-        .item()
+        .item(RedstoneWireBlockItem::new)
         .model((ctx, provider) -> provider.generated(ctx))
         .build()
         .recipe(RegistrumBlockRecipeLoader::redstoneWire)

@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:cyan_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:beds"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:cyan_bed"
+    }
+  ]
+}
