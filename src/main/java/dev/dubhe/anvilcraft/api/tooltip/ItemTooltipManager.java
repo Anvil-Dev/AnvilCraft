@@ -96,7 +96,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_PILLAR.asItem(), "Royal Steel decorative block, Explosion proof");
         NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_STAIRS.asItem(), "Royal Steel decorative block, Explosion proof");
         NORMAL.put(ModBlocks.CUT_ROYAL_STEEL_SLAB.asItem(), "Royal Steel decorative block, Explosion proof");
-        NORMAL.put(ModBlocks.TEMPERING_GLASS.asItem(), "Explosion proof, No tools required on collect");
+        NORMAL.put(ModBlocks.TEMPERING_GLASS.asItem(), "Royal Steel glass, Explosion proof, No tools required on collect");
         NORMAL.put(ModBlocks.REMOTE_TRANSMISSION_POLE.asItem(), "Build a power grid with a transmission length of 16");
         NORMAL.put(ModBlocks.HEAVY_IRON_BLOCK.asItem(), "Heavy Iron block, highly compressed iron, Explosion proof");
         NORMAL.put(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.asItem(), "Heavy Iron decorative block, Explosion proof");
@@ -119,7 +119,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Extracts enchantments onto books, Wither proof");
         NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "All-in-one combination smithing, Wither proof");
         NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "Netherite tempered in fire for eons, Wither proof");
-        NORMAL.put(ModBlocks.EMBER_GLASS.asItem(), "Ember Metal Glass, Wither proof, No tools required on collect");
+        NORMAL.put(ModBlocks.EMBER_GLASS.asItem(), "Ember Metal glass, Wither proof, No tools required on collect");
         NORMAL.put(ModBlocks.CUT_EMBER_METAL_BLOCK.asItem(), "Ember Metal decorative block, Wither proof");
         NORMAL.put(ModBlocks.CUT_EMBER_METAL_PILLAR.asItem(), "Ember Metal decorative block, Wither proof");
         NORMAL.put(ModBlocks.CUT_EMBER_METAL_SLAB.asItem(), "Ember Metal decorative block, Wither proof");
@@ -301,6 +301,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Selectively removes individual enchantments, Explosion proof");
         NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Works with Permutation and Deformation smithing templates, Explosion proof");
         NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "Special steel tempered in extreme cold for eons, Explosion proof");
+        NORMAL.put(ModBlocks.FROST_GLASS.asItem(), "Ember Metal glass, Explosion proof, No tools required on collect");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_BLOCK.asItem(), "Frost Metal decorative block, Explosion proof");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Frost Metal decorative block, Explosion proof");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Frost Metal decorative block, Explosion proof");
