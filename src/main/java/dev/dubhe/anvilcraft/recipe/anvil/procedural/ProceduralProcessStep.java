@@ -2,8 +2,6 @@ package dev.dubhe.anvilcraft.recipe.anvil.procedural;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.recipe.InWorldRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -30,22 +28,20 @@ public class ProceduralProcessStep {
         this.content = content;
     }
 
-    @SuppressWarnings("unchecked")
     public static final Codec<ProceduralProcessStep> CODEC =
         RecordCodecBuilder.create(ins -> ins.group(
                 Codec.INT.fieldOf("index").forGetter(ProceduralProcessStep::getStepIndex),
-                InWorldRecipe.Serializer.CODEC.codec().fieldOf("content").forGetter(s -> (InWorldRecipe) s.getContent())
+                Recipe.CODEC.fieldOf("content").forGetter(ProceduralProcessStep::getContent)
             )
             .apply(ins, (index, recipe) -> new ProceduralProcessStep(index, recipe))
     );
 
-    @SuppressWarnings("unchecked")
     public static final StreamCodec<RegistryFriendlyByteBuf, ProceduralProcessStep> STREAM_CODEC =
         StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             ProceduralProcessStep::getStepIndex,
-            InWorldRecipe.Serializer.STREAM_CODEC,
-            s -> (InWorldRecipe) s.getContent(),
+            Recipe.STREAM_CODEC,
+            ProceduralProcessStep::getContent,
             (index, recipe) -> new ProceduralProcessStep(index, recipe)
         );
 }

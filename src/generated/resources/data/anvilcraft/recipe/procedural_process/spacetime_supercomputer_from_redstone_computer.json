@@ -7,53 +7,23 @@
   "loop": 3,
   "multiple_loop_first_step": {
     "content": {
-      "compatible": false,
-      "conflicting": [],
-      "icon": {
-        "id": "minecraft:anvil"
-      },
-      "non_conflicting": [
+      "type": "anvilcraft:block_processing",
+      "inputs": [
         {
-          "type": "anvillib_recipe:has_block",
-          "offset": [
-            0.0,
-            -1.0,
-            0.0
-          ],
-          "predicate": {
-            "blocks": "anvilcraft:wip_block"
-          }
+          "blocks": "anvilcraft:wip_block"
         },
         {
-          "type": "anvillib_recipe:has_block",
-          "offset": [
-            0.0,
-            -2.0,
-            0.0
-          ],
-          "predicate": {
-            "blocks": "anvilcraft:neutron_irradiator",
-            "properties": [
-              {
-                "type": "time"
-              }
-            ]
-          }
-        }
-      ],
-      "outcomes": [
-        {
-          "type": "anvillib_recipe:set_block",
-          "block": "anvilcraft:wip_block",
-          "offset": [
-            0.0,
-            -1.0,
-            0.0
+          "blocks": "anvilcraft:neutron_irradiator",
+          "properties": [
+            {
+              "type": "time"
+            }
           ]
         }
       ],
-      "priority": 201,
-      "trigger": "anvilcraft:on_anvil_fall_on"
+      "result": {
+        "block": "anvilcraft:wip_block"
+      }
     },
     "index": 0
   },
@@ -63,158 +33,62 @@
   "steps": [
     {
       "content": {
-        "compatible": false,
-        "conflicting": [],
-        "icon": {
-          "id": "minecraft:anvil"
-        },
-        "non_conflicting": [
+        "type": "anvilcraft:block_processing",
+        "inputs": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:redstone_computer"
-            }
+            "blocks": "anvilcraft:redstone_computer"
           },
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -2.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:neutron_irradiator",
-              "properties": [
-                {
-                  "type": "time"
-                }
-              ]
-            }
-          }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
+            "blocks": "anvilcraft:neutron_irradiator",
+            "properties": [
+              {
+                "type": "time"
+              }
             ]
           }
         ],
-        "priority": 201,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
       },
       "index": 0
     },
     {
       "content": {
-        "compatible": false,
-        "conflicting": [],
-        "icon": {
-          "id": "minecraft:anvil"
-        },
-        "non_conflicting": [
+        "type": "anvilcraft:block_processing",
+        "inputs": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:wip_block"
-            }
+            "blocks": "anvilcraft:wip_block"
           },
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -2.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:neutron_irradiator",
-              "properties": [
-                {
-                  "type": "space"
-                }
-              ]
-            }
-          }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
+            "blocks": "anvilcraft:neutron_irradiator",
+            "properties": [
+              {
+                "type": "space"
+              }
             ]
           }
         ],
-        "priority": 201,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
       },
       "index": 1
     },
     {
       "content": {
-        "compatible": false,
-        "conflicting": [
-          {
-            "type": "anvillib_recipe:has_item_ingredient",
-            "item": {
-              "items": "anvilcraft:transcendium_nugget"
-            },
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "range": [
-              1.0,
-              1.0,
-              1.0
-            ]
-          }
-        ],
-        "icon": {
-          "id": "minecraft:anvil"
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
         },
-        "non_conflicting": [
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:wip_block"
-            }
+            "items": "anvilcraft:transcendium_nugget"
           }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ]
-          }
-        ],
-        "priority": 102,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        ]
       },
       "index": 2
     }

@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,6 +34,12 @@ public class ProceduralProcessStepManager {
     public static Map<Block, List<ProceduralProcessStep>> PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
     public static Set<Block> PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY = new HashSet<>();
     public static final int WIP_BLOCK_DETECTION_DEPTH = 2;
+    private static RecipeMap initializedRecipes;
+
+    public static void initialize(RecipeMap recipes) {
+        initialize(List.copyOf(recipes.values()));
+        initializedRecipes = recipes;
+    }
 
     public static void initialize(List<RecipeHolder<?>> recipeHolders) {
         PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
@@ -83,6 +90,10 @@ public class ProceduralProcessStepManager {
 
     public static boolean checkAnyMatches(AnvilEvent.OnLand event) {
         ServerLevel sl = event.getLevel();
+        RecipeMap recipes = sl.getServer().getRecipeManager().recipeMap();
+        if (initializedRecipes != recipes) {
+            initialize(recipes);
+        }
         BlockPos hitPos = event.getPos().below();
         BlockState state = sl.getBlockState(hitPos);
         if (PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY.contains(state.getBlock())) {

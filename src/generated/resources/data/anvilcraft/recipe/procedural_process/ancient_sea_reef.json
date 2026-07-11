@@ -11,159 +11,57 @@
   "steps": [
     {
       "content": {
-        "compatible": false,
-        "conflicting": [
-          {
-            "type": "anvillib_recipe:has_item_ingredient",
-            "item": {
-              "items": "minecraft:heart_of_the_sea"
-            },
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "range": [
-              1.0,
-              1.0,
-              1.0
-            ]
-          }
-        ],
-        "icon": {
-          "id": "minecraft:anvil"
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "minecraft:wet_sponge"
         },
-        "non_conflicting": [
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "minecraft:wet_sponge"
-            }
+            "items": "minecraft:heart_of_the_sea"
           }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ]
-          }
-        ],
-        "priority": 102,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        ]
       },
       "index": 0
     },
     {
       "content": {
-        "compatible": false,
-        "conflicting": [
-          {
-            "type": "anvillib_recipe:has_item_ingredient",
-            "item": {
-              "items": "anvilcraft:sapphire"
-            },
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "range": [
-              1.0,
-              1.0,
-              1.0
-            ]
-          }
-        ],
-        "icon": {
-          "id": "minecraft:anvil"
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
         },
-        "non_conflicting": [
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:wip_block"
-            }
+            "items": "anvilcraft:sapphire"
           }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ]
-          }
-        ],
-        "priority": 102,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        ]
       },
       "index": 1
     },
     {
       "content": {
-        "compatible": false,
-        "conflicting": [],
-        "icon": {
-          "id": "minecraft:anvil"
-        },
-        "non_conflicting": [
+        "type": "anvilcraft:block_processing",
+        "inputs": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:wip_block"
-            }
+            "blocks": "anvilcraft:wip_block"
           },
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -2.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:corrupted_beacon",
-              "properties": [
-                {
-                  "lit": "true"
-                }
-              ]
-            }
-          }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
+            "blocks": "anvilcraft:corrupted_beacon",
+            "properties": [
+              {
+                "lit": "true"
+              }
             ]
           }
         ],
-        "priority": 201,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
       },
       "index": 2
     }

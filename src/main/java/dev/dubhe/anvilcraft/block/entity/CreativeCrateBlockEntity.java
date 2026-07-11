@@ -106,4 +106,22 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
         }
         return true;
     }
+
+    public boolean onPlayerAttack(Player player) {
+        if (this.itemHandler.isEmpty()) return false;
+        if (player.level().isClientSide()) return true;
+
+        ItemStack stored = this.itemHandler.getStack();
+        int count = player.isShiftKeyDown() && !player.isCreative() ? stored.getMaxStackSize() : 1;
+        ItemStack extracted = stored.copyWithCount(count);
+        if (!player.addItem(extracted)) {
+            Block.popResource(player.level(), BlockPos.containing(player.position()), extracted);
+        }
+        if (player.isCreative()) {
+            this.itemHandler.setStack(ItemStack.EMPTY);
+            this.setChanged();
+            this.sendUpdate();
+        }
+        return true;
+    }
 }

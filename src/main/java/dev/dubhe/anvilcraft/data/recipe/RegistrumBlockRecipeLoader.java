@@ -62,6 +62,107 @@ public class RegistrumBlockRecipeLoader {
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
     }
 
+    public static <T extends Block> void cfaLogisticsInterface(
+        DataGenContext<Block, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.CHUTE)
+            .define('B', ModBlocks.MAGNETIC_CHUTE)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                AnvilCraftDatagen.has(lookup, ModBlocks.SPACETIME_SUPERCOMPUTER)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Block> void cfaFluidInterface(
+        DataGenContext<Block, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.PUMP)
+            .define('B', ModBlocks.PUMP)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                AnvilCraftDatagen.has(lookup, ModBlocks.SPACETIME_SUPERCOMPUTER)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Block> void cfaLaserInterface(
+        DataGenContext<Block, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModBlocks.LASER_RECEIVER)
+            .define('B', ModBlocks.RUBY_LASER)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                AnvilCraftDatagen.has(lookup, ModBlocks.SPACETIME_SUPERCOMPUTER)
+            )
+            .save(provider);
+
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get(), 16)
+            .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .requires(ModBlocks.LARGE_LASER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                AnvilCraftDatagen.has(lookup, ModBlocks.SPACETIME_SUPERCOMPUTER)
+            )
+            .save(provider, AnvilCraft.recipe("celestial_forging_anvil_laser_interface_from_large_laser"));
+    }
+
+    public static <T extends Block> void cfaAmplifier(
+        DataGenContext<Block, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        ItemInjectRecipe.builder()
+            .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .inputBlock(ModBlocks.GIANT_ANVIL)
+            .resultBlock(ctx)
+            .result(ctx.get(), 3)
+            .save(provider);
+    }
+
+    public static <T extends Block> void celestialForgingAnvilPortal(
+        DataGenContext<Block, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
+            .pattern(" T ")
+            .pattern("TET")
+            .pattern("TST")
+            .define('T', ModItems.TRANSCENDIUM_INGOT)
+            .define('E', Items.ENDER_PEARL)
+            .define('S', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
+                AnvilCraftDatagen.has(lookup, ModBlocks.SPACETIME_SUPERCOMPUTER)
+            )
+            .save(provider);
+    }
+
     public static <T extends Block> void neoforge(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())

@@ -56,6 +56,6 @@ abstract class RecipeManagerMixin {
         ProfilerFiller profiler,
         CallbackInfo ci
     ) {
-        ProceduralProcessStepManager.initialize(List.copyOf(recipes.values()));
+        ProceduralProcessStepManager.initialize(recipes);
     }
 }

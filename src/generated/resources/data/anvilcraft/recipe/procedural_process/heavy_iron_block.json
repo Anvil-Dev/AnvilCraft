@@ -7,48 +7,18 @@
   "loop": 2,
   "multiple_loop_first_step": {
     "content": {
-      "compatible": false,
-      "conflicting": [],
-      "icon": {
-        "id": "minecraft:anvil"
-      },
-      "non_conflicting": [
+      "type": "anvilcraft:block_compress",
+      "inputs": [
         {
-          "type": "anvillib_recipe:has_block_ingredient",
-          "offset": [
-            0.0,
-            -1.0,
-            0.0
-          ],
-          "predicate": {
-            "blocks": "minecraft:iron_block"
-          }
+          "blocks": "minecraft:iron_block"
         },
         {
-          "type": "anvillib_recipe:has_block_ingredient",
-          "offset": [
-            0.0,
-            -2.0,
-            0.0
-          ],
-          "predicate": {
-            "blocks": "anvilcraft:wip_block"
-          }
+          "blocks": "anvilcraft:wip_block"
         }
       ],
-      "outcomes": [
-        {
-          "type": "anvillib_recipe:set_block",
-          "block": "anvilcraft:wip_block",
-          "offset": [
-            0.0,
-            -2.0,
-            0.0
-          ]
-        }
-      ],
-      "priority": 201,
-      "trigger": "anvilcraft:on_anvil_fall_on"
+      "result": {
+        "block": "anvilcraft:wip_block"
+      }
     },
     "index": 0
   },
@@ -58,100 +28,40 @@
   "steps": [
     {
       "content": {
-        "compatible": false,
-        "conflicting": [],
-        "icon": {
-          "id": "minecraft:anvil"
-        },
-        "non_conflicting": [
+        "type": "anvilcraft:block_compress",
+        "inputs": [
           {
-            "type": "anvillib_recipe:has_block_ingredient",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "minecraft:iron_block"
-            }
+            "blocks": "minecraft:iron_block"
           },
           {
-            "type": "anvillib_recipe:has_block_ingredient",
-            "offset": [
-              0.0,
-              -2.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "minecraft:iron_block"
-            }
+            "blocks": "minecraft:iron_block"
           }
         ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -2.0,
-              0.0
-            ]
-          }
-        ],
-        "priority": 201,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
       },
       "index": 0
     },
     {
       "content": {
-        "compatible": false,
-        "conflicting": [],
-        "icon": {
-          "id": "minecraft:anvil"
-        },
-        "non_conflicting": [
+        "type": "anvilcraft:block_processing",
+        "inputs": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:wip_block"
-            }
+            "blocks": "anvilcraft:wip_block"
           },
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -2.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:neutron_irradiator",
-              "properties": [
-                {
-                  "type": "mass"
-                }
-              ]
-            }
-          }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
+            "blocks": "anvilcraft:neutron_irradiator",
+            "properties": [
+              {
+                "type": "mass"
+              }
             ]
           }
         ],
-        "priority": 201,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
       },
       "index": 1
     }

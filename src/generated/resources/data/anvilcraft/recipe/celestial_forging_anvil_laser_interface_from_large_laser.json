@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "anvilcraft:spacetime_supercomputer",
+    "anvilcraft:large_laser"
+  ],
+  "result": {
+    "count": 16,
+    "id": "anvilcraft:celestial_forging_anvil_laser_interface"
+  }
+}

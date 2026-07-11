@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "anvilcraft:pump",
+    "B": "anvilcraft:pump",
+    "C": "anvilcraft:spacetime_supercomputer"
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "count": 8,
+    "id": "anvilcraft:celestial_forging_anvil_fluid_interface"
+  }
+}

@@ -11,160 +11,52 @@
   "steps": [
     {
       "content": {
-        "compatible": false,
-        "conflicting": [
-          {
-            "type": "anvillib_recipe:has_item_ingredient",
-            "item": {
-              "items": "anvilcraft:circuit_board"
-            },
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "range": [
-              1.0,
-              1.0,
-              1.0
-            ]
-          }
-        ],
-        "icon": {
-          "id": "minecraft:anvil"
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "minecraft:iron_block"
         },
-        "non_conflicting": [
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "minecraft:iron_block"
-            }
+            "items": "anvilcraft:circuit_board"
           }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ]
-          }
-        ],
-        "priority": 102,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        ]
       },
       "index": 0
     },
     {
       "content": {
-        "compatible": false,
-        "conflicting": [
-          {
-            "type": "anvillib_recipe:has_item_ingredient",
-            "item": {
-              "items": "anvilcraft:processor"
-            },
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "range": [
-              1.0,
-              1.0,
-              1.0
-            ]
-          }
-        ],
-        "icon": {
-          "id": "minecraft:anvil"
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
         },
-        "non_conflicting": [
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:wip_block"
-            }
+            "items": "anvilcraft:processor"
           }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:wip_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ]
-          }
-        ],
-        "priority": 102,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        ]
       },
       "index": 1
     },
     {
       "content": {
-        "compatible": false,
-        "conflicting": [
-          {
-            "type": "anvillib_recipe:has_item_ingredient",
-            "item": {
-              "items": "anvilcraft:disk"
-            },
-            "offset": [
-              0.0,
-              0.0,
-              0.0
-            ],
-            "range": [
-              1.0,
-              1.0,
-              1.0
-            ]
-          }
-        ],
-        "icon": {
-          "id": "anvilcraft:redstone_computer"
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
         },
-        "non_conflicting": [
+        "block_result": {
+          "block": "anvilcraft:redstone_computer"
+        },
+        "ingredients": [
           {
-            "type": "anvillib_recipe:has_block",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ],
-            "predicate": {
-              "blocks": "anvilcraft:wip_block"
-            }
+            "items": "anvilcraft:disk"
           }
-        ],
-        "outcomes": [
-          {
-            "type": "anvillib_recipe:set_block",
-            "block": "anvilcraft:redstone_computer",
-            "offset": [
-              0.0,
-              -1.0,
-              0.0
-            ]
-          }
-        ],
-        "priority": 102,
-        "trigger": "anvilcraft:on_anvil_fall_on"
+        ]
       },
       "index": 2
     }
