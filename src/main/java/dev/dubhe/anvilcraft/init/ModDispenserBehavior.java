@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.init;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
+import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -16,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -35,11 +37,6 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.List;
 import java.util.UUID;
@@ -55,62 +52,11 @@ public class ModDispenserBehavior {
      */
     public static final UUID ANVILCRAFT_DISPENSER = new UUID(0x976850D40E652AB5L, 0x83D24BBA75A6B114L);
     private static final DefaultDispenseItemBehavior DEFAULT_BEHAVIOUR = new DefaultDispenseItemBehavior();
-    private static final DefaultDispenseItemBehavior FLUID_BUCKET = new DefaultDispenseItemBehavior() {
-        @Override
-        public ItemStack execute(BlockSource source, ItemStack stack) {
-            BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
-            Level level = source.level();
-            IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, blockpos, null);
-            if (target != null) {
-                var fluidHandler = FluidUtil.getFluidHandler(stack).orElse(null);
-                if (fluidHandler != null) {
-                    FluidStack drained = fluidHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE);
-                    if (!drained.isEmpty()) {
-                        int filled = target.fill(drained, IFluidHandler.FluidAction.SIMULATE);
-                        if (filled >= drained.getAmount()) {
-                            fluidHandler.drain(drained, IFluidHandler.FluidAction.EXECUTE);
-                            target.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-                            return this.consumeWithRemainder(source, stack, fluidHandler.getContainer());
-                        }
-                    }
-                }
-            }
-            return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
-        }
-    };
 
-    private static final DefaultDispenseItemBehavior EMPTY_FLUID_CONTAINER = new DefaultDispenseItemBehavior() {
-        @Override
-        public ItemStack execute(BlockSource source, ItemStack stack) {
-            BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
-            Level level = source.level();
-            IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, blockpos, null);
-            if (target != null) {
-                boolean isBottle = stack.is(Items.GLASS_BOTTLE);
-                int amount = isBottle ? FluidType.BUCKET_VOLUME / 4 : FluidType.BUCKET_VOLUME;
-
-                FluidStack drained = target.drain(amount, IFluidHandler.FluidAction.SIMULATE);
-                if (drained.getAmount() >= amount) {
-                    if (isBottle && drained.getFluid() instanceof dev.dubhe.anvilcraft.fluid.HoneyFluid) {
-                        if (!level.isClientSide()) {
-                            target.drain(amount, IFluidHandler.FluidAction.EXECUTE);
-                        }
-                        return this.consumeWithRemainder(source, stack, new ItemStack(Items.HONEY_BOTTLE));
-                    }
-                    Item bucketItem = drained.getFluid().getBucket();
-                    if (bucketItem != Items.AIR) {
-                        if (!level.isClientSide()) {
-                            target.drain(amount, IFluidHandler.FluidAction.EXECUTE);
-                        }
-                        return this.consumeWithRemainder(source, stack, new ItemStack(bucketItem));
-                    }
-                }
-            }
-            return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
-        }
-    };
-
-    private static final DefaultDispenseItemBehavior BUCKET = new DefaultDispenseItemBehavior() {
+    /**
+     * 特殊桶类（油桶、水泥桶等）使用原版 {@link DispensibleContainerItem#emptyContents} 逻辑。
+     */
+    private static final DefaultDispenseItemBehavior DISPENSIBLE_BUCKET = new DefaultDispenseItemBehavior() {
         @Override
         public ItemStack execute(BlockSource source, ItemStack stack) {
             DispensibleContainerItem item = (DispensibleContainerItem) stack.getItem();
@@ -125,43 +71,86 @@ public class ModDispenserBehavior {
         }
     };
 
+    /**
+     * 对物品包装一个 FluidHandlerWrapper 优先的发射行为。
+     *
+     * <p>先尝试 {@link FluidHandlerWrapper#fillFromItem}（物品→处理器），
+     * 再尝试 {@link FluidHandlerWrapper#drainToItem}（处理器→物品），
+     * 两者都失败时回退到原版行为。
+     */
+    private static DefaultDispenseItemBehavior wrapFluidInteraction(DispenseItemBehavior original) {
+        return new DefaultDispenseItemBehavior() {
+            @Override
+            public ItemStack execute(BlockSource source, ItemStack stack) {
+                BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+                Level level = source.level();
+                FluidHandlerWrapper wrapper = FluidHandlerWrapper.of(level, pos, null);
+                if (wrapper != null) {
+                    // 先试填充（物品→处理器）
+                    ItemStack result = wrapper.fillFromItem(stack, false, level.getRandom());
+                    if (result != null) {
+                        playEmptySound(level, pos, stack);
+                        return this.consumeWithRemainder(source, stack, result);
+                    }
+                    // 再试抽取（处理器→物品）
+                    result = wrapper.drainToItem(stack);
+                    if (result != null) {
+                        playFillSound(level, pos, stack);
+                        return this.consumeWithRemainder(source, stack, result);
+                    }
+                }
+                return original.dispense(source, stack);
+            }
+        };
+    }
+
     public static void register() {
         DispenserBlock.registerBehavior(Items.IRON_INGOT, ModDispenserBehavior::ironIngot);
         DispenserBlock.registerBehavior(Items.BOWL, ModDispenserBehavior::bowl);
         DispenserBlock.registerBehavior(Items.GOLDEN_APPLE, ModDispenserBehavior::goldenApple);
         DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, ModDispenserBehavior::resinBlock);
-        DispenserBlock.registerBehavior(Items.MILK_BUCKET, FLUID_BUCKET);
-        DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, BUCKET);
-        DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, BUCKET);
         DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);
+
+        // 特殊桶：油桶、水泥桶等（走原版空容器排放逻辑）
+        DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, DISPENSIBLE_BUCKET);
+        DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, DISPENSIBLE_BUCKET);
         for (ItemEntry<BucketItem> cementBucket : ModItems.CEMENT_BUCKETS.values()) {
-            DispenserBlock.registerBehavior(cementBucket, BUCKET);
+            DispenserBlock.registerBehavior(cementBucket, DISPENSIBLE_BUCKET);
         }
 
-        DispenseItemBehavior originalBucket = DispenserBlock.DISPENSER_REGISTRY.get(Items.BUCKET);
-        DispenserBlock.registerBehavior(Items.BUCKET, new DefaultDispenseItemBehavior() {
-            @Override
-            public ItemStack execute(BlockSource source, ItemStack stack) {
-                BlockPos blockpos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
-                Level level = source.level();
-                IFluidHandler target = level.getCapability(Capabilities.FluidHandler.BLOCK, blockpos, null);
-                if (target != null) {
-                    int amount = FluidType.BUCKET_VOLUME;
-                    FluidStack drained = target.drain(amount, IFluidHandler.FluidAction.SIMULATE);
-                    if (drained.getAmount() >= amount) {
-                        Item bucketItem = drained.getFluid().getBucket();
-                        if (bucketItem != Items.AIR) {
-                            if (!level.isClientSide()) {
-                                target.drain(amount, IFluidHandler.FluidAction.EXECUTE);
-                            }
-                            return this.consumeWithRemainder(source, stack, new ItemStack(bucketItem));
-                        }
-                    }
-                }
-                return originalBucket.dispense(source, stack);
-            }
-        });
-        DispenserBlock.registerBehavior(Items.GLASS_BOTTLE, EMPTY_FLUID_CONTAINER);
+        // 通用流体物品：FluidHandlerWrapper 优先，失败回退原版
+        wrapAndRegister(Items.MILK_BUCKET);
+        wrapAndRegister(Items.WATER_BUCKET);
+        wrapAndRegister(Items.LAVA_BUCKET);
+        wrapAndRegister(Items.POWDER_SNOW_BUCKET);
+        wrapAndRegister(Items.BUCKET);
+        wrapAndRegister(Items.GLASS_BOTTLE);
+        wrapAndRegister(Items.HONEY_BOTTLE);
+        wrapAndRegister(Items.POTION);
+        wrapAndRegister(Items.EXPERIENCE_BOTTLE);
+    }
+
+    private static void wrapAndRegister(Item item) {
+        DispenseItemBehavior original = DispenserBlock.DISPENSER_REGISTRY.get(item);
+        if (original == null) return;
+        DispenserBlock.registerBehavior(item, wrapFluidInteraction(original));
+    }
+
+    private static void playEmptySound(Level level, BlockPos pos, ItemStack container) {
+        SoundEvent sound = container.is(Items.GLASS_BOTTLE)
+            || container.is(Items.HONEY_BOTTLE)
+            || container.is(Items.POTION)
+            || container.is(Items.EXPERIENCE_BOTTLE)
+            ? SoundEvents.BOTTLE_EMPTY
+            : SoundEvents.BUCKET_EMPTY;
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+    }
+
+    private static void playFillSound(Level level, BlockPos pos, ItemStack container) {
+        SoundEvent sound = container.is(Items.GLASS_BOTTLE)
+            ? SoundEvents.BOTTLE_FILL
+            : SoundEvents.BUCKET_FILL;
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     private static ItemStack mengerSponge(BlockSource source, ItemStack stack) {
