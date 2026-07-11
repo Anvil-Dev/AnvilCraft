@@ -2392,21 +2392,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider, AnvilCraft.recipe("copper_pressure_plate_from_" + location1.getPath().replace('/', '_')));
     }
 
-    public static <T extends Block> void cfaInterfacePlaceholder(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderGetter<Item> lookup = provider.getItems();
-        SingleItemRecipeBuilder.stonecutting(
-                Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
-                RecipeCategory.BUILDING_BLOCKS,
-                ctx.get(),
-                4
-            )
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_NUGGET),
-                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_NUGGET)
-            )
-            .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
-    }
-
     private static SingleItemRecipeBuilder stonecutting(Ingredient ingredient, ItemLike result) {
         return RegistrumBlockRecipeLoader.stonecutting(ingredient, result, 1);
     }
