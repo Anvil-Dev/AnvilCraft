@@ -32,7 +32,7 @@ items:
 - 手持<ref item="anvilcraft:anvil_hammer"/>长按右键调整为主动输出模式，主动尝试向管道输出流体
 
 <info>
-通常情况下，每个<ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>独立进行输出，每秒**各自**输出 5B(桶) 流体
+通常情况下，每个<ref item="anvilcraft:celestial_forging_anvil_fluid_interface"/>独立进行输出，每秒**各自**输出 5B(桶) 流体
 </info>
 
 # <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>

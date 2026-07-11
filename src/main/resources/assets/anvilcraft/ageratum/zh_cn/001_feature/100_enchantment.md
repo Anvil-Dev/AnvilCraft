@@ -12,9 +12,9 @@ navigation:
 
 - 破坏方块不产生掉落物，而是掉落1点经验值
 - 如果该方块原本会掉落经验值，则掉落的4倍的经验值
-- 通过获得[特殊方法](000_enchanting_table.md)
+- 通过[特殊方法](000_enchanting_table.md)获得
 
 # 熔炼
 
 - 破坏方块时，将掉落物烧制一次
-- 通过获得[特殊方法](000_enchanting_table.md)
+- 通过[特殊方法](000_enchanting_table.md)获得
