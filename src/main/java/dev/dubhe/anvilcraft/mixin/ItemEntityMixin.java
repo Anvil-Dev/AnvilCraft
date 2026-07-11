@@ -370,7 +370,6 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
             0.05) : Vec3.ZERO;
     }
 
-    @SuppressWarnings({"checkstyle:NeedBraces", "checkstyle:LeftCurly", "checkstyle:OneStatementPerLine"})
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$magnetLogic(CallbackInfo ci) {
         if (this.isRemoved()) return;
@@ -407,8 +406,9 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 return;
             } else {
                 if (this.isNoGravity() && !stack.has(ModComponents.ETERNAL)) this.setNoGravity(false);
-                if (this.anvilcraft$magnetAttraction().lengthSqr() > 0)
+                if (this.anvilcraft$magnetAttraction().lengthSqr() > 0) {
                     this.addDeltaMovement(this.anvilcraft$magnetAttraction());
+                }
             }
         }
         // 3. 涡流减速

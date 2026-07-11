@@ -12,18 +12,6 @@ import java.util.Set;
  * Palette-based texture color mapper for celestial body rendering.
  * Adapted for 26.1 NativeImage API (ARGB pixel format via getPixel/setPixel).
  */
-@SuppressWarnings(
-    {
-        "checkstyle:MultipleVariableDeclarations",
-        "checkstyle:WhitespaceAfter",
-        "checkstyle:LeftCurly",
-        "checkstyle:WhitespaceAround",
-        "checkstyle:OneStatementPerLine",
-        "checkstyle:RightCurly",
-        "checkstyle:Indentation",
-        "checkstyle:NeedBraces"
-    }
-)
 public class PaletteColorMapper {
 
     /**
@@ -60,9 +48,20 @@ public class PaletteColorMapper {
     private static int findSplitRow(NativeImage palette) {
         for (int row = 1; row < palette.getHeight() - 1; row++) {
             if (isBlackRow(palette, row)) continue;
-            boolean hasAbove = false, hasBelow = false;
-            for (int r = 0; r < row; r++) { if (isBlackRow(palette, r)) { hasAbove = true; break; } }
-            for (int r = row + 1; r < palette.getHeight(); r++) { if (isBlackRow(palette, r)) { hasBelow = true; break; } }
+            boolean hasAbove = false;
+            boolean hasBelow = false;
+            for (int r = 0; r < row; r++) {
+                if (isBlackRow(palette, r)) {
+                    hasAbove = true;
+                    break;
+                }
+            }
+            for (int r = row + 1; r < palette.getHeight(); r++) {
+                if (isBlackRow(palette, r)) {
+                    hasBelow = true;
+                    break;
+                }
+            }
             if (hasAbove && hasBelow) return row;
         }
         return -1;
@@ -70,7 +69,8 @@ public class PaletteColorMapper {
 
     public static int[] getPaletteColors(NativeImage palette, int rowIndex, boolean isBase) {
         int splitRow = findSplitRow(palette);
-        int start, end;
+        int start;
+        int end;
         if (splitRow > 0) {
             start = isBase ? 0 : splitRow + 1;
             end = isBase ? splitRow : palette.getHeight();
@@ -79,7 +79,9 @@ public class PaletteColorMapper {
             end = palette.getHeight();
         }
         int validCount = 0;
-        for (int r = start; r < end; r++) { if (isBlackRow(palette, r)) validCount++; }
+        for (int r = start; r < end; r++) {
+            if (isBlackRow(palette, r)) validCount++;
+        }
         if (validCount == 0) return new int[0];
         int targetRow = rowIndex % validCount;
         int found = 0;
@@ -107,7 +109,8 @@ public class PaletteColorMapper {
         int mapCount = Math.min(refGrays.length, paletteColors.length);
         for (int i = 0; i < mapCount; i++) grayToIndex.put(refGrays[i], i);
 
-        int w = source.getWidth(), h = source.getHeight();
+        int w = source.getWidth();
+        int h = source.getHeight();
         NativeImage result = new NativeImage(w, h, false); // RGBA, zero-init
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
@@ -138,11 +141,14 @@ public class PaletteColorMapper {
     }
 
     private static NativeImage copyGrayscale(NativeImage source) {
-        int w = source.getWidth(), h = source.getHeight();
+        int w = source.getWidth();
+        int h = source.getHeight();
         NativeImage result = new NativeImage(w, h, false); // RGBA
-        for (int y = 0; y < h; y++)
-            for (int x = 0; x < w; x++)
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
                 result.setPixel(x, y, source.getPixel(x, y));
+            }
+        }
         return result;
     }
 
@@ -152,7 +158,8 @@ public class PaletteColorMapper {
      */
     public static int[] extractReferenceGrays(NativeImage source) {
         Set<Integer> graySet = new LinkedHashSet<>();
-        int w = source.getWidth(), h = source.getHeight();
+        int w = source.getWidth();
+        int h = source.getHeight();
         boolean fullImage = w <= 32 && w == h;
         int bw = fullImage ? w : Math.min(16, w);
         int bh = fullImage ? h : Math.min(16, h);
@@ -182,16 +189,21 @@ public class PaletteColorMapper {
 
     private static int findClosestGrayIndex(int gray, int[] refGrays) {
         if (refGrays.length == 0) return 0;
-        int bestIdx = 0, bestDist = Integer.MAX_VALUE;
+        int bestIdx = 0;
+        int bestDist = Integer.MAX_VALUE;
         for (int i = 0; i < refGrays.length; i++) {
             int dist = Math.abs(gray - refGrays[i]);
-            if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+            if (dist < bestDist) {
+                bestDist = dist;
+                bestIdx = i;
+            }
         }
         return bestIdx;
     }
 
     public static void composite(NativeImage base, NativeImage overlay) {
-        int w = base.getWidth(), h = base.getHeight();
+        int w = base.getWidth();
+        int h = base.getHeight();
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 int ov = overlay.getPixel(x, y); // ARGB

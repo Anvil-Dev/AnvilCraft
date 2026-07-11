@@ -38,7 +38,7 @@ public class EndDustBlock extends Block {
     ) {
         if (!level.getFluidState(pos.above()).is(FluidTags.WATER)) return;
         if (!FallingBlock.isFree(level.getBlockState(pos.above()))) return;
-        FloatingBlockEntity._float(level, pos, state);
+        FloatingBlockEntity.floatBlock(level, pos, state);
     }
 
     @Override
