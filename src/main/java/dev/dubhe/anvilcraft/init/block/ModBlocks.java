@@ -370,7 +370,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::fishTank)
         .register();
 
-    // ==== Pipe & Pump ====
+    // ==== 管道与泵 ====
 
     public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM
         .block("pipe_straight", PipeStraightBlock::new)
@@ -1659,23 +1659,25 @@ public class ModBlocks {
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
         .register();
 
-    public static final BlockEntry<CelestialForgingAnvilInterfacePlaceholderBlock> CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER =
-        REGISTRUM
-            .block("celestial_forging_anvil_interface_placeholder", CelestialForgingAnvilInterfacePlaceholderBlock::new)
-            .recipe(RegistrumBlockRecipeLoader::cfaInterfacePlaceholder)
-            .initialProperties(() -> Blocks.IRON_BLOCK)
-            .blockstate(DataGenUtil::noExtraModelOrState)
-            .properties(properties -> properties
-                .isSuffocating(ModBlocks::never)
-                .noOcclusion()
-                .isValidSpawn(Blocks::never)
-                .explosionResistance(1200)
-                .emissiveRendering(ModBlocks::always))
-            .item(CelestialForgingAnvilInterfaceBlockItem::new)
-            .build()
-            .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
-            .register();
+    public static final BlockEntry<CelestialForgingAnvilInterfacePlaceholderBlock>
+        CELESTIAL_FORGING_ANVIL_INTERFACE_PLACEHOLDER = REGISTRUM
+        .block("celestial_forging_anvil_interface_placeholder", CelestialForgingAnvilInterfacePlaceholderBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::cfaInterfacePlaceholder)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .properties(properties -> properties
+            .isSuffocating(ModBlocks::never)
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .explosionResistance(1200)
+            .emissiveRendering(ModBlocks::always)
+        )
+        .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
+        .register();
 
+    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<CelestialForgingAnvilPortalBlock> CELESTIAL_FORGING_ANVIL_PORTAL = REGISTRUM
         .block("celestial_forging_anvil_portal", CelestialForgingAnvilPortalBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)

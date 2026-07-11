@@ -43,6 +43,25 @@ public class RegistrumBlockRecipeLoader {
         HolderGetter<Item> lookup = provider.getItems();
     }
 
+    /** 生成锻星砧接口占位符的切石配方。 */
+    public static <T extends Block> void cfaInterfacePlaceholder(
+        DataGenContext<Block, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        SingleItemRecipeBuilder.stonecutting(
+                Ingredient.of(ModItems.TRANSCENDIUM_NUGGET),
+                RecipeCategory.BUILDING_BLOCKS,
+                ctx.get(),
+                4
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_NUGGET),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_NUGGET)
+            )
+            .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
+    }
+
     public static <T extends Block> void neoforge(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())

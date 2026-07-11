@@ -73,5 +73,7 @@ public class OtherLang {
         provider.add("block.anvilcraft.infinite_collector.placement_too_close_to_another", "Too close to another Infinite Collector");
         provider.add("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner",
             "Must be placed on the corner of a Celestial Forging Anvil");
+        provider.add("message.anvilcraft.disk.extreme_body_requires_crystal",
+            "Extreme celestial body data can only be stored using singularity crystals.");
     }
 }

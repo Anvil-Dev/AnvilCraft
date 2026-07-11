@@ -100,7 +100,6 @@ public class TempleHandler extends BaseMegastructureHandler {
                     logiBe.setTempleDemandCount(this.demandSatisfied ? 0 : this.demandCount);
                     logiBe.setTempleDemandProgress(this.demandSatisfied ? 0 : this.demandProgress);
                     logiBe.setTempleDemandSatisfied(this.demandSatisfied);
-                    logiBe.setChanged();
                 }
             }, be
         );
@@ -210,7 +209,7 @@ public class TempleHandler extends BaseMegastructureHandler {
         }
     }
 
-    // === Persistence ===
+    // === 持久化 ===
 
     @Override
     public void saveAdditional(ValueOutput output) {

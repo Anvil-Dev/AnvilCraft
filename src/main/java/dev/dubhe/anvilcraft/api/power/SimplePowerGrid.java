@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -44,7 +45,8 @@ public class SimplePowerGrid {
         BlockPos.CODEC.fieldOf("pos").forGetter(o -> o.pos),
         PowerComponentInfo.CODEC.listOf().fieldOf("powerComponentInfoList").forGetter(it -> it.powerComponentInfoList),
         Codec.INT.fieldOf("generate").forGetter(o -> o.generate),
-        Codec.INT.fieldOf("consume").forGetter(o -> o.consume)
+        Codec.INT.fieldOf("consume").forGetter(o -> o.consume),
+        Codec.BOOL.optionalFieldOf("infinitePower", false).forGetter(o -> o.infinitePower)
     ).apply(ins, SimplePowerGrid::new));
     public static final StreamCodec<FriendlyByteBuf, SimplePowerGrid> STREAM_CODEC = StreamCodec.of(
         SimplePowerGrid::encode,
@@ -64,6 +66,7 @@ public class SimplePowerGrid {
     private final List<Line> powerTransmitterLines = new ArrayList<>();
     private final int generate; // 发电功率
     private final int consume; // 耗电功率
+    private final boolean infinitePower; // 是否包含无限电力源
     private final int color;
     private List<Line> powerGridBoundLines = new ArrayList<>();
     private @Nullable Future<?> shapeFuture;
@@ -75,7 +78,8 @@ public class SimplePowerGrid {
         BlockPos pos,
         List<PowerComponentInfo> powerComponentInfoList,
         int generate,
-        int consume
+        int consume,
+        boolean infinitePower
     ) {
         this.pos = pos;
         this.level = level;
@@ -85,6 +89,7 @@ public class SimplePowerGrid {
         this.color = ARGB.color((int) (0.4 * 255), colors[0], colors[1], colors[2]);
         this.generate = generate;
         this.consume = consume;
+        this.infinitePower = infinitePower;
         this.blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
         this.createTransmitterVisualLines();
@@ -93,7 +98,7 @@ public class SimplePowerGrid {
     public SimplePowerGrid(PowerGrid grid) {
         this.id = grid.hashCode();
         this.level = grid.getLevel().dimension().identifier().toString();
-        this.pos = grid.getPos();
+        this.pos = Objects.requireNonNull(grid.getPos());
         Set<IPowerComponent> powerComponents = new HashSet<>();
         powerComponents.addAll(grid.storages);
         powerComponents.addAll(grid.producers);
@@ -105,6 +110,7 @@ public class SimplePowerGrid {
         }
         this.consume = grid.getConsume();
         this.generate = grid.getGenerate();
+        this.infinitePower = grid.isHasInfinitePower();
     }
 
     /// 寻找电网

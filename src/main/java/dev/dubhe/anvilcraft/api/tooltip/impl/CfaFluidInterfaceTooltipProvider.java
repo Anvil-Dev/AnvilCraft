@@ -1,10 +1,8 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
-import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -12,15 +10,14 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CfaFluidInterfaceTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
-    @Override
-    public boolean accepts(BlockEntity value) {
-        return value instanceof CelestialForgingAnvilFluidInterfaceBlockEntity;
+public class CfaFluidInterfaceTooltipProvider
+    extends CfaInterfaceTooltipProvider<CelestialForgingAnvilFluidInterfaceBlockEntity> {
+    public CfaFluidInterfaceTooltipProvider() {
+        super(CelestialForgingAnvilFluidInterfaceBlockEntity.class);
     }
 
     @Override
-    public List<Component> tooltip(BlockEntity value) {
-        if (!(value instanceof CelestialForgingAnvilFluidInterfaceBlockEntity fluid)) return List.of();
+    protected List<Component> buildTooltip(CelestialForgingAnvilFluidInterfaceBlockEntity fluid) {
         List<Component> lines = new ArrayList<>();
         ResourceHandler<FluidResource> handler = fluid.getFluidHandler();
         boolean hasAny = false;
@@ -42,8 +39,4 @@ public class CfaFluidInterfaceTooltipProvider extends ITooltipProvider.BlockEnti
         return lines;
     }
 
-    @Override
-    public int priority() {
-        return -1;
-    }
 }

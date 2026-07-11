@@ -14,7 +14,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -84,8 +83,7 @@ public abstract class CelestialForgingAnvilInterfaceBlock
         BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        // Interface FACING points away from CFA — follow opposite direction to the adjacent
-        // CFA block, then navigate to controller (BOTTOM_CENTER) via HALF offset.
+        // 接口朝向背离锻星砧，沿反方向找到相邻部件，再通过 HALF 偏移定位底部中心控制器。
         Direction towardsCfa = state.getValue(FACING).getOpposite();
         BlockPos cfaBlockPos = pos.relative(towardsCfa);
         BlockState cfaBlockState = level.getBlockState(cfaBlockPos);
@@ -95,7 +93,6 @@ public abstract class CelestialForgingAnvilInterfaceBlock
             BlockEntity be = level.getBlockEntity(controllerPos);
             if (be instanceof CelestialForgingAnvilBlockEntity cfaBe
                 && player instanceof ServerPlayer sp) {
-                if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                 ModMenuTypes.open(sp, cfaBe, controllerPos);
                 return InteractionResult.SUCCESS;
             }

@@ -159,11 +159,22 @@ public class GravityManager {
         final double strength;
         final int radius;
         final double radiusSqr;
+        final double bodyRadius;
+        final double bodyRadiusCubed;
 
         public GravitySourceType(double strength, int radius) {
+            this(strength, radius, 0.0);
+        }
+
+        /**
+         * 创建带天体实体半径的重力源。天体内部使用均匀球体近似，避免中心处引力发散。
+         */
+        public GravitySourceType(double strength, int radius, double bodyRadius) {
             this.strength = strength;
             this.radius = radius;
             this.radiusSqr = radius * radius;
+            this.bodyRadius = bodyRadius;
+            this.bodyRadiusCubed = bodyRadius * bodyRadius * bodyRadius;
         }
     }
 
@@ -269,8 +280,16 @@ public class GravityManager {
                         double radiusSquare = dx * dx + dy * dy + dz * dz;
 
                         if (radiusSquare <= s.type.radiusSqr) {
-                            // 使用传入的 g
-                            double f = (g * s.type.strength) / (Math.max(radiusSquare, 1.0) * Math.sqrt(radiusSquare));
+                            double distance = Math.sqrt(radiusSquare);
+                            if (distance < 1.0E-9) continue;
+                            double f;
+                            if (s.type.bodyRadius > 0.0 && distance < s.type.bodyRadius) {
+                                // 天体内部按距离线性衰减，中心处的引力为零。
+                                f = g * s.type.strength / s.type.bodyRadiusCubed;
+                            } else {
+                                // 天体外部和普通点重力源均按平方反比衰减。
+                                f = g * s.type.strength / (Math.max(radiusSquare, 1.0) * distance);
+                            }
                             fx += dx * f;
                             fy += dy * f;
                             fz += dz * f;

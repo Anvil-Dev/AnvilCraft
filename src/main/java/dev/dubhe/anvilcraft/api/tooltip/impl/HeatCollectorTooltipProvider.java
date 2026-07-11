@@ -90,7 +90,7 @@ public class HeatCollectorTooltipProvider extends ITooltipProvider.BlockEntityTo
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)),
             Component.translatable(
                     "tooltip.anvilcraft.grid_information.total_generated",
-                    UnitUtil.electricityUnit(grid.getGenerate(), original)
+                    UnitUtil.electricityUnit(grid.getGenerate(), original, grid.isInfinitePower())
                 )
                 .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
         );

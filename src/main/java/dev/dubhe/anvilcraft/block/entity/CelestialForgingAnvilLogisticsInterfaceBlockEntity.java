@@ -18,8 +18,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -38,17 +36,19 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
- * Logistics interface for the Celestial Forging Anvil.
- * Stores up to 16 different item types, one stack per type.
- * Items auto-route to their type's slot and don't overflow to other slots.
- * When active (redstone powered), auto-ejects items toward the facing direction.
+ * 锻星砧物流接口。
+ * 最多存储 16 种物品，每种物品固定占用一个槽位，不会溢出到其他槽位。
+ * 主动模式由铁砧锤切换，会朝接口朝向自动输出物品。
  */
 public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     private static final int TYPE_COUNT = 16;
     @Setter
-    private boolean syncing = false; // re-entrancy guard
+    private boolean syncing = false; // 防止虫洞同步重入
+    // 同一游戏刻内的多次库存和提示状态变化合并为一个完整更新包。
+    private boolean clientSyncPending = false;
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(TYPE_COUNT) {
         @Override
@@ -91,29 +91,27 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return new CelestialForgingAnvilLogisticsInterfaceBlockEntity(type, pos, state);
     }
 
-    // === Network sync ===
+    // === 网络同步 ===
 
     /**
-     * Sync block entity data to all tracking clients.
+     * 将方块实体数据同步给所有正在追踪此区块的客户端。
      */
     public void syncToClients() {
-        if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = this.getUpdatePacket();
-            if (packet != null) {
-                for (ServerPlayer player : serverLevel.getChunkSource().chunkMap
-                    .getPlayers(serverLevel.getChunkAt(worldPosition).getPos(), false)) {
-                    player.connection.send(packet);
-                }
-            }
-        }
+        CfaBlockEntitySync.sendToTracking(this, this.getUpdatePacket());
     }
 
     @Override
     public void setChanged() {
         super.setChanged();
         if (level != null && !level.isClientSide()) {
-            this.syncToClients();
+            this.clientSyncPending = true;
         }
+    }
+
+    private void flushClientSync() {
+        if (!this.clientSyncPending) return;
+        this.clientSyncPending = false;
+        this.syncToClients();
     }
 
     @Override
@@ -126,12 +124,11 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return this.itemHandler;
     }
 
-    // === Wormhole sync ===
+    // === 虫洞同步 ===
 
     /**
-     * Called from {@code onContentChanged} when a player inserts or removes items.
-     * Immediately triggers the parent CFA's wormhole sync for this specific interface,
-     * pushing the change to the canonical and to other CFAs in the same tick.
+     * 玩家插入或取出物品时由 {@code onContentsChanged} 调用。
+     * 立即通知所属锻星砧，把本接口的变更在同一刻写入虫洞权威状态并推送到其他锻星砧。
      */
     private void triggerWormholeSync(int changedSlot) {
         if (level == null || level.isClientSide()) return;
@@ -143,10 +140,8 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     }
 
     /**
-     * Find the parent CFA controller by following the FACING direction.
-     * The interface faces AWAY from the CFA, so the adjacent block in the
-     * opposite direction is always a CFA part. From there, HALF offset
-     * navigates to the controller (BOTTOM_CENTER).
+     * 沿接口朝向的反方向查找所属锻星砧控制器。
+     * 接口始终背向锻星砧，相邻方块应为锻星砧部件，再通过 HALF 偏移定位到底部中心控制器。
      */
     @Nullable
     private BlockPos findParentCfa() {
@@ -166,10 +161,10 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return null;
     }
 
-    // === Auto-eject tick ===
+    // === 自动输出 ===
 
-    private static final int MAX_EJECT_PER_OP = 64; // Max 1 stack per ejection
-    public static final int EJECT_COOLDOWN = 8;     // 8gt between ejections (like MagneticChute)
+    private static final int MAX_EJECT_PER_OP = 64; // 每次最多输出一组
+    public static final int EJECT_COOLDOWN = 8;     // 两次输出间隔 8 游戏刻
 
     private int ejectCooldown = 0;
     private int lastEjectSlot = 0;
@@ -179,79 +174,83 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     /// 弹射速度类似磁力滑槽（MagneticChute）。槽位轮询以避免某一槽被饿死。
     public void serverTick() {
         if (level == null || level.isClientSide()) return;
-        BlockState state = getBlockState();
-        if (!state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
-        if (!state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
+        try {
+            BlockState state = getBlockState();
+            if (!state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
+            if (!state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
 
-        if (this.ejectCooldown > 0) {
-            this.ejectCooldown--;
-            return;
-        }
+            if (this.ejectCooldown > 0) {
+                this.ejectCooldown--;
+                return;
+            }
 
-        Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
-        BlockPos targetPos = worldPosition.relative(facing);
-        boolean ejected = false;
-        int totalSlots = this.itemHandler.size();
+            Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
+            BlockPos targetPos = worldPosition.relative(facing);
+            boolean ejected = false;
+            int totalSlots = this.itemHandler.size();
 
-        // Round-robin: start from lastEjectSlot, iterate all slots
-        for (int offset = 0; offset < totalSlots; offset++) {
-            int slot = (this.lastEjectSlot + offset) % totalSlots;
-            ItemResource resource = this.itemHandler.getResource(slot);
-            if (resource.isEmpty()) continue;
-            int amount = this.itemHandler.getAmountAsInt(slot);
-            int toExtract = Math.min(amount, MAX_EJECT_PER_OP);
-            ItemStack stackToMove = resource.toStack(toExtract);
+            // 从上次输出槽位开始轮询，避免靠后槽位长期得不到处理。
+            for (int offset = 0; offset < totalSlots; offset++) {
+                int slot = (this.lastEjectSlot + offset) % totalSlots;
+                ItemResource resource = this.itemHandler.getResource(slot);
+                if (resource.isEmpty()) continue;
+                int amount = this.itemHandler.getAmountAsInt(slot);
+                int toExtract = Math.min(amount, MAX_EJECT_PER_OP);
+                ItemStack stackToMove = resource.toStack(toExtract);
 
-            // Try to insert into target container
-            ResourceHandler<ItemResource> targetHandler = level.getCapability(
-                Capabilities.Item.BLOCK, targetPos, facing.getOpposite()
-            );
-            if (targetHandler != null) {
-                ItemStack remainder = ItemHandlerUtil.insertItem(targetHandler, stackToMove, false);
-                int inserted = toExtract - remainder.getCount();
-                if (inserted > 0) {
-                    try (Transaction tx = Transaction.openRoot()) {
-                        this.itemHandler.extract(slot, resource, inserted, tx);
-                        tx.commit();
+                // 优先尝试插入正前方容器。
+                ResourceHandler<ItemResource> targetHandler = level.getCapability(
+                    Capabilities.Item.BLOCK, targetPos, facing.getOpposite()
+                );
+                if (targetHandler != null) {
+                    ItemStack remainder = ItemHandlerUtil.insertItem(targetHandler, stackToMove, false);
+                    int inserted = toExtract - remainder.getCount();
+                    if (inserted > 0) {
+                        try (Transaction tx = Transaction.openRoot()) {
+                            this.itemHandler.extract(slot, resource, inserted, tx);
+                            tx.commit();
+                        }
                     }
-                }
-                if (remainder.getCount() < stackToMove.getCount()) {
-                    ejected = true;
-                    this.lastEjectSlot = (slot + 1) % totalSlots;
-                    break;
-                }
-            } else {
-                // No target container — eject items into the world with velocity
-                try (Transaction tx = Transaction.openRoot()) {
-                    int extracted = this.itemHandler.extract(slot, resource, toExtract, tx);
-                    if (extracted > 0) {
-                        tx.commit();
-                        ItemStack toEject = resource.toStack(extracted);
-                        Vec3 ejectPos = worldPosition.relative(facing).getCenter();
-                        Vec3 velocity = new Vec3(
-                            facing.getStepX() * 0.25,
-                            facing.getStepY() * 0.25,
-                            facing.getStepZ() * 0.25
-                        );
-                        ItemEntity entity = new ItemEntity(level, ejectPos.x, ejectPos.y, ejectPos.z, toEject);
-                        entity.setDeltaMovement(velocity);
-                        entity.setDefaultPickUpDelay();
-                        level.addFreshEntity(entity);
+                    if (remainder.getCount() < stackToMove.getCount()) {
                         ejected = true;
                         this.lastEjectSlot = (slot + 1) % totalSlots;
                         break;
                     }
+                } else {
+                    // 前方没有容器时，将物品以朝向速度弹入世界。
+                    try (Transaction tx = Transaction.openRoot()) {
+                        int extracted = this.itemHandler.extract(slot, resource, toExtract, tx);
+                        if (extracted > 0) {
+                            tx.commit();
+                            ItemStack toEject = resource.toStack(extracted);
+                            Vec3 ejectPos = worldPosition.relative(facing).getCenter();
+                            Vec3 velocity = new Vec3(
+                                facing.getStepX() * 0.25,
+                                facing.getStepY() * 0.25,
+                                facing.getStepZ() * 0.25
+                            );
+                            ItemEntity entity = new ItemEntity(level, ejectPos.x, ejectPos.y, ejectPos.z, toEject);
+                            entity.setDeltaMovement(velocity);
+                            entity.setDefaultPickUpDelay();
+                            level.addFreshEntity(entity);
+                            ejected = true;
+                            this.lastEjectSlot = (slot + 1) % totalSlots;
+                            break;
+                        }
+                    }
                 }
             }
-        }
 
-        if (ejected) {
-            this.ejectCooldown = EJECT_COOLDOWN;
-            this.setChanged();
+            if (ejected) {
+                this.ejectCooldown = EJECT_COOLDOWN;
+                this.setChanged();
+            }
+        } finally {
+            this.flushClientSync();
         }
     }
 
-    // === Temple demand display (pushed by CFA controller) ===
+    // === 神庙需求显示状态，由锻星砧控制器推送 ===
     @Getter
     private ItemStack templeDemandItem = ItemStack.EMPTY;
     @Getter
@@ -261,7 +260,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     @Getter
     private boolean templeDemandSatisfied = false;
 
-    // === Collider target items display (pushed by CFA controller) ===
+    // === 对撞机目标物品显示状态，由锻星砧控制器推送 ===
     @Getter
     private List<ItemStack> colliderTargetItems = new ArrayList<>();
     @Getter
@@ -269,49 +268,64 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     @Getter
     private boolean colliderStarMissing = false;
 
-    // Custom setters that trigger network sync for tooltip updates
+    // 下列 setter 会触发客户端同步，以便铁砧锤提示及时刷新。
 
     public void setTempleDemandItem(ItemStack templeDemandItem) {
-        this.templeDemandItem = templeDemandItem;
+        if (ItemStack.matches(this.templeDemandItem, templeDemandItem)) return;
+        this.templeDemandItem = templeDemandItem.copy();
         this.setChanged();
     }
 
     public void setTempleDemandCount(int templeDemandCount) {
+        if (this.templeDemandCount == templeDemandCount) return;
         this.templeDemandCount = templeDemandCount;
         this.setChanged();
     }
 
     public void setTempleDemandProgress(int templeDemandProgress) {
+        if (this.templeDemandProgress == templeDemandProgress) return;
         this.templeDemandProgress = templeDemandProgress;
         this.setChanged();
     }
 
     public void setTempleDemandSatisfied(boolean templeDemandSatisfied) {
+        if (this.templeDemandSatisfied == templeDemandSatisfied) return;
         this.templeDemandSatisfied = templeDemandSatisfied;
         this.setChanged();
     }
 
     public void setColliderTargetItems(List<ItemStack> colliderTargetItems) {
-        this.colliderTargetItems = colliderTargetItems;
+        boolean unchanged = this.colliderTargetItems.size() == colliderTargetItems.size()
+            && IntStream.range(0, this.colliderTargetItems.size())
+                .allMatch(index -> ItemStack.matches(
+                    this.colliderTargetItems.get(index),
+                    colliderTargetItems.get(index)
+                ));
+        if (unchanged) return;
+        this.colliderTargetItems = new ArrayList<>(colliderTargetItems);
         this.setChanged();
     }
 
     public void setColliderProcessing(boolean colliderProcessing) {
+        if (this.colliderProcessing == colliderProcessing) return;
         this.colliderProcessing = colliderProcessing;
         this.setChanged();
     }
 
     public void setColliderStarMissing(boolean colliderStarMissing) {
+        if (this.colliderStarMissing == colliderStarMissing) return;
         this.colliderStarMissing = colliderStarMissing;
         this.setChanged();
     }
 
     public void setEjectCooldown(int ejectCooldown) {
+        if (this.ejectCooldown == ejectCooldown) return;
         this.ejectCooldown = ejectCooldown;
-        this.setChanged();
+        // 冷却仅参与服务端逻辑和磁盘持久化，不需要触发客户端完整库存包。
+        super.setChanged();
     }
 
-    // === Persistence (26.1: ValueOutput / ValueInput for disk) ===
+    // === 持久化：26.1 使用 ValueOutput / ValueInput ===
 
     @Override
     protected void saveAdditional(ValueOutput output) {
@@ -355,13 +369,12 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         this.colliderStarMissing = input.getBooleanOr("colliderStarMissing", false);
     }
 
-    // === Network sync (26.1: getUpdateTag sends CompoundTag → client loadAdditional(ValueInput)) ===
+    // === 网络同步：getUpdateTag 发送 CompoundTag，客户端经 loadAdditional 读取 ===
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putInt("ejectCooldown", this.ejectCooldown);
-        // Serialize inventory data for client-side tooltip display
+        // 同步物品栏，供客户端铁砧锤提示显示。
         TagValueOutput invOutput = TagValueOutput.createWithContext(
             new ProblemReporter.Collector(this.problemPath()), registries);
         this.itemHandler.serialize(invOutput);

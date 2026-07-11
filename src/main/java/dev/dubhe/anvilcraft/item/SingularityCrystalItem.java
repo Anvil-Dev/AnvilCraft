@@ -13,9 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
 /**
- * Singularity crystal item that stores extreme celestial body snapshots.
- * Shows enchantment glint when data is stored.
- * Shift-right-click in air clears stored data like a disk.
+ * 保存极端天体快照的奇点晶体。存有数据时显示附魔光效，在空中按住 Shift 右键可清除数据。
  */
 public class SingularityCrystalItem extends BlockItem {
 

@@ -13,7 +13,7 @@ public class MagnetarCoilHandler extends BaseMegastructureHandler {
 
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
-        // Passive
+        // 被动发电巨构
     }
 
     @Override

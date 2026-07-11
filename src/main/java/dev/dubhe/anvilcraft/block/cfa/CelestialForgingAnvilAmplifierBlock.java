@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.cfa;
 
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
-import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
@@ -14,11 +13,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
@@ -44,7 +43,7 @@ import org.jspecify.annotations.Nullable;
 
 public class CelestialForgingAnvilAmplifierBlock
     extends FlexibleMultiPartBlock<DirectionCube232PartHalf, EnumProperty<Direction>, Direction>
-    implements IHammerChangeable, IHammerRemovable, SimpleWaterloggedBlock {
+    implements IHammerRemovable, SimpleWaterloggedBlock {
     public static final EnumProperty<DirectionCube232PartHalf> HALF = EnumProperty.create("half", DirectionCube232PartHalf.class);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -232,7 +231,28 @@ public class CelestialForgingAnvilAmplifierBlock
         FluidState fluidState = context.getLevel().getFluidState(context.getClickedPos());
         return this.defaultBlockState()
             .setValue(FACING, facing)
-            .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+            .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER && fluidState.isSource());
+    }
+
+    // 多方块放置流程与其他结构相似，但部件类型和状态属性不同，保留独立实现便于校验。
+    @SuppressWarnings("DuplicatedCode")
+    @Override
+    public void setPlacedBy(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        @Nullable LivingEntity placer,
+        ItemStack stack
+    ) {
+        if (!state.hasProperty(this.getPart())) return;
+        for (DirectionCube232PartHalf part : this.getParts()) {
+            if (part == state.getValue(this.getPart())) continue;
+            BlockPos partPos = pos.offset(this.offsetFrom(state, part));
+            FluidState fluidState = level.getFluidState(partPos);
+            BlockState partState = this.placedState(part, state)
+                .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER && fluidState.isSource());
+            level.setBlockAndUpdate(partPos, partState);
+        }
     }
 
     @Override
@@ -289,25 +309,48 @@ public class CelestialForgingAnvilAmplifierBlock
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation))
+        return state.setValue(HALF, rotateHalf(state.getValue(HALF), rotation))
             .setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror))
+        return state.setValue(HALF, mirrorHalf(state.getValue(HALF), mirror))
             .setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
 
-    @Override
-    public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, (state) -> state.cycle(FACING));
-        return true;
+    private static DirectionCube232PartHalf rotateHalf(DirectionCube232PartHalf half, Rotation rotation) {
+        return switch (rotation) {
+            case NONE -> half;
+            case CLOCKWISE_90 -> rotateHalfClockwise(half);
+            case CLOCKWISE_180 -> rotateHalfClockwise(rotateHalfClockwise(half));
+            case COUNTERCLOCKWISE_90 -> rotateHalfClockwise(rotateHalfClockwise(rotateHalfClockwise(half)));
+        };
     }
 
-    @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+    private static DirectionCube232PartHalf rotateHalfClockwise(DirectionCube232PartHalf half) {
+        return switch (half) {
+            case BOTTOM_PART -> DirectionCube232PartHalf.BOTTOM_W;
+            case BOTTOM_W -> DirectionCube232PartHalf.BOTTOM_WS;
+            case BOTTOM_WS -> DirectionCube232PartHalf.BOTTOM_S;
+            case BOTTOM_S -> DirectionCube232PartHalf.BOTTOM_PART;
+            case MID_PART -> DirectionCube232PartHalf.MID_W;
+            case MID_W -> DirectionCube232PartHalf.MID_WS;
+            case MID_WS -> DirectionCube232PartHalf.MID_S;
+            case MID_S -> DirectionCube232PartHalf.MID_PART;
+            case TOP_PART -> DirectionCube232PartHalf.TOP_W;
+            case TOP_W -> DirectionCube232PartHalf.TOP_WS;
+            case TOP_WS -> DirectionCube232PartHalf.TOP_S;
+            case TOP_S -> DirectionCube232PartHalf.TOP_PART;
+        };
+    }
+
+    private static DirectionCube232PartHalf mirrorHalf(DirectionCube232PartHalf half, Mirror mirror) {
+        return switch (mirror) {
+            case NONE -> half;
+            case LEFT_RIGHT -> rotateHalf(half, Rotation.CLOCKWISE_180);
+            case FRONT_BACK -> rotateHalf(half, Rotation.COUNTERCLOCKWISE_90);
+        };
     }
 
     @Override
@@ -319,7 +362,7 @@ public class CelestialForgingAnvilAmplifierBlock
         BlockHitResult hitResult
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        // Scan nearby for the controller (BOTTOM_CENTER of anvil)
+        // 在附近查找锻星砧底部中心控制器。
         for (int dx = -5; dx <= 5; dx++) {
             for (int dz = -5; dz <= 5; dz++) {
                 for (int dy = -1; dy <= 1; dy++) {
@@ -335,7 +378,6 @@ public class CelestialForgingAnvilAmplifierBlock
                             be instanceof CelestialForgingAnvilBlockEntity cfaBe
                             && player instanceof ServerPlayer sp
                         ) {
-                            if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
                             ModMenuTypes.open(sp, cfaBe, checkPos);
                             return InteractionResult.SUCCESS;
                         }

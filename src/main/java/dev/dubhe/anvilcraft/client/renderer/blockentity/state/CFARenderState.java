@@ -6,27 +6,27 @@ import lombok.Setter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.component.ResolvableProfile;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Render state for the Celestial Forging Anvil in-world renderer.
- * Everything the {@code submit} pass needs is captured here during {@code extractRenderState}.
+ * 锻星砧世界内渲染状态，在提取阶段保存提交阶段所需的全部数据。
  */
 @Getter
 @Setter
 public class CFARenderState extends BlockEntityRenderState {
-    // === Base ring animation ===
+    // 基础束星环动画。
     private float rotation;
     private boolean amplified;
 
-    // === Smoothed / redstone-driven scaling ===
+    // 红石驱动并经过平滑插值的缩放参数。
     private float ringScale;
     private float centerY;
     private float bodyScaleMultiplier;
     private float beamHeight;
     private float redstoneFactor;
 
-    // === Ring models (mechanical rings) ===
+    // 机械束星环模型。
     @Nullable
     private BlockModelRenderState innerRingModel;   // R1 (non-amp) / R4 (amp)
     @Nullable
@@ -37,7 +37,7 @@ public class CFARenderState extends BlockEntityRenderState {
     private boolean hasMiddleRing;
     private boolean hasOuterRing;
 
-    // Ring visibility (for fade transitions) — computed in extract
+    // 提取阶段计算的束星环可见性，用于淡入淡出。
     private boolean innerVisibleNow;
     private boolean innerWasVisible;
     private boolean middleVisibleNow;
@@ -45,8 +45,8 @@ public class CFARenderState extends BlockEntityRenderState {
     private boolean outerVisibleNow;
     private boolean outerWasVisible;
 
-    // === Megastructure special ring passes (sun-synced / mechanical) ===
-    // Body data + rotation captured for star-synced megastructure rings.
+    // 巨构的恒星同步或机械旋转附加层。
+    // 为恒星同步巨构环保存天体数据和旋转角度。
     @Nullable
     private CelestialBodyData bodyData;
     @Nullable
@@ -77,34 +77,36 @@ public class CFARenderState extends BlockEntityRenderState {
     private BlockModelRenderState decompressorFixModel;
     @Nullable
     private BlockModelRenderState decompressorRingModel;
-    // Outer ring model rendered star-synced for dyson sphere
+    // 戴森球使用恒星同步方式渲染的外环模型。
     @Nullable
     private BlockModelRenderState dysonOuterRingModel;
     private boolean dysonSmallStar;
 
-    // === Animation ===
+    // 动画状态。
     private float animationProgress;
     private boolean animating;
     private boolean animationForward;
 
-    // === Celestial body ===
+    // 天体状态。
     private boolean canRenderBody;
-    // Star model (baked, animated grayscale) for main-sequence / neutron / black hole
+    // 主序星、中子星和黑洞使用的烘焙动画模型。
     @Nullable
     private BlockModelRenderState bodyModel;
     @Nullable
     private BlockModelRenderState neutronJetModel;
-    // Dynamic baked texture id for palette-colored planet bodies (null for star / complex model bodies)
+    // 色板行星的动态烘焙贴图标识；恒星和复杂模型天体不使用。
     @Nullable
     private Identifier bodyTexture;
-    // Complex custom model body (shattered/hollow/flesh/intelligence/error)
+    // 粉碎、空洞、血肉、智慧和错误天体的复杂模型。
     @Nullable
     private BlockModelRenderState complexBodyModel;
-    // Ring around the body (baked texture)
+    @Nullable
+    private ResolvableProfile playerHeadProfile;
+    // 使用烘焙贴图的天体环。
     @Nullable
     private Identifier bodyRingTexture;
 
-    // === Supernova ===
+    // 超新星状态。
     private int supernovaFlashTicks;
     private float supernovaProgress;
     private long supernovaSeed;

@@ -5,15 +5,11 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
-import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
-import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
-import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionGate331PartHalf;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
@@ -124,9 +120,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         return this.isAnchor() ? worldPosition : worldPosition.below();
     }
 
-    // PLACEHOLDER_BODY
-
-    /// === BaseLaserBlockEntity 覆写 ===
+    // ==================== 激光基础行为 ====================
 
     @Override
     public Direction getFacing() {
@@ -301,8 +295,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         return null;
     }
 
-    // PLACEHOLDER_TICK
-
+    /**
+     * 服务端每刻更新传送门连接、含水状态、虫洞激光和实体传送。
+     */
     public void tick() {
         if (level == null || level.isClientSide()) return;
         CelestialForgingAnvilBlockEntity parent = this.findParentCfa();
@@ -403,8 +398,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
         }
 
-        // PLACEHOLDER_TICK2
-
+        // 开关状态确定后，同步连接两端的含水状态和激光状态。
         // 将含水状态同步到已连接的传送门。
         // 双向同步：舀水/放水都会同步到对侧。
         // 特殊处理1：本传送门变为不含水时，若对侧传送门刚被放置（含水且尚未完成首次同步），
@@ -571,8 +565,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
     }
 
-    // PLACEHOLDER_TELEPORT
-
+    // ==================== 实体传送 ====================
     /// 当实体进入开口格时调用（由方块的 entityInside 在每移动步触发）。
     /// 用 touchingEntities 去重：实体仍在格内时后续触发被跳过；离开后 tick 清理记录，
     /// 使其再次进入时能再次传送。
@@ -611,15 +604,15 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             .relative(outwardFacing);
 
         // 保留实体在源传送门开口格内的相对位置（含精确的铁轨高度、偏左/偏右等），
-        // 映射到目标传送门外两格处，使矿车等载具传送到对面后仍在铁轨上，不会撞上传送门碰撞箱。
+        // 映射到目标传送门外一格处，使矿车等载具传送到对面后仍在铁轨上，不会撞上传送门碰撞箱。
         // 源开口格尺寸为 1×1，相对坐标 ∈ [0,1)。
         double relX = entity.getX() - worldPosition.getX();
         double relY = entity.getY() - worldPosition.getY();
         double relZ = entity.getZ() - worldPosition.getZ();
 
-        double dx = targetPortalPos.getX() + relX + outwardFacing.getStepX() * 2;
-        double dy = targetPortalPos.getY() + relY + outwardFacing.getStepY() * 2;
-        double dz = targetPortalPos.getZ() + relZ + outwardFacing.getStepZ() * 2;
+        double dx = targetPortalPos.getX() + relX + outwardFacing.getStepX();
+        double dy = targetPortalPos.getY() + relY + outwardFacing.getStepY();
+        double dz = targetPortalPos.getZ() + relZ + outwardFacing.getStepZ();
 
         // 物品和弹射物/投掷物生成时额外抬高 1 格，以免落在脚部高度
         if (entity instanceof ItemEntity
@@ -645,6 +638,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         // 对于跨维度传送，使用 26.1 的 TeleportTransition（等价于 1.21 的 DimensionTransition）。
         if (targetLevel == level) {
             entity.teleportTo(targetLevel, dx, dy, dz, Set.<Relative>of(), targetYRot, entity.getXRot(), false);
+            if (entity instanceof ServerPlayer player) {
+                player.connection.teleport(dx, dy, dz, targetYRot, entity.getXRot());
+            }
             entity.setDeltaMovement(momentum);
             entity.hurtMarked = true; // 26.1: 强制向客户端同步速度（等价于 1.21 的 hasImpulse）
         } else {
@@ -701,18 +697,17 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         return null;
     }
 
-    // PLACEHOLDER_GAMMA
-
+    // ==================== 伽马激光 ====================
     /// 伽马激光发射
     private void emitPortalGammaLaser(Direction direction) {
         if (this.level == null) return;
         final int originalMaxDistance = this.maxTransmissionDistance;
         this.maxTransmissionDistance = 16;
 
-        BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(direction);
+        BlockPos tempIrradiateBlockPos = CfaGammaLaserEffects.findTarget(this.level, this.getBlockPos(), direction);
 
         // 沿光束路径摧毁棱镜
-        this.destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
+        CfaGammaLaserEffects.destroyPrisms(this.level, this.getBlockPos(), direction, tempIrradiateBlockPos);
 
         // 如果旧目标发生变化则更新
         if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
@@ -747,28 +742,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             return;
         }
 
-        // 伽马实体伤害：16 倍普通激光伤害
-        int hurt = Math.min(16, this.gammaLevel - 4) * 16;
-        if (hurt > 0) {
-            Vec3 startPos = this.getBlockPos()
-                .relative(direction)
-                .getCenter()
-                .add(-0.0625, -0.0625, -0.0625);
-            AABB trackBoundingBox = new AABB(
-                startPos,
-                Objects.requireNonNull(this.irradiateBlockPos).relative(direction.getOpposite())
-                    .getCenter()
-                    .add(0.0625, 0.0625, 0.0625)
-            );
-            // noinspection deprecation
-            this.level.getEntities(
-                EntityTypeTest.forClass(LivingEntity.class),
-                trackBoundingBox,
-                Entity::isAlive
-            ).forEach(livingEntity ->
-                livingEntity.hurtOrSimulate(ModDamageTypes.gammaLaser(this.level), hurt)
-            );
-        }
+        CfaGammaLaserEffects.damageEntities(
+            this.level,
+            this.getBlockPos(),
+            Objects.requireNonNull(this.irradiateBlockPos),
+            direction,
+            this.gammaLevel
+        );
 
         // 伽马激光方块破坏——每个方块位置累计持续照射时间
         BlockState irradiateBlock = this.level.getBlockState(Objects.requireNonNull(this.irradiateBlockPos));
@@ -803,102 +783,11 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
 
         // 伽马激光加热：升级光束横截面区域内的余烬金属方块
-        this.tryHeatEmberMetal(direction);
+        CfaGammaLaserEffects.heatEmberMetal(
+            this.level, this.irradiateBlockPos, direction, this.gammaLevel, Block.UPDATE_ALL
+        );
 
         this.maxTransmissionDistance = originalMaxDistance;
-    }
-
-    /// 使用仅穿透空气的规则查找伽马激光照射的方块位置。
-    private BlockPos getGammaIrradiateBlockPos(Direction direction) {
-        for (int length = 1; length <= 16; length++) {
-            BlockPos checkPos = this.getBlockPos().relative(direction, length);
-            if (!this.gammaCanPassThrough(checkPos)) return checkPos;
-        }
-        return this.getBlockPos().relative(direction, 16);
-    }
-
-    /// 伽马激光只能穿过空气和可替换方块（高草丛等）。
-    private boolean gammaCanPassThrough(BlockPos blockPos) {
-        if (this.level == null) return false;
-        BlockState blockState = this.level.getBlockState(blockPos);
-        return blockState.is(BlockTags.REPLACEABLE);
-    }
-
-    /// 沿伽马激光路径摧毁红宝石棱镜。
-    private void destroyPrismsAlongPath(Direction direction, BlockPos targetPos) {
-        if (level == null) return;
-        BlockPos.MutableBlockPos checkPos = getBlockPos().relative(direction).mutable();
-        while (!checkPos.equals(targetPos)) {
-            BlockState checkState = level.getBlockState(checkPos);
-            if (checkState.getBlock() instanceof RubyPrismBlock) {
-                level.destroyBlock(checkPos.immutable(), true);
-            }
-            checkPos.move(direction);
-        }
-    }
-
-    /// 加热光束法向截面区域内的余烬金属方块。
-    /// 面积随伽马等级缩放：≥4→1×1，≥8→3×3，≥12→5×5×2，≥16→7×7×3。
-    private void tryHeatEmberMetal(Direction direction) {
-        if (this.level == null || this.gammaLevel < 4) return;
-        if (this.level.getGameTime() % 20 != 0) return;
-
-        int areaSize;
-        int thickness;
-        if (this.gammaLevel >= 16) {
-            areaSize = 7;
-            thickness = 3;
-        } else if (this.gammaLevel >= 12) {
-            areaSize = 5;
-            thickness = 2;
-        } else if (this.gammaLevel >= 8) {
-            areaSize = 3;
-            thickness = 1;
-        } else {
-            areaSize = 1;
-            thickness = 1;
-        }
-
-        int halfSize = areaSize / 2;
-        BlockPos hitPos = this.irradiateBlockPos;
-        if (hitPos == null) return;
-
-        Direction[] perpendiculars = switch (direction.getAxis()) {
-            case X -> new Direction[]{Direction.UP, Direction.NORTH};
-            case Z -> new Direction[]{Direction.UP, Direction.EAST};
-            default -> new Direction[]{Direction.NORTH, Direction.EAST};
-        };
-
-        for (int depth = 0; depth < thickness; depth++) {
-            BlockPos depthPos = hitPos.relative(direction, depth);
-            for (int a = -halfSize; a <= halfSize; a++) {
-                for (int b = -halfSize; b <= halfSize; b++) {
-                    BlockPos target = depthPos
-                        .relative(perpendiculars[0], a)
-                        .relative(perpendiculars[1], b);
-                    this.tryHeatEmberMetalAt(target);
-                }
-            }
-        }
-    }
-
-    /// 在给定位置升级或刷新单个余烬金属方块。
-    private void tryHeatEmberMetalAt(BlockPos pos) {
-        BlockState state = Objects.requireNonNull(this.level).getBlockState(pos);
-        if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
-            OverheatedEmberMetalBlock overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
-            this.level.setBlock(pos, overheatedBlock.defaultBlockState(), 3);
-            BlockEntity be = overheatedBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
-            if (be instanceof HeatableBlockEntity heatable) {
-                this.level.setBlockEntity(heatable);
-                heatable.addDurationInTick(80);
-            }
-        } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
-            BlockEntity be = this.level.getBlockEntity(pos);
-            if (be instanceof HeatableBlockEntity heatable) {
-                heatable.addDurationInTick(80);
-            }
-        }
     }
 
     @Nullable

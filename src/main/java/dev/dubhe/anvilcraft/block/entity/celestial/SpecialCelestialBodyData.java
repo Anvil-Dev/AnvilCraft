@@ -6,15 +6,9 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Celestial body data for hidden (special) bodies discovered via seed items.
- * These bodies bypass the normal three-step diagram matching and texture baking
- * pipeline — they use fixed model textures directly.
- *
- * <p>
- * All properties are cached at creation time from a
- * {@link SpecialCelestialBodyRecipe}, so no recipe-manager lookup is needed
- * during rendering or NBT deserialization.
- * </p>
+ * 通过种子物品发现的隐藏特殊天体数据。
+ * 此类天体绕过普通三步星图匹配和动态贴图烘焙，直接使用固定模型或贴图。
+ * 创建时会缓存 {@link SpecialCelestialBodyRecipe} 中的全部属性，渲染和 NBT 反序列化无需再查询配方。
  */
 public record SpecialCelestialBodyData(
     String recipeId,
@@ -32,9 +26,7 @@ public record SpecialCelestialBodyData(
     @Nullable CompoundTag playerHeadProfile
 ) implements CelestialBodyData {
 
-    /**
-     * Create from a recipe and its resource location ID.
-     */
+    /** 根据配方及其资源标识创建特殊天体数据。 */
     public static SpecialCelestialBodyData fromRecipe(SpecialCelestialBodyRecipe recipe, String recipeId) {
         return new SpecialCelestialBodyData(
             recipeId,
@@ -54,8 +46,7 @@ public record SpecialCelestialBodyData(
     }
 
     /**
-     * Create a dynamic player-head body from a player profile NBT (no resource, rendered via the skull model).
-     * The size is determined by the number of space anvils.
+     * 根据玩家档案 NBT 创建动态玩家头颅天体，直接使用头颅模型渲染，大小由空间砧子数量决定。
      */
     public static SpecialCelestialBodyData fromPlayerHead(CompoundTag profileNbt, int space) {
         return new SpecialCelestialBodyData(
@@ -75,9 +66,7 @@ public record SpecialCelestialBodyData(
         );
     }
 
-    /**
-     * Whether this body is a dynamic player-head body.
-     */
+    /** 是否为动态玩家头颅天体。 */
     public boolean isPlayerHead() {
         return this.playerHeadProfile != null;
     }
@@ -97,9 +86,7 @@ public record SpecialCelestialBodyData(
         return RingType.NONE;
     }
 
-    /**
-     * Get the model resource identifier for this special body.
-     */
+    /** 获取特殊天体的模型资源标识。 */
     public Identifier getModelLocation() {
         return AnvilCraft.of("block/celestial_body/" + this.textureName);
     }
@@ -130,9 +117,7 @@ public record SpecialCelestialBodyData(
         return tag;
     }
 
-    /**
-     * Deserialize a SpecialCelestialBodyData from NBT.
-     */
+    /** 从 NBT 反序列化特殊天体数据。 */
     public static SpecialCelestialBodyData fromTag(CompoundTag tag) {
         String recipeId = tag.getStringOr("recipeId", "");
         String name = tag.getStringOr("name", "");

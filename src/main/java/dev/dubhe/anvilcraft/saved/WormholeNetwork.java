@@ -25,13 +25,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Global saved data that tracks all wormhole-stabilized Celestial Forging Anvil
- * positions across the entire server, enabling inter-dimensional wormhole connections.
- *
- * <p>
- * CFAs are grouped by the black hole's {@code bodyUuid}. Only black holes that
- * originated from the same source (via singularity crystal snapshot) share the
- * same UUID and can form wormholes between them.
+ * 记录整个服务端中全部虫洞稳定锻星砧位置的全局存档数据，用于建立跨维度虫洞连接。
+ * 锻星砧按黑洞的 {@code bodyUuid} 分组，只有来自同一天体快照的黑洞共享标识并能互相连接。
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class WormholeNetwork extends BetterSavedData {
@@ -58,9 +53,7 @@ public class WormholeNetwork extends BetterSavedData {
         null
     );
 
-    /**
-     * A single entry in the wormhole network, identifying one CFA.
-     */
+    /** 虫洞网络中的单个锻星砧条目。 */
     public record Entry(ResourceKey<Level> dimension, BlockPos pos, Set<Cube323PartHalf> portalSides) {
 
         Entry(ResourceKey<Level> dimension, BlockPos pos) {
@@ -100,11 +93,11 @@ public class WormholeNetwork extends BetterSavedData {
                 ListTag sidesTag = tag.getListOrEmpty("portalSides");
                 for (int i = 0; i < sidesTag.size(); i++) {
                     CompoundTag sideTag = sidesTag.getCompoundOrEmpty(i);
-                    try {
-                        sides.add(Cube323PartHalf.valueOf(
-                            sideTag.getStringOr("side", "").toUpperCase()));
-                    } catch (IllegalArgumentException ignored) {
-                        // do nothing
+                    String sideName = sideTag.getStringOr("side", "");
+                    for (Cube323PartHalf side : Cube323PartHalf.values()) {
+                        if (!side.name().equalsIgnoreCase(sideName)) continue;
+                        sides.add(side);
+                        break;
                     }
                 }
             }
@@ -112,27 +105,21 @@ public class WormholeNetwork extends BetterSavedData {
         }
     }
 
-    /**
-     * Map: bodyUuid → list of CFA entries sharing the same black hole identity.
-     */
+    /** 天体标识到共享同一黑洞身份的锻星砧条目列表。 */
     private final Map<UUID, List<Entry>> network = new HashMap<>();
 
-    /**
-     * Reverse index: dimension → (pos → bodyUuid), for O(1) unregistration.
-     */
+    /** 维度和位置到天体标识的反向索引，用于常数时间注销。 */
     private final Map<ResourceKey<Level>, Map<BlockPos, UUID>> reverseIndex = new HashMap<>();
 
-    // ==================== Static accessors ====================
+    // ==================== 静态访问 ====================
 
     public static WormholeNetwork get() {
         return BetterSavedData.get(TYPE, CLIENT_COPY);
     }
 
-    // ==================== Registration ====================
+    // ==================== 注册与注销 ====================
 
-    /**
-     * Register a CFA in the network under the given black hole identity UUID.
-     */
+    /** 使用指定黑洞身份标识将锻星砧注册到虫洞网络。 */
     public void register(UUID bodyUuid, Level level, BlockPos pos) {
         ResourceKey<Level> dim = level.dimension();
         List<Entry> entries = this.network.computeIfAbsent(bodyUuid, k -> new ArrayList<>());
@@ -143,9 +130,7 @@ public class WormholeNetwork extends BetterSavedData {
         setDirty();
     }
 
-    /**
-     * Unregister a CFA from the network.
-     */
+    /** 从虫洞网络注销锻星砧。 */
     public void unregister(Level level, BlockPos pos) {
         ResourceKey<Level> dim = level.dimension();
         Map<BlockPos, UUID> dimMap = this.reverseIndex.get(dim);
@@ -163,7 +148,7 @@ public class WormholeNetwork extends BetterSavedData {
         }
     }
 
-    // ==================== Portal side management ====================
+    // ==================== 传送门侧面管理 ====================
 
     public void setPortalSides(ResourceKey<Level> dim, BlockPos pos, Set<Cube323PartHalf> sides) {
         UUID uuid = this.reverseIndex.getOrDefault(dim, Map.of()).get(pos);
@@ -197,11 +182,9 @@ public class WormholeNetwork extends BetterSavedData {
         return false;
     }
 
-    // ==================== Queries ====================
+    // ==================== 查询 ====================
 
-    /**
-     * Get all connected CFA entries (excluding self) for a given body UUID.
-     */
+    /** 获取指定天体标识下除自身外的全部已连接锻星砧条目。 */
     public List<Entry> getConnected(UUID bodyUuid, ResourceKey<Level> selfDim, BlockPos selfPos) {
         List<Entry> all = this.network.getOrDefault(bodyUuid, List.of());
         return all.stream()
@@ -209,7 +192,7 @@ public class WormholeNetwork extends BetterSavedData {
             .toList();
     }
 
-    // ==================== NBT Serialization (used by Codec) ====================
+    // ==================== 编解码器使用的 NBT 序列化 ====================
 
     private void writeToTag(CompoundTag nbt) {
         for (Map.Entry<UUID, List<Entry>> entry : this.network.entrySet()) {

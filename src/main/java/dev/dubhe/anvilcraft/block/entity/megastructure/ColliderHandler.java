@@ -100,7 +100,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
                 if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
                     logiBe.setColliderProcessing(processing);
                     logiBe.setColliderStarMissing(starMissing);
-                    logiBe.setChanged();
                 }
             }, be
         );
@@ -113,7 +112,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
                 var blockEntity = be.getLevel().getBlockEntity(checkPos);
                 if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
                     logiBe.setColliderTargetItems(new ArrayList<>(this.targetItems));
-                    logiBe.setChanged();
                 }
             }, be
         );
@@ -256,7 +254,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
         if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
             logiBe.setColliderTargetItems(new ArrayList<>(this.targetItems));
             logiBe.setColliderProcessing(processing);
-            logiBe.setChanged();
         }
     }
 
@@ -325,7 +322,7 @@ public class ColliderHandler extends BaseMegastructureHandler {
 
     private void returnToLogistics(List<ResourceHandler<ItemResource>> logistics, ItemStack stack) {
         if (logistics.isEmpty()) {
-            // Can't drop to ground without level reference; discard
+            // 缺少世界引用时无法生成掉落物，只能丢弃。
             return;
         }
         int startIdx = this.logisticsRoundRobin % logistics.size();
