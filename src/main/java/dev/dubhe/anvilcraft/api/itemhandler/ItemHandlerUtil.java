@@ -33,6 +33,7 @@ public class ItemHandlerUtil {
         BiPredicate<ItemResource, Integer> predicate,
         @Nullable ResourceHandler<ItemResource> target
     ) {
+        if (target == null) return false;
         boolean success = false;
         int maxAmount = maxAmountWeight;
         try (Transaction root = Transaction.openRoot()) {
@@ -40,15 +41,17 @@ public class ItemHandlerUtil {
                 ItemResource resource = source.getResource(srcIndex);
                 if (resource.isEmpty()) continue;
                 try (Transaction transaction = Transaction.open(root)) {
-                    int extracted = source.extract(srcIndex, resource, maxAmount, transaction);
+                    int transferAmount = Math.min(maxAmount, source.getAmountAsInt(srcIndex));
+                    int inserted = target.insert(resource, transferAmount, transaction);
+                    if (inserted <= 0) continue;
+                    int extracted = source.extract(srcIndex, resource, inserted, transaction);
                     if (extracted <= 0 || !predicate.test(resource, extracted)) continue;
-                    int inserted = target.insert(resource, extracted, transaction);
-                    if (inserted == 0) continue;
+                    if (extracted != inserted) continue;
                     success = true;
-                    maxAmount -= inserted;
-                    if (maxAmount < 0) break;
+                    maxAmount -= extracted;
                     transaction.commit();
                 }
+                if (maxAmount <= 0) break;
             }
             root.commit();
         }
