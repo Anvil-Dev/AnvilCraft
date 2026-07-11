@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -23,9 +24,6 @@ abstract class RecipeManagerMixin {
     @Shadow
     @Final
     private HolderLookup.Provider registries;
-
-    @Shadow
-    public RecipeMap recipes;
 
     @Inject(
         method = "prepare("
@@ -43,6 +41,21 @@ abstract class RecipeManagerMixin {
         new JewelCraftingRecipeGeneratingCache(this.registries)
             .buildRecipes()
             .ifPresent(recipeHolders::addAll);
-        ProceduralProcessStepManager.initialize(recipeHolders);
+    }
+
+    @Inject(
+        method = "apply("
+                 + "Lnet/minecraft/world/item/crafting/RecipeMap;"
+                 + "Lnet/minecraft/server/packs/resources/ResourceManager;"
+                 + "Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+        at = @At("TAIL")
+    )
+    private void afterApplyRecipe(
+        RecipeMap recipes,
+        ResourceManager manager,
+        ProfilerFiller profiler,
+        CallbackInfo ci
+    ) {
+        ProceduralProcessStepManager.initialize(List.copyOf(recipes.values()));
     }
 }

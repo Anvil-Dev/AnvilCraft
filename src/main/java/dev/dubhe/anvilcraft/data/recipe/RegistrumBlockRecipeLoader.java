@@ -2409,10 +2409,13 @@ public class RegistrumBlockRecipeLoader {
             .pattern("P P")
             .pattern("   ")
             .define('P', Items.PISTON)
-            .define('C', ModItems.PIPE)
+            .define('C', ModBlocks.PIPE_STRAIGHT)
             .group(ctx.getId().toString())
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.PISTON), AnvilCraftDatagen.has(lookup, Items.PISTON))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PIPE), AnvilCraftDatagen.has(lookup, ModItems.PIPE))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.PIPE_STRAIGHT),
+                AnvilCraftDatagen.has(lookup, ModBlocks.PIPE_STRAIGHT)
+            )
             .save(provider);
     }
 }

@@ -1689,6 +1689,15 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilPortalBlockItem::new)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, CelestialForgingAnvilPortalBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                generator.createWithExistingModel(ctx.get(), AnvilCraft.of("block/celestial_forging_anvil_gate"));
+            }
+        })
         .build()
         .register();
 

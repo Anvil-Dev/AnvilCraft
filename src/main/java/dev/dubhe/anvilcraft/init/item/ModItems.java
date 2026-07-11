@@ -1294,6 +1294,7 @@ public class ModItems {
                 generator.createWithExistingModel(ctx.get(), itemModel);
             }
         })
+        .recipe(RegistrumItemRecipeLoader::checkValve)
         .register();
 
     public static void register() {
