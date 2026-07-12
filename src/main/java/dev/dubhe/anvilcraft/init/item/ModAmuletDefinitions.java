@@ -21,6 +21,8 @@ import net.minecraft.world.inventory.SlotRanges;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
+import java.util.Objects;
+
 public class ModAmuletDefinitions {
     public static final ResourceKey<IAmuletDefinition> EMERALD = ModAmuletDefinitions.key("emerald");
     public static final ResourceKey<IAmuletDefinition> TOPAZ = ModAmuletDefinitions.key("topaz");
@@ -62,16 +64,24 @@ public class ModAmuletDefinitions {
             ModAmuletDefinitions.SAPPHIRE,
             AmuletDefinition.builder(ModItems.RUBY_AMULET)
                 .obtain(ModDamageTypeTags.SAPPHIRE_AMULET_VALID)
+                .obtainEnd()
                 .obtain(entityTypes, ModEntityTypeTags.SAPPHIRE_AMULET_VALID)
+                .or()
                 .build()
         );
         ctx.register(
             ModAmuletDefinitions.ANVIL,
             AmuletDefinition.builder(ModItems.ANVIL_AMULET)
                 .obtain(ModDamageTypeTags.ANVIL_AMULET_VALID)
+                .obtainEnd()
                 .obtain(entityTypes, ModEntityTypeTags.ANVIL_AMULET_VALID)
                 .obtain(new FallingBlockPredicate(BlockStatePredicate.builder().of(blocks, BlockTags.ANVIL).build()))
-                .obtainDirect(SlotRanges.nameToIds("weapon"), ItemPredicate.Builder.item().of(items, ModItemTags.ANVIL_HAMMER))
+                .obtainEnd()
+                .obtainDirect(
+                    Objects.requireNonNull(SlotRanges.nameToIds("weapon")),
+                    ItemPredicate.Builder.item().of(items, ModItemTags.ANVIL_HAMMER)
+                )
+                .or()
                 .build()
         );
         ctx.register(
