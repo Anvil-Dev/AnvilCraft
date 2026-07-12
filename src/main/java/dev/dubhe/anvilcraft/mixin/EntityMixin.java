@@ -2,9 +2,6 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
@@ -51,6 +48,12 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Unique
     private BlockPos anvil$hitDeflectionRing;
+
+    @Unique
+    private boolean anvil$isMovementFixed;
+
+    @Unique
+    private Vec3 anvil$beforeBoundingMovement = Vec3.ZERO;
 
     @Shadow
     private Level level;
@@ -123,10 +126,8 @@ public abstract class EntityMixin implements IEntityExtension {
         double x,
         double y,
         double z,
-        Operation<Void> original,
-        @Share("isFixed") LocalBooleanRef isFixed
+        Operation<Void> original
     ) {
-        isFixed.set(false);
         Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
         if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class, Player.class) && vec3.length() > 0.98) {
             Vec3 start = anvilcraft$getMovementCenter();
@@ -138,7 +139,7 @@ public abstract class EntityMixin implements IEntityExtension {
             Vec3 target = anvilcraft$getDeflectionTarget();
             Vec3 fixedMovement = target.subtract(position());
             original.call(instance, target.x, target.y, target.z);
-            isFixed.set(true);
+            anvil$isMovementFixed = true;
             anvil$fixedDeltaMovement = fixedMovement;
             anvil$isDeflected = true;
 
@@ -153,8 +154,8 @@ public abstract class EntityMixin implements IEntityExtension {
         value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 0
     )
     )
-    public boolean anvilcraft$cancelCollision1(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
-        return isFixed.get() || original.call(x, y);
+    public boolean anvilcraft$cancelCollision1(double x, double y, Operation<Boolean> original) {
+        return anvil$isMovementFixed || original.call(x, y);
     }
 
     @WrapOperation(
@@ -162,8 +163,8 @@ public abstract class EntityMixin implements IEntityExtension {
         value = "INVOKE", target = "Lnet/minecraft/util/Mth;equal(DD)Z", ordinal = 1
     )
     )
-    public boolean anvilcraft$cancelCollision2(double x, double y, Operation<Boolean> original, @Share("isFixed") LocalBooleanRef isFixed) {
-        return isFixed.get() || original.call(x, y);
+    public boolean anvilcraft$cancelCollision2(double x, double y, Operation<Boolean> original) {
+        return anvil$isMovementFixed || original.call(x, y);
     }
 
     @WrapOperation(
@@ -178,10 +179,9 @@ public abstract class EntityMixin implements IEntityExtension {
         Block block,
         BlockGetter level,
         Entity entity,
-        Operation<Void> original,
-        @Share("isFixed") LocalBooleanRef isFixed
+        Operation<Void> original
     ) {
-        if (!isFixed.get()) original.call(block, level, entity);
+        if (!anvil$isMovementFixed) original.call(block, level, entity);
     }
 
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
@@ -229,26 +229,25 @@ public abstract class EntityMixin implements IEntityExtension {
     public void anvil$recordMovement(
         MoverType type,
         Vec3 pos,
-        CallbackInfo ci,
-        @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement
+        CallbackInfo ci
     ) {
-        beforeBoundingMovement.set(this.getDeltaMovement());
+        anvil$isMovementFixed = false;
+        anvil$beforeBoundingMovement = this.getDeltaMovement();
     }
 
     @Inject(method = "move", at = @At("RETURN"))
     public void anvil$collisionCraft(
         MoverType type,
         Vec3 pos,
-        CallbackInfo ci,
-        @Share("beforeBoundingMovement") LocalRef<Vec3> beforeBoundingMovement
+        CallbackInfo ci
     ) {
         Optional<FallingBlockEntity> entityOp = Util.castSafely(this, FallingBlockEntity.class);
         if (entityOp.isEmpty() || !this.horizontalCollision) return;
         FallingBlockEntity self = entityOp.get();
-        BlockPos blockPos = BlockPos.containing(this.position.add(beforeBoundingMovement.get()
-            .scale(0.55 / beforeBoundingMovement.get().length())
+        BlockPos blockPos = BlockPos.containing(this.position.add(anvil$beforeBoundingMovement
+            .scale(0.55 / anvil$beforeBoundingMovement.length())
             .multiply(1, 0, 1)));
-        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, beforeBoundingMovement.get().length()));
+        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, anvil$beforeBoundingMovement.length()));
     }
 
     @WrapOperation(
