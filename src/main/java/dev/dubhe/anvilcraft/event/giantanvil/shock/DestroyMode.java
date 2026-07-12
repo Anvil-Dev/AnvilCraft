@@ -151,7 +151,7 @@ public abstract class DestroyMode {
         private ItemStack getTool(LevelReader level) {
             if (TOOL == null) {
                 ItemStack itemStack = Items.NETHERITE_PICKAXE.getDefaultInstance();
-                itemStack.enchant(level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH), 1);
+                itemStack.enchant(level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.FORTUNE), 5);
                 TOOL = itemStack;
             }
             return TOOL;
@@ -160,7 +160,7 @@ public abstract class DestroyMode {
         private ItemStack getSnowTool(LevelReader level) {
             if (FOR_SNOW_TOOL == null) {
                 ItemStack itemStack = Items.NETHERITE_SHOVEL.getDefaultInstance();
-                itemStack.enchant(level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH), 1);
+                itemStack.enchant(level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.FORTUNE), 5);
                 FOR_SNOW_TOOL = itemStack;
             }
             return FOR_SNOW_TOOL;

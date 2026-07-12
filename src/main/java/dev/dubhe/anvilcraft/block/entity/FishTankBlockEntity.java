@@ -787,8 +787,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             player.awardStat(Stats.FILL_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(bottle.getItem()));
         }
-        level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
-        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
+        level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS);
+        level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
         return true;
     }
 
