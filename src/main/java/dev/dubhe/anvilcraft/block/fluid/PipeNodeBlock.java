@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.fluid;
 
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -178,7 +179,10 @@ public class PipeNodeBlock extends PipeBlock {
         Player player, InteractionHand hand, BlockHitResult hitResult
     ) {
         InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-        if (result != InteractionResult.PASS || !stack.is(Tags.Items.TOOLS_WRENCH)) {
+        if (
+            result != InteractionResult.PASS
+            || !(stack.is(Tags.Items.TOOLS_WRENCH) || stack.is(ModItemTags.ANVIL_HAMMER))
+        ) {
             return result;
         }
         if (level.isClientSide()) return InteractionResult.SUCCESS;
