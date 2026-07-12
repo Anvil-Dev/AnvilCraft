@@ -71,7 +71,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
         this.tickedGameTime = this.level.getGameTime();
         Direction facing = this.getDirection();
         boolean resetCD = false;
-        if (this.cooldown <= 0 && this.isEnabled()) {
+        if (this.cooldown <= 0) {
             // 面向方向输出物品
             BlockPos targetPos = this.getBlockPos().relative(facing);
             List<ResourceHandler<ItemResource>> targetList = ItemHandlerUtil.getTargetItemHandlerList(
@@ -165,12 +165,6 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
 
     public boolean isEmpty() {
         return this.itemHandler.getStack().isEmpty();
-    }
-
-    private boolean isEnabled() {
-        BlockState state = this.getBlockState();
-        if (!(state.getBlock() instanceof SimpleMagneticChuteBlock)) return true;
-        return state.getValue(SimpleMagneticChuteBlock.ENABLED);
     }
 
     @Override
