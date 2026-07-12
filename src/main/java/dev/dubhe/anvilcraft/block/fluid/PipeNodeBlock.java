@@ -180,7 +180,7 @@ public class PipeNodeBlock extends PipeBlock {
     ) {
         InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         if (
-            result != InteractionResult.PASS
+            result != InteractionResult.PASS && result != InteractionResult.TRY_WITH_EMPTY_HAND
             || !(stack.is(Tags.Items.TOOLS_WRENCH) || stack.is(ModItemTags.ANVIL_HAMMER))
         ) {
             return result;
