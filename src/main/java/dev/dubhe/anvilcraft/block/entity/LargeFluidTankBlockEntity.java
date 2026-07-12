@@ -189,7 +189,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         this.checkInfinity();
         if (this.level != null
-            && FluidHandlerWrapper.tryFillFromExperienceBottle(player, hand, this.getFluidHandler(), this.level, this.getBlockPos())) {
+            && FluidHandlerWrapper.tryInteractWithBottle(player, hand, this.getFluidHandler(), this.level, this.getBlockPos())) {
             return true;
         }
         return FluidUtil.interactWithFluidHandler(player, hand, this.getFluidHandler());

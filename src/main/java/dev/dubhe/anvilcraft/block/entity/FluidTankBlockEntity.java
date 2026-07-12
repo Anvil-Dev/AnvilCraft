@@ -156,7 +156,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         if (this.level != null
-            && FluidHandlerWrapper.tryFillFromExperienceBottle(player, hand, tank, this.level, this.getBlockPos())) {
+            && FluidHandlerWrapper.tryInteractWithBottle(player, hand, tank, this.level, this.getBlockPos())) {
             return true;
         }
         return FluidUtil.interactWithFluidHandler(player, hand, tank);

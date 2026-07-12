@@ -72,7 +72,7 @@ public class FluidHandlerWrapper {
         return true;
     }
 
-    public static boolean tryFillFromExperienceBottle(
+    public static boolean tryInteractWithBottle(
         Player player,
         InteractionHand hand,
         IFluidHandler handler,
@@ -80,19 +80,47 @@ public class FluidHandlerWrapper {
         BlockPos pos
     ) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!stack.is(Items.EXPERIENCE_BOTTLE)) return false;
+        if (!FluidHandlerWrapper.isExplicitBottleInteraction(stack)) return false;
         FluidHandlerWrapper wrapper = new FluidHandlerWrapper(handler);
         if (level.isClientSide()) {
-            return wrapper.fillFromItem(stack, true, null) != null;
+            return wrapper.fillFromItem(stack, true, null) != null
+                || wrapper.drainToItem(stack, true) != null;
         }
         ItemStack result = wrapper.fillFromItem(stack, false, level.getRandom());
-        if (result == null) return false;
-        player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, result));
-        player.awardStat(Stats.FILL_CAULDRON);
-        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
-        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
-        return true;
+        if (result != null) {
+            player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, result));
+            player.awardStat(Stats.FILL_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
+            level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
+            return true;
+        }
+
+        result = wrapper.drainToItem(stack);
+        if (result != null) {
+            player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, result));
+            player.awardStat(Stats.USE_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS);
+            level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean isExplicitBottleInteraction(ItemStack stack) {
+        return stack.is(Items.GLASS_BOTTLE)
+            || FluidHandlerWrapper.isWaterPotion(stack)
+            || stack.is(Items.EXPERIENCE_BOTTLE);
+    }
+
+    private static boolean isWaterPotion(ItemStack stack) {
+        if (!stack.is(Items.POTION)) return false;
+        PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
+        if (contents == null) return false;
+        if (contents.potion().isEmpty()) return false;
+        return contents.potion().get() == Potions.WATER;
     }
 
     // region 填充：从物品向处理器注入流体
@@ -283,6 +311,7 @@ public class FluidHandlerWrapper {
             if (drained.getFluid() == ModFluids.EXP_FLUID.get()) {
                 return new ItemStack(Items.EXPERIENCE_BOTTLE);
             }
+            return ItemStack.EMPTY;
         }
 
         // 通用：检查流体是否有对应的桶装形式
