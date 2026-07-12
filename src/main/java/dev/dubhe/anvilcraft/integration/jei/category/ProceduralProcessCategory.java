@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.integration.jei.category;
 
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
@@ -121,14 +122,14 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         double mouseY
     ) {
         ProceduralProcessRecipe recipe = holder.value();
-        renderPredicate(graphics, recipe.getInitialBlock(), STEP_X - 20, BLOCK_Y, 14);
+        renderPredicate(graphics, recipe.getInitialBlock(), holder, STEP_X - 20, BLOCK_Y, 18);
 
         int visibleSteps = Math.min(recipe.getSteps().size(), MAX_VISIBLE_STEPS);
         for (int index = 0; index < visibleSteps; index++) {
             ProceduralProcessStep step = recipe.getSteps().get(index);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> process)) continue;
             int x = stepX(index, visibleSteps);
-            RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), x - 8, 4, 16);
+            RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), x - 10, 3, 20);
             if (!process.getInputItems().isEmpty()) {
                 this.slot.draw(graphics, x - 9, ITEM_Y);
             }
@@ -137,9 +138,10 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                 renderPredicate(
                     graphics,
                     inputBlocks.get(inputIndex),
-                    x - 7,
+                    holder,
+                    x - 9,
                     BLOCK_Y + inputIndex * 10,
-                    14
+                    18
                 );
             }
         }
@@ -155,7 +157,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                 1.2F
             );
         }
-        RenderSupport.renderBlock(graphics, recipe.getResultBlock().state(), 145, BLOCK_Y, 16);
+        RenderSupport.renderBlock(graphics, recipe.getResultBlock().state(), 142, BLOCK_Y, 20);
     }
 
     private static int stepX(int index, int visibleSteps) {
@@ -166,6 +168,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     private static void renderPredicate(
         GuiGraphicsExtractor graphics,
         BlockStatePredicate predicate,
+        RecipeHolder<ProceduralProcessRecipe> holder,
         int x,
         int y,
         int size
@@ -173,7 +176,12 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         List<BlockState> states = predicate.constructStatesForRender();
         if (states.isEmpty()) return;
         int index = (int) ((System.currentTimeMillis() / 1000) % states.size());
-        RenderSupport.renderBlock(graphics, states.get(index), x, y, size);
+        BlockState state = states.get(index);
+        if (state.getBlock() instanceof WipBlock) {
+            RenderSupport.renderWipBlock(graphics, holder.id().identifier(), x, y, size);
+        } else {
+            RenderSupport.renderBlock(graphics, state, x, y, size);
+        }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

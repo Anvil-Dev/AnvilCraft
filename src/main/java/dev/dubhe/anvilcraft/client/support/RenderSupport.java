@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
+import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -10,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class RenderSupport {
     private static final int MAX_CACHE_SIZE = 64;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();
+    private static final LinkedHashMap<Identifier, LevelLike> WIP_LEVEL_CACHE = new LinkedHashMap<>();
     // private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
     // public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     // public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
@@ -49,6 +53,51 @@ public class RenderSupport {
             -1,
             true,
             BLOCK_DISPLAY_POSE.copy()
+        );
+    }
+
+    public static void renderWipBlock(
+        GuiGraphicsExtractor graphics,
+        Identifier recipeId,
+        float x,
+        float y,
+        float size
+    ) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) {
+            renderBlock(graphics, ModBlocks.WIP_BLOCK.get().defaultBlockState(), x, y, size);
+            return;
+        }
+        if (currentClientLevel != level) {
+            currentClientLevel = level;
+            WIP_LEVEL_CACHE.clear();
+        }
+        if (!WIP_LEVEL_CACHE.containsKey(recipeId) && WIP_LEVEL_CACHE.size() >= MAX_CACHE_SIZE) {
+            WIP_LEVEL_CACHE.pollFirstEntry();
+        }
+        LevelLike preview = WIP_LEVEL_CACHE.computeIfAbsent(recipeId, id -> {
+            LevelLike result = new LevelLike(level);
+            result.setBlockState(BlockPos.ZERO, ModBlocks.WIP_BLOCK.get().defaultBlockState());
+            if (result.getBlockEntity(BlockPos.ZERO) instanceof WipBlockEntity wip) {
+                wip.setRecipeId(id);
+            }
+            return result;
+        });
+        PoseStack poseStack = new PoseStack();
+        poseStack.last().set(BLOCK_DISPLAY_POSE);
+        GuiRenderExtras.submitStructure(
+            graphics,
+            preview,
+            BlockPos.ZERO,
+            BlockPos.ZERO,
+            x,
+            y,
+            x + size,
+            y + size,
+            size,
+            true,
+            false,
+            poseStack
         );
     }
 
