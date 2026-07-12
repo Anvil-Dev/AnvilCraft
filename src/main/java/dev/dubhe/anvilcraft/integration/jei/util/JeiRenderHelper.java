@@ -31,6 +31,12 @@ public class JeiRenderHelper {
             .build();
     }
 
+    public static IDrawable getArrowLong(IGuiHelper helper) {
+        return helper.drawableBuilder(JeiTextures.ARROW_LONG, 0, 0, 64, 10)
+            .setTextureSize(64, 10)
+            .build();
+    }
+
     public static IDrawable getArrowOutput(IGuiHelper helper) {
         return helper.drawableBuilder(JeiTextures.ARROW_OUTPUT, 0, 0, 16, 10)
             .setTextureSize(16, 10)
@@ -72,6 +78,12 @@ public class JeiRenderHelper {
     public static IDrawable getExplosion(IGuiHelper helper) {
         return helper.drawableBuilder(JeiTextures.EXPLOSION, 0, 0, 32, 32)
             .setTextureSize(32, 32)
+            .build();
+    }
+
+    public static IDrawable getCycle(IGuiHelper helper) {
+        return helper.drawableBuilder(JeiTextures.CYCLE, 0, 0, 16, 16)
+            .setTextureSize(16, 16)
             .build();
     }
 

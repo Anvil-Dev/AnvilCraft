@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStep;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
+import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -24,8 +25,8 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,12 +46,16 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     private final IDrawable icon;
     private final IDrawable slot;
     private final IDrawable arrow;
+    private final IDrawable longArrow;
+    private final IDrawable cycle;
     private final Component title;
 
     public ProceduralProcessCategory(IGuiHelper helper) {
         this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         this.slot = JeiRenderHelper.getSlotDefault(helper);
         this.arrow = JeiRenderHelper.getArrowDefault(helper);
+        this.longArrow = JeiRenderHelper.getArrowLong(helper);
+        this.cycle = JeiRenderHelper.getCycle(helper);
         this.title = Component.translatable("gui.anvilcraft.category.procedural_process");
     }
 
@@ -102,9 +107,9 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                 stepX(index, visibleSteps) - 8,
                 ITEM_Y + 1
             );
-            slotBuilder.add(Ingredient.of(
-                Arrays.stream(ingredient.getItems()).map(template -> template.item().value())
-            ));
+            slotBuilder.addItemStacks(
+                Arrays.stream(ingredient.getItems()).map(ItemStackTemplate::create).toList()
+            );
         }
     }
 
@@ -129,11 +134,29 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             if (!process.getInputItems().isEmpty()) {
                 this.slot.draw(graphics, x - 9, ITEM_Y);
             }
-            if (!process.getInputBlocks().isEmpty()) {
-                renderPredicate(graphics, process.getInputBlocks().getFirst(), x - 7, BLOCK_Y, 14);
+            List<BlockStatePredicate> inputBlocks = process.getInputBlocks();
+            for (int inputIndex = inputBlocks.size() - 1; inputIndex >= 0; inputIndex--) {
+                int offset = Math.min(inputIndex, 2);
+                renderPredicate(
+                    graphics,
+                    inputBlocks.get(inputIndex),
+                    x - 7 + offset * 2,
+                    BLOCK_Y - offset * 5,
+                    14
+                );
             }
         }
 
+        this.longArrow.draw(graphics, 49, 60);
+        if (recipe.getLoop() > 1) {
+            this.cycle.draw(graphics, 4, 4);
+            AgeratumUtil.renderText(
+                graphics,
+                Component.literal(String.valueOf(recipe.getLoop())),
+                21,
+                8
+            );
+        }
         this.arrow.draw(graphics, 126, BLOCK_Y + 2);
         RenderSupport.renderBlock(graphics, recipe.getResultBlock().state(), 145, BLOCK_Y, 16);
     }

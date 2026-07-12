@@ -35,6 +35,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.BlockGetter;
@@ -53,6 +54,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -63,6 +65,7 @@ import net.neoforged.neoforge.common.util.DeferredSoundType;
 import org.jspecify.annotations.Nullable;
 
 public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements Fallable, IHammerRemovable {
+    public static final ThreadLocal<Boolean> SUPPRESS_DROPS = ThreadLocal.withInitial(() -> false);
     public static final SoundType SOUND_TYPE = new DeferredSoundType(
         0.55F, 0.45F,
         () -> SoundEvents.ANVIL_BREAK,
@@ -425,6 +428,12 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             (syncId, inventory, player) ->
                 new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
             CONTAINER_TITLE);
+    }
+
+    @Override
+    public java.util.List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        if (SUPPRESS_DROPS.get()) return java.util.List.of();
+        return super.getDrops(state, params);
     }
 
     @Override

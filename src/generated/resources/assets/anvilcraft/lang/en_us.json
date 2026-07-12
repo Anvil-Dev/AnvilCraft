@@ -2148,6 +2148,8 @@
   "tooltip.anvilcraft.smart_block_placer.jade.placement_mode": "Placement Mode: %s",
   "tooltip.anvilcraft.space_overcompressor.stored_mass": "Stored Mass: %s",
   "tooltip.anvilcraft.thought": "Press [%s] for more info",
+  "tooltip.anvilcraft.wip_block.jade.recipe": "Procedural Recipe: %s",
+  "tooltip.anvilcraft.wip_block.jade.step_count": "Steps Executed: %d",
   "tooltip.anvilcraft.working_progress.progress": "  %1$s %2$s%%",
   "tooltip.anvilcraft.working_progress.time": "  %1$s / %2$s",
   "tooltip.anvilcraft.working_progress.title": "Working progress:"
