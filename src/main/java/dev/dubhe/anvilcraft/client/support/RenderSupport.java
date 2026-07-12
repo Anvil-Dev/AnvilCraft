@@ -25,7 +25,7 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RenderSupport {
     private static final int MAX_CACHE_SIZE = 64;
-    private static final float WIP_PREVIEW_SCALE = 0.7F;
+    private static final float WIP_PREVIEW_SCALE = 0.6F;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();
     private static final LinkedHashMap<Identifier, LevelLike> WIP_LEVEL_CACHE = new LinkedHashMap<>();
     // private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();

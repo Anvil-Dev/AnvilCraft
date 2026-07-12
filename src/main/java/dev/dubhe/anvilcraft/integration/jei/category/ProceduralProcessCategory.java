@@ -42,7 +42,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     private static final int STEPS_LENGTH = 120;
     private static final int STEP_X = (WIDTH - STEPS_LENGTH) / 2 + 10;
     private static final int STEP_LENGTH = 20;
-    private static final int ITEM_Y = 14;
+    private static final int ITEM_Y = 16;
     private static final int BLOCK_Y = 36;
 
     private final IDrawable icon;
