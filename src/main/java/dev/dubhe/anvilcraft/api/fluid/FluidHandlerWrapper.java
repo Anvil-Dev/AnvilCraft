@@ -201,6 +201,7 @@ public class FluidHandlerWrapper {
 
     @Nullable
     public ItemStack drainToItem(ItemStack emptyContainer, boolean simulateOnly) {
+        if (!isSupportedEmptyContainer(emptyContainer)) return null;
         int amount = emptyContainer.is(Items.GLASS_BOTTLE)
             ? FluidType.BUCKET_VOLUME / 4
             : FluidType.BUCKET_VOLUME;
@@ -261,6 +262,10 @@ public class FluidHandlerWrapper {
         }
 
         return ItemStack.EMPTY;
+    }
+
+    private static boolean isSupportedEmptyContainer(ItemStack stack) {
+        return stack.is(Items.BUCKET) || stack.is(Items.GLASS_BOTTLE);
     }
 
     // endregion
