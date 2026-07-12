@@ -107,6 +107,11 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     }
 
     @Override
+    public boolean isSpecial() {
+        return true;
+    }
+
+    @Override
     public boolean showNotification() {
         return false;
     }

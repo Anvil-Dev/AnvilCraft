@@ -5,7 +5,8 @@
 	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "anvilcraft:block/ancient_sea_reef",
-		"2": "anvilcraft:block/ancient_sea_reef_wip"
+		"2": "anvilcraft:block/ancient_sea_reef_wip",
+		"particle": "anvilcraft:block/ancient_sea_reef_wip"
 	},
 	"elements": [
 		{
