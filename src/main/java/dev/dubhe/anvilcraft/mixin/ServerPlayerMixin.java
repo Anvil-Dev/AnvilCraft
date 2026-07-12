@@ -35,6 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements IDynamicPowerComponentHolder {
+    @SuppressWarnings("NotNullFieldNotInitialized")
     @Unique
     private DynamicPowerComponent anvilcraft$component;
     @Unique
@@ -106,7 +107,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
         if (source.getEntity() instanceof FallingBlockEntity falling
             && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
         ) {
-            ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
+            ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer((ServerLevel) this.level());
             this.setLastHurtByPlayer(killer, 1);
             killerRef.set(killer);
             DamageSource newSource = new DamageSource(
@@ -116,7 +117,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
                 source.getSourcePosition()
             );
             if (falling.getBlockState().getBlock() instanceof TranscendenceAnvilBlock) {
-                AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
+                AnvilCraftFakePlayers.getKiller().enableLooting5((ServerLevel) this.level(), killer);
             }
             return newSource;
         }
@@ -125,8 +126,9 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
 
     @Inject(method = "die", at = @At("RETURN"))
     private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<@Nullable ServerPlayer> killerRef) {
-        if (killerRef.get() == null) return;
-        AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
+        ServerPlayer player = killerRef.get();
+        if (player == null) return;
+        AnvilCraftFakePlayers.getKiller().disable(player);
     }
 
     @Override

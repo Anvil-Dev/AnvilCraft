@@ -2918,8 +2918,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         @Nullable BlockState placementState
     ) {
         Orientation orientation = this.calculatePlacementOrientation(facing, upsideDown);
-        return AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
-            level, targetPos, orientation, blockItemObj, blockItem, placementState) != InteractionResult.FAIL;
+        return AnvilCraftFakePlayers.getBlockPlacer().placeBlock(
+            level,
+            targetPos,
+            orientation,
+            blockItemObj,
+            blockItem,
+            placementState
+        ) != InteractionResult.FAIL;
     }
 
     /**

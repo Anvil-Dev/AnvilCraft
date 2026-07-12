@@ -24,14 +24,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BreakBlockUtil {
-    private static ItemStack DUMMY_SILK_TOUCH_TOOL = null;
-    private static ItemStack DUMMY_FORTUNE_5_TOOL = null;
-    private static ItemStack DUMMY_DISINTEGRATION_TOOL = null;
+    private static @Nullable ItemStack DUMMY_SILK_TOUCH_TOOL = null;
+    private static @Nullable ItemStack DUMMY_FORTUNE_5_TOOL = null;
+    private static @Nullable ItemStack DUMMY_DISINTEGRATION_TOOL = null;
     private static final ItemStack SHEARS_INSTANCE = Items.SHEARS.getDefaultInstance();
 
     public static ItemStack getDummySilkTouchTool(ServerLevel level) {
@@ -49,15 +50,15 @@ public class BreakBlockUtil {
     public static List<ItemStack> dropWithTool(ServerLevel level, BlockPos pos, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) return List.of();
-        ServerPlayer fakePlayer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(level);
-        AnvilCraftFakePlayers.anvilcraftDestroyer.enabledDestroy(fakePlayer, tool);
+        ServerPlayer fakePlayer = AnvilCraftFakePlayers.getDestroyer().offerPlayer(level);
+        AnvilCraftFakePlayers.getDestroyer().enabledDestroy(fakePlayer, tool);
         LootParams.Builder builder = new LootParams.Builder(level)
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
             .withParameter(LootContextParams.TOOL, tool)
             .withOptionalParameter(LootContextParams.THIS_ENTITY, fakePlayer)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, level.getBlockEntity(pos));
         List<ItemStack> itemStacks = state.getDrops(builder);
-        AnvilCraftFakePlayers.anvilcraftDestroyer.disable(fakePlayer);
+        AnvilCraftFakePlayers.getDestroyer().disable(fakePlayer);
         return itemStacks;
     }
 
