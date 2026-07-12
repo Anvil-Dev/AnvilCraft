@@ -2,8 +2,12 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.item.InfinityItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -44,6 +48,23 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
         this.itemHandler.setStack(
             input.read("item", ItemStack.CODEC).orElse(ItemStack.EMPTY)
         );
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
+        StoredItem storedItem = components.get(ModComponents.DISPLAY_ITEM);
+        if (storedItem != null) {
+            this.itemHandler.setStack(storedItem.stored());
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        if (!this.itemHandler.isEmpty()) {
+            components.set(ModComponents.DISPLAY_ITEM, new StoredItem(this.itemHandler.getStack()));
+        }
     }
 
     @Override
