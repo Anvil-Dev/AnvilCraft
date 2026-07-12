@@ -47,5 +47,6 @@ public class ServerLifecycleEventListener {
         PowerGrid.clear();
         SoundHelper.INSTANCE.clear();
         StorageMenuState.clear();
+        ItemCollectorBlockEntity.clearPoachingCollectors();
     }
 }
