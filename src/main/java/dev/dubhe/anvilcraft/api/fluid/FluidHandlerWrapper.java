@@ -111,6 +111,7 @@ public class FluidHandlerWrapper {
 
     private static boolean isExplicitBottleInteraction(ItemStack stack) {
         return stack.is(Items.GLASS_BOTTLE)
+            || stack.is(Items.HONEY_BOTTLE)
             || FluidHandlerWrapper.isWaterPotion(stack)
             || stack.is(Items.EXPERIENCE_BOTTLE);
     }
