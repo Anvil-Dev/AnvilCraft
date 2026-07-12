@@ -89,6 +89,9 @@ public interface IAnvilCraftBlockPlacer {
         BlockState blockState = placementState == null
                                 ? ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext)
                                 : placementState;
+        if (blockState == null || !blockItem.canPlace(blockPlaceContext, blockState)) {
+            return InteractionResult.FAIL;
+        }
         // 实际上，如果需要nbt的话，直接用NeoForge自带的就行
         InteractionResult ir;
         if (placementState == null) {

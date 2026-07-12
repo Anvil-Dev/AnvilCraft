@@ -1292,22 +1292,29 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return false;
         }
 
+        boolean changed = false;
+
         // 清空钳子中的物品（停止动画）
         if (!this.currentHeldBlock.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
+            changed = true;
         }
 
         // 重置冷却，让下一个 tick 可以立即检查是否可以继续工作
         if (this.placeCooldown > 0) {
             this.placeCooldown = 0;
+            changed = true;
         }
 
         // 任何模式下，资源耗尽时都重置索引，从第一个位置开始重新检索
         if (this.currentPlacementIndex != 0) {
             this.currentPlacementIndex = 0;
+            changed = true;
         }
 
-        this.onChanged();
+        if (changed) {
+            this.onChanged();
+        }
         return true;
     }
 
