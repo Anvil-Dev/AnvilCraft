@@ -3,12 +3,18 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.TradingStationMenu;
 import dev.dubhe.anvilcraft.inventory.component.FilterOnlySlot;
+import dev.dubhe.anvilcraft.item.FilterItem;
+import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
+import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
+import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
 import dev.dubhe.anvilcraft.network.multiple.TradingStationPackets;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,9 +29,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.Collection;
 import java.util.List;
 
-public class TradingStationScreen extends AbstractContainerScreen<TradingStationMenu> {
+public class TradingStationScreen extends AbstractContainerScreen<TradingStationMenu>
+    implements IFilterScreen<TradingStationMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "trading_station");
     private static final ResourceLocation PLAYER_NOT_ALLOW = SharedTextures.textureGui("machine/trading_station/player_not_allow");
     private static final ResourceLocation PLAYER_ALLOW = SharedTextures.textureGui("machine/trading_station/player_allow");
@@ -55,6 +63,12 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+    }
+
+    @Override
+    public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+        super.renderSlot(guiGraphics, slot);
+        IFilterScreen.super.renderSlot(guiGraphics, slot);
     }
 
     @Override
@@ -256,12 +270,36 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
                 Component.translatable("screen.anvilcraft.filter.shift_to_scroll_faster")
                     .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY)
             );
+        } else if (this.hoveredSlot instanceof SlotItemHandlerWithFilter filterSlot && filterSlot.isFilter()) {
+            components.add(SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
+            components.add(SHIFT_TO_SCROLL_FASTER_TOOLTIP);
         }
         return components;
     }
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int button, ClickType type) {
+        if (slot instanceof SlotItemHandlerWithFilter filterSlot
+            && filterSlot.isFilter()
+            && !slot.hasItem()) {
+            int storageSlot = slot.getContainerSlot();
+            ItemStack carriedItem = this.menu.getCarried().copy();
+            ItemStack previousFilter = this.menu.getFilter(storageSlot);
+            if (!carriedItem.isEmpty()) {
+                this.menu.setFilter(storageSlot, carriedItem);
+                PacketDistributor.sendToServer(new SlotFilterChangePacket(storageSlot, carriedItem));
+                if (carriedItem.is(ModItems.FILTER)
+                    && (previousFilter.isEmpty() || !FilterItem.filter(previousFilter, carriedItem))) {
+                    return;
+                }
+            } else if (Screen.hasShiftDown()
+                       && button == InputConstants.MOUSE_BUTTON_LEFT
+                       && !previousFilter.isEmpty()) {
+                this.menu.setSlotDisabled(storageSlot, false);
+                PacketDistributor.sendToServer(new SlotDisableChangePacket(storageSlot, false));
+                return;
+            }
+        }
         if (slot instanceof FilterOnlySlot filterSlot) {
             ItemStack filterStack = this.menu.getCarried();
             if (filterStack.isEmpty() && !Screen.hasShiftDown()) return;
@@ -279,7 +317,17 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         Slot slot = this.hoveredSlot;
-        if (slot instanceof FilterOnlySlot filterSlot && scrollY != 0) {
+        if (slot instanceof SlotItemHandlerWithFilter filterSlot && filterSlot.isFilter() && scrollY != 0) {
+            int storageSlot = slot.getContainerSlot();
+            int limitBefore = this.menu.getSlotLimit(storageSlot);
+            int limitAfter = limitBefore + this.getScrollSpeed() * (scrollY > 0 ? 1 : -1);
+            limitAfter = Mth.clamp(limitAfter, 1, 64);
+            if (limitAfter != limitBefore) {
+                this.menu.setSlotLimit(storageSlot, limitAfter);
+                PacketDistributor.sendToServer(new SlotFilterMaxStackSizeChangePacket(storageSlot, limitAfter));
+            }
+            return true;
+        } else if (slot instanceof FilterOnlySlot filterSlot && scrollY != 0) {
             ItemStack item = filterSlot.getItem();
             int countBefore = item.getCount();
             int countAfter = countBefore + this.getScrollSpeed() * (scrollY > 0 ? 1 : -1);
@@ -293,5 +341,15 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
 
     private int getScrollSpeed() {
         return Screen.hasShiftDown() ? 5 : 1;
+    }
+
+    @Override
+    public TradingStationMenu getFilterMenu() {
+        return this.menu;
+    }
+
+    @Override
+    public Collection<Integer> getGhostSlots() {
+        return IGhostIngredientScreen.range(36, 48, 1);
     }
 }

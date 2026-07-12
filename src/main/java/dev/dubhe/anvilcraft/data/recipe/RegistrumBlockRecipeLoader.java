@@ -2154,9 +2154,10 @@ public class RegistrumBlockRecipeLoader {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get().asItem(), 2)
             .pattern("PCP")
             .pattern("P P")
-            .pattern("   ")
+            .pattern(" M ")
             .define('P', Blocks.PISTON)
             .define('C', ModBlocks.PIPE_STRAIGHT.asItem())
+            .define('M', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             .group(ctx.getId().toString())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(Blocks.PISTON.asItem()),

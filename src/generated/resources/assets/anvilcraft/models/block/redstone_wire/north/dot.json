@@ -13,6 +13,7 @@
           ]
         },
         "east": {
+          "rotation": 270,
           "texture": "#0",
           "uv": [
             4.0,
@@ -38,6 +39,7 @@
           ]
         },
         "west": {
+          "rotation": 90,
           "texture": "#0",
           "uv": [
             4.0,
@@ -71,6 +73,7 @@
           ]
         },
         "east": {
+          "rotation": 270,
           "texture": "#1",
           "tintindex": 0,
           "uv": [
@@ -95,6 +98,7 @@
           ]
         },
         "west": {
+          "rotation": 90,
           "texture": "#1",
           "tintindex": 0,
           "uv": [

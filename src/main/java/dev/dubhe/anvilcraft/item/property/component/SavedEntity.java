@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.item.property.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.util.ResentmentUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -44,6 +45,7 @@ public record SavedEntity(CompoundTag tag, boolean isMonster) {
     }
 
     public static SavedEntity fromMob(Mob entity) {
+        ResentmentUtil.initializeBaseResentment(entity);
         CompoundTag entityTag = new CompoundTag();
         entity.saveAsPassenger(entityTag);
         entityTag.remove(Entity.UUID_TAG);

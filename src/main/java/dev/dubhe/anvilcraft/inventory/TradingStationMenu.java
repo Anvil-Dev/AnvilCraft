@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
+import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -15,12 +17,11 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class TradingStationMenu extends AbstractContainerMenu {
+public class TradingStationMenu extends AbstractContainerMenu implements IFilterMenu {
     private final TradingStationBlockEntity be;
     private final Level level;
 
@@ -45,15 +46,16 @@ public class TradingStationMenu extends AbstractContainerMenu {
 
         for (int row = 0; row < 3; ++row) {
             for (int column = 0; column < 4; ++column) {
-                this.addSlot(new SlotItemHandler(
+                int storageSlot = row * 4 + column;
+                this.addSlot(new SlotItemHandlerWithFilter(
                     this.be.getHandler(),
-                    row * 4 + column,
+                    storageSlot,
                     98 + column * 18,
                     18 + row * 18
                 ) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
-                        return TradingStationMenu.this.be.canPlace(stack) && super.mayPlace(stack);
+                        return TradingStationMenu.this.be.getHandler().isItemValid(storageSlot, stack);
                     }
                 });
             }
@@ -176,7 +178,27 @@ public class TradingStationMenu extends AbstractContainerMenu {
 
     // 是否可以向槽位中放入物品
     protected boolean canPlace(ItemStack stack, int index) {
-        return !(this.getSlot(index) instanceof SlotItemHandler) || this.be.isProviding(stack) || this.be.isRequesting(stack);
+        return this.getSlot(index).mayPlace(stack);
+    }
+
+    @Override
+    public IFilterBlockEntity getFilterBlockEntity() {
+        return this.be;
+    }
+
+    @Override
+    public boolean isFilterEnabled() {
+        return true;
+    }
+
+    @Override
+    public int getFilterSlotIndex(Slot slot) {
+        return slot.index - TE_INVENTORY_FIRST_SLOT_INDEX;
+    }
+
+    @Override
+    public void flush() {
+        TradingStationBlockEntity.updateAndSend(this.be);
     }
 
     @Override

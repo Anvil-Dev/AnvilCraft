@@ -2,10 +2,14 @@ package dev.dubhe.anvilcraft.client.renderer.laser;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Function;
 
@@ -23,7 +27,11 @@ public class LaserCompiler {
     }
 
     public static float laserWidth(LaserState state) {
-        return LASER_WIDTH[Math.clamp(state.blockEntity().getLaserLevel(), 1, 64)] + 0.001f;
+        return laserWidth(state.laserLevel());
+    }
+
+    public static float laserWidth(int laserLevel) {
+        return LASER_WIDTH[Math.clamp(laserLevel, 1, 64)] + 0.001f;
     }
 
     public static void compile(
@@ -72,6 +80,78 @@ public class LaserCompiler {
             state.laserAtlasSprite(),
             state.concreteAtlasSprite(),
             haloColor
+        );
+    }
+
+    @SuppressWarnings("deprecation")
+    public static void compileWeaponBeam(
+        PoseStack.Pose pose,
+        float length,
+        int laserLevel,
+        Function<RenderType, VertexConsumer> bufferBuilderFunction
+    ) {
+        if (laserLevel <= 0 || length <= 0.0f) return;
+        var spriteGetter = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS);
+        TextureAtlasSprite laserSprite = spriteGetter.apply(AnvilCraft.of("block/laser"));
+        TextureAtlasSprite endSprite = spriteGetter.apply(ResourceLocation.withDefaultNamespace("block/white_concrete"));
+        float width = laserWidth(laserLevel);
+        float[] color = new float[]{1.0f, 0.05f, 0.05f};
+        VertexConsumer coreConsumer = bufferBuilderFunction.apply(RenderType.solid());
+        renderBox(
+            coreConsumer,
+            pose,
+            -width,
+            0.0f,
+            -width,
+            width,
+            length,
+            width,
+            1.0f,
+            laserSprite,
+            endSprite,
+            color
+        );
+        renderQuadY(
+            coreConsumer,
+            pose,
+            0.0f,
+            0.0f,
+            width,
+            -width,
+            -width,
+            width,
+            1.0f,
+            endSprite,
+            color
+        );
+        float haloWidth = width + HALF_PIXEL;
+        VertexConsumer haloConsumer = bufferBuilderFunction.apply(ModRenderTypes.LASER);
+        renderBox(
+            haloConsumer,
+            pose,
+            -haloWidth,
+            0.0f,
+            -haloWidth,
+            haloWidth,
+            length + HALF_PIXEL,
+            haloWidth,
+            0.6f,
+            laserSprite,
+            endSprite,
+            color
+        );
+        renderQuadY(
+            haloConsumer,
+            pose,
+            0.0f,
+            0.0f,
+            haloWidth,
+            -haloWidth,
+            -haloWidth,
+            haloWidth,
+            0.6f,
+            endSprite,
+            color
         );
     }
 

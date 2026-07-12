@@ -30,6 +30,8 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -38,6 +40,8 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -455,7 +459,7 @@ public abstract class PipeBlock extends Block
         }
         Direction flowOut = player.isShiftKeyDown() ? arm.getOpposite() : arm;
         if (addCheckValve(level, pos, state, arm, flowOut)) {
-            if (player == null || !player.isCreative()) {
+            if (!player.isCreative()) {
                 stack.shrink(1);
             }
             return ItemInteractionResult.sidedSuccess(false);
@@ -655,6 +659,18 @@ public abstract class PipeBlock extends Block
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = new ArrayList<>(super.getDrops(state, params));
+        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (state.getValue(HAS_CHECK_VALVE)
+            && blockEntity instanceof PipeCheckValveBlockEntity checkValve
+            && !checkValve.isEmpty()) {
+            drops.add(new ItemStack(ModItems.CHECK_VALVE.get(), checkValve.baseFlowCopy().size()));
+        }
+        return drops;
+    }
+
     /**
      * 管道部件放置 / 落地时使流体网络缓存失效（拓扑可能变化）。
      * 子类覆写 {@code onPlace} 时须调用 {@code super.onPlace(...)}。
@@ -668,23 +684,9 @@ public abstract class PipeBlock extends Block
         }
     }
 
-    /**
-     * 管道部件被移除 / 被推走时使流体网络缓存失效。若管道被<b>真正破坏</b>（替换为非管道方块）
-     * 且装有止逆阀，则按面数掉落对应数量的止逆阀物品（管型之间的形变已由
-     * {@link #setBlockPreservingValve} 迁移 BE，不在此掉落）。
-     */
+    /** 管道部件被移除 / 被推走时使流体网络缓存失效。 */
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!level.isClientSide
-            && !state.is(newState.getBlock())
-            && !(newState.getBlock() instanceof PipeBlock)
-            && state.getValue(HAS_CHECK_VALVE)) {
-            PipeCheckValveBlockEntity be = getCheckValve(level, pos);
-            if (be != null && !be.isEmpty()) {
-                int count = be.baseFlowCopy().size();
-                Block.popResource(level, pos, new ItemStack(ModItems.CHECK_VALVE.get(), count));
-            }
-        }
         super.onRemove(state, level, pos, newState, movedByPiston);
         if (!level.isClientSide && !state.is(newState.getBlock())) {
             FluidNetworkManager.INSTANCE.markDirty(level);

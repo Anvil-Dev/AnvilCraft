@@ -27,6 +27,11 @@ public class FilteredSlot extends Slot {
         return !this.isFilterEmpty() && this.filter.testIgnoreCount(stack);
     }
 
+    @Override
+    public int getMaxStackSize() {
+        return this.isFilterEmpty() ? 1 : this.filter.count();
+    }
+
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean canCraft() {
         return this.isFilterEmpty() || this.filter.testCount(this.getItem().getCount());

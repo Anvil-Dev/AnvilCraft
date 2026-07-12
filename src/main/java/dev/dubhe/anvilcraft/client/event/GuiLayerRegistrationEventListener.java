@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.client.hud.AnvilHammerUseHUD;
+import dev.dubhe.anvilcraft.client.hud.EnergyWeaponUseHUD;
 import dev.dubhe.anvilcraft.client.hud.IonoCraftBackpackHUD;
 import dev.dubhe.anvilcraft.client.hud.TradingStationHUD;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -73,6 +74,7 @@ public class GuiLayerRegistrationEventListener {
 
         event.registerAboveAll(AnvilCraft.of("test"), GuiLayerRegistrationEventListener::render);
         event.registerAboveAll(AnvilCraft.of("anvil_hammer_use"), AnvilHammerUseHUD::render);
+        event.registerAboveAll(AnvilCraft.of("energy_weapon_use"), EnergyWeaponUseHUD::render);
         event.registerAboveAll(AnvilCraft.of("ionocraft_backpack"), IonoCraftBackpackHUD::render);
         event.registerAboveAll(AnvilCraft.of("trading_station"), TradingStationHUD::render);
         // 注意：结构磁盘预览不在这里注册，因为它需要在Screen的tooltip之后渲染

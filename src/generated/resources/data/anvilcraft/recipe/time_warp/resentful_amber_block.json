@@ -72,63 +72,13 @@
   ],
   "outcomes": [
     {
-      "type": "anvillib_recipe:choose_one",
-      "choices": [
-        {
-          "outcome": {
-            "type": "anvillib_recipe:spawn_item",
-            "components": {
-              "anvilcraft:saved_entity": {
-                "isMonster": false,
-                "tag": {
-                  "id": "minecraft:mooshroom"
-                }
-              }
-            },
-            "functions": [
-              {
-                "type": "anvillib_recipe:apply_tag_2_component",
-                "component": "anvilcraft:saved_entity",
-                "path": "anvilcraft:saved_entity"
-              }
-            ],
-            "item": "anvilcraft:mob_amber_block",
-            "offset": [
-              0.0,
-              -0.75,
-              0.0
-            ]
-          },
-          "weight": 19.0
-        },
-        {
-          "outcome": {
-            "type": "anvillib_recipe:spawn_item",
-            "components": {
-              "anvilcraft:saved_entity": {
-                "isMonster": true,
-                "tag": {
-                  "id": "minecraft:zombie"
-                }
-              }
-            },
-            "functions": [
-              {
-                "type": "anvillib_recipe:apply_tag_2_component",
-                "component": "anvilcraft:saved_entity",
-                "path": "anvilcraft:saved_entity"
-              }
-            ],
-            "item": "anvilcraft:resentful_amber_block",
-            "offset": [
-              0.0,
-              -0.75,
-              0.0
-            ]
-          },
-          "weight": 1.0
-        }
-      ]
+      "type": "anvilcraft:resentment_amber",
+      "offset": [
+        0.0,
+        -0.75,
+        0.0
+      ],
+      "saved_entity_path": "anvilcraft:saved_entity"
     }
   ],
   "priority": 5,

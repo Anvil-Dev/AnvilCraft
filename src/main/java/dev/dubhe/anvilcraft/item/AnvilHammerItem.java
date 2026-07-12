@@ -241,20 +241,27 @@ public class AnvilHammerItem extends Item implements Equipable {
             return;
         }
         TriggerUtil.anvilHammerClickBlock(level, blockPos, "right_click");
+        if (interactWithBlock(player, blockPos, level, anvilHammer, hand, result)) return;
+        HammerManager.getChange(level.getBlockState(blockPos).getBlock()).change(player, blockPos, level, anvilHammer);
+    }
+
+    public static boolean interactWithBlock(
+        Player player, BlockPos blockPos, Level level, ItemStack anvilHammer, InteractionHand hand,
+        BlockHitResult result
+    ) {
         BlockState state = level.getBlockState(blockPos);
         Block block = state.getBlock();
         MenuProvider provider = ((BlockBehaviourInvoker) block).invokeGetMenuProvider(state, level, blockPos);
         if (provider != null) {
-            ModMenuTypes.open(player, provider, blockPos);
-            return;
+            if (player instanceof ServerPlayer serverPlayer) {
+                ModMenuTypes.open(serverPlayer, provider, blockPos);
+            }
+            return true;
         }
         if (state.useItemOn(anvilHammer, level, player, hand, result).result() != InteractionResult.PASS) {
-            return;
+            return true;
         }
-        if (state.useWithoutItem(level, player, result) != InteractionResult.PASS) {
-            return;
-        }
-        HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);
+        return state.useWithoutItem(level, player, result) != InteractionResult.PASS;
     }
 
     @Override

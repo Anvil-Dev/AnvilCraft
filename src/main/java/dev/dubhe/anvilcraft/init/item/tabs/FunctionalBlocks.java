@@ -66,10 +66,10 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.EXP_COLLECTOR); // 经验收集器
         this.plain(ModBlocks.CHARGER); // 充电器
         this.plain(ModBlocks.DISCHARGER); // 放电器
-        this.plain(ModBlocks.BLOCK_PLACER); // 方块放置器
         this.plain(ModBlocks.BLOCK_DEVOURER); // 方块吞噬器
-        this.plain(ModBlocks.STRUCTURE_SCANNER); // 结构扫描仪
+        this.plain(ModBlocks.BLOCK_PLACER); // 方块放置器
         this.plain(ModBlocks.SMART_BLOCK_PLACER); // 智能方块放置器
+        this.plain(ModBlocks.STRUCTURE_SCANNER); // 结构扫描仪
         this.plain(ModBlocks.RUBY_LASER); // 激光器
         this.plain(ModBlocks.LARGE_LASER); // 大型激光器
         this.plain(ModBlocks.RUBY_PRISM); // 棱镜
@@ -109,8 +109,8 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL); // 锻星砧传送门
         this.plain(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK); // 磁电核心
         this.plain(ModBlocks.CRAB_TRAP); // 蟹笼
-        this.plain(ModBlocks.COPPER_PRESSURE_PLATE); // 铜压力板
         this.plain(ModBlocks.REDSTONE_WIRE); // 红石导线
+        this.plain(ModBlocks.COPPER_PRESSURE_PLATE); // 铜压力板
         this.plain(ModBlocks.EXPOSED_COPPER_PRESSURE_PLATE); // 斑驳的铜压力板
         this.plain(ModBlocks.WEATHERED_COPPER_PRESSURE_PLATE); // 锈蚀的铜压力板
         this.plain(ModBlocks.OXIDIZED_COPPER_PRESSURE_PLATE); // 氧化的铜压力板

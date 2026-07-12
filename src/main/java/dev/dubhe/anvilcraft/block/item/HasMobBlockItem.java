@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
+import dev.dubhe.anvilcraft.util.ResentmentUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,6 +16,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Monster;
@@ -73,9 +75,21 @@ public class HasMobBlockItem extends BlockItem {
         super.appendHoverText(stack, context, tooltipComponents, isAdvanced);
         if (!HasMobBlockItem.hasMob(stack)) return;
         Optional.ofNullable(context.level())
-            .map(level -> HasMobBlockItem.getMobFromItem(level, stack))
-            .ifPresent(entity -> tooltipComponents.add(
-                Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY)));
+            .ifPresent(level -> {
+                SavedEntity savedEntity = stack.get(ModComponents.SAVED_ENTITY);
+                if (savedEntity == null) return;
+                Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
+                if (entity == null) return;
+                tooltipComponents.add(
+                    Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY));
+                int resentment = savedEntity.isMonster() && entity instanceof LivingEntity livingEntity
+                    ? ResentmentUtil.getResentment(livingEntity)
+                    : 0;
+                tooltipComponents.add(Component.translatable(
+                    "tooltip.anvilcraft.item.resin_block.resentment",
+                    resentment
+                ).withStyle(ChatFormatting.DARK_RED));
+            });
     }
 
     @Override

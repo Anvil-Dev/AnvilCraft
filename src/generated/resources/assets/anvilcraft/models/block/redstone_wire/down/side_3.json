@@ -5,6 +5,7 @@
       "faces": {
         "down": {
           "cullface": "down",
+          "rotation": 90,
           "texture": "#0",
           "uv": [
             11.0,
@@ -34,6 +35,7 @@
           ]
         },
         "up": {
+          "rotation": 270,
           "texture": "#0",
           "uv": [
             5.0,
@@ -89,6 +91,7 @@
           ]
         },
         "up": {
+          "rotation": 270,
           "texture": "#1",
           "tintindex": 0,
           "uv": [

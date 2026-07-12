@@ -45,6 +45,7 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.ComparatorBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -708,7 +709,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         if (!(block instanceof DoorBlock
               || block instanceof TrapDoorBlock
               || block instanceof FenceGateBlock
-              || block instanceof ButtonBlock)) {
+              || block instanceof ButtonBlock
+              || block instanceof ComparatorBlock)) {
             return;
         }
         state.useWithoutItem(level, this.minecraft.player, this.hitVec);

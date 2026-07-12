@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.EnergyWeaponMakeMenu;
@@ -14,15 +15,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeaponMakeMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "energy_weapon_platform");
@@ -84,7 +88,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
             16,
             32,
             btn -> {
-                this.menu.make(Minecraft.getInstance().player);
+                this.menu.make(Objects.requireNonNull(Minecraft.getInstance().player));
                 PacketDistributor.sendToServer(new EnergyWeaponMakePackets.Make());
                 this.cantCraftBlinkMs = 0;
             }
@@ -166,7 +170,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack itemstack = this.hoveredSlot.getItem();
             graphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
-        } else if (this.renderingTooltip != null) {
+        } else {
             graphics.renderTooltip(
                 this.font,
                 this.getTooltipFromContainerItem(this.renderingTooltip),
@@ -179,38 +183,29 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
     }
 
     @Override
-    protected void renderSlotContents(GuiGraphics guiGraphics, ItemStack stack, Slot slot, @Nullable String countString) {
-        if (slot instanceof FilteredSlot filtered) {
-            if (filtered.isFilterEmpty()) return;
-            if (stack.isEmpty()) {
-                int seed = slot.x + slot.y * this.imageWidth;
-                ItemStack[] stacks = filtered.getFilter().getItems();
-                stack = stacks[(int) ((System.currentTimeMillis() / 1000) % stacks.length)];
-                guiGraphics.renderItem(stack, slot.x, slot.y, seed);
+    public void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+        super.renderSlot(guiGraphics, slot);
+        if (!(slot instanceof FilteredSlot filtered) || filtered.isFilterEmpty()) return;
 
-                guiGraphics.pose().pushPose();
-                String s = String.valueOf(stack.getCount());
-                guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
-                guiGraphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFF555555, true);
-                guiGraphics.pose().popPose();
-
-                return;
-            } else if (stack.getCount() < filtered.getFilter().count()) {
-                int seed = slot.x + slot.y * this.imageWidth;
-                if (slot.isFake()) {
-                    guiGraphics.renderFakeItem(stack, slot.x, slot.y, seed);
-                } else {
-                    guiGraphics.renderItem(stack, slot.x, slot.y, seed);
-                }
-                guiGraphics.pose().pushPose();
-                String s = String.valueOf(stack.getCount());
-                guiGraphics.pose().translate(0.0F, 0.0F, 200.0F);
-                guiGraphics.drawString(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
-                guiGraphics.pose().popPose();
-                return;
+        if (!slot.hasItem()) {
+            ItemStack[] stacks = filtered.getFilter().getItems();
+            if (stacks.length > 0) {
+                ItemStack ghost = stacks[(int) ((System.currentTimeMillis() / 1000) % stacks.length)];
+                RenderSupport.renderItemWithTransparency(ghost, guiGraphics.pose(), slot.x, slot.y, 0.52f);
+                guiGraphics.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x60ffaaaa);
             }
         }
-        super.renderSlotContents(guiGraphics, stack, slot, countString);
+
+        String limit = String.valueOf(filtered.getMaxStackSize());
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0, 0, 300);
+        float scale = 0.6f;
+        guiGraphics.pose().scale(scale, scale, 1.0f);
+        int width = this.font.width(limit);
+        int x = (int) ((slot.x + 16.25 - width * scale) / scale);
+        int y = (int) ((slot.y + 14 - this.font.lineHeight * 2 * scale + 1) / scale);
+        guiGraphics.drawString(this.font, limit, x, y, 0xFFA0A0, true);
+        guiGraphics.pose().popPose();
     }
 
     @Override
@@ -254,6 +249,9 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
                 int y = this.topPos + 24 + 18 * ((i - this.head) / 3);
 
                 if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) continue;
+                Minecraft.getInstance().getSoundManager().play(
+                    SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
+                );
                 if (this.menu.getSelectedIndex() == i) {
                     this.menu.setSelectedIndex(-1);
                     PacketDistributor.sendToServer(new EnergyWeaponMakePackets.Select(-1));

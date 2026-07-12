@@ -48,7 +48,6 @@ import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.RedstoneWireBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
@@ -116,11 +115,6 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 public class ModBlockEntities {
-    public static final BlockEntityEntry<RedstoneWireBlockEntity> REDSTONE_WIRE = REGISTRUM.blockEntity(
-        "redstone_wire",
-        RedstoneWireBlockEntity::new
-    ).validBlock(ModBlocks.REDSTONE_WIRE).register();
-
     public static final BlockEntityEntry<BatchCrafterBlockEntity> BATCH_CRAFTER = REGISTRUM.blockEntity(
         "batch_crafter",
         BatchCrafterBlockEntity::new

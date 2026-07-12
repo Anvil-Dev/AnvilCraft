@@ -47,10 +47,10 @@ public record PulseGeneratorUpdatePacket(
     public void handleOnServer(Player player) {
         if (!(player.containerMenu instanceof PulseGeneratorMenu menu)) return;
         PulseGeneratorBlockEntity repeater = menu.getBlockEntity();
-        repeater.setStartMode(this.startMode);
-        repeater.setOutputMode(this.outputInvert);
         repeater.setWaitingTime(this.waitingTime);
         repeater.setSignalDuration(this.signalDuration);
+        repeater.setOutputMode(this.outputInvert);
+        repeater.setStartMode(this.startMode);
         repeater.syncToClient();
     }
 }

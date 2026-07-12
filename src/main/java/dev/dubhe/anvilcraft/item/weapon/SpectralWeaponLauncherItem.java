@@ -7,9 +7,14 @@ import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.level.Level;
@@ -48,6 +53,17 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     }
 
     @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        updateExhaustedModel(stack);
+        if (unableToUse(stack)) {
+            EnergyWeaponItem.showInsufficientPower(player);
+            return InteractionResultHolder.fail(stack);
+        }
+        return super.use(level, player, hand);
+    }
+
+    @Override
     public void performShooting(
         Level level,
         LivingEntity shooter,
@@ -61,10 +77,22 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
         if (shooter.hasInfiniteMaterials()) return;
         int newEnergy = weapon.getOrDefault(ModComponents.STORED_ENERGY, 0) - SpectralWeaponLauncherItem.SHOOT_CONSUME;
         weapon.set(ModComponents.STORED_ENERGY, newEnergy);
-        if (newEnergy < SpectralWeaponLauncherItem.SHOOT_CONSUME) {
-            weapon.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(SpectralWeaponLauncherItem.EXHAUSTED_MODEL));
-        } else {
-            weapon.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
+        updateExhaustedModel(weapon);
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        updateExhaustedModel(stack);
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+    }
+
+    private static void updateExhaustedModel(ItemStack stack) {
+        CustomModelData model = stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
+        CustomModelData expected = stack.getOrDefault(ModComponents.STORED_ENERGY, 0) < SHOOT_CONSUME
+            ? new CustomModelData(EXHAUSTED_MODEL)
+            : CustomModelData.DEFAULT;
+        if (!model.equals(expected)) {
+            stack.set(DataComponents.CUSTOM_MODEL_DATA, expected);
         }
     }
 
@@ -85,14 +113,30 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
             }
             energy += 160000; // 160 kFE
         }
-        if (energy == launcher.getOrDefault(ModComponents.STORED_ENERGY, 0)) return;
-        launcher.set(ModComponents.STORED_ENERGY, energy);
-        launcher.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT);
+        if (energy != launcher.getOrDefault(ModComponents.STORED_ENERGY, 0)) {
+            launcher.set(ModComponents.STORED_ENERGY, energy);
+        }
+        updateExhaustedModel(launcher);
     }
 
     @Override
     protected double getDamageAmplification() {
         return 1.0;
+    }
+
+    @Override
+    protected SoundEvent getShootSound() {
+        return SoundEvents.WIND_CHARGE_THROW;
+    }
+
+    @Override
+    protected float getShootVolume() {
+        return 0.7F;
+    }
+
+    @Override
+    protected float getShootPitch() {
+        return 0.9F;
     }
 
     @Override
