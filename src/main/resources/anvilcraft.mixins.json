@@ -4,6 +4,7 @@
   "package": "dev.dubhe.anvilcraft.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "AbstractVillagerMixin",
     "AnvilBlockMixin",
     "AnvilMenuMixin",
     "AvoidEntityGoalMixin",

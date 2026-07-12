@@ -228,7 +228,10 @@ public record HasCauldron(
         }
         try (Transaction transaction = Transaction.openRoot()) {
             FluidResource resource = FluidResource.of(BuiltInRegistries.FLUID.getOrThrow(ResourceKey.create(Registries.FLUID, fluid)));
-            if (!handler.getResource(0).equals(resource)) handler.extract(handler.getResource(0), Integer.MAX_VALUE, transaction);
+            FluidResource handlerResource = handler.getResource(0);
+            if (!handlerResource.equals(resource) && !handlerResource.isEmpty()) {
+                handler.extract(handlerResource, Integer.MAX_VALUE, transaction);
+            }
             int amount = (int) Math.round(mb);
             amount -= handler.getAmountAsInt(0);
             if (amount < 0) {

@@ -36,12 +36,11 @@ public class ModTradeSets {
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.AMBER_FOR_EMERALD)
         ));
 
-        // Level 3: 4 trades (3 gem variants + template trade)
+        // Level 3: 2 random gem trades; the template trade is added separately
         register(context, JEWELER_LEVEL_3, HolderSet.direct(
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.TOPAZ_BLOCK_FOR_EMERALD),
             context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.SAPPHIRE_BLOCK_FOR_EMERALD),
-            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.RUBY_BLOCK_FOR_EMERALD),
-            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.EMERALD_FOR_ROYAL_STEEL_TEMPLATE)
+            context.lookup(Registries.VILLAGER_TRADE).getOrThrow(ModVillagerTrades.RUBY_BLOCK_FOR_EMERALD)
         ));
 
         // Level 4: 3 trades
