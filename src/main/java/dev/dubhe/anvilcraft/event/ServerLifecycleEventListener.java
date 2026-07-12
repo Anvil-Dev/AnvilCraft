@@ -50,5 +50,6 @@ public class ServerLifecycleEventListener {
         FluidNetworkManager.INSTANCE.clear();
         SoundHelper.INSTANCE.clear();
         StorageMenuState.clear();
+        ItemCollectorBlockEntity.clearPoachingCollectors();
     }
 }

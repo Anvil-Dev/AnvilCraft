@@ -180,13 +180,13 @@ public interface IFilterScreen<T extends AbstractContainerMenu & IFilterMenu> ex
         int width = Minecraft.getInstance().font.width(text);
         int height = Minecraft.getInstance().font.lineHeight;
         int x = (int) ((slot.x + 16.25 - width * scale) / scale);
-        int y = (int) ((slot.y + 14 - height * 2 * scale + 1) / scale);
+        int y = (int) ((slot.y + 12 - height * 2 * scale + 1) / scale);
         graphics.text(
             Minecraft.getInstance().font,
             text,
             x,
             y,
-            0xFFA0A0,
+            0xFFFFA0A0,
             true
         );
         graphics.pose().popMatrix();
