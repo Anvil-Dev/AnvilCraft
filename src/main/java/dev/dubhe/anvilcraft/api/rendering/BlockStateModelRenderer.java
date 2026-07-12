@@ -36,7 +36,11 @@ public class BlockStateModelRenderer {
     ) {
         RenderType renderType;
         if (!lighting) {
-            renderType = ModRenderTypes.CUTOUT_BLOCK;
+            if (translucent) {
+                renderType = ModRenderTypes.TRANSLUCENT_BLOCK;
+            } else {
+                renderType = ModRenderTypes.CUTOUT_BLOCK;
+            }
         } else {
             if (translucent) {
                 renderType = Sheets.translucentBlockSheet();

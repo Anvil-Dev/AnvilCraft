@@ -33,6 +33,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.block.SkullBlock;
@@ -41,7 +42,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.standalone.StandaloneModelKey;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
@@ -55,6 +55,7 @@ import java.util.Map;
 @SuppressWarnings({"checkstyle:VariableDeclarationUsageDistance", "checkstyle:OverloadMethodsDeclarationOrder"})
 public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity, CFARenderState> {
     private final @Nullable SkullModelBase playerHeadModel;
+    private final RandomSource supernovaRandom = RandomSource.create();
     // ==================== 束星环模型 ====================
     public static final StandaloneModelKey<BlockStateModel> RING1 = key("CFA Ring 1");
     public static final StandaloneModelKey<BlockStateModel> RING2 = key("CFA Ring 2");
@@ -79,16 +80,16 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE = key("CFA Ring 4 Penrose Sphere");
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_FIX = key("CFA Ring 4 Penrose Fix");
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER = key("CFA Ring 4 Penrose Laser");
-    public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER_OFF = key(
-        "CFA Ring 4 Penrose Laser Off");
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR = key(
-        "CFA Ring 4 Matter Decompressor");
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_FIX = key(
-        "CFA Ring 4 Decompressor Fix");
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_RING = key(
-        "CFA Ring 4 Decompressor Ring");
-    public static final StandaloneModelKey<BlockStateModel> R4_WORMHOLE_STABILIZER = key(
-        "CFA Ring 4 Wormhole Stabilizer");
+    public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER_OFF =
+        key("CFA Ring 4 Penrose Laser Off");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR =
+        key("CFA Ring 4 Matter Decompressor");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_FIX =
+        key("CFA Ring 4 Decompressor Fix");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_RING =
+        key("CFA Ring 4 Decompressor Ring");
+    public static final StandaloneModelKey<BlockStateModel> R4_WORMHOLE_STABILIZER =
+        key("CFA Ring 4 Wormhole Stabilizer");
     public static final StandaloneModelKey<BlockStateModel> R5_ACCELERATOR = key("CFA Ring 5 Accelerator");
     public static final StandaloneModelKey<BlockStateModel> R6_ACCELERATOR = key("CFA Ring 6 Accelerator");
 
@@ -103,13 +104,13 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_WET = key("CFA Body Planet Wet");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_BOGGY = key("CFA Body Planet Boggy");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_OCEANIC = key("CFA Body Planet Oceanic");
-    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ATMOSPHERELESS = key(
-        "CFA Body Planet Atmosphereless");
+    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ATMOSPHERELESS =
+        key("CFA Body Planet Atmosphereless");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_GIANT = key("CFA Body Planet Giant");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_OVERWORLD = key("CFA Body Planet Overworld");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_FLESH = key("CFA Body Planet Flesh");
-    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_INTELLIGENCE = key(
-        "CFA Body Planet Intelligence");
+    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_INTELLIGENCE =
+        key("CFA Body Planet Intelligence");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_SHATTERED = key("CFA Body Planet Shattered");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_HOLLOW = key("CFA Body Planet Hollow");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ERROR = key("CFA Body Planet Error");
@@ -840,18 +841,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         pose.popPose();
 
         // 绘制恒星光晕。
-        int haloIterations = 10;
-        for (int i = 0; i < haloIterations; i++) {
-            float progress = (float) i / haloIterations;
-            float haloScale = 1.0f + progress * 0.6f;
-            float alpha = (1.2f - 1.125f * progress) / haloIterations;
-            pose.pushPose();
-            pose.translate(0.5, 0.5, 0.5);
-            pose.scale(haloScale, haloScale, haloScale);
-            pose.translate(-0.5, -0.5, -0.5);
-            this.submitTranslucentCube(pose, collector, rgb[0], rgb[1], rgb[2], alpha);
-            pose.popPose();
-        }
+        this.submitHalo(pose, collector, rgb[0], rgb[1], rgb[2], 10, 1.0f, 0.6f, 1.2f, 1.125f);
     }
 
     private void submitPlanet(
@@ -893,18 +883,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         // 褐矮星使用较弱的恒星式光晕。
         if (bodyData instanceof GiantPlanetData gp && gp.brownDwarf()) {
             float[] rgb = CelestialBodyRenderer.getAtmosphereColor(Temperature.SCORCHED);
-            int haloIterations = 3;
-            for (int i = 0; i < haloIterations; i++) {
-                float progress = (float) i / haloIterations;
-                float haloScale = 1.15f + progress * 0.25f;
-                float alpha = (0.45f - 0.38f * progress) / haloIterations;
-                pose.pushPose();
-                pose.translate(0.5, 0.5, 0.5);
-                pose.scale(haloScale, haloScale, haloScale);
-                pose.translate(-0.5, -0.5, -0.5);
-                this.submitTranslucentCube(pose, collector, rgb[0], rgb[1], rgb[2], alpha);
-                pose.popPose();
-            }
+            this.submitHalo(pose, collector, rgb[0], rgb[1], rgb[2], 3, 1.15f, 0.25f, 0.45f, 0.38f);
         }
     }
 
@@ -948,27 +927,44 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         );
     }
 
-    private void submitTranslucentCube(
+    private void submitHalo(
         PoseStack pose,
         SubmitNodeCollector collector,
         float r,
         float g,
         float b,
-        float a
+        int iterations,
+        float baseScale,
+        float scaleRange,
+        float baseAlpha,
+        float alphaRange
     ) {
         collector.submitCustomGeometry(
             pose,
             ModRenderTypes.CELESTIAL_ATMOSPHERE,
-            (last, consumer) -> CelestialBodyRenderer.renderColorCube(
-                last,
-                consumer,
-                r,
-                g,
-                b,
-                a,
-                LightCoordsUtil.FULL_BRIGHT,
-                OverlayTexture.NO_OVERLAY
-            )
+            (last, consumer) -> {
+                PoseStack haloPose = poseOf(last);
+                for (int i = 0; i < iterations; i++) {
+                    float progress = (float) i / iterations;
+                    float scale = baseScale + progress * scaleRange;
+                    float alpha = (baseAlpha - alphaRange * progress) / iterations;
+                    haloPose.pushPose();
+                    haloPose.translate(0.5, 0.5, 0.5);
+                    haloPose.scale(scale, scale, scale);
+                    haloPose.translate(-0.5, -0.5, -0.5);
+                    CelestialBodyRenderer.renderColorCube(
+                        haloPose.last(),
+                        consumer,
+                        r,
+                        g,
+                        b,
+                        alpha,
+                        LightCoordsUtil.FULL_BRIGHT,
+                        OverlayTexture.NO_OVERLAY
+                    );
+                    haloPose.popPose();
+                }
+            }
         );
     }
 
@@ -1042,7 +1038,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         collector.submitCustomGeometry(
             pose, ModRenderTypes.STELLAR_BEAM, (last, consumer) -> {
                 Matrix4f matrix = last.pose();
-                RandomSource rand = RandomSource.create(seed);
+                RandomSource rand = this.supernovaRandom;
+                rand.setSeed(seed);
                 for (int i = 0; i < SUPERNOVA_RAY_COUNT; i++) {
                     float u = rand.nextFloat() * 2.0f - 1.0f;
                     float theta = rand.nextFloat() * (float) (Math.PI * 2.0);
@@ -1075,26 +1072,68 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float g,
         float b
     ) {
-        Vector3f dir = new Vector3f(dx, dy, dz).normalize();
-        Vector3f up = Math.abs(dir.y) > 0.99f ? new Vector3f(1f, 0f, 0f) : new Vector3f(0f, 1f, 0f);
-        Vector3f n1 = new Vector3f(dir).cross(up).normalize().mul(halfWidth);
-        Vector3f n2 = new Vector3f(dir).cross(n1).normalize().mul(halfWidth);
-        Vector3f tip = new Vector3f(dir).mul(length);
+        float inverseLength = Mth.invSqrt(dx * dx + dy * dy + dz * dz);
+        dx *= inverseLength;
+        dy *= inverseLength;
+        dz *= inverseLength;
 
-        float[][] base = {
-            {-n1.x - n2.x, -n1.y - n2.y, -n1.z - n2.z},
-            {n1.x - n2.x, n1.y - n2.y, n1.z - n2.z},
-            {n1.x + n2.x, n1.y + n2.y, n1.z + n2.z},
-            {-n1.x + n2.x, -n1.y + n2.y, -n1.z + n2.z}
-        };
-        for (int i = 0; i < 4; i++) {
-            float[] c0 = base[i];
-            float[] c1 = base[(i + 1) % 4];
-            beamVertex(consumer, matrix, c0[0], c0[1], c0[2], r, g, b, 1.0f);
-            beamVertex(consumer, matrix, c1[0], c1[1], c1[2], r, g, b, 1.0f);
-            beamVertex(consumer, matrix, tip.x, tip.y, tip.z, 0f, 0f, 0f, 1.0f);
-            beamVertex(consumer, matrix, tip.x, tip.y, tip.z, 0f, 0f, 0f, 1.0f);
-        }
+        float n1x = Math.abs(dy) > 0.99f ? 0.0f : -dz;
+        float n1y = Math.abs(dy) > 0.99f ? dz : 0.0f;
+        float n1z = Math.abs(dy) > 0.99f ? -dy : dx;
+        float n1Scale = halfWidth * Mth.invSqrt(n1x * n1x + n1y * n1y + n1z * n1z);
+        n1x *= n1Scale;
+        n1y *= n1Scale;
+        n1z *= n1Scale;
+
+        float n2x = dy * n1z - dz * n1y;
+        float n2y = dz * n1x - dx * n1z;
+        float n2z = dx * n1y - dy * n1x;
+        float n2Scale = halfWidth * Mth.invSqrt(n2x * n2x + n2y * n2y + n2z * n2z);
+        n2x *= n2Scale;
+        n2y *= n2Scale;
+        n2z *= n2Scale;
+
+        float tipX = dx * length;
+        float tipY = dy * length;
+        float tipZ = dz * length;
+        float c0x = -n1x - n2x;
+        float c0y = -n1y - n2y;
+        float c0z = -n1z - n2z;
+        float c1x = n1x - n2x;
+        float c1y = n1y - n2y;
+        float c1z = n1z - n2z;
+        float c2x = n1x + n2x;
+        float c2y = n1y + n2y;
+        float c2z = n1z + n2z;
+        float c3x = -n1x + n2x;
+        float c3y = -n1y + n2y;
+        float c3z = -n1z + n2z;
+        emitRaySide(consumer, matrix, c0x, c0y, c0z, c1x, c1y, c1z, tipX, tipY, tipZ, r, g, b);
+        emitRaySide(consumer, matrix, c1x, c1y, c1z, c2x, c2y, c2z, tipX, tipY, tipZ, r, g, b);
+        emitRaySide(consumer, matrix, c2x, c2y, c2z, c3x, c3y, c3z, tipX, tipY, tipZ, r, g, b);
+        emitRaySide(consumer, matrix, c3x, c3y, c3z, c0x, c0y, c0z, tipX, tipY, tipZ, r, g, b);
+    }
+
+    private static void emitRaySide(
+        VertexConsumer consumer,
+        Matrix4f matrix,
+        float x0,
+        float y0,
+        float z0,
+        float x1,
+        float y1,
+        float z1,
+        float tipX,
+        float tipY,
+        float tipZ,
+        float r,
+        float g,
+        float b
+    ) {
+        beamVertex(consumer, matrix, x0, y0, z0, r, g, b, 1.0f);
+        beamVertex(consumer, matrix, x1, y1, z1, r, g, b, 1.0f);
+        beamVertex(consumer, matrix, tipX, tipY, tipZ, 0f, 0f, 0f, 1.0f);
+        beamVertex(consumer, matrix, tipX, tipY, tipZ, 0f, 0f, 0f, 1.0f);
     }
 
     private static void beamVertex(
@@ -1120,14 +1159,30 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         int light
     ) {
         int overlay = OverlayTexture.NO_OVERLAY;
-        vc.addVertex(pose, -r, 0f, -r).setColor(1.0f, 1.0f, 1.0f, alpha).setUv(0f, 0f)
-            .setOverlay(overlay).setLight(light).setNormal(pose, 0f, 1f, 0f);
-        vc.addVertex(pose, -r, 0f, r).setColor(1.0f, 1.0f, 1.0f, alpha).setUv(0f, 1f)
-            .setOverlay(overlay).setLight(light).setNormal(pose, 0f, 1f, 0f);
-        vc.addVertex(pose, r, 0f, r).setColor(1.0f, 1.0f, 1.0f, alpha).setUv(1f, 1f)
-            .setOverlay(overlay).setLight(light).setNormal(pose, 0f, 1f, 0f);
-        vc.addVertex(pose, r, 0f, -r).setColor(1.0f, 1.0f, 1.0f, alpha).setUv(1f, 0f)
-            .setOverlay(overlay).setLight(light).setNormal(pose, 0f, 1f, 0f);
+        vc.addVertex(pose, -r, 0f, -r)
+            .setColor(1.0f, 1.0f, 1.0f, alpha)
+            .setUv(0f, 0f)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(pose, 0f, 1f, 0f);
+        vc.addVertex(pose, -r, 0f, r)
+            .setColor(1.0f, 1.0f, 1.0f, alpha)
+            .setUv(0f, 1f)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(pose, 0f, 1f, 0f);
+        vc.addVertex(pose, r, 0f, r)
+            .setColor(1.0f, 1.0f, 1.0f, alpha)
+            .setUv(1f, 1f)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(pose, 0f, 1f, 0f);
+        vc.addVertex(pose, r, 0f, -r)
+            .setColor(1.0f, 1.0f, 1.0f, alpha)
+            .setUv(1f, 0f)
+            .setOverlay(overlay)
+            .setLight(light)
+            .setNormal(pose, 0f, 1f, 0f);
     }
 
     // ==================== 托举光束 ====================
@@ -1195,23 +1250,41 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float x1 = cx + halfWidth;
         float z0 = cz - halfWidth;
         float z1 = cz + halfWidth;
-        float[][] corners = {{x0, z0}, {x1, z0}, {x1, z1}, {x0, z1}};
         float ar = r * apexFade;
         float ag = g * apexFade;
         float ab = b * apexFade;
-        for (int i = 0; i < 4; i++) {
-            float[] c0 = corners[i];
-            float[] c1 = corners[(i + 1) % 4];
-            beamVertex(vc, matrix, c0[0], BEAM_BASE_Y, c0[1], r, g, b, 1.0f);
-            beamVertex(vc, matrix, c1[0], BEAM_BASE_Y, c1[1], r, g, b, 1.0f);
-            beamVertex(vc, matrix, cx, apexY, cz, ar, ag, ab, 1.0f);
-            beamVertex(vc, matrix, cx, apexY, cz, ar, ag, ab, 1.0f);
-        }
+        emitBeamSide(vc, matrix, x0, z0, x1, z0, cx, apexY, cz, r, g, b, ar, ag, ab);
+        emitBeamSide(vc, matrix, x1, z0, x1, z1, cx, apexY, cz, r, g, b, ar, ag, ab);
+        emitBeamSide(vc, matrix, x1, z1, x0, z1, cx, apexY, cz, r, g, b, ar, ag, ab);
+        emitBeamSide(vc, matrix, x0, z1, x0, z0, cx, apexY, cz, r, g, b, ar, ag, ab);
+    }
+
+    private static void emitBeamSide(
+        VertexConsumer consumer,
+        Matrix4f matrix,
+        float x0,
+        float z0,
+        float x1,
+        float z1,
+        float apexX,
+        float apexY,
+        float apexZ,
+        float r,
+        float g,
+        float b,
+        float apexR,
+        float apexG,
+        float apexB
+    ) {
+        beamVertex(consumer, matrix, x0, BEAM_BASE_Y, z0, r, g, b, 1.0f);
+        beamVertex(consumer, matrix, x1, BEAM_BASE_Y, z1, r, g, b, 1.0f);
+        beamVertex(consumer, matrix, apexX, apexY, apexZ, apexR, apexG, apexB, 1.0f);
+        beamVertex(consumer, matrix, apexX, apexY, apexZ, apexR, apexG, apexB, 1.0f);
     }
 
     @Override
     public boolean shouldRenderOffScreen() {
-        return true;
+        return false;
     }
 
     @Override

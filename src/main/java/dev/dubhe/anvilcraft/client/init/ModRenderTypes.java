@@ -126,10 +126,6 @@ public class ModRenderTypes {
             )
     );
 
-    /**
-     * 使用方块图集并保留半透明混合的模型渲染类型。
-     * 配合全亮光照值和显式模型提交使用，可绕过方块模型的环境光遮蔽。
-     */
     public static final Function<Identifier, RenderType> TRANSLUCENT_NO_LIGHTING = Util.memoize(
             tex -> RenderType.create(
                     "anvilcraft:translucent_no_lighting",

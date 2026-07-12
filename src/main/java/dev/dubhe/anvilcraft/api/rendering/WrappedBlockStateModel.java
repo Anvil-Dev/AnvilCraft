@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -45,15 +46,19 @@ public class WrappedBlockStateModel extends Model<BlockStateModelTessellateState
         BlockStateModel model = mc.getModelManager().getStandaloneModel(key);
 
         tessellator.tesselateBlock(
-            ((x, y, z, bakedQuad, quadInstance) -> buffer.putBakedQuad(
-                poseStack.last(),
-                bakedQuad,
-                quadInstance
-            )),
+            ((_, _, _, bakedQuad, quadInstance) -> {
+                quadInstance.setLightCoords(lightCoords);
+                quadInstance.setOverlayCoords(overlayCoords);
+                buffer.putBakedQuad(
+                    poseStack.last(),
+                    bakedQuad,
+                    quadInstance
+                );
+            }),
             0,
             0,
             0,
-            mc.level,
+            BlockAndTintGetter.EMPTY,
             BlockPos.ZERO,
             Blocks.AIR.defaultBlockState(),
             model,

@@ -13,7 +13,13 @@ public record BlockStateModelTessellateState(
     boolean lighting
 ) {
 
-    public void submit(SubmitNodeCollector collector, PoseStack poseStack, int overlayCoords, int packedLight, int tint) {
+    public void submit(
+        SubmitNodeCollector collector,
+        PoseStack poseStack,
+        int overlayCoords,
+        int packedLight,
+        int tint
+    ) {
         WrappedBlockStateModel model = BlockStateModelRenderer.INSTANCE.getModel(this);
         if (model == null) return;
         collector.submitModel(
