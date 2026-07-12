@@ -54,7 +54,7 @@ public class ModAmuletDefinitions {
         );
         ctx.register(
             ModAmuletDefinitions.SAPPHIRE,
-            AmuletDefinition.builder(ModItems.RUBY_AMULET)
+            AmuletDefinition.builder(ModItems.SAPPHIRE_AMULET)
                 .obtain(ModDamageTypeTags.SAPPHIRE_AMULET_VALID)
                 .obtainEnd()
                 .obtainEntity(ModEntityTypeTags.SAPPHIRE_AMULET_VALID)
