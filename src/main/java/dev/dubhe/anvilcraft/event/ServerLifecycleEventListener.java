@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
+import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,6 +35,11 @@ public class ServerLifecycleEventListener {
         HeaterManager.tickAll();
         HeatCollectorManager.tickAll();
         RandomChuckTickLoadManager.tick();
+    }
+
+    @SubscribeEvent
+    public static void onTick(ServerTickEvent.Post event) {
+        RedstoneWireNetworkManager.tick();
     }
 
     @SubscribeEvent

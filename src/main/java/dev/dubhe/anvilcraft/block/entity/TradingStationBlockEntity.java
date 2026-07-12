@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
+import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionVertical2PartHalf;
@@ -46,14 +47,16 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 @Getter
-public class TradingStationBlockEntity extends BlockEntity implements IItemHandlerHolder, MenuProvider, IDiskCloneable {
+public class TradingStationBlockEntity extends BlockEntity
+    implements IItemHandlerHolder, IFilterBlockEntity, MenuProvider, IDiskCloneable {
     public static final String OWNER_NBT_ID = "Owner";
     public static final String STORAGE_NBT_ID = "Items";
+    public static final String STORAGE_FILTERING_NBT_ID = "StorageFiltering";
     public static final String FILTERS_NBT_ID = "Filters";
     public static final String ALLOW_PLAYER_NBT_ID = "AllowPlayer";
     public static final String ALLOW_VILLAGER_NBT_ID = "AllowVillager";
 
-    private final ItemStackHandler handler = new ItemStackHandler(12) {
+    private final FilteredItemStackHandler handler = new FilteredItemStackHandler(12) {
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
             if (!this.isItemValid(slot, stack) && !stack.isEmpty()) return;
@@ -62,8 +65,17 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (!TradingStationBlockEntity.this.canPlace(stack)) return false;
-            return super.isItemValid(slot, stack);
+            ItemStack filter = this.getFilter(slot);
+            return filter.isEmpty() || this.isFiltered(slot, stack);
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            ItemStack stack = this.getStackInSlot(slot);
+            if (!stack.isEmpty() && this.getFilter(slot).isEmpty()) {
+                this.setFilter(slot, stack);
+            }
+            TradingStationBlockEntity.updateAndSend(TradingStationBlockEntity.this);
         }
     };
     private final ItemStackHandler proxy = new ItemStackHandler(12) {
@@ -154,7 +166,16 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains(OWNER_NBT_ID)) this.owner = tag.getUUID(OWNER_NBT_ID);
-        this.handler.deserializeNBT(registries, tag.getCompound(STORAGE_NBT_ID));
+        CompoundTag storage = tag.getCompound(STORAGE_NBT_ID);
+        if (storage.contains("Inventory")) {
+            this.handler.deserializeNBT(registries, storage);
+        } else {
+            ItemStackHandler legacyHandler = new ItemStackHandler(this.handler.getSlots());
+            legacyHandler.deserializeNBT(registries, storage);
+            for (int slot = 0; slot < legacyHandler.getSlots(); slot++) {
+                this.handler.setStackInSlot(slot, legacyHandler.getStackInSlot(slot));
+            }
+        }
         this.filters.deserializeNBT(registries, tag.getCompound(FILTERS_NBT_ID));
         this.playerAllowed = tag.getBoolean(ALLOW_PLAYER_NBT_ID);
         this.villagerAllowed = tag.getBoolean(ALLOW_VILLAGER_NBT_ID);
@@ -196,6 +217,7 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         if (this.level != null) {
             tag.put(FILTERS_NBT_ID, this.filters.serializeNBT(this.level.registryAccess()));
         }
+        tag.put(STORAGE_FILTERING_NBT_ID, this.handler.serializeFiltering());
         tag.putBoolean(ALLOW_PLAYER_NBT_ID, this.playerAllowed);
         tag.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
     }
@@ -213,6 +235,9 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         if (this.level != null) {
             this.filters.deserializeNBT(this.level.registryAccess(), tag.getCompound(FILTERS_NBT_ID));
         }
+        if (tag.contains(STORAGE_FILTERING_NBT_ID)) {
+            this.handler.deserializeFiltering(tag.getCompound(STORAGE_FILTERING_NBT_ID));
+        }
         this.playerAllowed = tag.getBoolean(ALLOW_PLAYER_NBT_ID);
         this.villagerAllowed = tag.getBoolean(ALLOW_VILLAGER_NBT_ID);
         TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.handler);
@@ -224,9 +249,9 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         return this.proxy;
     }
 
-    public boolean canPlace(ItemStack stack) {
-        return TradingStationBlockEntity.this.isProviding(stack)
-               || TradingStationBlockEntity.this.isRequesting(stack);
+    @Override
+    public FilteredItemStackHandler getFilteredItemStackHandler() {
+        return this.handler;
     }
 
     public boolean isProviding(ItemStack stack) {
@@ -289,20 +314,10 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         // Ensure the player actually has enough items to give (based on request filter count)
         if (inHand.getCount() < requestCount) return false;
 
-        // Check there is enough space in the handler to insert the requested items
+        // Check there is enough filtered space in the handler to insert the requested items.
         ItemStack toInsertPrototype = requesting.copy();
         toInsertPrototype.setCount(requestCount);
-        int space = 0;
-        for (int i = 0; i < this.handler.getSlots(); i++) {
-            ItemStack stack = this.handler.getStackInSlot(i);
-            if (stack.isEmpty()) {
-                space += toInsertPrototype.getMaxStackSize();
-            } else if (ItemStack.isSameItemSameComponents(stack, toInsertPrototype)) {
-                space += stack.getMaxStackSize() - stack.getCount();
-            }
-            if (space >= requestCount) break;
-        }
-        if (space < requestCount) return false; // no space to accept player's item
+        if (!this.insertIntoStorage(toInsertPrototype, true).isEmpty()) return false;
 
         // Remove providing items from the handler according to the plan in 'modifying'
         for (Int2IntMap.Entry entry : modifying.int2IntEntrySet()) {
@@ -314,24 +329,8 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
             this.handler.setStackInSlot(slot, stack);
         }
 
-        // Insert the requested items into handler (merge into existing or empty slots)
-        int remainingInsert = requestCount;
-        for (int i = 0; i < this.handler.getSlots() && remainingInsert > 0; i++) {
-            ItemStack stack = this.handler.getStackInSlot(i);
-            if (stack.isEmpty()) {
-                int put = Math.min(remainingInsert, toInsertPrototype.getMaxStackSize());
-                this.handler.setStackInSlot(i, toInsertPrototype.copyWithCount(put));
-                remainingInsert -= put;
-            } else if (ItemStack.isSameItemSameComponents(stack, toInsertPrototype)) {
-                int can = stack.getMaxStackSize() - stack.getCount();
-                if (can <= 0) continue;
-                int put = Math.min(can, remainingInsert);
-                this.handler.setStackInSlot(i, stack.copyWithCount(stack.getCount() + put));
-                remainingInsert -= put;
-            }
-        }
-
-        if (remainingInsert > 0) {
+        // Insert the requested items into slots whose filters accept them.
+        if (!this.insertIntoStorage(toInsertPrototype, false).isEmpty()) {
             // This should not happen due to prior space check, but if it does, try to revert providing removal
             for (Int2IntMap.Entry entry : modifying.int2IntEntrySet()) {
                 int slot = entry.getIntKey();
@@ -481,13 +480,13 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         return remaining <= 0;
     }
 
-    private static boolean insertMatching(ItemStack result, ItemStack[] snapshot) {
+    private boolean insertMatching(ItemStack result, ItemStack[] snapshot) {
         int remaining = result.getCount();
         for (int i = 0; i < snapshot.length && remaining > 0; i++) {
             ItemStack existing = snapshot[i];
             if (existing.isEmpty()) continue;
             if (!ItemStack.isSameItemSameComponents(existing, result)) continue;
-            int max = Math.min(existing.getMaxStackSize(), result.getMaxStackSize());
+            int max = Math.min(this.handler.getSlotLimit(i), result.getMaxStackSize());
             int can = max - existing.getCount();
             if (can <= 0) continue;
             int put = Math.min(can, remaining);
@@ -496,11 +495,20 @@ public class TradingStationBlockEntity extends BlockEntity implements IItemHandl
         }
         for (int i = 0; i < snapshot.length && remaining > 0; i++) {
             if (!snapshot[i].isEmpty()) continue;
-            int put = Math.min(remaining, result.getMaxStackSize());
+            if (!this.handler.isItemValid(i, result)) continue;
+            int put = Math.min(remaining, Math.min(this.handler.getSlotLimit(i), result.getMaxStackSize()));
             snapshot[i] = result.copyWithCount(put);
             remaining -= put;
         }
         return remaining <= 0;
+    }
+
+    private ItemStack insertIntoStorage(ItemStack stack, boolean simulate) {
+        ItemStack remaining = stack.copy();
+        for (int slot = 0; slot < this.handler.getSlots() && !remaining.isEmpty(); slot++) {
+            remaining = this.handler.insertItem(slot, remaining, simulate);
+        }
+        return remaining;
     }
 
     public boolean isOwner(Player sp) {

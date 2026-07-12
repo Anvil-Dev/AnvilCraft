@@ -6,6 +6,9 @@
     "C": {
       "item": "anvilcraft:pipe"
     },
+    "M": {
+      "item": "anvilcraft:magnetoelectric_core"
+    },
     "P": {
       "item": "minecraft:piston"
     }
@@ -13,7 +16,7 @@
   "pattern": [
     "PCP",
     "P P",
-    "   "
+    " M "
   ],
   "result": {
     "count": 2,
