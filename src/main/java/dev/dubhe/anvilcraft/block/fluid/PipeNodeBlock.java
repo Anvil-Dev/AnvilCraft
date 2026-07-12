@@ -104,6 +104,10 @@ public class PipeNodeBlock extends PipeBlock {
             // 泵仅在其连接面（朝向轴两端）正对节点时才形成端头连接
             return PumpBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
         }
+        if (neighborState.getBlock() instanceof ControlValveBlock) {
+            // 控制阀仅在其连接面（朝向轴两端）正对节点时才形成端头连接
+            return ControlValveBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
+        }
         if (isFluidHandler(level, neighborPos)) {
             return NodePipe.END;
         }
