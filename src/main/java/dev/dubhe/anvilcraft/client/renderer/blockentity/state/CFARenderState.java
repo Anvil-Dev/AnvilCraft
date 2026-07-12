@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -63,24 +62,24 @@ public class CFARenderState extends BlockEntityRenderState {
     private boolean acceleratorActive;
 
     @Nullable
-    private BlockModelRenderState r4DysonModel;
+    private BlockStateModelTessellateState r4DysonModel;
     @Nullable
-    private BlockModelRenderState r5DysonModel;
+    private BlockStateModelTessellateState r5DysonModel;
     @Nullable
-    private BlockModelRenderState coilFixModel;
+    private BlockStateModelTessellateState coilFixModel;
     @Nullable
-    private BlockModelRenderState coilRingModel;
+    private BlockStateModelTessellateState coilRingModel;
     @Nullable
-    private BlockModelRenderState penroseFixModel;
+    private BlockStateModelTessellateState penroseFixModel;
     @Nullable
-    private BlockModelRenderState penroseLaserModel;
+    private BlockStateModelTessellateState penroseLaserModel;
     @Nullable
-    private BlockModelRenderState decompressorFixModel;
+    private BlockStateModelTessellateState decompressorFixModel;
     @Nullable
-    private BlockModelRenderState decompressorRingModel;
+    private BlockStateModelTessellateState decompressorRingModel;
     // 戴森球使用恒星同步方式渲染的外环模型。
     @Nullable
-    private BlockModelRenderState dysonOuterRingModel;
+    private BlockStateModelTessellateState dysonOuterRingModel;
     private boolean dysonSmallStar;
 
     // 动画状态。
@@ -92,15 +91,15 @@ public class CFARenderState extends BlockEntityRenderState {
     private boolean canRenderBody;
     // 主序星、中子星和黑洞使用的烘焙动画模型。
     @Nullable
-    private BlockModelRenderState bodyModel;
+    private BlockStateModelTessellateState bodyModel;
     @Nullable
-    private BlockModelRenderState neutronJetModel;
+    private BlockStateModelTessellateState neutronJetModel;
     // 色板行星的动态烘焙贴图标识；恒星和复杂模型天体不使用。
     @Nullable
     private Identifier bodyTexture;
     // 粉碎、空洞、血肉、智慧和错误天体的复杂模型。
     @Nullable
-    private BlockModelRenderState complexBodyModel;
+    private BlockStateModelTessellateState complexBodyModel;
     @Nullable
     private ResolvableProfile playerHeadProfile;
     // 使用烘焙贴图的天体环。
