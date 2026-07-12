@@ -512,7 +512,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         if (this.level == null) return false;
         ItemStack inHand = player.getItemInHand(hand);
         if (this.interactWithFish(this.level, player, hand, inHand, hitResult)) return true;
-        if (this.interactWithFluid(this.level, player, hand, inHand)) return true;
+        if (this.interactWithFluid(player, hand)) return true;
         return this.interactWithItems(this.level, player, hand, inHand, hitResult.getLocation());
     }
 
@@ -756,7 +756,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     // endregion
 
     // region 流体交互
-    private boolean interactWithFluid(Level level, Player player, InteractionHand hand, ItemStack inHand) {
+    private boolean interactWithFluid(Player player, InteractionHand hand) {
         return FluidUtil.interactWithFluidHandler(player, hand, this.fluidHandler);
     }
 
