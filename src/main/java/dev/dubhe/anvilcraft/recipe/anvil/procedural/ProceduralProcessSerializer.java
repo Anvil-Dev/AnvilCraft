@@ -49,7 +49,7 @@ public class ProceduralProcessSerializer {
             BlockStatePredicate.STREAM_CODEC.encode(buffer, recipe.getInitialBlock());
             ProceduralProcessStep.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.getSteps());
             ChanceBlockState.STREAM_CODEC.encode(buffer, recipe.getResultBlock());
-            ItemStack.STREAM_CODEC.encode(buffer, recipe.getIcon());
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, recipe.getIcon());
             buffer.writeVarInt(recipe.getLoop());
             ByteBufCodecs.optional(Identifier.STREAM_CODEC).encode(buffer, recipe.getDisplayedModel());
             ByteBufCodecs.optional(ProceduralProcessStep.STREAM_CODEC).encode(buffer, recipe.getMultiLoopFirstStep());
@@ -61,7 +61,7 @@ public class ProceduralProcessSerializer {
                 BlockStatePredicate.STREAM_CODEC.decode(buffer),
                 ProceduralProcessStep.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer),
                 ChanceBlockState.STREAM_CODEC.decode(buffer),
-                ItemStack.STREAM_CODEC.decode(buffer),
+                ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer),
                 ByteBufCodecs.VAR_INT.decode(buffer),
                 ByteBufCodecs.optional(Identifier.STREAM_CODEC).decode(buffer),
                 ByteBufCodecs.optional(ProceduralProcessStep.STREAM_CODEC).decode(buffer)
