@@ -62,11 +62,10 @@ public class ModAmuletDefinitions {
         );
         ctx.register(
             ModAmuletDefinitions.SAPPHIRE,
-            AmuletDefinition.builder(ModItems.RUBY_AMULET)
+            AmuletDefinition.builder(ModItems.SAPPHIRE_AMULET)
                 .obtain(ModDamageTypeTags.SAPPHIRE_AMULET_VALID)
                 .obtainEnd()
                 .obtain(entityTypes, ModEntityTypeTags.SAPPHIRE_AMULET_VALID)
-                .or()
                 .build()
         );
         ctx.register(
@@ -81,7 +80,6 @@ public class ModAmuletDefinitions {
                     Objects.requireNonNull(SlotRanges.nameToIds("weapon")),
                     ItemPredicate.Builder.item().of(items, ModItemTags.ANVIL_HAMMER)
                 )
-                .or()
                 .build()
         );
         ctx.register(

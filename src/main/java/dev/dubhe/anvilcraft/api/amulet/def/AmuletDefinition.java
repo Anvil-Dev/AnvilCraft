@@ -66,27 +66,27 @@ public record AmuletDefinition(
     }
 
     public AmuletDefinition(ItemLike amulet, DataComponentPatch components, List<DamageSourcePredicate> obtains) {
-        this(new ItemStackTemplate(amulet.asItem(), components), obtains, false);
+        this(new ItemStackTemplate(amulet.asItem(), components), obtains, true);
     }
 
     public AmuletDefinition(ItemLike amulet, DataComponentPatch components, DamageSourcePredicate obtain) {
-        this(new ItemStackTemplate(amulet.asItem(), components), Collections.singletonList(obtain), false);
+        this(new ItemStackTemplate(amulet.asItem(), components), Collections.singletonList(obtain), true);
     }
 
     public AmuletDefinition(ItemLike amulet, List<DamageSourcePredicate> obtains) {
-        this(new ItemStackTemplate(amulet.asItem()), obtains, false);
+        this(new ItemStackTemplate(amulet.asItem()), obtains, true);
     }
 
     public AmuletDefinition(ItemLike amulet, DamageSourcePredicate obtain) {
-        this(new ItemStackTemplate(amulet.asItem()), Collections.singletonList(obtain), false);
+        this(new ItemStackTemplate(amulet.asItem()), Collections.singletonList(obtain), true);
     }
 
     public AmuletDefinition(ItemLike amulet, DataComponentPatch components) {
-        this(new ItemStackTemplate(amulet.asItem(), components), List.of(), false);
+        this(new ItemStackTemplate(amulet.asItem(), components), List.of(), true);
     }
 
     public AmuletDefinition(ItemLike amulet) {
-        this(new ItemStackTemplate(amulet.asItem()), List.of(), false);
+        this(new ItemStackTemplate(amulet.asItem()), List.of(), true);
     }
 
     public static Builder builder(ItemLike amulet) {
@@ -121,7 +121,7 @@ public record AmuletDefinition(
             CodecUtil.zomListMap(DamageSourcePredicate.CODEC, "obtains")
                 .forGetter(AmuletDefinition::obtains),
             Codec.BOOL
-                .optionalFieldOf("or", false)
+                .optionalFieldOf("or", true)
                 .forGetter(AmuletDefinition::or),
             AmuletDefinition::new
         );
@@ -151,7 +151,7 @@ public record AmuletDefinition(
         private DataComponentPatch.@Nullable Builder components = null;
         private final ImmutableList.Builder<DamageSourcePredicate> obtains = ImmutableList.builder();
         private DamageSourcePredicate.@Nullable Builder obtain = null;
-        private boolean or = false;
+        private boolean or = true;
 
         public Builder(ItemLike amulet) {
             this.amulet = amulet;
@@ -271,8 +271,8 @@ public record AmuletDefinition(
             return this.obtainDirect(builder -> builder.slots(new SlotsPredicate(Map.of(slot, item.build()))));
         }
 
-        public Builder or() {
-            this.or = true;
+        public Builder and() {
+            this.or = false;
             return this;
         }
 

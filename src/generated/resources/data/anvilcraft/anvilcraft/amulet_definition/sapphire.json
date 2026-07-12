@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:normal",
   "amulet": {
-    "id": "anvilcraft:ruby_amulet"
+    "id": "anvilcraft:sapphire_amulet"
   },
   "obtains": [
     {
@@ -17,6 +17,5 @@
         "type": "#anvilcraft:amulet_valid/sapphire"
       }
     }
-  ],
-  "or": true
+  ]
 }
