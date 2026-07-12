@@ -44,10 +44,10 @@ import javax.annotation.Nullable;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
     @Unique
-    public Vec3 anvil$fixedDeltaMovement;
+    public Vec3 anvil$fixedDeltaMovement = Vec3.ZERO;
 
     @Unique
-    public Boolean anvil$isDeflected;
+    public boolean anvil$isDeflected = false;
 
     @Unique
     private BlockPos anvil$hitDeflectionRing;
@@ -277,6 +277,10 @@ public abstract class EntityMixin implements IEntityExtension {
     )
     private void anvilcraft$ApplyGravity(CallbackInfoReturnable<Double> cir) {
         Entity entity = (Entity) (Object) this;
+        if (entity.isNoGravity()) {
+            cir.setReturnValue(0.0);
+            return;
+        }
         if (AccelerateManager.isControlledByRing(entity)) {
             cir.setReturnValue(0.0);
             return;
@@ -284,27 +288,28 @@ public abstract class EntityMixin implements IEntityExtension {
         Level level = entity.level();
 
         // 获取基础重力
-        double baseGravity = cir.getReturnValue() * GravityManager.getGravityType(entity).getScalar();
+        double vanillaGravity = cir.getReturnValue();
+        double baseGravity = vanillaGravity * GravityManager.getGravityType(entity).getScalar();
+        Vec3 localGravity = GravityManager.getGravityVector(entity, vanillaGravity);
 
         // 维度重力 = 基础重力 * 维度系数
         double dimensionGravity = baseGravity * GravityManager.getDimensionGravity(level);
 
         // 实际重力 = 维度重力 - 引力向量.y
-        double newGravity = dimensionGravity - GravityManager.getGravityVector(entity).y;
+        double newGravity = dimensionGravity - localGravity.y;
 
         // 返回实际重力
         cir.setReturnValue(newGravity);
     }
 
-    @Inject(
-        method = "tick", at = @At("TAIL")
-    )
+    @Inject(method = "tick", at = @At("TAIL"))
     private void anvilcraft$ApplyHorizontalGravity(CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
 
         // 排除无重力实体和创造飞行玩家
         if (
-            entity.isNoGravity()
+            entity instanceof FallingBlockEntity
+            || entity.isNoGravity()
             || AccelerateManager.isControlledByRing(entity)
             || (entity instanceof Player player && player.getAbilities().flying)
         ) {
@@ -312,9 +317,9 @@ public abstract class EntityMixin implements IEntityExtension {
         }
 
         // 应用引力向量的水平分量
-        Vec3 finalForce = GravityManager.getGravityVector(entity);
-        if (finalForce.x != 0 || finalForce.z != 0) {
-            entity.setDeltaMovement(entity.getDeltaMovement().add(finalForce.x, 0, finalForce.z));
+        Vec3 localGravity = GravityManager.getGravityVector(entity);
+        if (localGravity.x != 0 || localGravity.z != 0) {
+            entity.setDeltaMovement(entity.getDeltaMovement().add(localGravity.x, 0, localGravity.z));
         }
     }
 

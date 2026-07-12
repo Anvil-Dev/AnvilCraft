@@ -44,11 +44,15 @@ public abstract class FallingBlockMixin extends Block {
 
         // 如果受力极小，忽略
         if (gravitySq < 1.0E-5) {
+            ci.cancel();
             return;
         }
 
         // 2. 寻找主受力方向
         Direction primaryDir = Direction.getNearest(netGravity.x, netGravity.y, netGravity.z);
+        // Preserve every vanilla falling-block edge case while gravity is still primarily downward.
+        if (primaryDir == Direction.DOWN) return;
+
         BlockPos targetPos = pos.relative(primaryDir);
         BlockState targetState = level.getBlockState(targetPos);
 
