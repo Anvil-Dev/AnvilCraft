@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.api.entity.player;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.mixin.invoker.BlockItemInvoker;
+import dev.dubhe.anvilcraft.util.BlockItemPlacementStateOverride;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,6 +19,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
 
 /**
  * 假人方块放置器
@@ -36,7 +39,23 @@ public interface IAnvilCraftBlockPlacer {
      */
     default InteractionResult placeBlock(
         Level level, BlockPos pos, Orientation orientation, BlockItem blockItem, ItemStack itemStack) {
+        return this.placeBlock(level, pos, orientation, blockItem, itemStack, null);
+    }
+
+    default InteractionResult placeBlock(
+        Level level,
+        BlockPos pos,
+        Orientation orientation,
+        BlockItem blockItem,
+        ItemStack itemStack,
+        @Nullable BlockState placementState
+    ) {
         if (AnvilCraftFakePlayers.BLOCK_PLACER_BLACKLIST.contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString())) {
+            return InteractionResult.FAIL;
+        }
+        if (placementState != null
+            && placementState.getBlock() != blockItem.getBlock()
+            && placementState.getBlock().asItem() != blockItem) {
             return InteractionResult.FAIL;
         }
         if (level instanceof ServerLevel serverLevel) getPlayer().setServerLevel(serverLevel);
@@ -67,9 +86,24 @@ public interface IAnvilCraftBlockPlacer {
                 itemStack,
                 blockHitResult
             );
-        BlockState blockState = ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
+        BlockState blockState = placementState == null
+                                ? ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext)
+                                : placementState;
+        if (blockState == null || !blockItem.canPlace(blockPlaceContext, blockState)) {
+            return InteractionResult.FAIL;
+        }
         // 实际上，如果需要nbt的话，直接用NeoForge自带的就行
-        InteractionResult ir = blockItem.place(blockPlaceContext);
+        InteractionResult ir;
+        if (placementState == null) {
+            ir = blockItem.place(blockPlaceContext);
+        } else {
+            BlockItemPlacementStateOverride.set(placementState);
+            try {
+                ir = blockItem.place(blockPlaceContext);
+            } finally {
+                BlockItemPlacementStateOverride.clear();
+            }
+        }
         if (ir == InteractionResult.FAIL) return ir;
         SoundType soundType = blockState.getSoundType(level, pos, getPlayer());
         level.playSound(
