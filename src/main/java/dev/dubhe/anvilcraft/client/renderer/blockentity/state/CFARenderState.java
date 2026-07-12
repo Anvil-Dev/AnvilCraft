@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity.state;
 
+import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,11 +29,11 @@ public class CFARenderState extends BlockEntityRenderState {
 
     // 机械束星环模型。
     @Nullable
-    private BlockModelRenderState innerRingModel;   // R1 (non-amp) / R4 (amp)
+    private BlockStateModelTessellateState innerRingModel;   // R1 (non-amp) / R4 (amp)
     @Nullable
-    private BlockModelRenderState middleRingModel;  // R2 (non-amp) / R5 (amp)
+    private BlockStateModelTessellateState middleRingModel;  // R2 (non-amp) / R5 (amp)
     @Nullable
-    private BlockModelRenderState outerRingModel;    // R3 (non-amp) / R6 (amp)
+    private BlockStateModelTessellateState outerRingModel;    // R3 (non-amp) / R6 (amp)
     private boolean hasInnerRing;
     private boolean hasMiddleRing;
     private boolean hasOuterRing;
