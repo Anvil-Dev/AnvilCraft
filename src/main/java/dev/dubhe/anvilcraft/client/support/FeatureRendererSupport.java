@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.client.support;
 
+import dev.dubhe.anvilcraft.api.rendering.BlockStateModelRenderer;
+import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -17,7 +19,30 @@ import org.slf4j.LoggerFactory;
 
 public class FeatureRendererSupport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("anvilcraft:FeatureRendererSupport");
+    private static final Logger LOGGER = LoggerFactory.getLogger("FeatureRendererSupport");
+
+    public static BlockStateModelTessellateState createTessellation(
+        StandaloneModelKey<BlockStateModel> key,
+        boolean lighting
+    ) {
+        return createTessellation(
+            key,
+            false,
+            lighting
+        );
+    }
+
+    public static BlockStateModelTessellateState createTessellation(
+        StandaloneModelKey<BlockStateModel> key,
+        boolean translucent,
+        boolean lighting
+    ) {
+        return BlockStateModelRenderer.INSTANCE.prepare(key, translucent, lighting);
+    }
+
+    public static BlockModelRenderState initialize(StandaloneModelKey<BlockStateModel> standalone, BlockEntity be) {
+        return initialize(standalone, be, false);
+    }
 
     public static BlockModelRenderState initialize(BlockState blockState, BlockEntity be) {
         BlockModelRenderState state = new BlockModelRenderState();
@@ -30,10 +55,6 @@ public class FeatureRendererSupport {
             state.setupModel(new Matrix4f(), false)
         );
         return state;
-    }
-
-    public static BlockModelRenderState initialize(StandaloneModelKey<BlockStateModel> standalone, BlockEntity be) {
-        return initialize(standalone, be, false);
     }
 
     /**
