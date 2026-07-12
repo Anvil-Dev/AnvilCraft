@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -52,16 +53,23 @@ public class TeslaGunItem extends EnergyWeaponItem {
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
         if (player.getCooldowns().isOnCooldown(this)) return;
         Target target = findTarget(level, player);
-        BlockState rodState = level.getBlockState(target.rod());
-        if (!(rodState.getBlock() instanceof LightningRodBlock)) return;
+        if (target == null) return;
+        BlockPos rod = target.rod();
+        if (rod != null && !(level.getBlockState(rod).getBlock() instanceof LightningRodBlock)) return;
         if (!consumeEnergy(player, stack, SHOT_ENERGY, 160_000_000)) return;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         player.getCooldowns().addCooldown(this, 80 - Math.min(60, quickCharge * 5));
-        strikeChain(serverLevel, player, stack, player.getEyePosition().add(player.getViewVector(1.0F).scale(0.5)), target.entity());
+        Vec3 start = player.getEyePosition().add(player.getViewVector(1.0F).scale(0.5));
+        if (target.entity() != null) {
+            strikeChain(serverLevel, player, stack, start, target.entity());
+        } else if (rod != null) {
+            strikeRod(serverLevel, start, rod);
+        }
         level.playSound(null, player.blockPosition(), ModSoundEvents.TESLA_TOWER_STRIKE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 
+    @Nullable
     private static Target findTarget(Level level, Player player) {
         Vec3 eye = player.getEyePosition();
         Vec3 look = player.getViewVector(1.0F).normalize();
@@ -79,6 +87,13 @@ public class TeslaGunItem extends EnergyWeaponItem {
         if (living == null) return rod == null ? null : new Target(null, rod);
         if (rod == null || living.distanceToSqr(player) <= rod.distToCenterSqr(eye)) return new Target(living, null);
         return new Target(null, rod);
+    }
+
+    private static void strikeRod(ServerLevel level, Vec3 start, BlockPos rod) {
+        BlockState state = level.getBlockState(rod);
+        if (!(state.getBlock() instanceof LightningRodBlock lightningRod)) return;
+        level.addFreshEntity(WeaponBeamEntity.create(level, start, rod.getCenter(), WeaponBeamEntity.TESLA));
+        lightningRod.onLightningStrike(state, level, rod);
     }
 
     private static void strikeChain(ServerLevel level, ServerPlayer player, ItemStack weapon, Vec3 start, LivingEntity first) {
@@ -131,6 +146,6 @@ public class TeslaGunItem extends EnergyWeaponItem {
         return UseAnim.BOW;
     }
 
-    private record Target(LivingEntity entity, BlockPos rod) {
+    private record Target(@Nullable LivingEntity entity, @Nullable BlockPos rod) {
     }
 }

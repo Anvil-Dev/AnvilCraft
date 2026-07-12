@@ -10,11 +10,11 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class WeaponRaycastUtil {
@@ -50,16 +50,17 @@ public final class WeaponRaycastUtil {
         return hit.getType() == HitResult.Type.MISS ? ray.end() : hit.getLocation();
     }
 
+    @Nullable
     public static EntityHitResult firstEntity(Level level, Entity source, Ray ray, Predicate<Entity> predicate) {
         Vec3 end = blockEnd(level, source, ray);
-        return Objects.requireNonNull(ProjectileUtil.getEntityHitResult(
+        return ProjectileUtil.getEntityHitResult(
             level,
             source,
             ray.start(),
             end,
             source.getBoundingBox().expandTowards(end.subtract(ray.start())).inflate(1.0),
             entity -> entity != source && entity.isPickable() && predicate.test(entity)
-        ));
+        );
     }
 
     public static List<LivingEntity> livingEntities(Level level, Entity source, Ray ray, int limit) {

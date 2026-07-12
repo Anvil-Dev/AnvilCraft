@@ -16,6 +16,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +43,7 @@ public final class EnergyWeaponSoundHandler {
                 ACTIVE_SOUNDS.remove(player.getUUID());
                 active = null;
             }
-            if (active != null) continue;
+            if (required == null || active != null) continue;
 
             FollowingWeaponSound sound = new FollowingWeaponSound(player, required);
             ACTIVE_SOUNDS.put(player.getUUID(), sound);
@@ -56,6 +57,7 @@ public final class EnergyWeaponSoundHandler {
         ACTIVE_SOUNDS.clear();
     }
 
+    @Nullable
     private static WeaponSound getRequiredSound(Player player) {
         if (!player.isAlive() || player.isSilent() || !player.isUsingItem()) return null;
         if (player.getUseItem().getItem() instanceof LaserGunItem) return WeaponSound.LASER;

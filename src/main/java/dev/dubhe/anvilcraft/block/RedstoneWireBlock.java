@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -568,7 +569,7 @@ public class RedstoneWireBlock extends Block implements EntityBlock, IHammerRemo
         int x = first.getStepY() * second.getStepZ() - first.getStepZ() * second.getStepY();
         int y = first.getStepZ() * second.getStepX() - first.getStepX() * second.getStepZ();
         int z = first.getStepX() * second.getStepY() - first.getStepY() * second.getStepX();
-        return Direction.fromDelta(x, y, z);
+        return Objects.requireNonNull(Direction.fromDelta(x, y, z));
     }
 
     public static float[] transformBox(
@@ -624,7 +625,7 @@ public class RedstoneWireBlock extends Block implements EntityBlock, IHammerRemo
         int z = right.getStepZ() * localDirection.getStepX()
             + outward.getStepZ() * localDirection.getStepY()
             - tangent.getStepZ() * localDirection.getStepZ();
-        return Direction.fromDelta(x, y, z);
+        return Objects.requireNonNull(Direction.fromDelta(x, y, z));
     }
 
     private static VoxelShape transformedBox(

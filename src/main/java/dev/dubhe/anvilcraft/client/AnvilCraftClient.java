@@ -33,8 +33,7 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-
-import java.util.Objects;
+import org.jetbrains.annotations.Nullable;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
 public class AnvilCraftClient {
@@ -108,10 +107,11 @@ public class AnvilCraftClient {
     }
 
     public static class EnergyWeaponExtensionImpl implements IClientItemExtensions {
+        @Nullable
         @Override
         public HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack stack) {
             if (!entity.isUsingItem() || entity.getUseItem().getItem() != stack.getItem()) {
-                return Objects.requireNonNull(IClientItemExtensions.super.getArmPose(entity, hand, stack));
+                return IClientItemExtensions.super.getArmPose(entity, hand, stack);
             }
             if (stack.getItem() instanceof AnvilRailgunItem && entity instanceof Player player
                 && AnvilRailgunItem.isLoading(player, stack, hand)) {

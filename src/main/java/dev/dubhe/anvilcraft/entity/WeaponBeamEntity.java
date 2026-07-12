@@ -9,9 +9,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
 public class WeaponBeamEntity extends Entity {
     public static final int CORRUPTED = 0;
@@ -45,6 +45,7 @@ public class WeaponBeamEntity extends Entity {
         Vec3 end,
         int style,
         int strength,
+        @Nullable
         Entity owner
     ) {
         WeaponBeamEntity beam = new WeaponBeamEntity(ModEntities.WEAPON_BEAM.get(), level);
@@ -75,7 +76,7 @@ public class WeaponBeamEntity extends Entity {
         for (int i = 1; i < beams.size(); i++) beams.get(i).discard();
     }
 
-    private void refresh(Vec3 start, Vec3 end, int style, int strength, Entity owner) {
+    private void refresh(Vec3 start, Vec3 end, int style, int strength, @Nullable Entity owner) {
         this.tickCount = 0;
         this.setPos(start);
         Vec3 offset = end.subtract(start);
@@ -84,7 +85,7 @@ public class WeaponBeamEntity extends Entity {
         this.entityData.set(END_Z, (float) offset.z);
         this.entityData.set(STYLE, style);
         this.entityData.set(STRENGTH, strength);
-        this.entityData.set(OWNER_ID, owner.getId());
+        this.entityData.set(OWNER_ID, owner == null ? -1 : owner.getId());
     }
 
     public Vec3 getEndOffset() {
@@ -99,9 +100,10 @@ public class WeaponBeamEntity extends Entity {
         return this.entityData.get(STRENGTH);
     }
 
+    @Nullable
     public Entity getOwner() {
         int ownerId = getOwnerId();
-        return Objects.requireNonNull(ownerId < 0 ? null : this.level().getEntity(ownerId));
+        return ownerId < 0 ? null : this.level().getEntity(ownerId);
     }
 
     public int getOwnerId() {

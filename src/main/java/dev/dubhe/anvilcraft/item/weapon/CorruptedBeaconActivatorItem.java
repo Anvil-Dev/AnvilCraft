@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.item.weapon;
 
 import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
+import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.util.WeaponRaycastUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -35,25 +37,28 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
         if (!(user instanceof Player player) || !(level instanceof ServerLevel serverLevel)) return;
-        WeaponRaycastUtil.Ray ray = WeaponRaycastUtil.ray(player, 64.0);
-        Vec3 end = WeaponRaycastUtil.blockEnd(level, player, ray);
-        Vec3 visualStart = WeaponRaycastUtil.visualStart(player, WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET);
         int elapsed = getUseDuration(stack, user) - remaining;
-        WeaponBeamEntity.showContinuous(
-            level, visualStart, end, WeaponBeamEntity.CORRUPTED, 1, player);
-
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         int period = 20 - Math.min(quickCharge, 10);
-        if (elapsed % period != 0 || !consumeEnergy(player, stack, ENERGY_PER_PULSE, 160_000_000)) return;
+        boolean pulse = elapsed % period == 0;
+        if (pulse && !consumeEnergy(player, stack, ENERGY_PER_PULSE, 160_000_000)) return;
+
+        WeaponRaycastUtil.Ray ray = WeaponRaycastUtil.ray(player, 64.0);
+        Vec3 end = WeaponRaycastUtil.blockEnd(level, player, ray);
+        Vec3 visualStart = WeaponRaycastUtil.visualStart(player, WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET);
+        WeaponBeamEntity.showContinuous(
+            level, visualStart, end, WeaponBeamEntity.CORRUPTED, 1, player);
+        if (!pulse) return;
 
         int power = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.POWER));
         float damage = 10.0F + power * 2.0F;
         for (LivingEntity target : WeaponRaycastUtil.livingEntities(level, player, ray, Integer.MAX_VALUE)) {
-            if (target.hurt(player.damageSources().playerAttack(player), damage)) {
+            DamageSource source = ModDamageTypes.lostInTime(level, player);
+            if (target.hurt(source, damage)) {
                 EnchantmentHelper.doPostAttackEffectsWithItemSource(
-                    serverLevel, target, player.damageSources().playerAttack(player), stack);
+                    serverLevel, target, source, stack);
             }
             MobEffectInstance wither = target.getEffect(MobEffects.WITHER);
             int amplifier = wither == null ? 0 : wither.getAmplifier();

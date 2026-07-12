@@ -56,8 +56,16 @@ public class ModDamageTypes {
         return ModDamageTypes.source(ModDamageTypes.LASER, level);
     }
 
+    public static DamageSource laser(Level level, Entity cause) {
+        return ModDamageTypes.source(ModDamageTypes.LASER, level, cause);
+    }
+
     public static DamageSource lostInTime(Level level) {
         return ModDamageTypes.source(ModDamageTypes.LOST_IN_TIME, level);
+    }
+
+    public static DamageSource lostInTime(Level level, Entity cause) {
+        return ModDamageTypes.source(ModDamageTypes.LOST_IN_TIME, level, cause);
     }
 
     public static DamageSource fallingGiantAnvil(Level level, @Nullable Entity cause) {

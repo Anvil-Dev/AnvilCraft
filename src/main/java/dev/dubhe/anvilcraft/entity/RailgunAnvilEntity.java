@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,9 +27,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -152,7 +153,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         Entity ownerEntity = ((ServerLevel) level()).getEntity(owner);
         float damage = (float) (this.getDeltaMovement().length() * 2.0);
         DamageSource source = ownerEntity instanceof LivingEntity livingOwner
-            ? this.damageSources().mobProjectile(this, livingOwner)
+            ? this.damageSources().source(DamageTypes.FALLING_ANVIL, this, livingOwner)
             : this.damageSources().anvil(this);
         if (target.hurt(source, damage)) {
             if (ownerEntity instanceof LivingEntity livingOwner && target instanceof LivingEntity livingTarget) {
@@ -215,12 +216,13 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         this.move(MoverType.SELF, velocity);
     }
 
+    @Nullable
     private Entity getOwnerEntity() {
         Entity entity = this.level().getEntity(this.entityData.get(OWNER_ID));
-        if (entity != null || !(this.level() instanceof ServerLevel serverLevel)) return Objects.requireNonNull(entity);
+        if (entity != null || !(this.level() instanceof ServerLevel serverLevel)) return entity;
         entity = serverLevel.getEntity(owner);
         if (entity != null) this.entityData.set(OWNER_ID, entity.getId());
-        return Objects.requireNonNull(entity);
+        return entity;
     }
 
     private void dropReturnedItem(Vec3 position, int pickupDelay) {
