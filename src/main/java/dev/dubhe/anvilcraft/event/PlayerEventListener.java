@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.DevourUtil;
+import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -151,6 +152,7 @@ public class PlayerEventListener {
     public static void onJoinedLevel(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof ServerPlayer sp) {
             PowerGrid.MANAGER.onPlayerJoined(event.getLevel(), sp);
+            GravityManager.syncTo(sp);
         }
     }
 

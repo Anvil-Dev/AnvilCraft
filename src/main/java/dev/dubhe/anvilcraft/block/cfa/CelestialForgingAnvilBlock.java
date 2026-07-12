@@ -243,8 +243,8 @@ public class CelestialForgingAnvilBlock
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
             .ifPresent(be -> {
                 be.setAmplifierPresent(false);
-                be.removeGravitySource(); /// 立即移除重力
                 if (be.getCelestialBodyData() instanceof StarData) {
+                    be.removeGravitySource(); /// 恒星不可见时立即移除引力
                     be.setLocked(true);
                     be.getSearchHistory().clear();
                     /// 保持isAmplify为true以保留天体数据，

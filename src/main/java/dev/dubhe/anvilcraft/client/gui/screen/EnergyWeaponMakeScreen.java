@@ -170,7 +170,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack itemstack = this.hoveredSlot.getItem();
             graphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, x, y);
-        } else {
+        } else if (this.renderingTooltip != null && !this.renderingTooltip.isEmpty()) {
             graphics.renderTooltip(
                 this.font,
                 this.getTooltipFromContainerItem(this.renderingTooltip),

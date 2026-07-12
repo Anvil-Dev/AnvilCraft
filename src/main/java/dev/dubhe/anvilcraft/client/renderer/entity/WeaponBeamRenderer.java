@@ -52,9 +52,20 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
             }
         }
         if (end.lengthSqr() < 1.0E-6) return;
-        poseStack.pushPose();
         Entity owner = entity.getOwner();
         Minecraft minecraft = Minecraft.getInstance();
+        if (entity.getStyle() == WeaponBeamEntity.CORRUPTED) {
+            Vec3 start = entity.getPosition(partialTick).add(originOffset);
+            Matrix4f viewBobCompensation = owner == minecraft.player
+                && minecraft.options.getCameraType().isFirstPerson()
+                && minecraft.options.bobView().get()
+                && owner instanceof Player player
+                ? createViewBobCompensation(player, partialTick).pose()
+                : null;
+            CorruptedBeaconRenderer.deferWeaponBeam(start, start.add(end), viewBobCompensation);
+            return;
+        }
+        poseStack.pushPose();
         if (owner == minecraft.player
             && minecraft.options.getCameraType().isFirstPerson()
             && minecraft.options.bobView().get()
@@ -63,7 +74,6 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
         }
         poseStack.translate(originOffset.x, originOffset.y, originOffset.z);
         switch (entity.getStyle()) {
-            case WeaponBeamEntity.CORRUPTED -> renderCorruptedBeam(end, poseStack, buffers);
             case WeaponBeamEntity.LASER -> renderLaserBeam(end, entity.getStrength(), poseStack, buffers);
             default -> renderTeslaArc(entity, end, poseStack, buffers);
         }
@@ -95,6 +105,12 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
     }
 
     private static void counterViewBob(PoseStack poseStack, Player player, float partialTick) {
+        ViewBobCompensation compensation = createViewBobCompensation(player, partialTick);
+        poseStack.last().pose().set(compensation.pose.mul(poseStack.last().pose(), new Matrix4f()));
+        poseStack.last().normal().set(compensation.normal.mul(poseStack.last().normal(), new Matrix3f()));
+    }
+
+    private static ViewBobCompensation createViewBobCompensation(Player player, float partialTick) {
         float walkDelta = player.walkDist - player.walkDistO;
         float phase = -(player.walkDist + walkDelta * partialTick);
         float bob = Mth.lerp(partialTick, player.oBob, player.bob) * VIEW_BOB_COMPENSATION;
@@ -113,7 +129,6 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
             .rotate(cameraToWorld)
             .mul(inverseCameraBob)
             .rotate(worldToCamera);
-        poseStack.last().pose().set(worldCompensation.mul(poseStack.last().pose(), new Matrix4f()));
 
         Matrix3f inverseCameraRotation = new Matrix3f()
             .rotateX((float) Math.toRadians(-rotateX))
@@ -122,7 +137,7 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
             .rotate(cameraToWorld)
             .mul(inverseCameraRotation)
             .rotate(worldToCamera);
-        poseStack.last().normal().set(worldRotation.mul(poseStack.last().normal(), new Matrix3f()));
+        return new ViewBobCompensation(worldCompensation, worldRotation);
     }
 
     private static LiveBeam resolveLiveBeam(WeaponBeamEntity beam, float partialTick) {
@@ -140,22 +155,6 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
         WeaponRaycastUtil.Ray ray = new WeaponRaycastUtil.Ray(eye, rayEnd);
         Vec3 end = WeaponRaycastUtil.laserBlockHit(player.level(), player, ray).getLocation();
         return new LiveBeam(start, end);
-    }
-
-    private static void renderCorruptedBeam(Vec3 end, PoseStack poseStack, MultiBufferSource buffers) {
-        poseStack.pushPose();
-        rotateLocalYTo(end, poseStack);
-        poseStack.scale(0.5f, 1.0f, 0.5f);
-        CorruptedBeaconRenderer.renderBeam(
-            buffers.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM),
-            poseStack.last(),
-            0.0f,
-            0.0f,
-            0.0f,
-            (float) end.length(),
-            0.5f
-        );
-        poseStack.popPose();
     }
 
     private static void renderLaserBeam(
@@ -213,5 +212,8 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
     }
 
     private record LiveBeam(Vec3 start, Vec3 end) {
+    }
+
+    private record ViewBobCompensation(Matrix4f pose, Matrix3f normal) {
     }
 }

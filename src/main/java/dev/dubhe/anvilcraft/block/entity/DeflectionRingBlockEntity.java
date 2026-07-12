@@ -26,7 +26,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -46,6 +45,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class DeflectionRingBlockEntity extends BlockEntity implements IPowerConsumer {
+    private static final double DEFLECTION_RADIUS_SQR = 0.56747 * 0.56747;
+    // A 0.98-block-wide falling anvil needs a small gap from the ring's block boundary.
+    private static final double DEFLECTION_EXIT_OFFSET = 1.01;
     private static final HashMap<Level, HashSet<BlockPos>> LEVEL_DEFLECTION_BLOCK_MAP = new HashMap<>();
     @Getter
     @Setter
@@ -80,8 +82,47 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         }
     }
 
-    public static void clear() {
-        LEVEL_DEFLECTION_BLOCK_MAP.clear();
+    public static boolean isInsideWorkingRing(Entity entity) {
+        Level level = entity.level();
+        for (BlockPos pos : getAllBlocks(level)) {
+            BlockState state = level.getBlockState(pos);
+            if (!(state.getBlock() instanceof DeflectionRingBlock)) continue;
+            if (state.getValue(DeflectionRingBlock.SWITCH) != Switch.ON
+                || state.getValue(DeflectionRingBlock.OVERLOAD)) {
+                continue;
+            }
+            if (new AABB(pos).intersects(entity.getBoundingBox())) return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    public static BlockPos findFirstRing(Entity entity, Vec3 start, Vec3 movement) {
+        double movementSqr = movement.lengthSqr();
+        if (movementSqr < 1.0E-12) return null;
+        BlockPos nearestRing = null;
+        double nearestProgress = Double.POSITIVE_INFINITY;
+        for (BlockPos pos : getAllBlocks(entity.level())) {
+            BlockState state = entity.level().getBlockState(pos);
+            if (!(state.getBlock() instanceof DeflectionRingBlock)
+                || state.getValue(DeflectionRingBlock.SWITCH) != Switch.ON
+                || state.getValue(DeflectionRingBlock.OVERLOAD)) {
+                continue;
+            }
+            Vec3 toCenter = pos.getCenter().subtract(start);
+            double progress = toCenter.dot(movement) / movementSqr;
+            if (progress <= 0 || progress > 1 || progress >= nearestProgress) continue;
+            Vec3 closest = start.add(movement.scale(progress));
+            if (closest.distanceToSqr(pos.getCenter()) <= DEFLECTION_RADIUS_SQR) {
+                nearestProgress = progress;
+                nearestRing = pos;
+            }
+        }
+        return nearestRing;
+    }
+
+    public static void clear(Level level) {
+        LEVEL_DEFLECTION_BLOCK_MAP.remove(level);
     }
 
     private void addSelfToMap() {
@@ -204,11 +245,6 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         accelerate();
     }
 
-    private double fixPos(double p1, double p2, double p3) {
-        double d = p1 * 0.99 / (Math.sqrt(p2 * p2 + p3 * p3));
-        return Double.isNaN(d) ? 0 : d;
-    }
-
     @SuppressWarnings("SuspiciousNameCombination")
     public void accelerate() {
         if (this.level == null) return;
@@ -218,6 +254,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             AccelerateManager::canBeAccelerated
         );
         for (Entity entity : entities2) {
+            entity.setDeltaMovement(AccelerateManager.clampMovement(entity, entity.getDeltaMovement()));
             if (entity.getDeltaMovement().length() > Integer.MAX_VALUE * 0.99f) {
                 this.overSpeed = true;
                 BlockState state = getBlockState();
@@ -226,39 +263,6 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             }
             Vec3 v = entity.getDeltaMovement();
             Direction facing = getBlockState().getValue(DeflectionRingBlock.FACING);
-            boolean applyOffset = entity instanceof FallingBlockEntity || entity instanceof Player;
-            final Vec3 fixedPos = switch (facing) {
-                case UP -> new Vec3(
-                    fixPos(v.z, v.z, v.x),
-                    applyOffset ? -0.5 : 0,
-                    -fixPos(v.x, v.z, v.x)
-                );
-                case DOWN -> new Vec3(
-                    -fixPos(v.z, v.z, v.x),
-                    applyOffset ? -0.5 : 0,
-                    fixPos(v.x, v.z, v.x)
-                );
-                case NORTH -> new Vec3(
-                    fixPos(v.y, v.y, v.x),
-                    -fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
-                    0
-                );
-                case SOUTH -> new Vec3(
-                    -fixPos(v.y, v.y, v.x),
-                    fixPos(v.x, v.y, v.x) + (applyOffset && Math.abs(v.y) > Math.abs(v.x) ? -0.5 : 0),
-                    0
-                );
-                case WEST -> new Vec3(
-                    0,
-                    fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
-                    -fixPos(v.y, v.z, v.y)
-                );
-                case EAST -> new Vec3(
-                    0,
-                    -fixPos(v.z, v.z, v.y) + (applyOffset && Math.abs(v.y) > Math.abs(v.z) ? -0.5 : 0),
-                    fixPos(v.y, v.z, v.y)
-                );
-            };
             v = switch (facing) {
                 case UP -> new Vec3(v.z, 0, -v.x);
                 case DOWN -> new Vec3(-v.z, 0, v.x);
@@ -267,7 +271,10 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                 case WEST -> new Vec3(0, v.z, -v.y);
                 case EAST -> new Vec3(0, -v.z, v.y);
             };
-            entity.setDeltaMovement(v);
+            Vec3 fixedPos = v.normalize()
+                .scale(DEFLECTION_EXIT_OFFSET)
+                .subtract(AccelerateManager.getMovementOffset(entity));
+            entity.setDeltaMovement(AccelerateManager.clampMovement(entity, v));
             if (entity instanceof Player) {
                 double d0 = v.x;
                 double d1 = v.y;
@@ -280,22 +287,23 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             Vec3 blockCenter = getBlockPos().getCenter();
             entity.setPos(fixedPos.add(blockCenter));
         }
+        Direction.Axis axis = getBlockState().getValue(DeflectionRingBlock.FACING).getAxis();
+        BlockPos min = getBlockPos().offset(axis == Direction.Axis.X ? 0 : -1, axis == Direction.Axis.Y ? 0 : -1,
+            axis == Direction.Axis.Z ? 0 : -1);
+        BlockPos max = getBlockPos().offset(axis == Direction.Axis.X ? 0 : 1, axis == Direction.Axis.Y ? 0 : 1,
+            axis == Direction.Axis.Z ? 0 : 1);
+        AABB accelerationArea = AABB.encapsulatingFullBlocks(min, max);
         List<Entity> entities = level.getEntitiesOfClass(
             Entity.class,
-            AABB.encapsulatingFullBlocks(getBlockPos().east().north(), getBlockPos().west().south()),
+            accelerationArea,
             AccelerateManager::canBeAccelerated
         );
         for (Entity entity : entities) {
-            if (
-                entity.position().y
-                - getBlockPos().getCenter().y
-                - (entity instanceof FallingBlockEntity || entity instanceof Player ? 0.5 : 0)
-                >= entity.getGravity()
-            ) {
-                return;
-            }
-            entity.setDeltaMovement(entity.getDeltaMovement().scale(1.0204081632653061));
-            entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
+            if (!accelerationArea.contains(AccelerateManager.getMovementCenter(entity))) continue;
+            entity.setDeltaMovement(AccelerateManager.clampMovement(
+                entity,
+                entity.getDeltaMovement().scale(1.0204081632653061)
+            ));
             if (level.isClientSide) continue;
             updateLastEntitySpeed(entity.getDeltaMovement().length());
         }

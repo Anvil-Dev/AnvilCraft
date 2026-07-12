@@ -7,8 +7,10 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftKillerFakePlayer;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
+import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
@@ -48,9 +50,12 @@ public class LevelEventListener {
      */
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
+        if (event.getLevel() instanceof Level level) {
+            AccelerationRingBlockEntity.clear(level);
+            DeflectionRingBlockEntity.clear(level);
+        }
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             LevelLoadManager.removeAll(serverLevel);
-            DeflectionRingBlockEntity.clear();
             RedstoneWireNetworkManager.clear(serverLevel);
         }
     }

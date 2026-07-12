@@ -35,8 +35,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -59,9 +61,31 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     private int fallDamageMax;
     @Unique
     private float anvilcraft$fallDistance;
+    @Unique
+    private float anvilcraft$directionalFallDistance;
+    @Unique
+    private Vec3 anvilcraft$positionBeforeTick;
 
     public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
+    }
+
+    @WrapOperation(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;blockPosition()Lnet/minecraft/core/BlockPos;",
+            ordinal = 0
+        )
+    )
+    private BlockPos anvilcraft$useGravityFaceAsLandingPosition(
+        FallingBlockEntity instance,
+        Operation<BlockPos> original
+    ) {
+        Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(instance);
+        Direction direction = Direction.getNearest(gravity.x, gravity.y, gravity.z);
+        if (direction == Direction.DOWN) return original.call(instance);
+        return anvilcraft$getGravityFaceBlockPos(instance, direction);
     }
 
     // 重定义下落方块的下方
@@ -70,13 +94,14 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     )
     private BlockPos anvilcraft$redirectBelowInTick(BlockPos instance, Operation<BlockPos> original) {
         Vec3 netGravityVector = GravityManager.getNetGravityVectorForFallingBlock(this);
+        Direction gravityDirection = Direction.getNearest(netGravityVector.x, netGravityVector.y, netGravityVector.z);
+        if (gravityDirection == Direction.DOWN) return original.call(instance);
 
         // 卡在方块里则当前坐标是下方
         if (!FallingBlock.isFree(this.level().getBlockState(instance))) {
             return instance;
         }
-        // 总重力向量的方向是下落方块的下方
-        return instance.relative(Direction.getNearest(netGravityVector.x, netGravityVector.y, netGravityVector.z));
+        return instance.relative(gravityDirection);
     }
 
     /**
@@ -90,36 +115,34 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     private boolean anvilcraft$overrideOnGround(FallingBlockEntity instance, Operation<Boolean> original) {
         Vec3 gravityVec = GravityManager.getNetGravityVectorForFallingBlock(instance);
 
-        // 如果重力向下且没有显著水平分量，认为不处在特殊重力源范围内，跳过自定义逻辑返回原版
-        if (gravityVec.y <= 0 && Math.abs(gravityVec.x) < 0.01 && Math.abs(gravityVec.z) < 0.01) {
-            return original.call(instance);
+        if (
+            this.anvilcraft$isDeflected()
+            || AccelerateManager.isControlledByRing(instance)
+        ) {
+            return false;
         }
 
         Direction gravityDir = Direction.getNearest(gravityVec.x, gravityVec.y, gravityVec.z);
+        boolean entityCollision = this.anvilcraft$hasEntityCollision(instance, gravityDir);
+        if (gravityDir == Direction.DOWN && !entityCollision) return original.call(instance);
+
+        if (gravityDir != Direction.DOWN && anvilcraft$positionBeforeTick != null) {
+            anvilcraft$directionalFallDistance += (float) position().distanceTo(anvilcraft$positionBeforeTick);
+            anvilcraft$fallDistance = Math.max(anvilcraft$fallDistance, anvilcraft$directionalFallDistance);
+        }
+
         Level level = instance.level();
-        BlockPos pos = BlockPos.containing(instance.position());
+        BlockPos pos = this.anvilcraft$getGravityFaceBlockPos(instance, gravityDir);
         BlockPos supportPos = pos.relative(gravityDir);
         BlockState supportState = level.getBlockState(supportPos);
 
         // 1. 碰撞检测
-        if (!this.anvilcraft$checkCollision(instance, gravityDir, original)) return false;
-        // 没撞到就用很短的AABB扫描硬实体
-        AABB checkArea = instance.getBoundingBox().expandTowards(Vec3.atLowerCornerOf(gravityDir.getNormal()).scale(0.025)).inflate(1.0E-7);
-        if (!level.getEntities(instance, checkArea, e -> e.canBeCollidedWith() && !e.isSpectator()).isEmpty()) {
-            // 如果有实体就判断离地距离
-            if (!FallingBlock.isFree(level.getBlockState(gravityDir != Direction.DOWN ? supportPos.relative(gravityDir) : supportPos))) {
-                // 重力朝下如果1格内就是地面就着陆否则碎裂，重力不朝下延伸一格
-                if (gravityDir == Direction.DOWN) return true;
-                else {
-                    instance.dropItem = false;
-                    level.setBlockAndUpdate(supportPos, instance.getBlockState());
-                    AnvilEvent.OnLand event = new AnvilEvent.OnLand(this.level(), supportPos, instance, this.anvilcraft$fallDistance);
-                    NeoForge.EVENT_BUS.post(event);
-                    instance.discard();
-                }
-            } else this.anvilcraft$breakEntity(instance);
+        if (entityCollision) {
+            if (!FallingBlock.isFree(supportState)) return true;
+            this.anvilcraft$breakEntity(instance);
+            return false;
         }
-
+        if (!this.anvilcraft$checkBlockCollision(instance, gravityDir, original)) return false;
         // 2. 摩擦力与滑行检查，被摩擦力抓住且速度慢 -> 着陆，速度快或没被摩擦力抓住且有路可走 -> 滑行
         float friction = supportState.isAir() ? 0.6F : supportState.getFriction(level, supportPos, instance);
         boolean isMovingSlowly = instance.getDeltaMovement().lengthSqr() < 0.04;
@@ -145,18 +168,120 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         return true;
     }
 
+    @ModifyArgs(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/context/DirectionalPlaceContext;<init>("
+                     + "Lnet/minecraft/world/level/Level;"
+                     + "Lnet/minecraft/core/BlockPos;"
+                     + "Lnet/minecraft/core/Direction;"
+                     + "Lnet/minecraft/world/item/ItemStack;"
+                     + "Lnet/minecraft/core/Direction;)V"
+        )
+    )
+    private void anvilcraft$useGravityPlacementDirection(Args args) {
+        Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(this);
+        Direction direction = Direction.getNearest(gravity.x, gravity.y, gravity.z);
+        if (direction == Direction.DOWN) return;
+        args.set(2, direction);
+        args.set(4, direction.getOpposite());
+    }
+
+    @ModifyArgs(
+        method = "tick",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;multiply(DDD)Lnet/minecraft/world/phys/Vec3;")
+    )
+    private void anvilcraft$reflectVelocityAlongGravityAxis(Args args) {
+        Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(this);
+        Direction direction = Direction.getNearest(gravity.x, gravity.y, gravity.z);
+        if (direction == Direction.DOWN || direction == Direction.UP) return;
+        if (direction.getAxis() == Direction.Axis.X) {
+            args.set(0, -0.5);
+            args.set(1, 0.7);
+        } else {
+            args.set(1, 0.7);
+            args.set(2, -0.5);
+        }
+    }
+
     /**
      * 辅助方法：检查某方向是否发生了碰撞
      */
     @Unique
-    private boolean anvilcraft$checkCollision(FallingBlockEntity entity, Direction gravityDir, Operation<Boolean> original) {
+    private boolean anvilcraft$checkBlockCollision(
+        FallingBlockEntity entity,
+        Direction gravityDir,
+        Operation<Boolean> original
+    ) {
         if (gravityDir == Direction.DOWN) {
             return original.call(entity);
-        } else if (gravityDir == Direction.UP) {
-            return entity.verticalCollision && !original.call(entity);
-        } else {
-            return entity.horizontalCollision;
         }
+        Vec3 normal = Vec3.atLowerCornerOf(gravityDir.getNormal()).scale(0.001);
+        return entity.level().getBlockCollisions(entity, entity.getBoundingBox().move(normal)).iterator().hasNext();
+    }
+
+    @Unique
+    private boolean anvilcraft$hasEntityCollision(FallingBlockEntity entity, Direction gravityDir) {
+        AABB box = entity.getBoundingBox();
+        double depth = 0.05;
+        double inset = 1.0E-5;
+        AABB contactArea = switch (gravityDir) {
+            case DOWN -> new AABB(
+                box.minX + inset, box.minY - depth, box.minZ + inset,
+                box.maxX - inset, box.minY + inset, box.maxZ - inset
+            );
+            case UP -> new AABB(
+                box.minX + inset, box.maxY - inset, box.minZ + inset,
+                box.maxX - inset, box.maxY + depth, box.maxZ - inset
+            );
+            case WEST -> new AABB(
+                box.minX - depth, box.minY + inset, box.minZ + inset,
+                box.minX + inset, box.maxY - inset, box.maxZ - inset
+            );
+            case EAST -> new AABB(
+                box.maxX - inset, box.minY + inset, box.minZ + inset,
+                box.maxX + depth, box.maxY - inset, box.maxZ - inset
+            );
+            case NORTH -> new AABB(
+                box.minX + inset, box.minY + inset, box.minZ - depth,
+                box.maxX - inset, box.maxY - inset, box.minZ + inset
+            );
+            case SOUTH -> new AABB(
+                box.minX + inset, box.minY + inset, box.maxZ - inset,
+                box.maxX - inset, box.maxY - inset, box.maxZ + depth
+            );
+        };
+        return !entity.level().getEntities(
+            entity,
+            contactArea,
+            other -> other.canBeCollidedWith() && !other.isSpectator() && entity.canCollideWith(other)
+        ).isEmpty();
+    }
+
+    @Unique
+    private BlockPos anvilcraft$getGravityFaceBlockPos(FallingBlockEntity entity, Direction gravityDir) {
+        AABB box = entity.getBoundingBox();
+        Vec3 center = box.getCenter();
+        Vec3 faceCenter = switch (gravityDir.getAxis()) {
+            case X -> new Vec3(
+                gravityDir.getAxisDirection() == Direction.AxisDirection.POSITIVE ? box.maxX : box.minX,
+                center.y,
+                center.z
+            );
+            case Y -> new Vec3(
+                center.x,
+                gravityDir.getAxisDirection() == Direction.AxisDirection.POSITIVE ? box.maxY : box.minY,
+                center.z
+            );
+            case Z -> new Vec3(
+                center.x,
+                center.y,
+                gravityDir.getAxisDirection() == Direction.AxisDirection.POSITIVE ? box.maxZ : box.minZ
+            );
+        };
+        Vec3 inward = Vec3.atLowerCornerOf(gravityDir.getNormal()).scale(-1.0E-4);
+        return BlockPos.containing(faceCenter.add(inward));
     }
 
     /**
@@ -345,19 +470,16 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         hitResult.getEntity().hurt(damageSources().anvil(this), hurtAmount);
     }
 
-    @Inject(
-        method = "tick", at = @At("TAIL")
-    )
-    private void anvilcraft$ApplyFallingBlockGravity(CallbackInfo ci) {
-        // 如果是无重力实体则返回
-        if (this.isNoGravity()) return;
-        // 应用引力向量的水平分量
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void anvilcraft$applyFallingBlockHorizontalGravity(CallbackInfo ci) {
+        if (this.isNoGravity() || AccelerateManager.isControlledByRing(this)) return;
         Vec3 gravityVector = GravityManager.getGravityVector(this);
         this.setDeltaMovement(this.getDeltaMovement().add(gravityVector.x, 0, gravityVector.z));
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void anvilcraft$handleAcceleration(CallbackInfo ci) {
+        anvilcraft$positionBeforeTick = position();
         AccelerateManager.handleAcceleration(this);
     }
 }

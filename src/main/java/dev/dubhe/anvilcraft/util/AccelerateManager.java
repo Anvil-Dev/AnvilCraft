@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
@@ -21,20 +22,33 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class AccelerateManager {
+    public static final double MAX_ACCELERATED_SPEED = 512.0;
+    private static final double MAX_PLAYER_SPEED = 20.0;
 
     public static void handleAcceleration(Entity entity) {
         if (!canBeAccelerated(entity)) return;
+        Vec3 currentMovement = entity.getDeltaMovement();
+        Vec3 clampedMovement = clampMovement(entity, currentMovement);
+        if (clampedMovement != currentMovement) entity.setDeltaMovement(clampedMovement);
         Level level = entity.level();
+        Vec3 center = getMovementCenter(entity);
+        BlockPos selectedRing = null;
+        Direction selectedDirection = null;
+        double bestAlignment = Double.NEGATIVE_INFINITY;
         for (BlockPos pos : AccelerationRingBlockEntity.getAllBlocks(level)) {
-            AABB aabb = AccelerationRingBlockEntity.getAABB(pos);
+            AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
             if (aabb == null) continue;
-            if (aabb.contains(entity.getBoundingBox().getCenter())) {
-                BlockState state = level.getBlockState(pos);
-                if (isActiveAccelerationRing(state)) {
-                    applyAcceleration(entity, pos, state.getValue(AccelerationRingBlock.FACING));
-                }
-            }
+            if (!aabb.contains(center)) continue;
+            BlockState state = level.getBlockState(pos);
+            if (!isActiveAccelerationRing(state)) continue;
+            Direction direction = state.getValue(AccelerationRingBlock.FACING);
+            double alignment = entity.getDeltaMovement().dot(Vec3.atLowerCornerOf(direction.getNormal()));
+            if (alignment <= bestAlignment) continue;
+            selectedRing = pos;
+            selectedDirection = direction;
+            bestAlignment = alignment;
         }
+        if (selectedRing != null) applyAcceleration(entity, selectedRing, selectedDirection);
     }
 
     private static boolean isActiveAccelerationRing(BlockState state) {
@@ -50,6 +64,53 @@ public class AccelerateManager {
                && !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
                || entity instanceof Projectile
                || (entity instanceof Player player && isPlayerCanBeAccelerated(player));
+    }
+
+    public static boolean isInsideAccelerationArea(Entity entity) {
+        if (!canBeAccelerated(entity)) return false;
+        Level level = entity.level();
+        Vec3 center = getMovementCenter(entity);
+        for (BlockPos pos : AccelerationRingBlockEntity.getAllBlocks(level)) {
+            AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
+            if (aabb != null && aabb.contains(center) && isActiveAccelerationRing(level.getBlockState(pos))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isControlledByRing(Entity entity) {
+        if (!canBeAccelerated(entity)) return false;
+        if (isInsideAccelerationArea(entity) || DeflectionRingBlockEntity.isInsideWorkingRing(entity)) return true;
+        return DeflectionRingBlockEntity.findFirstRing(
+            entity,
+            getMovementCenter(entity),
+            entity.getDeltaMovement()
+        ) != null;
+    }
+
+    public static Vec3 getMovementCenter(Entity entity) {
+        if (entity instanceof FallingBlockEntity) return entity.getBoundingBox().getCenter();
+        if (entity instanceof Player) {
+            return entity.position().add(0, 0.5, 0);
+        }
+        return entity.position();
+    }
+
+    public static Vec3 getMovementOffset(Entity entity) {
+        return getMovementCenter(entity).subtract(entity.position());
+    }
+
+    public static Vec3 clampMovement(Entity entity, Vec3 movement) {
+        double limit = entity instanceof Player ? MAX_PLAYER_SPEED : MAX_ACCELERATED_SPEED;
+        double maxComponent = Math.max(Math.abs(movement.x), Math.max(Math.abs(movement.y), Math.abs(movement.z)));
+        if (!Double.isFinite(maxComponent)) return Vec3.ZERO;
+        if (maxComponent <= limit && movement.lengthSqr() <= limit * limit) return movement;
+        if (maxComponent < 1.0E-12) return Vec3.ZERO;
+        Vec3 scaled = movement.scale(1.0 / maxComponent);
+        double scaledLength = scaled.length();
+        if (!Double.isFinite(scaledLength) || scaledLength < 1.0E-12) return Vec3.ZERO;
+        return scaled.scale(limit / scaledLength);
     }
 
     static boolean isPlayerCanBeAccelerated(Player player) {
@@ -68,18 +129,9 @@ public class AccelerateManager {
     }
 
     private static void applyAcceleration(Entity entity, BlockPos ringPos, Direction direction) {
-        double speed = Math.abs(entity.getDeltaMovement().get(direction.getAxis()));
-        if (speed > 25565 || (entity instanceof Player && speed > 20)) {
-            entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
-            return;
-        }
         Vec3 fixMovement = ringPos
             .getCenter()
-            .subtract(
-                entity instanceof FallingBlockEntity || entity instanceof Player
-                ? entity.position().add(0, 0.5, 0)
-                : entity.position()
-            );
+            .subtract(getMovementCenter(entity));
         Vec3 deltaMovement = entity.getDeltaMovement();
         fixMovement = switch (direction.getAxis()) {
             case X -> fixMovement.multiply(0, 1, 1);
@@ -99,7 +151,6 @@ public class AccelerateManager {
         }
         deltaMovement = deltaMovement.scale(1.0204081632653061)
             .add(new Vec3(0.1f, 0.1f, 0.1f).multiply(Vec3.atLowerCornerOf(direction.getNormal())));
-        entity.setDeltaMovement(deltaMovement);
-        entity.setDeltaMovement(entity.getDeltaMovement().add(0, entity.getGravity(), 0));
+        entity.setDeltaMovement(clampMovement(entity, deltaMovement));
     }
 }
