@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.entity.player;
 
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.block.state.Orientation;
-import dev.dubhe.anvilcraft.mixin.invoker.BlockItemInvoker;
+import dev.dubhe.anvilcraft.util.BlockItemPlacementStateOverride;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -18,29 +18,54 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
-/// 假人方块放置器
+/// Fake player block placer.
 public interface IAnvilCraftBlockPlacer {
     ServerPlayer getPlayer();
 
-    /// 放置方块
+    /// Places a block.
     ///
-    /// @param level       放置世界
-    /// @param pos         放置位置
-    /// @param orientation 放置方向
-    /// @param blockItem   放置方块物品
-    /// @return 放置结果
+    /// @param level       target level
+    /// @param pos         target position
+    /// @param orientation placement orientation
+    /// @param blockItem   block item
+    /// @param itemStack   source item stack
+    /// @return placement result
     default InteractionResult placeBlock(
         Level level, BlockPos pos, Orientation orientation, BlockItem blockItem, ItemStack itemStack) {
+        return this.placeBlock(level, pos, orientation, blockItem, itemStack, null);
+    }
+
+    /// Places a block with an optional target state.
+    ///
+    /// @param level          target level
+    /// @param pos            target position
+    /// @param orientation    placement orientation
+    /// @param blockItem      block item
+    /// @param itemStack      source item stack
+    /// @param placementState optional target state
+    /// @return placement result
+    default InteractionResult placeBlock(
+        Level level,
+        BlockPos pos,
+        Orientation orientation,
+        BlockItem blockItem,
+        ItemStack itemStack,
+        @Nullable BlockState placementState
+    ) {
         if (AnvilCraftFakePlayers.BLOCK_PLACER_BLACKLIST.contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString())) {
             return InteractionResult.FAIL;
         }
+        if (placementState != null
+            && placementState.getBlock() != blockItem.getBlock()
+            && placementState.getBlock().asItem() != blockItem) {
+            return InteractionResult.FAIL;
+        }
         if (level instanceof ServerLevel serverLevel) this.getPlayer().setServerLevel(serverLevel);
-        // 获取fakePlayer的方向 与放置器的方向不太一样
         Orientation fakePlayerOrientation = orientation.flipHorizontalIfVertical();
         this.getPlayer().setYRot(fakePlayerOrientation.getYRotation());
-        // net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
-        // 该字段一并设置，以使得部分方块的方向检测正确
+        // Direction#orderedByNearest checks yHeadRot, so keep it in sync with yRot.
         this.getPlayer().setYHeadRot(fakePlayerOrientation.getYRotation());
         this.getPlayer().setXRot(fakePlayerOrientation.getXRotation());
         Vec3 clickClickLocation = this.getPosFromOrientation(orientation);
@@ -61,10 +86,19 @@ public interface IAnvilCraftBlockPlacer {
                 itemStack,
                 blockHitResult
             );
-        BlockState blockState = ((BlockItemInvoker) blockItem).invokerGetPlacementState(blockPlaceContext);
-        // 实际上，如果需要nbt的话，直接用NeoForge自带的就行
-        InteractionResult ir = blockItem.place(blockPlaceContext);
+        InteractionResult ir;
+        if (placementState == null) {
+            ir = blockItem.place(blockPlaceContext);
+        } else {
+            BlockItemPlacementStateOverride.set(placementState);
+            try {
+                ir = blockItem.place(blockPlaceContext);
+            } finally {
+                BlockItemPlacementStateOverride.clear();
+            }
+        }
         if (ir == InteractionResult.FAIL) return ir;
+        BlockState blockState = level.getBlockState(pos);
         SoundType soundType = blockState.getSoundType(level, pos, this.getPlayer());
         level.playSound(
             this.getPlayer(),
