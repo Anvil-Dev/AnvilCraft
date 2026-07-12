@@ -29,6 +29,7 @@ public class WeaponBeamEntity extends Entity {
     public WeaponBeamEntity(EntityType<?> type, Level level) {
         super(type, level);
         this.noPhysics = true;
+        this.noCulling = true;
     }
 
     public static WeaponBeamEntity create(Level level, Vec3 start, Vec3 end, int style) {
@@ -63,7 +64,7 @@ public class WeaponBeamEntity extends Entity {
     ) {
         List<WeaponBeamEntity> beams = level.getEntitiesOfClass(
             WeaponBeamEntity.class,
-            owner.getBoundingBox().inflate(3.0),
+            owner.getBoundingBox().expandTowards(owner.getDeltaMovement().scale(-1.0)).inflate(3.0),
             beam -> beam.getStyle() == style && beam.getOwnerId() == owner.getId()
         );
         if (beams.isEmpty()) {

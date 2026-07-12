@@ -14,7 +14,6 @@ import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.mixin.accessor.PortalProcessorAccessor;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
 import dev.dubhe.anvilcraft.util.GravityManager;
-import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
@@ -23,7 +22,9 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -37,7 +38,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -48,6 +48,9 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Unique
     public Boolean anvil$isDeflected;
+
+    @Unique
+    private BlockPos anvil$hitDeflectionRing;
 
     @Shadow
     private Level level;
@@ -126,43 +129,17 @@ public abstract class EntityMixin implements IEntityExtension {
         isFixed.set(false);
         Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
         if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class, Player.class) && vec3.length() > 0.98) {
-            Vec3 s = position();
-            Vec3 e = vec3.add(s);
-            ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
-            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(level)) {
-                Vec3 q = blockPos.getCenter();
-                double a = s.distanceTo(q);
-                double b = e.distanceTo(q);
-                double c = s.distanceTo(e);
-                double d = -(b * b - c * c - a * a) / (2 * c);
-                double distance = Math.sqrt(a * a - d * d);
-                if (distance <= 0.56747 && d > 0) {
-                    blockPosList.add(Pair.of(blockPos, d));
-                }
-            }
-            double distance = Double.MAX_VALUE;
-            BlockPos blockPos = null;
-            for (Pair<BlockPos, Double> pos : blockPosList) {
-                if (distance > pos.right()) {
-                    distance = pos.right();
-                    blockPos = pos.left();
-                }
-            }
-            if (blockPos == null) {
+            Vec3 start = anvilcraft$getMovementCenter();
+            if (!anvilcraft$findDeflectionRing(start, vec3)) {
                 anvil$isDeflected = false;
-                setPos(e);
+                original.call(instance, x, y, z);
                 return;
             }
-            double a = distance / vec3.length();
-
-            if (a > 1) {
-                anvil$isDeflected = false;
-                setPos(e);
-                return;
-            }
-            setPos(vec3.multiply(a, a, a).add(s));
+            Vec3 target = anvilcraft$getDeflectionTarget();
+            Vec3 fixedMovement = target.subtract(position());
+            original.call(instance, target.x, target.y, target.z);
             isFixed.set(true);
-            anvil$fixedDeltaMovement = vec3.multiply(a, a, a);
+            anvil$fixedDeltaMovement = fixedMovement;
             anvil$isDeflected = true;
 
             return;
@@ -189,43 +166,63 @@ public abstract class EntityMixin implements IEntityExtension {
         return isFixed.get() || original.call(x, y);
     }
 
+    @WrapOperation(
+        method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/Block;"
+                     + "updateEntityAfterFallOn(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;)V"
+        )
+    )
+    private void anvilcraft$preserveVerticalSpeedAtDeflectionRing(
+        Block block,
+        BlockGetter level,
+        Entity entity,
+        Operation<Void> original,
+        @Share("isFixed") LocalBooleanRef isFixed
+    ) {
+        if (!isFixed.get()) original.call(block, level, entity);
+    }
+
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
     public void anvilcraft$changeProjectilePosSetResult(double x, double y, double z, CallbackInfo ci) {
         if (!Util.instanceOfAny(this, Projectile.class)) return;
         Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
-        if (vec3.add(getDeltaMovement().scale(-1)).length() > 0.5) return;
-        if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class) && vec3.length() > 0.98) {
-            Vec3 s = position();
-            Vec3 e = vec3.add(s);
-            ArrayList<Pair<BlockPos, Double>> blockPosList = new ArrayList<>();
-            for (BlockPos blockPos : DeflectionRingBlockEntity.getAllBlocks(level)) {
-                Vec3 q = blockPos.getCenter();
-                double a = s.distanceTo(q);
-                double b = e.distanceTo(q);
-                double c = s.distanceTo(e);
-                double d = -(b * b - c * c - a * a) / (2 * c);
-                double distance = Math.sqrt(a * a - d * d);
-                if (distance <= 0.56747 && d > 0) {
-                    blockPosList.add(Pair.of(blockPos, d));
-                }
-            }
-            double distance = Double.MAX_VALUE;
-            BlockPos blockPos = null;
-            for (Pair<BlockPos, Double> pos : blockPosList) {
-                if (distance > pos.right()) {
-                    distance = pos.right();
-                    blockPos = pos.left();
-                }
-            }
-            if (blockPos == null) return;
-            double a = distance / vec3.length();
-
-            if (a > 1) return;
-            Vec3 pos = vec3.multiply(a, a, a).add(s);
+        if (!anvilcraft$isProjectileMovement(vec3)) return;
+        if (vec3.length() > 0.98) {
+            if (!anvilcraft$findDeflectionRing(anvilcraft$getMovementCenter(), vec3)) return;
+            Vec3 pos = anvilcraft$getDeflectionTarget();
             setPosRaw(pos.x, pos.y, pos.z);
             setBoundingBox(makeBoundingBox());
             ci.cancel();
         }
+    }
+
+    @Unique
+    private boolean anvilcraft$isProjectileMovement(Vec3 movement) {
+        double movementLength = movement.length();
+        double velocityLength = getDeltaMovement().length();
+        if (movementLength <= 0.98 || velocityLength < 1.0E-6) return false;
+        double lengthRatio = movementLength / velocityLength;
+        double directionSimilarity = movement.dot(getDeltaMovement()) / (movementLength * velocityLength);
+        return lengthRatio >= 0.5 && lengthRatio <= 2.0 && directionSimilarity >= 0.95;
+    }
+
+    @Unique
+    private Vec3 anvilcraft$getMovementCenter() {
+        return AccelerateManager.getMovementCenter((Entity) (Object) this);
+    }
+
+    @Unique
+    private Vec3 anvilcraft$getDeflectionTarget() {
+        Entity entity = (Entity) (Object) this;
+        return anvil$hitDeflectionRing.getCenter().subtract(AccelerateManager.getMovementOffset(entity));
+    }
+
+    @Unique
+    private boolean anvilcraft$findDeflectionRing(Vec3 start, Vec3 movement) {
+        anvil$hitDeflectionRing = DeflectionRingBlockEntity.findFirstRing((Entity) (Object) this, start, movement);
+        return anvil$hitDeflectionRing != null;
     }
 
     @Inject(method = "move", at = @At("HEAD"))
@@ -280,6 +277,10 @@ public abstract class EntityMixin implements IEntityExtension {
     )
     private void anvilcraft$ApplyGravity(CallbackInfoReturnable<Double> cir) {
         Entity entity = (Entity) (Object) this;
+        if (AccelerateManager.isControlledByRing(entity)) {
+            cir.setReturnValue(0.0);
+            return;
+        }
         Level level = entity.level();
 
         // 获取基础重力
@@ -302,7 +303,11 @@ public abstract class EntityMixin implements IEntityExtension {
         Entity entity = (Entity) (Object) this;
 
         // 排除无重力实体和创造飞行玩家
-        if (entity.isNoGravity() || (entity instanceof Player player && player.getAbilities().flying)) {
+        if (
+            entity.isNoGravity()
+            || AccelerateManager.isControlledByRing(entity)
+            || (entity instanceof Player player && player.getAbilities().flying)
+        ) {
             return;
         }
 

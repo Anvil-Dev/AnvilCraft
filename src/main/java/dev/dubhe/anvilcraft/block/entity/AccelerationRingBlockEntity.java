@@ -41,7 +41,7 @@ import java.util.Optional;
 
 public class AccelerationRingBlockEntity extends BlockEntity implements IPowerConsumer {
     private static final HashMap<Level, HashSet<BlockPos>> LEVEL_ACCELERATION_BLOCK_MAP = new HashMap<>();
-    private static final HashMap<BlockPos, AABB> ACCELERATION_AABB_MAP = new HashMap<>();
+    private static final HashMap<Level, HashMap<BlockPos, AABB>> LEVEL_ACCELERATION_AABB_MAP = new HashMap<>();
     @Getter
     @Setter
     private PowerGrid grid;
@@ -66,13 +66,14 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
-    public static AABB getAABB(BlockPos pos) {
-        return ACCELERATION_AABB_MAP.get(pos);
+    public static AABB getAABB(Level level, BlockPos pos) {
+        HashMap<BlockPos, AABB> map = LEVEL_ACCELERATION_AABB_MAP.get(level);
+        return map == null ? null : map.get(pos);
     }
 
-    public static void clear() {
-        LEVEL_ACCELERATION_BLOCK_MAP.clear();
-        ACCELERATION_AABB_MAP.clear();
+    public static void clear(Level level) {
+        LEVEL_ACCELERATION_BLOCK_MAP.remove(level);
+        LEVEL_ACCELERATION_AABB_MAP.remove(level);
     }
 
     private void addSelfToMap() {
@@ -91,7 +92,8 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         if (LEVEL_ACCELERATION_BLOCK_MAP.containsKey(level)) {
             LEVEL_ACCELERATION_BLOCK_MAP.get(level).remove(getBlockPos());
         }
-        ACCELERATION_AABB_MAP.remove(getBlockPos());
+        HashMap<BlockPos, AABB> map = LEVEL_ACCELERATION_AABB_MAP.get(level);
+        if (map != null) map.remove(getBlockPos());
     }
 
     @Override
@@ -168,7 +170,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         for (int i = 0; i < 14; i++) {
             checkPos.move(direction);
             BlockState checkState = this.level.getBlockState(checkPos);
-            if (checkState.is(BlockTags.ANVIL) && !checkState.is(ModBlockTags.NON_MAGNETIC)) {
+            if (!level.isClientSide && checkState.is(BlockTags.ANVIL) && !checkState.is(ModBlockTags.NON_MAGNETIC)) {
                 blockPoses.add(checkPos.east(0));
             }
             if (
@@ -184,7 +186,8 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             }
         }
         if (!found) {
-            ACCELERATION_AABB_MAP.remove(getBlockPos());
+            HashMap<BlockPos, AABB> map = LEVEL_ACCELERATION_AABB_MAP.get(level);
+            if (map != null) map.remove(getBlockPos());
             return;
         }
         BlockPos aabbStart = getBlockPos().relative(direction.getOpposite(), 1);
@@ -198,7 +201,8 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             aabbStart = getBlockPos().relative(direction.getOpposite(), 2);
         }
         AABB aabb = AABB.encapsulatingFullBlocks(endRingPos.relative(direction), aabbStart);
-        ACCELERATION_AABB_MAP.put(getBlockPos(), aabb);
+        LEVEL_ACCELERATION_AABB_MAP.computeIfAbsent(level, it -> new HashMap<>()).put(getBlockPos(), aabb);
+        if (level.isClientSide) return;
         for (BlockPos pos : blockPoses) {
             BlockState fallState = this.level.getBlockState(pos);
             this.level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);

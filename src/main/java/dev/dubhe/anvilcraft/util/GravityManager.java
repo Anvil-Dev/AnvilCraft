@@ -130,6 +130,7 @@ public class GravityManager {
     public static Vec3 applySweptGravity(Entity entity, Vec3 movement) {
         if (movement.lengthSqr() <= MIN_SWEPT_MOVEMENT_SQR
             || entity.isNoGravity()
+            || AccelerateManager.isControlledByRing(entity)
             || entity instanceof Player player && player.getAbilities().flying) {
             return movement;
         }

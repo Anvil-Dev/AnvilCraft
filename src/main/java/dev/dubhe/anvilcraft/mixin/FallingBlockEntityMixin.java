@@ -90,6 +90,13 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     private boolean anvilcraft$overrideOnGround(FallingBlockEntity instance, Operation<Boolean> original) {
         Vec3 gravityVec = GravityManager.getNetGravityVectorForFallingBlock(instance);
 
+        if (
+            this.anvilcraft$isDeflected()
+            || AccelerateManager.isControlledByRing(instance)
+        ) {
+            return false;
+        }
+
         // 如果重力向下且没有显著水平分量，认为不处在特殊重力源范围内，跳过自定义逻辑返回原版
         if (gravityVec.y <= 0 && Math.abs(gravityVec.x) < 0.01 && Math.abs(gravityVec.z) < 0.01) {
             return original.call(instance);
@@ -350,7 +357,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     )
     private void anvilcraft$ApplyFallingBlockGravity(CallbackInfo ci) {
         // 如果是无重力实体则返回
-        if (this.isNoGravity()) return;
+        if (this.isNoGravity() || AccelerateManager.isControlledByRing(this)) return;
         // 应用引力向量的水平分量
         Vec3 gravityVector = GravityManager.getGravityVector(this);
         this.setDeltaMovement(this.getDeltaMovement().add(gravityVector.x, 0, gravityVector.z));

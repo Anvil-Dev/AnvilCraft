@@ -37,6 +37,7 @@ import java.util.List;
 public class AnvilRailgunItem extends EnergyWeaponItem {
     private static final int MAX_AMMO = 16;
     private static final int MIN_SHOT_ENERGY = 2_000_000;
+    private static final float MIN_FIRE_CHARGE_PROGRESS = 0.2F;
 
     public AnvilRailgunItem(Properties properties) {
         super(properties.component(ModComponents.RAILGUN_AMMO, ChargedProjectiles.EMPTY));
@@ -74,7 +75,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
             return;
         }
         float progress = chargeProgress(level, weapon, elapsed, 0.0F);
-        if (progress >= 0.1F) fire(serverLevel, player, weapon, progress);
+        if (progress >= MIN_FIRE_CHARGE_PROGRESS) fire(serverLevel, player, weapon, progress);
     }
 
     public static boolean isLoading(Player player, ItemStack weapon, InteractionHand hand) {

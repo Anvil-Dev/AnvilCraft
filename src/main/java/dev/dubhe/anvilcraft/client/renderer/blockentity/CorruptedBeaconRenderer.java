@@ -19,6 +19,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +44,11 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
 
     /// 延迟渲染队列：光束在 AFTER_WEATHER 阶段渲染以解决云层遮挡
     private static final List<BeamRenderData> deferredBeams = new ArrayList<>();
+    private static final List<WeaponBeamRenderData> deferredWeaponBeams = new ArrayList<>();
 
     private record BeamRenderData(BlockPos pos, int beamTopY) {}
+
+    private record WeaponBeamRenderData(Vec3 start, Vec3 end, @Nullable Matrix4f viewBobCompensation) {}
 
     @SuppressWarnings("unused")
     public CorruptedBeaconRenderer(BlockEntityRendererProvider.Context context) {
@@ -106,7 +113,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
      * 此时云层已绘制完毕，光束不会受云层遮挡。
      */
     public static void renderDeferredBeams(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 camera) {
-        if (deferredBeams.isEmpty()) return;
+        if (deferredBeams.isEmpty() && deferredWeaponBeams.isEmpty()) return;
 
         VertexConsumer vc = bufferSource.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM);
 
@@ -126,7 +133,35 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             poseStack.popPose();
         }
 
+        for (WeaponBeamRenderData data : deferredWeaponBeams) {
+            Vec3 direction = data.end.subtract(data.start);
+            if (direction.lengthSqr() < 1.0E-6) continue;
+            poseStack.pushPose();
+            if (data.viewBobCompensation != null) {
+                poseStack.last().pose().set(
+                    data.viewBobCompensation.mul(poseStack.last().pose(), new Matrix4f())
+                );
+            }
+            poseStack.translate(
+                data.start.x - camera.x,
+                data.start.y - camera.y,
+                data.start.z - camera.z
+            );
+            poseStack.mulPose(new Quaternionf().rotationTo(
+                new Vector3f(0.0f, 1.0f, 0.0f),
+                direction.toVector3f().normalize()
+            ));
+            poseStack.scale(0.5f, 1.0f, 0.5f);
+            renderBeam(vc, poseStack.last(), 0.0f, 0.0f, 0.0f, (float) direction.length(), 0.5f);
+            poseStack.popPose();
+        }
+
         deferredBeams.clear();
+        deferredWeaponBeams.clear();
+    }
+
+    public static void deferWeaponBeam(Vec3 start, Vec3 end, @Nullable Matrix4f viewBobCompensation) {
+        deferredWeaponBeams.add(new WeaponBeamRenderData(start, end, viewBobCompensation));
     }
 
     public static void renderBeam(
