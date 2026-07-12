@@ -7,14 +7,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -63,6 +70,58 @@ public class FluidHandlerWrapper {
      */
     public boolean isValid() {
         return true;
+    }
+
+    public static boolean tryInteractWithBottle(
+        Player player,
+        InteractionHand hand,
+        IFluidHandler handler,
+        Level level,
+        BlockPos pos
+    ) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!FluidHandlerWrapper.isExplicitBottleInteraction(stack)) return false;
+        FluidHandlerWrapper wrapper = new FluidHandlerWrapper(handler);
+        if (level.isClientSide()) {
+            return wrapper.fillFromItem(stack, true, null) != null
+                || wrapper.drainToItem(stack, true) != null;
+        }
+        ItemStack result = wrapper.fillFromItem(stack, false, level.getRandom());
+        if (result != null) {
+            player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, result));
+            player.awardStat(Stats.FILL_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
+            level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
+            return true;
+        }
+
+        result = wrapper.drainToItem(stack);
+        if (result != null) {
+            player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, result));
+            player.awardStat(Stats.USE_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS);
+            level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean isExplicitBottleInteraction(ItemStack stack) {
+        return stack.is(Items.GLASS_BOTTLE)
+            || stack.is(Items.HONEY_BOTTLE)
+            || FluidHandlerWrapper.isWaterPotion(stack)
+            || stack.is(Items.EXPERIENCE_BOTTLE);
+    }
+
+    private static boolean isWaterPotion(ItemStack stack) {
+        if (!stack.is(Items.POTION)) return false;
+        PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
+        if (contents == null) return false;
+        if (contents.potion().isEmpty()) return false;
+        return contents.potion().get() == Potions.WATER;
     }
 
     // region 填充：从物品向处理器注入流体
@@ -201,6 +260,7 @@ public class FluidHandlerWrapper {
 
     @Nullable
     public ItemStack drainToItem(ItemStack emptyContainer, boolean simulateOnly) {
+        if (emptyContainer.isEmpty()) return null;
         int amount = emptyContainer.is(Items.GLASS_BOTTLE)
             ? FluidType.BUCKET_VOLUME / 4
             : FluidType.BUCKET_VOLUME;
@@ -252,6 +312,7 @@ public class FluidHandlerWrapper {
             if (drained.getFluid() == ModFluids.EXP_FLUID.get()) {
                 return new ItemStack(Items.EXPERIENCE_BOTTLE);
             }
+            return ItemStack.EMPTY;
         }
 
         // 通用：检查流体是否有对应的桶装形式

@@ -27,7 +27,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -37,7 +36,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.item.component.CustomData;
@@ -46,7 +44,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -57,6 +54,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -516,7 +514,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         if (this.level == null) return false;
         ItemStack inHand = player.getItemInHand(hand);
         if (this.interactWithFish(this.level, player, hand, inHand, hitResult)) return true;
-        if (this.interactWithFluid(this.level, player, hand, inHand)) return true;
+        if (this.interactWithFluid(player, hand)) return true;
         return this.interactWithItems(this.level, player, hand, inHand, hitResult.getLocation());
     }
 
@@ -760,51 +758,25 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     // endregion
 
     // region 流体交互
-    private boolean interactWithFluid(Level level, Player player, InteractionHand hand, ItemStack inHand) {
-        FluidHandlerWrapper wrapper = new FluidHandlerWrapper(this.fluidHandler);
-
-        // 客户端：仅模拟检查是否能交互，不修改状态
-        if (level.isClientSide()) {
-            return wrapper.fillFromItem(inHand, true, null) != null
-                || wrapper.drainToItem(inHand, true) != null;
-        }
-
-        // 服务端：先试填充（物品→鱼缸）
-        ItemStack result = wrapper.fillFromItem(inHand, false, level.getRandom());
-        if (result != null) {
-            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result));
-            player.awardStat(Stats.FILL_CAULDRON);
-            player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-            SoundEvent sound = isBottleType(inHand)
-                ? SoundEvents.BOTTLE_EMPTY
-                : SoundEvents.BUCKET_EMPTY;
-            level.playSound(null, this.getBlockPos(), sound, SoundSource.BLOCKS);
-            level.gameEvent(null, GameEvent.FLUID_PLACE, this.getBlockPos());
+    private boolean interactWithFluid(Player player, InteractionHand hand) {
+        if (this.level != null
+            && FluidHandlerWrapper.tryInteractWithBottle(player, hand, this.fluidHandler, this.level, this.getBlockPos())) {
             return true;
         }
-
-        // 服务端：再试抽取（鱼缸→容器）
-        result = wrapper.drainToItem(inHand);
-        if (result != null) {
-            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result));
-            player.awardStat(Stats.USE_CAULDRON);
+        ItemStack inHand = player.getItemInHand(hand);
+        boolean fillTank = FishTankBlockEntity.canDrainFluidFromItem(inHand);
+        boolean interacted = FluidUtil.interactWithFluidHandler(player, hand, this.fluidHandler);
+        if (interacted && this.level != null && !this.level.isClientSide()) {
+            player.awardStat(fillTank ? Stats.FILL_CAULDRON : Stats.USE_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-            SoundEvent sound = inHand.is(Items.GLASS_BOTTLE)
-                ? SoundEvents.BOTTLE_FILL
-                : SoundEvents.BUCKET_FILL;
-            level.playSound(null, this.getBlockPos(), sound, SoundSource.BLOCKS);
-            level.gameEvent(null, GameEvent.FLUID_PICKUP, this.getBlockPos());
-            return true;
         }
-
-        return false;
+        return interacted;
     }
 
-    private static boolean isBottleType(ItemStack stack) {
-        return stack.is(Items.GLASS_BOTTLE)
-            || stack.is(Items.HONEY_BOTTLE)
-            || stack.is(Items.POTION)
-            || stack.is(Items.EXPERIENCE_BOTTLE);
+    private static boolean canDrainFluidFromItem(ItemStack stack) {
+        IFluidHandlerItem itemHandler = FluidUtil.getFluidHandler(stack).orElse(null);
+        if (itemHandler == null) return false;
+        return !itemHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE).isEmpty();
     }
 
     public void entityInsideFluidContent(Level level, BlockPos pos, Entity entity) {

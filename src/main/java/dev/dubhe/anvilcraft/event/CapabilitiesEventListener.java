@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.energy.ItemFEStorage;
-import dev.dubhe.anvilcraft.api.fluid.HoneyBottleWrapper;
+import dev.dubhe.anvilcraft.api.fluid.BottleFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
@@ -102,7 +102,7 @@ public class CapabilitiesEventListener {
 
         event.registerItem(
             Capabilities.FluidHandler.ITEM,
-            (stack, ctx) -> new HoneyBottleWrapper(stack),
+            (stack, ctx) -> new BottleFluidHandler(stack),
             Items.HONEY_BOTTLE, Items.GLASS_BOTTLE
         );
 
