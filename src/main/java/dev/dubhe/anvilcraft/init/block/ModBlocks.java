@@ -586,7 +586,12 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties(p -> p.strength(50.0F, 1200F).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
         .recipe(RegistrumBlockRecipeLoader::neutronIrradiator)
-        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            ModBlockTags.COLLISION_IMMUNE
+        )
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .build()

@@ -51,6 +51,9 @@ public class AnvilCraftDatagen {
 
         generator.addProvider(true, new ModParticleDescriptionProvider(packOutput));
         generator.addProvider(true, new ModSoundDefinitionsProvider(packOutput));
+        generator.addProvider(true, new ModLootTableProvider(packOutput, event.getLookupProvider()));
+        generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, event.getLookupProvider()));
+        generator.addProvider(true, new ModLootModifierProvider(packOutput, event.getLookupProvider()));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientDataIntegrations();

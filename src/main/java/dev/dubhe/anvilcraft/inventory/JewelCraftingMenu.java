@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -258,8 +257,8 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
             return;
         }
 
-        JewelCraftingRecipe recipe = Optional.ofNullable(this.resultContainer.getRecipeUsed())
-            .flatMap(holder -> Util.castSafely(holder.value(), JewelCraftingRecipe.class))
+        JewelCraftingRecipe recipe = Optional.ofNullable(this.sourceContainer.getRecipe())
+            .map(RecipeHolder::value)
             .orElse(null);
         if (recipe == null) return;
 

@@ -110,6 +110,14 @@ public class DiskItem extends Item {
     }
 
     @Override
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        if (context.getLevel().getBlockEntity(context.getClickedPos()) instanceof IDiskCloneable) {
+            return this.useOn(context);
+        }
+        return super.onItemUseFirst(stack, context);
+    }
+
+    @Override
     public InteractionResult use(
         Level level,
         Player player,
