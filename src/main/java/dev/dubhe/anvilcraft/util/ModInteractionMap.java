@@ -85,9 +85,9 @@ public class ModInteractionMap {
                 player,
                 hand,
                 stack,
-                Items.LAVA_BUCKET.getDefaultInstance(),
-                s -> ModBlocks.LAVA_CAULDRON.get().isFull(s),
-                SoundEvents.BUCKET_FILL_LAVA
+                ModItems.EXP_BUCKET.asStack(),
+                s -> ModBlocks.EXP_FLUID_CAULDRON.get().isFull(s),
+                SoundEvents.BUCKET_FILL
             )
         );
         event.register(

@@ -16,16 +16,15 @@ public class BlockItemMixin {
         method = "place",
         at = @At(
             value = "INVOKE",
-            target =
-                "Lnet/minecraft/world/item/BlockItem;getPlacementState"
-                    + "(Lnet/minecraft/world/item/context/BlockPlaceContext;)"
-                    + "Lnet/minecraft/world/level/block/state/BlockState;"
+            target = "Lnet/minecraft/world/item/BlockItem;getPlacementState"
+                     + "(Lnet/minecraft/world/item/context/BlockPlaceContext;)"
+                     + "Lnet/minecraft/world/level/block/state/BlockState;"
         )
     )
     private @Nullable BlockState anvilcraft$overridePlacementState(
         BlockItem instance,
         BlockPlaceContext context,
-        Operation<BlockState> original
+        Operation<@Nullable BlockState> original
     ) {
         BlockState override = BlockItemPlacementStateOverride.get();
         if (override == null) {
