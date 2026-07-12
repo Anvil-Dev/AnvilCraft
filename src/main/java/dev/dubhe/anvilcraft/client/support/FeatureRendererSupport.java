@@ -27,8 +27,8 @@ public class FeatureRendererSupport {
     ) {
         return createTessellation(
             key,
-            lighting,
-            false
+            false,
+            lighting
         );
     }
 
