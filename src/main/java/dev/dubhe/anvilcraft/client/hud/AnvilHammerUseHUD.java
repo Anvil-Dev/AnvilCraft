@@ -8,10 +8,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 
 public final class AnvilHammerUseHUD {
-    private static final int SEGMENTS = 48;
-    private static final int BACKGROUND_COLOR = 0x99D0D0D0;
-    private static final int PROGRESS_COLOR = 0xD8A9F59B;
-
     private AnvilHammerUseHUD() {
     }
 
@@ -32,25 +28,6 @@ public final class AnvilHammerUseHUD {
         );
         if (progress <= 0.0F) return;
 
-        renderRing(graphics, 24, minecraft.getWindow().getGuiScaledHeight() - 24, progress);
-    }
-
-    public static void renderRing(GuiGraphics graphics, int centerX, int centerY, float progress) {
-        drawRing(graphics, centerX, centerY, SEGMENTS, BACKGROUND_COLOR);
-        drawRing(graphics, centerX, centerY, Mth.ceil(SEGMENTS * progress), PROGRESS_COLOR);
-    }
-
-    private static void drawRing(GuiGraphics graphics, int centerX, int centerY, int segments, int color) {
-        for (int segment = 0; segment < segments; segment++) {
-            double angle = -Math.PI / 2.0D + Math.PI * 2.0D * segment / SEGMENTS;
-            drawPoint(graphics, centerX, centerY, angle, 10, color);
-            drawPoint(graphics, centerX, centerY, angle, 8, color);
-        }
-    }
-
-    private static void drawPoint(GuiGraphics graphics, int centerX, int centerY, double angle, int radius, int color) {
-        int x = centerX + Mth.floor(Math.cos(angle) * radius);
-        int y = centerY + Mth.floor(Math.sin(angle) * radius);
-        graphics.fill(x, y, x + 2, y + 2, color);
+        AttackIndicatorProgressHUD.render(graphics, progress);
     }
 }

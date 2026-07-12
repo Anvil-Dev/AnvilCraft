@@ -11,7 +11,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -56,12 +55,7 @@ public final class EnergyWeaponUseHUD {
         }
 
         if (progress <= 0.0F) return;
-        AnvilHammerUseHUD.renderRing(
-            graphics,
-            24,
-            minecraft.getWindow().getGuiScaledHeight() - 24,
-            Math.clamp(progress, 0.0F, 1.0F)
-        );
+        AttackIndicatorProgressHUD.render(graphics, progress);
     }
 
     private static final class LaserProgressState {
@@ -84,8 +78,10 @@ public final class EnergyWeaponUseHUD {
             int elapsedDelta = Math.max(0, elapsed - this.lastElapsed);
             this.lastElapsed = elapsed;
 
-            WeaponRaycastUtil.Ray ray = WeaponRaycastUtil.ray(player, 48.0);
-            List<LivingEntity> targets = WeaponRaycastUtil.livingEntities(player.level(), player, ray, 1);
+            WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 48.0);
+            BlockHitResult hit = WeaponRaycastUtil.laserBlockHit(player.level(), player, fullRay);
+            WeaponRaycastUtil.Ray ray = new WeaponRaycastUtil.Ray(fullRay.start(), hit.getLocation());
+            List<LivingEntity> targets = WeaponRaycastUtil.livingEntitiesToEnd(player.level(), player, ray, 1);
             if (!targets.isEmpty()) {
                 this.resetMining();
                 UUID currentTarget = targets.getFirst().getUUID();
@@ -100,8 +96,6 @@ public final class EnergyWeaponUseHUD {
 
             this.target = null;
             this.targetTicks = 0;
-            BlockHitResult hit = player.level().clip(new ClipContext(
-                ray.start(), ray.end(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
             if (!this.vein.isEmpty()
                 && (hit.getType() == HitResult.Type.MISS || !hit.getBlockPos().equals(this.veinAnchor))) {
                 this.resetMining();

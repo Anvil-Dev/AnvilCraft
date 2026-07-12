@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.item.weapon.EnergyWeaponItem;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -62,6 +63,7 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             );
             return;
         }
+        if (stack.getItem() instanceof EnergyWeaponItem) return;
         boolean isBlockItem = this.itemRenderer.getModel(this.mainHandItem, player.level(), player, combinedLight).isGui3d()
             && this.mainHandItem.getItem() instanceof BlockItem;
         switch (stack.getUseAnimation()) {

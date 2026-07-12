@@ -1,10 +1,13 @@
 package dev.dubhe.anvilcraft.entity;
 
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import lombok.Setter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -34,6 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class RailgunAnvilEntity extends FallingBlockEntity {
+    private static final float BASE_DAMAGE_MULTIPLIER = 4.0F;
     private static final EntityDataAccessor<BlockState> DISPLAY_STATE = SynchedEntityData.defineId(
         RailgunAnvilEntity.class, EntityDataSerializers.BLOCK_STATE);
     private static final EntityDataAccessor<Boolean> GHOST = SynchedEntityData.defineId(
@@ -52,7 +56,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     private boolean loyalty;
     private UUID owner;
     private ItemStack weapon = ItemStack.EMPTY;
-    private final Set<Integer> hitEntities = new HashSet<>();
+    private final Set<UUID> hitEntities = new HashSet<>();
 
     public RailgunAnvilEntity(EntityType<? extends RailgunAnvilEntity> type, Level level) {
         super(type, level);
@@ -72,6 +76,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         entity.owner = owner.getUUID();
         entity.weapon = weapon.copy();
         entity.dropItem = !ghost;
+        if (ghost) entity.disableDrop();
         return entity;
     }
 
@@ -106,7 +111,9 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
                 this.level(), this, this.position(), this.position().add(movement),
                 this.getBoundingBox().expandTowards(movement).inflate(0.5),
-                entity -> entity instanceof LivingEntity && entity.isAttackable() && !hitEntities.contains(entity.getId())
+                entity -> entity instanceof LivingEntity
+                    && entity.isAttackable()
+                    && !hitEntities.contains(entity.getUUID())
             );
             if (entityHit != null) {
                 hit(entityHit);
@@ -149,9 +156,11 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
 
     private void hit(EntityHitResult hit) {
         Entity target = hit.getEntity();
-        hitEntities.add(target.getId());
+        hitEntities.add(target.getUUID());
         Entity ownerEntity = ((ServerLevel) level()).getEntity(owner);
-        float damage = (float) (this.getDeltaMovement().length() * 2.0);
+        float damage = (float) (this.getDeltaMovement().length() * 2.0)
+                       * BASE_DAMAGE_MULTIPLIER
+                       * getAmmoDamageMultiplier();
         DamageSource source = ownerEntity instanceof LivingEntity livingOwner
             ? this.damageSources().source(DamageTypes.FALLING_ANVIL, this, livingOwner)
             : this.damageSources().anvil(this);
@@ -180,6 +189,14 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             this.cancelDrop = true;
             this.dropItem = false;
         }
+    }
+
+    private float getAmmoDamageMultiplier() {
+        BlockState state = getBlockState();
+        if (state.is(ModBlocks.TRANSCENDENCE_ANVIL.get())) return 8.0F;
+        if (state.is(ModBlocks.FROST_ANVIL.get()) || state.is(ModBlocks.EMBER_ANVIL.get())) return 4.0F;
+        if (state.is(ModBlocks.ROYAL_ANVIL.get())) return 2.0F;
+        return 1.0F;
     }
 
     private void startReturning() {
@@ -252,19 +269,30 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
     protected void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Flying", isFlying());
+        tag.putBoolean("Ghost", this.entityData.get(GHOST));
+        tag.putInt("Pierce", this.entityData.get(PIERCE));
+        tag.putInt("Knockback", this.entityData.get(KNOCKBACK));
         tag.putBoolean("Loyalty", loyalty);
         tag.putBoolean("Returning", isReturning());
+        tag.putInt("FlightTicks", this.tickCount);
         tag.put("DisplayState", NbtUtils.writeBlockState(getBlockState()));
-        tag.putUUID("Owner", owner);
+        if (owner != null) tag.putUUID("Owner", owner);
         if (!weapon.isEmpty()) tag.put("Weapon", weapon.save(level().registryAccess()));
+        ListTag hitEntityTags = new ListTag();
+        hitEntities.forEach(uuid -> hitEntityTags.add(NbtUtils.createUUID(uuid)));
+        tag.put("HitEntities", hitEntityTags);
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         this.entityData.set(FLYING, tag.getBoolean("Flying"));
+        this.entityData.set(GHOST, tag.getBoolean("Ghost"));
+        this.entityData.set(PIERCE, tag.getInt("Pierce"));
+        this.entityData.set(KNOCKBACK, tag.getInt("Knockback"));
         loyalty = tag.getBoolean("Loyalty");
         this.entityData.set(RETURNING, tag.getBoolean("Returning"));
+        this.tickCount = tag.getInt("FlightTicks");
         if (isReturning()) {
             this.setNoGravity(true);
             this.noPhysics = true;
@@ -277,6 +305,13 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
         }
         if (tag.hasUUID("Owner")) owner = tag.getUUID("Owner");
         weapon = ItemStack.parseOptional(level().registryAccess(), tag.getCompound("Weapon"));
+        hitEntities.clear();
+        ListTag hitEntityTags = tag.getList("HitEntities", Tag.TAG_INT_ARRAY);
+        hitEntityTags.forEach(uuidTag -> hitEntities.add(NbtUtils.loadUUID(uuidTag)));
+        if (this.entityData.get(GHOST) || loyalty) {
+            this.dropItem = false;
+            this.disableDrop();
+        }
     }
 
     private boolean isFlying() {

@@ -18,9 +18,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -57,8 +54,10 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
         if (end.lengthSqr() < 1.0E-6) return;
         poseStack.pushPose();
         Entity owner = entity.getOwner();
-        if (owner == Minecraft.getInstance().player
-            && Minecraft.getInstance().options.getCameraType().isFirstPerson()
+        Minecraft minecraft = Minecraft.getInstance();
+        if (owner == minecraft.player
+            && minecraft.options.getCameraType().isFirstPerson()
+            && minecraft.options.bobView().get()
             && owner instanceof Player player) {
             counterViewBob(poseStack, player, partialTick);
         }
@@ -129,23 +128,17 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
     private static LiveBeam resolveLiveBeam(WeaponBeamEntity beam, float partialTick) {
         Entity owner = beam.getOwner();
         if (!(owner instanceof Player player)) return null;
-        Vec3 eye = player.getEyePosition(partialTick);
+        Minecraft minecraft = Minecraft.getInstance();
+        Vec3 eye = owner == minecraft.player && minecraft.options.getCameraType().isFirstPerson()
+            ? minecraft.gameRenderer.getMainCamera().getPosition()
+            : player.getEyePosition(partialTick);
         Vec3 look = player.getViewVector(partialTick);
-        Vec3 right = new Vec3(-look.z, 0.0, look.x);
-        if (right.lengthSqr() < 1.0E-6) {
-            right = Vec3.directionFromRotation(0.0F, player.getYRot() + 90.0F);
-        }
-        right = right.normalize();
-        Vec3 up = right.cross(look).normalize();
-        Vec3 start = eye
-            .add(look.scale(WeaponRaycastUtil.MUZZLE_FORWARD_OFFSET))
-            .add(right.scale(WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET))
-            .add(up.scale(-WeaponRaycastUtil.MUZZLE_DOWN_OFFSET));
+        Vec3 start = WeaponRaycastUtil.visualStart(
+            player, eye, partialTick, WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET);
         double range = beam.getStyle() == WeaponBeamEntity.CORRUPTED ? 64.0 : 48.0;
         Vec3 rayEnd = eye.add(look.scale(range));
-        BlockHitResult hit = player.level().clip(new ClipContext(
-            eye, rayEnd, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-        Vec3 end = hit.getType() == HitResult.Type.MISS ? rayEnd : hit.getLocation();
+        WeaponRaycastUtil.Ray ray = new WeaponRaycastUtil.Ray(eye, rayEnd);
+        Vec3 end = WeaponRaycastUtil.laserBlockHit(player.level(), player, ray).getLocation();
         return new LiveBeam(start, end);
     }
 

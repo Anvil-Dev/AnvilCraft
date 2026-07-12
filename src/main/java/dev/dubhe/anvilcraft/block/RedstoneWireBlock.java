@@ -305,7 +305,11 @@ public class RedstoneWireBlock extends Block implements EntityBlock, IHammerRemo
         Direction tangent = getLocalDirection(attachment, index);
         BlockPos endpoint = endpoint(pos, attachment, tangent);
         BlockPos raisedEndpoint = endpoint.relative(attachment.getOpposite(), 2);
-        Connection fallback = null;
+        BlockPos supportPos = pos.relative(attachment);
+        Set<BlockPos> directNeighbors = new HashSet<>();
+        Set<BlockPos> climbingNeighbors = new HashSet<>();
+        ConnectionType directSide = ConnectionType.SIDE;
+        boolean climbsFromCurrent = false;
 
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
@@ -323,26 +327,98 @@ public class RedstoneWireBlock extends Block implements EntityBlock, IHammerRemo
                         Direction candidateTangent = getLocalDirection(candidateAttachment, candidateIndex);
                         BlockPos candidateEndpoint = endpoint(candidatePos, candidateAttachment, candidateTangent);
                         if (candidateEndpoint.equals(endpoint)) {
-                            boolean crossesSurface = candidateAttachment != attachment;
-                            if (crossesSurface && isCornerBlocked(level, pos, tangent)) {
+                            if (!canConnectDirectly(
+                                level, pos, attachment, tangent, supportPos, candidatePos, candidateAttachment
+                            )) {
                                 continue;
                             }
+                            boolean crossesSurface = candidateAttachment != attachment;
                             boolean corner = attachment.getAxis().isHorizontal() && crossesSurface;
-                            return new Connection(
-                                candidatePos.immutable(), corner ? ConnectionType.CORNER : ConnectionType.SIDE
-                            );
+                            directNeighbors.add(candidatePos.immutable());
+                            if (corner) {
+                                directSide = ConnectionType.CORNER;
+                            }
+                            continue;
                         }
-                        if (candidateEndpoint.equals(raisedEndpoint) && canClimb(level, pos, attachment, tangent)) {
-                            fallback = new Connection(candidatePos.immutable(), ConnectionType.UP);
+                        if (candidateAttachment != attachment) {
+                            continue;
+                        }
+                        if (candidateEndpoint.equals(raisedEndpoint)
+                            && canClimb(level, pos, attachment, tangent)
+                            && !hasDirectConnectionAtEndpoint(level, candidatePos, candidate, candidateIndex)) {
+                            climbingNeighbors.add(candidatePos.immutable());
+                            climbsFromCurrent = true;
                         } else if (endpoint.equals(candidateEndpoint.relative(candidateAttachment.getOpposite(), 2))
-                            && canClimb(level, candidatePos, candidateAttachment, candidateTangent)) {
-                            fallback = new Connection(candidatePos.immutable(), ConnectionType.SIDE);
+                            && canClimb(level, candidatePos, candidateAttachment, candidateTangent)
+                            && !hasDirectConnectionAtEndpoint(level, candidatePos, candidate, candidateIndex)) {
+                            climbingNeighbors.add(candidatePos.immutable());
                         }
                     }
                 }
             }
         }
-        return fallback;
+        if (!directNeighbors.isEmpty()) {
+            return new Connection(Set.copyOf(directNeighbors), directSide);
+        }
+        if (!climbingNeighbors.isEmpty()) {
+            return new Connection(
+                Set.copyOf(climbingNeighbors), climbsFromCurrent ? ConnectionType.UP : ConnectionType.SIDE
+            );
+        }
+        return null;
+    }
+
+    private static boolean hasDirectConnectionAtEndpoint(
+        BlockGetter level, BlockPos pos, BlockState state, int index
+    ) {
+        Direction attachment = state.getValue(ATTACHMENT);
+        Direction tangent = getLocalDirection(attachment, index);
+        BlockPos endpoint = endpoint(pos, attachment, tangent);
+        BlockPos supportPos = pos.relative(attachment);
+
+        // An endpoint has at most 24 oriented representations: six attachment faces by four tangents.
+        for (Direction candidateAttachment : Direction.values()) {
+            for (int candidateIndex = 0; candidateIndex < 4; candidateIndex++) {
+                Direction candidateTangent = getLocalDirection(candidateAttachment, candidateIndex);
+                int x = endpoint.getX() - 1 - candidateAttachment.getStepX() - candidateTangent.getStepX();
+                int y = endpoint.getY() - 1 - candidateAttachment.getStepY() - candidateTangent.getStepY();
+                int z = endpoint.getZ() - 1 - candidateAttachment.getStepZ() - candidateTangent.getStepZ();
+                if ((x & 1) != 0 || (y & 1) != 0 || (z & 1) != 0) {
+                    continue;
+                }
+                BlockPos candidatePos = new BlockPos(x / 2, y / 2, z / 2);
+                if (candidatePos.equals(pos)) {
+                    continue;
+                }
+                BlockState candidate = level.getBlockState(candidatePos);
+                if (!(candidate.getBlock() instanceof RedstoneWireBlock)
+                    || candidate.getValue(ATTACHMENT) != candidateAttachment) {
+                    continue;
+                }
+                if (canConnectDirectly(
+                    level, pos, attachment, tangent, supportPos, candidatePos, candidateAttachment
+                )) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean canConnectDirectly(
+        BlockGetter level,
+        BlockPos pos,
+        Direction attachment,
+        Direction tangent,
+        BlockPos supportPos,
+        BlockPos candidatePos,
+        Direction candidateAttachment
+    ) {
+        if (candidateAttachment == attachment) {
+            return true;
+        }
+        return candidatePos.relative(candidateAttachment).equals(supportPos)
+            && !isCornerBlocked(level, pos, tangent);
     }
 
     private static boolean isCornerBlocked(BlockGetter level, BlockPos pos, Direction tangent) {
@@ -499,8 +575,13 @@ public class RedstoneWireBlock extends Block implements EntityBlock, IHammerRemo
             Connection[] connections = findConnections(level, pos, state);
             network.put(pos, connections);
             for (Connection connection : connections) {
-                if (connection != null && !network.containsKey(connection.pos())) {
-                    queue.addLast(connection.pos());
+                if (connection == null) {
+                    continue;
+                }
+                for (BlockPos connectedPos : connection.positions()) {
+                    if (!network.containsKey(connectedPos)) {
+                        queue.addLast(connectedPos);
+                    }
                 }
             }
         }
@@ -663,7 +744,7 @@ public class RedstoneWireBlock extends Block implements EntityBlock, IHammerRemo
         }
     }
 
-    private record Connection(BlockPos pos, ConnectionType side) {
+    private record Connection(Set<BlockPos> positions, ConnectionType side) {
     }
 
     private record InputPower(int total, int nonDust) {

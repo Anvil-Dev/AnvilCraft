@@ -1,11 +1,18 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -31,16 +38,28 @@ public final class WeaponRaycastUtil {
     }
 
     public static Vec3 visualStart(Player player, double rightOffset) {
-        Vec3 look = player.getViewVector(1.0F);
+        return visualStart(player, 1.0F, rightOffset);
+    }
+
+    public static Vec3 visualStart(Player player, float partialTick, double rightOffset) {
+        return visualStart(player, player.getEyePosition(partialTick), partialTick, rightOffset);
+    }
+
+    public static Vec3 visualStart(Player player, Vec3 eyePosition, float partialTick, double rightOffset) {
+        Vec3 look = player.getViewVector(partialTick);
         Vec3 right = new Vec3(-look.z, 0.0, look.x);
         if (right.lengthSqr() < 1.0E-6) {
             right = Vec3.directionFromRotation(0.0F, player.getYRot() + 90.0F);
         }
         right = right.normalize();
         Vec3 up = right.cross(look).normalize();
-        return player.getEyePosition()
+        HumanoidArm usedArm = player.getUsedItemHand() == InteractionHand.MAIN_HAND
+            ? player.getMainArm()
+            : player.getMainArm().getOpposite();
+        double side = usedArm == HumanoidArm.RIGHT ? 1.0 : -1.0;
+        return eyePosition
             .add(look.scale(MUZZLE_FORWARD_OFFSET))
-            .add(right.scale(rightOffset))
+            .add(right.scale(rightOffset * side))
             .add(up.scale(-MUZZLE_DOWN_OFFSET));
     }
 
@@ -48,6 +67,27 @@ public final class WeaponRaycastUtil {
         BlockHitResult hit = level.clip(new ClipContext(
             ray.start(), ray.end(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, source));
         return hit.getType() == HitResult.Type.MISS ? ray.end() : hit.getLocation();
+    }
+
+    public static BlockHitResult laserBlockHit(Level level, Entity source, Ray ray) {
+        ClipContext context = new ClipContext(
+            ray.start(), ray.end(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, source);
+        return BlockGetter.traverseBlocks(
+            ray.start(),
+            ray.end(),
+            context,
+            (clipContext, pos) -> {
+                BlockState state = level.getBlockState(pos);
+                if (state.is(ModBlockTags.LASER_CAN_PASS_THROUGH)) return null;
+                return level.clipWithInteractionOverride(
+                    ray.start(), ray.end(), pos, clipContext.getBlockShape(state, level, pos), state);
+            },
+            clipContext -> BlockHitResult.miss(
+                ray.end(),
+                Direction.getNearest(ray.end().subtract(ray.start())),
+                BlockPos.containing(ray.end())
+            )
+        );
     }
 
     @Nullable
@@ -65,6 +105,11 @@ public final class WeaponRaycastUtil {
 
     public static List<LivingEntity> livingEntities(Level level, Entity source, Ray ray, int limit) {
         Vec3 end = blockEnd(level, source, ray);
+        return livingEntitiesToEnd(level, source, new Ray(ray.start(), end), limit);
+    }
+
+    public static List<LivingEntity> livingEntitiesToEnd(Level level, Entity source, Ray ray, int limit) {
+        Vec3 end = ray.end();
         Vec3 direction = end.subtract(ray.start());
         List<LivingEntity> result = new ArrayList<>();
         for (LivingEntity entity : level.getEntitiesOfClass(

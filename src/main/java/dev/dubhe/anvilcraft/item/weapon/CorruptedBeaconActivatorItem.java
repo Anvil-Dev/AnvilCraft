@@ -41,11 +41,12 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         int period = 20 - Math.min(quickCharge, 10);
-        boolean pulse = elapsed % period == 0;
+        boolean pulse = elapsed > 0 && elapsed % period == 0;
         if (pulse && !consumeEnergy(player, stack, ENERGY_PER_PULSE, 160_000_000)) return;
 
-        WeaponRaycastUtil.Ray ray = WeaponRaycastUtil.ray(player, 64.0);
-        Vec3 end = WeaponRaycastUtil.blockEnd(level, player, ray);
+        WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 64.0);
+        Vec3 end = WeaponRaycastUtil.laserBlockHit(level, player, fullRay).getLocation();
+        WeaponRaycastUtil.Ray ray = new WeaponRaycastUtil.Ray(fullRay.start(), end);
         Vec3 visualStart = WeaponRaycastUtil.visualStart(player, WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET);
         WeaponBeamEntity.showContinuous(
             level, visualStart, end, WeaponBeamEntity.CORRUPTED, 1, player);
@@ -54,7 +55,7 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
         int power = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.POWER));
         float damage = 10.0F + power * 2.0F;
-        for (LivingEntity target : WeaponRaycastUtil.livingEntities(level, player, ray, Integer.MAX_VALUE)) {
+        for (LivingEntity target : WeaponRaycastUtil.livingEntitiesToEnd(level, player, ray, Integer.MAX_VALUE)) {
             DamageSource source = ModDamageTypes.lostInTime(level, player);
             if (target.hurt(source, damage)) {
                 EnchantmentHelper.doPostAttackEffectsWithItemSource(

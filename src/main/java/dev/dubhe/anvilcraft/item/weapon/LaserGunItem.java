@@ -14,13 +14,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -61,11 +59,14 @@ public class LaserGunItem extends EnergyWeaponItem {
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
         LaserState state = STATES.computeIfAbsent(player.getUUID(), ignored -> new LaserState());
-        WeaponRaycastUtil.Ray ray = WeaponRaycastUtil.ray(player, 48.0);
+        WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 48.0);
+        BlockHitResult blockHit = WeaponRaycastUtil.laserBlockHit(level, player, fullRay);
+        WeaponRaycastUtil.Ray ray = new WeaponRaycastUtil.Ray(fullRay.start(), blockHit.getLocation());
         int piercing = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.PIERCING));
-        List<LivingEntity> targets = WeaponRaycastUtil.livingEntities(level, player, ray, Math.min(5, piercing) + 1);
-        Vec3 end = WeaponRaycastUtil.blockEnd(level, player, ray);
+        List<LivingEntity> targets = WeaponRaycastUtil.livingEntitiesToEnd(
+            level, player, ray, Math.min(5, piercing) + 1);
+        Vec3 end = ray.end();
         int visualStage = targets.isEmpty() ? 0 : Math.min(4, state.targetTicks / 100);
         Vec3 visualStart = WeaponRaycastUtil.visualStart(player, WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET);
         WeaponBeamEntity.showContinuous(
@@ -77,7 +78,7 @@ public class LaserGunItem extends EnergyWeaponItem {
             return;
         }
         state.resetTarget();
-        mine(serverLevel, player, stack, ray, state);
+        mine(serverLevel, player, stack, blockHit, state);
     }
 
     private static void hurtTargets(
@@ -101,23 +102,17 @@ public class LaserGunItem extends EnergyWeaponItem {
             player.hurt(stage == 3 ? player.damageSources().onFire() : player.damageSources().lava(), 4.0F);
         }
         for (LivingEntity target : targets) {
-            List<ItemEntity> drops = new ArrayList<>();
-            target.captureDrops(drops);
             DamageSource source = ModDamageTypes.laser(level, player);
             if (target.hurt(source, DAMAGE[stage])) {
                 EnchantmentHelper.doPostAttackEffectsWithItemSource(
                     level, target, source, stack);
             }
-            target.captureDrops(null);
-            for (ItemEntity drop : drops) player.getInventory().placeItemBackInInventory(drop.getItem());
         }
     }
 
     private static void mine(
-        ServerLevel level, ServerPlayer player, ItemStack stack, WeaponRaycastUtil.Ray ray, LaserState state
+        ServerLevel level, ServerPlayer player, ItemStack stack, BlockHitResult hit, LaserState state
     ) {
-        BlockHitResult hit = level.clip(new ClipContext(
-            ray.start(), ray.end(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (!state.vein.isEmpty() && !hit.getBlockPos().equals(state.miningAnchor)) state.resetMining();
         if (state.vein.isEmpty()) {
             BlockPos origin = hit.getBlockPos();
