@@ -74,7 +74,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
         // craft
         for (int i = 0; i < 4; i++) {
-            this.addSlot(new JewelInputSlot(this.resultContainer, this.craftingContainer, i, 26 + i * 18, 51));
+            this.addSlot(new JewelInputSlot(this.sourceContainer, this.craftingContainer, i, 26 + i * 18, 51));
         }
 
         // player
@@ -180,6 +180,14 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(this.access, player, ModBlocks.JEWEL_CRAFTING_TABLE.get());
+    }
+
+    public @Nullable RecipeHolder<JewelCraftingRecipe> findRecipeBySource(ItemStack source) {
+        return RecipesRecord.getRecipes(this.player.level()).byType(ModRecipeTypes.JEWEL_CRAFTING.get())
+            .stream()
+            .filter(holder -> holder.value().source().test(source))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override

@@ -2,8 +2,10 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -105,6 +107,16 @@ public class BlockEventListener {
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
         BlockState targetState = level.getBlockState(pos);
+        if (
+            !level.isClientSide()
+            && stack.is(ModItems.DISK.get())
+            && level.getBlockEntity(pos) instanceof IDiskCloneable cloneable
+        ) {
+            InteractionResult result = cloneable.useDisk(level, player, hand, stack, event.getHitVec());
+            event.setCancellationResult(result);
+            event.setCanceled(true);
+            return;
+        }
         if (
             stack.getItem() instanceof AnvilHammerItem
             && targetState.getBlock() instanceof IHammerChangeable
