@@ -77,11 +77,13 @@ navigation:
 # 方块流程处理
 
 - 接受包括但不限于上述各种加工方式作为单个环节，可以进行多个不同环节的加工，并循环数次
-- 加工过程中的方块被破坏视为加工失败，返还初始方块的掉落物，但是可以被<ref item="minecraft:piston"/>和<ref item="anvilcraft:sliding_rail"/>推动
+- 加工过程中的方块被破坏视为加工失败，返还初始方块的掉落物，但是可以被<ref item="minecraft:piston"/>和<ref item="anvilcraft:sliding_rail"/>推动以调整位置
 
 <info>
-以<ref item="anvilcraft:redstone_computer"/>为例，它需要依次压入<ref item="anvilcraft:circuit_board"/>、<ref item="anvilcraft:processor"/>、<ref item="anvilcraft:disk"/>
+
+以高效制作<ref item="minecraft:netherite_block"/>为例，<ref item="minecraft:ancient_debris"/>需要与<ref item="minecraft:raw_gold_block"/>、<ref item="minecraft:ancient_debris"/>依次压合，再经过[高温熔炼](../004_block/100_heater.md#高温熔炼)；上述步骤共需重复完成两次
+
 </info>
 
-<recipe id="anvilcraft:procedural_process/redstone_computer_from_procedural"/>
+<recipe id="anvilcraft:procedural_process/netherite_block"/>
     

@@ -6,11 +6,11 @@ navigation:
 
 # Gamma Laser
 
-- Gamma turret is a special type of [Laser](../004_block/201_basic_laser.md#laser)
+- Gamma laser is a special type of [Laser](../004_block/201_basic_laser.md#laser)
 - Comes from <ref item="anvilcraft:celestial_forging_anvil"/>
-- Propagates up to 16 blocks
+- Its maximum propagation distance is 16 blocks
 - Deals 16x the damage of a same-level normal laser to living entities
-- Cannot be deflected by <ref item="anvilcraft:ruby_prism"/>, and will even destroy <ref item="anvilcraft:ruby_prism"/>
+- Cannot be deflected by <ref item="anvilcraft:ruby_prism"/>, and will directly destroy it
 
 # Heating
 

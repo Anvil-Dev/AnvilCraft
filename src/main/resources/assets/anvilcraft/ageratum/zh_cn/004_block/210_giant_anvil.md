@@ -31,8 +31,7 @@ items:
 
 # 便捷合成
 
-获得第一个<ref item="anvilcraft:giant_anvil"/>之后，
-就可以通过**多方块转化**这一方式生产<ref item="anvilcraft:giant_anvil"/>
+获得第一个<ref item="anvilcraft:giant_anvil"/>之后，就可以通过**多方块转化**这一方式生产<ref item="anvilcraft:giant_anvil"/>
 
 # 功能
 
@@ -61,7 +60,7 @@ items:
 
 - <ref item="anvilcraft:giant_anvil"/>的正中心砸中<ref item="anvilcraft:heavy_iron_block"/>时，执行**撼地**操作
 - 此时，其可以影响同一水平面上的方块或实体。根据<ref item="anvilcraft:heavy_iron_block"/>周围方块的不同，撼地产生的效果也不尽相同
-- 坠落高度提高 1 格，影响范围扩大 1 圈
+- 坠落高度提高 1 格，影响范围扩大 1 圈，最大为 16（可在config调整）
 
 ### 定义
 

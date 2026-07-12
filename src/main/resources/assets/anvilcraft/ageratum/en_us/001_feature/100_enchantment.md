@@ -12,11 +12,9 @@ This page showcases the new enchantments and their effects
 
 - Breaking a block produces no drops, but drops 1 experience point instead
 - If the block would normally drop experience, it drops 4x the experience
-
-<info>
-This enchantment is currently unobtainable. Only the <ref item="anvilcraft:frost_anvil"/> has this effect when breaking blocks
-</info>
+- Obtainable via [special method](000_enchanting_table.md)
 
 # Smelting
 
 - When breaking a block, smelts the drops once
+- Obtainable via [special method](000_enchanting_table.md)
