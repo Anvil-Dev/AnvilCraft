@@ -11,14 +11,12 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -87,20 +85,20 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
 
     public boolean onPlayerUse(Player player) {
         ItemStack held = player.getMainHandItem();
-        if (held.isEmpty()) {
-            if (!this.itemHandler.isEmpty()) {
-                if (!player.level().isClientSide()) {
-                    player.getInventory().placeItemBackInInventory(this.itemHandler.getStack());
-                    this.itemHandler.setStack(ItemStack.EMPTY);
-                    setChanged();
-                    this.sendUpdate();
-                }
-                return true;
+        if (this.itemHandler.isEmpty()) {
+            if (held.isEmpty()) return false;
+            if (!player.level().isClientSide()) {
+                this.itemHandler.setStack(held.copyWithCount(1));
+                setChanged();
+                this.sendUpdate();
             }
-            return false;
+            return true;
         }
+        if (!player.isCreative()) return true;
+        if (!held.isEmpty()) return true;
         if (!player.level().isClientSide()) {
-            this.itemHandler.setStack(held.copyWithCount(1));
+            player.getInventory().placeItemBackInInventory(this.itemHandler.getStack());
+            this.itemHandler.setStack(ItemStack.EMPTY);
             setChanged();
             this.sendUpdate();
         }
