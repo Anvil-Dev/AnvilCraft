@@ -86,6 +86,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.function.Consumer;
 
 @Getter
 public class FishTankBlockEntity extends BlockEntity implements IItemResourceHandlerHolder, ItemResourceHandlerCache,
@@ -713,92 +714,139 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     // endregion
 
     // region 流体交互
-    private boolean interactWithFluid(Level level, Player player, InteractionHand hand, ItemStack inHand) {
-        if (FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler)) return true;
-        if (inHand.is(Items.GLASS_BOTTLE)) {
-            return this.tryFillEmptyBottle(level, player, hand, inHand);
+    public boolean interactWithFluid(Level level, Player player, InteractionHand hand, ItemStack inHand) {
+        try (Transaction transaction = Transaction.openRoot()) {
+            boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler, transaction);
+            if (success) {
+                transaction.commit();
+                return true;
+            }
         }
-        return this.tryDrainFilledBottle(level, player, hand, inHand);
+        if (inHand.is(Items.GLASS_BOTTLE)) {
+            return FishTankBlockEntity.tryFillEmptyBottle(
+                level,
+                this.getBlockPos(),
+                player,
+                inHand,
+                result -> player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result)),
+                this.fluidHandler
+            );
+        }
+        return FishTankBlockEntity.tryDrainFilledBottle(
+            level,
+            this.getBlockPos(),
+            player,
+            inHand,
+            result -> player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result)),
+            this.fluidHandler
+        );
     }
 
-    private boolean tryFillEmptyBottle(Level level, Player player, InteractionHand hand, ItemStack inHand) {
-        FluidStack stack = this.fluidHandler.getStack();
-        BlockPos pos = this.getBlockPos();
+    public static boolean tryFillEmptyBottle(
+        Level level,
+        BlockPos pos,
+        @Nullable Player player,
+        ItemStack bottle,
+        Consumer<ItemStack> setter,
+        FluidStackResourceHandler handler
+    ) {
+        ItemStack result = null;
+        FluidStack stack = handler.getStack();
         if (stack.is(Fluids.WATER)) {
             try (Transaction transaction = Transaction.openRoot()) {
-                int extracted = this.fluidHandler.extract(0, FluidResource.of(stack), 250, transaction);
+                int extracted = handler.extract(0, FluidResource.of(stack), 250, transaction);
                 if (extracted != 250) return false;
                 if (level.isClientSide()) return true;
                 transaction.commit();
+                result = Items.POTION.getDefaultInstance();
             }
-
-            ItemStack result = Items.POTION.getDefaultInstance();
-            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result));
-            player.awardStat(Stats.USE_CAULDRON);
-            player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-            level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS);
-            level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-            return true;
+        } else if (stack.is(ModFluids.HONEY)) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                int extracted = handler.extract(0, FluidResource.of(stack), 250, transaction);
+                if (extracted != 250) return false;
+                if (level.isClientSide()) return true;
+                transaction.commit();
+                result = Items.HONEY_BOTTLE.getDefaultInstance();
+            }
         } else if (stack.is(ModFluids.EXP_FLUID)) {
             try (Transaction transaction = Transaction.openRoot()) {
-                int extracted = this.fluidHandler.extract(0, FluidResource.of(stack), 250, transaction);
+                int extracted = handler.extract(0, FluidResource.of(stack), 250, transaction);
                 if (extracted != 250) return false;
                 if (level.isClientSide()) return true;
                 transaction.commit();
+                result = Items.EXPERIENCE_BOTTLE.getDefaultInstance();
             }
-
-            ItemStack result = Items.EXPERIENCE_BOTTLE.getDefaultInstance();
-            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result));
-            player.awardStat(Stats.USE_CAULDRON);
-            player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-            level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS);
-            level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-            return true;
         }
-        return false;
+
+        if (result == null) {
+            return false;
+        }
+
+        setter.accept(result);
+        if (player != null) {
+            player.awardStat(Stats.FILL_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(bottle.getItem()));
+        }
+        level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
+        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
+        return true;
     }
 
-    private boolean tryDrainFilledBottle(Level level, Player player, InteractionHand hand, ItemStack inHand) {
-        if (inHand.has(DataComponents.POTION_CONTENTS)) {
-            PotionContents contents = inHand.get(DataComponents.POTION_CONTENTS);
+    public static boolean tryDrainFilledBottle(
+        Level level,
+        BlockPos pos,
+        @Nullable Player player,
+        ItemStack bottle,
+        Consumer<ItemStack> setter,
+        FluidStackResourceHandler handler
+    ) {
+        boolean success = false;
+        if (bottle.has(DataComponents.POTION_CONTENTS)) {
+            PotionContents contents = bottle.get(DataComponents.POTION_CONTENTS);
             if (Objects.requireNonNull(contents).potion().isEmpty()) return false;
             Holder<Potion> potion = contents.potion().get();
             if (potion == Potions.WATER) {
                 try (Transaction transaction = Transaction.openRoot()) {
-                    int inserted = this.fluidHandler.insert(0, FluidResource.of(Fluids.WATER), 250, transaction);
+                    int inserted = handler.insert(0, FluidResource.of(Fluids.WATER), 250, transaction);
                     if (inserted != 250) return false;
                     if (level.isClientSide()) return true;
                     transaction.commit();
+                    success = true;
                 }
-
-                player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, Items.GLASS_BOTTLE.getDefaultInstance()));
-                player.awardStat(Stats.FILL_CAULDRON);
-                player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-                BlockPos pos = this.getBlockPos();
-                level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
-                level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
-                return true;
             }
-        } else if (inHand.is(Items.EXPERIENCE_BOTTLE)) {
+        } else if (bottle.is(Items.HONEY_BOTTLE)) {
             try (Transaction transaction = Transaction.openRoot()) {
-                int inserted = this.fluidHandler.insert(0, FluidResource.of(ModFluids.EXP_FLUID), 250, transaction);
+                int inserted = handler.insert(0, FluidResource.of(ModFluids.HONEY), 250, transaction);
+                if (inserted != 250) return false;
+                if (level.isClientSide()) return true;
+                transaction.commit();
+                success = true;
+            }
+        } else if (bottle.is(Items.EXPERIENCE_BOTTLE)) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                int inserted = handler.insert(0, FluidResource.of(ModFluids.EXP_FLUID), 250, transaction);
                 if (inserted != 250) return false;
                 if (level.isClientSide()) return true;
                 // 50%概率
                 if (level.getRandom().nextBoolean()) {
                     transaction.commit();
+                    success = true;
                 }
             }
-
-            player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, Items.GLASS_BOTTLE.getDefaultInstance()));
-            player.awardStat(Stats.FILL_CAULDRON);
-            player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
-            BlockPos pos = this.getBlockPos();
-            level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
-            level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
-            return true;
         }
-        return false;
+
+        if (!success) {
+            return false;
+        }
+
+        setter.accept(Items.GLASS_BOTTLE.getDefaultInstance());
+        if (player != null) {
+            player.awardStat(Stats.FILL_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(bottle.getItem()));
+        }
+        level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
+        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
+        return true;
     }
 
     public void entityInsideFluidContent(Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier) {
@@ -850,7 +898,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             this.fishes.add(TropicalFishData.fromBucket(inHand));
             level.playSound(player, this.getBlockPos(), SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
             player.setItemInHand(hand, Items.WATER_BUCKET.getDefaultInstance());
-            FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler);
+            try (Transaction transaction = Transaction.openRoot()) {
+                boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler, transaction);
+                if (success) transaction.commit();
+            }
             if (player.hasInfiniteMaterials()) {
                 player.setItemInHand(hand, inHand);
             }
@@ -875,7 +926,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             player.awardStat(Stats.USE_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
             TropicalFishData fishData = this.fishes.removeLast();
-            FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler);
+            try (Transaction transaction = Transaction.openRoot()) {
+                boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler, transaction);
+                if (success) transaction.commit();
+            }
             level.playSound(player, this.getBlockPos(), SoundEvents.BUCKET_FILL_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
             player.setItemInHand(hand, fishData.toBucket());
             return true;

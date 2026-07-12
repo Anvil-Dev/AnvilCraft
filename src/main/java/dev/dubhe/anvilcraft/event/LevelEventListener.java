@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftBlockPlacerFakePlayer;
-import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftDestroyerFakePlayer;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeBlockPlacer;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeDestroyer;
+import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeKiller;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
-import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftKillerFakePlayer;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
@@ -21,10 +21,10 @@ public class LevelEventListener {
     /// 世界加载事件
     @SubscribeEvent
     public static void onLevelLoad(LevelEvent.Load event) {
-        if (event.getLevel() instanceof ServerLevel serverLevel) {
-            AnvilCraftFakePlayers.anvilcraftBlockPlacer = new AnvilCraftBlockPlacerFakePlayer(serverLevel);
-            AnvilCraftFakePlayers.anvilcraftKiller = new AnvilCraftKillerFakePlayer();
-            AnvilCraftFakePlayers.anvilcraftDestroyer = new AnvilCraftDestroyerFakePlayer();
+        if (event.getLevel() instanceof ServerLevel) {
+            AnvilCraftFakePlayers.blockPlacer = new AnvilCraftFakeBlockPlacer();
+            AnvilCraftFakePlayers.killer = new AnvilCraftFakeKiller();
+            AnvilCraftFakePlayers.destroyer = new AnvilCraftFakeDestroyer();
         }
     }
 

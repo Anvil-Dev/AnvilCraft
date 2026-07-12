@@ -26,6 +26,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     public static final int CAPACITY = 320 * FluidType.BUCKET_VOLUME;
@@ -115,7 +116,11 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         this.checkInfinity();
-        return FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.getFluidHandler());
+        try (Transaction transaction = Transaction.openRoot()) {
+            boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.tank, transaction);
+            if (success) transaction.commit();
+            return success;
+        }
     }
 
     public FluidStacksResourceHandler getTank() {

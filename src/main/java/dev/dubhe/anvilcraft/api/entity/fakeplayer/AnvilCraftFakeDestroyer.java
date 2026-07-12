@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,16 +16,16 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.IntFunction;
 
-public class AnvilCraftDestroyerFakePlayer {
+public class AnvilCraftFakeDestroyer {
     static final IntFunction<GameProfile> FAKE_PROFILE_FACTORY = num -> new GameProfile(
         UUID.randomUUID(),
-        "[Destroyer of AnvilCraft No." + num + "]"
+        "[AnvilCraft Fake Destroyer No." + num + "]"
     );
     private static final Queue<Destroyer> DISABLED_DESTROYERS = new ConcurrentLinkedQueue<>();
     private static final List<Destroyer> ENABLED_DESTROYERS = Collections.synchronizedList(new ArrayList<>());
-    private static ItemStack DUMMY_BREAK_TOOL = null;
+    private static @Nullable ItemStack DUMMY_BREAK_TOOL = null;
 
-    public AnvilCraftDestroyerFakePlayer() {
+    public AnvilCraftFakeDestroyer() {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
@@ -44,7 +45,7 @@ public class AnvilCraftDestroyerFakePlayer {
     }
 
     public void disable(ServerPlayer player) {
-        for (Destroyer destroyer : AnvilCraftDestroyerFakePlayer.ENABLED_DESTROYERS) {
+        for (Destroyer destroyer : AnvilCraftFakeDestroyer.ENABLED_DESTROYERS) {
             if (!destroyer.getUUID().equals(player.getUUID())) continue;
             destroyer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             DISABLED_DESTROYERS.offer(destroyer);
@@ -59,7 +60,7 @@ public class AnvilCraftDestroyerFakePlayer {
         }
 
         private static GameProfile create(int profile) {
-            return AnvilCraftDestroyerFakePlayer.FAKE_PROFILE_FACTORY.apply(profile + 1);
+            return AnvilCraftFakeDestroyer.FAKE_PROFILE_FACTORY.apply(profile + 1);
         }
 
         public UUID getUUID() {

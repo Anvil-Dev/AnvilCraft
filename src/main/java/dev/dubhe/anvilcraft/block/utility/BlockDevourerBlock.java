@@ -293,9 +293,9 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         devourBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
         devourBlockState = level.getBlockState(devourBlockPos);
         if (anvil instanceof FrostAnvilBlock) {
-            ServerPlayer destroyer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(level);
+            ServerPlayer destroyer = AnvilCraftFakePlayers.getDestroyer().offerPlayer(level);
             ItemStack dummyTool = BreakBlockUtil.getDummyDisintegrationTool(level);
-            AnvilCraftFakePlayers.anvilcraftDestroyer.enabledDestroy(destroyer, dummyTool);
+            AnvilCraftFakePlayers.getDestroyer().enabledDestroy(destroyer, dummyTool);
             ExperienceOrb.award(
                 level,
                 center,
@@ -305,7 +305,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                     devourBlockState.getExpDrop(level, devourBlockPos, level.getBlockEntity(devourBlockPos), destroyer, dummyTool)
                 )
             );
-            AnvilCraftFakePlayers.anvilcraftDestroyer.disable(destroyer);
+            AnvilCraftFakePlayers.getDestroyer().disable(destroyer);
         } else {
             List<ItemStack> dropList = switch (anvil) {
                 case RoyalAnvilBlock ignore -> BreakBlockUtil.dropSilkTouch(level, devourBlockPos);
@@ -338,12 +338,14 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             transferLecternContents(level, itemHandlerList, center, lectern, insertEnabled, dropOriginalPlace);
         }
         if (!(devourBlockState.getBlock() instanceof DoublePlantBlock)) {
+            ServerPlayer player = AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(level);
             devourBlockState.getBlock().playerWillDestroy(
                 level,
                 devourBlockPos,
                 devourBlockState,
-                AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer()
+                player
             );
+            AnvilCraftFakePlayers.getBlockPlacer().disable(player);
         }
         level.destroyBlock(devourBlockPos, false);
         TriggerUtil.devourerDevourBlock(level, devourBlockPos, devourBlockState.getBlock());

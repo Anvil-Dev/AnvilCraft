@@ -16,6 +16,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -48,7 +49,7 @@ abstract class PlayerMixin extends LivingEntity {
             && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
             && !this.level().isClientSide()
         ) {
-            ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
+            ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer((ServerLevel) this.level());
             this.setLastHurtByPlayer(killer, 1);
             killerRef.set(killer);
             DamageSource newSource = new DamageSource(
@@ -56,7 +57,7 @@ abstract class PlayerMixin extends LivingEntity {
                 falling, killer, source.getSourcePosition()
             );
             if (falling.getBlockState().getBlock() instanceof TranscendenceAnvilBlock) {
-                AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
+                AnvilCraftFakePlayers.getKiller().enableLooting5((ServerLevel) this.level(), killer);
             }
             return newSource;
         }
@@ -64,8 +65,9 @@ abstract class PlayerMixin extends LivingEntity {
     }
 
     @Inject(method = "die", at = @At("RETURN"))
-    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
-        if (killerRef.get() == null) return;
-        AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
+    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<@Nullable ServerPlayer> killerRef) {
+        ServerPlayer player = killerRef.get();
+        if (player == null) return;
+        AnvilCraftFakePlayers.getKiller().disable(player);
     }
 }
