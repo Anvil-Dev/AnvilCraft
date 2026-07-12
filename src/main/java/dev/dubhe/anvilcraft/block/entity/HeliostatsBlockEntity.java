@@ -12,6 +12,7 @@ import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.LightLayer;
@@ -136,7 +137,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
             ClipContext.Fluid.NONE,
             player
         ));
-        AnvilCraftFakePlayers.getBlockPlacer().disable(dev.anvilcraft.lib.v2.util.Util.cast(player));
+        if (player instanceof ServerPlayer) {
+            AnvilCraftFakePlayers.getBlockPlacer().disable((ServerPlayer) player);
+        }
         if (!blockHitResult.getBlockPos().equals(irritatePos)) {
             return WorkResult.OBSCURED;
         }
