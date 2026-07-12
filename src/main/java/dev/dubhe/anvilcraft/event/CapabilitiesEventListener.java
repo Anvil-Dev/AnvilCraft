@@ -103,7 +103,7 @@ public class CapabilitiesEventListener {
         event.registerItem(
             Capabilities.FluidHandler.ITEM,
             (stack, ctx) -> new BottleFluidHandler(stack),
-            Items.HONEY_BOTTLE, Items.GLASS_BOTTLE, Items.POTION, Items.EXPERIENCE_BOTTLE
+            Items.HONEY_BOTTLE, Items.GLASS_BOTTLE
         );
 
         event.registerBlockEntity(

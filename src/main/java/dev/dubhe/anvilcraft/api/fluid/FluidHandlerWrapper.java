@@ -7,14 +7,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -62,6 +69,29 @@ public class FluidHandlerWrapper {
      * 判断包装器是否持有有效的流体处理器。
      */
     public boolean isValid() {
+        return true;
+    }
+
+    public static boolean tryFillFromExperienceBottle(
+        Player player,
+        InteractionHand hand,
+        IFluidHandler handler,
+        Level level,
+        BlockPos pos
+    ) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!stack.is(Items.EXPERIENCE_BOTTLE)) return false;
+        FluidHandlerWrapper wrapper = new FluidHandlerWrapper(handler);
+        if (level.isClientSide()) {
+            return wrapper.fillFromItem(stack, true, null) != null;
+        }
+        ItemStack result = wrapper.fillFromItem(stack, false, level.getRandom());
+        if (result == null) return false;
+        player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, result));
+        player.awardStat(Stats.FILL_CAULDRON);
+        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS);
+        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
         return true;
     }
 

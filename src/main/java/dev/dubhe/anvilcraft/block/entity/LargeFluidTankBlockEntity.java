@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluidtank.LargeFluidInfinityTank;
@@ -187,6 +188,10 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         this.checkInfinity();
+        if (this.level != null
+            && FluidHandlerWrapper.tryFillFromExperienceBottle(player, hand, this.getFluidHandler(), this.level, this.getBlockPos())) {
+            return true;
+        }
         return FluidUtil.interactWithFluidHandler(player, hand, this.getFluidHandler());
     }
 
