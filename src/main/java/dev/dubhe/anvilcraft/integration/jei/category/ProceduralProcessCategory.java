@@ -38,14 +38,14 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     public static final int WIDTH = 162;
     public static final int HEIGHT = 70;
     private static final int MAX_VISIBLE_STEPS = 5;
-    private static final int STEPS_START_X = 38;
-    private static final int STEPS_WIDTH = 86;
-    private static final int ITEM_Y = 25;
-    private static final int BLOCK_Y = 46;
+    private static final int STEPS_LENGTH = 120;
+    private static final int STEP_X = (WIDTH - STEPS_LENGTH) / 2 + 10;
+    private static final int STEP_LENGTH = 20;
+    private static final int ITEM_Y = 14;
+    private static final int BLOCK_Y = 36;
 
     private final IDrawable icon;
     private final IDrawable slot;
-    private final IDrawable arrow;
     private final IDrawable longArrow;
     private final IDrawable cycle;
     private final Component title;
@@ -53,7 +53,6 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     public ProceduralProcessCategory(IGuiHelper helper) {
         this.icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         this.slot = JeiRenderHelper.getSlotDefault(helper);
-        this.arrow = JeiRenderHelper.getArrowDefault(helper);
         this.longArrow = JeiRenderHelper.getArrowLong(helper);
         this.cycle = JeiRenderHelper.getCycle(helper);
         this.title = Component.translatable("gui.anvilcraft.category.procedural_process");
@@ -122,8 +121,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         double mouseY
     ) {
         ProceduralProcessRecipe recipe = holder.value();
-        renderPredicate(graphics, recipe.getInitialBlock(), 5, BLOCK_Y, 16);
-        this.arrow.draw(graphics, 20, BLOCK_Y + 2);
+        renderPredicate(graphics, recipe.getInitialBlock(), STEP_X - 20, BLOCK_Y, 14);
 
         int visibleSteps = Math.min(recipe.getSteps().size(), MAX_VISIBLE_STEPS);
         for (int index = 0; index < visibleSteps; index++) {
@@ -136,34 +134,33 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             }
             List<BlockStatePredicate> inputBlocks = process.getInputBlocks();
             for (int inputIndex = inputBlocks.size() - 1; inputIndex >= 0; inputIndex--) {
-                int offset = Math.min(inputIndex, 2);
                 renderPredicate(
                     graphics,
                     inputBlocks.get(inputIndex),
-                    x - 7 + offset * 2,
-                    BLOCK_Y - offset * 5,
+                    x - 7,
+                    BLOCK_Y + inputIndex * 10,
                     14
                 );
             }
         }
 
-        this.longArrow.draw(graphics, 49, 60);
+        this.longArrow.draw(graphics, WIDTH / 2 - 32, BLOCK_Y + 20);
         if (recipe.getLoop() > 1) {
-            this.cycle.draw(graphics, 4, 4);
+            this.cycle.draw(graphics, WIDTH / 2 + 52, BLOCK_Y + 14);
             AgeratumUtil.renderText(
                 graphics,
                 Component.literal(String.valueOf(recipe.getLoop())),
-                21,
-                8
+                WIDTH / 2 + 68,
+                BLOCK_Y + 18,
+                1.2F
             );
         }
-        this.arrow.draw(graphics, 126, BLOCK_Y + 2);
         RenderSupport.renderBlock(graphics, recipe.getResultBlock().state(), 145, BLOCK_Y, 16);
     }
 
     private static int stepX(int index, int visibleSteps) {
-        if (visibleSteps <= 1) return STEPS_START_X + STEPS_WIDTH / 2;
-        return STEPS_START_X + index * STEPS_WIDTH / (visibleSteps - 1);
+        int gap = STEPS_LENGTH / Math.max(visibleSteps, 1) - STEP_LENGTH;
+        return STEP_X + gap / 2 + index * (STEP_LENGTH + gap);
     }
 
     private static void renderPredicate(
