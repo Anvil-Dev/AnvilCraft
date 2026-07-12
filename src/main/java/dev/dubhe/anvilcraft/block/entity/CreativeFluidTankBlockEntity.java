@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
@@ -92,6 +93,10 @@ public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidR
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
-        return FluidUtil.interactWithFluidHandler(player, hand, worldPosition, this.fluidHandler);
+        try (Transaction transaction = Transaction.openRoot()) {
+            boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.fluidHandler, transaction);
+            if (success) transaction.commit();
+            return success;
+        }
     }
 }

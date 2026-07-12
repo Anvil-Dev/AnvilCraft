@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.init.item.tabs;
 
+import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import net.minecraft.world.item.BucketItem;
 
 public class Ingredients extends DisplayItemsGenerator {
     @Override
@@ -76,5 +78,8 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.EXP_BUCKET); // 液态经验桶
         this.plain(ModItems.OIL_BUCKET); // 原油桶
         this.plain(ModItems.MELT_GEM_BUCKET); // 熔融宝石桶
+        for (ItemEntry<BucketItem> entry : ModItems.CEMENT_BUCKETS.values()) { // x色水泥桶
+            this.plain(entry.asItem());
+        }
     }
 }

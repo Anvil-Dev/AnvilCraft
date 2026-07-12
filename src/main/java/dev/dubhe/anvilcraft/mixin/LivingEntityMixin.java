@@ -32,6 +32,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -77,7 +78,7 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
             case FallingBlockEntity falling when !this.level().isClientSide() -> {
                 Block anvil = falling.getBlockState().getBlock();
                 if (!Util.instanceOfAny(anvil, FrostAnvilBlock.class, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) return source;
-                ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
+                ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer((ServerLevel) this.level());
                 this.setLastHurtByPlayer(killer.getGameProfile().id(), 1);
                 killerRef.set(killer);
                 DamageSource damageSource = new DamageSource(
@@ -87,9 +88,9 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
                     source.getSourcePosition()
                 );
                 if (anvil instanceof TranscendenceAnvilBlock) {
-                    AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
+                    AnvilCraftFakePlayers.getKiller().enableLooting5((ServerLevel) this.level(), killer);
                 } else if (anvil instanceof FrostAnvilBlock) {
-                    AnvilCraftFakePlayers.anvilcraftKiller.enableDisintegration((ServerLevel) this.level(), killer);
+                    AnvilCraftFakePlayers.getKiller().enableDisintegration((ServerLevel) this.level(), killer);
                 }
                 return damageSource;
             }
@@ -100,9 +101,10 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
     }
 
     @Inject(method = "die", at = @At("RETURN"))
-    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
-        if (killerRef.get() == null) return;
-        AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
+    private void disableKiller(DamageSource source, CallbackInfo ci, @Share("killer") LocalRef<@Nullable ServerPlayer> killerRef) {
+        ServerPlayer player = killerRef.get();
+        if (player == null) return;
+        AnvilCraftFakePlayers.getKiller().disable(player);
     }
 
     @Inject(

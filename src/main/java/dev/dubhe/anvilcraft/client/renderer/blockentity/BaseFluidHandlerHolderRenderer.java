@@ -76,9 +76,8 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
             resource.getFluid()
         );
         var tintSource = model.fluidTintSource();
-        if (tintSource == null) return;
+        int tintColor = tintSource != null ? tintSource.colorAsStack(resource.toStack(1)) : -1;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        int tintColor = tintSource.colorAsStack(resource.toStack(1));
         float minY = state.getMinY();
         float maxY = minY + (state.getMaxY() - minY) * state.getFill();
         submitNodeCollector.submitCustomGeometry(
@@ -97,7 +96,7 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
                 buffer,
                 pose,
                 state.lightCoords,
-                false,
+                true,
                 false
             )
         );
