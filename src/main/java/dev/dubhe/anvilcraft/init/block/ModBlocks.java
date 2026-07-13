@@ -207,6 +207,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
+import dev.dubhe.anvilcraft.item.block.CreativeContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.block.EndDustBlockItem;
 import dev.dubhe.anvilcraft.item.block.FishTankBlockItem;
@@ -435,7 +436,8 @@ public class ModBlocks {
                 BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
             )
         ))
-        .simpleItem()
+        .item(CreativeContainerBlockItem::new)
+        .build()
         .register();
 
     public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRUM.block("fluid_tank", FluidTankBlock::new)
@@ -476,7 +478,8 @@ public class ModBlocks {
                 ctx.get(),
                 BlockModelGenerators.plainVariant(ctx.getId().withPrefix("block/"))
             )))
-        .simpleItem()
+        .item(CreativeContainerBlockItem::new)
+        .build()
         .register();
 
     public static final BlockEntry<CrateBlock> CRATE = REGISTRUM

@@ -63,7 +63,7 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
         if (!this.itemHandler.isEmpty()) {
-            components.set(ModComponents.DISPLAY_ITEM, new StoredItem(this.itemHandler.getStack()));
+            components.set(ModComponents.DISPLAY_ITEM, new StoredItem(this.itemHandler.getStack().copyWithCount(1)));
         }
     }
 
@@ -106,9 +106,10 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
 
     public boolean onPlayerUse(Player player) {
         ItemStack held = player.getMainHandItem();
+        if (this.level == null) return false;
         if (this.itemHandler.isEmpty()) {
             if (held.isEmpty()) return false;
-            if (!player.level().isClientSide()) {
+            if (!this.level.isClientSide()) {
                 this.itemHandler.setStack(held.copyWithCount(1));
                 setChanged();
                 this.sendUpdate();
@@ -117,7 +118,7 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
         }
         if (!player.isCreative()) return true;
         if (!held.isEmpty()) return true;
-        if (!player.level().isClientSide()) {
+        if (!this.level.isClientSide()) {
             player.getInventory().placeItemBackInInventory(this.itemHandler.getStack());
             this.itemHandler.setStack(ItemStack.EMPTY);
             setChanged();
@@ -127,14 +128,15 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
     }
 
     public boolean onPlayerAttack(Player player) {
+        if (this.level == null) return false;
         if (this.itemHandler.isEmpty()) return false;
-        if (player.level().isClientSide()) return true;
+        if (this.level.isClientSide()) return true;
 
         ItemStack stored = this.itemHandler.getStack();
         int count = player.isShiftKeyDown() && !player.isCreative() ? stored.getMaxStackSize() : 1;
         ItemStack extracted = stored.copyWithCount(count);
         if (!player.addItem(extracted)) {
-            Block.popResource(player.level(), BlockPos.containing(player.position()), extracted);
+            Block.popResource(this.level, BlockPos.containing(player.position()), extracted);
         }
         if (player.isCreative()) {
             this.itemHandler.setStack(ItemStack.EMPTY);
