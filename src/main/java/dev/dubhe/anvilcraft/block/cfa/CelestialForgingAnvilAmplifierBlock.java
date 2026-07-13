@@ -309,7 +309,12 @@ public class CelestialForgingAnvilAmplifierBlock
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state
             .setValue(HALF, mirrorHalf(state.getValue(HALF), mirror))
-            .setValue(FACING, mirror.mirror(state.getValue(FACING)));
+            .setValue(FACING, mirrorFacing(state.getValue(FACING), mirror));
+    }
+
+    private static Direction mirrorFacing(Direction facing, Mirror mirror) {
+        Direction mirrored = mirror.mirror(facing);
+        return mirror == Mirror.NONE ? mirrored : Rotation.CLOCKWISE_90.rotate(mirrored);
     }
 
     /// 将 HALF 按角色语义旋转：同层的 4 个部件沿 PART → W → WS → S → PART 循环。

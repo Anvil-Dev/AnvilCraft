@@ -1,6 +1,3 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "anvilcraft:item/redstone_wire"
-  }
+  "parent": "anvilcraft:block/redstone_wire_item"
 }

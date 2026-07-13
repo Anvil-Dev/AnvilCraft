@@ -4208,7 +4208,8 @@ public class ModBlocks {
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(RedstoneWireBlockStateGenerator::generate)
         .item(RedstoneWireBlockItem::new)
-        .model((ctx, provider) -> provider.generated(ctx))
+        .model((ctx, provider) ->
+            provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/redstone_wire_item")))
         .build()
         .recipe(RegistrumBlockRecipeLoader::redstoneWire)
         .register();
