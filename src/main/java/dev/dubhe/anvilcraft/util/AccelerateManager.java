@@ -36,7 +36,7 @@ public class AccelerateManager {
         BlockPos selectedRing = null;
         Direction selectedDirection = null;
         double bestAlignment = Double.NEGATIVE_INFINITY;
-        for (BlockPos pos : AccelerationRingBlockEntity.getAllBlocks(level)) {
+        for (BlockPos pos : AccelerationRingBlockEntity.getBlocksAt(level, center)) {
             AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
             if (aabb == null) continue;
             if (!aabb.contains(center)) continue;
@@ -71,7 +71,7 @@ public class AccelerateManager {
         if (!canBeAccelerated(entity)) return false;
         Level level = entity.level();
         Vec3 center = getMovementCenter(entity);
-        for (BlockPos pos : AccelerationRingBlockEntity.getAllBlocks(level)) {
+        for (BlockPos pos : AccelerationRingBlockEntity.getBlocksAt(level, center)) {
             AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
             if (aabb != null && aabb.contains(center) && isActiveAccelerationRing(level.getBlockState(pos))) {
                 return true;
@@ -91,7 +91,7 @@ public class AccelerateManager {
         AccelerationEntry nearestEntry = null;
         double nearestProgress = Double.POSITIVE_INFINITY;
         double bestAlignment = Double.NEGATIVE_INFINITY;
-        for (BlockPos pos : AccelerationRingBlockEntity.getAllBlocks(level)) {
+        for (BlockPos pos : AccelerationRingBlockEntity.getBlocksAlongMovement(level, start, movement)) {
             AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
             if (aabb == null) continue;
             BlockState state = level.getBlockState(pos);
