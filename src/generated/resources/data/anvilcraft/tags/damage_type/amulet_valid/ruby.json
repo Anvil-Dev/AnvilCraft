@@ -1,5 +1,9 @@
 {
   "values": [
-    "#minecraft:is_fire"
+    "#minecraft:is_fire",
+    {
+      "id": "anvilcraft:laser",
+      "required": false
+    }
   ]
 }

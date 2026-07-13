@@ -72,7 +72,8 @@ public class ModAdvancementsHandler {
                 ModBlocks.SMART_BLOCK_PLACER.asItem(),
                 Component.translatable("advancements.anvilcraft.placer_shuttle.title"),
                 Component.translatable("advancements.anvilcraft.placer_shuttle.description"),
-                AdvancementType.GOAL
+                AdvancementType.GOAL,
+                true
             )
             .placerShuttle("placer_shuttle")
             .save(provider, "placer_shuttle");
