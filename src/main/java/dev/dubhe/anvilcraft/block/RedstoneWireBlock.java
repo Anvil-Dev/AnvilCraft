@@ -32,15 +32,23 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
-/** A surface-mounted, non-attenuating redstone network with electrical contacts at its visible open ends. */
+/**
+ * 可附着在任意方块表面的无衰减红石导线。
+ *
+ * <p>四个方向属性描述的是附着面内的局部方向，而不是固定的世界水平面方向。相邻导线通过几何端点组成网络，只有断口才会与外部红石元件交换信号。</p>
+ */
 public class RedstoneWireBlock extends Block implements IHammerRemovable {
+    /** 附着面内四个局部方向的连接外观。 */
     public static final EnumProperty<ConnectionType> NORTH = EnumProperty.create("north", ConnectionType.class);
     public static final EnumProperty<ConnectionType> EAST = EnumProperty.create("east", ConnectionType.class);
     public static final EnumProperty<ConnectionType> SOUTH = EnumProperty.create("south", ConnectionType.class);
     public static final EnumProperty<ConnectionType> WEST = EnumProperty.create("west", ConnectionType.class);
     public static final List<EnumProperty<ConnectionType>> CONNECTION_PROPERTIES = List.of(NORTH, EAST, SOUTH, WEST);
+    /** 整个连通网络共享的信号强度。 */
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
+    /** 从导线位置指向其支撑方块的方向。 */
     public static final DirectionProperty ATTACHMENT = DirectionProperty.create("attachment");
+    /** 是否在中心绘制接线点。 */
     public static final BooleanProperty DOT = BooleanProperty.create("dot");
 
     private static final Map<Direction, VoxelShape> DOT_SHAPES = new EnumMap<>(Direction.class);
@@ -49,6 +57,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     private static final Map<Direction, List<VoxelShape>> UP_SHAPES = new EnumMap<>(Direction.class);
 
     static {
+        // 碰撞/选取形状只由附着方向和连接类型决定，预计算可避免每次光线检测都重复坐标变换与形状合并。
         for (Direction attachment : Direction.values()) {
             Direction north = getLocalDirection(attachment, 0);
             DOT_SHAPES.put(attachment, transformedBox(attachment, north, 4.0, 0.0, 4.0, 12.0, 2.5, 12.0));
@@ -69,6 +78,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
 
     public RedstoneWireBlock(Properties properties) {
         super(properties);
+        // 默认保留一条南北向直线，使孤立导线刚放下时也有可见且可重新定向的形状。
         this.registerDefaultState(this.stateDefinition.any()
             .setValue(NORTH, ConnectionType.SIDE)
             .setValue(EAST, ConnectionType.NONE)
@@ -84,6 +94,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         Direction attachment = context.getClickedFace().getOpposite();
         BlockState state = emptyState(this.defaultBlockState().setValue(ATTACHMENT, attachment));
         Direction preferred = getLocalDirection(attachment, 0);
+        // 用玩家视线在附着面上的主要方向决定孤立导线朝向，避免墙面导线总沿固定世界轴放置。
         for (Direction direction : context.getNearestLookingDirections()) {
             if (direction.getAxis() != attachment.getAxis()) {
                 preferred = direction;
@@ -91,6 +102,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             }
         }
         int index = getLocalIndex(attachment, preferred);
+        // 先生成一条直线，再让 connectionState 根据真实邻居扩展为拐角、分叉或爬升形态。
         state = state.setValue(CONNECTION_PROPERTIES.get(index), ConnectionType.SIDE)
             .setValue(CONNECTION_PROPERTIES.get((index + 2) % 4), ConnectionType.SIDE);
         return this.connectionState(context.getLevel(), context.getClickedPos(), state);
@@ -101,6 +113,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         Direction attachment = state.getValue(ATTACHMENT);
         BlockPos supportPos = pos.relative(attachment);
         BlockState support = level.getBlockState(supportPos);
+        // 原版漏斗顶面可放红石粉，但其面坚固性判定不满足这里的通用条件，因此显式兼容。
         return support.isFaceSturdy(level, supportPos, attachment.getOpposite())
             || attachment == Direction.DOWN && support.is(Blocks.HOPPER);
     }
@@ -127,6 +140,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!oldState.is(this)) {
+            // POWER 或外观状态的内部改写不改变网络成员，只有真正新增导线时才使拓扑缓存失效。
             RedstoneWireNetworkManager.topologyChanged(level, pos);
         }
     }
@@ -135,6 +149,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         super.onRemove(state, level, pos, newState, movedByPiston);
         if (!newState.is(this)) {
+            // 先完成方块替换再重建，连接搜索才能看到移除后的真实世界状态。
             RedstoneWireNetworkManager.topologyChanged(level, pos);
         }
     }
@@ -150,12 +165,14 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             dropResources(state, level, pos);
             level.removeBlock(pos, false);
         } else {
+            // Manager 会区分单纯信号变化与几何连接变化，避免每次邻居通知都遍历重建整张网络。
             RedstoneWireNetworkManager.neighborChanged(level, pos, neighborBlock, neighborPos);
         }
     }
 
     @Override
     protected boolean isSignalSource(BlockState state) {
+        // 网络采样外部输入时临时关闭自身输出，否则上一轮 POWER 会被重新读作输入并造成自激锁存。
         return !RedstoneWireNetworkManager.isSuppressingSignal();
     }
 
@@ -172,17 +189,20 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             return false;
         }
         Connection[] cached = RedstoneWireNetworkManager.getConnections(level, pos);
+        // 内部接线端只负责连通网络；仅开放端点应被外部元件视为红石接口。
         return (cached == null ? findConnection(level, pos, state, index) : cached[index]) == null;
     }
 
     @Override
     protected int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        // 导线模拟原版红石粉的弱充能，不直接强充能相邻方块。
         return 0;
     }
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         if (RedstoneWireNetworkManager.isSuppressingSignal()) {
+            // 与 isSignalSource 同时兜底，确保不同红石查询路径在采样阶段都读不到导线自身。
             return 0;
         }
         Direction outputDirection = direction.getOpposite();
@@ -194,6 +214,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         }
         BlockState receiver = level.getBlockState(pos.relative(outputDirection));
         if (receiver.is(Blocks.REDSTONE_WIRE)) {
+            // 不把来自原版红石粉的输入再输出给红石粉，使得红石导线整体像一个完整方块，且避免无衰减网络与粉线组成正反馈回路。
             return RedstoneWireNetworkManager.getNonDustPower(level, pos, state.getValue(POWER));
         }
         return state.getValue(POWER);
@@ -206,16 +227,20 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
 
     private boolean hasWireConnection(BlockGetter level, BlockPos pos, BlockState state, int index) {
         Connection[] cached = RedstoneWireNetworkManager.getConnections(level, pos);
+        // 客户端和缓存尚未建立的服务端仍需即时计算，保证外观与信号查询不会依赖事件执行顺序。
         return (cached == null ? findConnection(level, pos, state, index) : cached[index]) != null;
     }
 
+    /** 根据当前世界重新计算指定导线的四向外观状态。 */
     BlockState connectionState(BlockGetter level, BlockPos pos, BlockState oldState) {
         return this.connectionState(level, pos, oldState, findConnections(level, pos, oldState));
     }
 
+    /** 使用已经求出的连接关系生成方块状态，供网络重建时避免重复搜索。 */
     BlockState connectionState(
         BlockGetter level, BlockPos pos, BlockState oldState, Connection[] connections
     ) {
+        // 从空状态开始可以清除已经断开的旧方向，同时保留由网络统一维护的 POWER 和附着面。
         BlockState result = emptyState(this.defaultBlockState()
             .setValue(POWER, oldState.getValue(POWER))
             .setValue(ATTACHMENT, oldState.getValue(ATTACHMENT)));
@@ -237,13 +262,16 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         }
 
         if (connectionCount == 0) {
+            // 孤立导线保留原来的直线轴向，防止无关邻居更新让模型在南北和东西之间跳变。
             boolean eastWest = oldState.getValue(EAST).isConnected() || oldState.getValue(WEST).isConnected();
             result = result.setValue(eastWest ? EAST : NORTH, ConnectionType.SIDE)
                 .setValue(eastWest ? WEST : SOUTH, ConnectionType.SIDE);
         } else if (connectionCount == 1) {
+            // 单端连接补齐反方向，既保持导线形状连续，也为未来接入外部元件留下一个开放端点。
             result = result.setValue(CONNECTION_PROPERTIES.get((first + 2) % 4), ConnectionType.SIDE);
         }
 
+        // 直线不需要中心贴图；拐角或三岔以上需要中心点遮住各段模型的接缝。
         boolean dot = connectionCount >= 3 || connectionCount == 2 && second != (first + 2) % 4;
         return result.setValue(DOT, dot);
     }
@@ -259,6 +287,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         BlockGetter level, BlockPos pos, BlockState state, int index, @Nullable Connection connection
     ) {
         if (connection != null) {
+            // 导线到导线的几何关系决定 SIDE、CORNER 或 UP，应优先于普通红石接口外观。
             return connection.side();
         }
         Direction tangent = getLocalDirection(state.getValue(ATTACHMENT), index);
@@ -269,14 +298,21 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
 
     private static boolean canAttachTo(BlockGetter level, BlockPos pos, BlockState state, Direction direction) {
         if (state.is(Blocks.REDSTONE_WIRE) || state.getBlock() instanceof RedstoneWireBlock) {
+            // 两类导线都有专门的信号反馈规则，不能再把彼此误判为普通开放端设备。
             return false;
         }
+        // 标靶和红石火把的 NeoForge 通用连接判定不覆盖所有方向，因此与原版粉线规则保持显式兼容。
         return state.canRedstoneConnectTo(level, pos, direction)
             || state.is(Blocks.TARGET)
             || state.is(Blocks.REDSTONE_TORCH)
             || state.is(Blocks.REDSTONE_WALL_TORCH);
     }
 
+    /**
+     * 查找指定局部方向上与当前端点重合或可爬升相连的自定义导线。
+     *
+     * @return 连接到的方块位置及其显示类型；开放端点返回 {@code null}
+     */
     @Nullable
     static Connection findConnection(BlockGetter level, BlockPos pos, BlockState state, int index) {
         Direction attachment = state.getValue(ATTACHMENT);
@@ -291,6 +327,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         ConnectionType directSide = ConnectionType.SIDE;
         ConnectionType climbingSide = ConnectionType.SIDE;
 
+        // 端点用二倍整数坐标表示，枚举 6 个附着面 x 4 个切向即可精确反解所有可能与其重合的导线。
         for (Direction candidateAttachment : Direction.values()) {
             for (int candidateIndex = 0; candidateIndex < 4; candidateIndex++) {
                 Direction candidateTangent = getLocalDirection(candidateAttachment, candidateIndex);
@@ -309,15 +346,18 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
                 directCount = addUnique(directNeighbors, directCount, candidatePos.asLong());
                 boolean crossesSurface = candidateAttachment != attachment;
                 if (attachment.getAxis().isHorizontal() && crossesSurface) {
+                    // 墙面导线绕支撑方块边缘转向时需要向负局部坐标延伸，用专门模型覆盖拐角。
                     directSide = ConnectionType.CORNER;
                 }
             }
         }
         if (directCount > 0) {
+            // 共享同一物理端点的直接连接优先，避免同时把附近可爬升导线错误并入网络。
             return new Connection(copyOf(directNeighbors, directCount), directSide);
         }
 
         boolean canClimbFromCurrent = canClimb(level, pos, attachment, tangent);
+        // 没有直接连接时才检查隔着完整方块高度的上下坡关系，复现红石粉沿方块侧面爬升的行为。
         for (Direction candidateAttachment : Direction.values()) {
             if (!canShareClimbingEdge(attachment, candidateAttachment)) {
                 continue;
@@ -334,6 +374,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
                         && canClimbFromCurrent
                         && !hasDirectConnectionAtEndpoint(level, candidatePos, candidate, candidateIndex)) {
                         climbingCount = addUnique(climbingNeighbors, climbingCount, candidatePos.asLong());
+                        // 从当前导线向外爬升时，当前这一段需要额外绘制竖直模型。
                         climbingSide = ConnectionType.UP;
                     }
                 }
@@ -365,7 +406,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         BlockPos endpoint = endpoint(pos, attachment, tangent);
         BlockPos supportPos = pos.relative(attachment);
 
-        // An endpoint has at most 24 oriented representations: six attachment faces by four tangents.
+        // 一个端点最多只有 24 种朝向表示（6 个附着面 x 4 个切向），枚举比维护额外空间索引更便宜。
         for (Direction candidateAttachment : Direction.values()) {
             for (int candidateIndex = 0; candidateIndex < 4; candidateIndex++) {
                 Direction candidateTangent = getLocalDirection(candidateAttachment, candidateIndex);
@@ -388,6 +429,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         return false;
     }
 
+    /** 将二倍坐标中的几何端点反解为指定朝向的方块坐标。 */
     @Nullable
     private static BlockPos positionForEndpoint(
         BlockPos endpoint, Direction attachment, Direction tangent
@@ -396,12 +438,14 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         int y = endpoint.getY() - 1 - attachment.getStepY() - tangent.getStepY();
         int z = endpoint.getZ() - 1 - attachment.getStepZ() - tangent.getStepZ();
         if ((x & 1) != 0 || (y & 1) != 0 || (z & 1) != 0) {
+            // 出现奇数说明该朝向的方块中心不落在整数格点上，不可能存在对应导线。
             return null;
         }
         return new BlockPos(x / 2, y / 2, z / 2);
     }
 
     private static int addUnique(long[] values, int size, long value) {
+        // 候选只来自相邻 3x3x3 范围，固定小数组可避开热路径上的 HashSet 分配。
         for (int index = 0; index < size; index++) {
             if (values[index] == value) {
                 return size;
@@ -418,6 +462,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     }
 
     private static boolean canShareClimbingEdge(Direction attachment, Direction candidateAttachment) {
+        // 同轴且相反的附着面隔着整个方块，几何上不可能共享同一条爬升边。
         return candidateAttachment == attachment
             || candidateAttachment.getAxis() != attachment.getAxis();
     }
@@ -442,6 +487,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         if (candidateAttachment == attachment) {
             return true;
         }
+        // 跨面连接必须共同依附于同一个支撑方块，且拐角空间不能被实体导体占据。
         return candidatePos.relative(candidateAttachment).equals(supportPos)
             && !isCornerBlocked(level, pos, tangent);
     }
@@ -451,7 +497,9 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         return level.getBlockState(diagonalPos).isRedstoneConductor(level, diagonalPos);
     }
 
+    /** 按局部北、东、南、西顺序计算一根导线的全部内部连接。 */
     static Connection[] findConnections(BlockGetter level, BlockPos pos, BlockState state) {
+        // 数组索引与 CONNECTION_PROPERTIES 共享同一局部方向约定，Manager 可以直接缓存并复用。
         Connection[] connections = new Connection[4];
         for (int index = 0; index < connections.length; index++) {
             connections[index] = findConnection(level, pos, state, index);
@@ -459,6 +507,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         return connections;
     }
 
+    /** 可爬墙逻辑，判断导线前上方是不是同侧平面的导线或上方是不是贴墙斜面上的导线 */
     private static boolean canClimb(BlockGetter level, BlockPos pos, Direction attachment, Direction tangent) {
         Direction outward = attachment.getOpposite();
         BlockPos bridgePos = pos.relative(tangent);
@@ -467,6 +516,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             && isFullHeightSupport(level, bridgePos, bridge, tangent.getOpposite());
     }
 
+    /** 双层半砖和楼梯的两个面因为方块类型会被排除为可爬的墙，但是实际上是完整的，加回来为可爬的墙 */
     private static boolean isFullHeightSupport(
         BlockGetter level, BlockPos pos, BlockState state, Direction side
     ) {
@@ -475,6 +525,11 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             && state.isFaceSturdy(level, pos, side);
     }
 
+    /**
+     * 返回某一导线端点的二倍整数坐标。
+     *
+     * <p>使用整数保存半格端点，既避免浮点误差，也让不同附着面的同一物理端点可以直接比较。</p>
+     */
     private static BlockPos endpoint(BlockPos pos, Direction attachment, Direction tangent) {
         return new BlockPos(
             pos.getX() * 2 + 1 + attachment.getStepX() + tangent.getStepX(),
@@ -483,20 +538,24 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         );
     }
 
-    /** Replaces this wire with the placement state for another supporting face without consuming an item. */
+    /** 不消耗物品，将已有导线改挂到玩家新点击的支撑面。 */
     public boolean reattach(Level level, BlockPos pos, BlockState state) {
         if (!state.is(this) || !state.canSurvive(level, pos) || !level.setBlock(pos, state, Block.UPDATE_ALL)) {
             return false;
         }
+        // 位置没有变化，但附着面会改变几何端点，所以必须按拓扑变化而不是普通状态变化处理。
         RedstoneWireNetworkManager.topologyChanged(level, pos);
         return true;
     }
 
+    /** 将附着面内的方向索引转换为世界方向。 */
     public static Direction getLocalDirection(Direction attachment, int index) {
+        // 为每个附着面构造稳定的局部北向：地面沿世界北，天花板反向，墙面统一朝世界上方。
         Direction north = attachment == Direction.DOWN
             ? Direction.NORTH
             : attachment == Direction.UP ? Direction.SOUTH : Direction.UP;
         Direction outward = attachment.getOpposite();
+        // 叉积得到局部东向，保证四个方向在从导线外侧观察时始终保持一致的环绕顺序。
         Direction east = cross(north, outward);
         return switch (index) {
             case 0 -> north;
@@ -507,7 +566,9 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         };
     }
 
+    /** 将世界方向转换为附着面内的方向索引；方向不在该平面内时返回 -1。 */
     static int getLocalIndex(Direction attachment, Direction worldDirection) {
+        // 方向只有四个，线性查找比维护 6x6 的静态映射更直观，且只发生在局部连接计算中。
         for (int index = 0; index < 4; index++) {
             if (getLocalDirection(attachment, index) == worldDirection) {
                 return index;
@@ -520,9 +581,15 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         int x = first.getStepY() * second.getStepZ() - first.getStepZ() * second.getStepY();
         int y = first.getStepZ() * second.getStepX() - first.getStepX() * second.getStepZ();
         int z = first.getStepX() * second.getStepY() - first.getStepY() * second.getStepX();
+        // 两个输入始终互相垂直，叉积必然落在六个方块方向之一；null 表示调用约束被破坏。
         return Objects.requireNonNull(Direction.fromDelta(x, y, z));
     }
 
+    /**
+     * 将附着面局部坐标中的轴对齐盒转换为世界方块坐标中的包围盒。
+     *
+     * @return 依次为最小 XYZ 和最大 XYZ 的六元素数组
+     */
     public static float[] transformBox(
         Direction attachment,
         Direction tangent,
@@ -537,6 +604,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         Direction right = cross(tangent, outward);
         double[] bounds = {Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
             Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY};
+        // 变换后的轴可能交换或反向，因此遍历八个角点重新求 min/max，不能只转换两个对角点。
         for (double x : new double[]{minX, maxX}) {
             for (double y : new double[]{minY, maxY}) {
                 for (double z : new double[]{minZ, maxZ}) {
@@ -562,11 +630,13 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             (float) bounds[3], (float) bounds[4], (float) bounds[5]};
     }
 
+    /** 将附着面局部方向转换为世界方向。 */
     public static Direction transformDirection(
         Direction attachment, Direction tangent, Direction localDirection
     ) {
         Direction outward = attachment.getOpposite();
         Direction right = cross(tangent, outward);
+        // 与 transformBox 使用完全相同的局部基，确保模型面、剔除方向和碰撞盒不会互相错位。
         int x = right.getStepX() * localDirection.getStepX()
             + outward.getStepX() * localDirection.getStepY()
             - tangent.getStepX() * localDirection.getStepZ();
@@ -593,10 +663,15 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         return Block.box(box[0], box[1], box[2], box[3], box[4], box[5]);
     }
 
+    /** 导线某一局部方向的连接外观与连通状态。 */
     public enum ConnectionType implements StringRepresentable {
+        /** 没有内部导线或外部红石接口。 */
         NONE("none", false),
+        /** 沿当前附着面延伸。 */
         SIDE("side", true),
+        /** 沿前方完整方块的侧面向上爬升。 */
         UP("up", true),
+        /** 绕同一支撑方块的边缘连接到另一个附着面。 */
         CORNER("corner", true);
 
         private final String name;
@@ -614,6 +689,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         }
     }
 
+    /** 一端连接到的导线位置，以及当前端应采用的显示形态。 */
     record Connection(long[] positions, ConnectionType side) {
     }
 }

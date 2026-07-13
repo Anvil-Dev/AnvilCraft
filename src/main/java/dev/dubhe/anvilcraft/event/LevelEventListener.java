@@ -22,6 +22,7 @@ public class LevelEventListener {
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
+            // 网络缓存不持久化，区块进入服务端内存时必须用其中的导线作为重建种子。
             RedstoneWireNetworkManager.chunkLoaded(serverLevel, event.getChunk());
         }
     }
@@ -29,6 +30,7 @@ public class LevelEventListener {
     @SubscribeEvent
     public static void onChunkUnload(ChunkEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
+            // 主动拆除跨区块缓存，避免网络继续引用已卸载节点或从其读取幽灵信号。
             RedstoneWireNetworkManager.chunkUnloaded(serverLevel, event.getChunk().getPos());
         }
     }
@@ -56,6 +58,7 @@ public class LevelEventListener {
         }
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             LevelLoadManager.removeAll(serverLevel);
+            // LEVELS 按 ServerLevel 对象持有强引用，世界卸载时清理才能释放整张拓扑缓存。
             RedstoneWireNetworkManager.clear(serverLevel);
         }
     }

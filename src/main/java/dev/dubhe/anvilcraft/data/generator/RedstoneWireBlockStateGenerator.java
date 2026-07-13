@@ -14,7 +14,13 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import java.util.List;
 import javax.annotation.Nullable;
 
+/**
+ * 生成红石导线六种附着方向及四向连接组合使用的 multipart 方块状态和部件模型。
+ *
+ * <p>模型先在统一的“附着面局部坐标系”中描述，再转换到世界方块坐标，因此不需要手工维护六套几何数据。</p>
+ */
 public class RedstoneWireBlockStateGenerator {
+    /** 为红石导线注册中心点、平面线段、跨面拐角和爬升线段的 multipart 条件。 */
     public static <T extends Block> void generate(
         DataGenContext<Block, T> context,
         RegistrumBlockstateProvider provider
@@ -22,6 +28,7 @@ public class RedstoneWireBlockStateGenerator {
         var multipart = provider.getMultipartBuilder(context.get());
         for (Direction attachment : Direction.values()) {
             ModelFile dot = dotModel(provider, attachment);
+            // 中心点独立受 DOT 控制，使直线只拼接两段线模型，减少重叠面和不必要的过度绘制。
             multipart.part().modelFile(dot).addModel()
                 .condition(RedstoneWireBlock.ATTACHMENT, attachment)
                 .condition(RedstoneWireBlock.DOT, true)
@@ -33,9 +40,11 @@ public class RedstoneWireBlockStateGenerator {
                 var property = RedstoneWireBlock.CONNECTION_PROPERTIES.get(index);
                 multipart.part().modelFile(side).addModel()
                     .condition(RedstoneWireBlock.ATTACHMENT, attachment)
+                    // UP 由贴面半段和竖直半段叠加组成，所以两种状态都需要基础 side 模型。
                     .condition(property, ConnectionType.SIDE, ConnectionType.UP)
                     .end();
                 if (attachment.getAxis().isHorizontal()) {
+                    // 只有墙面导线绕支撑块边缘时需要向模型边界外延伸；地面和天花板没有这种显示形态。
                     ModelFile sideCorner = sideCornerModel(provider, attachment, index);
                     multipart.part().modelFile(sideCorner).addModel()
                         .condition(RedstoneWireBlock.ATTACHMENT, attachment)
@@ -50,12 +59,14 @@ public class RedstoneWireBlockStateGenerator {
         }
     }
 
+    /** 生成分叉或转角处用于覆盖线段接缝的中心点模型。 */
     private static BlockModelBuilder dotModel(RegistrumBlockstateProvider provider, Direction attachment) {
         Direction tangent = RedstoneWireBlock.getLocalDirection(attachment, 0);
         BlockModelBuilder model = model(provider, attachment, "dot")
             .texture("0", AnvilCraft.of("block/redstone_wire_dot"))
             .texture("1", AnvilCraft.of("block/redstone_wire_dot_overlay"))
             .texture("particle", AnvilCraft.of("block/redstone_wire_dot"));
+        // 底层提供固定材质边缘，上层使用 tintindex 0 随 POWER 改变颜色，与原版红石粉视觉一致。
         addBox(model, attachment, tangent, 4.0, -0.5, 4.0, 12.0, 1.5, 12.0, List.of(
             face(Direction.NORTH, "#0", 4, 4, 12, 6),
             transformedUvFace(attachment.getAxis().isHorizontal(), Direction.EAST, "#0", 4, 4, 12, 6),
@@ -78,6 +89,7 @@ public class RedstoneWireBlockStateGenerator {
         return model;
     }
 
+    /** 生成沿附着面从中心延伸到一个端点的基础线段。 */
     private static BlockModelBuilder sideModel(
         RegistrumBlockstateProvider provider, Direction attachment, int index
     ) {
@@ -86,6 +98,7 @@ public class RedstoneWireBlockStateGenerator {
             .texture("0", AnvilCraft.of("block/redstone_wire_line"))
             .texture("1", AnvilCraft.of("block/redstone_wire_line_overlay"))
             .texture("particle", AnvilCraft.of("block/redstone_wire_line"));
+        // 线段会旋转到不同表面，侧面 UV 也要随局部基旋转，否则同一纹理会在部分朝向上镜像或倒置。
         addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, 0.0, 11.0, 1.0, 8.0, List.of(
             face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
             face(Direction.EAST, "#0", 10, 0, 11, 8, 90, false, null),
@@ -102,6 +115,7 @@ public class RedstoneWireBlockStateGenerator {
         return model;
     }
 
+    /** 生成墙面导线绕支撑方块边缘连接时使用的加长线段。 */
     private static BlockModelBuilder sideCornerModel(
         RegistrumBlockstateProvider provider, Direction attachment, int index
     ) {
@@ -110,6 +124,7 @@ public class RedstoneWireBlockStateGenerator {
             .texture("0", AnvilCraft.of("block/redstone_wire_line"))
             .texture("1", AnvilCraft.of("block/redstone_wire_line_overlay"))
             .texture("particle", AnvilCraft.of("block/redstone_wire_line"));
+        // 负局部 Z 部分越过当前方块边界，用来遮住两个不同附着面模型在实体边缘留下的缝隙。
         addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, -1.0, 11.0, 1.0, 8.0, List.of(
             face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
             face(Direction.EAST, "#0", 10, 0, 11, 9, 90, false, null),
@@ -126,6 +141,7 @@ public class RedstoneWireBlockStateGenerator {
         return model;
     }
 
+    /** 生成导线沿前方完整方块侧面向上爬升的竖直部分。 */
     private static BlockModelBuilder upModel(
         RegistrumBlockstateProvider provider, Direction attachment, int index
     ) {
@@ -134,6 +150,7 @@ public class RedstoneWireBlockStateGenerator {
             .texture("0", AnvilCraft.of("block/redstone_wire_line"))
             .texture("1", AnvilCraft.of("block/redstone_wire_line_overlay"))
             .texture("particle", AnvilCraft.of("block/redstone_wire_line"));
+        // 爬升段跨满 16 像素高度，并与基础 side 模型叠加，形成从当前表面到高一格表面的连续导线。
         addBox(model, attachment, tangent, 5.0, 1.0, -0.1, 11.0, 17.0, 1.0, List.of(
             face(Direction.NORTH, "#0", 11, 0, 5, 16, 180, false, Direction.NORTH),
             face(Direction.EAST, "#0", 10, 0, 11, 16),
@@ -152,13 +169,16 @@ public class RedstoneWireBlockStateGenerator {
         return model;
     }
 
+    /** 创建一个关闭环境光遮蔽的导线部件模型构建器。 */
     private static BlockModelBuilder model(
         RegistrumBlockstateProvider provider, Direction attachment, String part
     ) {
+        // 导线很薄且多个部件会互相重叠，AO 会在接缝处产生与信号强度无关的黑边。
         return provider.models().getBuilder("block/redstone_wire/" + attachment.getSerializedName() + "/" + part)
             .ao(false);
     }
 
+    /** 添加一个使用原始面 UV 方向的局部坐标盒。 */
     private static void addBox(
         BlockModelBuilder model,
         Direction attachment,
@@ -174,6 +194,7 @@ public class RedstoneWireBlockStateGenerator {
         addBox(model, attachment, tangent, minX, minY, minZ, maxX, maxY, maxZ, faces, false);
     }
 
+    /** 将局部坐标盒及其各面规格转换为实际世界朝向后写入模型。 */
     private static void addBox(
         BlockModelBuilder model,
         Direction attachment,
@@ -192,6 +213,7 @@ public class RedstoneWireBlockStateGenerator {
         );
         var element = model.element().from(box[0], box[1], box[2]).to(box[3], box[4], box[5]);
         for (FaceSpec spec : faces) {
+            // 几何盒变换后仍是轴对齐盒，但每个局部面对应的世界 Direction 可能已经交换或翻转。
             Direction worldFace = RedstoneWireBlock.transformDirection(attachment, tangent, spec.direction());
             var face = element.face(worldFace)
                 .texture(spec.texture())
@@ -200,15 +222,18 @@ public class RedstoneWireBlockStateGenerator {
                                    ? transformedFaceRotation(attachment, tangent, spec.direction(), spec.rotation())
                                    : spec.rotation()));
             if (spec.tinted()) {
+                // tintindex 0 由 RegisterColorHandlersEventListener 按方块 POWER 映射为红石颜色。
                 face.tintindex(0);
             }
             if (spec.cullFace() != null) {
+                // 剔除面也必须应用同一坐标变换，否则引擎会按错误邻接方向隐藏可见表面。
                 face.cullface(RedstoneWireBlock.transformDirection(attachment, tangent, spec.cullFace()));
             }
         }
         element.end();
     }
 
+    /** 添加一个会随附着方向修正所有面 UV 旋转的局部坐标盒。 */
     private static void addBoxWithRotatedUvs(
         BlockModelBuilder model,
         Direction attachment,
@@ -224,10 +249,12 @@ public class RedstoneWireBlockStateGenerator {
         addBox(model, attachment, tangent, minX, minY, minZ, maxX, maxY, maxZ, faces, true);
     }
 
+    /** 计算一个局部模型面变换到世界方向后，为保持纹理顶点朝向所需的 UV 旋转。 */
     private static int transformedFaceRotation(
         Direction attachment, Direction tangent, Direction localFace, int rotation
     ) {
         Direction worldFace = RedstoneWireBlock.transformDirection(attachment, tangent, localFace);
+        // 用目标面的第一个标准顶点作为锚点，查找局部面哪个顶点在基变换后落到该位置。
         int[] targetVertex = faceVertices(worldFace)[0];
         int[][] localVertices = faceVertices(localFace);
         Direction worldX = RedstoneWireBlock.transformDirection(attachment, tangent, Direction.EAST);
@@ -247,12 +274,14 @@ public class RedstoneWireBlockStateGenerator {
             if (worldVertexX == targetVertex[0]
                 && worldVertexY == targetVertex[1]
                 && worldVertexZ == targetVertex[2]) {
+                // 每错开一个顶点就对应 90 度 UV 旋转，再叠加该面的显式基础旋转。
                 return Math.floorMod(rotation + index * 90, 360);
             }
         }
         throw new IllegalStateException("Unable to transform UV rotation for " + localFace);
     }
 
+    /** 按 Minecraft 模型 UV 的标准环绕顺序返回指定面的四个单位立方体顶点。 */
     private static int[][] faceVertices(Direction direction) {
         return switch (direction) {
             case DOWN -> new int[][]{{-1, -1, 1}, {-1, -1, -1}, {1, -1, -1}, {1, -1, 1}};
@@ -264,12 +293,14 @@ public class RedstoneWireBlockStateGenerator {
         };
     }
 
+    /** 创建一个无需着色、剔除或额外旋转的模型面规格。 */
     private static FaceSpec face(
         Direction direction, String texture, float u1, float v1, float u2, float v2
     ) {
         return face(direction, texture, u1, v1, u2, v2, 0, false, null);
     }
 
+    /** 创建具有完整渲染参数的模型面规格。 */
     private static FaceSpec face(
         Direction direction,
         String texture,
@@ -284,12 +315,14 @@ public class RedstoneWireBlockStateGenerator {
         return new FaceSpec(direction, texture, u1, v1, u2, v2, rotation, tinted, cullFace, false);
     }
 
+    /** 创建一个可按条件启用坐标变换后 UV 修正的简单模型面规格。 */
     private static FaceSpec transformedUvFace(
         boolean transformUv, Direction direction, String texture, float u1, float v1, float u2, float v2
     ) {
         return transformedUvFace(transformUv, direction, texture, u1, v1, u2, v2, 0, false, null);
     }
 
+    /** 创建一个可按条件启用坐标变换后 UV 修正的完整模型面规格。 */
     private static FaceSpec transformedUvFace(
         boolean transformUv,
         Direction direction,
@@ -305,7 +338,9 @@ public class RedstoneWireBlockStateGenerator {
         return new FaceSpec(direction, texture, u1, v1, u2, v2, rotation, tinted, cullFace, transformUv);
     }
 
+    /** 将任意整数角度规范化为模型 API 支持的四种面旋转。 */
     private static ModelBuilder.FaceRotation rotation(int degrees) {
+        // 上游只产生 90 度倍数；floorMod 同时正确处理坐标变换可能得到的负角度。
         return switch (Math.floorMod(degrees, 360)) {
             case 90 -> ModelBuilder.FaceRotation.CLOCKWISE_90;
             case 180 -> ModelBuilder.FaceRotation.UPSIDE_DOWN;
@@ -314,6 +349,7 @@ public class RedstoneWireBlockStateGenerator {
         };
     }
 
+    /** 一个局部模型面的纹理、UV、着色、剔除及 UV 变换参数。 */
     private record FaceSpec(
         Direction direction,
         String texture,

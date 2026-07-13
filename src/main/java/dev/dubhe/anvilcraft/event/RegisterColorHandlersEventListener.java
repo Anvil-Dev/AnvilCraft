@@ -16,6 +16,7 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 public class RegisterColorHandlersEventListener {
     @SubscribeEvent
     public static void registerBlockColorHandlersEvent(RegisterColorHandlersEvent.Block event) {
+        // 复用原版红石粉的强度到颜色映射，使服务端同步的 POWER 能直接驱动导线覆盖层明暗。
         event.register(
             (state, level, pos, tintIndex) -> tintIndex == 0
                 ? RedStoneWireBlock.getColorForPower(state.getValue(RedstoneWireBlock.POWER))
