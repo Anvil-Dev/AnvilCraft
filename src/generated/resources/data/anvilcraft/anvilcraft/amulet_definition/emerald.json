@@ -4,7 +4,7 @@
     "count": 1,
     "id": "anvilcraft:emerald_amulet"
   },
-  "obtain": {
+  "obtains": {
     "source_entity": {
       "type": "#anvilcraft:amulet_valid/emerald"
     }

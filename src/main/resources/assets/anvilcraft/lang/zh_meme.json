@@ -1439,5 +1439,6 @@
   "tooltip.anvilcraft.item.spectral_anvil": "当上方的钕铁硼消磁时，会生成一道滚木并向下坠落。它能穿透透明方块，且无论实际高度如何，坠落的冲击♂始终按 2 格高度计算处理",
   "advancements.anvilcraft.placer_shuttle.title": "我又跳出来了 我又站回去了",
   "advancements.anvilcraft.placer_shuttle.description": "让两个ai电屑钳版来回移动一个方块",
-  "death.attack.anvilcraft.gamma_laser": "%1$s想变成绿巨人，但他不是布鲁斯班纳"
+  "death.attack.anvilcraft.gamma_laser": "%1$s想变成绿巨人，但他不是布鲁斯班纳",
+  "block.anvilcraft.simple_magnetic_chute": "没 脑 子 的 磁 场 转 动 的 发 福 的 H O P"
 }
