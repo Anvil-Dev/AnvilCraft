@@ -4,7 +4,7 @@
 	"ambientocclusion": false,
 	"textures": {
 		"0": "anvilcraft:block/redstone_wire_line",
-		"1": "anvilcraft:block/redstone_wire_line_overlay",
+		"1": "anvilcraft:block/red_cement",
 		"particle": "anvilcraft:block/redstone_wire_line"
 	},
 	"elements": [
@@ -23,6 +23,7 @@
 		{
 			"from": [6, 1, 0],
 			"to": [10, 2, 8],
+			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [6, 0, 10, 1], "texture": "#1", "cullface": "north", "tintindex": 0},
@@ -34,6 +35,7 @@
 		{
 			"from": [6, 1, 8],
 			"to": [10, 2, 16],
+			"shade": false,
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"east": {"uv": [6, 0, 7, 8], "rotation": 90, "texture": "#1", "tintindex": 0},
