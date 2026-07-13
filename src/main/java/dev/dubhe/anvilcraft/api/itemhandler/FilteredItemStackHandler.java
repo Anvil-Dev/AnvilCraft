@@ -30,7 +30,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
             .listOf()
             .fieldOf("filteredItems")
             .forGetter(o -> o.filteredItems.stream()
-                .map(it -> Optional.of(it).filter(ItemStack::isEmpty))
+                .map(it -> Optional.of(it).filter(stack -> !stack.isEmpty()))
                 .toList()),
         Codec.BOOL
             .listOf()
@@ -54,6 +54,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
     public FilteredItemStackHandler(
         boolean filterEnabled, List<Optional<ItemStack>> filteredItems, List<Boolean> disabled, List<Integer> slotLimits) {
         super(filteredItems.size());
+        this.filterEnabled = filterEnabled;
         this.filteredItems = NonNullList.create();
         this.filteredItems.addAll(filteredItems.stream()
                                       .map(it -> it.orElse(ItemStack.EMPTY)).toList()
@@ -223,7 +224,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
             ItemStack filtering = this.getFilter(slot);
             inventoryEntry.putBoolean("SlotFilterEnabled", !filtering.isEmpty());
             if (!filtering.isEmpty()) {
-                inventoryEntry.store("SlotFilterItem", ItemStack.OPTIONAL_CODEC, stack);
+                inventoryEntry.store("SlotFilterItem", ItemStack.OPTIONAL_CODEC, filtering);
             }
 
             inventoryEntry.putBoolean("Disabled", this.disabled.get(slot));
@@ -270,7 +271,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         if (handlerOp.isEmpty()) return;
         FilteredItemStackHandler handler = handlerOp.get();
         if (this.size() != handler.size()) throw new IllegalArgumentException("Depository size mismatch");
-        this.filterEnabled = input.getBooleanOr("filterEnabled", false);
+        this.filterEnabled = handler.filterEnabled;
         int size = handler.filteredItems.size();
         this.filteredItems = NonNullList.of(ItemStack.EMPTY, handler.filteredItems.toArray(new ItemStack[size]));
         this.disabled = handler.disabled;

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.inventory.component.jewel;
 
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -34,6 +35,10 @@ public class JewelResultSlot extends Slot {
 
     @Override
     public void onTake(Player player, ItemStack stack) {
+        if (!stack.isEmpty()) {
+            player.awardStat(Stats.ITEM_CRAFTED.get(stack.getItem()), stack.getCount());
+        }
+        player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
         RecipeHolder<JewelCraftingRecipe> recipe = this.resultContainer.getRecipeUsed() == null
                                                    ? null
                                                    : Util.cast(this.resultContainer.getRecipeUsed());
