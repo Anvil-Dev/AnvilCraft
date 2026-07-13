@@ -7,7 +7,9 @@ import dev.anvilcraft.lib.v2.util.client.Line;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.ColorUtil;
+import dev.dubhe.anvilcraft.util.geometry.DelaunayTriangulator;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -60,7 +62,8 @@ public class SimplePowerGrid {
     private final BlockPos pos;
     private final List<BlockPos> blocks = new ArrayList<>();
     private final List<PowerComponentInfo> powerComponentInfoList = new ArrayList<>();
-    private final List<Line> powerTransmitterLines = new ArrayList<>();
+    @Setter
+    private Set<Line> powerTransmitterLines = Set.of();
     private final int generate; // 发电功率
     private final int consume; // 耗电功率
     private final boolean infinitePower; // 是否包含无限电力源
@@ -168,24 +171,56 @@ public class SimplePowerGrid {
     }
 
     private void createTransmitterVisualLines() {
-        List<Map.Entry<BlockPos, AABB>> shapes = this.powerComponentInfoList.stream()
+        if (!this.getPowerTransmitterLines().isEmpty()) return;
+        List<Map.Entry<Vec3, Integer>> shapes = this.getPowerComponentInfoList().stream()
             .filter(it -> it.type() == PowerComponentType.TRANSMITTER)
-            .map(it -> Map.entry(it.pos(), it.boundingBox()))
+            .map(it -> Map.entry(it.pos().getCenter(), it.range()))
             .toList();
-
-        for (int i = 0; i < shapes.size(); i++) {
-            Map.Entry<BlockPos, AABB> e1 = shapes.get(i);
-            for (int j = i + 1; j < shapes.size(); j++) {
-                Map.Entry<BlockPos, AABB> e2 = shapes.get(j);
-                AABB a = e1.getValue();
-                AABB b = e2.getValue();
-                if (a.intersects(b)) {
-                    Vec3 start = e1.getKey().getCenter();
-                    Vec3 end = e2.getKey().getCenter();
-                    this.powerTransmitterLines.add(new Line(start, end));
-                }
+        if (shapes.size() <= 2) {
+            if (shapes.size() == 2) {
+                this.setPowerTransmitterLines(
+                    Set.of(
+                        new Line(
+                            shapes.get(0).getKey(),
+                            shapes.get(1).getKey(),
+                            (float) shapes.get(0).getKey().distanceTo(shapes.get(1).getKey())
+                        )
+                    )
+                );
             }
+            return;
         }
+        Map<Vec3, Integer> map = Map.ofEntries(shapes.<Map.Entry<Vec3, Integer>>toArray(Map.Entry[]::new));
+        List<Vec3> points = shapes.stream().map(Map.Entry::getKey).toList();
+        Set<Line> lines = new HashSet<>();
+        for (DelaunayTriangulator.Edge edge : DelaunayTriangulator.triangulate(
+            points.size(), index -> {
+                Vec3 vec3 = points.get(index);
+                double offset = (vec3.y - 1024) / 2048;
+                return new DelaunayTriangulator.Point(index, vec3.x + offset, vec3.z + offset);
+            }
+        )) {
+            Vec3 vec3 = points.get(edge.a());
+            Vec3 vec4 = points.get(edge.b());
+            int i1 = map.getOrDefault(vec3, 0);
+            int i2 = map.getOrDefault(vec4, 0);
+            if (!SimplePowerGrid.isOverlap(vec3, i1, vec4, i2)) continue;
+            lines.add(new Line(
+                vec3,
+                vec4,
+                (float) vec3.distanceTo(vec4)
+            ));
+        }
+        this.setPowerTransmitterLines(lines);
+    }
+
+    public static boolean isOverlap(Vec3 a, int rangeA, Vec3 b, int rangeB) {
+        return a.x - rangeA - 0.5 < b.x + rangeB + 0.5
+               && a.x + rangeA + 0.5 > b.x - rangeB - 0.5
+               && a.y - rangeA - 0.5 < b.y + rangeB + 0.5
+               && a.y + rangeA + 0.5 > b.y - rangeB - 0.5
+               && a.z - rangeA - 0.5 < b.z + rangeB + 0.5
+               && a.z + rangeA + 0.5 > b.z - rangeB - 0.5;
     }
 
     private void createMergedOutlineShape() {
