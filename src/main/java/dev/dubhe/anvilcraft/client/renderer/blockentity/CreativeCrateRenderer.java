@@ -88,6 +88,7 @@ public class CreativeCrateRenderer implements BlockEntityRenderer<CreativeCrateB
                     // This should never happen as side is always 0-5
                 }
             }
+            poseStack.scale(10.0f / 16.0f, 10.0f / 16.0f, 10.0f / 16.0f);
             cluster.item.submit(poseStack, submitNodeCollector, light, OverlayTexture.NO_OVERLAY, 0);
             poseStack.popPose();
         }

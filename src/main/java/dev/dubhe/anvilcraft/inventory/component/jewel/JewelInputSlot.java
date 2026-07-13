@@ -1,13 +1,12 @@
 package dev.dubhe.anvilcraft.inventory.component.jewel;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.inventory.container.JewelSourceContainer;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
-import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -16,7 +15,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class JewelInputSlot extends Slot {
-    private final ResultContainer resultContainer;
+    private final JewelSourceContainer sourceContainer;
     @Getter
     @Nullable
     private ItemIngredientPredicate ingredient;
@@ -26,9 +25,9 @@ public class JewelInputSlot extends Slot {
     @Getter
     private int hintCount;
 
-    public JewelInputSlot(ResultContainer resultContainer, Container container, int slot, int x, int y) {
+    public JewelInputSlot(JewelSourceContainer sourceContainer, Container container, int slot, int x, int y) {
         super(container, slot, x, y);
-        this.resultContainer = resultContainer;
+        this.sourceContainer = sourceContainer;
 
         this.updateIngredient();
     }
@@ -45,9 +44,7 @@ public class JewelInputSlot extends Slot {
     }
 
     public void updateIngredient() {
-        RecipeHolder<JewelCraftingRecipe> recipe = this.resultContainer.getRecipeUsed() == null
-                                                   ? null
-                                                   : Util.cast(this.resultContainer.getRecipeUsed());
+        RecipeHolder<JewelCraftingRecipe> recipe = this.sourceContainer.getRecipe();
         if (recipe != null) {
             var ingredients = recipe.value().ingredients();
             if (this.getSlotIndex() > ingredients.size() - 1) {

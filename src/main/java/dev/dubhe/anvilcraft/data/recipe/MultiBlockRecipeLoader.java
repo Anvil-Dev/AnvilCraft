@@ -268,5 +268,16 @@ public class MultiBlockRecipeLoader {
                 .hasState(blocks, "facing", "west")
             )
             .save(provider);
+
+        MultiblockRecipe.builder(ModBlocks.CELESTIAL_FORGING_ANVIL, 1)
+            .layer("AAA", "ABA", "AAA")
+            .layer("CCC", "CCC", "CCC")
+            .layer("DED", "E E", "DED")
+            .symbol('A', ModBlocks.TRANSCENDIUM_BLOCK)
+            .symbol('B', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .symbol('C', Blocks.GOLD_BLOCK)
+            .symbol('D', ModBlocks.CONFINEMENT_CHAMBER)
+            .symbol('E', ModBlocks.NEGATIVE_MATTER_BLOCK)
+            .save(provider);
     }
 }

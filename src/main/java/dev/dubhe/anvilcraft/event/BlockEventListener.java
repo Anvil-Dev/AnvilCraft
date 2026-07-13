@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
@@ -12,6 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ParticleUtils;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -28,10 +30,19 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
+    private static final Map<UUID, BlockPos> CREATIVE_CRATE_ATTACKS = new HashMap<>();
+
+    public static void clearCreativeCrateAttack(Player player, BlockPos pos) {
+        CREATIVE_CRATE_ATTACKS.remove(player.getUUID(), pos);
+    }
+
     /// 侦听左键方块事件
     ///
     /// @param event 左键方块事件
@@ -41,6 +52,44 @@ public class BlockEventListener {
         if (event.getEntity().getItemInHand(hand).getItem() instanceof AnvilHammerItem) {
             if (!AnvilHammerItem.dropAnvil(event.getEntity(), event.getLevel(), event.getPos())) {
                 event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onCreativeCrateAttack(PlayerInteractEvent.LeftClickBlock event) {
+        Player player = event.getEntity();
+        if (!(event.getLevel().getBlockEntity(event.getPos()) instanceof CreativeCrateBlockEntity crate)) return;
+        if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.STOP
+            || event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.ABORT) {
+            if (event.getLevel().isClientSide()) {
+                return;
+            }
+            clearCreativeCrateAttack(player, event.getPos());
+            return;
+        }
+        if (!player.isCreative() && !crate.getDisplayStack().isEmpty()) {
+            event.setUseBlock(TriState.FALSE);
+            event.setUseItem(TriState.FALSE);
+        }
+        if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
+        if (!player.isCreative()) {
+            BlockPos activePos = CREATIVE_CRATE_ATTACKS.get(player.getUUID());
+            if (event.getPos().equals(activePos)) {
+                event.setUseBlock(TriState.FALSE);
+                event.setUseItem(TriState.FALSE);
+                return;
+            }
+        }
+        if (crate.onPlayerAttack(player)) {
+            if (player.isCreative()) {
+                event.setCanceled(true);
+            } else {
+                if (!event.getLevel().isClientSide()) {
+                    CREATIVE_CRATE_ATTACKS.put(player.getUUID(), event.getPos().immutable());
+                }
+                event.setUseBlock(TriState.FALSE);
+                event.setUseItem(TriState.FALSE);
             }
         }
     }

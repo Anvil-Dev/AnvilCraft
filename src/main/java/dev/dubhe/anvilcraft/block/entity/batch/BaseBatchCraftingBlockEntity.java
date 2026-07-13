@@ -283,9 +283,15 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     @Override
     public void applyDiskData(ValueInput input) {
         this.handler.deserializeFiltering(input.childOrEmpty("Filtering"));
+        this.setChanged();
         if (this.level != null && !this.level.isClientSide()) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
         }
+    }
+
+    @Override
+    public List<String> getDiskCompatibleGroups() {
+        return List.of("anvilcraft:has_filter");
     }
 
     @Override

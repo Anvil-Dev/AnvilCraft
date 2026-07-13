@@ -10,6 +10,7 @@ public class ItemTooltipLang {
         ItemTooltipManager.getShiftMap().forEach((item, s) -> provider.add(ItemTooltipManager.getTranslationKeyShift(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
+        provider.add("tooltip.anvilcraft.creative_container.content", "Content: %s");
 
         provider.add("tooltip.anvilcraft.item.structure_tool.line_1", "Developer tool");
         provider.add("tooltip.anvilcraft.item.structure_tool.line_2", "Right click to select an area for multiblock recipe");

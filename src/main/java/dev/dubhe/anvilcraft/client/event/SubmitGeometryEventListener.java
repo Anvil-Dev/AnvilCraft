@@ -34,8 +34,6 @@ public class SubmitGeometryEventListener {
 
     @SubscribeEvent
     public static void on(SubmitCustomGeometryEvent event) {
-        if (Minecraft.getInstance().player == null) return;
-        if (!AnvilHammerItem.shouldRenderEffect(Minecraft.getInstance().player)) return;
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
         PoseStack poseStack = event.getPoseStack();
         DeltaTracker deltaTracker = Minecraft.getInstance().getDeltaTracker();
@@ -89,7 +87,9 @@ public class SubmitGeometryEventListener {
     }
 
     private static void submitPowerGridLines(PoseStack poseStack, SubmitNodeCollector nodeCollector, Vec3 camera) {
-        PowerGridSupport.submitPowerGridBounds(poseStack, nodeCollector, camera);
+        if (Minecraft.getInstance().player != null && AnvilHammerItem.shouldRenderEffect(Minecraft.getInstance().player)) {
+            PowerGridSupport.submitPowerGridBounds(poseStack, nodeCollector, camera);
+        }
         PowerGridSupport.submitEnhancedTransmitterLine(camera);
         PowerGridSupport.submitTransmitterLine(poseStack, nodeCollector, camera);
     }

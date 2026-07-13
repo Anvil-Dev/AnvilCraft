@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
+import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModEquipmentAssets;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
@@ -14,6 +15,8 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.item.RubyItem;
+import dev.dubhe.anvilcraft.item.SapphireItem;
 import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
@@ -104,6 +107,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.item.properties.conditional.ComponentMatches;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
@@ -946,11 +951,11 @@ public class ModItems {
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, Tags.Items.GEMS, ModItemTags.GEMS_TOPAZ)
         .recipe(RegistrumItemRecipeLoader::topaz)
         .register();
-    public static final ItemEntry<Item> RUBY = REGISTRUM.item("ruby", Item::new)
+    public static final ItemEntry<RubyItem> RUBY = REGISTRUM.item("ruby", RubyItem::new)
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, Tags.Items.GEMS, ModItemTags.GEMS_RUBY)
         .recipe(RegistrumItemRecipeLoader::ruby)
         .register();
-    public static final ItemEntry<Item> SAPPHIRE = REGISTRUM.item("sapphire", Item::new)
+    public static final ItemEntry<SapphireItem> SAPPHIRE = REGISTRUM.item("sapphire", SapphireItem::new)
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, Tags.Items.GEMS, ModItemTags.GEMS_SAPPHIRE)
         .recipe(RegistrumItemRecipeLoader::sapphire)
         .register();
@@ -1274,12 +1279,22 @@ public class ModItems {
         .model(ModelProviderUtil::bucket)
         .register();
 
-    // ==== Pipe & Pump ====
-
     public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::pipe)
         .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
+        .register();
+
+    public static final ItemEntry<CheckValveItem> CHECK_VALVE = REGISTRUM.item("check_valve", CheckValveItem::new)
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, CheckValveItem> ctx, RegistrumItemModelGenerator generator) {
+                var itemModel = new ModelTemplate(Optional.of(ctx.getId().withPrefix("block/")), Optional.empty())
+                    .create(ctx.get(), new TextureMapping(), generator.modelOutput);
+                generator.createWithExistingModel(ctx.get(), itemModel);
+            }
+        })
+        .recipe(RegistrumItemRecipeLoader::checkValve)
         .register();
 
     public static void register() {

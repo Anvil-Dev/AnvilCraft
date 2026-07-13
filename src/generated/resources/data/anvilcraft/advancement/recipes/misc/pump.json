@@ -1,6 +1,16 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_magnetoelectric_core": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:magnetoelectric_core"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_pipe": {
       "conditions": {
         "items": [
@@ -32,7 +42,8 @@
     [
       "has_the_recipe",
       "has_piston",
-      "has_pipe"
+      "has_pipe",
+      "has_magnetoelectric_core"
     ]
   ],
   "rewards": {

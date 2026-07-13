@@ -19,6 +19,7 @@
 - Treat the project-root `style.xml` as the source of truth for Java code style and Checkstyle requirements.
 - Do not add a Checkstyle suppression merely to bypass a violation. Fix the code or document a genuinely required
   exception within the requested scope.
+- Prefer self-explanatory code and avoid comments that merely restate what the code already makes clear.
 - Keep text files UTF-8 encoded and preserve the existing line-ending style of files being edited.
 
 ## Nullness Annotations

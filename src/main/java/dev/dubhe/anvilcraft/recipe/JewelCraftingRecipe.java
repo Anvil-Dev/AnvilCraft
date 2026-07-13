@@ -98,9 +98,12 @@ public record JewelCraftingRecipe(
     @Override
     public boolean matches(Input input, Level level) {
         if (!this.source.test(input.source)) return false;
-        if (input.size() != this.ingredients.size()) return false;
+        if (input.size() < this.ingredients.size()) return false;
         for (int i = 0; i < this.ingredients.size(); i++) {
             if (!this.ingredients.get(i).test(input.getItem(i))) return false;
+        }
+        for (int i = this.ingredients.size(); i < input.size(); i++) {
+            if (!input.getItem(i).isEmpty()) return false;
         }
         return true;
     }

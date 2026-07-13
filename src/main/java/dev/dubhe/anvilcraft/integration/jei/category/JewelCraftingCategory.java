@@ -76,7 +76,9 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
             RegistryUtil.getRegistryAccess().lookupOrThrow(Registries.ITEM)
         );
         builder.addSlot(RecipeIngredientRole.INPUT, 59, 11).addItemStacks(source);
-        JeiSlotUtil.addInputSlots(builder, recipe.value().ingredients());
+        for (int i = 0; i < recipe.value().ingredients().size(); i++) {
+            JeiSlotUtil.addSlotWithCount(builder, 5 + i * 18, 37, recipe.value().ingredients().get(i));
+        }
         builder.addSlot(RecipeIngredientRole.OUTPUT, 135, 24).addItemStacks(source);
     }
 

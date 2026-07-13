@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -17,7 +20,14 @@ public interface IGhostIngredientScreen {
         return new Vec2i(16, 16);
     }
 
+    default @Nullable Rect2i getGhostSlotArea(int slot) {
+        return null;
+    }
+
     default void acceptGhost(Slot slot, ItemStack ingredient) {
+    }
+
+    default void acceptFluidGhost(int slot, FluidStack fluid) {
     }
 
     record Vec2i(int x, int y) {

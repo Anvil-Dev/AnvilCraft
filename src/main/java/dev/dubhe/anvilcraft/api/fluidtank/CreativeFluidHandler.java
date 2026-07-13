@@ -6,6 +6,8 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
+import java.util.List;
+
 /**
  * 创造模式流体内核：无限存储/供给指定流体。
  * insert 永远返回全部（接受所有流体），
@@ -15,6 +17,18 @@ public class CreativeFluidHandler extends FluidStacksResourceHandler {
 
     public CreativeFluidHandler() {
         super(NonNullList.of(FluidStack.EMPTY, FluidStack.EMPTY), Integer.MAX_VALUE);
+    }
+
+    public List<FluidStack> getStacks() {
+        return this.copyToList().stream().map(FluidStack::copy).toList();
+    }
+
+    public void replaceStacks(List<FluidStack> stacks) {
+        NonNullList<FluidStack> copied = NonNullList.withSize(this.size(), FluidStack.EMPTY);
+        for (int i = 0; i < copied.size() && i < stacks.size(); i++) {
+            copied.set(i, stacks.get(i).copy());
+        }
+        this.setStacks(copied);
     }
 
     @Override

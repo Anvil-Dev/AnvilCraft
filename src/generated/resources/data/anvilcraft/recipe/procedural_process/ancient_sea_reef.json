@@ -1,0 +1,69 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "displayed_model": "anvilcraft:block/ancient_sea_reef_wip",
+  "initial_block": {
+    "blocks": "minecraft:wet_sponge"
+  },
+  "loop": 1,
+  "result_block": {
+    "block": "anvilcraft:ancient_sea_reef"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "minecraft:wet_sponge"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "minecraft:heart_of_the_sea"
+          }
+        ]
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:sapphire"
+          }
+        ]
+      },
+      "index": 1
+    },
+    {
+      "content": {
+        "type": "anvilcraft:block_processing",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:wip_block"
+          },
+          {
+            "blocks": "anvilcraft:corrupted_beacon",
+            "properties": [
+              {
+                "lit": "true"
+              }
+            ]
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 2
+    }
+  ]
+}

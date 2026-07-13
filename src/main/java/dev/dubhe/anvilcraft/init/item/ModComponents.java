@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import dev.dubhe.anvilcraft.item.property.component.StoredFluids;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
@@ -164,6 +165,11 @@ public class ModComponents {
     public static final DataComponentType<ItemContainerContents> BURNING_HEATER_CONTENTS = register(
         "burning_heater_contents",
         b -> b.persistent(ItemContainerContents.CODEC).networkSynchronized(ItemContainerContents.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<StoredFluids> CREATIVE_TANK_FLUIDS = register(
+        "creative_tank_fluids",
+        b -> b.persistent(StoredFluids.CODEC).networkSynchronized(StoredFluids.STREAM_CODEC)
     );
 
     public static final DataComponentType<IAmulet> AMULET = register(

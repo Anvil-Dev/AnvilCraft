@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class JadeLang {
     public static void init(RegistrumLangProvider provider) {
+        provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
         provider.add("config.jade.plugin_anvilcraft.ruby_prism", "Ruby Prism");
         provider.add("config.jade.plugin_anvilcraft.item_detector", "Item Detector");
@@ -16,7 +17,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.discharger_provider", "Discharger");
         provider.add("config.jade.plugin_anvilcraft.discharger_client_provider", "Discharger (Client)");
         provider.add("config.jade.plugin_anvilcraft.menger_sponge_client_provider", "Menger Sponge (Client)");
-        provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
+        provider.add("config.jade.plugin_anvilcraft.wip_block", "Work In Progress Block");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");
@@ -31,6 +32,9 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.discharger.jade.time", "%1$s / %2$s");
         provider.add("tooltip.anvilcraft.discharger.jade.energy", "%1$s / %2$s");
 
+        provider.add("tooltip.anvilcraft.wip_block.jade.recipe", "Procedural Recipe: %s");
+        provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");
+
         provider.add("tooltip.anvilcraft.burning_heater.jade.state", "State: %s");
         provider.add("tooltip.anvilcraft.burning_heater.jade.state.off", "Off");
         provider.add("tooltip.anvilcraft.burning_heater.jade.state.smoldering", "Smoldering");
@@ -43,7 +47,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.smart_block_placer_provider", "Smart Block Placer");
 
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.operation_mode", "Operation Mode: %s");
-        provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.normal", "Normal");
+        provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.normal", "Point");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.mode.blueprint", "Blueprint");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement_mode", "Placement Mode: %s");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.placement.pickup", "Pickup");

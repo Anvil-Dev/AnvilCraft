@@ -1,0 +1,11 @@
+{
+    "multipart": [
+        { "when": { "facing": "down" }, "apply": { "model": "anvilcraft:block/simple_magnetic_chute", "x": 180 } },
+        { "when": { "facing": "east" }, "apply": { "model": "anvilcraft:block/simple_magnetic_chute", "x": 90, "y": 90 } },
+        { "when": { "facing": "north" }, "apply": { "model": "anvilcraft:block/simple_magnetic_chute", "x": 90 } },
+        { "when": { "facing": "south" }, "apply": { "model": "anvilcraft:block/simple_magnetic_chute", "x": 90, "y": 180 } },
+        { "when": { "facing": "up" }, "apply": { "model": "anvilcraft:block/simple_magnetic_chute" } },
+        { "when": { "facing": "west" }, "apply": { "model": "anvilcraft:block/simple_magnetic_chute", "x": 90, "y": 270 } },
+        { "when": { "head": "true" }, "apply": { "model": "anvilcraft:block/simple_magnetic_chute_head" } }
+    ]
+}

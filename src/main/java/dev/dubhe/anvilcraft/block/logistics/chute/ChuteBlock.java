@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.entity.ChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.network.MachineEnableFilterPacket;
 import dev.dubhe.anvilcraft.network.MachineOutputDirectionPacket;
@@ -22,6 +23,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
@@ -30,6 +32,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -41,6 +44,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -103,12 +107,14 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         if (obj instanceof BlockState state) {
             return state.is(ModBlocks.CHUTE.get())
                 || state.is(ModBlocks.SIMPLE_CHUTE.get())
-                || state.is(ModBlocks.MAGNETIC_CHUTE.get());
+                || state.is(ModBlocks.MAGNETIC_CHUTE.get())
+                || state.is(ModBlocks.SIMPLE_MAGNETIC_CHUTE.get());
         }
         if (obj instanceof Block block) {
             return block == ModBlocks.CHUTE.get()
                 || block == ModBlocks.SIMPLE_CHUTE.get()
-                || block == ModBlocks.MAGNETIC_CHUTE.get();
+                || block == ModBlocks.MAGNETIC_CHUTE.get()
+                || block == ModBlocks.SIMPLE_MAGNETIC_CHUTE.get();
         }
         return false;
     }
@@ -146,6 +152,31 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
             player.sendOverlayMessage(Component.translatable("message.anvilcraft.chute.cannot_place"));
         }
         return result;
+    }
+
+    @Override
+    public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
+        BlockState oldState = level.getBlockState(pos);
+        Direction oldFacing = oldState.getValue(FACING);
+        Direction newFacing = switch (oldFacing) {
+            case WEST -> Direction.DOWN;
+            case DOWN -> Direction.NORTH;
+            default -> oldFacing.getClockWise();
+        };
+        BlockState facingState = level.getBlockState(pos.relative(newFacing));
+        if (isChuteBlock(facingState) && getFacing(facingState) == newFacing.getOpposite()) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+            level.levelEvent(2001, pos, Block.getId(oldState));
+            Block.dropResources(oldState, level, pos);
+            return true;
+        }
+        HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
+        return true;
+    }
+
+    @Override
+    public Property<?> getChangeableProperty(BlockState blockState) {
+        return FACING;
     }
 
     @Override
@@ -242,6 +273,10 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     ) {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
+        }
+        // 手持铁砧锤时由 change 方法处理旋转/爆炸，不打开 GUI
+        if (player.getItemInHand(hand).is(ModItemTags.ANVIL_HAMMER)) {
+            return InteractionResult.PASS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof ChuteBlockEntity entity) {

@@ -40,6 +40,7 @@ public class DatapackSyncEventListener {
             ModRecipeTypes.NEUTRON_IRRADIATION.get(),
             ModRecipeTypes.PERMUTATION.get(),
             ModRecipeTypes.PORTAL_CONVERSION.get(),
+            ModRecipeTypes.PROCEDURAL_PROCESS.get(),
             ModRecipeTypes.STAMPING.get(),
             ModRecipeTypes.STAMPING_DIFF.get(),
             ModRecipeTypes.SQUEEZING.get(),
