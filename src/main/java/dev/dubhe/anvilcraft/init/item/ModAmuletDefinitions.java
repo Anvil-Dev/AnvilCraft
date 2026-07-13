@@ -54,8 +54,9 @@ public class ModAmuletDefinitions {
         );
         ctx.register(
             ModAmuletDefinitions.SAPPHIRE,
-            AmuletDefinition.builder(ModItems.RUBY_AMULET)
+            AmuletDefinition.builder(ModItems.SAPPHIRE_AMULET)
                 .obtain(ModDamageTypeTags.SAPPHIRE_AMULET_VALID)
+                .obtainEnd()
                 .obtainEntity(ModEntityTypeTags.SAPPHIRE_AMULET_VALID)
                 .build()
         );
@@ -63,8 +64,10 @@ public class ModAmuletDefinitions {
             ModAmuletDefinitions.ANVIL,
             AmuletDefinition.builder(ModItems.ANVIL_AMULET)
                 .obtain(ModDamageTypeTags.ANVIL_AMULET_VALID)
+                .obtainEnd()
                 .obtainEntity(ModEntityTypeTags.ANVIL_AMULET_VALID)
                 .obtain(new FallingBlockPredicate(BlockStatePredicate.builder().of(BlockTags.ANVIL).build()))
+                .obtainEnd()
                 .obtainDirect(
                     Objects.requireNonNull(SlotRanges.nameToIds("weapon")),
                     ItemPredicate.Builder.item().of(ModItemTags.ANVIL_HAMMER)

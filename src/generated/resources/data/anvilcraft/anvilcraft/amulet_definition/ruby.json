@@ -4,7 +4,7 @@
     "count": 1,
     "id": "anvilcraft:ruby_amulet"
   },
-  "obtain": {
+  "obtains": {
     "tags": [
       {
         "expected": true,
