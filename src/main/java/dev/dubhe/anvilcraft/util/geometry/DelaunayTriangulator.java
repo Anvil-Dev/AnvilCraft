@@ -358,13 +358,13 @@ public final class DelaunayTriangulator {
             HashMap<Long, EdgeReference> edges = new HashMap<>();
             for (int triangleIndex = 0; triangleIndex < this.size(); triangleIndex++) {
                 if (!this.isAlive(triangleIndex)) continue;
-                clearNeighbors(triangleIndex);
+                this.clearNeighbors(triangleIndex);
             }
             for (int triangleIndex = 0; triangleIndex < this.size(); triangleIndex++) {
                 if (!this.isAlive(triangleIndex)) continue;
-                registerEdge(edges, triangleIndex, this.getVertexA(triangleIndex), this.getVertexB(triangleIndex), 0);
-                registerEdge(edges, triangleIndex, this.getVertexB(triangleIndex), this.getVertexC(triangleIndex), 1);
-                registerEdge(edges, triangleIndex, this.getVertexC(triangleIndex), this.getVertexA(triangleIndex), 2);
+                this.registerEdge(edges, triangleIndex, this.getVertexA(triangleIndex), this.getVertexB(triangleIndex), 0);
+                this.registerEdge(edges, triangleIndex, this.getVertexB(triangleIndex), this.getVertexC(triangleIndex), 1);
+                this.registerEdge(edges, triangleIndex, this.getVertexC(triangleIndex), this.getVertexA(triangleIndex), 2);
             }
         }
 
@@ -372,8 +372,8 @@ public final class DelaunayTriangulator {
             long key = packEdge(a, b);
             EdgeReference other = edges.putIfAbsent(key, new EdgeReference(triangleIndex, side));
             if (other == null) return;
-            setNeighbor(triangleIndex, side, other.triangleIndex());
-            setNeighbor(other.triangleIndex(), other.side(), triangleIndex);
+            this.setNeighbor(triangleIndex, side, other.triangleIndex());
+            this.setNeighbor(other.triangleIndex(), other.side(), triangleIndex);
         }
 
         private void clearNeighbors(int triangleIndex) {
@@ -425,10 +425,10 @@ public final class DelaunayTriangulator {
 
         private int closestNeighbor(int triangleIndex, Point point) {
             int nextTriangle = -1;
-            double bestDistanceSquared = squaredDistanceToCircumcenter(triangleIndex, point);
+            double bestDistanceSquared = this.squaredDistanceToCircumcenter(triangleIndex, point);
             int neighborAB = this.neighborAB(triangleIndex);
             if (neighborAB != -1 && this.isAlive(neighborAB)) {
-                double distanceSquared = squaredDistanceToCircumcenter(neighborAB, point);
+                double distanceSquared = this.squaredDistanceToCircumcenter(neighborAB, point);
                 if (distanceSquared + EPSILON < bestDistanceSquared) {
                     bestDistanceSquared = distanceSquared;
                     nextTriangle = neighborAB;
@@ -436,7 +436,7 @@ public final class DelaunayTriangulator {
             }
             int neighborBC = this.neighborBC(triangleIndex);
             if (neighborBC != -1 && this.isAlive(neighborBC)) {
-                double distanceSquared = squaredDistanceToCircumcenter(neighborBC, point);
+                double distanceSquared = this.squaredDistanceToCircumcenter(neighborBC, point);
                 if (distanceSquared + EPSILON < bestDistanceSquared) {
                     bestDistanceSquared = distanceSquared;
                     nextTriangle = neighborBC;
@@ -444,7 +444,7 @@ public final class DelaunayTriangulator {
             }
             int neighborCA = this.neighborCA(triangleIndex);
             if (neighborCA != -1 && this.isAlive(neighborCA)) {
-                double distanceSquared = squaredDistanceToCircumcenter(neighborCA, point);
+                double distanceSquared = this.squaredDistanceToCircumcenter(neighborCA, point);
                 if (distanceSquared + EPSILON < bestDistanceSquared) {
                     nextTriangle = neighborCA;
                 }
@@ -466,7 +466,7 @@ public final class DelaunayTriangulator {
 
         private void remove(int triangleIndex) {
             this.alive.set(triangleIndex, false);
-            clearNeighbors(triangleIndex);
+            this.clearNeighbors(triangleIndex);
         }
 
         private boolean isAlive(int triangleIndex) {
