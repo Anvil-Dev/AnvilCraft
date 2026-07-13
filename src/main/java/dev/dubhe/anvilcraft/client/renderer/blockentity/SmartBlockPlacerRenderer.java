@@ -689,6 +689,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     private BlockPos getBlueprintTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown,
         StructureLoadUtil.StructureData structure) {
 
+        BlockPos syncedTargetPos = entity.getSyncedAnimationTargetPos();
+        if (syncedTargetPos != null) {
+            return syncedTargetPos;
+        }
+
         // 直接使用 BlockEntity 提供的方法获取当前目标位置
         // 这个方法会正确处理 currentPlacementIndex 到实际索引的转换
         BlockPos currentTarget = entity.getCurrentBlueprintTargetPosition();

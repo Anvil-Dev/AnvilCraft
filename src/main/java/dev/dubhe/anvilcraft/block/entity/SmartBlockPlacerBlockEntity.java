@@ -256,6 +256,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public final SyncProxy<Integer> placeCooldownProxy = new SyncProxy<>(0);
     public final SyncProxy<ItemStack> currentHeldBlockProxy = new SyncProxy<>(ItemStack.EMPTY);
     public final SyncProxy<Integer> currentPlacementIndexProxy = new SyncProxy<>(0);
+    public final SyncProxy<CompoundTag> animationTargetPosProxy = new SyncProxy<>(new CompoundTag());
     public final SyncProxy<Boolean> isPoweredProxy = new SyncProxy<>(false);
     public final SyncProxy<Boolean> hasRedstoneSignalProxy = new SyncProxy<>(false);
 
@@ -272,6 +273,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     public int getCurrentPlacementIndex() {
         Integer value = this.currentPlacementIndexProxy.getValue();
         return value != null ? value : 0;
+    }
+
+    @Nullable
+    public BlockPos getSyncedAnimationTargetPos() {
+        return readBlockPos(this.animationTargetPosProxy.getValue());
     }
 
     public boolean isPowered() {
@@ -335,6 +341,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     // 客户端收回音效播放标记（防止同一动画周期内重复播放）
     private boolean retractSoundPlayed = false;
+    @Nullable
+    private BlockPos serverAnimationTargetPos = null;
 
     // 比较器信号状态
     private int lastComparatorSignal = 0;
@@ -481,6 +489,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.placeCooldownProxy.setValue(this.placeCooldown);
             this.currentHeldBlockProxy.setValue(this.currentHeldBlock);
             this.currentPlacementIndexProxy.setValue(this.currentPlacementIndex);
+            this.animationTargetPosProxy.setValue(writeBlockPos(this.serverAnimationTargetPos));
             this.isPoweredProxy.setValue(this.isPowered);
             this.hasRedstoneSignalProxy.setValue(this.hasRedstoneSignal);
             if (!level.isClientSide()) {
@@ -581,6 +590,28 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         return data;
+    }
+
+    private static CompoundTag writeBlockPos(@Nullable BlockPos pos) {
+        CompoundTag tag = new CompoundTag();
+        if (pos != null) {
+            tag.putInt("x", pos.getX());
+            tag.putInt("y", pos.getY());
+            tag.putInt("z", pos.getZ());
+        }
+        return tag;
+    }
+
+    @Nullable
+    private static BlockPos readBlockPos(@Nullable CompoundTag tag) {
+        if (tag == null || !tag.contains("x") || !tag.contains("y") || !tag.contains("z")) {
+            return null;
+        }
+        return new BlockPos(
+            tag.getIntOr("x", 0),
+            tag.getIntOr("y", 0),
+            tag.getIntOr("z", 0)
+        );
     }
 
     /**
@@ -1101,6 +1132,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             if (heldItemCleared) {
                 this.currentHeldBlock = ItemStack.EMPTY;
             }
+            boolean animationTargetCleared = this.serverAnimationTargetPos != null;
+            if (animationTargetCleared) {
+                this.serverAnimationTargetPos = null;
+            }
 
             boolean shutdownIndexReset = this.currentPlacementIndex != 0;
             if (shutdownIndexReset) {
@@ -1115,7 +1150,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 this.updateMissingBlockInfo(level, pos);
             }
 
-            if (stateChanged || cooldownReset || heldItemCleared || shutdownIndexReset) {
+            if (stateChanged || cooldownReset || heldItemCleared || animationTargetCleared || shutdownIndexReset) {
                 this.onChanged();
             }
         }
@@ -1307,6 +1342,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 准备钳子中的方块（用于动画显示）
      */
     private void prepareHeldBlock(Level level, BlockPos pos, WorkMode mode) {
+        if (mode != WorkMode.BLUEPRINT) {
+            this.serverAnimationTargetPos = null;
+        }
         switch (mode) {
             case PICKUP -> this.currentHeldBlock = this.peekBlockItemFromContainer(level, pos);
             case MOVE -> this.prepareMoveModeHeldBlock(level, pos);
@@ -1335,6 +1373,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * 准备蓝图模式的钳子方块
      */
     private void prepareBlueprintModeHeldBlock(Level level, BlockPos pos) {
+        this.serverAnimationTargetPos = null;
+
         if (this.loadedStructure == null || this.loadedStructure.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
             return;
@@ -1417,6 +1457,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                         continue;
                     }
                     this.currentHeldBlock = blockItem.copy();
+                    this.serverAnimationTargetPos = targetPos;
                     return;
                 }
 
@@ -1424,6 +1465,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 ItemStack blockItem = this.peekSpecificBlockItemFromContainer(level, pos, requiredBlock);
                 if (!blockItem.isEmpty()) {
                     this.currentHeldBlock = blockItem.copy();
+                    this.serverAnimationTargetPos = targetPos;
                     return;
                 }
             }
@@ -1467,6 +1509,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                     ItemStack sourceItem = sourceState.getBlock().asItem().getDefaultInstance();
                     if (!sourceItem.isEmpty()) {
                         this.currentHeldBlock = sourceItem.copy();
+                        this.serverAnimationTargetPos = targetPos;
                         return;
                     }
                 }
@@ -1493,6 +1536,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         // 清空钳子中的物品（停止动画）
         boolean stateChanged = false;
+        if (this.serverAnimationTargetPos != null) {
+            this.serverAnimationTargetPos = null;
+            stateChanged = true;
+        }
 
         if (!this.currentHeldBlock.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
@@ -2177,6 +2224,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             // 物品充足且位置可以放置，设置 currentHeldBlock 用于动画显示
             this.currentHeldBlock = blockItem.copy();
+            this.serverAnimationTargetPos = targetPos;
             this.onChanged();
 
             if (stackCount > 1) {
@@ -2336,6 +2384,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             // 设置 currentHeldBlock 用于动画显示
             this.currentHeldBlock = sourceItem.copy();
+            this.serverAnimationTargetPos = targetPos;
             this.onChanged();
 
             // 获取蓝图中的目标状态（已经包含旋转、倒挂和状态过滤处理）
