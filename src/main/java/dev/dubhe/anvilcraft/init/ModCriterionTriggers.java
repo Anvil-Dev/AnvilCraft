@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConnectFluidContainersTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
@@ -19,6 +20,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MagnetLiftingAnvilTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MilkTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.MineralFountainCreateTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.UseItemTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerPlaceTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlacerShuttleTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.PlayerKilledEntityByAnvilHammerTrigger;
@@ -135,6 +137,14 @@ public class ModCriterionTriggers {
         "mineral_fountain_crate",
         MineralFountainCreateTrigger::new
     );
+
+    public static final DeferredHolder<CriterionTrigger<?>, UseItemTrigger> USE_ITEM = REGISTER.register(
+        "use_item",
+        UseItemTrigger::new
+    );
+
+    public static final DeferredHolder<CriterionTrigger<?>, BlockComparatorTurnOverTrigger> BLOCK_COMPARATOR_TURN_OVER =
+        REGISTER.register("block_comparator_turn_over", BlockComparatorTurnOverTrigger::new);
 
     public static void register(IEventBus eventBus) {
         REGISTER.register(eventBus);

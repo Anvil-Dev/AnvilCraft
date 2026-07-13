@@ -246,14 +246,19 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         boolean shouldPower = blockEntity.isOutputting();
         int inputtingSignal = Mth.clamp(blockEntity.getInputtingSignal(), 0, 15);
         Mode mode = blockEntity.getCompareMode();
-        level.setBlockAndUpdate(pos,
-            state.setValue(AdvancedComparatorBlock.POWERED, shouldPower)
-                .setValue(AdvancedComparatorBlock.INPUT, inputtingSignal > 0)
-                .setValue(AdvancedComparatorBlock.POWER, inputtingSignal)
-                .setValue(AdvancedComparatorBlock.MODE, mode));
+        boolean changed = state.getValue(AdvancedComparatorBlock.POWERED) != shouldPower
+            || state.getValue(AdvancedComparatorBlock.INPUT) != (inputtingSignal > 0)
+            || state.getValue(AdvancedComparatorBlock.POWER) != inputtingSignal
+            || state.getValue(AdvancedComparatorBlock.MODE) != mode;
+        if (!changed) return;
+        BlockState newState = state.setValue(AdvancedComparatorBlock.POWERED, shouldPower)
+            .setValue(AdvancedComparatorBlock.INPUT, inputtingSignal > 0)
+            .setValue(AdvancedComparatorBlock.POWER, inputtingSignal)
+            .setValue(AdvancedComparatorBlock.MODE, mode);
+        level.setBlockAndUpdate(pos, newState);
         Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, direction, null);
-        level.neighborChanged(neighbourPos, state.getBlock(), orientation);
-        level.updateNeighborsAtExceptFromFacing(neighbourPos, state.getBlock(), direction.getOpposite(), orientation);
+        level.neighborChanged(neighbourPos, newState.getBlock(), orientation);
+        level.updateNeighborsAtExceptFromFacing(neighbourPos, newState.getBlock(), direction.getOpposite(), orientation);
     }
 
     @Override
@@ -309,6 +314,8 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
-        Util.<AdvancedComparatorBlockEntity>cast(be).notifyMoved();
+        if (be instanceof AdvancedComparatorBlockEntity comparator) {
+            comparator.notifyMoved();
+        }
     }
 }

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -10,8 +9,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Fluids;
@@ -30,6 +27,8 @@ public class PipeStraightBlock extends PipeBlock {
         super(properties);
         this.registerDefaultState(this.getStateDefinition()
             .any()
+            .setValue(WATERLOGGED, false)
+            .setValue(HAS_CHECK_VALVE, false)
             .setValue(AXIS, Direction.Axis.X)
             .setValue(HAS_END_START, true)
             .setValue(HAS_END_END, true));
@@ -77,6 +76,7 @@ public class PipeStraightBlock extends PipeBlock {
         Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
+        this.updateCheckValvePower(level, pos, state);
         Direction.Axis axis = state.getValue(AXIS);
 
         // 侧面（非轴向）出现对准的管道或连接面正对的泵 → 升级为节点
@@ -96,7 +96,7 @@ public class PipeStraightBlock extends PipeBlock {
                 }
                 BlockState simplified = PipeNodeBlock.trySimplify(nodeState);
                 if (!simplified.equals(state)) {
-                    level.setBlockAndUpdate(pos, simplified);
+                    setBlockPreservingValve(level, pos, simplified);
                 }
                 return;
             }
@@ -109,19 +109,12 @@ public class PipeStraightBlock extends PipeBlock {
             .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, startDir))
             .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, endDir));
         if (!newState.equals(state)) {
-            level.setBlockAndUpdate(pos, newState);
+            setBlockPreservingValve(level, pos, newState);
         }
     }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.PIPE.create(pos, state);
-    }
-
-    @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> blockEntityType
-    ) {
-        return (l, p, s, ignore) -> PipeBlockEntity.tick(l, p, s);
     }
 }

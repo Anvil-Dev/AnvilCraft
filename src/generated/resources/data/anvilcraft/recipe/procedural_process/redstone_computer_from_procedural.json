@@ -1,0 +1,64 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "displayed_model": "anvilcraft:block/redstone_computer_wip",
+  "initial_block": {
+    "blocks": "minecraft:iron_block"
+  },
+  "loop": 1,
+  "result_block": {
+    "block": "anvilcraft:redstone_computer"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "minecraft:iron_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:circuit_board"
+          }
+        ]
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:processor"
+          }
+        ]
+      },
+      "index": 1
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:redstone_computer"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:disk"
+          }
+        ]
+      },
+      "index": 2
+    }
+  ]
+}

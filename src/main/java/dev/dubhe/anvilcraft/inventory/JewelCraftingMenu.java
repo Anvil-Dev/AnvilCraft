@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.inventory;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -74,7 +73,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
         // craft
         for (int i = 0; i < 4; i++) {
-            this.addSlot(new JewelInputSlot(this.resultContainer, this.craftingContainer, i, 26 + i * 18, 51));
+            this.addSlot(new JewelInputSlot(this.sourceContainer, this.craftingContainer, i, 26 + i * 18, 51));
         }
 
         // player
@@ -108,8 +107,35 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) return sourceStack;
 
-        if (index >= RESULT_SLOT && index < CRAFT_SLOT_END) {
-            if (!this.moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
+        if (index == RESULT_SLOT) {
+            int totalCrafted = 0;
+            while (true) {
+                ItemStack currentResult = sourceSlot.getItem();
+                if (currentResult.isEmpty()) break;
+
+                ItemStack moveStack = currentResult.copy();
+                if (!moveItemStackTo(moveStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
+                    break;
+                }
+
+                int moved = currentResult.getCount() - moveStack.getCount();
+                if (moved <= 0) break;
+
+                sourceSlot.onQuickCraft(moveStack, currentResult);
+
+                if (moveStack.isEmpty()) {
+                    sourceSlot.setByPlayer(ItemStack.EMPTY);
+                } else {
+                    sourceSlot.setChanged();
+                }
+                ItemStack takenStack = currentResult.copyWithCount(moved);
+                sourceSlot.onTake(player, takenStack);
+                totalCrafted += moved;
+            }
+
+            return totalCrafted > 0 ? sourceStack.copyWithCount(totalCrafted) : ItemStack.EMPTY;
+        } else if (index >= SOURCE_SLOT && index < CRAFT_SLOT_END) {
+            if (!moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
                 return ItemStack.EMPTY;
             }
         } else if (index >= INV_SLOT_START && index < USE_ROW_SLOT_END) {
@@ -153,6 +179,14 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(this.access, player, ModBlocks.JEWEL_CRAFTING_TABLE.get());
+    }
+
+    public @Nullable RecipeHolder<JewelCraftingRecipe> findRecipeBySource(ItemStack source) {
+        return RecipesRecord.getRecipes(this.player.level()).byType(ModRecipeTypes.JEWEL_CRAFTING.get())
+            .stream()
+            .filter(holder -> holder.value().source().test(source))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
@@ -223,8 +257,8 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
             return;
         }
 
-        JewelCraftingRecipe recipe = Optional.ofNullable(this.resultContainer.getRecipeUsed())
-            .flatMap(holder -> Util.castSafely(holder.value(), JewelCraftingRecipe.class))
+        JewelCraftingRecipe recipe = Optional.ofNullable(this.sourceContainer.getRecipe())
+            .map(RecipeHolder::value)
             .orElse(null);
         if (recipe == null) return;
 

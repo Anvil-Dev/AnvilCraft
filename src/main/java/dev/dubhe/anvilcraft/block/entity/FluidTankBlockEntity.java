@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.CapacityModifiableFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -41,6 +42,22 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.addContainer(this.level, this.getBlockPos());
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
+        }
+        super.setRemoved();
     }
 
     public void onFormed() {

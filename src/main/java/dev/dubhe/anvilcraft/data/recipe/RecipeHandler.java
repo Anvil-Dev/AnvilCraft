@@ -42,5 +42,6 @@ public class RecipeHandler {
         PlanetResourceRecipeLoader.init(provider);
         SpecialCelestialBodyRecipeLoader.init(provider);
         TempleDemandRecipeLoader.init(provider);
+        ProceduralProcessRecipeLoader.init(provider);
     }
 }

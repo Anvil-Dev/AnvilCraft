@@ -12,8 +12,11 @@ import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessSerializer;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
@@ -194,6 +197,10 @@ public class ModRecipeSerializers {
         .register("special_celestial_body", () -> SpecialCelestialBodyRecipe.SERIALIZER);
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TempleDemandRecipe>> TEMPLE_DEMAND = DF
         .register("temple_demand", () -> TempleDemandRecipe.SERIALIZER);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ProceduralProcessRecipe>> PROCEDURAL_PROCESS = DF
+        .register("procedural_process", () -> ProceduralProcessSerializer.INSTANCE);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BlockProcessingRecipe>> BLOCK_PROCESSING = DF
+        .register("block_processing", () -> BlockProcessingRecipe.SERIALIZER);
 
     public static void register(IEventBus bus) {
         DF.register(bus);

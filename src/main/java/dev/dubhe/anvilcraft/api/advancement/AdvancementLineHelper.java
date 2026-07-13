@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.advancements.criterion.AnvilHammerHurtEntityTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilHitPiezoelectricCrystalTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilLootingTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.AnvilOnGroundTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
@@ -444,6 +445,10 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper placerShuttle(String key) {
             return this.addCriterion(key, PlacerShuttleTrigger.TriggerInstance.create());
+        }
+
+        public AdvancementHelper blockComparatorTurnOver(String key) {
+            return this.addCriterion(key, BlockComparatorTurnOverTrigger.TriggerInstance.turnOver());
         }
 
         public AdvancementHolder build(String id) {

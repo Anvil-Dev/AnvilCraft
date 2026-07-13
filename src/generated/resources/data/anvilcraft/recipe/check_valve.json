@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "anvilcraft:check_valve",
+  "ingredients": [
+    "anvilcraft:pipe"
+  ],
+  "result": {
+    "id": "anvilcraft:check_valve"
+  }
+}

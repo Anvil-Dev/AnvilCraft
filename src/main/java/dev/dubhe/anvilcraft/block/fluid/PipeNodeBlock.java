@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeNodeBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -13,8 +13,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -40,6 +38,8 @@ public class PipeNodeBlock extends PipeBlock {
         super(properties);
         this.registerDefaultState(this.getStateDefinition()
             .any()
+            .setValue(WATERLOGGED, false)
+            .setValue(HAS_CHECK_VALVE, false)
             .setValue(DOWN, NodePipe.NONE)
             .setValue(UP, NodePipe.NONE)
             .setValue(NORTH, NodePipe.NONE)
@@ -69,11 +69,17 @@ public class PipeNodeBlock extends PipeBlock {
     }
 
     @Override
+    protected boolean hasArmToward(BlockState state, Direction dir) {
+        return state.getValue(getPropertyForDirection(dir)) != NodePipe.NONE;
+    }
+
+    @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
         if (state.is(oldState.getBlock())) return;
         BlockState updated = scanAllDirections(state, level, pos);
         updated = trySimplify(updated);
-        if (!updated.equals(state)) level.setBlockAndUpdate(pos, updated);
+        if (!updated.equals(state)) setBlockPreservingValve(level, pos, updated);
     }
 
     @Override
@@ -82,9 +88,10 @@ public class PipeNodeBlock extends PipeBlock {
         Block neighborBlock, @Nullable Orientation orientation, boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
+        this.updateCheckValvePower(level, pos, state);
         BlockState updated = scanAllDirections(state, level, pos);
         BlockState simplified = trySimplify(updated);
-        if (!simplified.equals(state)) level.setBlockAndUpdate(pos, simplified);
+        if (!simplified.equals(state)) setBlockPreservingValve(level, pos, simplified);
     }
 
     public static NodePipe evaluateNeighbor(Level level, BlockPos pos, Direction dir) {
@@ -96,6 +103,10 @@ public class PipeNodeBlock extends PipeBlock {
         if (neighborState.getBlock() instanceof PumpBlock) {
             // 泵仅在其连接面（朝向轴两端）正对节点时才形成端头连接
             return PumpBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
+        }
+        if (neighborState.getBlock() instanceof ControlValveBlock) {
+            // 控制阀仅在其连接面（朝向轴两端）正对节点时才形成端头连接
+            return ControlValveBlock.isConnectableFace(neighborState, dir.getOpposite()) ? NodePipe.END : NodePipe.NONE;
         }
         if (isFluidHandler(level, neighborPos)) {
             return NodePipe.END;
@@ -171,11 +182,15 @@ public class PipeNodeBlock extends PipeBlock {
         ItemStack stack, BlockState state, Level level, BlockPos pos,
         Player player, InteractionHand hand, BlockHitResult hitResult
     ) {
-        if (!stack.is(Tags.Items.TOOLS_WRENCH)) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        if (
+            result != InteractionResult.PASS && result != InteractionResult.TRY_WITH_EMPTY_HAND
+            || !(stack.is(Tags.Items.TOOLS_WRENCH) || stack.is(ModItemTags.ANVIL_HAMMER))
+        ) {
+            return result;
         }
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        Direction armDir = getArmDirection(pos, hitResult);
+        Direction armDir = getNodeArmDirection(pos, hitResult);
         if (armDir == null) return InteractionResult.PASS;
         EnumProperty<NodePipe> prop = getPropertyForDirection(armDir);
         NodePipe current = state.getValue(prop);
@@ -189,11 +204,11 @@ public class PipeNodeBlock extends PipeBlock {
         }
         BlockState newState = state.setValue(prop, NodePipe.NONE);
         newState = trySimplify(newState);
-        level.setBlockAndUpdate(pos, newState);
+        setBlockPreservingValve(level, pos, newState);
         return InteractionResult.CONSUME;
     }
 
-    private static @Nullable Direction getArmDirection(BlockPos pos, BlockHitResult hitResult) {
+    private static @Nullable Direction getNodeArmDirection(BlockPos pos, BlockHitResult hitResult) {
         Vec3 loc = hitResult.getLocation();
         double bx = loc.x - pos.getX();
         double by = loc.y - pos.getY();
@@ -220,12 +235,5 @@ public class PipeNodeBlock extends PipeBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.PIPE_NODE.create(pos, state);
-    }
-
-    @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level, BlockState state, BlockEntityType<T> blockEntityType
-    ) {
-        return (l, p, s, ignore) -> PipeNodeBlockEntity.tick(l, p, s);
     }
 }

@@ -1633,4 +1633,13 @@ public class RegistrumItemRecipeLoader {
             )
             .save(provider);
     }
+
+    public static <T extends Item> void checkValve(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
+            .requires(ModItems.PIPE)
+            .group(ctx.getId().toString())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PIPE), AnvilCraftDatagen.has(lookup, ModItems.PIPE))
+            .save(provider);
+    }
 }

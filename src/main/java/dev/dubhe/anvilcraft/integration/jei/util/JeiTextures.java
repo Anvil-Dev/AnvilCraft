@@ -8,6 +8,7 @@ public class JeiTextures {
     public static final Identifier ARROW_DEFAULT = texture("arrow_default");
     public static final Identifier ARROW_BLOCK_CONVERSION = texture("arrow_block_conversion");
     public static final Identifier ARROW_INPUT = texture("arrow_input");
+    public static final Identifier ARROW_LONG = texture("arrow_long");
     public static final Identifier ARROW_OUTPUT = texture("arrow_output");
     public static final Identifier ARROW_OUTPUT_FROM_BELOW = texture("arrow_output_from_below");
 
@@ -26,6 +27,7 @@ public class JeiTextures {
 
     // Other
     public static final Identifier EXPLOSION = texture("explosion");
+    public static final Identifier CYCLE = texture("cycle");
     public static final Identifier PRE_RENDERED_END_PORTAL = texture("pre_rendered_end_portal");
 
     public static Identifier texture(String path) {

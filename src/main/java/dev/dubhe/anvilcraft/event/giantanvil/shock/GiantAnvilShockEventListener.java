@@ -44,7 +44,7 @@ public class GiantAnvilShockEventListener {
     static {
         TreeNode<ShockContext> root = TreeNode.<ShockContext>predicatedExecutable(
             it -> {
-                @SuppressWarnings("resource") Level level = it.unwrap().level();
+                Level level = it.unwrap().level();
                 return level.getBlockState(it.unwrap().centerPos()).is(ModBlocks.HEAVY_IRON_BLOCK);
             }
         ).then(
@@ -170,7 +170,7 @@ public class GiantAnvilShockEventListener {
                         // 下车后延迟弹起，等待客户端同步位置
                         if (level instanceof ServerLevel sl) {
                             final double finalSpeed = upwardSpeed;
-                            sl.getServer().execute(new net.minecraft.server.TickTask(
+                            sl.getServer().schedule(new net.minecraft.server.TickTask(
                                 sl.getServer().getTickCount() + 4,
                                 () -> {
                                     if (living.isAlive()) {
@@ -196,18 +196,16 @@ public class GiantAnvilShockEventListener {
                 1,
                 radius * 2 + 1
             );
-            @SuppressWarnings("resource") Level level = it.unwrap().level();
+            Level level = it.unwrap().level();
             List<LivingEntity> e = level.getEntitiesOfClass(LivingEntity.class, aabb);
             for (LivingEntity l : e) {
                 if (it.has(HURT_TYPE)) {
                     HurtType hurtType = it.getAttachment(HURT_TYPE, HurtType.class);
-                    // noinspection deprecation
-                    l.hurtOrSimulate(hurtType.damageSource(l.level()), it.unwrap().fallDistance() * 2 * 2);
+                    l.hurt(hurtType.damageSource(l.level()), it.unwrap().fallDistance() * 2 * 2);
                     hurtType.postApply(l.level(), l, it.unwrap().fallDistance());
                 } else {
                     if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
-                        // noinspection deprecation
-                        l.hurtOrSimulate(
+                        l.hurt(
                             ModDamageTypes.fallingGiantAnvil(it.unwrap().level(), it.unwrap().fallingGiantAnvil()),
                             it.unwrap().fallDistance() * 2
                         );
@@ -234,13 +232,13 @@ public class GiantAnvilShockEventListener {
             if (event.getLevel() instanceof ServerLevel serverLevel) {
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
-                    new ChunkPos(event.getPos().getX() >> 4, event.getPos().getZ() >> 4),
+                    ChunkPos.containing(event.getPos()),
                     new GiantAnvilShockEffectPacket(shockCenter, radius)
                 );
                 // 屏幕震动（幅度小、结束快，仅玩家站在地面上才震），范围与撼地一致
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
-                    new ChunkPos(event.getPos().getX() >> 4, event.getPos().getZ() >> 4),
+                    ChunkPos.containing(event.getPos()),
                     dev.dubhe.anvilcraft.network.ScreenShakePacket.of(
                         Vec3.atCenterOf(shockCenter),
                         radius,
@@ -287,6 +285,9 @@ public class GiantAnvilShockEventListener {
                 int ring = Math.max(Math.abs(dx), Math.abs(dz));
                 double ratio = (double) ring / radius;
                 // 粒子弹跳高度：整体降低约 50%
+                // 旧公式：0.3 + (1.0 - ratio)  → 范围 [1.3, 0.3]
+                // 新公式：0.15 + (1.0 - ratio) * 0.5 → 范围 [0.65, 0.15]
+                // 减缓粒子过高飞散，更贴近地面效果
                 double jumpHeight = 0.15 + (1.0 - ratio) * 0.5;
                 int particleCount = AnvilCraft.CLIENT_CONFIG.groundHeaveParticleCount;
                 double speed = 0.15 + jumpHeight * 0.2;

@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvi
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -14,6 +15,24 @@ import net.minecraft.world.level.ItemLike;
 public class ShapedRecipeLoader {
     public ShapedRecipeLoader(RegistrumRecipeProvider provider) {
         this.nineToOne(provider);
+        this.controlValve(provider);
+    }
+
+    private void controlValve(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ModBlocks.CONTROL_VALVE)
+            .pattern(" C ")
+            .pattern("PHP")
+            .define('C', ModItems.CIRCUIT_BOARD)
+            .define('P', ModItems.PIPE)
+            .define('H', ModBlocks.CHUTE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.CIRCUIT_BOARD),
+                AnvilCraftDatagen.has(lookup, ModItems.CIRCUIT_BOARD)
+            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.PIPE), AnvilCraftDatagen.has(lookup, ModItems.PIPE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHUTE), AnvilCraftDatagen.has(lookup, ModBlocks.CHUTE))
+            .save(provider);
     }
 
     public void nineToOne(RegistrumRecipeProvider provider) {

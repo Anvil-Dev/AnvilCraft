@@ -1,9 +1,14 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.fluidtank.CreativeFluidHandler;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.StoredFluids;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -27,6 +32,22 @@ public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidR
     }
 
     @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.addContainer(this.level, this.getBlockPos());
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        if (this.level != null && !this.level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
+        }
+        super.setRemoved();
+    }
+
+    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         this.fluidHandler.serialize(output);
@@ -36,6 +57,24 @@ public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidR
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.fluidHandler.deserialize(input);
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
+        StoredFluids fluids = components.getOrDefault(ModComponents.CREATIVE_TANK_FLUIDS, StoredFluids.EMPTY);
+        if (!fluids.isEmpty()) {
+            this.fluidHandler.replaceStacks(fluids.fluids());
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        StoredFluids fluids = new StoredFluids(this.fluidHandler.getStacks());
+        if (!fluids.isEmpty()) {
+            components.set(ModComponents.CREATIVE_TANK_FLUIDS, fluids);
+        }
     }
 
     @Override

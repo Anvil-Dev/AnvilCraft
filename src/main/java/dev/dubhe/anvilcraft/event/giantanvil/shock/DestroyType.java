@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.block.IBrokenCrystalsBudding;
 import dev.dubhe.anvilcraft.api.block.IBrokenCrystalsCluster;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockPos.TraversalNodeStatus;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -42,15 +41,15 @@ public abstract class DestroyType {
                         VISIT_LIMIT,
                         Util::acceptDirections,
                         it -> {
-                            if (it.getY() < destroyLayer.getY()) return TraversalNodeStatus.SKIP;
+                            if (it.getY() < destroyLayer.getY()) return BlockPos.TraversalNodeStatus.SKIP;
                             BlockState state = level.getBlockState(it);
                             if (isFellingApplicableBlock(state)) {
                                 List<ItemStack> itemStack = mode.apply(state, it, context);
                                 level.setBlockAndUpdate(it, Blocks.AIR.defaultBlockState());
                                 DestroyType.dropItems(itemStack, it, level);
-                                return TraversalNodeStatus.ACCEPT;
+                                return BlockPos.TraversalNodeStatus.ACCEPT;
                             }
-                            return TraversalNodeStatus.SKIP;
+                            return BlockPos.TraversalNodeStatus.SKIP;
                         }
                     );
                 }
@@ -93,15 +92,17 @@ public abstract class DestroyType {
                         VISIT_LIMIT,
                         Util::acceptDirections,
                         it -> {
-                            if (it.getY() < destroyLayer.getY()) return TraversalNodeStatus.SKIP;
+                            if (it.getY() < destroyLayer.getY()) return BlockPos.TraversalNodeStatus.SKIP;
                             BlockState blockState = level.getBlockState(it);
                             if (blockState.is(Blocks.COCOA) && blockState.getValue(CocoaBlock.AGE) == 2) {
                                 List<ItemStack> itemStack = mode.apply(blockState, it, context);
                                 level.setBlockAndUpdate(it, blockState.setValue(CocoaBlock.AGE, 0));
                                 DestroyType.dropItems(itemStack, it, level);
-                                return TraversalNodeStatus.ACCEPT;
+                                return BlockPos.TraversalNodeStatus.ACCEPT;
                             }
-                            return blockState.is(BlockTags.JUNGLE_LOGS) ? TraversalNodeStatus.ACCEPT : TraversalNodeStatus.SKIP;
+                            return blockState.is(BlockTags.JUNGLE_LOGS)
+                                   ? BlockPos.TraversalNodeStatus.ACCEPT
+                                   : BlockPos.TraversalNodeStatus.SKIP;
                         }
                     );
                 }
@@ -153,7 +154,7 @@ public abstract class DestroyType {
                         VISIT_LIMIT,
                         (it, c) -> c.accept(it.below()),
                         it -> {
-                            if (it.getY() > pos.getY()) return TraversalNodeStatus.SKIP;
+                            if (it.getY() > pos.getY()) return BlockPos.TraversalNodeStatus.SKIP;
                             BlockState blockState = level.getBlockState(it);
                             if (blockState.is(Blocks.CAVE_VINES) || blockState.is(Blocks.CAVE_VINES_PLANT)) {
                                 List<ItemStack> itemStack = mode.apply(blockState, it, context);
@@ -161,9 +162,9 @@ public abstract class DestroyType {
                                     level.setBlockAndUpdate(it, blockState.setValue(CaveVinesPlantBlock.BERRIES, false));
                                     DestroyType.dropItems(itemStack, it, level);
                                 }
-                                return TraversalNodeStatus.ACCEPT;
+                                return BlockPos.TraversalNodeStatus.ACCEPT;
                             }
-                            return TraversalNodeStatus.SKIP;
+                            return BlockPos.TraversalNodeStatus.SKIP;
                         }
                     );
                 }

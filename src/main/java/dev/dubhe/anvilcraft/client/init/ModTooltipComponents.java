@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.client.init;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.gui.tooltip.ClientCreativeContainerTooltip;
 import dev.dubhe.anvilcraft.client.gui.tooltip.ClientFilterTooltip;
+import dev.dubhe.anvilcraft.inventory.tooltip.CreativeContainerTooltip;
 import dev.dubhe.anvilcraft.inventory.tooltip.FilterTooltip;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,5 +16,6 @@ public class ModTooltipComponents {
     @SubscribeEvent
     public static void register(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(FilterTooltip.class, ClientFilterTooltip::new);
+        event.register(CreativeContainerTooltip.class, ClientCreativeContainerTooltip::new);
     }
 }

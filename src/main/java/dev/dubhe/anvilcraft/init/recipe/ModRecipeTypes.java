@@ -10,8 +10,10 @@ import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
@@ -104,6 +106,12 @@ public class ModRecipeTypes {
         "special_celestial_body"
     );
     public static final DeferredHolder<RecipeType<?>, RecipeType<TempleDemandRecipe>> TEMPLE_DEMAND = registerType("temple_demand");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<ProceduralProcessRecipe>> PROCEDURAL_PROCESS = registerType(
+        "procedural_process"
+    );
+    public static final DeferredHolder<RecipeType<?>, RecipeType<BlockProcessingRecipe>> BLOCK_PROCESSING = registerType(
+        "block_processing"
+    );
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> registerType(String name) {
         return DF.register(name, RecipeType::simple);

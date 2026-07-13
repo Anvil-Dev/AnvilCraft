@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.data.provider.ModFurnaceFuelProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootModifierProvider;
 import dev.dubhe.anvilcraft.data.provider.ModLootTableProvider;
 import dev.dubhe.anvilcraft.data.provider.ModParticleDescriptionProvider;
+import dev.dubhe.anvilcraft.data.provider.ModSoundDefinitionsProvider;
 import dev.dubhe.anvilcraft.data.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.tags.TagsHandler;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
@@ -49,6 +50,10 @@ public class AnvilCraftDatagen {
         PackOutput packOutput = generator.getPackOutput();
 
         generator.addProvider(true, new ModParticleDescriptionProvider(packOutput));
+        generator.addProvider(true, new ModSoundDefinitionsProvider(packOutput));
+        generator.addProvider(true, new ModLootTableProvider(packOutput, event.getLookupProvider()));
+        generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, event.getLookupProvider()));
+        generator.addProvider(true, new ModLootModifierProvider(packOutput, event.getLookupProvider()));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientDataIntegrations();
@@ -62,7 +67,7 @@ public class AnvilCraftDatagen {
 
         generator.addProvider(true, new ModLootTableProvider(packOutput, lookupProvider));
         generator.addProvider(true, new ModFurnaceFuelProvider(packOutput, lookupProvider));
-        generator.addProvider(true, new ModLootModifierProvider(packOutput, lookupProvider, AnvilCraft.MOD_ID));
+        generator.addProvider(true, new ModLootModifierProvider(packOutput, lookupProvider));
 
         IntegrationHook.setEvent(event);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllServerDataIntegrations();

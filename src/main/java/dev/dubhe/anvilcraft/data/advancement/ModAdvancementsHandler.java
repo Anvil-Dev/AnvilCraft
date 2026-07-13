@@ -6,8 +6,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.advancements.criterion.ConnectFluidContainersTrigger;
 import dev.dubhe.anvilcraft.api.advancement.AdvancementLineHelper;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
-import dev.dubhe.anvilcraft.block.state.FacingWithAxis;
-import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -74,7 +72,8 @@ public class ModAdvancementsHandler {
                 ModBlocks.SMART_BLOCK_PLACER.asItem(),
                 Component.translatable("advancements.anvilcraft.placer_shuttle.title"),
                 Component.translatable("advancements.anvilcraft.placer_shuttle.description"),
-                AdvancementType.GOAL
+                AdvancementType.GOAL,
+                true
             )
             .placerShuttle("placer_shuttle")
             .save(provider, "placer_shuttle");
@@ -268,18 +267,10 @@ public class ModAdvancementsHandler {
                 ModBlocks.BLOCK_COMPARATOR,
                 Component.translatable("advancements.anvilcraft.salted_fish_turns_over.title"),
                 Component.translatable("advancements.anvilcraft.salted_fish_turns_over.description"),
-                AdvancementType.TASK
+                AdvancementType.TASK,
+                true
             )
-            .requireAny()
-            .hammerChange(
-                "bend_back_block_comparator",
-                BlockStatePredicate.builder()
-                    .of(ModBlocks.BLOCK_COMPARATOR)
-                    .with(BlockComparatorBlock.FACING_WITH_AXIS, FacingWithAxis.UP_X, FacingWithAxis.EAST_Z),
-                BlockStatePredicate.builder()
-                    .of(ModBlocks.BLOCK_COMPARATOR)
-                    .with(BlockComparatorBlock.FACING_WITH_AXIS, FacingWithAxis.NORTH_Y, FacingWithAxis.EAST_Y)
-            )
+            .blockComparatorTurnOver("block_comparator_turn_over")
             .save(provider, "salted_fish_turns_over");
 
         AdvancementLineHelper killingLine = mainLine.createBranch();

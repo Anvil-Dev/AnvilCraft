@@ -1,0 +1,99 @@
+{
+  "anvil_hammer_rotate_block": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "block.copper_bulb.turn_on"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.anvil_hammer_rotate_block"
+  },
+  "burning_heater": {
+    "sounds": [
+      "block/furnace/fire_crackle1",
+      "block/furnace/fire_crackle2",
+      "block/furnace/fire_crackle3",
+      "block/furnace/fire_crackle4",
+      "block/furnace/fire_crackle5"
+    ],
+    "subtitle": "subtitles.anvilcraft.burning_heater"
+  },
+  "giant_anvil_land": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "block.anvil.land"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.giant_anvil_land"
+  },
+  "giant_anvil_resin_shock": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "block.slime_block.break"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.giant_anvil_resin_shock"
+  },
+  "giant_anvil_shock": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "entity.generic.explode"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.giant_anvil_shock"
+  },
+  "plasma_jet": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "entity.blaze.burn"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.plasma_jet"
+  },
+  "plasma_jet_lava": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "block.lava.extinguish"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.plasma_jet_lava"
+  },
+  "smart_block_placer_extend": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "block.piston.extend"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.smart_block_placer_extend"
+  },
+  "smart_block_placer_retract": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "block.piston.contract"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.smart_block_placer_retract"
+  },
+  "smart_block_placer_shulker_open": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "block.shulker_box.open"
+      }
+    ],
+    "subtitle": "subtitles.anvilcraft.smart_block_placer_shulker_open"
+  },
+  "tesla_tower_strike": {
+    "sounds": [
+      "anvilcraft:tesla_tower_strike"
+    ],
+    "subtitle": "subtitles.anvilcraft.tesla_tower_strike"
+  }
+}

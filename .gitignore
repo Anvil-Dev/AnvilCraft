@@ -123,5 +123,7 @@ run/
 
 runs/
 ref/
+reference/
+.claude/
 
 libs/

@@ -1842,6 +1842,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         return Block.updateFromNeighbourShapes(stateToPlace, level, targetPos);
     }
 
+    private static void updatePlacedBlock(Level level, BlockPos targetPos) {
+        BlockState placedState = level.getBlockState(targetPos);
+        BlockState updatedState = Block.updateFromNeighbourShapes(placedState, level, targetPos);
+        if (!updatedState.equals(placedState)) {
+            level.setBlock(targetPos, updatedState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
+        }
+        BlockState finalState = level.getBlockState(targetPos);
+        level.neighborChanged(targetPos, finalState.getBlock(), null);
+    }
+
     /**
      * 放置方块（pickup模式）
      */
@@ -1990,8 +2000,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 }
             }
 
-            BlockState placedState = level.getBlockState(targetPos);
-            level.neighborChanged(targetPos, placedState.getBlock(), null);
+            updatePlacedBlock(level, targetPos);
 
             if (targetPos.equals(this.expectedShuttleTarget)) {
                 TriggerUtil.placerShuttle(level, targetPos);
@@ -2395,8 +2404,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             }
 
             // 在目标位置发送方块更新通知
-            BlockState placedState = level.getBlockState(targetPos);
-            level.neighborChanged(targetPos, placedState.getBlock(), null);
+            updatePlacedBlock(level, targetPos);
 
             // 放置成功，清空 currentHeldBlock；下一轮 prepareHeldBlock 会重新设置
             this.currentHeldBlock = ItemStack.EMPTY;

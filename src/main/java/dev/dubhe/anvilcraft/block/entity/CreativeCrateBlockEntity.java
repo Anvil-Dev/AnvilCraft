@@ -2,8 +2,12 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.item.InfinityItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -47,6 +51,23 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
     }
 
     @Override
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
+        StoredItem storedItem = components.get(ModComponents.DISPLAY_ITEM);
+        if (storedItem != null) {
+            this.itemHandler.setStack(storedItem.stored());
+        }
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        if (!this.itemHandler.isEmpty()) {
+            components.set(ModComponents.DISPLAY_ITEM, new StoredItem(this.itemHandler.getStack().copyWithCount(1)));
+        }
+    }
+
+    @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
@@ -85,21 +106,41 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
 
     public boolean onPlayerUse(Player player) {
         ItemStack held = player.getMainHandItem();
-        if (held.isEmpty()) {
-            if (!this.itemHandler.isEmpty()) {
-                if (!player.level().isClientSide()) {
-                    player.getInventory().placeItemBackInInventory(this.itemHandler.getStack());
-                    this.itemHandler.setStack(ItemStack.EMPTY);
-                    setChanged();
-                    this.sendUpdate();
-                }
-                return true;
+        if (this.level == null) return false;
+        if (this.itemHandler.isEmpty()) {
+            if (held.isEmpty()) return false;
+            if (!this.level.isClientSide()) {
+                this.itemHandler.setStack(held.copyWithCount(1));
+                setChanged();
+                this.sendUpdate();
             }
-            return false;
+            return true;
         }
-        if (!player.level().isClientSide()) {
-            this.itemHandler.setStack(held.copyWithCount(1));
+        if (!player.isCreative()) return true;
+        if (!held.isEmpty()) return true;
+        if (!this.level.isClientSide()) {
+            player.getInventory().placeItemBackInInventory(this.itemHandler.getStack());
+            this.itemHandler.setStack(ItemStack.EMPTY);
             setChanged();
+            this.sendUpdate();
+        }
+        return true;
+    }
+
+    public boolean onPlayerAttack(Player player) {
+        if (this.level == null) return false;
+        if (this.itemHandler.isEmpty()) return false;
+        if (this.level.isClientSide()) return true;
+
+        ItemStack stored = this.itemHandler.getStack();
+        int count = player.isShiftKeyDown() && !player.isCreative() ? stored.getMaxStackSize() : 1;
+        ItemStack extracted = stored.copyWithCount(count);
+        if (!player.addItem(extracted)) {
+            Block.popResource(this.level, BlockPos.containing(player.position()), extracted);
+        }
+        if (player.isCreative()) {
+            this.itemHandler.setStack(ItemStack.EMPTY);
+            this.setChanged();
             this.sendUpdate();
         }
         return true;

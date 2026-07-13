@@ -79,7 +79,7 @@ public class JeiSlotUtil {
 
     public static void addSlotWithCount(IRecipeLayoutBuilder builder, int slotX, int slotY, ItemIngredientPredicate entry) {
         IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, slotX, slotY);
-        slot.add(Ingredient.of(Arrays.stream(entry.getItems()).map(template -> template.item().value())));
+        Arrays.stream(entry.getItems()).forEach(template -> slot.add(template.withCount(entry.count())));
     }
 
     public static void addDiffInputSlots(IRecipeLayoutBuilder builder, ItemIngredientPredicate ingredient) {

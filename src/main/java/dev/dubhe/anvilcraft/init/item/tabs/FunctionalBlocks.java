@@ -24,8 +24,11 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.FISH_TANK); // 鱼缸
         this.plain(ModBlocks.FLUID_TANK); // 流体储罐
         this.plain(ModBlocks.LARGE_FLUID_TANK); // 大型流体储罐
+        this.plain(ModBlocks.DRAIN); // 排水口
         this.plain(ModItems.PIPE); // 管道
         this.plain(ModBlocks.PUMP); // 泵
+        this.plain(ModBlocks.CONTROL_VALVE); // 控制阀
+        this.plain(ModItems.CHECK_VALVE); // 止逆阀
         this.plain(ModBlocks.CORRUPTED_BEACON); // 腐化信标
         this.plain(ModBlocks.NEUTRON_IRRADIATOR); // 中子辐照器
         this.plain(ModBlocks.SPECTRAL_ANVIL); // 幻灵铁砧
@@ -60,6 +63,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.BATCH_CRAFTER); // 批量合成器
         this.plain(ModBlocks.BATCH_CUTTER); // 批量切割机
         this.plain(ModBlocks.ITEM_COLLECTOR); // 物品收集器
+        // this.plain(ModBlocks.EXP_COLLECTOR); // 经验收集器
         this.plain(ModBlocks.CHARGER); // 充电器
         this.plain(ModBlocks.DISCHARGER); // 放电器
         this.plain(ModBlocks.BLOCK_PLACER); // 方块放置器
@@ -76,9 +80,11 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.ITEM_DETECTOR); // 物品探测器
         this.plain(ModBlocks.PULSE_GENERATOR); // 脉冲发生器
         this.plain(ModBlocks.ADVANCED_COMPARATOR); // 高级比较器
+        this.plain(ModBlocks.REDSTONE_COMPUTER); // 红石计算机
         this.plain(ModBlocks.PROPEL_PISTON); // 推进活塞
         this.plain(ModBlocks.OVERSEER); // 监督者
         this.plain(ModBlocks.JEWEL_CRAFTING_TABLE); // 珠宝加工台
+        // this.plain(ModBlocks.TRADING_STATION); // 交易站
         this.plain(ModBlocks.TRANSPARENT_CRAFTING_TABLE); // 通透工作台
         this.plain(ModBlocks.SPACE_OVERCOMPRESSOR); // 空间超压器
         this.plain(ModBlocks.MENGER_SPONGE); // 门格海绵

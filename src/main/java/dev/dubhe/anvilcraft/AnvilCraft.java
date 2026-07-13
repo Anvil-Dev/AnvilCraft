@@ -144,6 +144,7 @@ public class AnvilCraft {
 
     private static void registerEvents(IEventBus eventBus) {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
+        NeoForge.EVENT_BUS.addListener(dev.dubhe.anvilcraft.item.utility.DiskItem::onBlockPlaced);
 
         eventBus.addListener(AnvilCraft::registerPayload);
         eventBus.addListener(AnvilCraft::loadComplete);

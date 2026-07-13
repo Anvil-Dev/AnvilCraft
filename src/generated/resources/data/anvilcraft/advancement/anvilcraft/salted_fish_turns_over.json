@@ -1,38 +1,15 @@
 {
   "parent": "anvilcraft:anvilcraft/all_in_one",
   "criteria": {
-    "bend_back_block_comparator": {
-      "conditions": {
-        "new_state": {
-          "blocks": "anvilcraft:block_comparator",
-          "properties": [
-            {
-              "facing_with_axis": {
-                "max": "EAST_Y",
-                "min": "NORTH_Y"
-              }
-            }
-          ]
-        },
-        "old_state": {
-          "blocks": "anvilcraft:block_comparator",
-          "properties": [
-            {
-              "facing_with_axis": {
-                "max": "EAST_Z",
-                "min": "UP_X"
-              }
-            }
-          ]
-        }
-      },
-      "trigger": "anvilcraft:anvil_hammer_change_block"
+    "block_comparator_turn_over": {
+      "trigger": "anvilcraft:block_comparator_turn_over"
     }
   },
   "display": {
     "description": {
       "translate": "advancements.anvilcraft.salted_fish_turns_over.description"
     },
+    "hidden": true,
     "icon": {
       "id": "anvilcraft:block_comparator"
     },
@@ -42,7 +19,7 @@
   },
   "requirements": [
     [
-      "bend_back_block_comparator"
+      "block_comparator_turn_over"
     ]
   ],
   "sends_telemetry_event": true

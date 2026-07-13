@@ -20,6 +20,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
@@ -81,7 +82,6 @@ public class SimpleChuteBlock
         return simpleCodec(SimpleChuteBlock::new);
     }
 
-    @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new SimpleChuteBlockEntity(ModBlockEntities.SIMPLE_CHUTE.get(), pos, state);
@@ -156,9 +156,8 @@ public class SimpleChuteBlock
         level.updateNeighbourForOutputSignal(pos, this);
     }
 
-    @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         if (level.isClientSide()) return null;
         return createTickerHelper(
@@ -216,19 +215,28 @@ public class SimpleChuteBlock
 
     @Override
     public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
-        HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
-        BlockState state = level.getBlockState(pos);
-        BlockState facingState = level.getBlockState(pos.relative(state.getValue(FACING)));
+        BlockState oldState = level.getBlockState(pos);
+        Direction oldFacing = oldState.getValue(FACING);
+        Direction newFacing = switch (oldFacing) {
+            case WEST -> Direction.DOWN;
+            case DOWN -> Direction.NORTH;
+            default -> oldFacing.getClockWise();
+        };
+        BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
-            if (facingState.getValue(FACING).getOpposite() == state.getValue(FACING)) {
-                return this.change(player, pos, level, anvilHammer);
+            if (facingState.getValue(FACING).getOpposite() == newFacing) {
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+                level.levelEvent(2001, pos, Block.getId(oldState));
+                Block.dropResources(oldState, level, pos);
+                return true;
             }
         }
+        HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
         return true;
     }
 
     @Override
-    public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
+public Property<?> getChangeableProperty(BlockState blockState) {
         return FACING;
     }
 
@@ -248,6 +256,7 @@ public class SimpleChuteBlock
         boolean success = false;
         boolean tall = false;
         BlockState result = level.getBlockState(pos);
+
         // 遍历六个方向 获取指向自己的溜槽
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
@@ -259,7 +268,6 @@ public class SimpleChuteBlock
                         tall = !neighborState.is(ModBlocks.MAGNETIC_CHUTE.get());
                     }
                 }
-
             }
         }
         if (!success) {

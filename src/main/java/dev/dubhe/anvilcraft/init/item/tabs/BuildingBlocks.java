@@ -168,5 +168,6 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.PLYWOOD_BLOCK); // 胶合板
         this.plain(ModBlocks.PLYWOOD_STAIRS); // 胶合板楼梯
         this.plain(ModBlocks.PLYWOOD_SLAB); // 胶合板台阶
+        this.plain(ModBlocks.ANCIENT_SEA_REEF); // 远古海礁
     }
 }

@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.Lazy;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.BaseChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FilterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
@@ -20,6 +21,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformWithItemCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MultipleToOneSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.PortalConversionCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.ProceduralProcessCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.TranscendiumRecipeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.VoidDecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
@@ -60,6 +62,7 @@ import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BaseStampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
@@ -163,6 +166,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final IRecipeHolderType<MobTransformWithItemRecipe> MOB_TRANSFORM_WITH_ITEM = createHolderType("mob_transform_with_item");
 
     public static final IRecipeHolderType<AnvilCollisionCraftRecipe> ANVIL_COLLISION = createHolderType("anvil_collision");
+    public static final IRecipeHolderType<ProceduralProcessRecipe> PROCEDURAL_PROCESS = createHolderType("procedural_process");
 
     @Override
     public Identifier getPluginUid() {
@@ -202,6 +206,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MobTransformWithItemCategory.registerRecipes(registration);
         AnvilCollisionCraftCategory.registerRecipes(registration);
         TranscendiumRecipeCategory.registerRecipes(registration);
+        ProceduralProcessCategory.registerRecipes(registration);
 
         registration.addItemStackInfo(
             new ItemStack(ModItems.GEODE.get()),
@@ -266,6 +271,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MobTransformWithItemCategory.registerRecipeCatalysts(registration);
         AnvilCollisionCraftCategory.registerRecipeCatalysts(registration);
         TranscendiumRecipeCategory.registerRecipeCatalysts(registration);
+        ProceduralProcessCategory.registerRecipeCatalysts(registration);
 
         registration.addCraftingStation(RecipeTypes.CRAFTING, new ItemStack(ModBlocks.BATCH_CRAFTER));
 
@@ -313,6 +319,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new MobTransformWithItemCategory(guiHelper));
         registration.addRecipeCategories(new AnvilCollisionCraftCategory(guiHelper));
         registration.addRecipeCategories(new TranscendiumRecipeCategory(guiHelper));
+        registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));
     }
 
     @Override
@@ -354,6 +361,10 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         );
         registration.addGhostIngredientHandler(
             ItemCollectorScreen.class,
+            new GhostIngredientHandler<>()
+        );
+        registration.addGhostIngredientHandler(
+            ControlValveScreen.class,
             new GhostIngredientHandler<>()
         );
     }

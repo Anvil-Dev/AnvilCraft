@@ -3,9 +3,13 @@ package dev.dubhe.anvilcraft.client.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import dev.dubhe.anvilcraft.network.CreativeCrateAttackPacket;
 import dev.dubhe.anvilcraft.util.StateUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -18,10 +22,37 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientBlockEventListener {
+    private static BlockPos creativeCrateAttackPos;
+    private static boolean attackWasDown;
+
+    @SubscribeEvent
+    public static void onCreativeCrateAttack(PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
+        if (!event.getLevel().getBlockState(event.getPos()).is(ModBlocks.CREATIVE_CRATE.get())) return;
+        creativeCrateAttackPos = event.getPos().immutable();
+        attackWasDown = true;
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event) {
+        Minecraft client = Minecraft.getInstance();
+        boolean attackDown = client.options.keyAttack.isDown();
+        if (attackWasDown && !attackDown && creativeCrateAttackPos != null) {
+            ClientPacketDistributor.sendToServer(new CreativeCrateAttackPacket(creativeCrateAttackPos));
+            creativeCrateAttackPos = null;
+        }
+        attackWasDown = attackDown;
+        if (client.level == null) {
+            creativeCrateAttackPos = null;
+        }
+    }
+
     /// 侦听右键方块事件
     ///
     /// @param event 右键方块事件
