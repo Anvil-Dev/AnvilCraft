@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.WeaponRaycastUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -139,12 +138,13 @@ public class LaserGunItem extends EnergyWeaponItem {
         for (ItemStack drop : BreakBlockUtil.dropWithTool(level, pos, stack)) {
             player.getInventory().placeItemBackInInventory(drop);
         }
-        String path = BuiltInRegistries.BLOCK.getKey(ore.getBlock()).getPath();
-        BlockState replacement = path.contains("deepslate")
-            ? Blocks.DEEPSLATE.defaultBlockState()
-            : path.contains("nether") || path.contains("quartz") || path.contains("ancient_debris")
-                ? Blocks.NETHERRACK.defaultBlockState()
-                : Blocks.STONE.defaultBlockState();
+        BlockState replacement = ore.is(Blocks.ANCIENT_DEBRIS)
+            ? Blocks.NETHERRACK.defaultBlockState()
+            : ore.is(Tags.Blocks.ORES_IN_GROUND_DEEPSLATE)
+                ? Blocks.DEEPSLATE.defaultBlockState()
+                : ore.is(Tags.Blocks.ORES_IN_GROUND_NETHERRACK)
+                    ? Blocks.NETHERRACK.defaultBlockState()
+                    : Blocks.STONE.defaultBlockState();
         level.setBlockAndUpdate(pos, replacement);
     }
 

@@ -35,13 +35,41 @@ public record Merciless() {
     }
 
     private static void tick(ItemStack stack) {
+        absorbEnchantments(stack);
+    }
+
+    public static void enable(ItemStack stack) {
+        stack.set(ModComponents.MERCILESS, DEFAULT);
+        absorbEnchantments(stack);
+    }
+
+    public static void disable(ItemStack stack) {
+        stack.remove(ModComponents.MERCILESS);
+        ItemEnchantments enchantments = stack.getOrDefault(
+            ModComponents.MERCILESS_ENCHANTMENTS,
+            ItemEnchantments.EMPTY
+        );
+        if (!enchantments.isEmpty()) {
+            stack.set(DataComponents.ENCHANTMENTS, enchantments);
+        }
+        stack.remove(ModComponents.MERCILESS_ENCHANTMENTS);
+        removeAttributeModifiers(stack);
+    }
+
+    public static void absorbEnchantments(ItemStack stack) {
         ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
-        if (enchantments.isEmpty()) return;
+        ItemEnchantments mercilessEnchs = stack.getOrDefault(
+            ModComponents.MERCILESS_ENCHANTMENTS,
+            ItemEnchantments.EMPTY
+        );
+        if (enchantments.isEmpty()) {
+            if (mercilessEnchs.isEmpty()) removeAttributeModifiers(stack);
+            return;
+        }
 
         int levels = 0;
 
         // 将已无情的魔咒的等级添至总等级
-        ItemEnchantments mercilessEnchs = stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY);
         for (Holder<Enchantment> enchantment : mercilessEnchs.keySet()) {
             levels += mercilessEnchs.getLevel(enchantment);
         }
@@ -56,6 +84,7 @@ public record Merciless() {
             int mercilessLevel = mercilessEnchs.getLevel(enchantment);
             if (mercilessLevel == level) {
                 level++;
+                levels++;
             } else {
                 level = Math.max(level, mercilessLevel);
                 levels += level - mercilessLevel;
@@ -94,5 +123,18 @@ public record Merciless() {
             }
         }
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+    }
+
+    private static void removeAttributeModifiers(ItemStack stack) {
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+        boolean found = false;
+        for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
+            if (entry.modifier().is(MERCILESS_ID)) {
+                found = true;
+            } else {
+                builder.add(entry.attribute(), entry.modifier(), entry.slot());
+            }
+        }
+        if (found) stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
     }
 }

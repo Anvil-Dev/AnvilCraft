@@ -47,7 +47,7 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.power_converter.fe_stored", "Forge Energy");
         provider.add("tooltip.anvilcraft.power_converter.fe_stored.value", "  %d/%d kFE");
 
-        provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %sm %ss");
+        provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Remaining Flight Time: %sm %ss");
 
         provider.add("tooltip.anvilcraft.item.amulet_box.fullness", "Fullness: %1$d / %2$d");
 

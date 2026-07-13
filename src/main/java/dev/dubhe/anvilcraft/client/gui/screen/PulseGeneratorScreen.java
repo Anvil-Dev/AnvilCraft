@@ -38,12 +38,20 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
         SharedTextures.textureGui("machine/pulse_generator/button_minus_m");
 
     private final Minecraft minecraft;
+    private byte pendingStartMode;
+    private boolean pendingOutputInvert;
+    private int pendingWaitingTime;
+    private int pendingSignalDuration;
     private TextWidget waitingTime;
     private TextWidget signalDuration;
 
     public PulseGeneratorScreen(PulseGeneratorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.minecraft = Minecraft.getInstance();
+        this.pendingStartMode = menu.getBlockEntity().getStartMode().index();
+        this.pendingOutputInvert = menu.getBlockEntity().isOutputInvert();
+        this.pendingWaitingTime = menu.getBlockEntity().getWaitingTime();
+        this.pendingSignalDuration = menu.getBlockEntity().getSignalDuration();
         this.imageHeight = 77;
     }
 
@@ -55,21 +63,25 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
 
     private void sendUpdate() {
         PacketDistributor.sendToServer(new PulseGeneratorUpdatePacket(
-            this.menu.getBlockEntity().getStartMode().index(),
-            this.menu.getBlockEntity().isOutputInvert(),
-            this.menu.getBlockEntity().getWaitingTime(),
-            this.menu.getBlockEntity().getSignalDuration()
+            this.pendingStartMode,
+            this.pendingOutputInvert,
+            this.pendingWaitingTime,
+            this.pendingSignalDuration
         ));
     }
 
     private void addWaitingTime(int delta) {
-        this.menu.addWaitingTime(delta);
-        this.sendUpdate();
+        this.pendingWaitingTime = Math.clamp(this.pendingWaitingTime + delta, 0, 24000);
+        if (this.pendingWaitingTime == 0 && this.pendingSignalDuration == 0) {
+            this.pendingSignalDuration = 1;
+        }
     }
 
     private void addSignalDuration(int delta) {
-        this.menu.addSignalDuration(delta);
-        this.sendUpdate();
+        this.pendingSignalDuration = Math.clamp(this.pendingSignalDuration + delta, 0, 24000);
+        if (this.pendingSignalDuration == 0 && this.pendingWaitingTime == 0) {
+            this.pendingWaitingTime = 1;
+        }
     }
 
     @Override
@@ -84,10 +96,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16, 16,
             List.of(SharedTextures.BUTTON_RISING_EDGE, SharedTextures.BUTTON_FALLING_EDGE, SharedTextures.BUTTON_LOOP),
             16, 16, 32,
-            (button, index) -> {
-                this.menu.setStartMode((byte) index);
-                this.sendUpdate();
-            },
+            (button, index) -> this.pendingStartMode = (byte) index,
             List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.loop"))
@@ -98,10 +107,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16, 16,
             List.of(SharedTextures.BUTTON_REVERSE_OFF, SharedTextures.BUTTON_REVERSE_ON),
             16, 16, 32,
-            (button, index) -> {
-                this.menu.setOutputInvert(index == 1);
-                this.sendUpdate();
-            },
+            (button, index) -> this.pendingOutputInvert = index == 1,
             List.of(Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on"))
         );
@@ -158,17 +164,17 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.topPos + 38,
             32, 9,
             minecraft.font,
-            () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getWaitingTime(), 5))
+            () -> Component.literal(FormattingUtil.toFormattedTime(this.pendingWaitingTime, 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED);
         this.signalDuration = new TextWidget(
             this.leftPos + 115,
             this.topPos + 38,
             32, 9,
             minecraft.font,
-            () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getSignalDuration(), 5))
+            () -> Component.literal(FormattingUtil.toFormattedTime(this.pendingSignalDuration, 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED);
-        startMode.setCurrent(this.menu.getBlockEntity().getStartMode().index());
-        outputMode.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
+        startMode.setCurrent(this.pendingStartMode);
+        outputMode.setCurrent(this.pendingOutputInvert ? 1 : 0);
         this.addRenderableWidget(startMode);
         this.addRenderableWidget(outputMode);
         this.addRenderableOnly(this.waitingTime);

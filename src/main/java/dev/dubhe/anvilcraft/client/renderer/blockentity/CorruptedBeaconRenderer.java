@@ -42,7 +42,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     private static final float BEAM_G = 0.0f;
     private static final float BEAM_B = 0.05f;
 
-    /// 延迟渲染队列：光束在 AFTER_WEATHER 阶段渲染以解决云层遮挡
+    /// 延迟渲染队列：光束在 AFTER_WEATHER 阶段渲染
     private static final List<BeamRenderData> deferredBeams = new ArrayList<>();
     private static final List<WeaponBeamRenderData> deferredWeaponBeams = new ArrayList<>();
 
@@ -110,7 +110,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
 
     /**
      * 在 AFTER_WEATHER 阶段由 RenderEventListener 调用，渲染所有延迟光束。
-     * 此时云层已绘制完毕，光束不会受云层遮挡。
+     * 事件回调会立即提交对应的渲染批次。
      */
     public static void renderDeferredBeams(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 camera) {
         if (deferredBeams.isEmpty() && deferredWeaponBeams.isEmpty()) return;

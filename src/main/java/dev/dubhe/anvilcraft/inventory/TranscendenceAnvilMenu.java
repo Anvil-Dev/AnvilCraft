@@ -120,6 +120,14 @@ public class TranscendenceAnvilMenu extends AnvilMenu implements HammerOpenedAnv
         this.closeIfOpenedHammerMoved();
     }
 
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (this.openedHammerSource != null) {
+            this.clearContainer(player, this.inputSlots);
+        }
+    }
+
     private void closeIfOpenedHammerMoved() {
         if (this.openedHammerSource == null || this.closingForHammerMove) return;
         if (this.openedHammerSource.stillInPlace()) {

@@ -41,7 +41,7 @@ public final class RedstoneWireNetworkManager {
 
     public static void topologyChanged(Level level, BlockPos pos) {
         if (level instanceof ServerLevel serverLevel) {
-            state(serverLevel).topologySeeds.add(pos.asLong());
+            state(serverLevel).requestTopologyUpdate(pos.asLong());
         }
     }
 
@@ -56,32 +56,32 @@ public final class RedstoneWireNetworkManager {
         long packedPos = pos.asLong();
         Network network = state.byWire.get(packedPos);
         if (network == null || !network.valid) {
-            state.topologySeeds.add(packedPos);
+            state.requestTopologyUpdate(packedPos);
             return;
         }
         Node node = network.nodes.get(packedPos);
         BlockState blockState = level.getBlockState(pos);
         if (node == null || !(blockState.getBlock() instanceof RedstoneWireBlock block)) {
-            state.topologySeeds.add(packedPos);
+            state.requestTopologyUpdate(packedPos);
             return;
         }
 
         if (block.connectionState(level, pos, blockState, node.connections) != blockState) {
-            state.topologySeeds.add(packedPos);
+            state.requestTopologyUpdate(packedPos);
             return;
         }
         if (!mayAffectWireTopology(pos, neighborPos, blockState, node.connections)) {
             if (!network.overflow) {
-                state.dirtySignals.add(network);
+                state.requestSignalUpdate(network);
             }
             return;
         }
 
         RedstoneWireBlock.Connection[] current = RedstoneWireBlock.findConnections(level, pos, blockState);
         if (!connectionsEqual(node.connections, current)) {
-            state.topologySeeds.add(packedPos);
+            state.requestTopologyUpdate(packedPos);
         } else if (!network.overflow) {
-            state.dirtySignals.add(network);
+            state.requestSignalUpdate(network);
         }
     }
 
@@ -205,29 +205,53 @@ public final class RedstoneWireNetworkManager {
         private final LongOpenHashSet topologySeeds = new LongOpenHashSet();
         private final ObjectOpenHashSet<Network> dirtySignals = new ObjectOpenHashSet<>();
         private boolean applyingTopology;
+        private boolean processingUpdates;
         private long lastOverflowWarning = Long.MIN_VALUE;
 
         private LevelNetworks(ServerLevel level) {
             this.level = level;
         }
 
+        private void requestTopologyUpdate(long pos) {
+            this.topologySeeds.add(pos);
+            this.runUpdates();
+        }
+
+        private void requestSignalUpdate(Network network) {
+            this.dirtySignals.add(network);
+            this.runUpdates();
+        }
+
         private void tick() {
-            int pass = 0;
-            while ((!this.topologySeeds.isEmpty() || !this.dirtySignals.isEmpty()) && pass++ < MAX_SETTLING_PASSES) {
-                if (!this.topologySeeds.isEmpty()) {
-                    LongOpenHashSet seeds = new LongOpenHashSet(this.topologySeeds);
-                    this.topologySeeds.clear();
-                    this.rebuildFromSeeds(seeds);
-                }
-                if (!this.dirtySignals.isEmpty()) {
-                    ObjectOpenHashSet<Network> dirtyNetworks = new ObjectOpenHashSet<>(this.dirtySignals);
-                    this.dirtySignals.clear();
-                    for (Network network : dirtyNetworks) {
-                        if (network.valid && !network.overflow) {
-                            this.recompute(network);
+            this.runUpdates();
+        }
+
+        private void runUpdates() {
+            if (this.processingUpdates) {
+                return;
+            }
+            this.processingUpdates = true;
+            try {
+                int pass = 0;
+                while ((!this.topologySeeds.isEmpty() || !this.dirtySignals.isEmpty())
+                    && pass++ < MAX_SETTLING_PASSES) {
+                    if (!this.topologySeeds.isEmpty()) {
+                        LongOpenHashSet seeds = new LongOpenHashSet(this.topologySeeds);
+                        this.topologySeeds.clear();
+                        this.rebuildFromSeeds(seeds);
+                    }
+                    if (!this.dirtySignals.isEmpty()) {
+                        ObjectOpenHashSet<Network> dirtyNetworks = new ObjectOpenHashSet<>(this.dirtySignals);
+                        this.dirtySignals.clear();
+                        for (Network network : dirtyNetworks) {
+                            if (network.valid && !network.overflow) {
+                                this.recompute(network);
+                            }
                         }
                     }
                 }
+            } finally {
+                this.processingUpdates = false;
             }
         }
 
@@ -361,7 +385,6 @@ public final class RedstoneWireNetworkManager {
             }
             int totalPower = 0;
             int nonDustPower = 0;
-            boolean[] dustTerminals = new boolean[network.terminalWires.size()];
             SUPPRESS_SIGNAL.set(true);
             try {
                 for (int index = 0; index < network.terminalWires.size(); index++) {
@@ -371,8 +394,7 @@ public final class RedstoneWireNetworkManager {
                     BlockState inputState = this.level.getBlockState(inputPos);
                     int inputPower = this.level.getSignal(inputPos, tangent);
                     totalPower = Math.max(totalPower, inputPower);
-                    dustTerminals[index] = inputState.is(Blocks.REDSTONE_WIRE);
-                    if (!dustTerminals[index]) {
+                    if (!inputState.is(Blocks.REDSTONE_WIRE)) {
                         nonDustPower = Math.max(nonDustPower, inputPower);
                     }
                 }
@@ -382,7 +404,8 @@ public final class RedstoneWireNetworkManager {
 
             boolean totalChanged = network.totalPower != totalPower;
             boolean nonDustChanged = network.nonDustPower != nonDustPower;
-            if (!totalChanged && !nonDustChanged && !network.needsPowerNormalization) {
+            boolean updateTerminals = totalChanged || nonDustChanged || network.needsTerminalUpdate;
+            if (!updateTerminals && !network.needsPowerNormalization) {
                 return;
             }
             network.totalPower = totalPower;
@@ -400,18 +423,16 @@ public final class RedstoneWireNetworkManager {
                 }
                 network.needsPowerNormalization = false;
             }
-            this.notifyTerminalChanges(network, dustTerminals, totalChanged, nonDustChanged);
+            network.needsTerminalUpdate = false;
+            if (updateTerminals) {
+                this.notifyTerminalChanges(network);
+            }
         }
 
-        private void notifyTerminalChanges(
-            Network network, boolean[] dustTerminals, boolean totalChanged, boolean nonDustChanged
-        ) {
+        private void notifyTerminalChanges(Network network) {
             Long2ByteOpenHashMap excludedFaces = new Long2ByteOpenHashMap();
             Long2LongOpenHashMap sources = new Long2LongOpenHashMap();
             for (int index = 0; index < network.terminalWires.size(); index++) {
-                if (dustTerminals[index] ? !nonDustChanged : !totalChanged) {
-                    continue;
-                }
                 long source = network.terminalWires.getLong(index);
                 BlockPos sourcePos = BlockPos.of(source);
                 Direction tangent = Direction.values()[network.terminalDirections.getByte(index)];
@@ -531,6 +552,8 @@ public final class RedstoneWireNetworkManager {
         private final LongOpenHashSet chunks = new LongOpenHashSet();
         private boolean valid = true;
         private boolean needsPowerNormalization = true;
+        // Rebuilding discards the previous non-dust power, so the first sample must refresh every terminal.
+        private boolean needsTerminalUpdate = true;
         private int totalPower;
         private int nonDustPower;
 

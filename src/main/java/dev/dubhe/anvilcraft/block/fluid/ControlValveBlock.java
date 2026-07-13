@@ -190,6 +190,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock
         if (level.isClientSide) {
             return;
         }
+        FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
         boolean hasSignal = level.hasNeighborSignal(pos);
         if (hasSignal != state.getValue(POWERED)) {
             level.setBlock(pos, state.setValue(POWERED, hasSignal), Block.UPDATE_CLIENTS);
@@ -203,6 +204,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (!level.isClientSide) {
+            FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
             FluidNetworkManager.INSTANCE.markDirty(level);
         }
     }

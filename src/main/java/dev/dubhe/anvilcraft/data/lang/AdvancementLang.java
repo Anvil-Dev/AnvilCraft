@@ -123,8 +123,11 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.forged_over_eons.title", "Forged over eons");
         provider.add("advancements.anvilcraft.forged_over_eons.description", "Obtain any ember metal");
 
-        provider.add("advancements.anvilcraft.ice_and_fire.title", "Ice and Fire");
-        provider.add("advancements.anvilcraft.ice_and_fire.description", "Obtain ember workstations and frost workstations");
+        provider.add("advancements.anvilcraft.ice_and_fire.title", "A Song of Ice and Fire");
+        provider.add(
+            "advancements.anvilcraft.ice_and_fire.description",
+            "Obtain the Ember Smithing Table, Ember Anvil, Ember Grindstone, Frost Smithing Table, Frost Anvil, and Frost Grindstone"
+        );
 
         provider.add("advancements.anvilcraft.self_in_flaming.title", "Self in flaming");
         provider.add("advancements.anvilcraft.self_in_flaming.description", "Using fire reforge to repair any ember metal tools or weapons");
@@ -171,8 +174,8 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.void_generate_energy.title", "The void gives energy its purpose");
         provider.add("advancements.anvilcraft.void_generate_energy.description", "Use void collector to generate energy");
 
-        provider.add("advancements.anvilcraft.saikou_scrubber.title", "Saikou scrubber");
-        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain menger sponge");
+        provider.add("advancements.anvilcraft.saikou_scrubber.title", "Ultimate Dishcloth");
+        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain a Menger Sponge");
 
         provider.add("advancements.anvilcraft.infinity_capacity.title", "Infinity capacity");
         provider.add("advancements.anvilcraft.infinity_capacity.description", "Construct infinity capacity fluid tank with large fluid tank and menger sponge");
@@ -195,7 +198,10 @@ public class AdvancementLang {
 
         // region block comparator line
         provider.add("advancements.anvilcraft.salted_fish_turns_over.title", "The salted fish turns over");
-        provider.add("advancements.anvilcraft.salted_fish_turns_over.description", "Use an anvil hammer to turn a block comparator from a vertical state to a horizontal state");
+        provider.add(
+            "advancements.anvilcraft.salted_fish_turns_over.description",
+            "Use an Anvil Hammer to turn a Block Comparator from a horizontal position to an upright position"
+        );
         // endregion
 
         // region automation line

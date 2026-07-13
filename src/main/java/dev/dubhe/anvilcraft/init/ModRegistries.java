@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
-import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -45,14 +44,6 @@ public class ModRegistries {
         .maxId(512)
         .create();
 
-    public static final ResourceKey<Registry<IUuidProvider.Type<?>>> UUID_PROVIDER_TYPE_KEY = ResourceKey.createRegistryKey(
-        AnvilCraft.of("uuid_provider")
-    );
-    public static final Registry<IUuidProvider.Type<?>> UUID_PROVIDER_TYPE_REGISTRY = new RegistryBuilder<>(UUID_PROVIDER_TYPE_KEY)
-        .sync(true)
-        .maxId(512)
-        .create();
-
     public static final ResourceKey<Registry<INumberProvider.Type<?>>> NUMBER_PROVIDER_TYPE_KEY = ResourceKey.createRegistryKey(
         AnvilCraft.of("number_provider")
     );
@@ -67,7 +58,6 @@ public class ModRegistries {
         event.register(AMULET_DEF_TYPE_REGISTRY);
         event.register(MODIFIER_TYPE_REGISTRY);
         event.register(CUSTOM_DATA_TYPE_REGISTRY);
-        event.register(UUID_PROVIDER_TYPE_REGISTRY);
         event.register(NUMBER_PROVIDER_TYPE_REGISTRY);
     }
 

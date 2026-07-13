@@ -5,12 +5,10 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
-import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
 import dev.dubhe.anvilcraft.network.ResonanceMiningEffectPacket;
-import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -20,14 +18,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -54,7 +49,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
             ModTiers.TRANSCENDIUM,
             properties.fireResistant()
                 .attributes(ResonatorItem.createAttributes(ModTiers.TRANSCENDIUM, 17, -3f))
-                .component(ModComponents.MULTIPHASE, new MultiphaseRef())
+                .component(ModComponents.MULTIPHASE, Multiphase.create())
                 .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(NAME))
                 .component(ModComponents.ETERNAL, Eternal.INSTANCE)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
@@ -98,7 +93,13 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
 
-        MiningTarget target = new MiningTarget(pos.immutable(), getEffectPositions(level, pos));
+        BlockHitResult hitResult = new BlockHitResult(
+            context.getClickLocation(),
+            context.getClickedFace(),
+            pos.immutable(),
+            context.isInside()
+        );
+        MiningTarget target = new MiningTarget(hitResult, context.getHand(), getEffectPositions(level, pos));
         miningTargets(level).put(player, target);
         player.startUsingItem(context.getHand());
         sendMiningEffects(level, target.effectPositions(), RESONANCE_MINING_TICKS + 2);
@@ -147,9 +148,24 @@ public class TranscendenceResonatorItem extends ResonatorItem {
     }
 
     @Override
-    public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int remainingUseDuration) {
         MiningTarget target = miningTargets(level).remove(livingEntity);
-        if (target != null) sendMiningEffects(level, target.effectPositions(), 0);
+        if (target == null) return;
+
+        sendMiningEffects(level, target.effectPositions(), 0);
+        int elapsedTicks = getUseDuration(stack, livingEntity) - remainingUseDuration;
+        if (elapsedTicks >= RESONANCE_MINING_TICKS || !(livingEntity instanceof Player player)) return;
+
+        BlockHitResult hit = getTargetedBlock(player);
+        if (hit == null || !target.hitPos().equals(hit.getBlockPos())) return;
+        AnvilHammerItem.interactWithBlock(
+            player,
+            target.hitPos(),
+            level,
+            stack,
+            target.hand(),
+            target.hitResult()
+        );
     }
 
     private Map<LivingEntity, MiningTarget> miningTargets(Level level) {
@@ -212,30 +228,14 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         return state.is(Blocks.BEDROCK) || state.getDestroySpeed(level, pos) >= 0.0f;
     }
 
-    private record MiningTarget(BlockPos hitPos, List<BlockPos> effectPositions) {
+    private record MiningTarget(
+        BlockHitResult hitResult,
+        InteractionHand hand,
+        List<BlockPos> effectPositions
+    ) {
+        private BlockPos hitPos() {
+            return hitResult.getBlockPos();
+        }
     }
 
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        // TODO: 兼容性支持结束后将以下检测代码删除
-        if (stack.has(ModComponents.MERCILESS)) {
-            stack.set(ModComponents.MERCILESS, null);
-        }
-        if (stack.has(ModComponents.MERCILESS_ENCHANTMENTS)) {
-            ItemEnchantments merciless = stack.get(ModComponents.MERCILESS_ENCHANTMENTS);
-            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(stack.get(DataComponents.ENCHANTMENTS));
-            for (Holder<Enchantment> mercilessEnch : merciless.keySet()) {
-                int mercilessLevel = merciless.getLevel(mercilessEnch);
-                int enchLevel = enchantments.getLevel(mercilessEnch);
-                if (enchLevel == mercilessLevel) {
-                    enchLevel++;
-                } else {
-                    enchLevel = Math.max(mercilessLevel, enchLevel);
-                }
-                enchantments.set(mercilessEnch, enchLevel);
-            }
-            stack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
-        }
-    }
 }

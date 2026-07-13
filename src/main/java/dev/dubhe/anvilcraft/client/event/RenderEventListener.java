@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
@@ -64,6 +65,7 @@ public class RenderEventListener {
         Vec3 camera = event.getCamera().getPosition();
         CelestialForgingAnvilBlockEntityRenderer.renderDeferredTractorBeams(poseStack, bufferSource, camera);
         CorruptedBeaconRenderer.renderDeferredBeams(poseStack, bufferSource, camera);
+        bufferSource.endBatch(ModRenderTypes.CORRUPTED_BEACON_BEAM);
     }
 
     @SubscribeEvent

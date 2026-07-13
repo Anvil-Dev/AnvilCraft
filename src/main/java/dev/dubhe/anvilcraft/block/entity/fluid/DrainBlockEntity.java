@@ -2,6 +2,10 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
+import it.unimi.dsi.fastutil.longs.LongIterator;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import lombok.AccessLevel;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,24 +32,17 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * 排水口的 BlockEntity。内部 4B 流体容量，像储罐一样渲染内部流体，并像机械动力软管滑轮一样
  * 向下把内部流体铺放到世界、或从上方抽取流体入内部。
  *
  * <h3>向下填充</h3>
  * 内部流体 &gt; 1B 且下方有空间时，每 {@value #INTERVAL} gt 消耗 1B，在下方 flood-fill 区域内
- * 由最低层、就近位置起放置<b>真实源方块</b>（flag=2 不触发更新，避免流动水扩散/无限水），
- * 逐层填满直到排水口正下方一层。
+ * 由最低层、就近位置起放置<b>真实源方块</b>，逐层填满直到排水口正下方一层。
  *
  * <h3>向上抽取</h3>
  * 内部 &lt; 3B 且上方有同种流体（或内部为空、上方任意流体）时，每 {@value #INTERVAL} gt 从上方
- * 流体的最上层起清除 1B 并填充自身（同样 flag=2）。
+ * 流体的最上层起清除 1B 并填充自身。
  *
  * <h3>同层无限生成</h3>
  * 排水口<b>同层</b>（同 Y）水平四邻若存在能形成无限源的流体源（无限水、开启对应游戏规则的岩浆、
@@ -60,8 +57,13 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
     private static final int INTERVAL = 5;                          // 每 5gt 一次
     private static final int FILL_THRESHOLD = FluidType.BUCKET_VOLUME;      // >1B 才向下填充
     private static final int DRAIN_THRESHOLD = 3 * FluidType.BUCKET_VOLUME; // <3B 才向上抽取
-    /** flood-fill 节点上限，避免大水池卡顿 */
+    /** 单次 tick 的 flood-fill 节点预算；未完成的搜索会在后续 tick 续扫。 */
     private static final int MAX_NODES = 2048;
+    private static final int FILL_BLOCKED = 0;
+    private static final int FILL_TARGET = 1;
+    private static final int FILL_SOURCE = 2;
+    private static final int FILL_SEARCH_REBUILD_INTERVAL = 256;
+    private static final long EXHAUSTED_SEARCH_TTL = 100;
 
     private final FluidTank tank = new FluidTank(CAPACITY) {
         @Override
@@ -83,6 +85,19 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
      * {@link Integer#MIN_VALUE} 表示当前无向下排水（不渲染水柱）。
      */
     private int columnBottomY = Integer.MIN_VALUE;
+    @Getter(AccessLevel.NONE)
+    @Nullable
+    private FillSearch fillSearch;
+    @Getter(AccessLevel.NONE)
+    @Nullable
+    private DrainSearch drainSearch;
+    @Getter(AccessLevel.NONE)
+    private final LongArrayFIFOQueue flowCleanupQueue = new LongArrayFIFOQueue();
+    @Getter(AccessLevel.NONE)
+    private final LongOpenHashSet flowCleanupVisited = new LongOpenHashSet();
+    @Getter(AccessLevel.NONE)
+    @Nullable
+    private Fluid flowCleanupFluid;
 
     public DrainBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -126,8 +141,8 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             return;
         }
         // 连抽带排：向下填充与向上抽取同一 tick 各执行一次，互不阻断
-        boolean filled = be.tryFillDown(level, pos);
-        if (!filled) {
+        FillResult fillResult = be.tryFillDown(level, pos);
+        if (fillResult == FillResult.NONE) {
             be.clearColumn();
         }
         be.tryDrainUp(level, pos);
@@ -148,31 +163,41 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
      * <p>逐层：先填满当前最低有空位的一层（沿本层流体连通边界排查，含不规则外延格），
      * 该层填满才升到上一层。放置前若该格已因水自发流动变成本流体源，则跳过、找下一空格。
      *
-     * @return 是否执行了一次有效填充
+     * @return 本 tick 已填充、仍在搜索，或确实没有目标
      */
-    private boolean tryFillDown(Level level, BlockPos pos) {
+    private FillResult tryFillDown(Level level, BlockPos pos) {
         FluidStack stored = tank.getFluid();
         if (stored.getAmount() <= FILL_THRESHOLD) {
-            return false;
+            fillSearch = null;
+            return FillResult.NONE;
         }
         Fluid fluid = stored.getFluid();
         // 下界等超温维度不能放水，和水桶行为一致
         if (level.dimensionType().ultraWarm() && fluid.isSame(Fluids.WATER)) {
-            return false;
+            fillSearch = null;
+            return FillResult.NONE;
         }
         BlockState source = fluid.defaultFluidState().createLegacyBlock();
         if (source.isAir()) {
-            return false; // 无对应可放置方块（如蜂蜜）
+            fillSearch = null;
+            return FillResult.NONE; // 无对应可放置方块（如蜂蜜）
         }
 
-        BlockPos target = findFillTarget(level, pos, fluid);
+        SearchResult searchResult = findFillTarget(level, pos, fluid);
+        BlockPos target = searchResult.target();
         if (target == null) {
-            clearColumn();
-            return false;
+            return searchResult.pending() ? FillResult.SEARCHING : FillResult.NONE;
+        }
+        if (classifyForFill(level, target, fluid) != FILL_TARGET) {
+            fillSearch = null;
+            return FillResult.SEARCHING;
         }
         // 放置真实源方块，UPDATE_ALL 正常触发更新（红石/邻居/渲染）；水自发流动无妨。
         level.setBlock(target, source, Block.UPDATE_ALL);
         tank.drain(UNIT, IFluidHandler.FluidAction.EXECUTE);
+        if (fillSearch != null && fillSearch.acceptFilled(target.asLong())) {
+            fillSearch = null;
+        }
 
         // 更新渲染水柱底部：从排水口下方渲染到本次目标所在层
         int newBottom = target.getY();
@@ -180,7 +205,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             columnBottomY = newBottom;
             sendUpdate();
         }
-        return true;
+        return FillResult.FILLED;
     }
 
     /**
@@ -192,14 +217,15 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
      * <p><b>第二步（逐层铺开）</b>：自 {@code bottomY} 向上逐层，每层水平 flood-fill 同时
      * <b>允许向下穿透</b>——可通行格的下方若是空格会被纳入候选，下方若可通行则继续入队往下探。
      * 候选格统一取<b>最低层、同层最近</b>一个。
-     * 这样水在盆地底部平铺（受 {@value #MAX_NODES} 预算约束），填满才升层；
+     * 这样水在盆地底部平铺，填满才升层；每 tick 最多扫描 {@value #MAX_NODES} 个源节点，
+     * 未扫完的连通区域会在后续 tick 继续，而不会被误判为本层已满。
      * 遇到鞍部时，上层扫描穿过洞口后自然向下发现隔壁盆地的更深空格，实现正确填充。
      */
-    @Nullable
-    private BlockPos findFillTarget(Level level, BlockPos drainPos, Fluid fluid) {
+    private SearchResult findFillTarget(Level level, BlockPos drainPos, Fluid fluid) {
         BlockPos start = drainPos.below();
         if (!isPassableForFill(level, start, fluid)) {
-            return null; // 正下方被堵，无法向下排水
+            fillSearch = null;
+            return SearchResult.EXHAUSTED; // 正下方被堵，无法向下排水
         }
         // 第一步：沿正下方一路探到最低可放置层
         int minY = level.getMinBuildHeight();
@@ -208,112 +234,38 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             && isPassableForFill(level, new BlockPos(drainPos.getX(), bottomY - 1, drainPos.getZ()), fluid)) {
             bottomY--;
         }
-        // 第二步：自底向上逐层 flood-fill（每层可向下穿透）
-        for (int y = bottomY; y <= start.getY(); y++) {
-            BlockPos target = findEmptyWithDownward(level, drainPos, new BlockPos(drainPos.getX(), y, drainPos.getZ()), fluid);
-            if (target != null) {
-                return target;
-            }
+        if (fillSearch == null
+            || !fillSearch.matches(drainPos, fluid, bottomY, start.getY(), level.getGameTime())) {
+            fillSearch = new FillSearch(drainPos, fluid, bottomY, start.getY());
         }
-        return null;
+        return fillSearch.advance(level);
     }
 
     /** 探底可通行判定：待填充空格或同种流体（源/流动皆可穿行）。 */
     private static boolean isPassableForFill(Level level, BlockPos pos, Fluid fluid) {
-        return isPlaceableEmpty(level, pos, fluid) || isSameFluidSource(level, pos, fluid);
+        return classifyForFill(level, pos, fluid) != FILL_BLOCKED;
     }
 
-    /**
-     * 以 {@code entry} 为入口做"水平 + 向下/向上" flood-fill，穿行"空格 + 同种流体"连通区，
-     * 收集所有<b>空格</b>，返回其中<b>最低层、同层最近</b>的一个。
-     *
-     * <p>入口层水平穿行到每个可通行格时同时检查正下方和正上方：下方/上方为空格则纳入候选，
-     * 下方/上方为同种流体源则继续入队扩散。向下解决鞍部（墙后盆地更深处），
-     * 向上解决反向鞍部（天花板凹穴内漏填）。
-     * 候选格统一取<b>最低层、同层最近</b>一个。
-     */
-    @Nullable
-    private BlockPos findEmptyWithDownward(Level level, BlockPos drainPos, BlockPos entry, Fluid fluid) {
-        Set<BlockPos> visited = new HashSet<>();
-        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
-        List<BlockPos> empties = new ArrayList<>();
-        queue.add(entry);
-        visited.add(entry);
-
-        while (!queue.isEmpty() && visited.size() <= MAX_NODES) {
-            BlockPos cur = queue.poll();
-            boolean empty = isPlaceableEmpty(level, cur, fluid);
-            boolean sameFluid = !empty && isSameFluidSource(level, cur, fluid);
-            if (!empty && !sameFluid) {
-                continue; // 墙壁/异种流体 → 阻断
-            }
-            if (empty) {
-                empties.add(cur);
-            }
-            // 水平扩散
-            for (Direction d : Direction.Plane.HORIZONTAL) {
-                enqueue(queue, visited, cur.relative(d));
-            }
-            // 向下穿透：鞍部——穿过洞口后下探隔壁盆地深层空格
-            checkVerticalNeighbor(level, cur.below(), fluid, queue, visited, empties);
-        }
-        if (empties.isEmpty()) {
-            return null;
-        }
-        // 最低层（Y 最小）优先；同层取离排水口 XZ 最近
-        BlockPos best = null;
-        int bestY = Integer.MAX_VALUE;
-        long bestDist = Long.MAX_VALUE;
-        for (BlockPos p : empties) {
-            long dx = p.getX() - drainPos.getX();
-            long dz = p.getZ() - drainPos.getZ();
-            long dist = dx * dx + dz * dz;
-            if (p.getY() < bestY || (p.getY() == bestY && dist < bestDist)) {
-                bestY = p.getY();
-                bestDist = dist;
-                best = p;
-            }
-        }
-        return best;
+    private static long offset(BlockPos pos, Direction direction) {
+        return BlockPos.asLong(
+            pos.getX() + direction.getStepX(),
+            pos.getY() + direction.getStepY(),
+            pos.getZ() + direction.getStepZ()
+        );
     }
 
-    /**
-     * 检查垂直邻居（上或下）：空格直接纳入候选，同种流体源入队继续扩散。
-     * 已访问过则跳过。
-     */
-    private void checkVerticalNeighbor(Level level, BlockPos neighbor, Fluid fluid,
-                                        ArrayDeque<BlockPos> queue,
-                                        Set<BlockPos> visited,
-                                        List<BlockPos> empties) {
-        if (visited.contains(neighbor.immutable())) {
-            return;
-        }
-        if (isPlaceableEmpty(level, neighbor, fluid)) {
-            visited.add(neighbor.immutable());
-            empties.add(neighbor);
-        } else if (isSameFluidSource(level, neighbor, fluid)) {
-            enqueue(queue, visited, neighbor);
-        }
-    }
-
-    private static void enqueue(java.util.ArrayDeque<BlockPos> queue, java.util.Set<BlockPos> visited, BlockPos p) {
-        if (visited.add(p.immutable())) {
-            queue.add(p.immutable());
-        }
-    }
-
-    /**
-     * 该位置是否为"待填充空格"：可放入流体（空气/可替换方块且无流体），
-     * 或已有本流体的<b>流动态</b>（非源）——把自发流成的流动水也补成满源，实现逐格填满。
-     */
-    private static boolean isPlaceableEmpty(Level level, BlockPos pos, Fluid fluid) {
+    /** 将位置分类为阻挡、待填充格或可继续遍历的同种流体源。 */
+    private static int classifyForFill(Level level, BlockPos pos, Fluid fluid) {
         BlockState state = level.getBlockState(pos);
         FluidState fs = state.getFluidState();
         if (!fs.isEmpty()) {
-            // 已有流体：仅当是本流体的流动态（非源）才算待填充（补成源）
-            return fs.getType().isSame(fluid) && !fs.isSource();
+            if (!fs.getType().isSame(fluid)) {
+                return FILL_BLOCKED;
+            }
+            // 本流体的流动态是待填充格；源方块仅用于继续遍历。
+            return fs.isSource() ? FILL_SOURCE : FILL_TARGET;
         }
-        return state.isAir() || state.canBeReplaced();
+        return state.isAir() || state.canBeReplaced() ? FILL_TARGET : FILL_BLOCKED;
     }
 
     /** 该位置是否为指定流体的源方块。 */
@@ -322,11 +274,18 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         return !fs.isEmpty() && fs.getType().isSame(fluid) && fs.isSource();
     }
 
-    /** 统计某位置水平四邻中同种流体<b>源</b>的数量（用于抽取时优先移除边缘源，避免无限水回填）。 */
-    private static int countSourceNeighbors(Level level, BlockPos pos, Fluid fluid) {
+    /** 水平相邻源越少越接近当前缺口；抽取时沿缺口连续剥离可避免无限源重新闭合。 */
+    private static int countSourceNeighbors(
+        Level level, BlockPos pos, Fluid fluid, BlockPos.MutableBlockPos neighborCursor
+    ) {
         int count = 0;
         for (Direction d : Direction.Plane.HORIZONTAL) {
-            if (isSameFluidSource(level, pos.relative(d), fluid)) {
+            neighborCursor.set(
+                pos.getX() + d.getStepX(),
+                pos.getY(),
+                pos.getZ() + d.getStepZ()
+            );
+            if (isSameFluidSource(level, neighborCursor, fluid)) {
                 count++;
             }
         }
@@ -338,26 +297,44 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
      * 最远处开始清除 1B 并回填自身。
      */
     private void tryDrainUp(Level level, BlockPos pos) {
+        if (!processFlowCleanup(level)) {
+            return;
+        }
         FluidStack stored = tank.getFluid();
         if (!stored.isEmpty() && stored.getAmount() >= DRAIN_THRESHOLD) {
+            drainSearch = null;
             return;
         }
         // 内部有流体 → 只抽同种；内部为空 → 抽上方任意流体
         Fluid want = stored.isEmpty() ? null : stored.getFluid();
-        BlockPos target = findHighestNearestFluid(level, pos, want);
+        SearchResult searchResult = findHighestDrainTarget(level, pos, want);
+        BlockPos target = searchResult.target();
         if (target == null) {
             return;
         }
         FluidState fs = level.getFluidState(target);
+        if (fs.isEmpty() || (want != null && !fs.getType().isSame(want))) {
+            drainSearch = null;
+            return;
+        }
         Fluid fluid = fs.getType();
+        if (!fs.isSource()) {
+            startFlowCleanup(level, target, fluid);
+            processFlowCleanup(level);
+            drainSearch = null;
+            return;
+        }
         FluidStack toInsert = new FluidStack(fluid, UNIT);
         // 目标容量/类型校验
         if (tank.fill(toInsert, IFluidHandler.FluidAction.SIMULATE) < UNIT) {
             return;
         }
-        // 移除目标源（flag3 正常更新），并抑制同层相邻源回填 → 可抽干 2×2 等无限水
-        removeSourceWithSuppression(level, target, fluid);
+        // 源只计量并静默移除一格；紧邻的流动态另行连通清理，不计入储罐。
+        removeSourceAndQueueFlowCleanup(level, target, fluid);
+        processFlowCleanup(level);
         tank.fill(toInsert, IFluidHandler.FluidAction.EXECUTE);
+        // 抽取会缩小甚至切断连通区域；下一次必须从入口重建，不能复用旧边界。
+        drainSearch = null;
     }
 
     /**
@@ -400,6 +377,11 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
      * &ge;2 个，且正下方为实体方块或同种源。满足则该源可被无限再生。
      */
     private static boolean canFormInfiniteSource(ServerLevel level, BlockPos pos, FlowingFluid fluid) {
+        return canRegenerateSourceAt(level, pos, fluid);
+    }
+
+    /** 判断空气/流动态位置是否会按原版规则被相邻源重新生成。 */
+    private static boolean canRegenerateSourceAt(ServerLevel level, BlockPos pos, FlowingFluid fluid) {
         int neighbourSources = 0;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             BlockPos rel = pos.relative(d);
@@ -419,57 +401,100 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         return below.isSolid() || (belowFs.isSource() && belowFs.getType().isSame(fluid));
     }
 
-    /**
-     * 移除一个流体源并抑制无限水回填。
-     *
-     * <p>把目标格设为空气（{@link Block#UPDATE_ALL} 正常更新）。仅当目标流体能形成无限源
-     * （如无限水）时，才把其<b>同层水平相邻</b>的同种源降级为<b>流动态</b>（非源），
-     * 打破"≥2 个源邻居"的无限水条件，防止相邻水瞬间把目标重新变回源。
-     * 对不能无限生成的流体（如岩浆），仅移除目标源，不降级邻居，避免不必要地损失流体。
-     */
-    private static void removeSourceWithSuppression(Level level, BlockPos target, Fluid fluid) {
-        // 在移除前判断是否需要抑制无限源回填：仅当目标位置本身满足无限源条件时才降级邻居
-        boolean shouldSuppress = false;
-        if (level instanceof ServerLevel serverLevel && fluid instanceof FlowingFluid flowing) {
-            shouldSuppress = canFormInfiniteSource(serverLevel, target, flowing);
-        }
-
-        level.setBlock(target, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-
-        if (!shouldSuppress) {
-            return;
-        }
-
-        FlowingFluid flowing = (FlowingFluid) fluid;
-        for (Direction d : Direction.Plane.HORIZONTAL) {
-            BlockPos n = target.relative(d);
-            if (isSameFluidSource(level, n, fluid)) {
-                // 降级为高等级流动态（level 7，接近满但非源），打破无限水对
-                BlockState flowingState = flowing.getFlowing(7, false).createLegacyBlock();
-                level.setBlock(n, flowingState, Block.UPDATE_ALL);
-            }
+    /** 静默移除一个源，并把与其相邻的同种流动态加入清理队列；相邻源不会被修改。 */
+    private void removeSourceAndQueueFlowCleanup(Level level, BlockPos target, Fluid fluid) {
+        removeFluidSilently(level, target);
+        prepareFlowCleanup(fluid);
+        for (Direction direction : Direction.values()) {
+            enqueueFlowing(level, target.relative(direction), fluid);
         }
     }
 
+    /** 从一个流动态开始清理它所在的六向连通片；遍历不会穿过源方块。 */
+    private void startFlowCleanup(Level level, BlockPos target, Fluid fluid) {
+        prepareFlowCleanup(fluid);
+        enqueueFlowing(level, target, fluid);
+    }
+
+    private static void removeFluidSilently(Level level, BlockPos target) {
+        int flags = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
+        level.setBlock(target, Blocks.AIR.defaultBlockState(), flags);
+    }
+
+    private void prepareFlowCleanup(Fluid fluid) {
+        if (flowCleanupFluid != null && !flowCleanupFluid.isSame(fluid)) {
+            clearFlowCleanup();
+        }
+        flowCleanupFluid = fluid;
+    }
+
+    private void enqueueFlowing(Level level, BlockPos pos, Fluid fluid) {
+        long packedPos = pos.asLong();
+        if (!flowCleanupVisited.add(packedPos)) {
+            return;
+        }
+        FluidState fluidState = level.getFluidState(pos);
+        if (!fluidState.isEmpty() && !fluidState.isSource() && fluidState.getType().isSame(fluid)) {
+            flowCleanupQueue.enqueue(packedPos);
+        }
+    }
+
+    /** 返回当前流动态连通片是否已经清理完成；每 tick 最多处理 {@value #MAX_NODES} 格。*/
+    private boolean processFlowCleanup(Level level) {
+        if (flowCleanupQueue.isEmpty() || flowCleanupFluid == null) {
+            clearFlowCleanup();
+            return true;
+        }
+        Fluid fluid = flowCleanupFluid;
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        int processed = 0;
+        while (!flowCleanupQueue.isEmpty() && processed < MAX_NODES) {
+            long current = flowCleanupQueue.dequeueLong();
+            processed++;
+            cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
+            FluidState fluidState = level.getFluidState(cursor);
+            if (fluidState.isEmpty() || fluidState.isSource() || !fluidState.getType().isSame(fluid)) {
+                continue;
+            }
+            removeFluidSilently(level, cursor);
+            for (Direction direction : Direction.values()) {
+                cursor.move(direction);
+                enqueueFlowing(level, cursor, fluid);
+                cursor.move(direction.getOpposite());
+            }
+        }
+        if (flowCleanupQueue.isEmpty()) {
+            clearFlowCleanup();
+            return true;
+        }
+        return false;
+    }
+
+    private void clearFlowCleanup() {
+        flowCleanupQueue.clear();
+        flowCleanupVisited.clear();
+        flowCleanupFluid = null;
+    }
+
     /**
-     * 定位向上抽取目标：先<b>垂直探顶</b>，再<b>水平 flood-fill</b>（不跨层）取"边缘优先、最近"的源。
+     * 定位向上抽取目标：先<b>垂直探顶</b>，再<b>水平 flood-fill</b>（不跨层）沿缺口抽取源。
      *
      * <p><b>第一步（探顶）</b>：从排水口正上方沿同种流体一路向上，找到最高流体层 {@code topY}。
      *
      * <p><b>第二步（单层抽取）</b>：自 {@code topY} 向下逐层，在每一层内<b>仅水平</b> flood-fill
-     * （不跨层），返回首个含源的最高层里边缘优先、最远的源。液面很大时先把最顶一层一大片
-     * （受 {@value #MAX_NODES} 预算约束）抽完才下探下一层。
+     * （不跨层），返回首个含源的最高层里源邻居最少、同条件下最远的源。液面很大时，搜索按
+     * 每 tick {@value #MAX_NODES} 个节点的预算续扫，确认完整边界后才抽取或下探下一层。
      *
      * <p><b>鞍部</b>：不向下跨层保证了排水口这侧抽到洞口高度后不会继续穿过洞口往隔壁盆地深处抽；
      *
      * @param want 需匹配的流体；{@code null} 表示接受正上方任意流体
      */
-    @Nullable
-    private BlockPos findHighestNearestFluid(Level level, BlockPos drainPos, @Nullable Fluid want) {
+    private SearchResult findHighestDrainTarget(Level level, BlockPos drainPos, @Nullable Fluid want) {
         BlockPos start = drainPos.above();
         FluidState startFs = level.getFluidState(start);
         if (startFs.isEmpty() || (want != null && !startFs.getType().isSame(want))) {
-            return null;
+            drainSearch = null;
+            return SearchResult.EXHAUSTED;
         }
         Fluid fluid = want != null ? want : startFs.getType();
         // 第一步：沿正上方一路探到最高同种流体层
@@ -482,80 +507,427 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             }
             topY++;
         }
-        // 第二步：自顶向下逐层，在单层内找源
-        for (int y = topY; y >= start.getY(); y--) {
-            BlockPos target = findSourceInLayer(level, drainPos, new BlockPos(drainPos.getX(), y, drainPos.getZ()), fluid);
-            if (target != null) {
-                return target;
+        if (drainSearch == null
+            || !drainSearch.matches(drainPos, fluid, start.getY(), topY, level.getGameTime())) {
+            drainSearch = new DrainSearch(
+                drainPos,
+                fluid,
+                start.getY(),
+                topY,
+                level.getGameTime() / INTERVAL
+            );
+        }
+        return drainSearch.advance(level);
+    }
+
+    /** 等距候选按四个水平方向轮转，避免无遮挡平面长期偏向同一方向。 */
+    private static boolean isPreferredHorizontalTie(
+        long candidateDx, long candidateDz, long bestDx, long bestDz, long selectionPhase
+    ) {
+        long candidatePrimary;
+        long candidateSecondary;
+        long bestPrimary;
+        long bestSecondary;
+        switch ((int) Math.floorMod(selectionPhase, 4)) {
+            case 0 -> {
+                candidatePrimary = candidateDx;
+                candidateSecondary = candidateDz;
+                bestPrimary = bestDx;
+                bestSecondary = bestDz;
+            }
+            case 1 -> {
+                candidatePrimary = candidateDz;
+                candidateSecondary = -candidateDx;
+                bestPrimary = bestDz;
+                bestSecondary = -bestDx;
+            }
+            case 2 -> {
+                candidatePrimary = -candidateDx;
+                candidateSecondary = -candidateDz;
+                bestPrimary = -bestDx;
+                bestSecondary = -bestDz;
+            }
+            default -> {
+                candidatePrimary = -candidateDz;
+                candidateSecondary = candidateDx;
+                bestPrimary = -bestDz;
+                bestSecondary = bestDx;
             }
         }
-        return null;
+        return candidatePrimary > bestPrimary
+            || (candidatePrimary == bestPrimary && candidateSecondary > bestSecondary);
+    }
+
+    private enum FillResult {
+        FILLED,
+        SEARCHING,
+        NONE
+    }
+
+    private record SearchResult(@Nullable BlockPos target, boolean pending) {
+        private static final SearchResult PENDING = new SearchResult(null, true);
+        private static final SearchResult EXHAUSTED = new SearchResult(null, false);
+
+        private static SearchResult found(long target) {
+            return new SearchResult(BlockPos.of(target), false);
+        }
     }
 
     /**
-     * 以 {@code entry} 为入口做"水平 + 向上" flood-fill 同种流体，
-     * 返回所有<b>源</b>中"水平同种源邻居最少（边缘优先）→ 最远"的一个，从外向内抽干。
-     *
-     * <p>水平扩散的同时检查正上方一格：上方有同种流体则入队继续探。
-     * 从而在反向鞍部（天花板凸起/凹穴）场景中，不会因为仅水平扫描而漏掉上方的水源。
-     * <b>不向下</b>扩散，保证不跨鞍部往下抽。
-     *
-     * <p>"边缘优先"确保移除后不会留下被 &ge;2 个源夹住的空格，使水池从边缘向内剥离。
+     * 向下填充的跨 tick 搜索。每层只遍历已有源；空气和流动态仅进入边界候选，实际填成源后
+     * 才继续从该位置扩展。因此开放空间不会消耗完整 flood-fill 预算，也不会因预算耗尽提前升层。
      */
-    @Nullable
-    private BlockPos findSourceInLayer(Level level, BlockPos drainPos, BlockPos entry, Fluid fluid) {
-        Set<BlockPos> visited = new HashSet<>();
-        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
-        List<BlockPos> sources = new ArrayList<>();
-        queue.add(entry);
-        visited.add(entry);
+    private static final class FillSearch {
+        private final long drainPos;
+        private final Fluid fluid;
+        private final int bottomY;
+        private final int topY;
+        private int currentY;
+        private int filledTargets;
+        private long exhaustedAt = Long.MIN_VALUE;
+        @Nullable
+        private FillLayerSearch layerSearch;
 
-        while (!queue.isEmpty() && visited.size() <= MAX_NODES) {
-            BlockPos cur = queue.poll();
-            FluidState fs = level.getFluidState(cur);
-            if (fs.isEmpty() || !fs.getType().isSame(fluid)) {
-                continue; // 非目标流体 → 阻断
-            }
-            if (fs.isSource()) {
-                sources.add(cur);
-            }
-            // 水平扩散
-            for (Direction d : Direction.Plane.HORIZONTAL) {
-                enqueue(queue, visited, cur.relative(d));
-            }
-            // 向上穿透：反向鞍部——天花板凹穴内的水源
-            BlockPos above = cur.above();
-            if (!visited.contains(above.immutable())) {
-                FluidState aboveFs = level.getFluidState(above);
-                if (!aboveFs.isEmpty() && aboveFs.getType().isSame(fluid)) {
-                    enqueue(queue, visited, above);
+        private FillSearch(BlockPos drainPos, Fluid fluid, int bottomY, int topY) {
+            this.drainPos = drainPos.asLong();
+            this.fluid = fluid;
+            this.bottomY = bottomY;
+            this.topY = topY;
+            this.currentY = bottomY;
+        }
+
+        private boolean matches(BlockPos drainPos, Fluid fluid, int bottomY, int topY, long gameTime) {
+            return this.drainPos == drainPos.asLong()
+                && this.fluid.isSame(fluid)
+                && this.bottomY == bottomY
+                && this.topY == topY
+                && (exhaustedAt == Long.MIN_VALUE || gameTime - exhaustedAt < EXHAUSTED_SEARCH_TTL);
+        }
+
+        private SearchResult advance(Level level) {
+            while (currentY <= topY) {
+                if (layerSearch == null) {
+                    long entry = BlockPos.asLong(BlockPos.getX(drainPos), currentY, BlockPos.getZ(drainPos));
+                    layerSearch = new FillLayerSearch(drainPos, entry, fluid);
                 }
+                SearchResult result = layerSearch.advance(level, level.getGameTime() / INTERVAL);
+                if (result.pending() || result.target() != null) {
+                    exhaustedAt = Long.MIN_VALUE;
+                    return result;
+                }
+                currentY++;
+                layerSearch = null;
+            }
+            if (exhaustedAt == Long.MIN_VALUE) {
+                exhaustedAt = level.getGameTime();
+            }
+            return SearchResult.EXHAUSTED;
+        }
+
+        /** 返回是否应周期性重建边界，以吸收外部方块/流体变化。 */
+        private boolean acceptFilled(long target) {
+            if (layerSearch == null) {
+                return true;
+            }
+            layerSearch.acceptFilled(target);
+            exhaustedAt = Long.MIN_VALUE;
+            return ++filledTargets >= FILL_SEARCH_REBUILD_INTERVAL;
+        }
+    }
+
+    private static final class FillLayerSearch {
+        private final long drainPos;
+        private final Fluid fluid;
+        private final LongOpenHashSet discovered = new LongOpenHashSet(MAX_NODES);
+        private final LongOpenHashSet candidates = new LongOpenHashSet();
+        private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(MAX_NODES);
+
+        private FillLayerSearch(long drainPos, long entry, Fluid fluid) {
+            this.drainPos = drainPos;
+            this.fluid = fluid;
+            discovered.add(entry);
+            queue.enqueue(entry);
+        }
+
+        private SearchResult advance(Level level, long selectionPhase) {
+            BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+            int processed = 0;
+            while (true) {
+                while (!queue.isEmpty() && processed < MAX_NODES) {
+                    long current = queue.dequeueLong();
+                    processed++;
+                    cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
+                    int fillType = classifyForFill(level, cursor, fluid);
+                    if (fillType == FILL_TARGET) {
+                        candidates.add(current);
+                    } else if (fillType == FILL_SOURCE) {
+                        for (Direction direction : Direction.Plane.HORIZONTAL) {
+                            discover(level, offset(cursor, direction), cursor);
+                            cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
+                        }
+                        discover(
+                            level,
+                            BlockPos.asLong(cursor.getX(), cursor.getY() - 1, cursor.getZ()),
+                            cursor
+                        );
+                    }
+                }
+                if (!queue.isEmpty()) {
+                    return SearchResult.PENDING;
+                }
+
+                long best = 0;
+                int bestY = Integer.MAX_VALUE;
+                long bestDist = Long.MAX_VALUE;
+                long bestDx = 0;
+                long bestDz = 0;
+                boolean found = false;
+                boolean discoveredSource = false;
+                LongIterator iterator = candidates.iterator();
+                while (iterator.hasNext()) {
+                    long candidate = iterator.nextLong();
+                    cursor.set(BlockPos.getX(candidate), BlockPos.getY(candidate), BlockPos.getZ(candidate));
+                    int fillType = classifyForFill(level, cursor, fluid);
+                    if (fillType == FILL_BLOCKED) {
+                        iterator.remove();
+                        continue;
+                    }
+                    if (fillType == FILL_SOURCE) {
+                        iterator.remove();
+                        queue.enqueue(candidate);
+                        discoveredSource = true;
+                        continue;
+                    }
+                    int y = cursor.getY();
+                    long dx = (long) cursor.getX() - BlockPos.getX(drainPos);
+                    long dz = (long) cursor.getZ() - BlockPos.getZ(drainPos);
+                    long dist = dx * dx + dz * dz;
+                    if (!found
+                        || y < bestY
+                        || (y == bestY
+                            && (dist < bestDist
+                                || (dist == bestDist
+                                    && isPreferredHorizontalTie(dx, dz, bestDx, bestDz, selectionPhase))))) {
+                        best = candidate;
+                        bestY = y;
+                        bestDist = dist;
+                        bestDx = dx;
+                        bestDz = dz;
+                        found = true;
+                    }
+                }
+                if (discoveredSource) {
+                    if (processed >= MAX_NODES) {
+                        return SearchResult.PENDING;
+                    }
+                    continue;
+                }
+                return found ? SearchResult.found(best) : SearchResult.EXHAUSTED;
             }
         }
-        if (sources.isEmpty()) {
-            return null;
+
+        private void discover(Level level, long pos, BlockPos.MutableBlockPos cursor) {
+            if (!discovered.add(pos)) {
+                return;
+            }
+            cursor.set(BlockPos.getX(pos), BlockPos.getY(pos), BlockPos.getZ(pos));
+            int fillType = classifyForFill(level, cursor, fluid);
+            if (fillType == FILL_SOURCE) {
+                queue.enqueue(pos);
+            } else if (fillType == FILL_TARGET) {
+                candidates.add(pos);
+            }
         }
-        BlockPos best = null;
-        int bestNeighbors = Integer.MAX_VALUE;
-        long bestDist = Long.MIN_VALUE;
-        for (BlockPos p : sources) {
-            int neighbors = countSourceNeighbors(level, p, fluid);
-            long dx = p.getX() - drainPos.getX();
-            long dz = p.getZ() - drainPos.getZ();
+
+        private void acceptFilled(long target) {
+            candidates.remove(target);
+            discovered.add(target);
+            queue.enqueue(target);
+        }
+    }
+
+    /** 抽取会缩小连通区域，因此每次动作后重建；单次重建可跨 tick 续扫，绝不把预算耗尽当作层完成。 */
+    private static final class DrainSearch {
+        private final long drainPos;
+        private final Fluid fluid;
+        private final int bottomY;
+        private final int topY;
+        private final long selectionPhase;
+        private int currentY;
+        private long exhaustedAt = Long.MIN_VALUE;
+        @Nullable
+        private DrainLayerSearch layerSearch;
+
+        private DrainSearch(
+            BlockPos drainPos,
+            Fluid fluid,
+            int bottomY,
+            int topY,
+            long selectionPhase
+        ) {
+            this.drainPos = drainPos.asLong();
+            this.fluid = fluid;
+            this.bottomY = bottomY;
+            this.topY = topY;
+            this.currentY = topY;
+            this.selectionPhase = selectionPhase;
+        }
+
+        private boolean matches(BlockPos drainPos, Fluid fluid, int bottomY, int topY, long gameTime) {
+            return this.drainPos == drainPos.asLong()
+                && this.fluid.isSame(fluid)
+                && this.bottomY == bottomY
+                && this.topY == topY
+                && (exhaustedAt == Long.MIN_VALUE || gameTime - exhaustedAt < EXHAUSTED_SEARCH_TTL);
+        }
+
+        private SearchResult advance(Level level) {
+            while (currentY >= bottomY) {
+                if (layerSearch == null) {
+                    long entry = BlockPos.asLong(BlockPos.getX(drainPos), currentY, BlockPos.getZ(drainPos));
+                    layerSearch = new DrainLayerSearch(drainPos, entry, fluid, selectionPhase);
+                }
+                SearchResult result = layerSearch.advance(level);
+                if (result.pending() || result.target() != null) {
+                    exhaustedAt = Long.MIN_VALUE;
+                    return result;
+                }
+                currentY--;
+                layerSearch = null;
+            }
+            if (exhaustedAt == Long.MIN_VALUE) {
+                exhaustedAt = level.getGameTime();
+            }
+            return SearchResult.EXHAUSTED;
+        }
+    }
+
+    private static final class DrainLayerSearch {
+        private final long drainPos;
+        private final Fluid fluid;
+        private final long selectionPhase;
+        private final LongOpenHashSet discovered = new LongOpenHashSet(MAX_NODES);
+        private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(MAX_NODES);
+        private long best;
+        private int bestY = Integer.MIN_VALUE;
+        private long bestDist = Long.MIN_VALUE;
+        private long bestDx;
+        private long bestDz;
+        private int bestNeighbors = Integer.MAX_VALUE;
+        private boolean found;
+        private long bestFlowing;
+        private int bestFlowingY = Integer.MIN_VALUE;
+        private long bestFlowingDist = Long.MIN_VALUE;
+        private long bestFlowingDx;
+        private long bestFlowingDz;
+        private boolean foundFlowing;
+
+        private DrainLayerSearch(long drainPos, long entry, Fluid fluid, long selectionPhase) {
+            this.drainPos = drainPos;
+            this.fluid = fluid;
+            this.selectionPhase = selectionPhase;
+            discovered.add(entry);
+            queue.enqueue(entry);
+        }
+
+        private SearchResult advance(Level level) {
+            BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+            BlockPos.MutableBlockPos neighborCursor = new BlockPos.MutableBlockPos();
+            int processed = 0;
+            while (!queue.isEmpty() && processed < MAX_NODES) {
+                long current = queue.dequeueLong();
+                processed++;
+                cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
+                FluidState fluidState = level.getFluidState(cursor);
+                if (fluidState.isEmpty() || !fluidState.getType().isSame(fluid)) {
+                    continue;
+                }
+                if (fluidState.isSource()) {
+                    considerSource(level, current, cursor, neighborCursor);
+                } else {
+                    considerFlowing(current, cursor);
+                }
+                for (Direction direction : Direction.Plane.HORIZONTAL) {
+                    discoverFluid(level, offset(cursor, direction), neighborCursor);
+                }
+                discoverFluid(
+                    level,
+                    BlockPos.asLong(cursor.getX(), cursor.getY() + 1, cursor.getZ()),
+                    neighborCursor
+                );
+            }
+            if (!queue.isEmpty()) {
+                return SearchResult.PENDING;
+            }
+            if (found) {
+                return SearchResult.found(best);
+            }
+            return foundFlowing ? SearchResult.found(bestFlowing) : SearchResult.EXHAUSTED;
+        }
+
+        private void discoverFluid(Level level, long pos, BlockPos.MutableBlockPos cursor) {
+            if (!discovered.add(pos)) {
+                return;
+            }
+            cursor.set(BlockPos.getX(pos), BlockPos.getY(pos), BlockPos.getZ(pos));
+            FluidState fluidState = level.getFluidState(cursor);
+            if (!fluidState.isEmpty() && fluidState.getType().isSame(fluid)) {
+                queue.enqueue(pos);
+            }
+        }
+
+        private void considerSource(
+            Level level,
+            long source,
+            BlockPos sourcePos,
+            BlockPos.MutableBlockPos neighborCursor
+        ) {
+            int neighbors = countSourceNeighbors(level, sourcePos, fluid, neighborCursor);
+            long dx = (long) sourcePos.getX() - BlockPos.getX(drainPos);
+            long dz = (long) sourcePos.getZ() - BlockPos.getZ(drainPos);
             long dist = dx * dx + dz * dz;
-            boolean better;
-            if (neighbors != bestNeighbors) {
-                better = neighbors < bestNeighbors;
-            } else {
-                better = dist > bestDist; // 最远优先，从外向内抽
-            }
-            if (better) {
-                bestNeighbors = neighbors;
+            int y = sourcePos.getY();
+            if (!found
+                || neighbors < bestNeighbors
+                || (neighbors == bestNeighbors
+                    && (dist > bestDist
+                        || (dist == bestDist
+                            && (isPreferredHorizontalTie(dx, dz, bestDx, bestDz, selectionPhase)
+                                || (dx == bestDx && dz == bestDz && y > bestY)))))) {
+                best = source;
+                bestY = y;
                 bestDist = dist;
-                best = p;
+                bestDx = dx;
+                bestDz = dz;
+                bestNeighbors = neighbors;
+                found = true;
             }
         }
-        return best;
+
+        private void considerFlowing(long flowing, BlockPos flowingPos) {
+            long dx = (long) flowingPos.getX() - BlockPos.getX(drainPos);
+            long dz = (long) flowingPos.getZ() - BlockPos.getZ(drainPos);
+            long dist = dx * dx + dz * dz;
+            int y = flowingPos.getY();
+            if (!foundFlowing
+                || dist > bestFlowingDist
+                || (dist == bestFlowingDist
+                    && (isPreferredHorizontalTie(
+                            dx,
+                            dz,
+                            bestFlowingDx,
+                            bestFlowingDz,
+                            selectionPhase
+                        )
+                        || (dx == bestFlowingDx && dz == bestFlowingDz && y > bestFlowingY)))) {
+                bestFlowing = flowing;
+                bestFlowingY = y;
+                bestFlowingDist = dist;
+                bestFlowingDx = dx;
+                bestFlowingDz = dz;
+                foundFlowing = true;
+            }
+        }
     }
 
     // ---- NBT / 同步 ----

@@ -74,10 +74,10 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.grid_information.title", "Power Grid Stats:");
         provider.add("tooltip.anvilcraft.grid_information.producer_stats", "Power Producer Stats:");
         provider.add("tooltip.anvilcraft.grid_information.consumer_stats", "Power Consumer Stats:");
-        provider.add("tooltip.anvilcraft.grid_information.output_power", "  Power Generation: %s");
-        provider.add("tooltip.anvilcraft.grid_information.input_power", "  Power Consumption: %s");
-        provider.add("tooltip.anvilcraft.grid_information.total_consumed", "  Total Consumption: %s");
-        provider.add("tooltip.anvilcraft.grid_information.total_generated", "  Total Generation: %s");
+        provider.add("tooltip.anvilcraft.grid_information.output_power", "  Power Generation: %d");
+        provider.add("tooltip.anvilcraft.grid_information.input_power", "  Power Consumption: %d");
+        provider.add("tooltip.anvilcraft.grid_information.total_consumed", "  Total Consumption: %d");
+        provider.add("tooltip.anvilcraft.grid_information.total_generated", "  Total Generation: %d");
         provider.add("tooltip.anvilcraft.grid_information.utilization", "  Power Utilization: %s");
         provider.add("tooltip.anvilcraft.grid_information.overloaded1", "It appears that this grid is overloaded.");
         provider.add("tooltip.anvilcraft.grid_information.overloaded2", "Add more sources or remove the components");
@@ -184,7 +184,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.tesla_tower.filter.is_baby_friendly", "Baby Friendly Entity Filter");
         provider.add("screen.anvilcraft.tesla_tower.filter.has_custom_name", "Custom Named Entity Filter");
 
-        provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power: %d%%");
+        provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power Remaining: %d%%");
 
         provider.add("screen.anvilcraft.frost_metal_upgrade_smithing_template", "Frost Metal Upgrade");
         provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description", "Put the Frost Metal Ingot");
@@ -215,7 +215,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.multiphase.merciless", "-Merciless");
 
         provider.add("screen.anvilcraft.multitool.title", "Switch tool");
-        provider.add("screen.anvilcraft.multitool.all", "All");
+        provider.add("screen.anvilcraft.multitool.all", "Enable All");
 
         provider.add("screen.anvilcraft.deflection_ring.state", "Deflection Ring State");
         provider.add("screen.anvilcraft.deflection_ring.speed", "  Last Entity Speed: %d m/tick");
@@ -293,7 +293,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.missing_amplifier.line2", "celestial body status"); // 缺少增幅器，天体状态暂无法同步
         provider.add("screen.anvilcraft.cfa.missing_amplifier.line3", "cannot be synced"); // 滚木
 
-        provider.add("screen.anvilcraft.cfa.search_tooltip", "Forging celestial bodies with this parameter"); // 锻造该参数的天体
+        provider.add("screen.anvilcraft.cfa.search_tooltip", "Forging a celestial body with these parameter"); // 锻造该参数的天体
         provider.add("screen.anvilcraft.cfa.search_fail", "Unreasonable parameters"); // 参数不合理，无法锻造
         provider.add("screen.anvilcraft.cfa.search_loading", "Forging"); // 参数合理，锻造中
         provider.add("screen.anvilcraft.cfa.re_search_tooltip", "Forging Again"); // 再次锻造
@@ -305,7 +305,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.tilt", "Axial Tilt: %s"); // 自转轴倾角: %s
 
         provider.add("screen.anvilcraft.cfa.atmos", "Atmosphere: %s"); // 大气: %s
-        provider.add("screen.anvilcraft.cfa.atmos.yes", "Yes"); // 有
+        provider.add("screen.anvilcraft.cfa.atmos.yes", "Present"); // 有
         provider.add("screen.anvilcraft.cfa.none", "None"); // 无
 
         provider.add("screen.anvilcraft.cfa.mag", "Magnetic Field: %s"); // 磁场: %s
@@ -342,11 +342,11 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.pressure.ice", "Ice"); // 冰
 
         provider.add("screen.anvilcraft.cfa.wind", "Wind Speed: %s"); // 风速: %s
-        provider.add("screen.anvilcraft.cfa.wind.high", "High"); // 高
-        provider.add("screen.anvilcraft.cfa.wind.very_high", "Very High"); // 非常高
+        provider.add("screen.anvilcraft.cfa.wind.high", "Fast"); // 高
+        provider.add("screen.anvilcraft.cfa.wind.very_high", "Very Fast"); // 非常高
 
-        provider.add("screen.anvilcraft.cfa.type", "Type: %s"); // 天体类型: %s
-        provider.add("screen.anvilcraft.cfa.class.no_match", "Null"); // ？？？
+        provider.add("screen.anvilcraft.cfa.type", "Celestial Body Type: %s"); // 天体类型: %s
+        provider.add("screen.anvilcraft.cfa.class.no_match", "???"); // ？？？
         provider.add("screen.anvilcraft.cfa.class.large_moon", "Large Moon"); // 大型卫星
         provider.add("screen.anvilcraft.cfa.class.rocky_planet", "Rocky Planet"); // 岩石行星
         // 岩石行星，根据温度、大气自动决定类型
@@ -408,13 +408,13 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.fluid_interface.title", "Fluid Interface"); // 流体接口
         provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface"); // 激光接口
         provider.add("screen.anvilcraft.cfa.interface.empty", "(Empty)"); // (空)
-        provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving: Lv.%s"); // 接收激光: 等级.%s+
-        provider.add("screen.anvilcraft.cfa.laser_interface.received_gamma", "Receiving: Gamma Lv.%s"); // 接收伽马激光: 等级.%s+
-        provider.add("screen.anvilcraft.cfa.laser_interface.emitting", "Emitting: Lv.%s"); // 发射激光: 等级.%s+
-        provider.add("screen.anvilcraft.cfa.laser_interface.emitting_gamma", "Emitting: Gamma Lv.%s"); // 发射伽马激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving Laser: Lv.%s+"); // 接收激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.received_gamma", "Receiving Gamma Laser: Lv.%s+"); // 接收伽马激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.emitting", "Emitting Laser: Lv.%s+"); // 发射激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.emitting_gamma", "Emitting Gamma Laser: Lv.%s+"); // 发射伽马激光: 等级.%s+
         provider.add("screen.anvilcraft.cfa.laser_interface.no_laser", "(No laser)"); // (无激光)
-        provider.add("screen.anvilcraft.cfa.laser_interface.required", "Required: Lv.%s+"); // 需求激光: 等级.%s+
-        provider.add("screen.anvilcraft.cfa.laser_interface.required_gamma", "Required: Gamma Lv.%s+"); // 需求伽马激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.required", "Required Laser: Lv.%s+"); // 需求激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.required_gamma", "Required Gamma Laser: Lv.%s+"); // 需求伽马激光: 等级.%s+
         provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid"); // ✓ 达成
         provider.add("screen.anvilcraft.cfa.laser_interface.invalid", "✗ Invalid"); // ✗ 未达成
 
@@ -431,8 +431,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.temple", "Temple"); // 神庙
         provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor", "Giant Planet Exctractor"); // 巨行星抽取器
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider", "Stellar Ring Collider"); // 星环对撞机
-        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small", "Dyson Sphere"); // 小戴森球
-        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large", "Dyson Sphere"); // 大戴森球
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small", "Small Dyson Sphere"); // 小戴森球
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large", "Large Dyson Sphere"); // 大戴森球
         provider.add("screen.anvilcraft.cfa.megastructure.magnetar_coil", "Magnetar Coil"); // 磁星线圈
         provider.add("screen.anvilcraft.cfa.megastructure.penrose_sphere", "Penrose Sphere"); // 彭罗斯球
         provider.add("screen.anvilcraft.cfa.megastructure.matter_decompressor", "Matter Decompressor"); // 物质解压器
@@ -661,8 +661,8 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution.stage3", "Supernova"); // 超新星爆发
         provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf"); // 红矮星阶段
         provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage"); // ？？？
-        provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time: %s"); // 剩余时间:
-        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Infinite Power"); // 无限发电中
+        provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time Remaining: %s"); // 剩余时间:
+        provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Generating Infinite Power..."); // 无限发电中
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked"); // 天体正在演化，无法解锁
 
         // Portal placement messages

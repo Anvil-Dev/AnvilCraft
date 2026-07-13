@@ -13,23 +13,20 @@ public class CommandLang {
         provider.add("command.anvilcraft.powergrid.info.transmitter", "%1$s at %2$s, %3$s, %4$s (Range: %5$s)");
         provider.add("command.anvilcraft.powergrid.info.not_found", "No power grid found at position %1$s, %2$s, %3$s");
 
-        provider.add("command.anvilcraft.multiphase.not_found", "No multiphase using this id %s");
-        provider.add("command.anvilcraft.multiphase.info.multiphase_id", "Multiphase ID: %s");
-        provider.add("command.anvilcraft.multiphase.info.phases", "Phases: ");
-        provider.add("command.anvilcraft.multiphase.info.custom_name", "Custom Name: ");
-        provider.add("command.anvilcraft.multiphase.info.item_name", "Item Name: ");
-        provider.add("command.anvilcraft.multiphase.info.name.empty", "Empty");
-        provider.add("command.anvilcraft.multiphase.info.repair_cost", "Repair Cost: ");
-        provider.add("command.anvilcraft.multiphase.info.enchantments", "Enchantments: ");
-        provider.add("command.anvilcraft.multiphase.info.merciless_enchantments", "Merciless Enchantments: ");
+        provider.add("command.anvilcraft.multiphase.no_item", "The main-hand item does not have Multiphase");
         provider.add(
-            "command.anvilcraft.multiphase.remove.success",
-            "Successfully removed multiphase %1$s.\nYou can recover it by \"%2$s\""
+            "command.anvilcraft.multiphase.info.summary",
+            "Multiphase spaces: %1$s, active: %2$s, Merciless: %3$s"
         );
-        provider.add("command.anvilcraft.multiphase.remove.success.hovering", "Click to Run Command");
-        provider.add("command.anvilcraft.multiphase.recover.success", "Successfully recovered multiphase %s");
-        provider.add("command.anvilcraft.multiphase.recover.clear.success", "Successfully cleared recover station");
-        provider.add("command.anvilcraft.multiphase.apply.not_player", "Command runner is not player");
+        provider.add(
+            "command.anvilcraft.multiphase.info.phase",
+            "[%1$s] %2$s, repair cost: %3$s, enchantments: %4$s"
+        );
+        provider.add(
+            "command.anvilcraft.multiphase.add.success",
+            "Added %1$s enchantment space(s); total: %2$s"
+        );
+        provider.add("command.anvilcraft.multiphase.add.full", "This item already has four enchantment spaces");
 
         provider.add("command.anvilcraft.universe.no_id", "No ID provided and cannot find ID in items on hand");
 

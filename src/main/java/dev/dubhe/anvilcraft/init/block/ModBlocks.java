@@ -3356,7 +3356,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ExcitedStateVoidMatterBlock> EXCITED_STATE_VOID_MATTER_BLOCK = REGISTRUM
         .block("excited_state_void_matter_block", ExcitedStateVoidMatterBlock::new)
-        .lang("Excited State Void Matter")
+        .lang("Excited State Void Matter Block")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((context, provider) -> provider.simpleBlock(
