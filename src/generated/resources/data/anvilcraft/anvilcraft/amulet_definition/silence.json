@@ -3,7 +3,7 @@
   "amulet": {
     "id": "anvilcraft:silence_amulet"
   },
-  "obtain": {
+  "obtains": {
     "source_entity": {
       "type": "#anvilcraft:amulet_valid/silence"
     }

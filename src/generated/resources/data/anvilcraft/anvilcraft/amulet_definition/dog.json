@@ -3,7 +3,7 @@
   "amulet": {
     "id": "anvilcraft:dog_amulet"
   },
-  "obtain": {
+  "obtains": {
     "source_entity": {
       "type": "#anvilcraft:amulet_valid/dog"
     }

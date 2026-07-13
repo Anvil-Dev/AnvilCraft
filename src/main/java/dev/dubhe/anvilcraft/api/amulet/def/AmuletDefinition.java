@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.api.amulet.def;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.dubhe.anvilcraft.init.item.ModAmuletDefinitionTypes;
 import net.minecraft.advancements.criterion.DamageSourcePredicate;
@@ -29,28 +31,62 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public record AmuletDefinition(
     ItemStackTemplate amulet,
-    Optional<DamageSourcePredicate> obtain
+    List<DamageSourcePredicate> obtains,
+    boolean or
 ) implements IAmuletDefinition {
+    public AmuletDefinition(ItemLike amulet, DataComponentPatch components, List<DamageSourcePredicate> obtains, boolean or) {
+        this(new ItemStackTemplate(amulet.asItem(), components), obtains, or);
+    }
+
+    public AmuletDefinition(ItemLike amulet, DataComponentPatch components, DamageSourcePredicate obtain, boolean or) {
+        this(new ItemStackTemplate(amulet.asItem(), components), Collections.singletonList(obtain), or);
+    }
+
+    public AmuletDefinition(ItemLike amulet, List<DamageSourcePredicate> obtains, boolean or) {
+        this(new ItemStackTemplate(amulet.asItem()), obtains, or);
+    }
+
+    public AmuletDefinition(ItemLike amulet, DamageSourcePredicate obtain, boolean or) {
+        this(new ItemStackTemplate(amulet.asItem()), Collections.singletonList(obtain), or);
+    }
+
+    public AmuletDefinition(ItemLike amulet, DataComponentPatch components, boolean or) {
+        this(new ItemStackTemplate(amulet.asItem(), components), List.of(), or);
+    }
+
+    public AmuletDefinition(ItemLike amulet, boolean or) {
+        this(new ItemStackTemplate(amulet.asItem()), List.of(), or);
+    }
+
+    public AmuletDefinition(ItemLike amulet, DataComponentPatch components, List<DamageSourcePredicate> obtains) {
+        this(new ItemStackTemplate(amulet.asItem(), components), obtains, true);
+    }
+
     public AmuletDefinition(ItemLike amulet, DataComponentPatch components, DamageSourcePredicate obtain) {
-        this(new ItemStackTemplate(amulet.asItem(), components), Optional.of(obtain));
+        this(new ItemStackTemplate(amulet.asItem(), components), Collections.singletonList(obtain), true);
+    }
+
+    public AmuletDefinition(ItemLike amulet, List<DamageSourcePredicate> obtains) {
+        this(new ItemStackTemplate(amulet.asItem()), obtains, true);
     }
 
     public AmuletDefinition(ItemLike amulet, DamageSourcePredicate obtain) {
-        this(new ItemStackTemplate(amulet.asItem()), Optional.of(obtain));
+        this(new ItemStackTemplate(amulet.asItem()), Collections.singletonList(obtain), true);
     }
 
     public AmuletDefinition(ItemLike amulet, DataComponentPatch components) {
-        this(new ItemStackTemplate(amulet.asItem(), components), Optional.empty());
+        this(new ItemStackTemplate(amulet.asItem(), components), List.of(), true);
     }
 
     public AmuletDefinition(ItemLike amulet) {
-        this(new ItemStackTemplate(amulet.asItem()), Optional.empty());
+        this(new ItemStackTemplate(amulet.asItem()), List.of(), true);
     }
 
     public static Builder builder(ItemLike amulet) {
@@ -64,7 +100,12 @@ public record AmuletDefinition(
 
     @Override
     public boolean mayObtain(ServerPlayer victim, DamageSource source) {
-        return this.obtain().map(predicate -> predicate.matches(victim, source)).orElse(false);
+        for (DamageSourcePredicate predicate : this.obtains) {
+            if (this.or == predicate.matches(victim, source)) {
+                return this.or;
+            }
+        }
+        return !this.or;
     }
 
     @Override
@@ -73,19 +114,24 @@ public record AmuletDefinition(
     }
 
     public static class Type implements IAmuletDefinition.Type<AmuletDefinition> {
-        public static final MapCodec<AmuletDefinition> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+        public static final MapCodec<AmuletDefinition> CODEC = CodecUtil.mapCodec(
             ItemStackTemplate.CODEC
                 .fieldOf("amulet")
                 .forGetter(AmuletDefinition::amulet),
-            DamageSourcePredicate.CODEC
-                .optionalFieldOf("obtain")
-                .forGetter(AmuletDefinition::obtain)
-        ).apply(inst, AmuletDefinition::new));
+            CodecUtil.zomListMap(DamageSourcePredicate.CODEC, "obtains")
+                .forGetter(AmuletDefinition::obtains),
+            Codec.BOOL
+                .optionalFieldOf("or", true)
+                .forGetter(AmuletDefinition::or),
+            AmuletDefinition::new
+        );
         public static final StreamCodec<RegistryFriendlyByteBuf, AmuletDefinition> STREAM_CODEC = StreamCodec.composite(
             ItemStackTemplate.STREAM_CODEC,
             AmuletDefinition::amulet,
-            ByteBufCodecs.optional(StreamCodecUtil.DAMAGE_SOURCE_PREDICATE),
-            AmuletDefinition::obtain,
+            StreamCodecUtil.DAMAGE_SOURCE_PREDICATE.apply(ByteBufCodecs.list()),
+            AmuletDefinition::obtains,
+            ByteBufCodecs.BOOL,
+            AmuletDefinition::or,
             AmuletDefinition::new
         );
 
@@ -103,7 +149,9 @@ public record AmuletDefinition(
     public static class Builder {
         private final ItemLike amulet;
         private DataComponentPatch.@Nullable Builder components = null;
+        private final ImmutableList.Builder<DamageSourcePredicate> obtains = ImmutableList.builder();
         private DamageSourcePredicate.@Nullable Builder obtain = null;
+        private boolean or = true;
 
         public Builder(ItemLike amulet) {
             this.amulet = amulet;
@@ -130,6 +178,15 @@ public record AmuletDefinition(
                 this.components = DataComponentPatch.builder();
             }
             this.components.set(components);
+            return this;
+        }
+
+        public Builder obtainEnd() {
+            if (this.obtain == null) {
+                throw new IllegalStateException("Unexpected end when not started");
+            }
+            this.obtains.add(this.obtain.build());
+            this.obtain = null;
             return this;
         }
 
@@ -214,17 +271,19 @@ public record AmuletDefinition(
             return this.obtainDirect(builder -> builder.slots(new SlotsPredicate(Map.of(slot, item.build()))));
         }
 
+        public Builder and() {
+            this.or = false;
+            return this;
+        }
+
         public AmuletDefinition build() {
+            if (this.obtain != null) {
+                this.obtains.add(this.obtain.build());
+            }
             if (this.components == null) {
-                if (this.obtain == null) {
-                    return new AmuletDefinition(this.amulet);
-                }
-                return new AmuletDefinition(this.amulet, this.obtain.build());
+                return new AmuletDefinition(this.amulet, this.obtains.build(), this.or);
             } else {
-                if (this.obtain == null) {
-                    return new AmuletDefinition(this.amulet, this.components.build());
-                }
-                return new AmuletDefinition(this.amulet, this.components.build(), this.obtain.build());
+                return new AmuletDefinition(this.amulet, this.components.build(), this.obtains.build(), this.or);
             }
         }
     }
