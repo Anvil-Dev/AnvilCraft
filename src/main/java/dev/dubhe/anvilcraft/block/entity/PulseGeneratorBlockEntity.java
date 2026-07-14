@@ -115,6 +115,14 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
             .ifPresent(block -> block.update(this.getLevel(), this.getBlockPos(), this::getBlockState));
     }
 
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level == null) return;
+        Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
+            .ifPresent(block -> block.update(this.level, this.getBlockPos(), this::getBlockState));
+    }
+
     public CompoundTag constructDataNbt() {
         CompoundTag data = new CompoundTag();
         data.putByte("StartMode", this.startMode.index());

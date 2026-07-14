@@ -147,6 +147,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
             case RISING_EDGE -> !lastInputting && nowInputting;
             case FALLING_EDGE -> lastInputting && !nowInputting;
             case LOOP -> allowLoopStart
+                         && !nowInputting
                          && !generator.isDeadlock()
                          && generator.getState() == PulseGeneratorBlockEntity.State.DEFAULT;
         } && !generator.isProcessing();
