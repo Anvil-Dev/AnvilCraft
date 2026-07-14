@@ -346,12 +346,15 @@ public class AnvilHammerItem extends Item implements Equipable {
         return switch (AnvilCraftClient.CONFIG.goggleMode) {
             case ALWAYS_SHOW -> true;
             case WEARING_HAMMER -> AnvilHammerItem.isWearing(player);
-            case HOLDING_HAMMER -> {
-                if (player.getMainHandItem().getItem() instanceof AnvilHammerItem) yield true;
-                yield player.getOffhandItem().getItem() instanceof AnvilHammerItem;
-            }
+            case HOLDING_HAMMER -> AnvilHammerItem.isHolding(player);
+            case WEARING_OR_HOLDING_HAMMER -> AnvilHammerItem.isWearing(player) || AnvilHammerItem.isHolding(player);
             case TOGGLE_WITH_KEY -> AnvilHammerItem.goggleEnabled;
         };
+    }
+
+    private static boolean isHolding(Player player) {
+        return player.getMainHandItem().getItem() instanceof AnvilHammerItem
+            || player.getOffhandItem().getItem() instanceof AnvilHammerItem;
     }
 
     @Override

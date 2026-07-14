@@ -12,14 +12,18 @@ public class AnvilCraftBlockPlacerFakePlayer implements IAnvilCraftBlockPlacer {
     static final UUID placerUUID = UUID.randomUUID();
     static final String placerName = "AnvilCraftBlockPlacer";
     static final GameProfile fakeProfile = new GameProfile(placerUUID, "[Block Placer of " + placerName + "]");
-    private static ServerPlayer fakePlayer;
+    private final ServerLevel level;
+    private ServerPlayer fakePlayer;
 
-    public AnvilCraftBlockPlacerFakePlayer(ServerLevel world) {
-        fakePlayer = FakePlayerFactory.get(world, fakeProfile);
+    public AnvilCraftBlockPlacerFakePlayer(ServerLevel level) {
+        this.level = level;
     }
 
     @Override
     public ServerPlayer getPlayer() {
+        if (fakePlayer == null) {
+            fakePlayer = FakePlayerFactory.get(level, fakeProfile);
+        }
         return fakePlayer;
     }
 }

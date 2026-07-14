@@ -3356,7 +3356,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ExcitedStateVoidMatterBlock> EXCITED_STATE_VOID_MATTER_BLOCK = REGISTRUM
         .block("excited_state_void_matter_block", ExcitedStateVoidMatterBlock::new)
-        .lang("Excited State Void Matter")
+        .lang("Excited State Void Matter Block")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate((context, provider) -> provider.simpleBlock(
@@ -4202,13 +4202,17 @@ public class ModBlocks {
         })
         .register();
 
+    /** 可贴附六个面的无衰减红石导线。 */
     public static final BlockEntry<RedstoneWireBlock> REDSTONE_WIRE = REGISTRUM.block("redstone_wire", RedstoneWireBlock::new)
         .lang("Redstone Wire")
         .initialProperties(() -> Blocks.REDSTONE_WIRE)
+        // 多部件模型会跨越方块表面，禁用遮挡剔除以免墙面和拐角部分被错误裁掉。
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(RedstoneWireBlockStateGenerator::generate)
         .item(RedstoneWireBlockItem::new)
-        .model((ctx, provider) -> provider.generated(ctx))
+        // 物品使用独立的实体方块模型，避免默认 generated 模型把创造栏图标渲染成二维贴图。
+        .model((ctx, provider) ->
+            provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/redstone_wire_item")))
         .build()
         .recipe(RegistrumBlockRecipeLoader::redstoneWire)
         .register();

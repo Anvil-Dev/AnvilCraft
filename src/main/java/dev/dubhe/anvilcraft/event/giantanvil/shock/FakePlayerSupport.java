@@ -21,18 +21,8 @@ public class FakePlayerSupport {
 
     private static final Map<ServerLevel, FakePlayer> FAKE_PLAYERS = new HashMap<>();
 
-    @SubscribeEvent
-    public static void onLevelLoad(LevelEvent.Load event) {
-        if (event.getLevel() instanceof ServerLevel level) {
-            if (FAKE_PLAYERS.get(level) == null) {
-                FakePlayer fakePlayer = FakePlayerFactory.get(level, GAME_PROFILE);
-                FAKE_PLAYERS.put(level, fakePlayer);
-            }
-        }
-    }
-
     public static FakePlayer get(ServerLevel level) {
-        return FAKE_PLAYERS.get(level);
+        return FAKE_PLAYERS.computeIfAbsent(level, key -> FakePlayerFactory.get(key, GAME_PROFILE));
     }
 
     @SubscribeEvent

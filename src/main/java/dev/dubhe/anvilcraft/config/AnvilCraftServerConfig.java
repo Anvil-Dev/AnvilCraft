@@ -165,9 +165,6 @@ public class AnvilCraftServerConfig {
     @Comment("Pushing or pulling a sliding rail will chain to other rails")
     public boolean slidingRailStickToEachOther = false;
 
-    @Comment("The max size of the entries in multiphases' recover station")
-    public int multiphaseRecoverMaxSize = 20;
-
     public static class SpacetimeSupercomputerCommand {
         @Comment("Allow /locate biome command")
         public boolean allowLocateBiomeCommand = true;

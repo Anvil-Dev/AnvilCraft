@@ -11,7 +11,7 @@ import net.neoforged.fml.config.ModConfig;
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
     @Comment("The mode of the anvil hammer goggle info")
-    public GoggleMode goggleMode = GoggleMode.WEARING_HAMMER;
+    public GoggleMode goggleMode = GoggleMode.WEARING_OR_HOLDING_HAMMER;
 
     @Comment("Scale of the anvil hammer radial menu")
     @BoundedDiscrete(min = 0.5, max = 2.0)
@@ -85,10 +85,6 @@ public class AnvilCraftClientConfig {
     @CollapsibleObject
     public IonocraftBackpackHud ionocraftBackpackHud = new IonocraftBackpackHud();
 
-    @SerializedName("Show Multiphase Stored ID")
-    @Comment("Add a tooltip line that shows multiphase stored ID")
-    public boolean showMultiphaseStoredId = false;
-
     public static class IonocraftBackpackHud {
         @SerializedName("Enabled")
         @Comment("If true, will show Ionocraft Backpack current power in hud")
@@ -119,6 +115,8 @@ public class AnvilCraftClientConfig {
         WEARING_HAMMER,
         @SerializedName("When Holding Hammer")
         HOLDING_HAMMER,
+        @SerializedName("When Wearing or Holding Hammer")
+        WEARING_OR_HOLDING_HAMMER,
         @SerializedName("Toggle with Key")
         TOGGLE_WITH_KEY
     }

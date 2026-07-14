@@ -8,11 +8,10 @@ import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
-import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
-import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -29,7 +28,6 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Comparator;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -76,11 +74,11 @@ public class WheelLifecycleEventListener {
                     stack = player.getOffhandItem();
                 }
                 if (!stack.has(ModComponents.MULTIPHASE)) return;
-                MultiphaseRef ref = stack.get(ModComponents.MULTIPHASE);
-                if (ref.isEmpty()) return;
-                PacketDistributor.sendToServer(new MultiphasePackets.SingleSync(stack.get(ModComponents.MULTIPHASE).id().get()));
+                Multiphase multiphase = stack.get(ModComponents.MULTIPHASE);
+                if (multiphase == null) return;
+                multiphase = multiphase.forDisplay(stack);
                 WheelLifecycleEventListener.multiphaseWheelCache = Optional.ofNullable(
-                    WheelLifecycleEventListener.getMultiphaseWheel(hand, stack, ref.toMultiphase())
+                    WheelLifecycleEventListener.getMultiphaseWheel(hand, stack, multiphase)
                 );
             }
             if (WheelLifecycleEventListener.multiphaseWheelCache.isEmpty()) return;
@@ -140,22 +138,38 @@ public class WheelLifecycleEventListener {
     }
 
     private static @Nullable WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
-        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(multiphase.phases().size());
-        multiphase.phases().stream()
-            .sorted(Comparator.comparingInt(Multiphase.Phase::index))
-            .forEachOrdered(phase -> builder.action(
-                "" + Multiphase.DEFAULT_SUFFIXES.charAt(phase.index()),
-                phase.phaseName(),
-                (graphics, pose, width, height) -> {
-                    ItemStack copied = holding.copy();
-                    phase.applyToStack(copied);
-                    graphics.renderItem(copied, 2, 2, 9910597);
-                },
-                ctx -> PacketDistributor.sendToServer(
-                    new MultiphasePackets.ChangePhase(hand, ctx.slotIndex())
-                )
-            ));
+        int phaseCount = multiphase.phases().size();
+        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount * 2);
+        for (int i = 0; i < phaseCount; i++) {
+            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i, false);
+        }
+        for (int i = 0; i < phaseCount; i++) {
+            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i, true);
+        }
         return builder.build();
+    }
+
+    private static void addMultiphaseWheelEntry(
+        WheelMenuBuilder builder,
+        InteractionHand hand,
+        ItemStack holding,
+        Multiphase multiphase,
+        int phaseIndex,
+        boolean merciless
+    ) {
+        String id = "phase_" + phaseIndex + (merciless ? "_merciless" : "");
+        builder.action(
+            id,
+            multiphase.phaseDisplayName(phaseIndex, merciless),
+            (graphics, pose, width, height) -> {
+                ItemStack copied = holding.copy();
+                multiphase.applySelectionPreview(copied, phaseIndex, merciless);
+                graphics.renderItem(copied, 2, 2, 9910597);
+            },
+            ctx -> PacketDistributor.sendToServer(
+                new MultiphasePackets.ChangePhase(hand, phaseIndex, merciless)
+            )
+        );
     }
 
     private static @Nullable WheelMenuModel getResonatorWheel(InteractionHand hand, ItemStack holding) {

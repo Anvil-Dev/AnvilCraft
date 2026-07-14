@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 public class AccelerateManager {
     public static final double MAX_ACCELERATED_SPEED = 512.0;
@@ -35,7 +36,7 @@ public class AccelerateManager {
         BlockPos selectedRing = null;
         Direction selectedDirection = null;
         double bestAlignment = Double.NEGATIVE_INFINITY;
-        for (BlockPos pos : AccelerationRingBlockEntity.getAllBlocks(level)) {
+        for (BlockPos pos : AccelerationRingBlockEntity.getBlocksAt(level, center)) {
             AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
             if (aabb == null) continue;
             if (!aabb.contains(center)) continue;
@@ -70,13 +71,53 @@ public class AccelerateManager {
         if (!canBeAccelerated(entity)) return false;
         Level level = entity.level();
         Vec3 center = getMovementCenter(entity);
-        for (BlockPos pos : AccelerationRingBlockEntity.getAllBlocks(level)) {
+        for (BlockPos pos : AccelerationRingBlockEntity.getBlocksAt(level, center)) {
             AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
             if (aabb != null && aabb.contains(center) && isActiveAccelerationRing(level.getBlockState(pos))) {
                 return true;
             }
         }
         return false;
+    }
+
+    @Nullable
+    public static AccelerationEntry findFirstAccelerationEntry(Entity entity, Vec3 movement) {
+        if (!canBeAccelerated(entity)) return null;
+        double movementSqr = movement.lengthSqr();
+        if (!Double.isFinite(movementSqr)) return null;
+        Level level = entity.level();
+        Vec3 start = getMovementCenter(entity);
+        Vec3 end = start.add(movement);
+        AccelerationEntry nearestEntry = null;
+        double nearestProgress = Double.POSITIVE_INFINITY;
+        double bestAlignment = Double.NEGATIVE_INFINITY;
+        for (BlockPos pos : AccelerationRingBlockEntity.getBlocksAlongMovement(level, start, movement)) {
+            AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
+            if (aabb == null) continue;
+            BlockState state = level.getBlockState(pos);
+            if (!isActiveAccelerationRing(state)) continue;
+
+            double progress;
+            if (aabb.contains(start)) {
+                progress = 0.0;
+            } else {
+                if (movementSqr < 1.0E-12) continue;
+                var clipped = aabb.clip(start, end);
+                if (clipped.isEmpty()) continue;
+                progress = clipped.get().subtract(start).dot(movement) / movementSqr;
+                if (progress < 0.0 || progress > 1.0) continue;
+                double insideProgress = Math.min(1.0, progress + 1.0E-7);
+                if (insideProgress > progress && !aabb.contains(start.add(movement.scale(insideProgress)))) continue;
+            }
+
+            Direction direction = state.getValue(AccelerationRingBlock.FACING);
+            double alignment = movement.dot(Vec3.atLowerCornerOf(direction.getNormal()));
+            if (progress > nearestProgress || progress == nearestProgress && alignment <= bestAlignment) continue;
+            nearestEntry = new AccelerationEntry(pos, direction, progress);
+            nearestProgress = progress;
+            bestAlignment = alignment;
+        }
+        return nearestEntry;
     }
 
     public static boolean isControlledByRing(Entity entity) {
@@ -128,6 +169,10 @@ public class AccelerateManager {
         return count >= 2 && hasHammer;
     }
 
+    public static void applyAcceleration(Entity entity, AccelerationEntry entry) {
+        applyAcceleration(entity, entry.ringPos(), entry.direction());
+    }
+
     private static void applyAcceleration(Entity entity, BlockPos ringPos, Direction direction) {
         Vec3 fixMovement = ringPos
             .getCenter()
@@ -152,5 +197,8 @@ public class AccelerateManager {
         deltaMovement = deltaMovement.scale(1.0204081632653061)
             .add(new Vec3(0.1f, 0.1f, 0.1f).multiply(Vec3.atLowerCornerOf(direction.getNormal())));
         entity.setDeltaMovement(clampMovement(entity, deltaMovement));
+    }
+
+    public record AccelerationEntry(BlockPos ringPos, Direction direction, double progress) {
     }
 }

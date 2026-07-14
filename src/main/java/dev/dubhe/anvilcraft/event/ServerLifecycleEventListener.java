@@ -39,6 +39,7 @@ public class ServerLifecycleEventListener {
 
     @SubscribeEvent
     public static void onTick(ServerTickEvent.Post event) {
+        // 放在 tick 末尾继续处理超过单次收敛轮数的导线更新，确保本 tick 的其他红石邻居事件已经全部入队。
         RedstoneWireNetworkManager.tick();
     }
 

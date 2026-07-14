@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -162,7 +161,7 @@ public abstract class LevelRendererMixin {
         main.unbindWrite();
         result.unbindRead();
         RenderSystem.depthFunc(GL11.GL_LEQUAL);
-        ProgramManager.glUseProgram(0);
+        blitShader.clear();
         Minecraft.getInstance().getMainRenderTarget().copyDepthFrom(ModRenderTargets.getTempTarget());
         RenderSystem.activeTexture(oldTexture);
         RenderSystem.enableDepthTest();

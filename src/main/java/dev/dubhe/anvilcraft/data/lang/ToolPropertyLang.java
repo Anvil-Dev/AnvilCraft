@@ -7,7 +7,6 @@ public class ToolPropertyLang {
     public static void init(RegistrumLangProvider provider) {
         provider.add("tooltip.anvilcraft.property.fire_reforging", "Reforging: mending in fire or lava");
         provider.add("tooltip.anvilcraft.property.multiphase", "Multiphase: press [%1$s] to switch phases, hold [%1$s] to open phases wheel");
-        provider.add("tooltip.anvilcraft.property.multiphase.id", "Multiphase Stored ID: %s");
         provider.add("tooltip.anvilcraft.property.multiphase.name.0", "α");
         provider.add("tooltip.anvilcraft.property.multiphase.name.1", "β");
         provider.add("tooltip.anvilcraft.property.multiphase.name.2", "γ");

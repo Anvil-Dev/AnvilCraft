@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 /**
@@ -84,5 +85,18 @@ public class DrainBlockEntityRenderer implements BlockEntityRenderer<DrainBlockE
         }
         // 从方块本体一直向下扩展到水柱底部
         return self.expandTowards(0, bottomY - pos.getY(), 0);
+    }
+
+    /** 长水柱可能横跨多个渲染区段，不能只按排水口本体所在区段做视锥剔除。 */
+    @Override
+    public boolean shouldRenderOffScreen(DrainBlockEntity be) {
+        return true;
+    }
+
+    /** 按摄像机到整根水柱的最近距离判断，而不是只计算到排水口方块中心的距离。 */
+    @Override
+    public boolean shouldRender(DrainBlockEntity be, Vec3 cameraPos) {
+        double viewDistance = getViewDistance();
+        return getRenderBoundingBox(be).distanceToSqr(cameraPos) <= viewDistance * viewDistance;
     }
 }

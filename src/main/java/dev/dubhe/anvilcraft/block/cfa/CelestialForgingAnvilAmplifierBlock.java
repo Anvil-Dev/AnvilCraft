@@ -309,7 +309,12 @@ public class CelestialForgingAnvilAmplifierBlock
     protected BlockState mirror(BlockState state, Mirror mirror) {
         return state
             .setValue(HALF, mirrorHalf(state.getValue(HALF), mirror))
-            .setValue(FACING, mirror.mirror(state.getValue(FACING)));
+            .setValue(FACING, mirrorFacing(state.getValue(FACING), mirror));
+    }
+
+    private static Direction mirrorFacing(Direction facing, Mirror mirror) {
+        Direction mirrored = mirror.mirror(facing);
+        return mirror == Mirror.NONE ? mirrored : Rotation.CLOCKWISE_90.rotate(mirrored);
     }
 
     /// 将 HALF 按角色语义旋转：同层的 4 个部件沿 PART → W → WS → S → PART 循环。
@@ -342,8 +347,34 @@ public class CelestialForgingAnvilAmplifierBlock
     private static DirectionCube232PartHalf mirrorHalf(DirectionCube232PartHalf half, Mirror mirror) {
         return switch (mirror) {
             case NONE -> half;
-            case LEFT_RIGHT -> rotateHalf(half, Rotation.CLOCKWISE_180);
-            case FRONT_BACK -> rotateHalf(half, Rotation.COUNTERCLOCKWISE_90);
+            case LEFT_RIGHT -> switch (half) {
+                case BOTTOM_PART -> DirectionCube232PartHalf.BOTTOM_S;
+                case BOTTOM_W -> DirectionCube232PartHalf.BOTTOM_WS;
+                case BOTTOM_S -> DirectionCube232PartHalf.BOTTOM_PART;
+                case BOTTOM_WS -> DirectionCube232PartHalf.BOTTOM_W;
+                case MID_PART -> DirectionCube232PartHalf.MID_S;
+                case MID_W -> DirectionCube232PartHalf.MID_WS;
+                case MID_S -> DirectionCube232PartHalf.MID_PART;
+                case MID_WS -> DirectionCube232PartHalf.MID_W;
+                case TOP_PART -> DirectionCube232PartHalf.TOP_S;
+                case TOP_W -> DirectionCube232PartHalf.TOP_WS;
+                case TOP_S -> DirectionCube232PartHalf.TOP_PART;
+                case TOP_WS -> DirectionCube232PartHalf.TOP_W;
+            };
+            case FRONT_BACK -> switch (half) {
+                case BOTTOM_PART -> DirectionCube232PartHalf.BOTTOM_W;
+                case BOTTOM_W -> DirectionCube232PartHalf.BOTTOM_PART;
+                case BOTTOM_S -> DirectionCube232PartHalf.BOTTOM_WS;
+                case BOTTOM_WS -> DirectionCube232PartHalf.BOTTOM_S;
+                case MID_PART -> DirectionCube232PartHalf.MID_W;
+                case MID_W -> DirectionCube232PartHalf.MID_PART;
+                case MID_S -> DirectionCube232PartHalf.MID_WS;
+                case MID_WS -> DirectionCube232PartHalf.MID_S;
+                case TOP_PART -> DirectionCube232PartHalf.TOP_W;
+                case TOP_W -> DirectionCube232PartHalf.TOP_PART;
+                case TOP_S -> DirectionCube232PartHalf.TOP_WS;
+                case TOP_WS -> DirectionCube232PartHalf.TOP_S;
+            };
         };
     }
 

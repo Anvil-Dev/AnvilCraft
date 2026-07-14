@@ -309,7 +309,6 @@ public class ModRenderTypes {
             .setCullState(NO_CULL)
             .setDepthTestState(LEQUAL_DEPTH_TEST)
             .setWriteMaskState(COLOR_WRITE)
-            .setOutputState(TRANSLUCENT_TARGET)
             .createCompositeState(false)
     );
 

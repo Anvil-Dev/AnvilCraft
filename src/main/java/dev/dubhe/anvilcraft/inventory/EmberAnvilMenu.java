@@ -110,6 +110,14 @@ public class EmberAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
     }
 
     @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (this.openedHammerSource != null) {
+            this.clearContainer(player, this.inputSlots);
+        }
+    }
+
+    @Override
     protected void onTake(Player player, ItemStack stack) {
         super.onTake(player, stack);
         if (this.openedHammerSource != null) {
