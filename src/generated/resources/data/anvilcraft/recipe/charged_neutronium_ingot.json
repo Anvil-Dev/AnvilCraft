@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "anvilcraft:supercapacitor",
+    "N": "anvilcraft:neutronium_ingot"
+  },
+  "pattern": [
+    "CCC",
+    "CNC",
+    "CCC"
+  ],
+  "result": {
+    "id": "anvilcraft:charged_neutronium_ingot"
+  }
+}
