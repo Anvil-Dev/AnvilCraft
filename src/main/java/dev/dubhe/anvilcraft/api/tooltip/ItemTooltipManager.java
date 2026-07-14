@@ -368,7 +368,7 @@ public class ItemTooltipManager {
             ModBlocks.CORRUPTED_BEACON.asItem(),
             "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations"
         );
-        NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up.");
+        NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up");
         NORMAL.put(
             ModBlocks.CONFINEMENT_CHAMBER.asItem(),
             "Contains elementary particles and unstable items, keeping them stable"
@@ -404,7 +404,11 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), "Material for crafting the Matter Decompressor");
         NORMAL.put(ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), "Material for crafting the Wormhole Stabilizer");
         NORMAL.put(ModBlocks.LARGE_LASER.asItem(), "Equivalent to 16 lasers, outputs 16 intensity levels of laser, consumes 256 kW");
-        NORMAL.put(ModBlocks.SUGAR_BLOCK.asItem(), "A large block of sugar. Also a piezoelectric crystal, but seems fragile");
+        NORMAL.put(
+            ModBlocks.SUGAR_BLOCK.asItem(), """
+            A large block of sugar.
+            Also a piezoelectric crystal, but seems fragile"""
+        );
         NORMAL.put(
             ModBlocks.FLINT_BLOCK.asItem(), """
             A large block of flint
@@ -424,9 +428,9 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), "Data disk for storing extreme celestial data from the Celestial Forging Anvil");
         NORMAL.put(ModItems.LASER_GUN.get(), "Hold right-click to consume power and fire a laser that grows increasingly powerful");
         NORMAL.put(ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), "Hold right-click to consume power and fire a corruption beam");
-        NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs.");
+        NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs");
         NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to consumes power to charge up and launch a high-speed anvil");
-        NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons.");
+        NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons");
         NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
 
         SHIFT.put(
@@ -435,36 +439,31 @@ public class ItemTooltipManager {
                 Charging longer increases damage, but watch out for overheating!
                 Enchanting the laser gun alters its beam behavior"""
         );
-
         SHIFT.put(
             ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), """
                 Fires a beam of corruption that pierces through targets, dealing damage and inflicting Wither
                 It passes through glass and does not convert mobs
                 Enchanting the Corrupted Beacon Exciter boosts the beam's damage"""
         );
-
         SHIFT.put(
             ModItems.TESLA_GUN.get(), """
                 Fires chain lightning that arcs between up to 4 mobs, dealing reduced damage with each bounce
                 The lightning can convert mobs, and lightning rods will also be targeted
                 Each strike is followed by a cooldown, which can be shortened by enchanting the Tesla Gun"""
         );
-
         SHIFT.put(
             ModItems.ANVIL_RAILGUN.get(), """
                 Hold right-click to load an anvil from your offhand into the railgun
                 Then hold right-click again to charge up, and release to launch the anvil
                 Longer charging results in higher speed and damage
-                Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior."""
+                Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior"""
         );
-
         SHIFT.put(
             ModItems.SPECTRAL_SLINGSHOT.get(), """
                 Hold right-click to load your offhand weapon into the Spectral Slingshot
                 Once loaded, right-click again to fire a spectral copy of that weapon, dealing damage
                 Each shot has a cooldown, which can be reduced by enchanting the launcher"""
         );
-
         SHIFT.put(
             ModItems.ENERGY_WEAPON_PLATFORM.get(), """
                 640 MFE stored, but will only inherit the result of Energy Weapon Making
@@ -474,8 +473,8 @@ public class ItemTooltipManager {
 
         SHIFT.put(
             ModItems.CHECK_VALVE.get(), """
-                When holding a check valve, right-click one end of a pipe to convert that end into a check valve.
-                Can remove check valve by right-clicking it while holding a check valve, or with an empty hand.
+                When holding a check valve, right-click one end of a pipe to convert that end into a check valve
+                Can remove check valve by right-clicking it while holding a check valve, or with an empty hand
                 Supplying a redstone signal reverses the flow direction of the check valve"""
         );
         SHIFT.put(
@@ -597,7 +596,7 @@ public class ItemTooltipManager {
             ModItems.AMULET_BOX.asItem(), """
                 Stores multiple active amulets or totems
                 Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;
-                When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift."""
+                When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift"""
         );
 
         // NORMAL 优先：基础 key 使用短文本，SHIFT 仅用于 .shift key
