@@ -40,6 +40,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     protected int waitingTime = 2;
     protected int signalDuration = 2;
     protected State state = State.DEFAULT;
+    protected long phaseStartGameTime = -1L;
+    protected int phaseDuration;
 
     protected boolean isInputtingSignal = false;
     protected boolean isDeadlock = false;
@@ -82,6 +84,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         super.saveAdditional(tag, registries);
         CompoundTag data = this.constructDataNbt();
         data.putByte("State", this.state.index());
+        data.putLong("PhaseStartGameTime", this.phaseStartGameTime);
+        data.putInt("PhaseDuration", this.phaseDuration);
         tag.put("ExtraData", data);
     }
 
@@ -90,6 +94,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         super.loadAdditional(tag, registries);
         CompoundTag data = tag.getCompound("ExtraData");
         this.readDataNbt(data);
+        this.phaseStartGameTime = data.contains("PhaseStartGameTime") ? data.getLong("PhaseStartGameTime") : -1L;
+        this.phaseDuration = data.getInt("PhaseDuration");
         // TODO: 删除if-else和else块内的代码
         if (data.contains("State")) {
             this.state = State.fromIndex(data.getByte("State"));
@@ -119,6 +125,12 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     public void onLoad() {
         super.onLoad();
         if (this.level == null) return;
+        if (!this.level.isClientSide && this.isProcessing() && this.phaseStartGameTime < 0L) {
+            this.phaseStartGameTime = this.level.getGameTime();
+            this.phaseDuration = this.getConfiguredPhaseDuration(this.state);
+            this.setChanged();
+            this.syncToClient();
+        }
         Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
             .ifPresent(block -> block.update(this.level, this.getBlockPos(), this::getBlockState));
     }
@@ -163,7 +175,41 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
 
     @ApiStatus.Internal
     public void setState(State state) {
+        if (this.state == state) return;
         this.state = state;
+        if (state == State.DEFAULT || this.level == null) {
+            this.phaseStartGameTime = -1L;
+            this.phaseDuration = 0;
+        } else {
+            this.phaseStartGameTime = this.level.getGameTime();
+            this.phaseDuration = this.getConfiguredPhaseDuration(state);
+        }
+        this.setChanged();
+        this.syncToClient();
+    }
+
+    private int getConfiguredPhaseDuration(State state) {
+        return switch (state) {
+            case WAITING -> this.waitingTime;
+            case OUTPUTTING -> this.signalDuration;
+            case DEFAULT -> 0;
+        };
+    }
+
+    public float getPhaseProgress(float partialTick) {
+        if (!this.isProcessing() || this.level == null || this.phaseStartGameTime < 0L || this.phaseDuration <= 0) {
+            return 0.0f;
+        }
+        float elapsed = this.level.getGameTime() - this.phaseStartGameTime + partialTick;
+        return Math.clamp(elapsed / this.phaseDuration, 0.0f, 1.0f);
+    }
+
+    public int getPhaseRemainingTicks() {
+        if (!this.isProcessing() || this.level == null || this.phaseStartGameTime < 0L || this.phaseDuration <= 0) {
+            return 0;
+        }
+        long elapsed = Math.max(this.level.getGameTime() - this.phaseStartGameTime, 0L);
+        return (int) Math.max(this.phaseDuration - elapsed, 0L);
     }
 
     public void setStartMode(int mode) {

@@ -15,6 +15,7 @@ import dev.anvilcraft.resource.ageratum.client.feat.markdown.component.MDImageCo
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
@@ -24,6 +25,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -51,6 +53,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<PortalConversionRecipe>> {
+    private static final String INPUT_BLOCK = "input_block";
+
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
     public static final int PORTAL_WIDTH = 110;
@@ -94,10 +98,23 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<PortalConversionRecipe> recipeHolder, IFocusGroup focuses) {
         PortalConversionRecipe recipe = recipeHolder.value();
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addItemStacks(
-            recipe.getInput().getBlocks().stream().map(holder -> new ItemStack(holder.value())).toList()
-        );
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addItemLike(recipe.getResult().state().getBlock());
+        JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 4, 4, 18, 18, recipe.getInput());
+        JeiBlockIngredientUtil.addSlot(
+            builder,
+            RecipeIngredientRole.OUTPUT,
+            "output_block",
+            142,
+            4,
+            18,
+            18,
+            recipe.getResult().state().getBlock()
+        ).addRichTooltipCallback((slot, tooltip) -> tooltip.addAll(JeiRecipeUtil.getTooltips(recipe.getResult().chance())));
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder, RecipeHolder<PortalConversionRecipe> recipeHolder, IFocusGroup focuses) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
@@ -112,8 +129,8 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         RENDER_INPUT: {
             List<BlockState> input = recipe.getInput().constructStatesForRender();
             if (input.isEmpty()) break RENDER_INPUT;
-            BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-            if (renderedState == null) break RENDER_INPUT;
+            BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, INPUT_BLOCK, input)
+                .orElse(input.getFirst());
             JeiRenderHelper.renderBlockWithSlot(
                 guiGraphics,
                 this.slotDefault,

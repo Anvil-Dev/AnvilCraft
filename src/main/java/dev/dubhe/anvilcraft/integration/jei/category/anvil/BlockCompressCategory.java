@@ -1,10 +1,10 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
-import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
@@ -14,6 +14,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -26,7 +27,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<BlockCompressRecipe>> {
+    private static final String INPUT_BLOCK_PREFIX = "input_block_";
 
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -79,13 +80,29 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockCompressRecipe> recipeHolder, IFocusGroup focuses) {
         BlockCompressRecipe recipe = recipeHolder.value();
-        for (BlockStatePredicate input : recipe.getInputBlocks()) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-                .addIngredients(Ingredient.of(
-                    input.getBlocks().stream().map(holder -> new ItemStack(holder.value())).toArray(ItemStack[]::new)));
+        for (int i = 0; i < recipe.getInputBlocks().size(); i++) {
+            int y = i == 0 ? 24 : 42 + 10 * (i - 1);
+            int height = i == 0 ? 18 : 10;
+            JeiBlockIngredientUtil.addInputSlot(
+                builder, INPUT_BLOCK_PREFIX + i, 40, y, 18, height, recipe.getInputBlocks().get(i)
+            );
         }
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        JeiBlockIngredientUtil.addSlot(
+            builder,
+            RecipeIngredientRole.OUTPUT,
+            "output_block",
+            100,
+            42,
+            20,
+            10,
+            recipe.getFirstResultBlock().state().getBlock()
+        );
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder, RecipeHolder<BlockCompressRecipe> recipeHolder, IFocusGroup focuses) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
@@ -113,8 +130,9 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
         for (int i = recipe.getInputBlocks().size() - 1; i >= 0; i--) {
             List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
-            BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-            if (renderedState == null) continue;
+            BlockState renderedState = JeiBlockIngredientUtil
+                .getDisplayedState(recipeSlotsView, INPUT_BLOCK_PREFIX + i, input)
+                .orElse(input.getFirst());
             RenderSupport.renderBlock(
                 guiGraphics,
                 renderedState,
