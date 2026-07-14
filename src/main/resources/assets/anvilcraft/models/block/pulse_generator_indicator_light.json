@@ -1,0 +1,24 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made for AnvilCraft",
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "block/redstone_block",
+		"indicator": "block/redstone_block"
+	},
+	"elements": [
+		{
+			"from": [7.5, 8, 6.5],
+			"to": [8.5, 8.1, 9.5],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 4, 5]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#indicator"}
+			}
+		}
+	]
+}

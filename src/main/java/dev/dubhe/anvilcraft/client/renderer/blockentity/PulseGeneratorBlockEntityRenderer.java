@@ -16,6 +16,9 @@ public class PulseGeneratorBlockEntityRenderer implements BlockEntityRenderer<Pu
     private static final ModelResourceLocation INDICATOR = ModelResourceLocation.standalone(
         AnvilCraft.of("block/pulse_generator_indicator")
     );
+    private static final ModelResourceLocation INDICATOR_LIGHT = ModelResourceLocation.standalone(
+        AnvilCraft.of("block/pulse_generator_indicator_light")
+    );
     private static final float TABLE_ANGLE = 22.5f;
     private static final float TABLE_ORIGIN_X = 8.0f / 16.0f;
     private static final float TABLE_ORIGIN_Y = 4.0f / 16.0f;
@@ -43,7 +46,10 @@ public class PulseGeneratorBlockEntityRenderer implements BlockEntityRenderer<Pu
         poseStack.translate(0.5f, 0.0f, 0.5f);
         poseStack.mulPose(Axis.YP.rotationDegrees(-blockEntity.getBlockState().getValue(PulseGeneratorBlock.FACING).toYRot()));
         poseStack.translate(-0.5f, 0.0f, -0.5f);
-        rotateOnTable(poseStack, START_ANGLE + (END_ANGLE - START_ANGLE) * blockEntity.getPhaseProgress(partialTick));
+        boolean outputting = blockEntity.getState() == PulseGeneratorBlockEntity.State.OUTPUTTING;
+        float phaseProgress = blockEntity.getPhaseProgress(partialTick);
+        float indicatorProgress = outputting ? 1.0f - phaseProgress : phaseProgress;
+        rotateOnTable(poseStack, START_ANGLE + (END_ANGLE - START_ANGLE) * indicatorProgress);
         Minecraft.getInstance()
             .getBlockRenderer()
             .getModelRenderer()
@@ -51,7 +57,7 @@ public class PulseGeneratorBlockEntityRenderer implements BlockEntityRenderer<Pu
                 poseStack.last(),
                 bufferSource.getBuffer(RenderType.cutout()),
                 null,
-                Minecraft.getInstance().getModelManager().getModel(INDICATOR),
+                Minecraft.getInstance().getModelManager().getModel(outputting ? INDICATOR_LIGHT : INDICATOR),
                 1.0f,
                 1.0f,
                 1.0f,
