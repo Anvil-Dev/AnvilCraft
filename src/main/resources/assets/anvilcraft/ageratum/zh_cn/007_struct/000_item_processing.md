@@ -101,7 +101,7 @@ items:
 
 # 烹饪
 
-下方是<ref item="minecraft:cauldron"/>和<ref item="minecraft:campfire"/>时， 执行**物品膨发**操作，原料和产物都在锅中，有的配方需要水
+下方是<ref item="minecraft:cauldron"/>和<ref item="minecraft:campfire"/>时， 执行**烹饪**操作，原料和产物都在锅中，有的配方需要水
 
 <structure id="../../structures/cooking.snbt"/>
 
