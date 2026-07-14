@@ -102,7 +102,9 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     public int getInputPower() {
         if (this.level == null) return 0;
-        return this.level.getBlockState(getBlockPos()).getValue(TeslaTowerBlock.HALF) == Vertical4PartHalf.BOTTOM ? 128 : 0;
+        BlockState state = this.level.getBlockState(getBlockPos());
+        return state.getValue(TeslaTowerBlock.HALF) == Vertical4PartHalf.BOTTOM
+            && state.getValue(TeslaTowerBlock.SWITCH) == Switch.ON ? 128 : 0;
     }
 
     @Override
@@ -177,9 +179,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         BlockState state = this.level.getBlockState(getBlockPos());
         if (!state.is(ModBlocks.TESLA_TOWER.get())) return;
         if (state.getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM) return;
-        if (state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
-            this.getGrid().remove(this);
-        } else if (state.getValue(TeslaTowerBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
+        if (this.getGrid() == null) {
             PowerGrid.addComponent(this);
         }
         if (this.getComponentType() == PowerComponentType.INVALID) {

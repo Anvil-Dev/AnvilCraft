@@ -142,7 +142,9 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
             };
         };
 
-        return defaultBlockState().setValue(ORIENTATION, orientation);
+        return defaultBlockState()
+            .setValue(ORIENTATION, orientation)
+            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     /**

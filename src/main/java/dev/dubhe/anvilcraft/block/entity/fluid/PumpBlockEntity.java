@@ -56,7 +56,7 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
 
     @Override
     public int getInputPower() {
-        return PUMP_POWER;
+        return getBlockState().getValue(PumpBlock.POWERED) ? 0 : PUMP_POWER;
     }
 
     @Override
