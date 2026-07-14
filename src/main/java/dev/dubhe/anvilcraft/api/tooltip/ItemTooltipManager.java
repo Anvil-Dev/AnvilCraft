@@ -126,8 +126,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.TRANSCENDIUM_BLOCK.asItem(), "A large block of strong-interaction matter sustained by magic, immune to most forms of destruction");
         NORMAL.put(
             ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem(), """
-            Extreme heat has broken its mass-energy balance; injecting mass will transform it into Transcendium
-            May degrade into Netherite upon cooling""");
+               Extreme heat has broken its mass-energy balance; injecting mass will transform it into Transcendium
+               May degrade into Netherite upon cooling""");
         NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "A piece of Netherite tempered in fire for eons");
         NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "A piece of Royal Steel tempered in extreme cold for eons");
         NORMAL.put(ModItems.MAGNET_INGOT.get(), "A magnetized iron ingot");
@@ -321,6 +321,9 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.ACCELERATION_RING.asItem(), "Creates acceleration field for anvils, projectiles, or players with Anvil Hammer");
         NORMAL.put(ModBlocks.DEFLECTION_RING.asItem(), "Deflects passing objects 90°, detect speed with Comparator");
         NORMAL.put(ModItems.DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
+        NORMAL.put(ModItems.EMBER_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
+        NORMAL.put(ModItems.ROYAL_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
+        NORMAL.put(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.FILTER.asItem(), "Matches items based on configuration, usable in any filter slot");
         NORMAL.put(ModItems.TOTEM_OF_RECOVERY.asItem(), "Teleports to spawn on death, grants a Recall Pearl to return to death point");
         NORMAL.put(ModItems.TOTEM_OF_RAGE.asItem(), "Grants invulnerability and berserk on fatal damage, death is inevitable after 1 minute");
@@ -336,7 +339,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores 320 buckets of fluid, reaches infinite capacity when paired with Menger Sponges");
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         NORMAL.put(ModBlocks.CORRUPTED_BEACON.asItem(), "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations");
-        NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up.");
+        NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up");
         NORMAL.put(ModBlocks.CONFINEMENT_CHAMBER.asItem(), "Contains elementary particles and unstable items, keeping them stable");
         NORMAL.put(ModBlocks.CONFINED_TIME_ANVILON.asItem(), "Confinement chamber for time-type Anvilon");
         NORMAL.put(ModBlocks.CONFINED_SPACE_ANVILON.asItem(), "Confinement chamber for space-type Anvilon");
@@ -368,85 +371,89 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.REDSTONE_WIRE.asItem(), "Transmit redstone signals more precisely");
         NORMAL.put(ModBlocks.TRADING_STATION.asItem(), "Trading platform for players and villagers");
         NORMAL.put(ModBlocks.LARGE_LASER.asItem(), "Equivalent to 16 lasers, outputs 16 intensity levels of laser, consumes 256 kW");
-        NORMAL.put(ModBlocks.SUGAR_BLOCK.asItem(), "A large block of sugar . Also a piezoelectric crystal, but seems fragile");
+        NORMAL.put(
+            ModBlocks.SUGAR_BLOCK.asItem(), """
+            A large block of sugar
+            Also a piezoelectric crystal, but seems fragile"""
+        );
         NORMAL.put(
             ModBlocks.FLINT_BLOCK.asItem(), """
             A large block of flint
-            When pushed or pulled by a piston, it creates fire around it if an iron block is nearby""");
-
+            When pushed or pulled by a piston, it creates fire around it if an iron block is nearby"""
+        );
         NORMAL.put(
             ModBlocks.GUNPOWER_BLOCK.asItem(), """
             A large block of gunpowder
-            If struck by a falling anvil, it explodes and launches the anvil back up to the height it fell from""");
-
+            If struck by a falling anvil, it explodes and launches the anvil back up to the height it fell from"""
+        );
         NORMAL.put(
             ModBlocks.ROTTEN_FLESH_BLOCK.asItem(), """
             A large block of rotten flesh
             It cushions fall damage, but landing on it will make you nauseous for 30 seconds
-            Can also be smelted into Netherrack""");
-
+            Can also be smelted into Netherrack"""
+        );
         NORMAL.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), "Data disk for storing extreme celestial data from the Celestial Forging Anvil");
-
-
         NORMAL.put(ModItems.LASER_GUN.get(), "Hold right-click to consume power and fire a laser that grows increasingly powerful");
         NORMAL.put(ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), "Hold right-click to consume power and fire a corruption beam");
-        NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs.");
+        NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs");
         NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to consumes power to charge up and launch a high-speed anvil");
-        NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons.");
-        NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "Crafts energy weapons.");
+        NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons");
+        NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
 
         SHIFT.put(
             ModItems.LASER_GUN.get(), """
                 The laser damages mobs and can also mine blocks
                 Charging longer increases damage, but watch out for overheating!
-                Enchanting the laser gun alters its beam behavior""");
-
+                Enchanting the laser gun alters its beam behavior"""
+        );
         SHIFT.put(
             ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), """
                 Fires a beam of corruption that pierces through targets, dealing damage and inflicting Wither
                 It passes through glass and does not convert mobs
-                Enchanting the Corrupted Beacon Exciter boosts the beam's damage""");
-
+                Enchanting the Corrupted Beacon Exciter boosts the beam's damage"""
+        );
         SHIFT.put(
             ModItems.TESLA_GUN.get(), """
                 Fires chain lightning that arcs between up to 4 mobs, dealing reduced damage with each bounce
                 The lightning can convert mobs, and lightning rods will also be targeted
-                Each strike is followed by a cooldown, which can be shortened by enchanting the Tesla Gun""");
-
+                Each strike is followed by a cooldown, which can be shortened by enchanting the Tesla Gun"""
+        );
         SHIFT.put(
             ModItems.ANVIL_RAILGUN.get(), """
                 Hold right-click to load an anvil from your offhand into the railgun
                 Then hold right-click again to charge up, and release to launch the anvil
                 Longer charging results in higher speed and damage
-                Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior.""");
-
+                Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior"""
+        );
         SHIFT.put(
             ModItems.SPECTRAL_SLINGSHOT.get(), """
                 Hold right-click to load your offhand weapon into the Spectral Slingshot
                 Once loaded, right-click again to fire a spectral copy of that weapon, dealing damage
-                Each shot has a cooldown, which can be reduced by enchanting the launcher""");
-
+                Each shot has a cooldown, which can be reduced by enchanting the launcher"""
+        );
         SHIFT.put(
             ModItems.ENERGY_WEAPON_PLATFORM.get(), """
                 640 MFE stored, but will only inherit the result of Energy Weapon Making
                 Can be crafted with different materials to create various energy weapons
-                Consumes capacitors to restore power""");
-
+                Consumes capacitors to restore power"""
+        );
         SHIFT.put(
             ModItems.CHECK_VALVE.get(), """
-                When holding a check valve, right-click one end of a pipe to convert that end into a check valve.
-                Can remove check valve by right-clicking it while holding a check valve, or with an empty hand.
-                Supplying a redstone signal reverses the flow direction of the check valve""");
+                When holding a check valve, right-click one end of a pipe to convert that end into a check valve
+                Can remove check valve by right-clicking it while holding a check valve, or with an empty hand
+                Supplying a redstone signal reverses the flow direction of the check valve"""
+        );
         SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), """
                 Place an anvil to determine celestial parameters
                 Once a suitable celestial body is found, lock it to build a megastructure
                 Unlocking the celestial body will destroy the megastructure
-                Different megastructures serve different purposes — check the megastructure button for details""");
+                Different megastructures serve different purposes — check the megastructure button for details"""
+        );
         SHIFT.put(
-            ModBlocks.SPECTRAL_ANVIL.asItem(),
-            "When the upper magnet is demagnetized, a phantom shadow is created and falls downward, "
-            + "it can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall"
+            ModBlocks.SPECTRAL_ANVIL.asItem(), """
+            When the upper magnet is demagnetized, a phantom shadow is created and falls downward
+            It can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall"""
         );
         SHIFT.put(
             ModBlocks.BLOCK_PLACER.asItem(), """
@@ -522,7 +529,7 @@ public class ItemTooltipManager {
             ModItems.AMULET_BOX.asItem(), """
                 Stores multiple active amulets or totems
                 Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;
-                When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift."""
+                When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift"""
         );
         SHIFT.put(ModBlocks.PUMP.asItem(), """
             Provides 10 blocks of headlift on both input and output sides (including the pump itself)
@@ -553,25 +560,22 @@ public class ItemTooltipManager {
                 Teleports players and entities between two portals
                 Connected Celestial Forging Anvil wormholes can link two portals facing the same direction"""
         );
-
         SHIFT.put(
             ModBlocks.DRAIN.asItem(), """
                 Draining: when more than 1 B is stored and there is space below, outputs fluid downward and fills the entire space from the bottom up
                 Suction: when less than 3 B is stored and the same fluid is above, draws fluid from above and can empty the entire space above
                 Does not interact with fluid at the same height; fluid can be stored for free only when it forms an infinite source"""
         );
-
         SHIFT.put(ModBlocks.REDSTONE_WIRE.asItem(), """
                 It can be attached to any full face of a block,
                 only inputs and outputs redstone signals at its breaks (ends)
                 The redstone signal level does not decay within the wire,
-                and the wire will not output the signal received from redstone dust back to redstone dust.""");
-
+                and the wire will not output the signal received from redstone dust back to redstone dust""");
         SHIFT.put(
             ModBlocks.TRADING_STATION.asItem(), """
-                Can be set to trade with players or villagers.
-                Villagers will actively trade with stations that have valid offers and fair prices.
-                Has 12 slots for temporary item storage."""
+                Can be set to trade with players or villagers
+                Villagers will actively trade with stations that have valid offers and fair prices
+                Has 12 slots for temporary item storage"""
         );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
