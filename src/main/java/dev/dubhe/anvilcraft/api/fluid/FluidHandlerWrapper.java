@@ -260,7 +260,7 @@ public class FluidHandlerWrapper {
 
     @Nullable
     public ItemStack drainToItem(ItemStack emptyContainer, boolean simulateOnly) {
-        if (emptyContainer.isEmpty()) return null;
+        if (!isSupportedEmptyContainer(emptyContainer)) return null;
         int amount = emptyContainer.is(Items.GLASS_BOTTLE)
             ? FluidType.BUCKET_VOLUME / 4
             : FluidType.BUCKET_VOLUME;
@@ -277,6 +277,8 @@ public class FluidHandlerWrapper {
      */
     @Nullable
     public ItemStack drainToItem(ItemStack emptyContainer, int amount, boolean simulateOnly) {
+        if (!isSupportedEmptyContainer(emptyContainer)) return null;
+
         // 模拟：从目标处理器抽取
         FluidStack drained = handler.drain(amount, IFluidHandler.FluidAction.SIMULATE);
         if (drained.getAmount() < amount) return null;
@@ -322,6 +324,10 @@ public class FluidHandlerWrapper {
         }
 
         return ItemStack.EMPTY;
+    }
+
+    private static boolean isSupportedEmptyContainer(ItemStack stack) {
+        return stack.is(Items.BUCKET) || stack.is(Items.GLASS_BOTTLE);
     }
 
     // endregion
