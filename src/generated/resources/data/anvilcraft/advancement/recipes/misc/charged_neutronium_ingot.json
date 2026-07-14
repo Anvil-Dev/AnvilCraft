@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_supercapacitor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:supercapacitor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:charged_neutronium_ingot"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_supercapacitor"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:charged_neutronium_ingot"
+    ]
+  }
+}

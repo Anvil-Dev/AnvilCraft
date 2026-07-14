@@ -1238,6 +1238,7 @@ public class ModItems {
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .initialProperties(() -> new Item.Properties().fireResistant())
         .properties(properties -> properties.stacksTo(1))
+        .recipe(RegistrumItemRecipeLoader::chargedNeutroniumIngot)
         .register();
 
     public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM

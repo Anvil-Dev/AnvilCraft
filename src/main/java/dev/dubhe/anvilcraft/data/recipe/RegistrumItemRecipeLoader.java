@@ -1413,6 +1413,18 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void chargedNeutroniumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("CCC")
+            .pattern("CNC")
+            .pattern("CCC")
+            .define('C', ModItems.SUPER_CAPACITOR)
+            .define('N', ModItems.NEUTRONIUM_INGOT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.SUPER_CAPACITOR), AnvilCraftDatagen.has(lookup, ModItems.SUPER_CAPACITOR))
+            .save(provider);
+    }
+
     public static <T extends Item> void cocoaLiquor(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.FOOD, ctx.get(), 2)
