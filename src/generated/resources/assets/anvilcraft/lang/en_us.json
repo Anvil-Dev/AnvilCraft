@@ -1595,7 +1595,7 @@
   "tooltip.anvilcraft.item.control_valve": "Controls the type and flow rate of passing fluids and can be locked by redstone",
   "tooltip.anvilcraft.item.copper_pressure_plate": "Redstone signal increases with pressing time, also a copper plate",
   "tooltip.anvilcraft.item.corrupted_beacon": "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations",
-  "tooltip.anvilcraft.item.corrupted_beacon_activator": "Hold right-click to consume power and fire a corruption beam.",
+  "tooltip.anvilcraft.item.corrupted_beacon_activator": "Hold right-click to consume power and fire a corruption beam",
   "tooltip.anvilcraft.item.corrupted_beacon_activator.shift": "Fires a beam of corruption that pierces through targets, dealing damage and inflicting Wither\nIt passes through glass and does not convert mobs\nEnchanting the Corrupted Beacon Exciter boosts the beam's damage",
   "tooltip.anvilcraft.item.crab_claw": "Increase touch length when holding",
   "tooltip.anvilcraft.item.crab_trap": "Placing it in the water to help you catch aquatic products",
