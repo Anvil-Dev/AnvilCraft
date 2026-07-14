@@ -9,3 +9,5 @@ navigation:
 No longer using bulky iron golems, this generates large amounts of <ref item="minecraft:iron_block"/> through [late-game recipes](../008_recipe/320_iron_block.md)
 
 <structure id="../../structures/machine/more_iron.nbt"/>
+
+<ref item="anvilcraft:pulse_generator"/> set to (Cycle mode | 9gt | 0gt)

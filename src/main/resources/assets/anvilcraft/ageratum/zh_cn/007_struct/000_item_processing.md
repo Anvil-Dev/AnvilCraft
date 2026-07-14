@@ -48,9 +48,10 @@ items:
 - 粉碎变成**掉落物**的方块，完成[方块粉碎](000_block_processing.md)的所有配方，但是存在 **20%** 的损耗
 - 对原版配方的[增产](../008_recipe/001_efficient_recipe.md)
 
+<row>
 <recipe id="anvilcraft:item_crush/armor/diamond_boots_2_diamond"/>
-
 <recipe id="anvilcraft:item_crush/string"/>
+</row>
 
 # 压缩
 

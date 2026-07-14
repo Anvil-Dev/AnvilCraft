@@ -6,7 +6,6 @@ items:
   - anvilcraft:heater
   - anvilcraft:burning_heater
 ---
-<ref item="anvilcraft:burning_heater"/>
 
 # 加热器
 

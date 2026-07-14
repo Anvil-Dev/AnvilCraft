@@ -78,10 +78,10 @@ items:
 
 # 加热方式
 
-|                     加热方式                      |                加热能力                 | 提升时间(s) |
-|:---------------------------------------------:|:-----------------------------------:|:--------|
-|      <ref item="anvilcraft:heater"/>      | <color=#661111>高温</color> | 0.1     |
-| <ref item="anvilcraft:mineral_fountain"/> | <color=#aa2222>红热</color> | 1       |
-|    <ref item="anvilcraft:heliostats"/>    |                 可变                  | 4       |
-|    <ref item="anvilcraft:ruby_laser"/>    |                 可变                  | 0.1     |
-|       [等离子喷流](../007_struct/201_plasma_jets.md)       | <color=#cc5533>炽热</color> | 0.1 / 1 |
+|                                  加热方式                                   |           加热能力            | 提升时间(s) |
+|:-----------------------------------------------------------------------:|:-------------------------:|:--------|
+| <ref item="anvilcraft:heater"/>或<ref item="anvilcraft:burning_heater"/> | <color=#661111>高温</color> | 0.1     |
+|                <ref item="anvilcraft:mineral_fountain"/>                | <color=#aa2222>红热</color> | 1       |
+|                   <ref item="anvilcraft:heliostats"/>                   |            可变             | 4       |
+|                   <ref item="anvilcraft:ruby_laser"/>                   |            可变             | 0.1     |
+|                [等离子喷流](../007_struct/201_plasma_jets.md)                | <color=#cc5533>炽热</color> | 0.1 / 1 |

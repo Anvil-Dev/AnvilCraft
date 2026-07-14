@@ -29,11 +29,13 @@ items:
   5. Falling from a height can trigger the heavy hammer's slam attack
   6. Holding right-click allows it to be thrown like a trident (damage is calculated based on speed, similar to arrows)
   7. When it has the Loyalty enchantment, throwing it into the void will cause it to return to the player
-  8. The Heavy Halberd does not break completely; similar to Elytra, it loses all bonuses, functions, etc.; attack damage becomes 0, most enchantments stop working, and [Ruthless](../001_feature/201_properties.md#无情) from Frost Metal also stops working
+  8. The Heavy Halberd does not break completely; similar to Elytra, it loses all bonuses, functions, etc.; attack damage becomes 0, most enchantments stop working, and [Ruthless](../001_feature/201_properties.md#ruthless) from Frost Metal also stops working
 
 ## Crafting
 
 <recipe id="anvilcraft:heavy_halberd_core"/>
+
+> Crafted at <ref item="anvilcraft:ember_smithing_table"/>
 
 <row halign="center">
 <recipe id="anvilcraft:four_to_one_smithing/ember_metal_heavy_halberd"/>
@@ -42,7 +44,6 @@ items:
 
 # Related
 
-- [Ember Smithing Table](../004_block/221_ember_smithing_table.md)
 - [Ember Metal Tools](../002_material/211_ember_metal.md)
 - [Frost Metal Tools](../002_material/202_frost_metal.md)
 - [Transcendium Tools](../002_material/312_transcendium.md)

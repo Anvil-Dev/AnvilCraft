@@ -29,7 +29,7 @@ items:
 
 ## <ref item="minecraft:cauldron"/>支持
 
-- 管道支持<ref item="minecraft:cauldron"/>，但是<ref item="minecraft:cauldron"/>较为特殊，因为它是分层(250mB)或只有一整锅(1000mB)的形态，需要管道在1gt输入足量的液体才能成功注入，即：输入速度＞250mB/t 或 输入速度＞1000mB/t
+- 管道支持<ref item="minecraft:cauldron"/>，但是<ref item="minecraft:cauldron"/>较为特殊，只能一次输入或输出一整桶液体（1000mB）
 
 # 逆流而上
 

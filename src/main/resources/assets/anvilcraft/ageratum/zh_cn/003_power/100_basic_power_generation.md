@@ -30,7 +30,7 @@ items:
 
 以下方块行为会产生电荷：
 
-- <ref item="minecraft:anvil"/>砸到<ref item="anvilcraft:piezoelectric_crystal"/>
+- <ref item="minecraft:anvil"/>砸到<ref item="anvilcraft:piezoelectric_crystal"/>（一般用这个）或<ref item="anvilcraft:sugar_block"/>
 - 活塞推拉紧邻<ref item="minecraft:copper_block"/>的<ref item="anvilcraft:magnet_block"/>
 - <ref item="minecraft:lightning_rod"/>被雷劈。
 
