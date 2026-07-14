@@ -350,6 +350,12 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         isDraggingLeft = false;
         isDraggingRight = false;
+        if (this.editBox != null && !this.editBox.isMouseOver(mouseX, mouseY)) {
+            this.editBox.setFocused(false);
+            if (this.getFocused() == this.editBox) {
+                this.setFocused(null);
+            }
+        }
         int leftPos = (this.width - this.imageWidth) / 2;
         int topPos = (this.height - this.imageHeight) / 2;
         if (mouseInLeftSlider(mouseX, mouseY, leftPos, topPos) && filteredFilters.size() > 8) {
