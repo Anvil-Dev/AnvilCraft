@@ -40,6 +40,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.pulse_generator.title", "Pulse Generator Settings:");
         provider.add("tooltip.anvilcraft.pulse_generator.delay", "Delay: %s");
         provider.add("tooltip.anvilcraft.pulse_generator.output_duration", "Output Duration: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.remaining_time", "Remaining Time: %s");
 
         provider.add("screen.anvilcraft.filter.scroll_to_change", "Scroll mouse to change count");
         provider.add("screen.anvilcraft.filter.shift_to_scroll_faster", "Hold Shift to scroll faster");

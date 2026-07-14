@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
@@ -12,6 +13,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -33,6 +35,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCrushRecipe>> {
+    private static final String INPUT_BLOCK = "input_block";
+
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -76,10 +80,23 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockCrushRecipe> recipeHolder, IFocusGroup focuses) {
         BlockCrushRecipe recipe = recipeHolder.value();
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-            .addItemStacks(recipe.getFirstInputBlock().getBlocks().stream().map(holder -> new ItemStack(holder.value())).toList());
-        builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-            .addItemStack(new ItemStack(recipe.getFirstResultBlock().state().getBlock()));
+        JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 40, 42, 18, 10, recipe.getFirstInputBlock());
+        JeiBlockIngredientUtil.addSlot(
+            builder,
+            RecipeIngredientRole.OUTPUT,
+            "output_block",
+            100,
+            42,
+            20,
+            10,
+            recipe.getFirstResultBlock().state().getBlock()
+        );
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder, RecipeHolder<BlockCrushRecipe> recipeHolder, IFocusGroup focuses) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
@@ -104,8 +121,8 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         renderInput: {
             List<BlockState> input = recipe.value().getFirstInputBlock().constructStatesForRender();
             if (input.isEmpty()) break renderInput;
-            BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-            if (renderedState == null) break renderInput;
+            BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, INPUT_BLOCK, input)
+                .orElse(input.getFirst());
             RenderSupport.renderBlock(guiGraphics, renderedState, 50, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
         }
 

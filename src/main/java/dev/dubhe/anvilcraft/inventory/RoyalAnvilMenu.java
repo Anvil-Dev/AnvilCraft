@@ -134,6 +134,7 @@ public class RoyalAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
     protected void onTake(Player player, ItemStack stack) {
         super.onTake(player, stack);
         if (this.openedHammerSource != null) {
+            this.openedHammerSource.damage();
             HammerOpenedAnvilMenuHelper.playUseSound(player);
         }
         this.closeIfOpenedHammerMoved();
