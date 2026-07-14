@@ -111,11 +111,12 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, ModDispenserBehavior::resinBlock);
         DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);
 
-        // 特殊桶：油桶、水泥桶等（走原版空容器排放逻辑）
-        DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, DISPENSIBLE_BUCKET);
-        DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, DISPENSIBLE_BUCKET);
+        // 特殊桶：优先与流体容器交互，失败后走原版排放逻辑
+        DispenserBlock.registerBehavior(ModItems.EXP_BUCKET, wrapFluidInteraction(DISPENSIBLE_BUCKET));
+        DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, wrapFluidInteraction(DISPENSIBLE_BUCKET));
+        DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, wrapFluidInteraction(DISPENSIBLE_BUCKET));
         for (ItemEntry<BucketItem> cementBucket : ModItems.CEMENT_BUCKETS.values()) {
-            DispenserBlock.registerBehavior(cementBucket, DISPENSIBLE_BUCKET);
+            DispenserBlock.registerBehavior(cementBucket, wrapFluidInteraction(DISPENSIBLE_BUCKET));
         }
 
         // 通用流体物品：FluidHandlerWrapper 优先，失败回退原版
