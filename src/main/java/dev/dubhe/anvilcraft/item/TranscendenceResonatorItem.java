@@ -25,7 +25,6 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -225,7 +224,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
 
     static boolean canResonanceMine(BlockState state, Level level, BlockPos pos) {
         if (state.isAir()) return false;
-        return state.is(Blocks.BEDROCK) || state.getDestroySpeed(level, pos) >= 0.0f;
+        return state.getDestroySpeed(level, pos) >= 0.0f;
     }
 
     private record MiningTarget(
