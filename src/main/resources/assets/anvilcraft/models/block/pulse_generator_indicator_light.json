@@ -3,8 +3,8 @@
 	"credit": "Made for AnvilCraft",
 	"ambientocclusion": false,
 	"textures": {
-		"particle": "anvilcraft:block/red_cement",
-		"indicator": "anvilcraft:block/red_cement"
+		"particle": "block/redstone_block",
+		"indicator": "block/redstone_block"
 	},
 	"elements": [
 		{
