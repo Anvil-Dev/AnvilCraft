@@ -277,7 +277,6 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.CAPACITOR_EMPTY.asItem(), "8 MFE capacity");
         NORMAL.put(ModItems.SUPER_CAPACITOR.asItem(), "160 MFE stored");
         NORMAL.put(ModItems.SUPER_CAPACITOR_EMPTY.asItem(), "160 MFE capacity");
-        NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
         NORMAL.put(ModItems.HEAVY_HALBERD_CORE.get(), "Material for crafting the Heavy Halberd");
         NORMAL.put(ModItems.RESONATOR_CORE.get(), "Material for crafting the Resonator");
         NORMAL.put(ModBlocks.BLACK_HOLE.asItem(), "Dev Block with intense gravitational attraction");
@@ -307,6 +306,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.SPECTRAL_ANVIL.asItem(), "Creates phantom shadows when the upper magnet is demagnetized");
         NORMAL.put(ModBlocks.BLOCK_PLACER.asItem(), "Places blocks in front when powered by redstone");
         NORMAL.put(ModBlocks.STRUCTURE_SCANNER.asItem(), "Scans and stores structures in Structure Disk");
+        NORMAL.put(ModItems.STRUCTURE_DISK.get(), "Stores structure data, used in blueprint mode of Smart Block Placer");
         NORMAL.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), "Advanced block placer with 5x5x5 configurable placement area");
         NORMAL.put(ModBlocks.FISH_TANK.asItem(), "Used for anvil synthesis and provides underwater breathing when worn");
         NORMAL.put(ModBlocks.BLOCK_DEVOURER.asItem(), "Breaks 3×3 area of blocks in front when powered by redstone");
@@ -365,6 +365,72 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.PENROSE_SPHERE_COMPONENT.get(), "Material for building a Penrose Sphere, used in the Celestial Forging Anvil");
         NORMAL.put(ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), "Material for building a Matter Decompressor, used in the Celestial Forging Anvil");
         NORMAL.put(ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), "Material for building a Wormhole Stabilizer, used in the Celestial Forging Anvil");
+        NORMAL.put(ModBlocks.REDSTONE_WIRE.asItem(), "Transmit redstone signals more precisely");
+        NORMAL.put(ModBlocks.TRADING_STATION.asItem(), "Trading platform for players and villagers");
+        NORMAL.put(ModBlocks.LARGE_LASER.asItem(), "Equivalent to 16 lasers, outputs 16 intensity levels of laser, consumes 256 kW");
+        NORMAL.put(ModBlocks.SUGAR_BLOCK.asItem(), "A large block of sugar . Also a piezoelectric crystal, but seems fragile");
+        NORMAL.put(
+            ModBlocks.FLINT_BLOCK.asItem(), """
+            A large block of flint
+            When pushed or pulled by a piston, it creates fire around it if an iron block is nearby""");
+
+        NORMAL.put(
+            ModBlocks.GUNPOWER_BLOCK.asItem(), """
+            A large block of gunpowder
+            If struck by a falling anvil, it explodes and launches the anvil back up to the height it fell from""");
+
+        NORMAL.put(
+            ModBlocks.ROTTEN_FLESH_BLOCK.asItem(), """
+            A large block of rotten flesh
+            It cushions fall damage, but landing on it will make you nauseous for 30 seconds
+            Can also be smelted into Netherrack""");
+
+        NORMAL.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), "Data disk for storing extreme celestial data from the Celestial Forging Anvil");
+
+
+        NORMAL.put(ModItems.LASER_GUN.get(), "Hold right-click to consume power and fire a laser that grows increasingly powerful");
+        NORMAL.put(ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), "Hold right-click to consume power and fire a corruption beam");
+        NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs.");
+        NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to consumes power to charge up and launch a high-speed anvil");
+        NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons.");
+        NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "Crafts energy weapons.");
+
+        SHIFT.put(
+            ModItems.LASER_GUN.get(), """
+                The laser damages mobs and can also mine blocks
+                Charging longer increases damage, but watch out for overheating!
+                Enchanting the laser gun alters its beam behavior""");
+
+        SHIFT.put(
+            ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), """
+                Fires a beam of corruption that pierces through targets, dealing damage and inflicting Wither
+                It passes through glass and does not convert mobs
+                Enchanting the Corrupted Beacon Exciter boosts the beam's damage""");
+
+        SHIFT.put(
+            ModItems.TESLA_GUN.get(), """
+                Fires chain lightning that arcs between up to 4 mobs, dealing reduced damage with each bounce
+                The lightning can convert mobs, and lightning rods will also be targeted
+                Each strike is followed by a cooldown, which can be shortened by enchanting the Tesla Gun""");
+
+        SHIFT.put(
+            ModItems.ANVIL_RAILGUN.get(), """
+                Hold right-click to load an anvil from your offhand into the railgun
+                Then hold right-click again to charge up, and release to launch the anvil
+                Longer charging results in higher speed and damage
+                Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior.""");
+
+        SHIFT.put(
+            ModItems.SPECTRAL_SLINGSHOT.get(), """
+                Hold right-click to load your offhand weapon into the Spectral Slingshot
+                Once loaded, right-click again to fire a spectral copy of that weapon, dealing damage
+                Each shot has a cooldown, which can be reduced by enchanting the launcher""");
+
+        SHIFT.put(
+            ModItems.ENERGY_WEAPON_PLATFORM.get(), """
+                640 MFE stored, but will only inherit the result of Energy Weapon Making
+                Can be crafted with different materials to create various energy weapons
+                Consumes capacitors to restore power""");
 
         SHIFT.put(
             ModItems.CHECK_VALVE.get(), """
@@ -437,6 +503,18 @@ public class ItemTooltipManager {
             "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
         );
         SHIFT.put(
+            ModItems.EMBER_DRAGON_ROD.asItem(),
+            "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
+        );
+        SHIFT.put(
+            ModItems.ROYAL_DRAGON_ROD.asItem(),
+            "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
+        );
+        SHIFT.put(
+            ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(),
+            "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
+        );
+        SHIFT.put(
             ModItems.PILL_BOX.asItem(),
             "Store pills, right-click to take one pill each, and press [%s] to use them in the inventory"
         );
@@ -481,6 +559,19 @@ public class ItemTooltipManager {
                 Draining: when more than 1 B is stored and there is space below, outputs fluid downward and fills the entire space from the bottom up
                 Suction: when less than 3 B is stored and the same fluid is above, draws fluid from above and can empty the entire space above
                 Does not interact with fluid at the same height; fluid can be stored for free only when it forms an infinite source"""
+        );
+
+        SHIFT.put(ModBlocks.REDSTONE_WIRE.asItem(), """
+                It can be attached to any full face of a block,
+                only inputs and outputs redstone signals at its breaks (ends)
+                The redstone signal level does not decay within the wire,
+                and the wire will not output the signal received from redstone dust back to redstone dust.""");
+
+        SHIFT.put(
+            ModBlocks.TRADING_STATION.asItem(), """
+                Can be set to trade with players or villagers.
+                Villagers will actively trade with stations that have valid offers and fair prices.
+                Has 12 slots for temporary item storage."""
         );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
