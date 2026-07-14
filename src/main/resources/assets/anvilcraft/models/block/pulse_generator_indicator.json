@@ -1,36 +1,18 @@
 {
+	"format_version": "1.9.0",
 	"credit": "Made for AnvilCraft",
 	"ambientocclusion": false,
+	"render_type": "minecraft:cutout",
 	"textures": {
-		"outline": "anvilcraft:block/black_cement",
-		"particle": "anvilcraft:block/red_cement",
-		"indicator": "anvilcraft:block/red_cement"
+		"2": "anvilcraft:block/pulse_generator_inner"
 	},
 	"elements": [
 		{
-			"from": [7.75, 8.02, 6.5],
-			"to": [8.25, 8.16, 9.5],
+			"from": [5, 7.75, 6.5],
+			"to": [11, 7.75, 12.5],
 			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 4, 5]},
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#outline"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#outline"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#outline"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#outline"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#outline"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#outline"}
-			}
-		},
-		{
-			"from": [7.875, 8.16, 6.625],
-			"to": [8.125, 8.34, 9.5],
-			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 4, 5]},
-			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#indicator"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#indicator"}
+				"up": {"uv": [1, 1, 7, 7], "rotation": 90, "texture": "#2"}
 			}
 		}
 	]
